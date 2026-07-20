@@ -1,0 +1,2528 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Pipeline 成熟度与行业最佳实践对齐修复 Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Pipeline 成熟度与行业最佳实践对齐修复 Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Pipeline 成熟度与行业最佳实践对齐修复 Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pipeline-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Pipeline 成熟度与行业最佳实践对齐修复 Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-2026-07-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 审计结论（2026-07-15）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 本 Spec 修复范围
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 总体策略
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 总体策略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 实施原则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 依赖链
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 每个 Step 的验证标准
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 执行后端决策
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 执行后端决策">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 现状
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-2026-07-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 本机环境调研（2026-07-16）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-openai-api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 决策：以 OpenAI 兼容 API 为主执行后端
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-openai" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 兼容 OpenAI 接口的可用服务
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. P0 — 阻断正确性
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. P0 — 阻断正确性">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-p01-phase_runner" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P0.1: phase_runner 死路径
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p02-shenbi-progress" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P0.2: shenbi-progress 脚本未注册
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p03-rollback-stub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P0.3: rollback stub 移除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p04-codex_api" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P0.4: codex_api 死分支移除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P0.5: 端到端真实运行（根治"未经验证"）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. P1 — 工程实践对齐行业最佳实践
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. P1 — 工程实践对齐行业最佳实践">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-p12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.2: 评分独立性强化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p13-regex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.3: 结构化输出替代 regex 解析
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p14-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.4: LLM 调用层重试 + 指数退避
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.5: 流式输出
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p16-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.6: 按 skill 级温度/模型配置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p18-golden-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.8: Golden set + 人工评分校准
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P1.9: 双状态机文档消歧
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. P2 — 一致性与清理
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. P2 — 一致性与清理">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#step-p21-cjk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.1: CJK 编码健壮性
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p22-severity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.2: severity 枚举统一
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.3: 死常量清理 + 阈值单一源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p24-contractslegacypy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.4: contracts/legacy.py 去伪标注
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p25-deferred-pass-stub" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.5: deferred PASS stub 透明化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#step-p26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Step P2.6: 文档漂移修正
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-structure-678" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Structure 6/7/8 合并深挖
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. Structure 6/7/8 合并深挖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-skillstructure-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 孤儿 skill（Structure #6）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-legacy-structure-7-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 死常量 + legacy 伪标注（Structure #7 + #8）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 验收标准
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 验收标准">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 P0 验收（阻断修复）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 P1 验收（工程实践）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 P2 验收（一致性）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#84" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.4 最终验收（里程碑）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 超出范围（Out of Scope）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 风险与缓解
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pipeline-spec">Pipeline 成熟度与行业最佳实践对齐修复 Spec</h1>
+<blockquote>
+<p><strong>日期:</strong> 2026-07-16
+<strong>状态:</strong> 设计中
+<strong>前置:</strong>
+- <code>docs/superpowers/specs/2026-07-01-novel-pipeline-design.md</code>（原始 pipeline 设计）
+- <code>docs/superpowers/specs/2026-07-06-pipeline-phase1-defect-fix-design.md</code>（Phase 1 阻塞缺陷修复）
+- <code>docs/superpowers/specs/2026-07-02-novel-pipeline-root-cause-fixes-design.md</code>（根因分析）
+<strong>目的:</strong> 基于 2026-07-15 的全量审计（5 个并行分析 agent + 代码逐行核实），系统化修复 Pipeline 的阻断性缺陷、对齐 LLM 工程行业最佳实践、清理一致性债务，使 Pipeline 从"未经验证的精密框架"转变为"可审计、可复现、可生产"的成熟系统。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 背景</h2>
+<h3 id="11-2026-07-15">1.1 审计结论（2026-07-15）</h3>
+<p>对 Shenbi 仓库进行了 5 个并行 agent 的深度审计 + 主 agent 的逐行代码核实，核心发现：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评分</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>架构与工程严谨度</td>
+<td>91/100</td>
+<td>585 commits / 5 周，1875 单元测试，类型化状态机，8 门控，原子写</td>
+</tr>
+<tr>
+<td>小说创作领域设计</td>
+<td>93/100</td>
+<td>6 层分层记忆、Chase Power 伏笔经济、20 审评分权分离</td>
+</tr>
+<tr>
+<td>真实产出完整小说的证据</td>
+<td>~45/100</td>
+<td><code>novel-output/</code> 空、<code>tests/rounds/</code> 被删、<code>.gitignore</code> 抑制所有真实输出</td>
+</tr>
+<tr>
+<td>证据可信度</td>
+<td>40/100</td>
+<td>伪章节 fixture、删档前科（"幻影数据"）、610 处空字符串 mock</td>
+</tr>
+<tr>
+<td>生产就绪度</td>
+<td>60/100</td>
+<td>dispatch 真实可用但存在死路径 bug、rollback stub、未注册脚本</td>
+</tr>
+</tbody>
+</table>
+<p><strong>核心矛盾：</strong> 这是一个 91 分的架构包裹着一个 45 分的未验证内核。585 commits 完善门控/契约/状态机——而仓库内不存在任何一本完整产出的小说。</p>
+<h3 id="12-spec">1.2 本 Spec 修复范围</h3>
+<p>本 Spec 涵盖三类共 20 项修复（P0 阻断 5 + P1 工程实践 9 + P2 一致性 6），来源于审计报告的：</p>
+<ul>
+<li><strong>§3 Gaps &amp; Consistent Issues</strong>：Critical #1-5、Structure #6-8、Consistency #9-11</li>
+<li><strong>§5 What It Does Bad</strong>：第 2-8 项（第 1 项"从未产出小说"由 P0.5 根治）</li>
+<li><strong>§6 What Doesn't Follow Industry Best Practice</strong>：第 1-10 项</li>
+</ul>
+<hr />
+<h2 id="2">2. 总体策略</h2>
+<h3 id="21">2.1 实施原则</h3>
+<p><strong>每次只改一个缺陷，改完立即验证（<code>just check</code>），验证通过才进入下一个。</strong></p>
+<p>延续 Phase 1 的 Toyota Kata 持续改进方法。P0 阶段每项修复后必须全量门控通过；P1/P2 阶段每项修复后必须对应模块测试 + 全量门控通过。</p>
+<p><strong>三条铁律（延续项目"三不原则"）：</strong>
+1. 不跳过门控
+2. 不手写 mock 替代真实 skill 输出
+3. 不将 Dispatcher 评分当作独立评分</p>
+<h3 id="22">2.2 依赖链</h3>
+<div class="highlight"><pre><span></span><code>执行后端决策（已定：OpenAI 兼容 API 为主）
+    ↓
+┌─ P0.1 (phase_runner 死路径)      ─┐
+│  P0.2 (shenbi-progress 未注册)    │ 四者全部独立，可并行
+│  P0.3 (rollback stub 移除)        │
+└─ P0.4 (codex_api 死分支)         ─┘
+    ↓ （P0.1-4 全部修复后）
+P0.5 (端到端真实运行)              ← 依赖 P0.1-4 + 执行后端就绪
+    ↓ 产生第一个可审计产物
+P1.3 (结构化输出) → P1.4 (重试) → P1.5 (流式) → P1.6 (温度配置)
+    ↓ 这四项共同构成&quot;生产级 API executor&quot;
+P1.2 (评分独立性) ← 依赖执行后端决策
+P1.8 (golden set) ← 依赖 P0.5 的真实产出
+P1.9 (双状态机文档) ← 独立
+    ↓
+P2.1-P2.6 (一致性清理) ← 大部分独立，可并行
+    ↓
+最终验收：端到端跑通 + 全量门控 + 可审计产物提交
+</code></pre></div>
+<h3 id="23-step">2.3 每个 Step 的验证标准</h3>
+<div class="highlight"><pre><span></span><code>改 1 个缺陷 → 跑该模块单元测试 → 跑全量 just check → （P0/P1 关键项）跑金丝雀章节
+</code></pre></div>
+<p>任一阶段失败即停止，不允许带着已知失败进入下一步。</p>
+<hr />
+<h2 id="3">3. 执行后端决策</h2>
+<h3 id="31">3.1 现状</h3>
+<p>Pipeline 的 <code>dispatch_helper.dispatch_skill</code>（<code>src/shenbi/pipeline/dispatch_helper.py:545-604</code>）有三条路由，按优先级：</p>
+<ol>
+<li><strong>API 路径</strong>（<code>:565-566</code>）：<code>SHENBI_LLM_API_KEY</code> 已设置 → <code>_dispatch_via_api</code> 调 <code>openai.OpenAI</code>（默认 <code>https://api.deepseek.com/v1</code> + <code>deepseek-v4-pro</code>）</li>
+<li><strong>IDE CLI 路径</strong>（<code>:569-570</code>）：<code>_find_ide_cli()</code> 返回 <code>codex</code>/<code>zcode</code> → <code>_dispatch_via_ide</code> 子进程</li>
+<li><strong>Legacy CLI 路径</strong>（<code>:582-604</code>）：<code>shenbi-dispatch</code> 子进程</li>
+</ol>
+<h3 id="32-2026-07-16">3.2 本机环境调研（2026-07-16）</h3>
+<table>
+<thead>
+<tr>
+<th>CLI</th>
+<th>状态</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>codex</code></td>
+<td>✓ <code>/opt/homebrew/bin/codex</code>（0.144.1）</td>
+<td><code>codex exec</code> 支持 <code>--skip-git-repo-check</code>、<code>-c</code> 配置覆盖</td>
+</tr>
+<tr>
+<td><code>claude</code></td>
+<td>✓ <code>/opt/homebrew/bin/claude</code></td>
+<td>支持 <code>-p/--print</code> headless + <code>--output-format=stream-json</code></td>
+</tr>
+<tr>
+<td><code>zcode</code></td>
+<td>✗ 未安装</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>ollama</code></td>
+<td>✗ 未安装</td>
+<td>无本地模型</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-openai-api">3.3 决策：以 OpenAI 兼容 API 为主执行后端</h3>
+<p><strong>结论：</strong> 生产路径走 API，codex/claude CLI 仅作本地开发兜底。</p>
+<p><strong>依据（API 路径 vs CLI 子进程对比）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>codex/claude CLI 子进程</th>
+<th>OpenAI 兼容 API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>输出解析</td>
+<td>regex 抓 <code>### FILE:</code> 标记（<code>dispatch_helper.py:272-291</code>），脆弱</td>
+<td>JSON mode + Pydantic 解析（P1.3）</td>
+</tr>
+<tr>
+<td>重试/退避</td>
+<td>只在门控层重试（昂贵）</td>
+<td>调用层 tenacity 退避（P1.4）</td>
+</tr>
+<tr>
+<td>流式</td>
+<td>不支持</td>
+<td>stream=True，可早停/反馈（P1.5）</td>
+</tr>
+<tr>
+<td>温度/模型控制</td>
+<td>硬编码全局 0.7</td>
+<td>按 skill 级配置（P1.6）</td>
+</tr>
+<tr>
+<td>可观测</td>
+<td>子进程黑盒，stdout 抓取</td>
+<td>每次 request 有 latency/token/usage（见 §9：留作未来 spec）</td>
+</tr>
+<tr>
+<td>成本追踪</td>
+<td>无法获取 token usage</td>
+<td>response 含 <code>usage</code> 字段（见 §9：留作未来 spec）</td>
+</tr>
+<tr>
+<td>评分独立性</td>
+<td>同进程族，agent_id 形式独立</td>
+<td>真正可分离 session（P1.2）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>保留 CLI 作为兜底的理由：</strong> 本地无 API key 时的开发/测试仍需可运行。<code>_find_ide_cli()</code> 增加 <code>claude</code> 探测（codex 优先，claude 次之）。</p>
+<h3 id="34-openai">3.4 兼容 OpenAI 接口的可用服务</h3>
+<table>
+<thead>
+<tr>
+<th>服务</th>
+<th>BASE_URL</th>
+<th>模型示例</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DeepSeek</td>
+<td><code>https://api.deepseek.com/v1</code></td>
+<td><code>deepseek-v4-pro</code>（默认）</td>
+</tr>
+<tr>
+<td>MiniMax</td>
+<td><code>https://api.minimax.chat/v1</code></td>
+<td><code>M3</code></td>
+</tr>
+<tr>
+<td>智谱 GLM</td>
+<td><code>https://open.bigmodel.cn/api/paas/v4</code></td>
+<td><code>glm-4-plus</code></td>
+</tr>
+<tr>
+<td>Moonshot Kimi</td>
+<td><code>https://api.moonshot.cn/v1</code></td>
+<td><code>moonshot-v1-128k</code></td>
+</tr>
+<tr>
+<td>OpenAI</td>
+<td><code>https://api.openai.com/v1</code></td>
+<td><code>gpt-4o</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-p0">4. P0 — 阻断正确性</h2>
+<blockquote>
+<p><strong>目标：</strong> 修复使 Pipeline 无法跑通的死代码与 stub。P0 全部完成后才能进行 P0.5 端到端运行。</p>
+</blockquote>
+<h3 id="step-p01-phase_runner">Step P0.1: phase_runner 死路径</h3>
+<p><strong>文件:</strong> <code>src/shenbi/phase_runner.py:54-66</code>、<code>src/shenbi/scoring.py:303,332</code></p>
+<p><strong>问题:</strong> <code>run_gate()</code> 子进程调用 <code>tests/validate-gate.py</code>（<code>:56</code> <code>vg = str(TESTS / "validate-gate.py")</code>），但该文件在 PR-19 迁移到 <code>src/shenbi/gates/</code> 后<strong>已从磁盘删除</strong>。<code>except (JSONDecodeError, ValueError)</code>（<code>:65</code>）不捕获 <code>FileNotFoundError</code> → <code>shenbi-phase start/pre-skill/post-skill/finalize</code> 全部会崩溃。</p>
+<p><code>scoring.py:303</code>（<code>--gate-only</code> 模式）和 <code>:332</code>（T1 gate 集成）构造同样的死路径。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># phase_runner.py:54-66（当前）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_gate</span><span class="p">(</span><span class="n">gate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">TESTS</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>  <span class="c1"># ← 文件不存在</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="n">vg</span><span class="p">,</span> <span class="n">gate</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">):</span>  <span class="c1"># ← 不捕获 FileNotFoundError</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>修复:</strong> 改调 <code>python -m shenbi.gates.cli</code>（与 <code>dispatch_helper.run_gate_g3/g4</code> 一致）。</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_gate</span><span class="p">(</span><span class="n">gate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi.gates.cli&quot;</span><span class="p">,</span> <span class="n">gate</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">SubprocessError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span> <span class="s2">&quot;raw_stdout&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="s2">&quot;raw_stderr&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">}</span>
+</code></pre></div>
+<p><code>scoring.py:303,332</code> 同理修改：把 <code>tests/validate-gate.py</code> 路径替换为 <code>python -m shenbi.gates.cli</code>。</p>
+<p><strong>依赖链:</strong> 无前置；P0.5 端到端运行的前置。</p>
+<p><strong>验证:</strong>
+- <code>shenbi-phase start &lt;phase&gt; --round-dir &lt;dir&gt;</code> 不再 FileNotFoundError
+- 单元测试：mock subprocess，验证调用目标是 <code>shenbi.gates.cli</code>
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p02-shenbi-progress">Step P0.2: shenbi-progress 脚本未注册</h3>
+<p><strong>文件:</strong> <code>src/shenbi/dispatcher/modes/codex.py:85</code>、<code>pyproject.toml:55-65</code></p>
+<p><strong>问题:</strong> <code>codex.py:85</code> 调用 <code>uv run shenbi-progress mark-done</code>，但 <code>pyproject.toml [project.scripts]</code> 仅注册了 <code>shenbi-validate/dispatch/score/phase/sync-contracts/generate-plugins</code>——<strong><code>shenbi-progress</code> 不存在</strong>。codex 模式 dispatch 会在该子进程失败。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># codex.py:82-89（当前）</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;uv&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-progress&quot;</span><span class="p">,</span> <span class="s2">&quot;mark-done&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="o">...</span><span class="p">],</span>  <span class="c1"># ← 未注册</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>修复:</strong> 优先核实 <code>mark-done</code> 功能是否已被 <code>progress.json</code> 写入逻辑替代。</p>
+<ul>
+<li><strong>若已替代</strong>（预期）：删除 <code>codex.py:82-89</code> 的子进程调用，改由 codex 模式内部直接更新 <code>progress.json</code>（复用 <code>dispatcher/executor.py</code> 已有的 progress 写入逻辑）</li>
+<li><strong>若未替代</strong>：在 <code>pyproject.toml</code> 注册 <code>shenbi-progress = "shenbi.dispatcher.progress:main"</code> 并实现该模块</li>
+</ul>
+<p><strong>依赖链:</strong> 无前置；影响 codex 模式（本地开发兜底），不影响 API 主路径。</p>
+<p><strong>验证:</strong>
+- codex 模式 dispatch 不再因该子进程失败
+- <code>uv run shenbi-dispatch &lt;skill&gt; generative &lt;round&gt; "&lt;prompt&gt;"</code>（codex 模式）端到端跑通
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p03-rollback-stub">Step P0.3: rollback stub 移除</h3>
+<p><strong>文件:</strong> <code>src/shenbi/pipeline/cli.py:12,784-798,839-842</code></p>
+<p><strong>问题:</strong> <code>cmd_rollback</code>（<code>:784-798</code>）返回 <code>{"status": "not_implemented"}</code>，但 CLI docstring（<code>:12</code>）和 subparser 注册（<code>:839-842</code>）广告该命令——用户会被误导以为可用。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># cli.py:784-798（当前）</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">cmd_rollback</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="o">...</span>
+    <span class="n">emit_json</span><span class="p">({</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;not_implemented&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="s2">&quot;Rollback requires snapshot integration (Wave 3/4)&quot;</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="mi">0</span>  <span class="c1"># ← 返回 0（成功）更具误导性</span>
+</code></pre></div>
+<p><strong>修复:</strong> P0 阶段移除 CLI 注册，避免误导。真正的 snapshot 回滚实现列入 P1（基于 <code>snapshots/manifest.json</code>）。</p>
+<ul>
+<li>删除 <code>cli.py:839-842</code> 的 <code>p_rollback</code> subparser 注册</li>
+<li>删除 <code>cli.py:12</code> docstring 中的 <code>rollback</code> 行</li>
+<li><code>cmd_rollback</code> 函数保留但标注 <code># TODO(P1): implement rollback via snapshots/manifest.json</code>，改为返回非零退出码 + 明确错误</li>
+</ul>
+<p><strong>依赖链:</strong> 无前置；独立。</p>
+<p><strong>验证:</strong>
+- <code>pipeline --help</code> 不再显示 rollback
+- 直接调用 <code>pipeline rollback ...</code> 返回明确错误（非 0、非"成功"）
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p04-codex_api">Step P0.4: codex_api 死分支移除</h3>
+<p><strong>文件:</strong> <code>src/shenbi/dispatcher/modes/codex_api.py:13-15</code>、<code>src/shenbi/dispatcher/executor.py:237-240,164-174</code></p>
+<p><strong>问题:</strong> <code>codex_api.py</code> 是 <code>NoReturn</code> raise stub，但 <code>executor.py:237-240</code> 广告该路由选项。<code>detect_mode()</code>（<code>:164-174</code>）只返回 <code>"codex"</code> 或 <code>"internal"</code>——<strong><code>codex-api</code> 分支永远不可达</strong>。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># executor.py:237-240（当前，死代码）</span>
+<span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;codex-api&quot;</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes.codex_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_codex_api</span>
+    <span class="k">return</span> <span class="n">dispatch_codex_api</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>  <span class="c1"># ← 永不执行</span>
+</code></pre></div>
+<p><strong>修复:</strong> 移除死分支。</p>
+<ul>
+<li><code>executor.py:237-240</code>：删除 <code>codex-api</code> 分支</li>
+<li><code>executor.py:164-174</code>（<code>detect_mode</code>）：确认只返回 codex/internal</li>
+<li><code>codex_api.py</code>：保留文件但顶部标注 <code># DEPRECATED: superseded by unified API executor (P1.3). Remove in next minor.</code></li>
+</ul>
+<p><strong>依赖链:</strong> 无前置；独立。与执行后端决策（§3）一致——API 路径由 <code>dispatch_helper._dispatch_via_api</code> 承担，不需独立的 codex_api 模式。</p>
+<p><strong>验证:</strong>
+- grep 确认无代码路径可达 <code>dispatch_codex_api</code>
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p05">Step P0.5: 端到端真实运行（根治"未经验证"）</h3>
+<p><strong>文件:</strong> <code>.gitignore</code>、<code>novel-output/</code>（新建）、<code>run_pipeline.sh</code></p>
+<p><strong>问题:</strong> <code>novel-output/</code> 空、<code>tests/rounds/</code> 被删（commit <code>b978d3cc</code>）、<code>.gitignore</code> 抑制所有真实 round 输出和 per-skill 报告。此前还有"幻影数据"前科（<code>goal-prompt.md</code>："Round 005 已废弃（含幻影 T2/T3 数据）"）。<strong>这是整个项目的核心缺陷——没有可审计的真实产出。</strong></p>
+<p><strong>修复:</strong> 用 <code>outline-example.md</code>（星火燃穹）跑一次完整 Pipeline，覆盖性提交全部中间产物。</p>
+<ol>
+<li>
+<p><strong><code>.gitignore</code> 加例外：</strong>
+   <div class="highlight"><pre><span></span><code># 允许 novel-output/ 的真实产出提交（可审计性）
+!novel-output/
+!novel-output/**
+</code></pre></div>
+   （<code>tests/rounds/</code> 的抑制策略保持不变——pipeline 产物走 <code>novel-output/</code>，不走 rounds）</p>
+</li>
+<li>
+<p><strong>配置执行后端：</strong> 设置 <code>SHENBI_LLM_API_KEY</code> + <code>SHENBI_LLM_BASE_URL</code> + <code>SHENBI_LLM_MODEL</code>（见 §3.4）</p>
+</li>
+<li>
+<p><strong>执行：</strong>
+   <div class="highlight"><pre><span></span><code>just<span class="w"> </span>pipeline-init<span class="w"> </span>outline-example.md<span class="w"> </span>./novel-output/xinghuo-ranqiong<span class="w"> </span>--auto
+just<span class="w"> </span>pipeline-resume<span class="w"> </span>./novel-output/xinghuo-ranqiong<span class="w">  </span><span class="c1"># 重复直到 completed</span>
+just<span class="w"> </span>pipeline-status<span class="w"> </span>./novel-output/xinghuo-ranqiong
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>可审计产物清单（必须提交）：</strong></p>
+</li>
+<li><code>pipeline-state.json</code>（最终状态）</li>
+<li><code>genesis/</code> 全部产物（story_bible、characters、outline 等）</li>
+<li><code>chapters/chapter-N.md</code>（至少 N 章，目标完整）</li>
+<li><code>truth/</code> 全部 truth 文件</li>
+<li><code>audits/chapter-N-*.md</code>（全部审核报告）</li>
+<li><code>gate-markers/</code>（G4/G6 markers）</li>
+</ol>
+<p><strong>依赖链:</strong> P0.1-4 全部修复 + 执行后端就绪。<strong>这是整个 spec 的里程碑——产出第一个可审计的真实小说。</strong></p>
+<p><strong>验证:</strong>
+- <code>novel-output/xinghuo-ranqiong/</code> 存在且含上述产物
+- <code>pipeline-status</code> 显示 <code>phase: completed</code>
+- G6（pipeline 完整性）通过
+- README 链接到该运行（作为"已验证"证据）
+- 若中途失败：记录失败点，修复后继续（不伪造结果）</p>
+<p><strong>风险与缓解:</strong>
+- <strong>API 成本：</strong> 100k 字小说可能消耗显著 token。缓解：先用 <code>--auto</code> 跑 5 章金丝雀，确认稳定后再跑全量；手动监控用量（成本预算强制留作未来 spec，见 §9）
+- <strong>中途失败：</strong> Pipeline 是 resumable（<code>pipeline-state.json</code> 持久化），失败可 resume
+- <strong>产出质量不达标：</strong> 这是预期的——P0.5 的目标是"跑通"而非"完美"，质量问题由后续 P1.8（golden set）系统化处理</p>
+<hr />
+<h2 id="5-p1">5. P1 — 工程实践对齐行业最佳实践</h2>
+<blockquote>
+<p><strong>目标：</strong> 使 Pipeline 的 LLM 工程层达到生产级。这些是 §6（What Doesn't Follow Industry Best Practice）的系统化修复。</p>
+<p><strong>P1.1（可观测性）与 P1.7（成本预算）已从本 Spec 移除，留作未来独立 spec。</strong> 见 §9 超出范围。</p>
+</blockquote>
+<hr />
+<h3 id="step-p12">Step P1.2: 评分独立性强化</h3>
+<p><strong>文件:</strong> <code>src/shenbi/dispatcher/modes/internal.py</code>、<code>src/shenbi/gates/g3.py</code>、<code>src/shenbi/gates/g3_independence.py</code></p>
+<p><strong>现状（已实现，勿重写）:</strong> G3.4 已通过 <code>scoring_independence_status()</code>（<code>g3_independence.py</code>）实现 <strong>fail-closed</strong> 逻辑：缺 <code>current_scorer_agent</code> 证据 → FAIL；生成 agent == 评分 agent → FAIL；否则 PASS。该函数已接线进 <code>gate_G3</code>（g3.py G3.4 分支）。<strong>这一层不需改动——它已经是正确的。</strong></p>
+<p><strong>残留问题（本 Step 修复目标）:</strong></p>
+<ol>
+<li>
+<p><strong>internal 模式空转：</strong> <code>internal.py</code>（<code>dispatcher/modes/internal.py</code>）返回成功但不产出任何评分文件，日志写 <code>"Dispatcher completes scoring manually"</code>——<strong>它静默放过评分</strong>，违反"三不原则"。当 <code>detect_mode()</code> 回落到 internal 时（无 API key、无 codex），评分环节被无声跳过。</p>
+</li>
+<li>
+<p><strong>pipeline 路径不写 progress.json：</strong> G3.4 的 fail-closed 逻辑依赖 <code>progress.json</code> 中的 <code>current_scorer_agent</code> 字段。若 pipeline dispatch 路径（<code>dispatch_helper.py</code>）不写该字段，G3.4 会因缺证据而 FAIL——但 pipeline 模式当前跳过 G2/G3（见 <code>executor.py:227-228</code>），因此独立性从未被验证。</p>
+</li>
+</ol>
+<p><strong>修复:</strong></p>
+<ol>
+<li>
+<p><strong>internal 模式硬拒绝评分（而非静默放过）：</strong>
+   <div class="highlight"><pre><span></span><code><span class="c1"># internal.py — 改为硬拒绝，而非返回 0 + &quot;manually&quot; 日志</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">dispatch_internal</span><span class="p">(</span><span class="o">...</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">DispatcherError</span><span class="p">(</span>
+        <span class="s2">&quot;internal 模式无 LLM 后端，不得用于评分/生成。请设置 SHENBI_LLM_API_KEY&quot;</span>
+        <span class="s2">&quot;（API 路径）或安装 codex CLI 以获得真实执行 + 独立评分。&quot;</span>
+    <span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>pipeline dispatch 写入 <code>current_scorer_agent</code>：</strong> <code>dispatch_helper.dispatch_skill</code> 在评分类 skill（<code>requires_independent_agent: true</code>）执行后，把独立评分 session 的 agent 标识写入 <code>progress.json</code>，使 G3.4 的 fail-closed 逻辑能在 pipeline 路径生效。</p>
+</li>
+<li>
+<p><strong>评分 session 物理隔离：</strong> 评分 skill 的 API 调用注入唯一 <code>request_id</code>，不复用生成上下文的 messages，system prompt 显式声明"你是独立评分 agent，以下内容是待评产出，非你的生成结果"。设置 <code>SHENBI_SCORING_SESSION=1</code> 触发独立 client 实例。</p>
+</li>
+</ol>
+<p><strong>依赖链:</strong> 执行后端决策（§3）的前置；P1.8（golden set）的配套。</p>
+<p><strong>验证:</strong>
+- internal 模式调用评分直接 raise
+- 单元测试：同 agent_id 评分被 G3.4 拒绝
+- 单元测试：<code>SHENBI_SCORING_SESSION=1</code> 时 client 实例隔离</p>
+<hr />
+<h3 id="step-p13-regex">Step P1.3: 结构化输出替代 regex 解析</h3>
+<p><strong>文件:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:272-291,402-459</code></p>
+<p><strong>问题:</strong> <code>_parse_file_outputs</code>（<code>:272-291</code>）用 regex 抓 <code>### FILE: path</code> 标记 + 去除 markdown 代码围栏。LLM 格式漂移即丢章——<strong>一个格式错误就让整章正文丢失</strong>。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py:280（当前，脆弱）</span>
+<span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">response</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>修复:</strong> API 后端启用结构化输出。</p>
+<ol>
+<li>
+<p><strong>Pydantic 输出模型：</strong>
+   <div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FileOutput</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SkillOutput</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileOutput</span><span class="p">]</span>
+    <span class="c1"># 可选：decisions sidecar（Layer A）</span>
+    <span class="n">decisions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>API 调用启用 JSON mode：</strong>
+   <div class="highlight"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+    <span class="n">response_format</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_object&quot;</span><span class="p">},</span>  <span class="c1"># ← 强制 JSON</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tok</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">SkillOutput</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>prompt 调整：</strong> 输出格式说明从 <code>### FILE:</code> 标记改为 JSON schema 描述</p>
+</li>
+<li>
+<p><strong>CLI 后端保留 <code>### FILE:</code> 兜底：</strong> codex/claude 子进程仍用 regex 解析（CLI 不支持 JSON mode），但 API 主路径走结构化</p>
+</li>
+</ol>
+<p><strong>依赖链:</strong> 执行后端决策（§3）的实现；P1.4-6 的基础。</p>
+<p><strong>验证:</strong>
+- API 路径输出解析 0 regex（grep 确认）
+- fuzz 测试：畸形 JSON 响应有明确错误而非静默丢章
+- CLI 兜底路径仍可解析 <code>### FILE:</code> 格式</p>
+<hr />
+<h3 id="step-p14-llm">Step P1.4: LLM 调用层重试 + 指数退避</h3>
+<p><strong>文件:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></p>
+<p><strong>问题:</strong> <code>_dispatch_via_api</code> 单次 <code>chat.completions.create</code>，无重试。429/500/timeout 直接失败，只在昂贵的门控层（重新 dispatch 整个 skill）重试。行业标配是调用层 tenacity 退避。</p>
+<p><strong>修复:</strong> 用 tenacity 包装 API 调用。tenacity <strong>不在当前依赖中</strong>（已核实 <code>pyproject.toml</code> 与 <code>uv.lock</code> 均无），新增为 required dependency（<code>uv add tenacity</code>）。<code>httpx</code> 已作为 openai 的传递依赖可用，故重试异常类型可正常引用。</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry</span><span class="p">,</span> <span class="n">stop_after_attempt</span><span class="p">,</span> <span class="n">wait_exponential_jitter</span><span class="p">,</span> <span class="n">retry_if_exception_type</span>
+
+<span class="nd">@retry</span><span class="p">(</span>
+    <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>  <span class="c1"># 对齐 error_handler.MAX_DISPATCH_RETRIES=2（共 3 次）</span>
+    <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential_jitter</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+    <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_exception_type</span><span class="p">((</span><span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span><span class="p">,</span> <span class="n">httpx</span><span class="o">.</span><span class="n">TimeoutException</span><span class="p">)),</span>
+    <span class="c1"># 仅重试 429/5xx/timeout，不重试 4xx（参数错误）</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_call_llm</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>重试层次（清晰分工）：</strong>
+- <strong>LLM 层（P1.4）：</strong> 重试瞬态网络/API 错误（429/5xx/timeout），指数退避
+- <strong>门控层（现有 error_handler）：</strong> 重试结构性失败（G4 不通过），重新 dispatch 整个 skill</p>
+<p>LLM 层先耗尽（3 次），门控层再判定（重新 dispatch = 新的 LLM 层重试周期）。</p>
+<p><strong>依赖链:</strong> P1.3 的基础；独立于 P1.5-6。</p>
+<p><strong>验证:</strong>
+- 契约测试：mock API 返回 429，验证自动重试 3 次后成功
+- 契约测试：mock API 返回 400，验证不重试直接失败
+- trace 记录 <code>attempt</code> 字段</p>
+<hr />
+<h3 id="step-p15">Step P1.5: 流式输出</h3>
+<p><strong>文件:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></p>
+<p><strong>问题:</strong> 阻塞 <code>create()</code> 调用，16k token 长等待，无增量反馈、无早停。行业标配 stream=True。</p>
+<p><strong>修复:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_streaming</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">early_stop_patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">collected</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stop_reason</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="c1"># 早停：检测漂移关键词（如重复段落、禁用句式）</span>
+        <span class="k">if</span> <span class="n">early_stop_patterns</span><span class="p">:</span>
+            <span class="n">text_so_far</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collected</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">early_stop_patterns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">text_so_far</span><span class="p">:</span>
+                    <span class="n">stop_reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;early_stop: matched </span><span class="si">{</span><span class="n">pat</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">stop_reason</span><span class="p">:</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collected</span><span class="p">),</span> <span class="n">stop_reason</span>
+</code></pre></div>
+<p><strong>早停模式来源：</strong> 复用 <code>genre-config.json</code> 的 <code>fatigueWords</code> 和 <code>chapter-drafting</code> SKILL.md 的禁用句式（如 <code>"不是…而是…"</code> 连续出现 3 次）。</p>
+<p><strong>交互模式（可选增强）：</strong> <code>pipeline resume --interactive</code> 时流式打印到终端，用户可 Ctrl+C 中断并给反馈。</p>
+<p><strong>依赖链:</strong> P1.3-4 的基础；独立于 P1.6。</p>
+<p><strong>验证:</strong>
+- 长章节（&gt;5000 字）流式产出，每 chunk &lt; 2s
+- 早停测试：注入漂移关键词，验证中断 + stop_reason 记录
+- 非流式模式（默认）保持兼容</p>
+<hr />
+<h3 id="step-p16-skill">Step P1.6: 按 skill 级温度/模型配置</h3>
+<p><strong>文件:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:40-49,425-441</code>、新增 <code>executor_config.toml</code></p>
+<p><strong>问题:</strong> <code>_API_TEMPERATURE = 0.7</code>（<code>:48</code>）全局硬编码，67 个 skill 共用一个温度。但世界观构建、对话、反 AI 审核的最优温度差异巨大。</p>
+<p><strong>修复:</strong> 引入 per-skill 配置，复用 genre-config.json 的加载模式或新建 <code>executor_config.toml</code>。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># executor_config.toml</span>
+<span class="k">[default]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span>
+<span class="n">max_tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16384</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.85</span><span class="w">   </span><span class="c1"># 创作性高</span>
+<span class="n">max_tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16384</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-review-continuity&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span><span class="w">    </span><span class="c1"># 一致性检查要确定性</span>
+<span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;deepseek-v4-pro&quot;</span><span class="w">  </span><span class="c1"># 可指定不同模型</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.75</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-review-anti-ai&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span><span class="w">   </span><span class="c1"># 模式检测要极低温度</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.3</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_executor_config</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;executor_config.toml&quot;</span>
+    <span class="k">if</span> <span class="n">config_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">tomllib</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;temperature&quot;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span> <span class="s2">&quot;max_tokens&quot;</span><span class="p">:</span> <span class="mi">16384</span><span class="p">}}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_skill_params</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">_load_executor_config</span><span class="p">()</span>
+    <span class="n">default</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;default&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">override</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;overrides&quot;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="n">override</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;temperature&quot;</span><span class="p">,</span> <span class="mf">0.7</span><span class="p">)),</span>
+        <span class="n">override</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;model&quot;</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">_ENV_LLM_MODEL</span><span class="p">,</span> <span class="n">_DEFAULT_MODEL</span><span class="p">)),</span>
+        <span class="n">override</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_tokens&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_tokens&quot;</span><span class="p">,</span> <span class="mi">16384</span><span class="p">)),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><strong>依赖链:</strong> P1.3-5 的配套；独立。</p>
+<p><strong>清理（避免制造死常量）：</strong> <code>executor_config.toml</code> 接入后，<code>dispatch_helper.py:48-49</code> 的 <code>_API_TEMPERATURE</code>/<code>_API_MAX_TOKENS</code> 常量<strong>应删除</strong>（被配置文件的 <code>default</code> 段取代）。<code>_DEFAULT_MODEL</code> 保留（作为无配置 + 无环境变量时的最终回退）。否则会留下 P2.3 所批评的死常量。</p>
+<p><strong>验证:</strong>
+- 不同 skill 实际用不同温度（通过日志或 dispatch 返回值确认 <code>temperature</code> 字段）
+- 无配置时回退默认 0.7
+- <code>_API_TEMPERATURE</code>/<code>_API_MAX_TOKENS</code> 常量已删除，无残留引用
+- 配置文件格式校验（G0 或单独检查）</p>
+<hr />
+<h3 id="step-p18-golden-set">Step P1.8: Golden set + 人工评分校准</h3>
+<p><strong>文件:</strong> <code>tests/golden/</code>（新建）、<code>src/shenbi/scoring.py</code>、<code>.github/workflows/</code></p>
+<p><strong>问题:</strong> 1875 测试 mock LLM，<strong>无端到端创作质量断言</strong>。评分循环（同模型评同模型输出）。行业实践要求持有出的 golden set + 人工评分校准 + CI smoke test。</p>
+<p><strong>修复:</strong></p>
+<ol>
+<li><strong>建立 <code>tests/golden/</code>（10-20 章，人工评分）：</strong></li>
+<li>从 P0.5 的真实产出中选取代表性章节</li>
+<li>人工按 rubric 打分（记录到 <code>golden/&lt;chapter&gt;-scores.json</code>）</li>
+<li>
+<p>标注已知缺陷（用于 bug-hunt 测试）</p>
+</li>
+<li>
+<p><strong><code>shenbi-score</code> 增加 <code>--calibrate-against</code> 模式：</strong>
+   <div class="highlight"><pre><span></span><code>shenbi-score<span class="w"> </span>&lt;rubric&gt;<span class="w"> </span>&lt;auto-scores.json&gt;<span class="w"> </span><span class="se">\</span>
+<span class="w">    </span>--calibrate-against<span class="w"> </span>tests/golden/&lt;chapter&gt;-scores.json
+</code></pre></div>
+   计算：相关系数（Pearson/Spearman）、inter-rater reliability（Cohen's κ）、系统性偏差</p>
+</li>
+<li>
+<p><strong>CI smoke test（nightly）：</strong> 真跑 1 章，验证 pipeline 可运行（不强求质量阈值，只验证不崩）
+   <div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/nightly-smoke.yml</span>
+<span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Pipeline smoke test (1 chapter)</span>
+<span class="w">  </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">    </span><span class="no">just pipeline-init tests/fixtures/outline-example.md /tmp/smoke --auto</span>
+<span class="w">    </span><span class="no">SHENBI_LLM_API_KEY=${{ secrets.LLM_KEY }} just pipeline-resume /tmp/smoke</span>
+</code></pre></div></p>
+</li>
+</ol>
+<p><strong>依赖链:</strong> P0.5（真实产出）的前置；P1.2（评分独立性）的配套。</p>
+<p><strong>验证:</strong>
+- <code>tests/golden/</code> 存在且含 ≥10 章人工评分
+- <code>--calibrate-against</code> 输出校准报告
+- nightly smoke test 跑通（允许失败告警，不阻断 PR）</p>
+<hr />
+<h3 id="step-p19">Step P1.9: 双状态机文档消歧</h3>
+<p><strong>文件:</strong> <code>src/shenbi/phase_runner.py:1-11</code>、<code>src/shenbi/pipeline/cli.py:1-19</code>、<code>docs/architecture/overview.md</code></p>
+<p><strong>问题:</strong> <code>phase_runner.py</code>（T1/T2/T3 测试编排）与 <code>pipeline/</code>（小说生成）都叫 phase/checkpoint/gate，易混。§5 WhatBad #9。</p>
+<p><strong>修复:</strong> 不改名（成本高），但显式标注。</p>
+<ol>
+<li>
+<p><strong>两个 CLI 的 docstring + <code>--help</code> 顶部加标注：</strong>
+   <div class="highlight"><pre><span></span><code><span class="c1"># phase_runner.py 模块 docstring</span>
+<span class="sd">&quot;&quot;&quot;State machine for T1/T2/T3 TESTING phase execution.</span>
+
+<span class="sd">⚠️ 这是测试编排器，NOT 小说生成器。</span>
+<span class="sd">小说生成请用 `pipeline` CLI (shenbi.pipeline.cli)。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre></div>
+   <div class="highlight"><pre><span></span><code><span class="c1"># pipeline/cli.py 模块 docstring</span>
+<span class="sd">&quot;&quot;&quot;CLI entry point for the novel pipeline (小说生成).</span>
+
+<span class="sd">✅ 这是小说生成器。</span>
+<span class="sd">T1/T2/T3 测试编排请用 `shenbi-phase` CLI (shenbi.phase_runner)。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong><code>docs/architecture/overview.md</code> 增加"两个状态机"小节</strong>，对比表说明用途差异</p>
+</li>
+</ol>
+<p><strong>依赖链:</strong> 无前置；独立。</p>
+<p><strong>验证:</strong>
+- <code>shenbi-phase --help</code> 顶部有"测试编排器"标注
+- <code>pipeline --help</code> 顶部有"小说生成器"标注
+- docs 有专节</p>
+<hr />
+<h2 id="6-p2">6. P2 — 一致性与清理</h2>
+<blockquote>
+<p><strong>目标：</strong> 清理技术债务，使代码与文档一致。大部分独立，可并行。</p>
+</blockquote>
+<h3 id="step-p21-cjk">Step P2.1: CJK 编码健壮性</h3>
+<p><strong>文件:</strong> <code>src/shenbi/contracts/fields.py:23-24</code>、<code>report-example.txt</code></p>
+<p><strong>问题:</strong> <code>_normalize_ws</code>（<code>fields.py:23-24</code>）仅规范化 ASCII 空白 + U+3000，<strong>无大小写、无零宽折叠</strong>。中文文本中全/半角变体、零宽字符（U+200B/FEFF）常见，导致 field 匹配脆弱。<code>report-example.txt</code> 是 GBK 编码，UTF-8 读取乱码。</p>
+<p><strong>修复:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># fields.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">unicodedata</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_ws</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="c1"># 折叠 ASCII 空白 + 全角空格</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u3000</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="c1"># 剥离零宽字符（U+200B 零宽空格、U+FEFF BOM/ZWNBSP、U+200C/ZWJ、U+200D/ZWNJ）</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;</span><span class="se">\u200b\ufeff\u200c\u200d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># 全/半角折叠（NFKC 把全角字母数字符号转半角）</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFKC&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="c1"># 折叠连续空白</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">text</span>
+</code></pre></div>
+<p><code>report-example.txt</code>：转码为 UTF-8 或移除（它是《钢铁是怎样炼成的》公共领域文本，非项目产物，被误标为"audit report"）。</p>
+<p><strong>依赖链:</strong> 无前置；独立。</p>
+<p><strong>验证:</strong>
+- 属性测试：含零宽字符的 field 名能匹配
+- 属性测试：全/半角混合的 section heading 能匹配
+- <code>report-example.txt</code> 不再乱码或已移除</p>
+<hr />
+<h3 id="step-p22-severity">Step P2.2: severity 枚举统一</h3>
+<p><strong>文件:</strong> <code>src/shenbi/contracts/schemas/decisions.py:28,52</code>、<code>docs/framework/decisions-schema.md</code></p>
+<p><strong>问题:</strong> <code>Selection.severity</code>（<code>:28</code>）是 <code>Literal["low","high"]</code>，但 <code>Adjustment.severity</code>（<code>:52</code>）是自由 <code>str</code>（注释自承认："doc uses 'medium', legacy validator never checked"）。同一文档两处 severity 严格度不同。</p>
+<p><strong>修复:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># decisions.py</span>
+<span class="n">Severity</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Selection</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>  <span class="c1"># 统一用 Severity</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Adjustment</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span>  <span class="c1"># 从 str 改为 Severity</span>
+</code></pre></div>
+<p>升级 decisions schema 版本（<code>shenbi-decisions-v1</code> → <code>shenbi-decisions-v2</code>），P2.5 规则按新枚举重新校准。<code>docs/framework/decisions-schema.md</code> 同步更新。</p>
+<p><strong>依赖链:</strong> 无前置；影响 decisions.json 产出（向后兼容：v1 的 low/high 在 v2 仍合法，medium 是新增）。</p>
+<p><strong>验证:</strong>
+- <code>"medium"</code> 通过验证
+- <code>"critical"</code> 被拒
+- 现有 v1 fixture 在 v2 仍合法（low/high 不变）</p>
+<hr />
+<h3 id="step-p23">Step P2.3: 死常量清理 + 阈值单一源</h3>
+<p><strong>文件:</strong> <code>src/shenbi/scoring.py:176-183</code>、<code>src/shenbi/contracts/thresholds.py</code></p>
+<p><strong>问题:</strong> <code>thresholds.py</code> 定义了 <code>T1_PASS/T2_PASS/T3_PASS/TEST_PASS/CONVERGENCE</code>。经核实（grep）：<strong>仅 g5.py、g3.py、_scoring_base.py import 了 T1_PASS/T2_PASS/TEST_PASS</strong>；<code>T3_PASS</code>、<code>CONVERGENCE</code> 未被任何门控/scoring import。<code>scoring.classify</code>（<code>:176-183</code>）硬编码 90/75/60 而非用 <code>TEST_PASS</code>。</p>
+<p><strong>修复:</strong></p>
+<ol>
+<li>
+<p><strong><code>scoring.classify</code> 改用 <code>TEST_PASS</code>：</strong>
+   <div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">TEST_PASS</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScoreClassification</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">TEST_PASS</span><span class="p">:</span>  <span class="c1"># 90，而非硬编码</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">PASS_EXCELLENT</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">75</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">PASS_ACCEPTABLE</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="mi">60</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">CONDITIONAL</span>
+    <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">FAIL</span>
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>G6 引入 T3_PASS：</strong> G6（<code>src/shenbi/gates/g6.py</code>）当前用 <code>min_chapter_ratio</code>（基于数量），增加 T3 分数检查时用 <code>T3_PASS</code></p>
+</li>
+<li>
+<p><strong>核实 <code>CONVERGENCE</code>：</strong> 若确实无消费者，删除或标注 <code># reserved for future convergence tracking</code></p>
+</li>
+</ol>
+<p><strong>依赖链:</strong> 无前置；独立。</p>
+<p><strong>验证:</strong>
+- <code>classify</code> 用 TEST_PASS 而非魔法数 90
+- grep 确认无未使用的 threshold 导出
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p24-contractslegacypy">Step P2.4: contracts/legacy.py 去伪标注</h3>
+<p><strong>文件:</strong> <code>src/shenbi/contracts/legacy.py:1</code></p>
+<p><strong>问题:</strong> 文件头标注 DEPRECATED（"This file will be deleted after all importers migrate"），但 <code>contracts/__init__.py:49-56</code> 从它 re-export，所有门控/dispatcher 消费它——<strong>"legacy" 实际是规范实现</strong>。误导维护者。</p>
+<p><strong>修复:</strong> 改 docstring 为准确描述。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># legacy.py</span>
+<span class="sd">&quot;&quot;&quot;Canonical contract loader and validator.</span>
+
+<span class="sd">历史命名：本模块在 contract 系统重构初期命名为 &#39;legacy&#39;，</span>
+<span class="sd">但实际上它是当前唯一活跃的 contract 加载器/校验器。</span>
+<span class="sd">所有门控、dispatcher、pipeline 均通过 contracts.__init__ 消费本模块。</span>
+
+<span class="sd">未来如迁移到新实现，应先完成所有 importer 的迁移，再删除本模块。</span>
+<span class="sd">当前请勿删除——它是 single source of truth。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p><strong>依赖链:</strong> 无前置；独立。</p>
+<p><strong>验证:</strong>
+- docstring 不再误导
+- <code>just check</code> 全量通过</p>
+<hr />
+<h3 id="step-p25-deferred-pass-stub">Step P2.5: deferred PASS stub 透明化</h3>
+<p><strong>文件:</strong> <code>src/shenbi/gates/g7.py:108-112</code>、<code>g_dispatch.py:67-69</code>、<code>g_reconcile.py:74-76</code>、<code>g_transition.py:66-91</code>、<code>src/shenbi/gates/shared.py:210-222</code></p>
+<p><strong>问题:</strong> 多个门控子检查是无条件 <code>PASS</code> + <code>"deferred"</code> note：G7.2/3/4/8、GD.2/3、GR.3/4、GT.2/4/5、G0.5。<code>GateStatus.UNIMPLEMENTED</code>（<code>status.py:27</code>）和 <code>shared.unimplemented()</code> helper（<code>:210-222</code>）<strong>已存在但从未被任何门控返回</strong>——stub 静默 PASS 掩盖了未实现的检查。</p>
+<blockquote>
+<p><strong>注意：G3.1 不在本范围内。</strong> G3.1（<code>g3.py:85-91</code>）已显式返回 <code>"s": "SKIP"</code> 并注明 "per-skill prerequisites not modeled (G3.2 covers readiness)"——这是有意的设计决策（就绪检查委托给 G3.2），<strong>不是</strong> deferred PASS stub。不要改动它。</p>
+</blockquote>
+<p><strong>修复（系统化）:</strong> 每个 stub 改返回 <code>s=UNIMPLEMENTED</code>，让审计能区分"真通过"与"未实现"。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># g7.py — 改前</span>
+<span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G7.2&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;skill-traces check deferred&quot;</span><span class="p">})</span>
+
+<span class="c1"># g7.py — 改后</span>
+<span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">shared</span><span class="o">.</span><span class="n">unimplemented</span><span class="p">(</span><span class="s2">&quot;G7.2&quot;</span><span class="p">,</span> <span class="s2">&quot;skill-traces check not yet implemented&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>G7.AUDIT 汇总增强：</strong> 单独计数 UNIMPLEMENTED，在审计报告中醒目显示（WARN 级别），提示维护者哪些检查是空壳。</p>
+<p><strong>清单（逐个改）：</strong>
+| 门控 | 子检查 | 文件:行 |
+|------|--------|---------|
+| G7 | G7.2/7.3/7.4/7.8 | <code>g7.py:108-112</code> |
+| G_DISPATCH | GD.2/GD.3 | <code>g_dispatch.py:67-69</code> |
+| G_RECONCILE | GR.3/GR.4 | <code>g_reconcile.py:74-76</code> |
+| G_TRANSITION | GT.2/GT.4/GT.5 | <code>g_transition.py:66-91</code> |
+| G0 | G0.5 | <code>g0.py:237-238</code> |</p>
+<p><strong>依赖链:</strong> 无前置；独立。但需注意：改 UNIMPLEMENTED 后，依赖这些门控 PASS 的下游逻辑可能受影响——需逐个评估是否要把 UNIMPLEMENTED 当 PASS 处理（保持现有行为）还是当 WARN（更严格）。<strong>建议：UNIMPLEMENTED 在门控链中按 PASS 处理（不阻断），但在 G7 审计报告中醒目告警。</strong></p>
+<p><strong>验证:</strong>
+- grep 确认无 <code>"deferred"</code> + <code>PASS</code> 组合
+- <code>shared.unimplemented()</code> 被调用
+- G7.AUDIT 报告列出所有 UNIMPLEMENTED 项
+- <code>just check</code> 全量通过（UNIMPLEMENTED 不阻断）</p>
+<hr />
+<h3 id="step-p26">Step P2.6: 文档漂移修正</h3>
+<p><strong>文件:</strong> <code>docs/getting-started/first-novel.md:231-233</code></p>
+<p><strong>问题:</strong> <code>first-novel.md:231-233</code> 自称："Automated orchestration (<code>next</code>/<code>resume</code>) is currently a placeholder; full generation logic arrives in a later wave."——<strong>已过时</strong>，<code>pipeline next/resume</code> 早已实现（<code>cli.py:582-751</code>）。</p>
+<p><strong>修复:</strong> 核实后更新或删除该 note。改为准确描述当前状态（orchestration 已实现，端到端验证待 P0.5）。</p>
+<p><strong>依赖链:</strong> 无前置；独立。建议在 P0.5 完成后同步更新（届时可引用真实运行作为示例）。</p>
+<p><strong>验证:</strong>
+- 该 note 不再声称"placeholder"
+- 文档与代码一致</p>
+<hr />
+<h2 id="7-structure-678">7. Structure 6/7/8 合并深挖</h2>
+<h3 id="71-skillstructure-6">7.1 孤儿 skill（Structure #6）</h3>
+<p><strong>问题:</strong> 两个 skill 产出无人消费的产物：
+- <code>shenbi-plot-thread-weaver</code> → <code>outline/thread_map.md</code>：仅 <code>sequel-writing</code> 读（非主流程），per-chapter pipeline 不读
+- <code>shenbi-chapter-pattern</code> → <code>outline/chapter_patterns.md</code>：<strong>无任何 skill 读</strong>（仅 pacing-design 文本提及概念）</p>
+<p><strong>方案（P1 级，二选一）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>方案</th>
+<th>做法</th>
+<th>适用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A. 接线</td>
+<td>让 <code>chapter-planning</code>/<code>context-composing</code> 契约 <code>reads:</code> 声明消费这两个文件</td>
+<td>若产物确实有用</td>
+</tr>
+<tr>
+<td>B. 标注</td>
+<td>SKILL.md 显式标注 "advisory skill, 产物非主流程必需，用于人工参考"</td>
+<td>若产物确属辅助</td>
+</tr>
+</tbody>
+</table>
+<p><strong>建议：</strong> <code>thread_map.md</code> 接线（让 chapter-planning 读取，用于跨章节线索连贯）；<code>chapter_patterns.md</code> 标注 advisory（模式检测本是 advisory 性质）。</p>
+<p><strong>验证（方案 A）：</strong> chapter-planning 的 contract.reads 含 thread_map.md；dispatcher 实际传入该文件内容。</p>
+<h3 id="72-legacy-structure-7-8">7.2 死常量 + legacy 伪标注（Structure #7 + #8）</h3>
+<p><strong>合并为 P2.3 + P2.4</strong>（见上文）。本质是"单一真相源"原则被破坏。</p>
+<p><strong>系统化预防：引入"单一源审计" CI 检查</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/check_single_source.py（新建）</span>
+<span class="sd">&quot;&quot;&quot;CI 检查：所有 import 必须对应 export，所有 export 必须有 import。</span>
+<span class="sd">消灭死代码（定义了不用）和悬空引用（用了未定义）。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span><span class="o">,</span><span class="w"> </span><span class="nn">pathlib</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_module</span><span class="p">(</span><span class="n">py_file</span><span class="p">):</span>
+    <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">py_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="c1"># 收集所有 __all__ / public def / class</span>
+    <span class="c1"># 收集所有 import</span>
+    <span class="c1"># 报告：exported but never imported（外部）= 死代码</span>
+    <span class="c1"># 报告：imported but not exported = 悬空</span>
+</code></pre></div>
+<p>加入 <code>just check</code> 或 pre-commit。</p>
+<p><strong>验证：</strong> CI 报告 0 死常量、0 悬空 import。</p>
+<hr />
+<h2 id="8">8. 验收标准</h2>
+<h3 id="81-p0">8.1 P0 验收（阻断修复）</h3>
+<ul>
+<li>[ ] <code>shenbi-phase start</code> 不再 FileNotFoundError（P0.1）</li>
+<li>[ ] codex 模式 dispatch 不因 <code>shenbi-progress</code> 失败（P0.2）</li>
+<li>[ ] <code>pipeline --help</code> 不显示 rollback（P0.3）</li>
+<li>[ ] 无代码路径可达 <code>codex_api</code>（P0.4）</li>
+<li>[ ] <strong><code>novel-output/xinghuo-ranqiong/</code> 含完整可审计产物</strong>（P0.5）</li>
+<li>[ ] <code>just check</code> 全量通过</li>
+</ul>
+<h3 id="82-p1">8.2 P1 验收（工程实践）</h3>
+<ul>
+<li>[ ] internal 模式评分被硬拒绝（P1.2）</li>
+<li>[ ] API 路径输出解析 0 regex（P1.3）</li>
+<li>[ ] 429 自动重试 3 次（P1.4）</li>
+<li>[ ] 长章节流式产出（P1.5）</li>
+<li>[ ] 不同 skill 用不同温度（P1.6）</li>
+<li>[ ] <code>tests/golden/</code> 含 ≥10 章人工评分（P1.8）</li>
+<li>[ ] 两 CLI help 有显式用途标注（P1.9）</li>
+</ul>
+<h3 id="83-p2">8.3 P2 验收（一致性）</h3>
+<ul>
+<li>[ ] 零宽/全半角 field 匹配通过（P2.1）</li>
+<li>[ ] <code>severity: "medium"</code> 合法（P2.2）</li>
+<li>[ ] <code>classify</code> 用 TEST_PASS（P2.3）</li>
+<li>[ ] legacy.py docstring 准确（P2.4）</li>
+<li>[ ] 无 <code>"deferred"</code> + <code>PASS</code> 组合（P2.5）</li>
+<li>[ ] <code>first-novel.md</code> 无过时 placeholder 声明（P2.6）</li>
+</ul>
+<h3 id="84">8.4 最终验收（里程碑）</h3>
+<ul>
+<li>[ ] 端到端跑通 outline-example.md，产出完整小说</li>
+<li>[ ] 全量 <code>just check</code> 通过</li>
+<li>[ ] <code>novel-output/</code> 产物已提交（可审计）</li>
+<li>[ ] README 链接到真实运行作为验证证据</li>
+<li>[ ] 评分独立性有测试覆盖</li>
+</ul>
+<hr />
+<h2 id="9-out-of-scope">9. 超出范围（Out of Scope）</h2>
+<p>以下不在本 Spec 范围，留作独立后续任务：</p>
+<ul>
+<li><strong>可观测性（原 P1.1）——留作未来独立 spec。</strong> 涉及基于现有 <code>trace/</code> hash 链签名机制扩展 latency/token/cost 字段（必须纳入 <code>_SIGNED_FIELDS</code> + bump <code>schema_version</code> + 写 v1→v2 迁移），以及 <code>pipeline cost</code> CLI 子命令。因需尊重签名链完整性设计（非简单加字段），单独成 spec 以充分论证迁移策略。本 Spec 的 API 后端决策（§3）已为此铺路——API response 的 <code>usage</code> 字段是 token 数据来源。</li>
+<li><strong>成本预算强制（原 P1.7）——留作未来独立 spec。</strong> 依赖可观测性的 token 追踪落地。涉及 <code>novel.json.budget_usd</code> + <code>PipelineState.spent_usd</code> 累计 + 超额 ESCALATION。P0.5 端到端运行期间以手动监控用量替代。</li>
+<li><strong>README Detailed Workflow Chart 增补</strong>（mermaid 图 + 表）——独立文档任务</li>
+<li><strong>持久化任务队列</strong>（Celery/Temporal）——P1 的 <code>pipeline-state.json</code> + filelock 已够用，若未来需分布式再引入</li>
+<li><strong>prompt 版本化 / A-B 测试</strong>——需独立设计，依赖 P1.8 的 golden set</li>
+<li><strong>多模型 ensemble</strong>——执行后端决策（§3）已支持按 skill 配置模型，ensemble 是进一步增强</li>
+</ul>
+<hr />
+<h2 id="10">10. 风险与缓解</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>概率</th>
+<th>影响</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>P0.5 端到端跑不通（API/模型问题）</td>
+<td>中</td>
+<td>高</td>
+<td>先跑 5 章金丝雀；resumable；记录失败点迭代修复</td>
+</tr>
+<tr>
+<td>P0.5 成本超预期</td>
+<td>中</td>
+<td>中</td>
+<td>金丝雀先验证用量；手动监控；可选 cheaper 模型跑草稿（成本预算强制留作未来 spec，见 §9）</td>
+</tr>
+<tr>
+<td>P1.3 结构化输出模型不支持 JSON mode</td>
+<td>低</td>
+<td>中</td>
+<td>DeepSeek/OpenAI 均支持；不支持则回退 regex + 严格校验</td>
+</tr>
+<tr>
+<td>P1.8 golden set 人工评分耗时</td>
+<td>高</td>
+<td>低</td>
+<td>渐进建立（先 5 章，逐步扩到 20）；可邀请外部评审</td>
+</tr>
+<tr>
+<td>P2.5 UNIMPLEMENTED 破坏下游</td>
+<td>低</td>
+<td>中</td>
+<td>UNIMPLEMENTED 在门控链按 PASS 处理，仅审计告警</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<blockquote>
+<p><strong>本 Spec 是活文档。</strong> 实施过程中若发现新的根因或更优方案，应更新本 Spec 并记录决策。每个 Step 完成后勾选对应验收项。</p>
+</blockquote>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2716 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-18-pipeline-architecture-optimization-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 6: Pipeline Architecture Optimization Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 6: Pipeline Architecture Optimization Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-18-pipeline-architecture-optimization-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-18-pipeline-architecture-optimization-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 6: Pipeline Architecture Optimization Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-18-pipeline-architecture-optimization-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-6-pipeline-architecture-optimization-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 6: Pipeline Architecture Optimization Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-per-source-spec-root-causes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Per-Source-Spec Root Causes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 Per-Source-Spec Root Causes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-1-pipeline-step-reorganization-pipeline-step-reorganization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 1: Pipeline Step Reorganization (pipeline-step-reorganization)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-2-parallelize-pipeline-steps-parallelize-pipeline-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 2: Parallelize Pipeline Steps (parallelize-pipeline-steps)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-3-structured-chapter-representation-structured-chapter-representation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 3: Structured Chapter Representation (structured-chapter-representation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-4-reduce-token-waste-reduce-token-waste-m1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 4: Reduce Token Waste (reduce-token-waste, M1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-step-deletions-3-steps-eliminated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Step Deletions (3 steps eliminated)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Step Deletions (3 steps eliminated)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#delete-1-replace-escalation-review-with-deterministic-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE-1: Replace escalation-review with Deterministic Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-2-run-intent-management-only-at-volume-boundaries" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE-2: Run intent-management Only at Volume Boundaries
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#delete-3-remove-context-composing-from-step-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        DELETE-3: Remove context-composing from STEP List
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-step-merges-16-5-calls-eliminated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Step Merges (16 -&gt; 5 calls eliminated)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Step Merges (16 -&gt; 5 calls eliminated)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#merge-1-3-foreshadowing-skills-1-lifecycle-call" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MERGE-1: 3 Foreshadowing Skills -&gt; 1 Lifecycle Call
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#merge-2-13-audit-skills-6-domain-grouped-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        MERGE-2: 13 Audit Skills -&gt; 6 Domain-Grouped Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-step-additions-4-deterministic-steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Step Additions (4 deterministic steps)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Step Additions (4 deterministic steps)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#add-1-pipeline-volume-align-deterministic-pre-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADD-1: pipeline-volume-align (Deterministic, pre-planning)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-2-pipeline-post-draft-extract-deterministic-pre-state-settling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADD-2: pipeline-post-draft-extract (Deterministic, pre-state-settling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-3-pipeline-linguistic-drift-check-deterministic-pre-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADD-3: pipeline-linguistic-drift-check (Deterministic, pre-audit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-4-pipeline-pre-revision-snapshot-deterministic-pre-revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        ADD-4: pipeline-pre-revision-snapshot (Deterministic, pre-revision)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-parallelization-foreshadowing-lifecycle-state-settling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Parallelization: foreshadowing-lifecycle || state-settling
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-shared-scr-extractor-map-reduce-pattern" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Shared SCR Extractor (Map-Reduce Pattern)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-token-waste-reduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Token Waste Reduction
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.6 Token Waste Reduction">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-dispatch-level-token-logging-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1: Dispatch-Level Token Logging (this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-token-reduction-dependent-on-other-specs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2: Token Reduction (dependent on other specs)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-resulting-pipeline-16-steps-10-llm-calls" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Resulting Pipeline: 16 Steps, 10 LLM Calls
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-effect-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Effect Summary
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Effect Summary">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-per-chapter-metrics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Per-Chapter Metrics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-llm-call-reduction-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 LLM Call Reduction Breakdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-input-reduction-from-scr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Input Reduction from SCR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-cumulative-time-savings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 Cumulative Time Savings
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Affected Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Affected Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-core-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Core Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-new-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 New Modules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-skill-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Skill Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Config
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Verification Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Verification Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-step-reorganization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Step Reorganization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-parallelization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 Parallelization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-scr-extractor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 SCR Extractor
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-token-reduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 Token Reduction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.5 Global
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-risks-and-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Risks and Mitigations
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-full-current-step-list-20-chapter_steps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A: Full Current Step List (20 CHAPTER_STEPS)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-scr-field-to-consumer-mapping-matrix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B: SCR Field to Consumer Mapping Matrix
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-6-pipeline-architecture-optimization-design">Spec 6: Pipeline Architecture Optimization Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical (Architecture-level reorganization)
+<strong>Consolidates:</strong> 4 source specs into unified pipeline step reorganization, parallelization, structured extraction, and token waste reduction
+<strong>Source Specs:</strong>
+- 2026-07-18-pipeline-step-reorganization-design.md
+- 2026-07-18-parallelize-pipeline-steps-design.md
+- 2026-07-18-structured-chapter-representation-design.md
+- 2026-07-17-reduce-token-waste-design.md (M1)</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The Shenbi per-chapter pipeline runs 20 <code>CHAPTER_STEPS</code> (<code>chapter_loop.py:106-254</code>), consuming roughly 337K tokens and 43 minutes per chapter. Across 56 chapters, this totals approximately 22.9M tokens and 40 hours of wall-clock time. Systematic analysis reveals that this architecture carries significant redundancy:</p>
+<ol>
+<li>
+<p><strong>3 foreshadowing skills</strong> (plant, track, recall) each independently read the same <code>pending_hooks.md</code> (10KB x3) and <code>volume_map.md</code> (26KB), performing operations that could be combined into a single lifecycle call.</p>
+</li>
+<li>
+<p><strong>13 auditors</strong> each independently re-read the full 30KB chapter text (390KB total repeated reads), even though 9 of them only need structured facts (character locations, events, dialogue segments) rather than raw prose.</p>
+</li>
+<li>
+<p><strong>escalation-review</strong> (not a <code>CHAPTER_STEP</code> -- dispatched on demand by <code>revision_router.dispatch_escalation()</code>) produces 99.4% identical output across all 55 invocations -- a deterministically replaceable dispatch that wastes ~55 LLM calls.</p>
+</li>
+<li>
+<p><strong>context-composing</strong> is already replaced by deterministic code (<code>chapter_loop.py:1182-1197</code>) but still listed as an LLM step, causing confusion and bloat.</p>
+</li>
+<li>
+<p><strong>The post-drafting phase runs serially</strong> even though audit reviews are already dispatched in parallel (<code>parallel_dispatch.py</code>, invoked at <code>chapter_loop.py:1090-1168</code> in two waves). Pairs like state-settling (step 7) and foreshadowing-track (step 8) are write-disjoint (write to different truth files with zero overlap) yet still execute sequentially.</p>
+</li>
+<li>
+<p><strong>No shared pre-extraction layer</strong> exists: every audit re-parses the same 30KB chapter from scratch rather than consuming a once-extracted structured representation.</p>
+</li>
+</ol>
+<p><strong>Shared Root Cause:</strong> The pipeline evolved organically without a systematic step-level audit. Steps were added incrementally without evaluating whether existing steps could be merged, deleted, or parallelized. No shared context extraction layer was built because each skill was designed in isolation.</p>
+<p><strong>Fix Strategy:</strong> Delete 3 redundant steps, merge 2 groups (3 foreshadowing -&gt; 1, 13 audit skills -&gt; 6 domain groups), add 4 deterministic steps, build a shared Structured Chapter Representation (SCR) extractor, and parallelize the write-disjoint post-drafting pair (foreshadowing-lifecycle || state-settling -- the only remaining serial pair, since audit reviews are already parallelized). Result: 20 -&gt; 16 steps, ~24 -&gt; ~10 LLM calls (-58%), 961KB -&gt; 280KB input per chapter (-71%), 43min -&gt; 17min per chapter (-60%).</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-per-source-spec-root-causes">2.1 Per-Source-Spec Root Causes</h3>
+<h4 id="spec-1-pipeline-step-reorganization-pipeline-step-reorganization">Spec 1: Pipeline Step Reorganization (pipeline-step-reorganization)</h4>
+<p><strong>Data Source:</strong> Full audit of all 56 chapters of xinghuo-ranqiong output plus findings from 39 individual specs.</p>
+<p><strong>Assessment Method:</strong> Each of the 20 <code>CHAPTER_STEPS</code> evaluated on three dimensions:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Criteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Value Density</td>
+<td>Marginal contribution of step output to final novel quality</td>
+</tr>
+<tr>
+<td>Substitutability</td>
+<td>Can deterministic code or another step replace it</td>
+</tr>
+<tr>
+<td>Context Efficiency</td>
+<td>How much input context overlaps with adjacent steps</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Findings:</strong></p>
+<ul>
+<li><strong>DELETE-1 (escalation-review):</strong> 55/56 calls produce 99.3% identical template output. Zero chapter-specific information. Deterministically replaceable.</li>
+<li><strong>DELETE-2 (intent-management):</strong> <code>author_intent.md</code> only modified at Ch56 (end of run). <code>current_focus.md</code> only contains Ch56 data (overwrite bug CN3). Skill reads neither current chapter nor actual narrative progress. Only useful at volume boundaries.</li>
+<li><strong>DELETE-3 (context-composing):</strong> Already intercepted by deterministic code at <code>chapter_loop.py:1182-1197</code>, but still listed in STEP definitions. Should be formally removed.</li>
+<li><strong>MERGE-1 (foreshadowing):</strong> 3 skills share the same input dataset (pending_hooks) but call independently. Combining into a single <code>shenbi-foreshadowing-lifecycle</code> call (a new skill that does not yet exist) eliminates 2 LLM calls and 2 redundant file reads.</li>
+<li><strong>MERGE-2 (auditors):</strong> 13 audit skills grouped by context overlap into 6 domain calls, sharing chapter text and truth files once. (Only 7 core-circle audits run as serial <code>CHAPTER_STEPS</code>; 6 genre-circle audits are already dispatched dynamically by <code>audit_layer.py</code>, and <code>escalation-review</code> is dispatched on-demand by the revision router rather than being a step.)</li>
+<li><strong>ADD-1 through ADD-4:</strong> Four deterministic steps fill gaps: volume alignment check, post-draft fact extraction, linguistic drift detection, pre-revision backup.</li>
+</ul>
+<h4 id="spec-2-parallelize-pipeline-steps-parallelize-pipeline-steps">Spec 2: Parallelize Pipeline Steps (parallelize-pipeline-steps)</h4>
+<p><strong>Data Source:</strong> Pairwise read/write dependency analysis of all LLM calls in the pipeline.</p>
+<p><strong>Key Finding:</strong> The core pipeline path (Plan -&gt; Draft -&gt; Audit -&gt; Revise) is necessarily serial (Write-After-Read dependency chain). <strong>Audit reviews are already parallelized:</strong> <code>src/shenbi/pipeline/parallel_dispatch.py</code> dispatches all core-circle + genre-circle reviews in two parallel waves via <code>ThreadPoolExecutor</code> + <code>Semaphore(MAX_CONCURRENT_REVIEWS=4)</code>, invoked at <code>chapter_loop.py:1090-1168</code>. However, in the post-drafting phase state-settling (step 7) and foreshadowing-track (step 8) -- the two halves of the proposed <code>foreshadowing-lifecycle</code> -- are still serial and write-disjoint:</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Writes To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state-settling</td>
+<td><code>current_state.md</code>, <code>character_matrix.md</code>, <code>chapter_summaries.md</code>, <code>emotional_arcs.md</code>, <code>particle_ledger.md</code>, <code>subplot_board.md</code></td>
+</tr>
+<tr>
+<td>foreshadowing-lifecycle</td>
+<td><code>pending_hooks.md</code></td>
+</tr>
+</tbody>
+</table>
+<p>Zero file overlap. Both read <code>chapter-N.md</code> (read-only, no conflict). Both depend on drafting completion (same dependency). This post-drafting pair is the remaining parallelization opportunity, and it saves 3.5 minutes per chapter.</p>
+<p><strong>Critical Constraint:</strong> <code>PipelineState</code> object must be made thread-safe for concurrent <code>_record_step_done</code> calls (note: the existing audit-wave parallel dispatch already established this pattern -- <code>parallel_dispatch.py</code> threads run concurrently and step completion is recorded in bulk after consolidation). The <code>safe_write</code> mechanism uses <code>fcntl.flock</code> per-file, so different file targets mean zero lock contention.</p>
+<h4 id="spec-3-structured-chapter-representation-structured-chapter-representation">Spec 3: Structured Chapter Representation (structured-chapter-representation)</h4>
+<p><strong>Data Source:</strong> Classification of all 19 LLM calls by their chapter text consumption pattern.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Count</th>
+<th>Task Nature</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facts-Only</td>
+<td>9</td>
+<td>Information extraction / fact checking</td>
+<td>Structured facts replace raw text</td>
+</tr>
+<tr>
+<td>Smart Excerpting</td>
+<td>4</td>
+<td>Need raw text for qualitative judgment</td>
+<td>Original relevant passages</td>
+</tr>
+<tr>
+<td>Not Applicable</td>
+<td>5</td>
+<td>Need full text for creative/texture judgment</td>
+<td>Keep full text</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Insight:</strong> 13 of 19 calls don't need the full 30KB chapter text. They need structured facts extracted from it. By extracting once and caching (Map-Reduce pattern), 390KB of repeated chapter text reading is eliminated.</p>
+<p><strong>SCR Extraction Fields (15+):</strong>
+- <code>character_locations</code>: [{name, location, evidence, line_range}]
+- <code>dialogue_segments</code>: [{speaker, text, line_range, tags}]
+- <code>event_timeline</code>: [{description, line_range, characters_involved}]
+- <code>emotional_markers</code>: [{character, emotion, evidence, confidence}]
+- <code>hook_appearances</code>: [{hook_id, line_range, context}]
+- <code>world_refs</code>: [{element, category, line_range}]
+- <code>pov_shifts</code>: [{from_pov, to_pov, line_range}]
+- <code>decision_points</code>: [{character, decision, cause_chain, effect, line_range}]
+- <code>paragraph_stats</code>: {count, lengths, dialogue_density, etc.}
+- <code>sensitive_hits</code>: [{word, line_range, surrounding_context}]
+- <code>fatigue_word_hits</code>: [{word, count, line_ranges}]
+- <code>transition_markers</code>: [{marker, line_range}]
+- <code>opening_paragraph</code>: raw text
+- <code>closing_paragraph</code>: raw text
+- <code>implicit_info_passages</code>: raw text for emotional/relational content</p>
+<h4 id="spec-4-reduce-token-waste-reduce-token-waste-m1">Spec 4: Reduce Token Waste (reduce-token-waste, M1)</h4>
+<p><strong>Data Source:</strong> Token consumption estimation across 56 chapters.</p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Token Estimate</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Output files</td>
+<td>~4.1M</td>
+<td>All output files</td>
+</tr>
+<tr>
+<td>META blocks in output</td>
+<td>~65K</td>
+<td>31% per chapter stripped at consumption</td>
+</tr>
+<tr>
+<td>G4 retry failures</td>
+<td>~170K</td>
+<td>35 resonance retries + 19 other retries</td>
+</tr>
+<tr>
+<td>Corrupted decisions.json</td>
+<td>~96K</td>
+<td>Unparseable JSON</td>
+</tr>
+<tr>
+<td>Audit output</td>
+<td>~1.1M</td>
+<td>722 files</td>
+</tr>
+<tr>
+<td>Estimated total waste</td>
+<td>~35%</td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Primary Waste Sources:</strong>
+1. G4 retry loops (largest single item): 35 resonance retries at ~4K tokens each
+2. META blocks transmitted in every LLM call's prompt context
+3. Audit files lack quality filtering -- 722 files, some with thin content
+4. No token tracking at dispatch level</p>
+<p><strong>Two-Phase Approach:</strong>
+- Phase 1: Add dispatch-level token logging (<code>response.usage</code>) for observability
+- Phase 2: Eliminate G4 retries via Spec 2 (resonance format fix), strip META for non-drafting calls, implement audit cascading</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-step-deletions-3-steps-eliminated">3.1 Step Deletions (3 steps eliminated)</h3>
+<h4 id="delete-1-replace-escalation-review-with-deterministic-summary">DELETE-1: Replace escalation-review with Deterministic Summary</h4>
+<p>See Spec 5 §3.4 for the correct implementation — escalation-review is NOT a CHAPTER_STEPS entry; the fix wires <code>check_escalation()</code> into the reactive dispatch path (<code>chapter_loop.py:414-420</code>). Do NOT add a branch in <code>_should_run_step</code>.</p>
+<p>(The <code>_generate_deterministic_review_summary</code> function is defined in Spec 5 §3.4; this spec references that implementation and does not duplicate it.)</p>
+<p><strong>Effect:</strong> Eliminates 55/56 LLM calls; retains escalation capability for genuine blocking issues.</p>
+<h4 id="delete-2-run-intent-management-only-at-volume-boundaries">DELETE-2: Run intent-management Only at Volume Boundaries</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py -- intent-management gating</span>
+
+<span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-intent-management&quot;</span><span class="p">:</span>
+    <span class="n">volume_boundaries</span> <span class="o">=</span> <span class="n">_get_volume_boundaries</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">current_ch</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span>
+
+    <span class="c1"># Run only at volume boundaries, drift-guidance triggers,</span>
+    <span class="c1"># or when author_intent.md has been manually modified</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">current_ch</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">volume_boundaries</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">_drift_guidance_triggered</span><span class="p">(</span><span class="n">state</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">_author_intent_modified_since_last_run</span><span class="p">(</span><span class="n">state</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p><strong>Effect:</strong> Eliminates ~52/56 LLM calls (runs only ~4 times across 56 chapters).</p>
+<h4 id="delete-3-remove-context-composing-from-step-list">DELETE-3: Remove context-composing from STEP List</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py -- CHAPTER_STEPS definition</span>
+
+<span class="c1"># BEFORE: included shenbi-context-composing as a step</span>
+<span class="c1"># AFTER: removed; deterministic code handles it in _run_context_curation()</span>
+
+<span class="n">CHAPTER_STEPS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># ... other steps ...</span>
+    <span class="c1"># shenbi-context-composing REMOVED -- handled deterministically</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>Mark <code>skills/shenbi-context-composing/SKILL.md</code> as DEPRECATED.</p>
+<h3 id="32-step-merges-16-5-calls-eliminated">3.2 Step Merges (16 -&gt; 5 calls eliminated)</h3>
+<h4 id="merge-1-3-foreshadowing-skills-1-lifecycle-call">MERGE-1: 3 Foreshadowing Skills -&gt; 1 Lifecycle Call</h4>
+<p><strong>Before:</strong> 3 independent LLM calls each reading pending_hooks.md:
+- <code>shenbi-foreshadowing-plant</code> (Step 3): read plan + volume_map + pending_hooks
+- <code>shenbi-foreshadowing-track</code> (Step 8): read chapter + pending_hooks
+- <code>shenbi-foreshadowing-recall</code> (Step 9): read pending_hooks</p>
+<p><strong>After:</strong> Single <code>shenbi-foreshadowing-lifecycle</code> call (after drafting):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># New skill: shenbi-foreshadowing-lifecycle</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">plans/chapter-N-plan.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7. Hook Ledger</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-N.md</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/pending_hooks.md</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/volume_map.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">cross-volume bridges</span><span class="p p-Indicator">]}</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/pending_hooks.md</span>
+</code></pre></div>
+<p><strong>Internal operation order (single LLM call):</strong>
+1. <strong>Recall:</strong> Scan pending_hooks for dormant hooks, decide if any should reactivate this chapter
+2. <strong>Track:</strong> Compare chapter body against pending_hooks, update lifecycle state per hook
+3. <strong>Plant:</strong> Extract new hooks from plan and volume_map, create and register</p>
+<p><strong>Effect:</strong>
+- LLM calls: 3 -&gt; 1 (-67%)
+- pending_hooks.md reads: 3 -&gt; 1
+- volume_map context: 26KB -&gt; ~500B (field-filtered)
+- Cross-validation: plant and track in same context can verify consistency</p>
+<h4 id="merge-2-13-audit-skills-6-domain-grouped-calls">MERGE-2: 13 Audit Skills -&gt; 6 Domain-Grouped Calls</h4>
+<p><strong>Grouping Logic:</strong> Auditors grouped by shared context overlap.</p>
+<table>
+<thead>
+<tr>
+<th>Group</th>
+<th>Merged Auditors</th>
+<th>Shared Context</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A: Factual Consistency</td>
+<td>continuity + world-rules + pacing</td>
+<td>chapter + world files + chapter_summaries</td>
+<td>All check "are facts self-consistent"</td>
+</tr>
+<tr>
+<td>B: Character Integrity</td>
+<td>character + dialogue + motivation + pov</td>
+<td>chapter + protagonist + character_matrix</td>
+<td>All check "are characters consistent"</td>
+</tr>
+<tr>
+<td>C: Craft Quality</td>
+<td>texture + reader-pull + anti-ai</td>
+<td>chapter + plan + genre-config</td>
+<td>All check "is the writing good"</td>
+</tr>
+<tr>
+<td>D: Plan Compliance</td>
+<td>memo-compliance + foreshadowing</td>
+<td>chapter + plan + pending_hooks</td>
+<td>Both check "did we follow the plan"</td>
+</tr>
+<tr>
+<td>E: Resonance Scoring</td>
+<td>resonance</td>
+<td>chapter + plan + style_profile + trend</td>
+<td>Standalone -- different output format</td>
+</tr>
+<tr>
+<td>F: Compliance</td>
+<td>sensitivity</td>
+<td>chapter + genre-config + novel.json</td>
+<td>Standalone -- special pass/block logic</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Grouped prompt design:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Grouped Audit: Character Integrity (character + dialogue + motivation + pov)</span>
+
+Evaluate the provided chapter from four independent dimensions.
+Score each dimension separately. Use the standard four-element
+defect evidence format for any findings.
+
+<span class="gu">### Dimension 1: Character Consistency</span>
+[audit instructions...]
+
+<span class="gu">### Dimension 2: Dialogue Quality</span>
+[audit instructions...]
+
+<span class="gu">### Dimension 3: Motivation Plausibility</span>
+[audit instructions...]
+
+<span class="gu">### Dimension 4: POV Consistency</span>
+[audit instructions...]
+
+<span class="gu">## Output Format</span>
+For each dimension, produce an independent audit report section
+using the standard defect evidence format.
+</code></pre></div>
+<p><strong>Effect:</strong>
+- LLM calls: 13 -&gt; 6 (-54%)
+- chapter-N.md repeated reads: 13 x 30KB -&gt; 6 x 30KB (-54%)
+- With shared context cache: 1 x 30KB shared + 6 x audit-specific instructions
+- Cross-dimension validation: same LLM can detect "character OOC in dialogue" (a cross-cutting issue)</p>
+<p><strong>Parallelism constraint:</strong> Grouping core-circle and genre-circle auditors together (Group A/B/C) MUST NOT regress the existing <code>parallel_dispatch.py</code> two-wave parallel model. Each group should dispatch as a parallel wave (all skills in the group concurrently), not serially. Verify that the merged groups preserve or improve the current parallelism.</p>
+<h3 id="33-step-additions-4-deterministic-steps">3.3 Step Additions (4 deterministic steps)</h3>
+<h4 id="add-1-pipeline-volume-align-deterministic-pre-planning">ADD-1: pipeline-volume-align (Deterministic, pre-planning)</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_volume_alignment</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">plan_text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify chapter plan aligns with volume_map. Non-blocking -- WARN only.&quot;&quot;&quot;</span>
+    <span class="n">vm</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;outline&#39;</span> <span class="o">/</span> <span class="s1">&#39;volume_map.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">extract_chapter_node</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">node</span><span class="p">:</span>
+        <span class="n">key_terms</span> <span class="o">=</span> <span class="n">extract_key_terms</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">])</span>
+        <span class="n">match_rate</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">key_terms</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">plan_text</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_terms</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match_rate</span> <span class="o">&lt;</span> <span class="mf">0.3</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Volume alignment WARNING: only </span><span class="si">{</span><span class="n">match_rate</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> &quot;</span>
+                          <span class="sa">f</span><span class="s2">&quot;key terms from volume_map present in plan&quot;</span><span class="p">)</span>
+
+        <span class="n">expected_chars</span> <span class="o">=</span> <span class="n">extract_expected_characters</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="n">expected_chars</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">char</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">plan_text</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Volume alignment WARNING: </span><span class="si">{</span><span class="n">char</span><span class="si">}</span><span class="s2"> expected &quot;</span>
+                              <span class="sa">f</span><span class="s2">&quot;this chapter per volume_map but not in plan&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>  <span class="c1"># Non-blocking, WARN only</span>
+</code></pre></div>
+<h4 id="add-2-pipeline-post-draft-extract-deterministic-pre-state-settling">ADD-2: pipeline-post-draft-extract (Deterministic, pre-state-settling)</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">extract_chapter_facts</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Deterministically extract key facts from freshly drafted chapter.</span>
+<span class="sd">    Feeds structured guidance to state-settling instead of raw 30KB text.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;character_locations&#39;</span><span class="p">:</span> <span class="n">_extract_character_locations</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+        <span class="s1">&#39;emotional_state&#39;</span><span class="p">:</span> <span class="n">_extract_emotional_markers</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+        <span class="s1">&#39;active_conflicts&#39;</span><span class="p">:</span> <span class="n">_extract_conflict_markers</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+        <span class="s1">&#39;hook_appearances&#39;</span><span class="p">:</span> <span class="n">_extract_hook_references</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+        <span class="s1">&#39;new_characters&#39;</span><span class="p">:</span> <span class="n">_extract_new_character_introductions</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+        <span class="s1">&#39;key_events&#39;</span><span class="p">:</span> <span class="n">_extract_event_sentences</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span>
+    <span class="p">}</span>
+</code></pre></div>
+<p><strong>Rationale:</strong> state-settling currently receives only raw chapter text (30KB) with no structural guidance. Pre-extracted facts enable:
+- Reduced context for state-settling (send extraction, not full text)
+- More accurate truth file updates (explicit "this is what happened")
+- Clearer append-vs-overwrite decisions</p>
+<h4 id="add-3-pipeline-linguistic-drift-check-deterministic-pre-audit">ADD-3: pipeline-linguistic-drift-check (Deterministic, pre-audit)</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_linguistic_drift</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run linguistic drift detection every chapter. Non-conditional.&quot;&quot;&quot;</span>
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">_load_baseline</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_drift</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+
+    <span class="n">alerts</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;system_term_density&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">30</span><span class="p">:</span>
+        <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;System term density </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;system_term_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;em_dash_density&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">20</span><span class="p">:</span>
+        <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Em-dash density </span><span class="si">{</span><span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;em_dash_density&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">‰&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">metrics</span><span class="p">[</span><span class="s1">&#39;dialogue_density&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">chapter</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+        <span class="n">alerts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;Dialogue density near zero -- possible character disappearance&quot;</span><span class="p">)</span>
+
+    <span class="c1"># 3 consecutive chapter triggers -&gt; inject corrective instructions</span>
+    <span class="c1"># into next chapter&#39;s planning prompt</span>
+    <span class="k">return</span> <span class="n">alerts</span>
+</code></pre></div>
+<h4 id="add-4-pipeline-pre-revision-snapshot-deterministic-pre-revision">ADD-4: pipeline-pre-revision-snapshot (Deterministic, pre-revision)</h4>
+<p>Owned by Spec 3 §3.1 (Pre-Revision Backup). This spec references that implementation — do not duplicate.</p>
+<p><strong>Rationale:</strong> Chapters 2/9/12/44/55 permanently lost because revision skill overwrote chapter body with no backup.</p>
+<h3 id="34-parallelization-foreshadowing-lifecycle-state-settling">3.4 Parallelization: foreshadowing-lifecycle || state-settling</h3>
+<p>The pipeline already has a parallel-dispatch layer for audits (<code>src/shenbi/pipeline/parallel_dispatch.py</code>, invoked at <code>chapter_loop.py:1090-1168</code>). This section proposes reusing that same concurrency mechanism for the post-drafting pair. After MERGE-1 is implemented, the post-drafting phase has two write-disjoint steps:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">concurrent.futures</span>
+
+<span class="c1"># Step 1: drafting (must be serial -- all subsequent steps depend on it)</span>
+<span class="n">drafting_result</span> <span class="o">=</span> <span class="n">run_chapter_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">drafting_step</span><span class="p">)</span>
+
+<span class="c1"># Step 2: lifecycle || state-settling (parallel -- zero data conflict)</span>
+<span class="c1"># Reuses the ThreadPoolExecutor + Semaphore pattern already proven by</span>
+<span class="c1"># parallel_dispatch.dispatch_reviews_parallel() for the audit waves.</span>
+<span class="k">with</span> <span class="n">concurrent</span><span class="o">.</span><span class="n">futures</span><span class="o">.</span><span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">executor</span><span class="p">:</span>
+    <span class="n">lifecycle_future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">run_chapter_step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">lifecycle_step</span><span class="p">)</span>
+    <span class="n">settling_future</span> <span class="o">=</span> <span class="n">executor</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">run_chapter_step</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">state_settling_step</span><span class="p">)</span>
+
+    <span class="n">lifecycle_result</span> <span class="o">=</span> <span class="n">lifecycle_future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+    <span class="n">settling_result</span> <span class="o">=</span> <span class="n">settling_future</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+<span class="c1"># Verify both succeeded</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">lifecycle_result</span><span class="o">.</span><span class="n">success</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">settling_result</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+    <span class="c1"># Handle failure -- may retry one independently</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p><strong>Safety verification:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>lifecycle</th>
+<th>state-settling</th>
+<th>Verdict</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Shared dependency</td>
+<td>drafting complete</td>
+<td>drafting complete</td>
+<td>Same</td>
+</tr>
+<tr>
+<td>Writes to</td>
+<td><code>pending_hooks.md</code></td>
+<td>6 truth files</td>
+<td>Zero overlap</td>
+</tr>
+<tr>
+<td>Reads other's writes</td>
+<td>No</td>
+<td>No</td>
+<td>Zero read-after-write</td>
+</tr>
+<tr>
+<td>Reads same files</td>
+<td><code>chapter-N.md</code>, <code>pending_hooks.md</code> (read)</td>
+<td><code>chapter-N.md</code></td>
+<td>Read-only, no conflict</td>
+</tr>
+<tr>
+<td>Failure isolation</td>
+<td>lifecycle fail doesn't affect truth</td>
+<td>settling fail doesn't affect hooks</td>
+<td>Independent retry</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Thread safety for PipelineState:</strong></p>
+<p>All <code>PipelineState</code> mutations MUST be confined to the main thread (single-writer pattern). Worker threads return results; the main thread applies them to state. This is the actor-model approach and avoids the complexity of fine-grained locking on a rich state object. Worker threads return <code>dict</code> results via <code>Future.result()</code>; the main thread merges them sequentially.</p>
+<h3 id="35-shared-scr-extractor-map-reduce-pattern">3.5 Shared SCR Extractor (Map-Reduce Pattern)</h3>
+<p>The Structured Chapter Representation (SCR) is extracted once per chapter via deterministic code and cached to disk. All downstream LLM calls consume relevant SCR fields instead of raw chapter text.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/scr_extractor.py</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">StructuredChapterRepresentation</span><span class="p">:</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">extracted_at</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="c1"># Facts-Only fields (deterministic, high precision)</span>
+    <span class="n">character_locations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">dialogue_segments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">event_timeline</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">emotional_markers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">hook_appearances</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">world_refs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">pov_shifts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">decision_points</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">paragraph_stats</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">sensitive_hits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">fatigue_word_hits</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+    <span class="n">transition_markers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span>
+
+    <span class="c1"># Smart-Excerpting fields (original text preserved)</span>
+    <span class="n">opening_paragraph</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">closing_paragraph</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">implicit_info_passages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+
+    <span class="c1"># Metadata</span>
+    <span class="n">total_chinese_chars</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">extraction_confidence</span><span class="p">:</span> <span class="nb">float</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_scr</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">StructuredChapterRepresentation</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Once per chapter: deterministic structured extraction.&quot;&quot;&quot;</span>
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">prose</span> <span class="o">=</span> <span class="n">extract_prose</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">)</span>  <span class="c1"># Strip META block</span>
+
+    <span class="n">scr</span> <span class="o">=</span> <span class="n">StructuredChapterRepresentation</span><span class="p">(</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+        <span class="n">extracted_at</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+        <span class="n">character_locations</span><span class="o">=</span><span class="n">_extract_character_locations</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">dialogue_segments</span><span class="o">=</span><span class="n">_extract_dialogue_segments</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">event_timeline</span><span class="o">=</span><span class="n">_extract_event_timeline</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">emotional_markers</span><span class="o">=</span><span class="n">_extract_emotional_markers</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">hook_appearances</span><span class="o">=</span><span class="n">_extract_hook_appearances</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">world_refs</span><span class="o">=</span><span class="n">_extract_world_references</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">pov_shifts</span><span class="o">=</span><span class="n">_extract_pov_shifts</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">decision_points</span><span class="o">=</span><span class="n">_extract_decision_points</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">paragraph_stats</span><span class="o">=</span><span class="n">_compute_paragraph_stats</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">sensitive_hits</span><span class="o">=</span><span class="n">_scan_sensitive_words</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">fatigue_word_hits</span><span class="o">=</span><span class="n">_scan_fatigue_words</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">transition_markers</span><span class="o">=</span><span class="n">_scan_transition_markers</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">opening_paragraph</span><span class="o">=</span><span class="n">_extract_opening</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">closing_paragraph</span><span class="o">=</span><span class="n">_extract_closing</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">implicit_info_passages</span><span class="o">=</span><span class="n">_extract_implicit_passages</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+        <span class="n">total_chinese_chars</span><span class="o">=</span><span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">prose</span> <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\u4e00</span><span class="s1">&#39;</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s1">&#39;</span><span class="se">\u9fff</span><span class="s1">&#39;</span><span class="p">),</span>
+        <span class="n">extraction_confidence</span><span class="o">=</span><span class="n">_compute_confidence</span><span class="p">(</span><span class="n">prose</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="c1"># Cache to disk</span>
+    <span class="n">cache_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-scr.json&#39;</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">cache_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">asdict</span><span class="p">(</span><span class="n">scr</span><span class="p">),</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">scr</span>
+</code></pre></div>
+<p><strong>SCR Consumer Map:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="n">SCR_CONSUMER_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;shenbi-chapter-planning&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;volume_node&#39;</span><span class="p">,</span> <span class="s1">&#39;character_locations&#39;</span><span class="p">,</span> <span class="s1">&#39;event_timeline&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-state-settling&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;character_locations&#39;</span><span class="p">,</span> <span class="s1">&#39;emotional_markers&#39;</span><span class="p">,</span>
+                               <span class="s1">&#39;event_timeline&#39;</span><span class="p">,</span> <span class="s1">&#39;hook_appearances&#39;</span><span class="p">,</span> <span class="s1">&#39;implicit_info_passages&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-foreshadowing-lifecycle&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hook_appearances&#39;</span><span class="p">,</span> <span class="s1">&#39;pending_hooks&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-continuity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;event_timeline&#39;</span><span class="p">,</span> <span class="s1">&#39;character_locations&#39;</span><span class="p">,</span> <span class="s1">&#39;world_refs&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-character&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;dialogue_segments&#39;</span><span class="p">,</span> <span class="s1">&#39;emotional_markers&#39;</span><span class="p">,</span> <span class="s1">&#39;implicit_info_passages&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-world-rules&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;world_refs&#39;</span><span class="p">,</span> <span class="s1">&#39;world_rules_summary&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-pacing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;event_timeline&#39;</span><span class="p">,</span> <span class="s1">&#39;paragraph_stats&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-memo-compliance&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;plan_checklist&#39;</span><span class="p">,</span> <span class="s1">&#39;event_timeline&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-foreshadowing&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;hook_appearances&#39;</span><span class="p">,</span> <span class="s1">&#39;pending_hooks&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-pov&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;pov_shifts&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-dialogue&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;dialogue_segments&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-motivation&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;decision_points&#39;</span><span class="p">,</span> <span class="s1">&#39;implicit_info_passages&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-reader-pull&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;opening_paragraph&#39;</span><span class="p">,</span> <span class="s1">&#39;closing_paragraph&#39;</span><span class="p">],</span>
+    <span class="s1">&#39;shenbi-review-sensitivity&#39;</span><span class="p">:</span> <span class="p">[</span><span class="s1">&#39;sensitive_hits&#39;</span><span class="p">],</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="36-token-waste-reduction">3.6 Token Waste Reduction</h3>
+<h4 id="phase-1-dispatch-level-token-logging-this-spec">Phase 1: Dispatch-Level Token Logging (this spec)</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_via_api</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">):</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">usage</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;llm_token_usage&quot;</span><span class="p">,</span>
+                    <span class="n">skill</span><span class="o">=</span><span class="n">skill_name</span><span class="p">,</span>
+                    <span class="n">prompt_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+                    <span class="n">completion_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+                    <span class="n">total_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">)</span>
+        <span class="n">_record_token_usage</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">usage</span><span class="p">)</span>
+</code></pre></div>
+<p>End-of-pipeline summary:
+<div class="highlight"><pre><span></span><code>Token usage by skill:
+  shenbi-chapter-drafting:  avg 12,500 prompt + 8,200 completion
+  shenbi-state-settling:    avg 9,100 prompt + 3,400 completion
+  shenbi-review-resonance:  avg 14,200 prompt + 2,100 completion
+  ...
+</code></pre></div></p>
+<h4 id="phase-2-token-reduction-dependent-on-other-specs">Phase 2: Token Reduction (dependent on other specs)</h4>
+<ol>
+<li>Eliminate G4 resonance retries (Spec 2 -- resonance format fix): saves ~85-136K tokens</li>
+<li>META context stripping for non-drafting calls (this spec, ADD-2): saves ~10-15% prompt tokens</li>
+<li>Audit cascading: if core 4 auditors all PASS with confidence &gt;90%, skip remaining 9 (saves ~15-20% audit tokens)</li>
+</ol>
+<h3 id="37-resulting-pipeline-16-steps-10-llm-calls">3.7 Resulting Pipeline: 16 Steps, 10 LLM Calls</h3>
+<p><strong>Before (current): 20 <code>CHAPTER_STEPS</code>, ~24 LLM calls</strong> (the call count exceeds the step count because 6 genre-circle audits dispatch dynamically on top of the 20 steps; see Appendix A)</p>
+<div class="highlight"><pre><span></span><code>Step 1:  intent-management        [LLM]
+Step 2:  chapter-planning          [LLM]
+Step 3:  foreshadowing-plant       [LLM -- currently deterministic-intercepted]
+Step 4:  context-assemble          [Deterministic]
+Step 5:  context-composing         [LLM -- already deterministic-intercepted]
+Step 6:  chapter-drafting          [LLM]
+Step 7:  state-settling            [LLM]
+Step 8:  foreshadowing-track       [LLM]
+Step 9:  foreshadowing-recall      [LLM]
+Step 10-16: 7 core-circle audits   [LLM, dispatched in parallel via parallel_dispatch.py]
+Step 17: review-resonance          [LLM]
+Step 18: chapter-revision          [LLM, conditional]
+Step 19: snapshot-manage           [Deterministic]
+Step 20: drift-guidance            [LLM]
+(+ genre-circle audits)            [LLM, dynamic via audit_layer.py, parallel]
+(escalation-review NOT a step -- dispatched on demand by revision_router)
+</code></pre></div>
+<p><strong>After (optimized): ~16 steps, ~10 LLM calls</strong></p>
+<div class="highlight"><pre><span></span><code>Step 1:  volume-align              [Deterministic]  &lt;- ADD-1
+Step 2:  chapter-planning          [LLM]            &lt;- volume_map node extraction halves context
+Step 3:  context-prepare           [Deterministic]  &lt;- DELETE-3: assemble+curation merged
+Step 4:  chapter-drafting          [LLM]
+Step 5:  post-draft-extract        [Deterministic]  &lt;- ADD-2
+Step 6:  linguistic-drift-check    [Deterministic]  &lt;- ADD-3
+Step 7:  foreshadowing-lifecycle   [LLM]            &lt;- MERGE-1: plant+track+recall combined
+Step 8:  state-settling            [LLM]            &lt;- supplemented with post-draft-extract context
+Step 7+8 run in parallel (ThreadPoolExecutor)
+Step 9:  Grouped Audit A: Facts    [LLM]            &lt;- MERGE-2: continuity+world-rules+pacing
+Step 10: Grouped Audit B: Chars    [LLM]            &lt;- MERGE-2: character+dialogue+motivation+pov
+Step 11: Grouped Audit C: Craft    [LLM]            &lt;- MERGE-2: texture+reader-pull+anti-ai
+Step 12: Grouped Audit D: Plan     [LLM]            &lt;- MERGE-2: memo-compliance+foreshadowing
+Step 13: Grouped Audit E: Score    [LLM]            &lt;- resonance standalone
+Step 14: Grouped Audit F: Compl    [LLM]            &lt;- sensitivity standalone
+Step 15: pre-revision-snapshot     [Deterministic]  &lt;- ADD-4
+Step 16: chapter-revision          [LLM]            &lt;- conditional
+(+ intent-management)              [LLM]            &lt;- DELETE-2: volume boundary only
+(+ escalation-review)              [LLM]            &lt;- DELETE-1: escalation trigger only
+(+ drift-guidance)                 [LLM]            &lt;- conditional (drift-check alert)
+(+ snapshot-manage)                [Deterministic]
+</code></pre></div>
+<hr />
+<h2 id="4-effect-summary">4. Effect Summary</h2>
+<h3 id="41-per-chapter-metrics">4.1 Per-Chapter Metrics</h3>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Current</th>
+<th>After Optimization</th>
+<th>Improvement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Total steps</td>
+<td>20</td>
+<td>16 (+4 conditional)</td>
+<td>-20%</td>
+</tr>
+<tr>
+<td>LLM calls</td>
+<td>~24</td>
+<td>~10 (+3 conditional)</td>
+<td><strong>-58%</strong></td>
+</tr>
+<tr>
+<td>LLM tokens</td>
+<td>~337K</td>
+<td>~130K</td>
+<td><strong>-61%</strong></td>
+</tr>
+<tr>
+<td>chapter-N.md reads</td>
+<td>15</td>
+<td>6 (+shared cache)</td>
+<td>-60%</td>
+</tr>
+<tr>
+<td>pending_hooks.md reads</td>
+<td>4</td>
+<td>1 (lifecycle merged)</td>
+<td>-75%</td>
+</tr>
+<tr>
+<td>volume_map full transmission</td>
+<td>4</td>
+<td>0 (node extraction 500B)</td>
+<td>-100%</td>
+</tr>
+<tr>
+<td>Wall time</td>
+<td>~43 min</td>
+<td>~17 min</td>
+<td><strong>-60%</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-llm-call-reduction-breakdown">4.2 LLM Call Reduction Breakdown</h3>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>Reduction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>DELETE-1: escalation-review conditional</td>
+<td>-0.9/chapter</td>
+</tr>
+<tr>
+<td>DELETE-2: intent-management boundary-only</td>
+<td>-0.9/chapter</td>
+</tr>
+<tr>
+<td>DELETE-3: context-composing deterministic</td>
+<td>-1/chapter</td>
+</tr>
+<tr>
+<td>MERGE-1: 3 foreshadowing -&gt; 1 lifecycle</td>
+<td>-2/chapter</td>
+</tr>
+<tr>
+<td>MERGE-2: 13 auditors -&gt; 6 grouped</td>
+<td>-7/chapter</td>
+</tr>
+<tr>
+<td><strong>Total reduction</strong></td>
+<td><strong>-11.8/chapter</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-input-reduction-from-scr">4.3 Input Reduction from SCR</h3>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Calls</th>
+<th>Current Input/Call</th>
+<th>SCR Input/Call</th>
+<th>Savings/Call</th>
+<th>Total Savings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Facts-Only</td>
+<td>9</td>
+<td>30-114KB</td>
+<td>3-8KB</td>
+<td>85-95%</td>
+<td>~400KB</td>
+</tr>
+<tr>
+<td>Smart Excerpting</td>
+<td>4</td>
+<td>30-42KB</td>
+<td>5-10KB</td>
+<td>75-85%</td>
+<td>~120KB</td>
+</tr>
+<tr>
+<td>Not Applicable</td>
+<td>5</td>
+<td>30-55KB</td>
+<td>30-55KB</td>
+<td>0%</td>
+<td>0</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>18</strong></td>
+<td><strong>961KB</strong></td>
+<td><strong>~280KB</strong></td>
+<td><strong>71%</strong></td>
+<td><strong>~680KB</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="44-cumulative-time-savings">4.4 Cumulative Time Savings</h3>
+<table>
+<thead>
+<tr>
+<th>Optimization</th>
+<th>Per Chapter</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Current baseline</td>
+<td>~43 min</td>
+</tr>
+<tr>
+<td>+ Step reorganization (delete + merge)</td>
+<td>~30 min</td>
+</tr>
+<tr>
+<td>+ Parallelization (lifecycle</td>
+<td></td>
+</tr>
+<tr>
+<td>+ SCR pre-extraction</td>
+<td><strong>~17 min</strong></td>
+</tr>
+<tr>
+<td><strong>Total improvement</strong></td>
+<td><strong>-60%</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-affected-files">5. Affected Files</h2>
+<h3 id="51-core-pipeline">5.1 Core Pipeline</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Restructure CHAPTER_STEPS (20 -&gt; 16); add _should_run_step conditioning; extend the existing parallel-dispatch pattern to the lifecycle + state-settling pair; integrate volume-align, post-draft-extract, linguistic-drift-check, pre-revision-snapshot</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/parallel_dispatch.py</code></td>
+<td>Extend the existing ThreadPoolExecutor + Semaphore dispatch (currently used for audit waves) to cover the post-drafting pair</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Add SCR consumer injection; add token logging (<code>response.usage</code> -- currently absent); strip META for non-drafting. Note: temperature is hardcoded as <code>_API_TEMPERATURE = 0.7</code> (line 49) -- optionally externalize</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/state.py</code></td>
+<td>Single-writer pattern: worker threads return <code>dict</code> results; main thread merges them sequentially to <code>PipelineState</code> (no fine-grained locking)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-new-modules">5.2 New Modules</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/scr_extractor.py</code></td>
+<td>Deterministic Structured Chapter Representation extraction</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/volume_align.py</code></td>
+<td>Volume map alignment checker</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code></td>
+<td>Linguistic drift detection (moved from scattered checks). See Spec 4 §3.2 for the canonical location.</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td>Refactored: static template + dynamic deltas</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-skill-definitions">5.3 Skill Definitions</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skills/shenbi-foreshadowing-lifecycle/SKILL.md</code></td>
+<td>New skill: combines plant+track+recall</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-plant/SKILL.md</code></td>
+<td>Mark DEPRECATED</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-track/SKILL.md</code></td>
+<td>Mark DEPRECATED</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-recall/SKILL.md</code></td>
+<td>Mark DEPRECATED</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-context-composing/SKILL.md</code></td>
+<td>Mark DEPRECATED</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-escalation-review/SKILL.md</code></td>
+<td>Update to document conditional dispatch</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-review-*/SKILL.md</code></td>
+<td>Update contracts for grouped audit prompts</td>
+</tr>
+</tbody>
+</table>
+<h3 id="54-config">5.4 Config</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>executor_config.toml</code> (does not yet exist -- to be created)</td>
+<td>New config: externalize temperature/max_tokens for the new lifecycle skill (currently <code>_API_TEMPERATURE = 0.7</code> is hardcoded in <code>dispatch_helper.py:49</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-verification-criteria">6. Verification Criteria</h2>
+<h3 id="61-step-reorganization">6.1 Step Reorganization</h3>
+<ol>
+<li><code>CHAPTER_STEPS</code> list reflects new 16-step structure</li>
+<li><code>_should_run_step</code> correctly gates escalation-review, intent-management</li>
+<li>Grouped audit prompts produce separate dimension reports within single LLM response</li>
+<li>Deprecated skills are unreachable from chapter loop</li>
+</ol>
+<h3 id="62-parallelization">6.2 Parallelization</h3>
+<ol>
+<li><code>ThreadPoolExecutor</code> used for lifecycle + state-settling after drafting (reuses the existing <code>parallel_dispatch.py</code> concurrency layer already proven by the audit waves)</li>
+<li><code>safe_write</code> produces zero deadlocks or race conditions under concurrent execution</li>
+<li><code>pending_hooks.md</code> content identical between serial and parallel execution (regression test)</li>
+<li>6 truth files content identical between serial and parallel execution</li>
+<li>Failure isolation: lifecycle failure doesn't block state-settling (and vice versa)</li>
+</ol>
+<h3 id="63-scr-extractor">6.3 SCR Extractor</h3>
+<ol>
+<li>SCR <code>character_locations</code> consistent with chapter content (spot-check 5 chapters)</li>
+<li>Facts-Only calls using SCR produce audit results consistent with full-text calls (A/B test, 3 chapters)</li>
+<li>Smart Excerpting calls preserve all passages with emotional/relational markers in <code>implicit_info_passages</code></li>
+<li>SCR cache hit rate 100% (no re-extraction for same chapter)</li>
+<li><code>extraction_confidence &gt;= 0.85</code> (covers &gt;85% of known extraction patterns)</li>
+</ol>
+<h3 id="64-token-reduction">6.4 Token Reduction</h3>
+<ol>
+<li>Pipeline logs include per-step token counts</li>
+<li>Pipeline completion prints token usage summary by skill</li>
+<li>Post-optimization retry tokens reduced by &gt;50%</li>
+</ol>
+<h3 id="65-global">6.5 Global</h3>
+<ol>
+<li><code>just check</code> full pass</li>
+<li>End-to-end test: run 3-chapter mini-pipeline with new architecture</li>
+</ol>
+<hr />
+<h2 id="7-risks-and-mitigations">7. Risks and Mitigations</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Grouped audits reduce individual audit quality</td>
+<td>Preserve full single-audit checklists within each grouped prompt; groups formed by natural context overlap</td>
+</tr>
+<tr>
+<td>Foreshadowing lifecycle too complex as single call</td>
+<td>Operation order is recall-&gt;track-&gt;plant, progressive; maintain independent output sections</td>
+</tr>
+<tr>
+<td>intent-management boundary-only may miss mid-volume adjustments</td>
+<td>Also run when drift-guidance triggers or author_intent manually modified</td>
+</tr>
+<tr>
+<td>Deterministic steps reduce flexibility</td>
+<td>All deterministic steps produce WARN not HARD block; LLM can override in subsequent steps</td>
+</tr>
+<tr>
+<td>SCR new extraction patterns miss critical info</td>
+<td>High-recall strategy -- extract more, not less; fall back to full text when extraction_confidence below threshold</td>
+</tr>
+<tr>
+<td>Regex extraction fails on non-standard text</td>
+<td>Multi-layer fallback: regex -&gt; heuristic -&gt; mark "low confidence", pass original text to LLM</td>
+</tr>
+<tr>
+<td>SCR format evolution breaks cache</td>
+<td>SCR includes version number; old versions auto-trigger re-extraction</td>
+</tr>
+<tr>
+<td>Two parallel calls hit API rate limit</td>
+<td>DeepSeek API allows &gt;=2 concurrent; use semaphore if needed</td>
+</tr>
+<tr>
+<td>PipelineState thread safety</td>
+<td>Confine all state mutations to the main thread (single-writer); worker threads return dict results, main thread merges sequentially</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-dependencies">8. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 5 (Content Quality Gates and Review Optimization)
+  └─ DELETE-1 (escalation-review conditional) detailed implementation
+  └─ Review checklist split into static + dynamic
+  └─ G4 sub-check infrastructure used by new deterministic steps
+
+Execution order:
+  1. Spec 5 (DELETE-1 implementation) -- unblocks escalation-review removal
+  2. This Spec (MERGE-1, MERGE-2, ADD-1..4, SCR, parallelization)
+
+### Original Code Mapping
+
+| Original Issue Code | Consolidated Spec |
+|---|---|
+| step-reorg | Spec 6 (this spec) |
+| parallelize | Spec 6 (this spec) |
+| SCR | Spec 6 (this spec) |
+| M1 | Spec 6 (this spec) |
+</code></pre></div>
+<hr />
+<h2 id="appendix-a-full-current-step-list-20-chapter_steps">Appendix A: Full Current Step List (20 <code>CHAPTER_STEPS</code>)</h2>
+<p>Source of truth: <code>CHAPTER_STEPS</code> at <code>src/shenbi/pipeline/chapter_loop.py:106-254</code>.</p>
+<div class="highlight"><pre><span></span><code>1.  shenbi-intent-management           [LLM]  -- reads author_intent, audit_drift
+2.  shenbi-chapter-planning            [LLM]  -- reads 7 files (83KB); staging + CHAPTER_MEMO checkpoint
+3.  shenbi-foreshadowing-plant         [LLM]  -- reads plan + volume_map + hooks
+4.  pipeline-context-assemble          [DET]  -- assembles context files (+ runs deterministic curation)
+5.  shenbi-context-composing           [LLM]  -- intercepted by deterministic code (chapter_loop.py:1182-1197)
+6.  shenbi-chapter-drafting            [LLM]  -- reads plan + context + style
+7.  shenbi-state-settling              [LLM]  -- reads chapter (30KB), updates 6 truth files; staging + STATE_SETTLE checkpoint
+8.  shenbi-foreshadowing-track         [LLM]  -- reads chapter + pending_hooks
+9.  shenbi-foreshadowing-recall        [LLM]  -- reads pending_hooks
+10. shenbi-review-anti-ai              [LLM]  -- core-circle audit
+11. shenbi-review-continuity           [LLM]  -- core-circle audit
+12. shenbi-review-character            [LLM]  -- core-circle audit
+13. shenbi-review-pacing               [LLM]  -- core-circle audit
+14. shenbi-review-foreshadowing        [LLM]  -- core-circle audit
+15. shenbi-review-memo-compliance      [LLM]  -- core-circle audit
+16. shenbi-review-pov                  [LLM]  -- core-circle audit
+17. shenbi-review-resonance            [LLM]  -- independent resonance scoring
+18. shenbi-chapter-revision            [LLM]  -- reads chapter + all audit results; conditional
+19. shenbi-snapshot-manage             [DET]  -- timestamped snapshot
+20. shenbi-drift-guidance              [LLM]  -- drift guidance
+</code></pre></div>
+<p><strong>Notes on what is NOT a serial <code>CHAPTER_STEP</code>:</strong></p>
+<ul>
+<li>Steps 10-16 (7 core-circle audits) are defined as serial steps but are actually dispatched in a single parallel wave via <code>parallel_dispatch.dispatch_reviews_parallel()</code> (<code>chapter_loop.py:1090-1168</code>) -- they are consolidated and the loop advances past them in bulk.</li>
+<li>Genre-circle audits (<code>review-dialogue</code>, <code>review-motivation</code>, <code>review-world-rules</code>, <code>review-texture</code>, <code>review-reader-pull</code>, <code>review-sensitivity</code>) are NOT <code>CHAPTER_STEPS</code>. They are dispatched dynamically as a second parallel wave based on <code>genre-config.json</code> via <code>audit_layer.get_active_genre_audits()</code>.</li>
+<li><code>escalation-review</code> is NOT a step. It is dispatched on demand by <code>revision_router.dispatch_escalation()</code> only when a revision-retry ceiling or blocking-audit condition is hit.</li>
+<li><code>shenbi-foreshadowing-lifecycle</code> does NOT exist yet -- it is a proposed merge of steps 3, 8, 9.</li>
+</ul>
+<h2 id="appendix-b-scr-field-to-consumer-mapping-matrix">Appendix B: SCR Field to Consumer Mapping Matrix</h2>
+<div class="highlight"><pre><span></span><code>                          plan  settle  life  cont  char  world  pace  memo  fore  pov  dial  moti  read  sens
+character_locations        x      x                    x                        x
+dialogue_segments                            x      x                              x     x
+event_timeline             x      x            x                         x
+emotional_markers                x            x                                       x
+hook_appearances                 x      x                              x
+world_refs                                         x      x
+pov_shifts                                                                    x
+decision_points                                                                    x
+paragraph_stats                                        x
+sensitive_hits                                                                                         x
+fatigue_word_hits                                                   (aux)
+transition_markers                                                  (aux)
+opening_paragraph                                                                           x
+closing_paragraph                                                                           x
+implicit_info_passages          x            x                                       x
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

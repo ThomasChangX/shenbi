@@ -1,0 +1,2077 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-06-llm-context-engineering-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 8: LLM Context Engineering — Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 8: LLM Context Engineering — Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-06-llm-context-engineering-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-06-llm-context-engineering-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 8: LLM Context Engineering — Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-06-llm-context-engineering-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-8-llm-context-engineering-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 8: LLM Context Engineering — Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-fix-glob-pattern-expansion-bug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Fix Glob Pattern Expansion Bug
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-replace-code-fences-with-xml-document-tags" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Replace Code Fences with XML Document Tags
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-build-shared-audit-context-cache" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Build Shared Audit Context Cache
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-priority-driven-context-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Priority-Driven Context Budget
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-audit-cascading-and-instruction-hierarchy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Audit Cascading and Instruction Hierarchy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-wire-sharedauditcontext-_budgeted_truncate-and-_should_skip_audit-into-the-dispatch-path-critical" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Wire SharedAuditContext, _budgeted_truncate, and _should_skip_audit into the Dispatch Path (CRITICAL)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-8-llm-context-engineering-implementation-plan">Spec 8: LLM Context Engineering — Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Fix 3 bugs and 4 architecture defects in LLM context assembly, reducing per-chapter token consumption from 408K to ~243K (-40%).</p>
+<p><strong>Architecture:</strong> Three-layer fix: (1) Bug fixes in dispatch_helper.py (glob expansion, XML tags, truncation indicator — note: Spec 8 Bug 3's "UTF-8 byte-boundary corruption" is self-refuted; Python <code>text[:limit]</code> truncates at code-point boundaries so there is no corruption, the real fix is just an explicit truncation indicator, folded into Task 4's <code>_budgeted_truncate</code>; the spec's paragraph/sentence-boundary backtracking is gold-plating and intentionally NOT implemented), (2) Shared context infrastructure (audit cache, world summarizer, field filters, priority budget), (3) Prompt optimization (audit cascading, stale data removal, instruction hierarchy, SKILL.md bloat reduction).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, glob, structlog, xml.etree.ElementTree</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>just check</code> passes with zero failures</li>
+<li>Glob patterns in reads contracts correctly expand to matched files</li>
+<li>No code fence (<code>``) nesting in LLM prompts (all content uses</code><document>` tags)</li>
+<li>All <code>&lt;</code> characters in injected file content are escaped to <code>\u003c</code> (prevents tag injection; not a <code>&lt;/doc&gt;</code> replacement)</li>
+<li>Shared audit context cache reduces 13×30KB loads to 1×30KB + 12×cached</li>
+<li>World files summarized to &lt;3K tokens when &gt;5K tokens raw</li>
+<li>All files &gt;5KB in reads contracts declare field filters</li>
+<li>Priority-driven budget reduces truncation loss by ~60% (<code>_FILE_PRIORITY_WEIGHTS</code> are initial values needing calibration against real output)</li>
+<li>Audit cascading: when the previous N=3 chapters' cascaded audits ALL passed with zero HARD failures, skip the 8 cascaded audits (<code>memo-compliance</code> and <code>resonance</code> ALWAYS run and are excluded from the cascade -- there is no "confidence &gt;90%" signal available)</li>
+<li>3-tier instruction hierarchy present in all skill prompts</li>
+</ul>
+<hr />
+<h3 id="task-1-fix-glob-pattern-expansion-bug">Task 1: Fix Glob Pattern Expansion Bug</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:142-161</code> (<code>_build_skill_prompt</code>)
+- Test: <code>tests/pipeline/test_dispatch_helper_glob.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_resolve_read_path(project_dir: Path, read_path: str) -&gt; list[Path]</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_dispatch_helper_glob.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_read_path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_glob_wildcard_expands</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">char_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;characters&quot;</span> <span class="o">/</span> <span class="s2">&quot;major&quot;</span>
+        <span class="n">char_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">char_dir</span> <span class="o">/</span> <span class="s2">&quot;protagonist.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;protagonist&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">char_dir</span> <span class="o">/</span> <span class="s2">&quot;antagonist.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;antagonist&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;characters/major/*.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected 2 files, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">paths</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">names</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">}</span>
+        <span class="k">assert</span> <span class="n">names</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;protagonist.md&quot;</span><span class="p">,</span> <span class="s2">&quot;antagonist.md&quot;</span><span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_glob_non_wildcard_returns_single</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;test.md&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;test.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">paths</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">paths</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;test.md&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_glob_missing_returns_empty</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="n">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;nonexistent/*.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">paths</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_glob.py -v</code>
+Expected: FAIL (function not defined or doesn't expand glob)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/dispatch_helper.py:</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">glob_module</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">read_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a read path, expanding glob patterns if present.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_dir: Pipeline project root directory.</span>
+<span class="sd">        read_path: Path string from contract reads, may contain glob patterns.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of resolved Path objects. Empty list if no matches.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">read_path</span> <span class="ow">or</span> <span class="s2">&quot;?&quot;</span> <span class="ow">in</span> <span class="n">read_path</span> <span class="ow">or</span> <span class="s2">&quot;[&quot;</span> <span class="ow">in</span> <span class="n">read_path</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="n">read_path</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">glob_module</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="n">Path</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">matches</span><span class="p">)]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">read_path</span>
+        <span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">full_path</span><span class="p">]</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<p>Then update L142-161 in <code>_build_skill_prompt</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Replace the old loop:</span>
+<span class="c1"># for read_path in contract.get(&quot;reads&quot;, []):</span>
+<span class="c1">#     full_path = project_dir / resolved  ← BUG: resolved may contain literal *</span>
+
+<span class="c1"># With:</span>
+<span class="k">for</span> <span class="n">read_path_entry</span> <span class="ow">in</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">read_path_entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="c1"># Layer B: field-level read</span>
+        <span class="n">read_path</span> <span class="o">=</span> <span class="n">read_path_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="n">read_path_entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;fields&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">read_path</span> <span class="o">=</span> <span class="n">read_path_entry</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">resolved_paths</span> <span class="o">=</span> <span class="n">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">read_path</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">full_path</span> <span class="ow">in</span> <span class="n">resolved_paths</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">filter_to_fields</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+        <span class="n">input_texts</span><span class="p">[</span><span class="n">full_path</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_glob.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_glob.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: expand glob patterns in _resolve_read_path for contract reads&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-replace-code-fences-with-xml-document-tags">Task 2: Replace Code Fences with XML Document Tags</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:240-243</code> (<code>_build_skill_prompt</code>)
+- Test: <code>tests/pipeline/test_dispatch_helper_xml.py</code></p>
+<p><strong>Interfaces:</strong>
+- Modifies: input file injection format from <code>`` to</code><document>` tags</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_dispatch_helper_xml.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_prompt_uses_xml_tags_not_nested_fences</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;LLM prompts must use &lt;document&gt; tags, not nested ``` fences.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_build_skill_prompt</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;test.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;test content&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="c1"># We verify the output format by checking _build_skill_prompt output</span>
+        <span class="c1"># Create minimal contract</span>
+        <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_build_skill_prompt</span><span class="p">(</span>
+            <span class="s2">&quot;test-skill&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;test prompt&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># Must NOT contain nested ``` inside ```</span>
+        <span class="k">assert</span> <span class="s2">&quot;&lt;document&quot;</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="s2">&quot;Expected &lt;document&gt; tags&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;```</span><span class="se">\n</span><span class="s2">```&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="s2">&quot;Found nested code fences&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_xml.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/dispatch_helper.py, line 240-243, replace:</span>
+<span class="c1">#     user_parts.append(f&quot;### {fname}\n```\n{content}\n```&quot;)</span>
+<span class="c1"># With:</span>
+    <span class="k">if</span> <span class="n">input_texts</span><span class="p">:</span>
+        <span class="n">user_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">## Input Files (read-only reference)&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Escape ALL &#39;&lt;&#39; in content to &#39;\u003c&#39; to prevent any tag injection.</span>
+            <span class="c1"># (Spec 8 §3 Bug 2: the wrapper is &lt;/document&gt;, NOT &lt;/doc&gt;; the safest</span>
+            <span class="c1"># approach is escaping every &#39;&lt;&#39; rather than only replacing the tag.)</span>
+            <span class="n">safe_content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\u003c</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">user_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;document name=&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">safe_content</span><span class="si">}</span><span class="se">\n</span><span class="s1">&lt;/document&gt;&#39;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_xml.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_xml.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: use XML &lt;document&gt; tags (with \u003c escaping) instead of nested code fences for input files&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-build-shared-audit-context-cache">Task 3: Build Shared Audit Context Cache</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/audit_context_cache.py</code>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (call cache before audit batch)
+- Test: <code>tests/pipeline/test_audit_context_cache.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>SharedAuditContext</code> dataclass with pre-extracted fields
+- Produces: <code>build_shared_audit_context(project_dir: Path, chapter: int) -&gt; SharedAuditContext</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_audit_context_cache.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_context_cache</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SharedAuditContext</span><span class="p">,</span>
+    <span class="n">build_shared_audit_context</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_build_shared_context_extracts_chapter_fields</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">chapter_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="n">chapter_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">chapter_text</span> <span class="o">=</span> <span class="s2">&quot;# Chapter 1</span><span class="se">\n\n</span><span class="s2">林风站在山顶。</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;故事继续。&quot;</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="p">(</span><span class="n">chapter_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-001.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">ctx</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">ctx</span><span class="o">.</span><span class="n">chapter_text</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ctx</span><span class="o">.</span><span class="n">chapter_text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">100</span>
+        <span class="k">assert</span> <span class="n">ctx</span><span class="o">.</span><span class="n">world_rules</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">ctx</span><span class="o">.</span><span class="n">world_rules</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># may be missing</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_shared_context_reduces_repeated_io</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Shared context should be buildable once and reusable across audit calls.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">chapter_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="n">chapter_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">chapter_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-001.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;test content&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">ctx1</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="n">ctx2</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Same input should produce identical context</span>
+        <span class="k">assert</span> <span class="n">ctx1</span><span class="o">.</span><span class="n">chapter_text</span> <span class="o">==</span> <span class="n">ctx2</span><span class="o">.</span><span class="n">chapter_text</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_audit_context_cache.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/audit_context_cache.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SharedAuditContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pre-extracted context shared across all audit calls for a single chapter.&quot;&quot;&quot;</span>
+    <span class="n">chapter_text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">chapter_summary</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">world_rules</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">character_list</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">style_profile</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">volume_context</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">pending_hooks</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">estimated_tokens</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+        <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">chapter_text</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_summary</span><span class="p">,</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">world_rules</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">character_list</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">style_profile</span><span class="p">,</span>
+                 <span class="bp">self</span><span class="o">.</span><span class="n">volume_context</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pending_hooks</span><span class="p">])</span>
+        <span class="k">return</span> <span class="n">total</span> <span class="o">//</span> <span class="mi">3</span>  <span class="c1"># rough token estimate</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SharedAuditContext</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build shared context once per chapter, reused across all audit LLM calls.&quot;&quot;&quot;</span>
+    <span class="n">ctx</span> <span class="o">=</span> <span class="n">SharedAuditContext</span><span class="p">()</span>
+
+    <span class="n">chapter_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="k">if</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">chapter_text</span> <span class="o">=</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">world_rules_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;world_rules.md&quot;</span>
+    <span class="k">if</span> <span class="n">world_rules_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">world_rules_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">world_rules</span> <span class="o">=</span> <span class="n">_summarize_if_large</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">max_chars</span><span class="o">=</span><span class="mi">5000</span><span class="p">)</span>
+
+    <span class="n">characters_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;character_matrix.md&quot;</span>
+    <span class="k">if</span> <span class="n">characters_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">characters_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">character_list</span> <span class="o">=</span> <span class="n">_summarize_if_large</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">max_chars</span><span class="o">=</span><span class="mi">3000</span><span class="p">)</span>
+
+    <span class="n">style_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span>
+    <span class="k">if</span> <span class="n">style_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">style_profile</span> <span class="o">=</span> <span class="n">style_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)[:</span><span class="mi">2000</span><span class="p">]</span>
+
+    <span class="n">hooks_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="k">if</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">pending_hooks</span> <span class="o">=</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)[:</span><span class="mi">3000</span><span class="p">]</span>
+
+    <span class="n">volume_map_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;volume_map.md&quot;</span>
+    <span class="k">if</span> <span class="n">volume_map_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">volume_map_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">ctx</span><span class="o">.</span><span class="n">volume_context</span> <span class="o">=</span> <span class="n">_extract_volume_chapter</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;shared_audit_context_built&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+             <span class="n">estimated_tokens</span><span class="o">=</span><span class="n">ctx</span><span class="o">.</span><span class="n">estimated_tokens</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ctx</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_summarize_if_large</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">max_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Truncate text if it exceeds max_chars, adding summary indicator.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">max_chars</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">text</span><span class="p">[:</span><span class="n">max_chars</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">[... truncated from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2"> chars]&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_volume_chapter</span><span class="p">(</span><span class="n">volume_map_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract current chapter node from volume_map.&quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">volume_map_text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">in_section</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="sa">f</span><span class="s2">&quot;第</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">章&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="ow">or</span> <span class="sa">f</span><span class="s2">&quot;Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">line</span><span class="p">:</span>
+            <span class="n">in_section</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">elif</span> <span class="n">in_section</span> <span class="ow">and</span> <span class="p">(</span><span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;##&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;# &quot;</span><span class="p">)):</span>
+            <span class="k">break</span>
+        <span class="k">if</span> <span class="n">in_section</span><span class="p">:</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result</span><span class="p">[:</span><span class="mi">50</span><span class="p">])</span> <span class="k">if</span> <span class="n">result</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_audit_context_cache.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_context_cache.py<span class="w"> </span>tests/pipeline/test_audit_context_cache.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add shared audit context cache to reduce repeated file I/O&quot;</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note — this function is NOT yet wired.</strong> Task 3 only creates
+<code>build_shared_audit_context</code>. The cache has zero effect until the audit
+dispatch loop is modified to build it once per chapter and pass it to each
+auditor. That wiring is <strong>Task 6, Step 2</strong> (CRITICAL) — do not skip it.</p>
+</blockquote>
+<hr />
+<h3 id="task-4-priority-driven-context-budget">Task 4: Priority-Driven Context Budget</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (add <code>_budgeted_truncate</code>)
+- Test: <code>tests/pipeline/test_budgeted_truncate.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_FILE_PRIORITY_WEIGHTS: dict[str, float]</code>
+- Produces: <code>_budgeted_truncate(input_texts: dict, budget: int) -&gt; dict</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_budgeted_truncate.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">,</span> <span class="n">_budgeted_truncate</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_budgeted_truncate_preserves_high_priority</span><span class="p">():</span>
+    <span class="n">texts</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter-current.md&quot;</span><span class="p">:</span> <span class="s2">&quot;A&quot;</span> <span class="o">*</span> <span class="mi">30000</span><span class="p">,</span>   <span class="c1"># HIGH priority</span>
+        <span class="s2">&quot;world_rules.md&quot;</span><span class="p">:</span> <span class="s2">&quot;B&quot;</span> <span class="o">*</span> <span class="mi">10000</span><span class="p">,</span>        <span class="c1"># HIGH priority</span>
+        <span class="s2">&quot;style_profile.md&quot;</span><span class="p">:</span> <span class="s2">&quot;C&quot;</span> <span class="o">*</span> <span class="mi">5000</span><span class="p">,</span>       <span class="c1"># MEDIUM priority</span>
+        <span class="s2">&quot;archive_notes.md&quot;</span><span class="p">:</span> <span class="s2">&quot;D&quot;</span> <span class="o">*</span> <span class="mi">20000</span><span class="p">,</span>      <span class="c1"># LOW priority</span>
+    <span class="p">}</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="mi">20000</span>  <span class="c1"># chars</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_budgeted_truncate</span><span class="p">(</span><span class="n">texts</span><span class="p">,</span> <span class="n">budget</span><span class="p">)</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># High priority files should be less truncated</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chapter-current.md&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mi">5000</span>
+    <span class="c1"># Total should be within budget</span>
+    <span class="k">assert</span> <span class="n">total</span> <span class="o">&lt;=</span> <span class="n">budget</span> <span class="o">*</span> <span class="mf">1.1</span>  <span class="c1"># 10% tolerance</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_priority_weights_exist_for_all_keys</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="s2">&quot;chapter-current.md&quot;</span> <span class="ow">in</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span> <span class="ow">or</span> <span class="s2">&quot;chapter&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">5</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_budgeted_truncate.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/dispatch_helper.py:</span>
+
+<span class="n">_FILE_PRIORITY_WEIGHTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># HIGH priority (1.0) — essential for task completion</span>
+    <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;chapter-current&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="s2">&quot;chapter-plan&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>
+    <span class="c1"># MEDIUM-HIGH (0.8) — strongly influences output quality</span>
+    <span class="s2">&quot;volume_map&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;character_matrix&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;world_rules&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="s2">&quot;current_state&quot;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>
+    <span class="c1"># MEDIUM (0.5) — provides important context</span>
+    <span class="s2">&quot;style_profile&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;pending_hooks&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;review_checklist&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="s2">&quot;current_focus&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+    <span class="c1"># LOW (0.2) — supplementary, can be heavily truncated</span>
+    <span class="s2">&quot;archive&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;snapshot&quot;</span><span class="p">:</span> <span class="mf">0.2</span><span class="p">,</span>
+    <span class="s2">&quot;default&quot;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_priority</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get priority weight for a filename based on keyword matching.</span>
+
+<span class="sd">    Checks explicit path prefixes first to avoid substring misclassification</span>
+<span class="sd">    (e.g., ``audits/chapter-1-anti-ai.md`` must not match the ``audit`` key</span>
+<span class="sd">    and return LOW when it contains ``chapter`` in its name).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Explicit path-prefix checks (avoid substring false matches)</span>
+    <span class="k">if</span> <span class="n">filename</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;audits/&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Priority</span><span class="o">.</span><span class="n">LOW</span>
+    <span class="k">elif</span> <span class="s2">&quot;chapter&quot;</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">Priority</span><span class="o">.</span><span class="n">HIGH</span>
+    <span class="c1"># Fall back to keyword matching for remaining entries</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">weight</span>
+    <span class="k">return</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">[</span><span class="s2">&quot;default&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_budgeted_truncate</span><span class="p">(</span><span class="n">input_texts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">budget</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Truncate input texts to fit within budget, preserving high-priority content.</span>
+
+<span class="sd">    Uses weighted allocation: high-priority files get proportionally more budget.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">input_texts</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+
+    <span class="c1"># Calculate total weight</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">name</span><span class="p">:</span> <span class="n">_get_priority</span><span class="p">(</span><span class="n">name</span><span class="p">)</span> <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="p">}</span>
+    <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># Allocate budget proportionally by weight</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">allocation</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">budget</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_weight</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">allocation</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">allocation</span><span class="p">]</span> <span class="o">+</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">[... truncated from </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span><span class="si">}</span><span class="s2"> chars]&quot;</span>
+
+    <span class="c1"># Enforce per-file character ceiling</span>
+    <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="n">name</span><span class="p">][:</span><span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_budgeted_truncate.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_budgeted_truncate.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add priority-driven context budget allocation&quot;</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note — this function is NOT yet wired.</strong> Task 4 only adds
+<code>_budgeted_truncate</code> (and <code>_FILE_PRIORITY_WEIGHTS</code>). It has zero effect while
+<code>_build_skill_prompt</code> still uses its old equal-weight proportional truncation
+(<code>budget_per_file = total // n_files</code>). The call site replacement is
+<strong>Task 6, Step 1</strong> (CRITICAL) — do not skip it.</p>
+</blockquote>
+<hr />
+<h3 id="task-5-audit-cascading-and-instruction-hierarchy">Task 5: Audit Cascading and Instruction Hierarchy</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_build_skill_prompt</code> — add hierarchy)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (add audit cascading logic)
+- Test: <code>tests/pipeline/test_audit_cascading.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_should_skip_audit(skill: str, audit_history: list[dict]) -&gt; bool</code> (N=3 chapter zero-HARD-failure streak heuristic)
+- Produces: <code>_inject_instruction_hierarchy(prompt: str) -&gt; str</code>
+- Produces: <code>CASCADABLE_AUDITS</code>, <code>CORE_AUDITS</code>, <code>ALWAYS_RUN</code>, <code>CASCADE_STREAK_LENGTH</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_audit_cascading.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_inject_instruction_hierarchy</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_instruction_hierarchy_has_three_tiers</span><span class="p">():</span>
+    <span class="n">prompt</span> <span class="o">=</span> <span class="s2">&quot;Review the chapter for issues.&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_inject_instruction_hierarchy</span><span class="p">(</span><span class="n">prompt</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;HARD CONSTRAINTS&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;GUIDELINES&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;REFERENCE&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_three_chapter_zero_hard_streak_skips_cascaded_audit</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span>
+
+    <span class="c1"># Previous N=3 chapters: &#39;dialogue&#39; audit passed with zero HARD failures each time.</span>
+    <span class="c1"># audit_history is most-recent-last; only the trailing N=3 entries are considered.</span>
+    <span class="n">audit_history</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="s2">&quot;dialogue&quot;</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hard_failure_in_streak_prevents_skip</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span>
+
+    <span class="c1"># One of the previous 3 chapters had a HARD failure in &#39;dialogue&#39; → do NOT skip.</span>
+    <span class="n">audit_history</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}},</span>  <span class="c1"># HARD failure</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="s2">&quot;dialogue&quot;</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_insufficient_history_prevents_skip</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span>
+
+    <span class="c1"># Fewer than N=3 chapters of history → cannot establish a streak → do NOT skip.</span>
+    <span class="n">audit_history</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="s2">&quot;dialogue&quot;</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_always_run_audits_are_never_skipped</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span><span class="p">,</span> <span class="n">ALWAYS_RUN</span>
+
+    <span class="n">audit_history</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;resonance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;resonance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;resonance&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">]</span>
+    <span class="c1"># resonance and memo-compliance ALWAYS run regardless of the cascade.</span>
+    <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">ALWAYS_RUN</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2"> must always run, but _should_skip_audit returned True&quot;</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_non_cascadable_skill_is_not_skipped</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span>
+
+    <span class="c1"># A core audit (e.g. &#39;continuity&#39;) is never cascade-skipped.</span>
+    <span class="n">audit_history</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+        <span class="p">{</span><span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;hard_failures&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}},</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="s2">&quot;continuity&quot;</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_audit_cascading.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/dispatch_helper.py:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inject_instruction_hierarchy</span><span class="p">(</span><span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Add 3-tier instruction hierarchy to prompt (Anthropic Context Engineering pattern).&quot;&quot;&quot;</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;## Instruction Hierarchy</span>
+
+<span class="s2">&lt;HARD_CONSTRAINTS&gt;</span>
+<span class="s2">- These rules CANNOT be violated under any circumstances</span>
+<span class="s2">- Violation = automatic rejection</span>
+<span class="s2">&lt;/HARD_CONSTRAINTS&gt;</span>
+
+<span class="s2">&lt;GUIDELINES&gt;</span>
+<span class="s2">- Follow these unless there is a compelling creative reason not to</span>
+<span class="s2">- Deviations must be justified in the decisions JSON</span>
+<span class="s2">&lt;/GUIDELINES&gt;</span>
+
+<span class="s2">&lt;REFERENCE&gt;</span>
+<span class="s2">- This section provides context and examples</span>
+<span class="s2">- Use for inspiration, not as strict rules</span>
+<span class="s2">&lt;/REFERENCE&gt;</span>
+
+<span class="s2">---</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">header</span> <span class="o">+</span> <span class="n">prompt</span>
+
+
+<span class="c1"># In src/shenbi/pipeline/chapter_loop.py:</span>
+
+<span class="c1"># Spec 8 Fix 8 — Core 4 pass, skip 8 (NOT &quot;skip 9&quot;).</span>
+<span class="c1"># memo-compliance and resonance ALWAYS run (scoring requires them) — they are</span>
+<span class="c1"># excluded from CASCADABLE_AUDITS and are never cascade-skipped. There is no</span>
+<span class="c1"># &quot;confidence &gt;90%&quot; signal available; instead we use an N=3 chapter streak with</span>
+<span class="c1"># zero HARD failures as the cascade trigger.</span>
+
+<span class="n">CORE_AUDITS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;continuity&quot;</span><span class="p">,</span> <span class="s2">&quot;character&quot;</span><span class="p">,</span> <span class="s2">&quot;world-rules&quot;</span><span class="p">,</span> <span class="s2">&quot;pacing&quot;</span><span class="p">]</span>
+
+<span class="n">ALWAYS_RUN</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;memo-compliance&quot;</span><span class="p">,</span> <span class="s2">&quot;resonance&quot;</span><span class="p">}</span>
+
+<span class="n">CASCADABLE_AUDITS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;dialogue&quot;</span><span class="p">,</span> <span class="s2">&quot;motivation&quot;</span><span class="p">,</span> <span class="s2">&quot;sensitivity&quot;</span><span class="p">,</span> <span class="s2">&quot;foreshadowing&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;pov&quot;</span><span class="p">,</span> <span class="s2">&quot;anti-ai&quot;</span><span class="p">,</span> <span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="s2">&quot;reader-pull&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">CASCADE_STREAK_LENGTH</span> <span class="o">=</span> <span class="mi">3</span>  <span class="c1"># N=3</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_skip_audit</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;N-chapter-streak cascade heuristic (Spec 8 Fix 8).</span>
+
+<span class="sd">    Skip `skill` only when ALL of the following hold:</span>
+<span class="sd">      1. `skill` is in CASCADABLE_AUDITS (core audits and ALWAYS_RUN audits run).</span>
+<span class="sd">      2. We have at least N=3 chapters of history for `skill`.</span>
+<span class="sd">      3. Each of the trailing N=3 entries for `skill` passed with zero HARD</span>
+<span class="sd">         failures.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        skill: audit skill short-name (e.g. &quot;dialogue&quot;, &quot;continuity&quot;).</span>
+<span class="sd">        audit_history: list of per-chapter audit result dicts, most-recent-last.</span>
+<span class="sd">            Each entry maps skill -&gt; {&quot;passed&quot;: bool, &quot;hard_failures&quot;: int}.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        True if the audit may be cascade-skipped this chapter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Core audits and always-run audits are never cascade-skipped.</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">CORE_AUDITS</span> <span class="ow">or</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">ALWAYS_RUN</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CASCADABLE_AUDITS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Unknown skill → run normally</span>
+
+    <span class="c1"># Need at least N=3 chapters of history to establish a streak.</span>
+    <span class="n">recent</span> <span class="o">=</span> <span class="n">audit_history</span><span class="p">[</span><span class="o">-</span><span class="n">CASCADE_STREAK_LENGTH</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">recent</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">CASCADE_STREAK_LENGTH</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">chapter_results</span> <span class="ow">in</span> <span class="n">recent</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">chapter_results</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># No record for this skill in that chapter → no streak</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Did not pass → break streak</span>
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hard_failures&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># Any HARD failure → break streak</span>
+
+    <span class="k">return</span> <span class="kc">True</span>  <span class="c1"># N=3 streak of zero-HARD-failure passes → cascade-skip</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_audit_cascading.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/test_audit_cascading.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: N=3 chapter streak audit cascade + 3-tier instruction hierarchy&quot;</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note — this function is NOT yet wired.</strong> Task 5 only adds
+<code>_should_skip_audit</code> (and the <code>CASCADABLE_AUDITS</code> / <code>ALWAYS_RUN</code> / <code>CASCADE_STREAK_LENGTH</code>
+constants). The cascade never skips anything until the audit dispatch block
+calls <code>_should_skip_audit</code> before building/dispatching each ReviewTask. That
+wiring is <strong>Task 6, Step 3</strong> (CRITICAL) — do not skip it.</p>
+</blockquote>
+<hr />
+<h3 id="task-6-wire-sharedauditcontext-_budgeted_truncate-and-_should_skip_audit-into-the-dispatch-path-critical">Task 6: Wire SharedAuditContext, _budgeted_truncate, and _should_skip_audit into the Dispatch Path (CRITICAL)</h3>
+<blockquote>
+<p><strong>Why this task exists:</strong> Tasks 3, 4, and 5 each DEFINE a function but, as
+written, never CALL it from the live dispatch path. Without this task the
+-40% token goal is unmet: the cache is built but unused, budgeted truncation
+is implemented but the old equal-weight truncation still runs, and the cascade
+predicate exists but every audit still dispatches every chapter. Each wiring
+step below names the exact file + code block it modifies. Verify the line
+numbers against the current tree before editing (they are accurate as of
+2026-07-19 but may drift).</p>
+</blockquote>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (audit dispatch block ~lines 1090-1143 — the <code>if step_idx == _FIRST_AUDIT_IDX and step.is_audit:</code> block that builds <code>core_tasks</code> and <code>genre_tasks</code> and dispatches the two parallel waves)
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_build_skill_prompt</code> truncation block ~lines 163-190; also <code>_build_skill_prompt</code> signature/<code>input_texts</code> injection ~lines 100-200)
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_dispatch_*</code> / audit dispatch entry that per-audit calls <code>_build_skill_prompt</code>)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>SharedAuditContext</code> / <code>build_shared_audit_context</code> (Task 3)
+- Consumes: <code>_budgeted_truncate</code>, <code>_FILE_PRIORITY_WEIGHTS</code> (Task 4)
+- Consumes: <code>_should_skip_audit</code>, <code>CASCADABLE_AUDITS</code>, <code>CASCADE_STREAK_LENGTH</code> (Task 5)</p>
+<ul>
+<li>[ ] <strong>Step 1: Wire <code>_budgeted_truncate</code> into <code>_build_skill_prompt</code> (replaces equal-weight truncation)</strong></li>
+</ul>
+<p><code>src/shenbi/pipeline/dispatch_helper.py</code> currently (lines 163-190) truncates
+  <code>raw_inputs</code> with an <strong>equal-weight proportional budget</strong>:
+  <code>budget_per_file = _INPUT_MAX_CHARS_TOTAL // len(raw_inputs)</code> and a per-file
+  cap of <code>_INPUT_MAX_CHARS_PER_FILE</code>. Replace that entire if/else block with a
+  single call to the Task-4 priority-weighted truncator:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/dispatch_helper.py — _build_skill_prompt, replacing</span>
+<span class="c1"># the old &quot;Apply per-file cap and proportional total budget&quot; if/else block</span>
+<span class="c1"># (~lines 163-190). Priority weights now drive allocation instead of the</span>
+<span class="c1"># equal-weight split.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_budgeted_truncate</span>  <span class="c1"># if not already imported</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">raw_inputs</span><span class="p">:</span>
+    <span class="n">input_texts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">total_raw</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">raw_inputs</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">total_raw</span> <span class="o">&gt;</span> <span class="n">_INPUT_MAX_CHARS_TOTAL</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;input_over_budget_applying_priority_truncation&quot;</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+            <span class="n">total_chars</span><span class="o">=</span><span class="n">total_raw</span><span class="p">,</span>
+            <span class="n">budget</span><span class="o">=</span><span class="n">_INPUT_MAX_CHARS_TOTAL</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">input_texts</span> <span class="o">=</span> <span class="n">_budgeted_truncate</span><span class="p">(</span><span class="n">raw_inputs</span><span class="p">,</span> <span class="n">_INPUT_MAX_CHARS_TOTAL</span><span class="p">)</span>
+        <span class="c1"># _budgeted_truncate respects _INPUT_MAX_CHARS_PER_FILE per file via</span>
+        <span class="c1"># the weights; if a stricter per-file ceiling is still required, cap</span>
+        <span class="c1"># each result here AFTER budgeted truncation.</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Under budget: still enforce the per-file cap.</span>
+        <span class="n">input_texts</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">fname</span><span class="p">:</span> <span class="p">(</span><span class="n">text</span><span class="p">[:</span><span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">]</span>
+                    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span> <span class="k">else</span> <span class="n">text</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">raw_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="p">}</span>
+</code></pre></div>
+<p>After this change the <code>input_truncated</code> log lines are emitted inside
+  <code>_budgeted_truncate</code>; the old per-file log calls in this block are removed.</p>
+<p>Add a test asserting that when over budget, a high-priority file
+  (<code>chapter-N.md</code>, weight 1.0) retains more characters than a low-priority file
+  (<code>archive-*.md</code>, weight 0.2) of equal original size.</p>
+<ul>
+<li>[ ] <strong>Step 2: Wire <code>SharedAuditContext</code> into the audit dispatch loop</strong></li>
+</ul>
+<p><code>src/shenbi/pipeline/chapter_loop.py</code>'s audit block (the
+  <code>if step_idx == _FIRST_AUDIT_IDX and step.is_audit:</code> block, ~lines 1093-1143)
+  builds <code>core_tasks</code> and <code>genre_tasks</code> (two <code>ReviewTask</code> waves) and dispatches
+  them in parallel. Each <code>ReviewTask</code> independently re-reads the chapter,
+  world rules, character matrix, style profile, etc. — that is the 13×30KB
+  repeated I/O the cache exists to eliminate.</p>
+<p>Build the shared context ONCE, before the two waves, and pass it through to
+  each auditor so they consume the cached fields instead of re-reading:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/chapter_loop.py — at the top of the</span>
+<span class="c1"># `if step_idx == _FIRST_AUDIT_IDX and step.is_audit:` block, BEFORE</span>
+<span class="c1"># constructing core_tasks / genre_tasks:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_context_cache</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_shared_audit_context</span>
+
+<span class="n">shared_ctx</span> <span class="o">=</span> <span class="n">build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+<span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+    <span class="s2">&quot;shared_audit_context_built_for_wave&quot;</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+    <span class="n">estimated_tokens</span><span class="o">=</span><span class="n">shared_ctx</span><span class="o">.</span><span class="n">estimated_tokens</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Then pass shared_ctx into each ReviewTask so the auditor (and the prompt</span>
+<span class="c1"># builder) read from the cache. ReviewTask gains a `shared_context` field:</span>
+<span class="n">core_tasks</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">ReviewTask</span><span class="p">(</span>
+        <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+        <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">,</span>
+        <span class="n">prompt</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Execute </span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2"> for chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.&quot;</span><span class="p">,</span>
+        <span class="n">output_path</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;audits/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">audit_suffix</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span>
+        <span class="n">shared_context</span><span class="o">=</span><span class="n">shared_ctx</span><span class="p">,</span>   <span class="c1"># &lt;-- NEW</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">core_skills</span>
+<span class="p">]</span>
+<span class="c1"># ... same shared_context=shared_ctx kwarg on every genre_task ...</span>
+</code></pre></div>
+<p>This also requires extending <code>ReviewTask</code> (in
+  <code>src/shenbi/pipeline/parallel_dispatch.py</code>) to accept an optional
+  <code>shared_context: SharedAuditContext | None = None</code> field, and the audit
+  dispatch entry point (<code>_dispatch_via_api</code> / the function that calls
+  <code>_build_skill_prompt</code> for an audit skill) to inject <code>shared_context</code> fields
+  into <code>input_texts</code> (or skip re-reading those files when the cache provides
+  them). Concretely, in the audit dispatch path:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># When shared_context is provided for an audit skill, prefer the cached</span>
+<span class="c1"># fields over re-reading the raw files (they are already field-filtered and</span>
+<span class="c1"># summarized by build_shared_audit_context).</span>
+<span class="k">if</span> <span class="n">shared_context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">_INJECT_FROM_CACHE</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;world_rules.md&quot;</span><span class="p">:</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">world_rules</span><span class="p">,</span>
+        <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">:</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">character_list</span><span class="p">,</span>
+        <span class="s2">&quot;style_profile.md&quot;</span><span class="p">:</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">style_profile</span><span class="p">,</span>
+        <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">:</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">pending_hooks</span><span class="p">,</span>
+        <span class="c1"># chapter text + volume node are passed as the primary context below</span>
+    <span class="p">}</span>
+    <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cached</span> <span class="ow">in</span> <span class="n">_INJECT_FROM_CACHE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">cached</span><span class="p">:</span>
+            <span class="n">input_texts</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">cached</span>   <span class="c1"># skip the raw read for this file</span>
+</code></pre></div>
+<p>Add a test asserting that across the two audit waves (13 auditors),
+  <code>build_shared_audit_context</code> is invoked exactly ONCE per chapter (mock it and
+  assert <code>call_count == 1</code>), and that the chapter text is read from disk once,
+  not 13 times.</p>
+<ul>
+<li>[ ] <strong>Step 3: Wire <code>_should_skip_audit</code> into the cascade (skip before dispatch)</strong></li>
+</ul>
+<blockquote>
+<p><strong>shared_context wiring path:</strong> The <code>shared_context</code> dict is passed through the dispatch chain as follows: (a) <code>dispatch_reviews_parallel</code> creates a <code>shared_context</code> via <code>build_shared_audit_context()</code> before the ThreadPoolExecutor; (b) passes it as a new optional <code>shared_context: dict | None = None</code> parameter to <code>dispatch_skill</code>; (c) <code>dispatch_skill</code> forwards it to <code>_dispatch_via_api(shared_context=shared_context)</code> and <code>_dispatch_via_ide(shared_context=shared_context)</code>; (d) <code>_build_skill_prompt</code> accepts <code>shared_context: dict | None = None</code> and injects cached fields into <code>input_texts</code> before assembling the prompt.</p>
+</blockquote>
+<p>In the SAME audit block in <code>chapter_loop.py</code>, after building each task list
+  but BEFORE dispatching the wave, filter out cascaded audits that the streak
+  heuristic says to skip. <code>_should_skip_audit</code> lives in <code>chapter_loop.py</code>
+  itself (Task 5 placed it there).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/chapter_loop.py — after building core_tasks/genre_tasks</span>
+<span class="c1"># and BEFORE dispatch_reviews_parallel, filter cascaded audits.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_should_skip_audit</span>  <span class="c1"># same module; may be a direct call</span>
+
+<span class="c1"># Load the per-skill audit history (most-recent-last) from pipeline state.</span>
+<span class="c1"># _get_audit_history should return the list[dict] shape _should_skip_audit</span>
+<span class="c1"># expects: [{&quot;&lt;skill&gt;&quot;: {&quot;passed&quot;: bool, &quot;hard_failures&quot;: int}}, ...].</span>
+<span class="n">audit_history</span> <span class="o">=</span> <span class="n">_get_audit_history</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_keep_task</span><span class="p">(</span><span class="n">task</span><span class="p">:</span> <span class="n">ReviewTask</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">skill_short</span> <span class="o">=</span> <span class="n">_audit_short_name</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>   <span class="c1"># &quot;shenbi-review-dialogue&quot; -&gt; &quot;dialogue&quot;</span>
+    <span class="k">if</span> <span class="n">_should_skip_audit</span><span class="p">(</span><span class="n">skill_short</span><span class="p">,</span> <span class="n">audit_history</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;audit_cascade_skipped&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">task</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="kc">True</span>
+
+<span class="n">core_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">core_tasks</span> <span class="k">if</span> <span class="n">_keep_task</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span>
+<span class="n">genre_tasks</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">genre_tasks</span> <span class="k">if</span> <span class="n">_keep_task</span><span class="p">(</span><span class="n">t</span><span class="p">)]</span>
+</code></pre></div>
+<p>Notes:
+  - <code>_should_skip_audit</code> already excludes <code>memo-compliance</code> and <code>resonance</code>
+    (the <code>ALWAYS_RUN</code> set) and the core audits, so those never get skipped —
+    only the 8 <code>CASCADABLE_AUDITS</code> can be filtered out here.
+  - If filtering empties a wave, skip the <code>dispatch_reviews_parallel</code> call for
+    that wave (don't dispatch an empty list).
+  - <code>_get_audit_history</code> and <code>_audit_short_name</code> are small helpers you must
+    add to <code>chapter_loop.py</code> (read the trailing N=3 chapter audit results from
+    <code>state</code>; map a full skill name to its short audit dimension). Add unit
+    tests for both helpers alongside the Task-5 cascade tests.</p>
+<p>Implementation stubs:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_audit_history</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract audit results from previous chapters in pipeline state.</span>
+
+<span class="sd">    Returns list of dicts with keys: skill, chapter, passed, issues</span>
+<span class="sd">    for all audit results from chapters &lt; current_chapter.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ch_num</span><span class="p">,</span> <span class="n">ch_state</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">ch_num</span> <span class="o">&gt;=</span> <span class="n">current_chapter</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">audit_key</span><span class="p">,</span> <span class="n">audit_result</span> <span class="ow">in</span> <span class="n">ch_state</span><span class="o">.</span><span class="n">audit_results</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">audit_result</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+                    <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="n">audit_key</span><span class="p">,</span>
+                    <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">ch_num</span><span class="p">,</span>
+                    <span class="s2">&quot;passed&quot;</span><span class="p">:</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;passed&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                    <span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="n">audit_result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issues&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+                <span class="p">})</span>
+    <span class="k">return</span> <span class="n">results</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_audit_short_name</span><span class="p">(</span><span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Map full skill name to short audit dimension name.</span>
+
+<span class="sd">    Examples:</span>
+<span class="sd">        &quot;shenbi-review-anti-ai&quot; -&gt; &quot;anti-ai&quot;</span>
+<span class="sd">        &quot;shenbi-review-continuity&quot; -&gt; &quot;continuity&quot;</span>
+<span class="sd">        &quot;shenbi-review-dialogue&quot; -&gt; &quot;dialogue&quot;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">skill_name</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;shenbi-review-&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Add a test asserting: given an audit history with a 3-chapter zero-HARD
+  failure streak for <code>dialogue</code>, dispatching the audit block for the next
+  chapter does NOT create a <code>shenbi-review-dialogue</code> ReviewTask (count it in
+  <code>core_tasks</code>/<code>genre_tasks</code>), while <code>review-resonance</code> and <code>review-continuity</code>
+  tasks are still present.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run the full suite and confirm the three wirings are live</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>tests/pipeline/test_dispatch_helper_glob.py<span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>tests/pipeline/test_dispatch_helper_xml.py<span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>tests/pipeline/test_audit_context_cache.py<span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>tests/pipeline/test_budgeted_truncate.py<span class="w"> </span><span class="se">\</span>
+<span class="w">       </span>tests/pipeline/test_audit_cascading.py<span class="w"> </span>-v
+just<span class="w"> </span>check
+</code></pre></div>
+<p>Expected: PASS. Additionally, run a 1-chapter canary and confirm in the logs
+  that (a) <code>shared_audit_context_built_for_wave</code> appears exactly once, (b)
+  <code>input_over_budget_applying_priority_truncation</code> / priority-weighted
+  truncation is used when over budget, and (c) <code>audit_cascade_skipped</code> appears
+  for at least one cascaded audit when the streak condition holds.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/pipeline/parallel_dispatch.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/pipeline/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: wire shared audit cache, priority budgeted truncation, and N=3 cascade skip into the dispatch path&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

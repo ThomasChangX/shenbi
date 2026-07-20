@@ -1,0 +1,1648 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>修复 Volume Map 未被 Chapter Loop 消费 Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="修复 Volume Map 未被 Chapter Loop 消费 Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="修复 Volume Map 未被 Chapter Loop 消费 Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#volume-map-chapter-loop-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              修复 Volume Map 未被 Chapter Loop 消费 Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 发现
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 根因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 为什么这是最严重的缺陷
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 上游修复
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 上游修复">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-context_assemblepy-volume_map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 context_assemble.py：将 volume_map 注入上下文
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-chapter_looppy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 chapter_loop.py：增加蓝图对齐检查
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-dispatch_helperpy-volume_map-planning-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 dispatch_helper.py：注入 volume_map 到 planning prompt
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 跨卷桥接追踪器
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 下游影响
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 下游影响">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#25-planningvolume_map-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 混合 Planning：volume_map 驱动的确定性骨架 + LLM 润色
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 验证标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 依赖
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="volume-map-chapter-loop-spec">修复 Volume Map 未被 Chapter Loop 消费 Spec</h1>
+<blockquote>
+<p><strong>日期:</strong> 2026-07-17
+<strong>状态:</strong> 设计中
+<strong>严重度:</strong> 🔴 Critical
+<strong>前置:</strong> Spec CN3（Truth 追加模式）、Spec C2（文风漂移）
+<strong>目的:</strong> 修复流水线最严重的架构缺陷——<code>volume_map.md</code> 作为 100 章 5 卷的完整蓝图，在 56 章生成过程中<strong>完全未被消费</strong>。所有 100 章与蓝图偏离，16/16 个关键情节点缺失，4/4 个跨卷桥接未激活。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 背景</h2>
+<h3 id="11">1.1 发现</h3>
+<p><code>outline/volume_map.md</code> 是一份 460 行的精密规划文档，包含：</p>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>内容</th>
+<th>状态</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1: Volume</td>
+<td>5 卷，每卷 Objective + 章节范围</td>
+<td>已规划</td>
+</tr>
+<tr>
+<td>L2: Key Result</td>
+<td>每卷 3-4 个 KR，每 KR 有 开篇/承接/转折/收官 节点</td>
+<td>已规划</td>
+</tr>
+<tr>
+<td>L3: Chapter</td>
+<td>100 章每章的节点角色和具体内容描述</td>
+<td>已规划</td>
+</tr>
+<tr>
+<td>L4: Tension</td>
+<td>每卷四段张力曲线 + 占比约束</td>
+<td>已规划</td>
+</tr>
+<tr>
+<td>L5: Bridge</td>
+<td>16 个跨卷钩子（物品/事件/信息/人物）+ 预期激活章</td>
+<td>已规划</td>
+</tr>
+</tbody>
+</table>
+<p>但 pipeline 实际产出的 56 章：</p>
+<table>
+<thead>
+<tr>
+<th>度量</th>
+<th>结果</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>与 volume_map 偏离的章节</td>
+<td><strong>100/100（100%）</strong></td>
+</tr>
+<tr>
+<td>关键情节点缺失</td>
+<td><strong>16/16（100%）</strong></td>
+</tr>
+<tr>
+<td>跨卷桥接未激活</td>
+<td><strong>4/4（100%）</strong></td>
+</tr>
+<tr>
+<td>角色按时登场</td>
+<td><strong>0/6</strong>（陈卫民、赵铁柱、楚云岚、科恩、钢山铁哉、中年女人均未按计划登场）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12">1.2 根因</h3>
+<div class="highlight"><pre><span></span><code>volume_map.md 由 shenbi-volume-outlining 在 Genesis 生成
+  ↓
+chapter_loop.py: 无任何代码读取 volume_map
+context_assemble.py: 无任何代码读取 volume_map
+dispatch_helper.py: 无任何代码读取 volume_map
+  ↓
+shenbi-chapter-planning: SKILL.md 声明 reads volume_map
+  但 prompt 构建时未将其注入上下文
+  ↓
+每章 LLM 调用看不到蓝图 → 自由发挥 → 偏离
+</code></pre></div>
+<p><strong>唯一引用</strong>：<code>skills/shenbi-chapter-planning/SKILL.md</code> 的 <code>reads</code> 合约声明了 <code>outline/volume_map.md</code>——但这一声明<strong>从未在代码层被执行</strong>。<code>dispatch_helper.py</code> 的 <code>_build_skill_prompt</code> 或 <code>context_assemble.py</code> 的 <code>assemble_context</code> 均未读取 volume_map 并将其注入 prompt。</p>
+<h3 id="13">1.3 为什么这是最严重的缺陷</h3>
+<p>volume_map 不是"建议"——它是 Genesis 阶段最大的产出（由 4 个 skill 联合生成：volume-outlining + story-architecture + pacing-design + plot-thread-weaver）。花费了大量 token 生成了精密蓝图，然后<strong>完全丢弃</strong>。</p>
+<p>这解释了：
+- C2（文风崩塌）：LLM 失去了叙事方向，退化为参数枚举
+- CN1（主角消失）：volume_map 明确规划了每章的人物登场和弧线推进，但 LLM 看不到
+- CN2（钩子断裂）：16 个跨卷桥接有精确的激活章节，但无人追踪
+- 整体叙事偏离：流水线从 Ch10 起就开始与蓝图分道扬镳</p>
+<hr />
+<h2 id="2">2. 上游修复</h2>
+<h3 id="21-context_assemblepy-volume_map">2.1 <code>context_assemble.py</code>：将 volume_map 注入上下文</h3>
+<p><code>context_assemble.py:174-188</code>（Route C 固定规则）当前仅加载 <code>book_spine.md</code>、<code>audit_drift.md</code>、<code>style_profile.md</code>。需增加 volume_map 的当前卷上下文：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># context_assemble.py: Route C 扩展</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从 volume_map 提取当前章节所在的卷级上下文。</span>
+
+<span class="sd">    返回：</span>
+<span class="sd">    - 当前卷的 Objective</span>
+<span class="sd">    - 当前 KR 的目标和节点</span>
+<span class="sd">    - 当前章节在 volume_map 中的预期内容</span>
+<span class="sd">    - 下一个跨卷桥接的预期激活章</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">volume_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;outline&#39;</span> <span class="o">/</span> <span class="s1">&#39;volume_map.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+    <span class="c1"># 确定当前卷</span>
+    <span class="n">current_volume</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">vol_name</span><span class="p">,</span> <span class="p">(</span><span class="n">ch_start</span><span class="p">,</span> <span class="n">ch_end</span><span class="p">)</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="p">(</span><span class="s1">&#39;第一卷&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">15</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;第二卷&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">16</span><span class="p">,</span> <span class="mi">35</span><span class="p">)),</span>
+        <span class="p">(</span><span class="s1">&#39;第三卷&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">36</span><span class="p">,</span> <span class="mi">55</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;第四卷&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">56</span><span class="p">,</span> <span class="mi">75</span><span class="p">)),</span> <span class="p">(</span><span class="s1">&#39;第五卷&#39;</span><span class="p">,</span> <span class="p">(</span><span class="mi">76</span><span class="p">,</span> <span class="mi">100</span><span class="p">))</span>
+    <span class="p">]:</span>
+        <span class="k">if</span> <span class="n">ch_start</span> <span class="o">&lt;=</span> <span class="n">chapter</span> <span class="o">&lt;=</span> <span class="n">ch_end</span><span class="p">:</span>
+            <span class="n">current_volume</span> <span class="o">=</span> <span class="n">vol_name</span>
+            <span class="n">vol_range</span> <span class="o">=</span> <span class="p">(</span><span class="n">ch_start</span><span class="p">,</span> <span class="n">ch_end</span><span class="p">)</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">current_volume</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># 提取当前卷的完整 section</span>
+    <span class="n">vol_section</span> <span class="o">=</span> <span class="n">extract_volume_section</span><span class="p">(</span><span class="n">volume_map</span><span class="p">,</span> <span class="n">current_volume</span><span class="p">)</span>
+
+    <span class="c1"># 提取当前章节的节点信息</span>
+    <span class="n">chapter_node</span> <span class="o">=</span> <span class="n">extract_chapter_node</span><span class="p">(</span><span class="n">volume_map</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="c1"># 提取即将激活的跨卷桥接</span>
+    <span class="n">pending_bridges</span> <span class="o">=</span> <span class="n">extract_pending_bridges</span><span class="p">(</span><span class="n">volume_map</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;## 卷级蓝图（来自 volume_map.md）</span>
+
+<span class="s2">### 当前卷目标</span>
+<span class="si">{</span><span class="n">vol_section</span><span class="p">[</span><span class="s1">&#39;objective&#39;</span><span class="p">]</span><span class="si">}</span>
+
+<span class="s2">### 本章在卷中的位置</span>
+<span class="s2">- 节点角色：</span><span class="si">{</span><span class="n">chapter_node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">- 预期内容：</span><span class="si">{</span><span class="n">chapter_node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span>
+
+<span class="s2">### 即将激活的跨卷桥接</span>
+<span class="si">{</span><span class="n">pending_bridges</span><span class="si">}</span>
+
+<span class="s2">### 卷张力曲线</span>
+<span class="si">{</span><span class="n">vol_section</span><span class="p">[</span><span class="s1">&#39;tension_curve&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<h3 id="22-chapter_looppy">2.2 <code>chapter_loop.py</code>：增加蓝图对齐检查</h3>
+<p>在 chapter drafting 完成后，新增 G4 级别的蓝图对齐验证：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py: run_chapter_step 中，drafting G4 通过后</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_volume_map_alignment</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">chapter_text</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验证章节内容是否与 volume_map 的预期对齐。</span>
+
+<span class="sd">    非 HARD 门禁——仅 WARN。蓝图是指导性的，允许创造性偏离。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">volume_map</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;outline&#39;</span> <span class="o">/</span> <span class="s1">&#39;volume_map.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">extract_chapter_node</span><span class="p">(</span><span class="n">volume_map</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># 1. 关键术语存在性检查</span>
+    <span class="n">key_terms</span> <span class="o">=</span> <span class="n">extract_key_terms</span><span class="p">(</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">])</span>
+    <span class="n">missing_terms</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">key_terms</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chapter_text</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">missing_terms</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">key_terms</span><span class="p">)</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.vol.alignment: chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> expected &#39;</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">][:</span><span class="mi">60</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;but </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing_terms</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">key_terms</span><span class="p">)</span><span class="si">}</span><span class="s2"> key terms missing: </span><span class="si">{</span><span class="n">missing_terms</span><span class="p">[:</span><span class="mi">5</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="c1"># 2. 人物登场检查</span>
+    <span class="n">expected_chars</span> <span class="o">=</span> <span class="n">extract_expected_characters</span><span class="p">(</span><span class="n">volume_map</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">char_name</span> <span class="ow">in</span> <span class="n">expected_chars</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">char_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">chapter_text</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4.vol.character:</span><span class="si">{</span><span class="n">char_name</span><span class="si">}</span><span class="s2">: expected debut/appearance in Ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> per volume_map&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>  <span class="c1"># WARN 级别，不阻断</span>
+</code></pre></div>
+<h3 id="23-dispatch_helperpy-volume_map-planning-prompt">2.3 <code>dispatch_helper.py</code>：注入 volume_map 到 planning prompt</h3>
+<p>在 <code>_build_skill_prompt</code> 中，对 <code>shenbi-chapter-planning</code> 增加 volume_map 上下文注入：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py:_build_skill_prompt 中</span>
+
+<span class="k">if</span> <span class="n">skill_name</span> <span class="o">==</span> <span class="s1">&#39;shenbi-chapter-planning&#39;</span><span class="p">:</span>
+    <span class="n">chapter</span> <span class="o">=</span> <span class="n">extract_chapter_from_context</span><span class="p">(</span><span class="n">context</span><span class="p">)</span>
+    <span class="n">vol_context</span> <span class="o">=</span> <span class="n">_load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="c1"># 注入到 system prompt 的上下文部分</span>
+    <span class="n">system_prompt</span> <span class="o">=</span> <span class="n">system_prompt</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span>
+        <span class="s1">&#39;</span><span class="si">{VOLUME_CONTEXT}</span><span class="s1">&#39;</span><span class="p">,</span>
+        <span class="n">vol_context</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="24">2.4 跨卷桥接追踪器</h3>
+<p>在 <code>truth/</code> 中新增 <code>bridge_tracker.md</code>，追踪 16 个跨卷桥接的状态：</p>
+<div class="highlight"><pre><span></span><code>| Bridge ID | 内容 | 预期激活章 | 实际激活章 | 状态 |
+|-----------|------|-----------|-----------|------|
+| V1-B1 | 梵天铭文金属片 | Ch26 | - | PENDING |
+| V1-B4 | 楚云岚登场 | Ch27 | - | PENDING |
+</code></pre></div>
+<p>由 <code>shenbi-foreshadowing-track</code> 每章更新——当章节内容包含桥接关键术语时标记为 ACTIVATED。</p>
+<hr />
+<h2 id="3">3. 下游影响</h2>
+<ul>
+<li><code>shenbi-chapter-planning</code> 的 prompt 将包含当前卷的 Objective 和章节节点信息</li>
+<li>Chapter drafting 将看到"本章在卷中的位置"作为上下文</li>
+<li>G4 新增 WARN 级别的蓝图对齐检查（非阻断，指导性）</li>
+<li>Bridge tracker 使跨卷钩子可追踪</li>
+</ul>
+<hr />
+<h3 id="25-planningvolume_map-llm">2.5 混合 Planning：volume_map 驱动的确定性骨架 + LLM 润色</h3>
+<p>当前 chapter planning 完全由 LLM 从零生成 8 节计划——即使 87.5% 的内容可以从 volume_map 确定性推导。</p>
+<p><strong>各节确定性程度分析：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>volume_map 可提供</th>
+<th>LLM 角色</th>
+<th>预计 token 节省</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 当前任务</td>
+<td>✅ 完全（节点角色+内容描述→翻译为任务）</td>
+<td>润色措辞</td>
+<td>-80%</td>
+</tr>
+<tr>
+<td>2. 读者此刻在等什么</td>
+<td>🟡 部分（张力曲线→读者期望方向）</td>
+<td>结合前章实际</td>
+<td>-40%</td>
+</tr>
+<tr>
+<td>3. 该兑现的/暂不掀的</td>
+<td>✅ 跨卷桥接（bridge_tracker）</td>
+<td>补充章内钩子</td>
+<td>-50%</td>
+</tr>
+<tr>
+<td>4. 日常/过渡承担什么任务</td>
+<td>✅ 节点角色（开篇/承接/转折/收官→过渡类型）</td>
+<td>润色措辞</td>
+<td>-80%</td>
+</tr>
+<tr>
+<td>5. 关键抉择过三连问</td>
+<td>❌ 不可推导</td>
+<td><strong>完全 LLM</strong></td>
+<td>-0%</td>
+</tr>
+<tr>
+<td>6. 章尾必须发生的改变</td>
+<td>✅ 基本（当前节点+下一章预期→改变方向）</td>
+<td>细化具体改变</td>
+<td>-60%</td>
+</tr>
+<tr>
+<td>7. 本章 hook 账</td>
+<td>✅ 桥接（bridge_tracker+pending_hooks）</td>
+<td>填充操作细节</td>
+<td>-50%</td>
+</tr>
+<tr>
+<td>8. 不要做</td>
+<td>🟡 部分（卷级约束从 volume 边界推断）</td>
+<td>章级禁忌</td>
+<td>-30%</td>
+</tr>
+<tr>
+<td><strong>总计</strong></td>
+<td></td>
+<td></td>
+<td><strong>~55%</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>实现：确定性骨架生成器</strong></p>
+<p>新增 <code>src/shenbi/pipeline/plan_skeleton.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">generate_plan_skeleton</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;从 volume_map 确定性生成 chapter plan 的骨架。</span>
+
+<span class="sd">    返回一个 8 节 markdown 模板，其中：</span>
+<span class="sd">    - section 1, 4, 6, 7 已填充确定性内容</span>
+<span class="sd">    - section 2, 3, 5, 8 保留占位符供 LLM 填充</span>
+
+<span class="sd">    LLM 的 prompt 接收此骨架作为输入，只需：</span>
+<span class="sd">    1. 填充占位符部分</span>
+<span class="sd">    2. 润色确定性部分的措辞</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vm</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;outline&#39;</span> <span class="o">/</span> <span class="s1">&#39;volume_map.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">extract_chapter_node</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">vol_ctx</span> <span class="o">=</span> <span class="n">extract_volume_context</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">bridges</span> <span class="o">=</span> <span class="n">extract_pending_bridges</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">next_node</span> <span class="o">=</span> <span class="n">extract_chapter_node</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span> <span class="n">chapter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;## 1. 当前任务</span>
+
+<span class="s2">&gt; 确定性骨架（来自 volume_map.md）：</span>
+<span class="s2">&gt; 本章是 </span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;kr_name&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> 的 **</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">章**。</span>
+<span class="s2">&gt; 核心任务：</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">&gt; 卷目标：</span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;objective&#39;</span><span class="p">]</span><span class="si">}</span>
+
+<span class="s2">[LLM: 将上述骨架翻译为具体的章节任务描述，2-4句话。保持卷目标在视野内。]</span>
+
+<span class="s2">## 2. 读者此刻在等什么</span>
+
+<span class="s2">[LLM: 基于以下信息推断读者期望：</span>
+<span class="s2">- 本章在张力曲线中的位置：</span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;tension_phase&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">- 前一章节点角色：</span><span class="si">{</span><span class="n">_get_prev_node_role</span><span class="p">(</span><span class="n">vm</span><span class="p">,</span><span class="w"> </span><span class="n">chapter</span><span class="p">)</span><span class="si">}</span>
+<span class="s2">- 当前章节点角色：</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">请写出制造期待和延迟期待两部分。]</span>
+
+<span class="s2">## 3. 该兑现的 / 暂不掀的</span>
+
+<span class="s2">&gt; 确定性骨架：跨卷桥接即将激活：</span>
+<span class="si">{</span><span class="n">bridges</span><span class="si">}</span>
+
+<span class="s2">[LLM: 补充章内伏笔的兑现/延期决策。hook_deliverables 从 pending_hooks 中选取。]</span>
+
+<span class="s2">## 4. 日常/过渡承担什么任务</span>
+
+<span class="s2">&gt; 确定性骨架：本章节点角色为 **</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">**</span>
+<span class="s2">&gt; - 开篇章：建立新情境，引入新人物/新冲突</span>
+<span class="s2">&gt; - 承接章：深化已有冲突，推进人物关系</span>
+<span class="s2">&gt; - 转折章：制造不可逆改变，打破现状</span>
+<span class="s2">&gt; - 收官章：完成当前 KR，收束支线，设置下一 KR 钩子</span>
+
+<span class="s2">[LLM: 基于节点角色写出具体的过渡任务。]</span>
+
+<span class="s2">## 5. 关键抉择过三连问</span>
+
+<span class="s2">[LLM: 创造性设计本章的核心道德/策略困境。此处完全由 LLM 自由生成。]</span>
+
+<span class="s2">## 6. 章尾必须发生的改变</span>
+
+<span class="s2">&gt; 确定性骨架：</span>
+<span class="s2">&gt; - 当前章节点：</span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">&gt; - 下一章节点：</span><span class="si">{</span><span class="n">next_node</span><span class="p">[</span><span class="s1">&#39;role&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">next_node</span><span class="p">[</span><span class="s1">&#39;desc&#39;</span><span class="p">]</span><span class="si">}</span>
+<span class="s2">&gt; - 从当前到下一章的必须改变方向：</span><span class="si">{</span><span class="n">_infer_change_direction</span><span class="p">(</span><span class="n">node</span><span class="p">,</span><span class="w"> </span><span class="n">next_node</span><span class="p">)</span><span class="si">}</span>
+
+<span class="s2">[LLM: 将改变方向细化为具体的、可验证的改变项。≥1 项。]</span>
+
+<span class="s2">## 7. 本章 hook 账</span>
+
+<span class="s2">&gt; 确定性骨架（来自 bridge_tracker + volume_map 跨卷桥接）：</span>
+<span class="si">{</span><span class="n">bridges</span><span class="si">}</span>
+
+<span class="s2">[LLM: 为每个桥接选择合适的操作（open/advance/resolve/defer），补充章内 hook。]</span>
+
+<span class="s2">## 8. 不要做</span>
+
+<span class="s2">&gt; 确定性骨架（来自卷级约束）：</span>
+<span class="s2">&gt; - 本章不得跨越卷边界（卷</span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;vol_num&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">：Ch</span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;ch_start&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">vol_ctx</span><span class="p">[</span><span class="s1">&#39;ch_end&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">）</span>
+<span class="s2">&gt; - 本章不得引入卷外人物</span>
+
+<span class="s2">[LLM: 补充章级禁忌——基于前章的疲劳词分析和 AI 陷阱模式。]</span>
+<span class="s2">&quot;&quot;&quot;</span>
+</code></pre></div>
+<p><strong>LLM 角色从"生成者"变为"润色者+创造性填充者"</strong>——token 消耗减少 ~55%，且计划与蓝图的对齐率从 0% 提升至接近 100%。</p>
+<hr />
+<h2 id="4">4. 验证标准</h2>
+<ol>
+<li><code>context_assemble.py</code> 的 Route C 输出包含当前卷的 Objective</li>
+<li><code>plan_skeleton.py</code> 为每章生成确定性骨架，LLM planning prompt 接收骨架而非从零开始</li>
+<li>混合 planning 的 token 消耗相比纯 LLM planning 减少 ≥ 40%</li>
+<li>连续 10 章运行中，与 volume_map 的关键术语匹配率 ≥ 80%（从当前 0% 提升）</li>
+<li>Section 5（关键抉择）保持 LLM 完全创造性生成——不因骨架化而丧失创造性</li>
+<li>Bridge tracker 在预期激活章附近更新状态</li>
+<li><code>just check</code> 全量通过</li>
+</ol>
+<hr />
+<h2 id="5">5. 依赖</h2>
+<div class="highlight"><pre><span></span><code>Spec CN3（Truth 追加）← bridge_tracker 需要追加模式
+  ↓
+本 Spec
+  ↓
+shenbi-chapter-planning（prompt 消费 volume_map）
+shenbi-chapter-drafting（上下文消费 volume_map）
+shenbi-foreshadowing-track（bridge_tracker 更新）
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

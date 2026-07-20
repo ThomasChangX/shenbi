@@ -1,0 +1,1937 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-02-output-validation-and-format-enforcement-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 2: Output Validation and Format Enforcement Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 2: Output Validation and Format Enforcement Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-02-output-validation-and-format-enforcement-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-02-output-validation-and-format-enforcement-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 2: Output Validation and Format Enforcement Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-02-output-validation-and-format-enforcement-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-2-output-validation-and-format-enforcement-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 2: Output Validation and Format Enforcement Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis-per-source-spec-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis (Per-Source-Spec Breakdown)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis (Per-Source-Spec Breakdown)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-decisions-json-corruption-h1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Decisions JSON Corruption (H1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-non-standard-json-format-extension-of-h1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Non-Standard JSON Format (Extension of H1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-revision-system-failure-h2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Revision System Failure (H2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-missing-revision-decisions-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Missing Revision Decisions Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-resonance-g4-format-mismatch-m5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Resonance G4 Format Mismatch (M5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#layer-1-pre-write-json-validation-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 1: Pre-Write JSON Validation + Recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-2-g2-enhancement-for-multi-json-concatenation-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 2: G2 Enhancement for Multi-JSON Concatenation Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#layer-3-control-character-sanitization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer 3: Control Character Sanitization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#guard-ordering-in-_write_parsed_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Guard Ordering in _write_parsed_outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g4-revision-checker-upgrade" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G4 Revision Checker Upgrade
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#revision-skillmd-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Revision SKILL.md Update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#ensure-every-revision-route-writes-a-decisions-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Ensure Every Revision Route Writes a Decisions File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#enrich-g4-retry-feedback-with-format-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Enrich G4 Retry Feedback with Format Examples
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#add-lenient-parsing-in-resonance-g4-checker-gap-specific" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Add Lenient Parsing in Resonance G4 Checker (Gap-Specific)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-original-issue-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Original Issue Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-2-output-validation-and-format-enforcement-design">Spec 2: Output Validation and Format Enforcement Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> High
+<strong>Consolidated from:</strong>
+- <code>2026-07-17-fix-decisions-json-corruption-design.md</code> (H1)
+- <code>2026-07-17-fix-json-nonstandard-format-design.md</code>
+- <code>2026-07-17-fix-revision-system-failure-design.md</code> (H2)
+- <code>2026-07-17-fix-missing-revision-decisions-design.md</code>
+- <code>2026-07-17-fix-resonance-g4-format-mismatch-design.md</code> (M5)</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The pipeline produces JSON output files that are corrupt, non-standard, or missing -- and the existing G2/G4 gate system fails to catch these defects before they persist to disk. Of 55 primary <code>chapter-N-decisions.json</code> files measured, 34/55 (61.8%) contain trailing markdown after a single valid JSON object. Ten out of 34 revision decisions files have JSON syntax errors, and the remaining 24 have zero change records. The revision system ran 34 times and produced zero effective modifications. Separately, the resonance audit G4 checker caused 35 retry loops (65% of all retries) because retry feedback only returned opaque check IDs without format examples, and the checker rejected legitimate format variants.</p>
+<p><strong>Shared root cause (verified):</strong> LLM output is written to disk in <code>dispatch_helper.py:_write_parsed_outputs</code> (line 294-323) with zero pre-write JSON validation — confirmed by grep showing zero <code>json.loads</code>/<code>valid</code>/<code>sanitize</code> calls in the write path. The write-before-gate ordering is confirmed: <code>chapter_loop.py:1243</code> dispatches (which writes to disk), then <code>chapter_loop.py:1286</code> runs G4 — the corrupt file is already persisted when G4 fires. G4 gates for revision decisions only check JSON syntax via <code>g4_decisions</code> (routed at <code>generic.py:237</code>), not content validity. G4 retry feedback lacks format guidance. No output completeness requirement exists for revision routes.</p>
+<hr />
+<h2 id="2-root-cause-analysis-per-source-spec-breakdown">2. Root Cause Analysis (Per-Source-Spec Breakdown)</h2>
+<h3 id="21-decisions-json-corruption-h1">2.1 Decisions JSON Corruption (H1)</h3>
+<p><strong>Discovery (verified by filesystem audit of <code>novel-output/xinghuo-ranqiong/chapters/</code>):</strong> Of 55 primary <code>chapter-N-decisions.json</code> files, 34/55 (61.8%) contain trailing markdown after a single valid JSON object. The dominant corruption pattern is <strong>trailing markdown after one valid JSON object</strong> (NOT multi-JSON concatenation as initially reported). 3 additional files are genuinely invalid (unparseable).</p>
+<p><strong>Correction of earlier claim:</strong> Initial analysis reported "Ch5 has 35 concatenated JSON objects; Ch54 has 22." Filesystem verification found this to be <strong>FALSE</strong> — Ch5 has exactly 1 <code>$schema</code> key (trailing markdown case), and Ch54 is fully valid JSON with no corruption. No file in the repo has multiple <code>$schema</code> keys. The earlier multi-JSON concatenation narrative was incorrect; the real problem is uniformly trailing markdown after a single JSON object.</p>
+<p><strong>Typical corruption (Ch1 — verified exact match):</strong>
+<div class="highlight"><pre><span></span><code><span class="p">{</span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span><span class="w"> </span><span class="err">...</span><span class="p">}</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>---
+
+**两项 G4 失败修复摘要：**
+1. **G4.transition (7→0)** — 正文中监控转折词使用量为零...
+</code></pre></div>
+Ch1's first JSON ends at byte 3007 of 3371; the 364-byte tail is English/Chinese markdown summary.</p>
+<p><strong>Direct cause (verified):</strong> <code>dispatch_helper.py:294-323</code> (<code>_write_parsed_outputs</code>) parses <code>### FILE: path/to/file.md</code> markers via <code>_parse_file_outputs</code> (regex <code>r"###\s*FILE:\s*(\S+)\s*\n(.*?)(?=###\s*FILE:|\Z)"</code> at line 279), then unconditionally writes via <code>safe_write(path, content)</code> at line 316. The regex captures everything up to the next <code>### FILE:</code> marker or end-of-string — so trailing markdown after the last file's JSON is included in <code>content</code> and written verbatim. There is zero pre-write JSON validation (confirmed by grep: the only <code>json.loads</code> calls in <code>dispatch_helper.py</code> are for parsing G3/G4 subprocess stdout at lines 624, 653, NOT for validating content before write).</p>
+<p><strong>Why gates did not catch this:</strong>
+1. G2 (<code>gates/g2.py:85</code>): <code>json.loads(content)</code> would throw <code>JSONDecodeError("Extra data")</code> — but only if G2 is invoked on these files. G2 has a hard guard at <code>g2.py:81-82</code>: <code>if not fp.endswith(".json"): continue</code>, and only validates files passed in <code>file_paths</code>.
+2. G4 (<code>gates/g4/decisions_validator.py:53</code>): <code>json.loads(p.read_text())</code> with <code>DecisionsDoc.model_validate(data)</code> (<code>extra="forbid"</code> at <code>decisions.py:70</code>) — would catch it if invoked.</p>
+<p>Both should catch these errors IF invoked. They did not prevent corrupted files from persisting because:
+- <code>_write_parsed_outputs</code> writes before gates check — file is already persisted when gate failure occurs (confirmed: <code>chapter_loop.py:1243</code> dispatch → write, then <code>:1286</code> G4)
+- If G4 fails on a corrupted file, the retry cycle writes a new output that may still have trailing markdown, and the old corrupted file is already on disk</p>
+<p><strong>Multi-JSON concatenation (theoretical, not observed):</strong> While no current file exhibits multi-JSON concatenation, the proposed G2.dec.4 check (<code>content.count('"$schema"') &gt; 1</code>) is still a valid defensive measure against future retry-loop concatenation.</p>
+<h3 id="22-non-standard-json-format-extension-of-h1">2.2 Non-Standard JSON Format (Extension of H1)</h3>
+<p><strong>Discovery (Agent 3 Section 3):</strong>
+- 84 decisions.json: valid first JSON + trailing markdown (recoverable)
+- 1 genuinely corrupted file: <code>staging/plans/chapter-49-plan-decisions.json</code> line 21 col 160 -- illegal control character
+- All gate-marker and checklist JSONs are normal</p>
+<p><strong>Additional finding:</strong> Staging path JSON files lack the same validation as final-path files. Control characters (<code>0x00-0x1F</code> excluding <code>\n</code>, <code>\r</code>, <code>\t</code>) are not sanitized before write.</p>
+<p><strong>Direct cause:</strong> The pre-write validation designed in H1's Layer 1 must apply equally to staging paths. A general-purpose <code>sanitize_json_content()</code> function is missing.</p>
+<h3 id="23-revision-system-failure-h2">2.3 Revision System Failure (H2)</h3>
+<p><strong>Discovery:</strong> 34 <code>chapter-N-revision-decisions.json</code> files audited:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Count</th>
+<th>Percentage</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON syntax errors</td>
+<td>10</td>
+<td>29.4%</td>
+<td>Ch2: empty file; Ch15: illegal comma; Ch18: control character</td>
+</tr>
+<tr>
+<td>Zero change records</td>
+<td>24</td>
+<td>70.6%</td>
+<td><code>changes: []</code> or missing changes field</td>
+</tr>
+<tr>
+<td><strong>Effective revisions</strong></td>
+<td><strong>0</strong></td>
+<td><strong>0%</strong></td>
+<td>--</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Conclusion: The revision system executed 34 times and produced zero effective modifications.</strong></p>
+<p><strong>Retry loop evidence:</strong> Pipeline recorded 54 retry_feedback entries, 35 (65%) from <code>shenbi-review-resonance</code> G4 failures. Pattern: resonance failure -&gt; trigger revision -&gt; revision produces invalid file -&gt; G4 fails again -&gt; re-trigger revision -&gt; infinite loop.</p>
+<p><strong>Root causes (threefold):</strong></p>
+<ol>
+<li><strong>G4 coverage gap for revision outputs:</strong> <code>gates/g4/generic.py:237</code> routes <code>shenbi-chapter-revision</code> to <code>g4_decisions</code> only -- which checks JSON syntax but does not check:</li>
+<li>Whether <code>changes</code> array is non-empty</li>
+<li>Whether change entries have required fields (<code>location</code>, <code>before</code>, <code>after</code>, <code>reason</code>)</li>
+<li>Whether no-op routes have adequate rationale</li>
+<li>
+<p>Whether "retention verification" block exists (required by SKILL.md lines 63-64)</p>
+</li>
+<li>
+<p><strong>SKILL.md missing no-op output specification:</strong> <code>skills/shenbi-chapter-revision/SKILL.md:105-108</code> defines spot-fix and rewrite modes but has no definition of no-op/auto-skip output format. The LLM, when determining "no revision needed," outputs arbitrarily.</p>
+</li>
+<li>
+<p><strong>Revision routing logic defect:</strong> <code>chapter_loop.py:1021</code> (<code>_route_revision_after_resonance</code>) routes to spot-fix or rewrite based on resonance scores, but Route B (spot-fix) may trigger when the LLM cannot find concrete modification points, leading to empty changes.</p>
+</li>
+</ol>
+<h3 id="24-missing-revision-decisions-files">2.4 Missing Revision Decisions Files</h3>
+<p><strong>Discovery (Agent 3):</strong> 21 chapters have revision routing recorded in pipeline state but no <code>chapter-N-revision-decisions.json</code> on disk: Ch3, 4, 10, 13, 14, 16, 17, 25, 27-32, 34, 36-38, 42, 54.</p>
+<p><strong>Direct causes:</strong>
+1. Route "no-revision" causes the skill to be skipped entirely, but the pipeline contract expects a decisions file even for no-op routes.
+2. Revision dispatch times out or fails but pipeline state marks it as completed.
+3. Staging output is never committed to final path.</p>
+<h3 id="25-resonance-g4-format-mismatch-m5">2.5 Resonance G4 Format Mismatch (M5)</h3>
+<p><strong>Discovery:</strong> 35 retry_feedback entries (65% of all retries) from <code>shenbi-review-resonance</code> G4 failures:</p>
+<div class="highlight"><pre><span></span><code>ch1-shenbi-review-resonance: G4 HARD check failed: [&quot;G4.rr.detail_table:chapter-1-resonance.md:missing_[&#39;裁判理由&#39;]&quot;]
+ch2-shenbi-review-resonance: G4 HARD check failed: [&#39;G4.rr.verdict:chapter-2-resonance.md:no_valid_verdict&#39;, &#39;G4.rr.evidence:...&#39;]
+</code></pre></div>
+<p><strong>Pattern analysis:</strong>
+- <code>no_valid_verdict</code> most frequent -- LLM's <code>校准门判定</code> line doesn't match G4 regex
+- <code>missing_['裁判理由']</code> -- scoring detail table missing column
+- <code>no_file_line_ref</code> -- evidence column missing <code>file:line</code> references</p>
+<p><strong>Why retries don't resolve the issue:</strong> G4 failure feedback only returns opaque check IDs (e.g., <code>G4.rr.verdict</code>), not the specific format expectations. The LLM sees "verdict failed" but doesn't know what format is expected, so it regenerates -- still incorrect -- and fails again.</p>
+<p><strong>G4 checker expectations</strong> (<code>gates/g4/review_resonance.py:28-89</code> — verified line ranges):
+1. <code>G4.rr.detail_table</code> (line 48-57): Scoring detail table must have 6 column headers matching <code>_DETAIL_COLS = ("维度", "得分", "满分", "置信度", "证据", "裁判理由")</code> (line 22)
+2. <code>G4.rr.verdict</code> (line 61-72): <code>校准门判定</code> section must have a verdict line. <strong>Verified actual regex</strong> at line 64: <code>r'判定\s*[:：]\s*(\S+)'</code> — the code already accepts BOTH half-width <code>:</code> and full-width <code>：</code> with optional whitespace, and matches any non-whitespace token (then validates membership against <code>_VERDICTS</code>). The code is already more lenient than the spec's earlier description suggested. The remaining gaps are: (a) <code>**判定**</code> (markdown bold) is NOT matched, (b) English <code>Verdict: PASS</code> is NOT matched.
+3. <code>G4.rr.evidence</code> (line 75-82): At least one <code>L\d+|line\s+\d+|:\d+</code> reference</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<p>The fix is organized into three layers of defense for JSON output integrity, plus targeted fixes for the revision system and resonance G4 feedback.</p>
+<h3 id="layer-1-pre-write-json-validation-recovery">Layer 1: Pre-Write JSON Validation + Recovery</h3>
+<p><strong>Location:</strong> <code>dispatch_helper.py:_write_parsed_outputs</code> (around line 316, before <code>safe_write</code> call)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In _write_parsed_outputs, before safe_write(full_path, content)</span>
+<span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s1">&#39;.json&#39;</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>  <span class="c1"># MUST import at module level or here</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="c1"># Additional: validate shenbi-decisions-v1 schema</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">parsed</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;$schema&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;shenbi-decisions-v1&#39;</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.decisions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionsDoc</span>
+            <span class="n">DecisionsDoc</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">parsed</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="n">ValidationError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;decisions_json_invalid&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="c1"># Recovery: truncate to first complete JSON object</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">decoder</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">()</span>
+            <span class="n">clean_data</span><span class="p">,</span> <span class="n">end_pos</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;decisions_json_truncated&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span>
+                           <span class="n">original_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">cleaned_len</span><span class="o">=</span><span class="n">end_pos</span><span class="p">)</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">clean_data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Decisions JSON invalid and unrecoverable: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Key design decisions:</strong>
+- <code>json.JSONDecoder().raw_decode()</code> returns the first complete JSON object and its end byte position, cleanly truncating trailing text.
+- Schema validation is applied after JSON parse to catch structural issues.
+- If unrecoverable, raise ValueError to prevent corrupt file persistence (stops the pipeline rather than silently corrupting).</p>
+<h3 id="layer-2-g2-enhancement-for-multi-json-concatenation-detection">Layer 2: G2 Enhancement for Multi-JSON Concatenation Detection</h3>
+<p><strong>Location:</strong> <code>gates/g2.py</code> — inside the decisions branch, BEFORE the <code>continue</code> at line 105 (the decisions branch hits <code>continue</code> early, skipping the general <code>.json</code> path at line 108, so the check must go inside the decisions branch).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># g2.py: inside the `if file_type == &quot;decisions&quot;:` branch (lines 74-105)</span>
+<span class="c1"># BEFORE the `continue` at line 105</span>
+<span class="c1"># New check G2.dec.4 -- multi-JSON concatenation detection</span>
+<span class="k">if</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;&quot;$schema&quot;&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G2.dec.4: multiple JSON objects concatenated in single file&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>While no current file exhibits multi-JSON concatenation (verified — see §2.1 correction), this is a valid defensive measure against future retry-loop concatenation.</p>
+<h3 id="layer-3-control-character-sanitization">Layer 3: Control Character Sanitization</h3>
+<p><strong>Location:</strong> New utility function, potentially in <code>dispatch_helper.py</code> or a shared sanitization module</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove illegal control characters from JSON content.</span>
+
+<span class="sd">    JSON spec only permits specific control characters (\n, \r, \t).</span>
+<span class="sd">    Removes all other control characters in range 0x00-0x1F except those three.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+    <span class="n">cleaned</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\x00-\x08\x0b\x0c\x0e-\x1f]&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cleaned</span>
+</code></pre></div>
+<p>Apply <code>sanitize_json_content()</code> to all JSON content in <code>_write_parsed_outputs</code> before writing, for both staging and final paths.</p>
+<h3 id="guard-ordering-in-_write_parsed_outputs">Guard Ordering in <code>_write_parsed_outputs</code></h3>
+<p>Multiple specs add guards at the <code>safe_write</code> call in <code>_write_parsed_outputs</code>. The execution order MUST be:</p>
+<ol>
+<li>Sanitize control characters (Spec 2 Layer 3)</li>
+<li>Pre-write JSON validation + recovery (Spec 2 Layer 1)</li>
+<li>Content-size guard for chapter files (Spec 3 §3.2)</li>
+<li>Truth file mode routing via <code>write_truth_file</code> (Spec 1 §3.2)</li>
+<li>Wildcard write-path resolution (Spec 9 §3.2.1)</li>
+<li><code>safe_write</code> call (original)</li>
+</ol>
+<h3 id="g4-revision-checker-upgrade">G4 Revision Checker Upgrade</h3>
+<p><strong>Critical schema constraint:</strong> Revision decisions files conform to <code>DecisionsDoc</code> (<code>contracts/schemas/decisions.py:69-83</code> with <code>extra="forbid"</code>). They have <code>selections</code> and <code>adjustments</code> arrays — NOT a <code>changes</code> array. The <code>generic.py:237</code> already routes <code>shenbi-chapter-revision</code> to <code>g4_decisions</code>, so the LLM is told to produce <code>selections</code>/<code>adjustments</code>. The new checker must validate revision-specific content WITHIN the existing schema, not invent new fields.</p>
+<p><strong>Option A (preferred): Extend DecisionsDoc with optional revision fields.</strong> Add optional <code>revision_mode</code>, <code>skip_reason</code> fields to <code>DecisionsDoc</code> (or create a <code>RevisionDecisionsDoc</code> subclass). This allows the revision skill to emit revision-specific metadata while maintaining schema compatibility.</p>
+<p><strong>Option B: Check adjustments content semantics.</strong> Validate that when <code>adjustments</code> is non-empty, each adjustment has meaningful content (the <code>Adjustment</code> model already requires <code>issue_id</code>, <code>severity</code>, <code>handling</code>, <code>rationale</code> — so the checker validates rationale quality).</p>
+<p><strong>Location:</strong> New file <code>gates/g4/chapter_revision.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">g4_chapter_revision</span><span class="p">(</span><span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">],</span> <span class="n">rd</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dedicated revision output checker beyond basic JSON validation.</span>
+
+<span class="sd">    Works WITHIN the DecisionsDoc schema (selections/adjustments), not against it.</span>
+<span class="sd">    Signature matches the G4 checker protocol for make_composite_checker integration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s1">&#39;.json&#39;</span> <span class="ow">or</span> <span class="s1">&#39;revision&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.rev.invalid_json:</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># The DecisionsDoc schema has selections + adjustments.</span>
+        <span class="c1"># For revision: adjustments represent the actual revision actions.</span>
+        <span class="n">adjustments</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;adjustments&#39;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># HARD: if no adjustments, the revision mode must be documented</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">adjustments</span><span class="p">:</span>
+            <span class="c1"># Check if selections document a no-op/skip decision</span>
+            <span class="n">selections</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;selections&#39;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">has_skip_selection</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="s1">&#39;no_revision&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">or</span>
+                <span class="s1">&#39;skip&#39;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;target&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">selections</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_skip_selection</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G4.rev.empty_adjustments_no_skip:</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;revision has zero adjustments and no documented skip reason&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># HARD: each adjustment must have substantive rationale (&gt;= 20 chars)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">adj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">adjustments</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">rationale</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;rationale&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rationale</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">20</span><span class="p">:</span>
+                    <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;G4.rev.adjustment_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_thin_rationale:</span><span class="si">{</span><span class="n">f</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;rationale must be &gt;=20 chars, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rationale</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>  <span class="c1"># Returns list of issue strings for composite checker</span>
+</code></pre></div>
+<p><strong>Return type correction:</strong> The function must return a JSON result string matching the G4 checker protocol (like <code>g4_decisions</code> returns). The <code>make_composite_checker</code> (<code>decisions_validator.py:87</code>) calls <code>json.loads(existing_result)</code> and expects <code>{"status": "...", "checks": [...], "must_fix": [...]}</code>. Replace <code>return issues</code> with <code>return json.dumps({"status": "PASS" if not issues else "HARD_FAIL", "checks": issues, "must_fix": issues})</code>.</p>
+<p>Corrected return statement at the end of the function:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Return a JSON result string matching the G4 checker protocol.</span>
+    <span class="c1"># make_composite_checker (decisions_validator.py:87) does</span>
+    <span class="c1"># json.loads(existing_result) and expects {&quot;status&quot;,&quot;checks&quot;,&quot;must_fix&quot;}.</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">issues</span> <span class="k">else</span> <span class="s2">&quot;HARD_FAIL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="n">issues</span><span class="p">,</span>
+        <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="n">issues</span><span class="p">,</span>
+    <span class="p">})</span>
+</code></pre></div>
+<p><strong>Integration with existing g4_decisions:</strong> Use <code>make_composite_checker(g4_decisions, g4_chapter_revision)</code> at <code>generic.py:237</code> — this runs both the JSON syntax/schema check AND the revision-content check. The composite checker partitions files by extension (<code>.json</code> → both checkers).</p>
+<p><strong>Key design decisions:</strong>
+- Works within <code>DecisionsDoc</code> schema — does NOT invent <code>changes</code>/<code>route</code>/<code>skip_reason</code> fields that would fail <code>extra="forbid"</code>.
+- Empty <code>adjustments</code> are allowed ONLY when <code>selections</code> documents a no-op/skip decision.
+- Each adjustment rationale must be &gt;= 20 characters (the <code>Adjustment</code> model already requires <code>rationale</code>, but doesn't enforce minimum length).</p>
+<h3 id="revision-skillmd-update">Revision SKILL.md Update</h3>
+<p><strong>Location:</strong> <code>skills/shenbi-chapter-revision/SKILL.md</code> (around line 105-108)</p>
+<p>Add explicit output requirements using the <strong>actual DecisionsDoc schema fields</strong> (<code>selections</code>/<code>adjustments</code>, NOT <code>changes</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="gu">### Revision Modes and Output Requirements</span>
+
+All revision-decisions.json files MUST conform to shenbi-decisions-v1 schema.
+Use the <span class="sb">`adjustments`</span> array for revision actions and <span class="sb">`selections`</span> for routing decisions.
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**spot-fix mode**</span>: <span class="sb">`adjustments`</span> array, each entry must contain <span class="sb">`issue_id`</span> (target dimension),
+  <span class="sb">`severity`</span> (impact level), <span class="sb">`handling`</span> (compensation strategy), <span class="sb">`rationale`</span> (change justification &gt;= 20 chars)
+<span class="k">-</span><span class="w"> </span><span class="gs">**rewrite mode**</span>: <span class="sb">`adjustments`</span> array with <span class="sb">`handling: &quot;explicit_callout&quot;`</span>,
+  each <span class="sb">`rationale`</span> must justify the rewrite (&gt;= 20 chars)
+<span class="k">-</span><span class="w"> </span><span class="gs">**no-op mode**</span>: <span class="sb">`adjustments: []`</span>, with a <span class="sb">`selections`</span> entry documenting the skip:
+  <span class="sb">`{target: &quot;no_revision_needed&quot;, selected: [], basis: &quot;arc_relevance&quot;, severity: &quot;low&quot;}`</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**auto-skip mode**</span>: same as no-op, but <span class="sb">`basis: &quot;adjacent_to_target_chapter&quot;`</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**CRITICAL**</span>: In no-op/auto-skip mode, do NOT output the chapter body file
+  (<span class="sb">`chapters/chapter-N.md`</span>). Only output <span class="sb">`chapters/chapter-N-revision-decisions.json`</span>.
+</code></pre></div>
+<h3 id="ensure-every-revision-route-writes-a-decisions-file">Ensure Every Revision Route Writes a Decisions File</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py</code> — in the revision step success handler (around line 1243-1286, in the <code>if "chapter-revision" in step.skill:</code> block, NOT at line 1438 which is the resonance path).</p>
+<p><strong>Critical schema constraint:</strong> The fallback file must conform to <code>DecisionsDoc</code> schema (<code>extra="forbid"</code>) — it must NOT use <code>route</code>/<code>changes</code>/<code>rationale</code> keys that would fail <code>g4_decisions</code> validation.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># After revision step completes, ensure decisions file exists</span>
+<span class="c1"># MUST conform to DecisionsDoc schema ($schema, skill, chapter, selections, adjustments, produced_at)</span>
+<span class="n">rev_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-revision-decisions.json&quot;</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">rev_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="c1"># Minimal DecisionsDoc-compliant file for no-revision routes</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+    <span class="n">min_decisions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+        <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;no_revision_needed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;selected&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;omitted&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># empty = no changes made</span>
+        <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">rev_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">min_decisions</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<p>This ensures every chapter that has a revision route (including no-revision) produces a <code>DecisionsDoc</code>-compliant artifact for audit trail completeness.</p>
+<h3 id="enrich-g4-retry-feedback-with-format-examples">Enrich G4 Retry Feedback with Format Examples</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py</code> (in retry feedback construction, near where G4 failures are formatted for LLM consumption)</p>
+<div class="highlight"><pre><span></span><code><span class="n">G4_FORMAT_EXAMPLES</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;G4.rr.detail_table&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;评分明细表格式：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|------|------|------|--------|------|----------|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 &gt; ... | ... |&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;G4.rr.verdict&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;校准门判定必须包含以下行：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;判定: 通过    （或：判定: 阻断  / 判定: 待人机复核）</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;注意：冒号可用半角 : 或全角 ：，&#39;判定&#39; 后冒号前可有空格&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;G4.rr.evidence&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;证据列每行必须包含文件和行号引用，格式：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;chapter-N.md L45-52 &gt; </span><span class="se">\&quot;</span><span class="s2">引用原文</span><span class="se">\&quot;</span><span class="s2">&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build enriched retry feedback with format examples for each failed check.&quot;&quot;&quot;</span>
+    <span class="n">feedback</span> <span class="o">=</span> <span class="s2">&quot;以下 G4 检查失败，请按指定格式修正：</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="n">check_id</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">else</span> <span class="n">f</span>
+        <span class="n">feedback</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;- **</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">**</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="k">if</span> <span class="n">check_id</span> <span class="ow">in</span> <span class="n">G4_FORMAT_EXAMPLES</span><span class="p">:</span>
+            <span class="n">feedback</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;  期望格式：</span><span class="se">\n</span><span class="s2">  </span><span class="si">{</span><span class="n">G4_FORMAT_EXAMPLES</span><span class="p">[</span><span class="n">check_id</span><span class="p">]</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="k">return</span> <span class="n">feedback</span>
+</code></pre></div>
+<h3 id="add-lenient-parsing-in-resonance-g4-checker-gap-specific">Add Lenient Parsing in Resonance G4 Checker (Gap-Specific)</h3>
+<p><strong>Location:</strong> <code>gates/g4/review_resonance.py:64</code> (verdict regex)</p>
+<p><strong>Verified current state:</strong> The code at line 64 already uses <code>r'判定\s*[:：]\s*(\S+)'</code> which accepts both half-width <code>:</code> and full-width <code>：</code> with optional whitespace, and matches any non-whitespace token (validated against <code>_VERDICTS</code>). This is already lenient for the colon variant.</p>
+<p><strong>Remaining gaps</strong> (what the current regex does NOT match — verified by testing):
+1. <code>**判定**: 通过</code> — markdown bold wrapping (<code>**判定**</code>) — the <code>**</code> breaks the <code>判定</code> prefix match
+2. <code>Verdict: PASS</code> — English verdict prefix — <code>判定</code> is not in the string</p>
+<p><strong>Already matched (NOT a gap):</strong> <code>## 判定：通过</code> — heading-style verdict IS matched by the existing regex because it is not anchored (<code>re.search</code> finds <code>判定：通过</code> within the line regardless of <code>##</code> prefix).</p>
+<p>Add tolerance for the 2 genuine gaps:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In g4_review_resonance, supplement the existing regex with gap-specific patterns</span>
+<span class="c1"># Current (line 64): r&#39;判定\s*[:：]\s*(\S+)&#39; — already handles : and ：, ## prefix, etc.</span>
+<span class="c1"># Only 2 genuine gaps remain:</span>
+<span class="n">VERDICT_SUPPLEMENT_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s1">&#39;\*\*判定\*\*\s*[:：]\s*(\S+)&#39;</span><span class="p">,</span>           <span class="c1"># markdown bold</span>
+    <span class="sa">r</span><span class="s1">&#39;Verdict\s*[:：]\s*(\S+)&#39;</span><span class="p">,</span>                <span class="c1"># English prefix</span>
+<span class="p">]</span>
+
+<span class="n">verdict</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="c1"># Try existing pattern first (line 64)</span>
+<span class="n">verdict_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;判定\s*[:：]\s*(\S+)&#39;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">verdict_match</span><span class="p">:</span>
+    <span class="c1"># Fall back to supplement patterns</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">VERDICT_SUPPLEMENT_PATTERNS</span><span class="p">:</span>
+        <span class="n">verdict_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">verdict_match</span><span class="p">:</span>
+            <span class="k">break</span>
+<span class="k">if</span> <span class="n">verdict_match</span><span class="p">:</span>
+    <span class="n">verdict</span> <span class="o">=</span> <span class="n">verdict_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:294-323</code></td>
+<td>Add pre-write JSON validation via <code>json.JSONDecoder().raw_decode()</code> + schema validation</td>
+<td>Layer 1: catch and recover trailing markdown before write</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code> (new function)</td>
+<td>Add <code>sanitize_json_content()</code></td>
+<td>Layer 3: strip illegal control characters</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g2.py:85-90</code> (new check)</td>
+<td>Add <code>G2.dec.4</code> multi-JSON concatenation detection</td>
+<td>Layer 2: detect concatenated JSON objects</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/chapter_revision.py</code> (new file)</td>
+<td>Create <code>g4_chapter_revision()</code> checker with <code>(fps, rd, project_dir, repo_root) -&gt; str</code> signature</td>
+<td>Validate adjustments array content WITHIN DecisionsDoc schema (selections/adjustments, NOT changes array)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/generic.py:237</code></td>
+<td>Route <code>shenbi-chapter-revision</code> to <code>make_composite_checker(g4_decisions, g4_chapter_revision)</code></td>
+<td>Run both JSON syntax check AND revision-content check</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-revision/SKILL.md:105-108</code></td>
+<td>Add no-op/auto-skip output specification using selections/adjustments schema</td>
+<td>Prevent arbitrary empty-adjustment outputs</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (revision step success handler, ~line 1243-1286)</td>
+<td>Ensure <code>revision-decisions.json</code> written for all routes, conforming to DecisionsDoc schema</td>
+<td>Close missing-file gap for 21 chapters</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (retry feedback)</td>
+<td>Add <code>G4_FORMAT_EXAMPLES</code> dict + <code>_enrich_g4_feedback()</code> function</td>
+<td>Give LLM concrete format examples in retry loops</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/review_resonance.py:64</code></td>
+<td>Add lenient verdict patterns with multiple regex variants</td>
+<td>Reduce false-negative G4 failures</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-review-resonance/SKILL.md</code></td>
+<td>Add concrete format examples in output specification</td>
+<td>Prevent LLM from guessing format</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><strong>Unit tests</strong> (<code>tests/unit/test_decision_json_validation.py</code>):</li>
+<li>Valid JSON -&gt; passes</li>
+<li>JSON + trailing markdown -&gt; Layer 1 truncates to first valid JSON object</li>
+<li>3 concatenated JSON objects -&gt; Layer 1 extracts first + Layer 2 reports</li>
+<li>
+<p>Completely invalid JSON -&gt; Layer 1 raises ValueError</p>
+</li>
+<li>
+<p><strong>Unit tests</strong> (<code>tests/unit/gates/g4/test_chapter_revision.py</code>):</p>
+</li>
+<li>Valid spot-fix revision (3 changes with detailed descriptions) -&gt; PASS</li>
+<li>Valid no-op revision (empty changes + &gt;=50 char rationale) -&gt; PASS</li>
+<li>Empty changes without rationale -&gt; HARD FAIL</li>
+<li>Change with missing description -&gt; HARD FAIL</li>
+<li>
+<p>JSON syntax error -&gt; HARD FAIL (caught by g4_decisions)</p>
+</li>
+<li>
+<p><strong>Integration test:</strong> Simulate dispatch write with corrupted Ch1 decisions.json content, verify written file is valid JSON.</p>
+</li>
+<li>
+<p><strong>Resonance retry reduction:</strong> 5 consecutive resonance audits -&gt; retry count &lt;= 1 per chapter.</p>
+</li>
+<li>
+<p><strong>Lenient parsing:</strong> Verify all 3 verdict format variants match correctly.</p>
+</li>
+<li>
+<p><strong>Revision completeness:</strong> All 56 chapters have <code>revision-decisions.json</code> regardless of route.</p>
+</li>
+<li>
+<p><strong>0 illegal control characters</strong> in any staging or final JSON file.</p>
+</li>
+<li>
+<p><strong>Regression:</strong> <code>just check</code> passes fully.</p>
+</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 2 (this spec, Output Validation and Format Enforcement)
+    |
+    +---&gt; Spec 3 (Dispatch Safety and File Integrity) -- revision content guard depends on valid JSON
+
+Prerequisites: None (standalone fix)
+</code></pre></div>
+<h3 id="61-original-issue-code-mapping">6.1 Original Issue Code Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Consolidated To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>H1</td>
+<td>JSON Corruption</td>
+<td>Spec 2 (this spec)</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Revision System Failure</td>
+<td>Spec 2 (this spec)</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>G4 Format Mismatch</td>
+<td>Spec 2 (this spec)</td>
+</tr>
+<tr>
+<td>CN1</td>
+<td>主角消失 (Protagonist Disappearance)</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN2</td>
+<td>Hook System Bifurcation</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN3</td>
+<td>Truth File Overwrite</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN4</td>
+<td>Resonance Score Null</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN5</td>
+<td>Style Learning Never Updated</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN6</td>
+<td>Pipeline State Stale Data</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>Revision Overwrite Chapter Content</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Staging Residue Leak</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Snapshot Coverage Gaps</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>LN1-LN3</td>
+<td>Snapshot Bloat / Lockfile / Budget Copy</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Progressive Prose Collapse</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Context Assembly Persistence Gap</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>HN1</td>
+<td>Template Duplication</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>content-looping</td>
+<td>Chapter Content Looping</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>title-degradation, plan-content-mismatch, RS1, static-review-checklist</td>
+<td>Review Quality Issues</td>
+<td>Spec 5</td>
+</tr>
+<tr>
+<td>step-reorganization, parallelize, SCR, M1</td>
+<td>Pipeline Architecture</td>
+<td>Spec 6</td>
+</tr>
+<tr>
+<td>maturity-bp-fixes, crash-recovery, runtime-optimizations, L1-L3, M2, H5, M4</td>
+<td>Pipeline Infrastructure</td>
+<td>Spec 7</td>
+</tr>
+<tr>
+<td>llm-context-optimization</td>
+<td>LLM Context Engineering</td>
+<td>Spec 8</td>
+</tr>
+<tr>
+<td>volume-map, character-archive, C3</td>
+<td>Content Planning and Deliverable Design</td>
+<td>Spec 9</td>
+</tr>
+<tr>
+<td>gate-markers, review-checklist-static, snapshot-differential</td>
+<td>Data Storage Optimization</td>
+<td>Spec 10</td>
+</tr>
+<tr>
+<td>validation, chapter-size-time</td>
+<td>End-to-End Validation Protocol</td>
+<td>Spec 11</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

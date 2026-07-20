@@ -1,0 +1,1631 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 19: LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 19: LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 19: LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-19-llm-output-integrity-structural-write-failure-and-content-anomaly-detection" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 19: LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-write-path-failure-mode-e13-e14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Write-Path Failure Mode (E13, E14)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-model-leakage-markers-in-prose-e3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Model Leakage Markers in Prose (E3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-audit-content-version-skew-e10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Audit-Content Version Skew (E10)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-aborted-audit-stubs-e16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Aborted Audit Stubs (E16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-markdown-fence-imbalance-e26" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Markdown Fence Imbalance (E26)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-unified-pattern-catalog-single-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Unified Pattern Catalog (single source of truth)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-write-failure-detection-false-positive-safe" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Write-Failure Detection (false-positive safe)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-prose-leakage-fence-balance-audit-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Prose Leakage / Fence-Balance / Audit Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-single-integration-point-_write_parsed_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Single Integration Point — _write_parsed_outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-retry-with-write-capability-confirmation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Retry with Write-Capability Confirmation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-severity-routing-to-g4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Severity Routing to G4
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-19-llm-output-integrity-structural-write-failure-and-content-anomaly-detection">Spec 19: LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> High
+<strong>Source:</strong> Systematic debugging Phase 1 evidence (E3, E10, E13, E14, E16, E26)
+<strong>Consolidated from findings:</strong>
+- E3: Ch56 truncated mid-generation — model stream-of-consciousness ("Now the decisions JSON:") leaked into chapter prose
+- E10: Ch55 audits reference line numbers (L29-31, L41-45) that don't exist in the 101-byte file — audit-content version skew
+- E13: Ch24 resonance audit is sandbox failure — model says "由于沙箱限制，我无法直接写文件" (sandbox limitation, cannot write file)
+- E14: Ch40 decisions.json says "The file on disk can't be updated (read-only sandbox)"
+- E16: Ch32 foreshadowing audit is 145-byte aborted stub ("inputs confirmed, now executing...") with no verdict
+- E26: 9 chapters have orphan code fences (odd number of ``` markers) — Markdown structural corruption</p>
+<p><strong>Merge note:</strong> This spec unifies the former Spec 19 (Output Structural Integrity Beyond JSON) and Spec 20 (Write-Path Failure Detection), which shared overlapping pattern catalogs and the same root failure mode — the LLM emitting non-content (diagnostics, meta-commentary, aborted stubs) that the pipeline persisted as if it were real output.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>Spec 2 validates JSON structural integrity (trailing markdown, control characters, schema compliance). But six classes of defects in <strong>LLM outputs</strong> are completely undetected — spanning both JSON and non-JSON deliverables, and both the write path and post-write validation:</p>
+<ol>
+<li>
+<p><strong>Write-path failure (E13, E14):</strong> The LLM reported it could not write to the filesystem and emitted a diagnostic message instead of the requested file content. Ch24's resonance audit begins "由于沙箱限制，我无法直接写文件..." and Ch40's decisions.json says "The file on disk can't be updated (read-only sandbox)." The pipeline accepted these diagnostics as valid content.</p>
+</li>
+<li>
+<p><strong>Model leakage into prose (E3):</strong> Ch56 ends with the model's internal monologue ("Now the decisions JSON:") instead of novel text. The chapter file contains planning intent, not prose.</p>
+</li>
+<li>
+<p><strong>Markdown structural corruption (E26):</strong> 9 chapters have an odd number of <code>```</code> code-fence markers, meaning an opening or closing fence is orphaned — the file was extracted from a code-fenced LLM response but one fence was lost.</p>
+</li>
+<li>
+<p><strong>Audit-content version skew (E10):</strong> Ch55's audit files cite <code>chapter-55.md L29-31</code> and <code>L41-45</code>, but the actual file is 101 bytes (3 lines). The audits ran against a longer pre-overwrite version.</p>
+</li>
+<li>
+<p><strong>Aborted audit stubs (E16):</strong> Ch32's <code>chapter-32-foreshadowing.md</code> is 145 bytes: just "所有输入文件已确认。现在执行完整的伏笔审计..." — no actual audit was performed.</p>
+</li>
+</ol>
+<p><strong>Root cause:</strong> The dispatch path (<code>_write_parsed_outputs</code>) writes whatever the LLM outputs, and all structural validation targets JSON files. No single choke point runs a unified set of integrity checks across every parsed output. Prose (<code>.md</code>) and audit (<code>.md</code>) files have no structural integrity checks beyond G4 skill-specific format validation, which doesn't catch generic corruption patterns.</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-write-path-failure-mode-e13-e14">2.1 Write-Path Failure Mode (E13, E14)</h3>
+<p>Some LLM deployment environments (especially sandboxed code execution environments) restrict filesystem writes. When the model encounters this restriction, it may:
+- Emit an apology/explanation instead of the file content
+- Reference <code>### FILE:</code> markers without actually outputting content
+- Produce a summary of what it "would have" written</p>
+<p>The pipeline's <code>_parse_file_outputs</code> regex captures everything after <code>### FILE:</code> until the next marker or EOF — including diagnostic messages. <code>_write_parsed_outputs</code> then persists them with no scan for write-failure signatures.</p>
+<h3 id="22-model-leakage-markers-in-prose-e3">2.2 Model Leakage Markers in Prose (E3)</h3>
+<p>When the LLM's generation is interrupted or it runs out of output tokens mid-response, the chapter file may contain:
+- Stream-of-consciousness planning: "Now the decisions JSON:", "Let me write..."
+- Schema references: "schema:", "```json"
+- Meta-instructions: "The file on disk can't be updated..."</p>
+<p>Ch56's file contains 1850 bytes of this leakage after the META-END marker. The content-size guard (Spec 3 §3.2) checks file size but not content semantics.</p>
+<h3 id="23-audit-content-version-skew-e10">2.3 Audit-Content Version Skew (E10)</h3>
+<p>Audits cite specific line references (<code>chapter-N.md L29-31</code>). When the chapter file is later overwritten (e.g., by revision overwrite per Spec 3 E1), the line references become invalid. The audit files remain on disk with stale references, creating a false audit trail.</p>
+<p><strong>Evidence:</strong> Ch55 audits reference L29-31, L41-45 in a 101-byte (3-line) file.</p>
+<h3 id="24-aborted-audit-stubs-e16">2.4 Aborted Audit Stubs (E16)</h3>
+<p>Some audit skills produce a preamble ("inputs confirmed, now executing...") but then fail to produce the actual audit — possibly due to output token limits, sandbox restrictions, or dispatch failures. The preamble is written to disk as if it were a complete audit.</p>
+<p><strong>Evidence:</strong> <code>chapter-32-foreshadowing.md</code> = 145 bytes, single sentence, no verdict section. Ch32 still passed the chapter loop.</p>
+<h3 id="25-markdown-fence-imbalance-e26">2.5 Markdown Fence Imbalance (E26)</h3>
+<p>The dispatch path extracts content from LLM responses that are wrapped in code fences. If the extraction regex captures an odd number of fence markers, the output file has an orphan fence. 9 chapters exhibit this: Ch1, 11, 14, 19, 22, 29, 33, 42, 56.</p>
+<hr />
+<h2 id="3-fix-strategy">3. Fix Strategy</h2>
+<h3 id="31-unified-pattern-catalog-single-source-of-truth">3.1 Unified Pattern Catalog (single source of truth)</h3>
+<p>The former Specs 19 and 20 maintained overlapping pattern lists (e.g., both matched <code>由于沙箱限制</code> and <code>read-only sandbox</code>). This consolidated catalog merges and de-duplicates them into one module, split by <strong>detection mode</strong> because write-failure and leakage signatures require different triggering rules (see §3.2).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/llm_output_integrity.py (new)</span>
+
+<span class="c1"># --- Write-failure signatures: the LLM reports it cannot write. ---</span>
+<span class="c1"># These supersede the broader standalone patterns from the former specs</span>
+<span class="c1"># (e.g. bare `由于沙箱限制`, `can&#39;t be updated.*sandbox`) which are now</span>
+<span class="c1"># covered by the more specific entries below.</span>
+<span class="n">WRITE_FAILURE_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">&quot;由于沙箱限制.*?(?:无法|不能).*?(?:写|写入)&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:can&#39;t|cannot|unable to).*?(?:write|update|create).*?(?:file|sandbox|read-only)&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;read-only sandbox&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Use the existing.*?from input&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;was already provided via.*?markers&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;I (?:cannot|can&#39;t|could not) (?:write|create|update) (?:the )?(?:file|output)&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># --- Model meta-commentary leakage in prose (NOT a write failure). ---</span>
+<span class="c1"># Removed write-failure overlaps (sandbox/can&#39;t-be-updated) which now live</span>
+<span class="c1"># exclusively in WRITE_FAILURE_PATTERNS above.</span>
+<span class="n">LEAKAGE_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">&quot;Now the .* JSON&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Let me write&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;schema:&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Here&#39;s a summary of the revision&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;修订执行摘要&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Revision complete&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;All \d+ files have been&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># --- Audit completeness markers ---</span>
+<span class="n">VERDICT_MARKERS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;判定&#39;</span><span class="p">,</span> <span class="s1">&#39;结论&#39;</span><span class="p">,</span> <span class="s1">&#39;verdict&#39;</span><span class="p">,</span> <span class="s1">&#39;通过&#39;</span><span class="p">,</span> <span class="s1">&#39;阻断&#39;</span><span class="p">,</span> <span class="s1">&#39;PASS&#39;</span><span class="p">,</span> <span class="s1">&#39;BLOCK&#39;</span><span class="p">]</span>
+<span class="n">PREAMBLE_MARKERS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;现在执行&#39;</span><span class="p">,</span> <span class="s1">&#39;inputs confirmed&#39;</span><span class="p">,</span> <span class="s1">&#39;now executing&#39;</span><span class="p">,</span> <span class="s1">&#39;开始审计&#39;</span><span class="p">]</span>
+</code></pre></div>
+<h3 id="32-write-failure-detection-false-positive-safe">3.2 Write-Failure Detection (false-positive safe)</h3>
+<p>The former Spec 20 §3.2 triggered on any occurrence of a write-failure pattern <strong>anywhere</strong> in the content. This is unsafe: a chapter can legitimately contain dialogue <em>about</em> sandboxes or a character saying "I cannot write." Write-failure patterns must only fire when the diagnostic <strong>dominates</strong> the output — i.e., the pattern appears at the very <strong>start</strong> of the content, or the matched region plus surrounding diagnostic prose comprises <strong>&gt;50%</strong> of the total output.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if content is a write-failure diagnostic instead of file content.</span>
+
+<span class="sd">    False-positive mitigation: a pattern only counts as a failure when it</span>
+<span class="sd">    appears at the START of the content OR the matched span sits within a</span>
+<span class="sd">    region that comprises &gt;50% of the total output. A chapter that merely</span>
+<span class="sd">    *mentions* a sandbox in passing is NOT a failure.</span>
+
+<span class="sd">    Returns (is_failure, matched_pattern).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stripped</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span>
+    <span class="n">total_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">WRITE_FAILURE_PATTERNS</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">content</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()</span>
+        <span class="c1"># Case 1: pattern at the very start (ignoring leading whitespace).</span>
+        <span class="n">at_start</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># Case 2: the region from first non-empty char to end of match</span>
+        <span class="c1">#         covers more than half the output — i.e. the diagnostic</span>
+        <span class="c1">#         dominates rather than being embedded in real content.</span>
+        <span class="n">dominant</span> <span class="o">=</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">total_len</span> <span class="o">*</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">at_start</span> <span class="ow">or</span> <span class="n">dominant</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="33-prose-leakage-fence-balance-audit-checks">3.3 Prose Leakage / Fence-Balance / Audit Checks</h3>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_prose_leakage</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect model meta-commentary leakage in prose files.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">LEAKAGE_PATTERNS</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4.pi.model_leakage:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;found &#39;</span><span class="si">{</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; pattern (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> occurrences). &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Chapter file contains model meta-commentary, not prose.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># Check for unfinished ending</span>
+    <span class="n">last_500</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">500</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">last_500</span> <span class="ow">and</span> <span class="n">last_500</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s1">&#39;:,；：，&#39;</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.pi.unfinished_ending:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;file ends with &#39;</span><span class="si">{</span><span class="n">last_500</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span><span class="si">}</span><span class="s2">&#39; — truncated mid-thought&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_markdown_fence_balance</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify Markdown code fences are balanced in prose files.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">fence_count</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;```&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fence_count</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.pi.fence_imbalance:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;odd number of ``` markers (</span><span class="si">{</span><span class="n">fence_count</span><span class="si">}</span><span class="s2">). &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Orphan code fence — file was likely extracted incorrectly.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_audit_completeness</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify audit files contain an actual verdict, not just a preamble.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Minimum size check — real audits are &gt; 500 bytes</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">200</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.too_short:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;audit file is </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes, likely aborted stub&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">has_verdict</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">marker</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">VERDICT_MARKERS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_verdict</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.no_verdict:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;audit file contains no verdict/conclusion marker&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">has_only_preamble</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">any</span><span class="p">(</span><span class="n">marker</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">PREAMBLE_MARKERS</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_verdict</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_only_preamble</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.aborted_stub:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;audit file contains only execution preamble, no results&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_audit_line_refs</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify audit line references point to valid lines in the chapter.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">audit_text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">issues</span>  <span class="c1"># Chapter missing is handled elsewhere</span>
+
+    <span class="n">chapter_lines</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="n">max_line</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapter_lines</span><span class="p">)</span>
+
+    <span class="c1"># Find all line references like &quot;L29-31&quot; or &quot;L41&quot;</span>
+    <span class="n">line_refs</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;L(\d+)(?:-(\d+))?&#39;</span><span class="p">,</span> <span class="n">audit_text</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start_str</span><span class="p">,</span> <span class="n">end_str</span> <span class="ow">in</span> <span class="n">line_refs</span><span class="p">:</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_str</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_str</span> <span class="k">else</span> <span class="n">start</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">max_line</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4.av.stale_line_ref:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;references L</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2"> but chapter has only </span><span class="si">{</span><span class="n">max_line</span><span class="si">}</span><span class="s2"> lines. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;Audit ran against a different version of the chapter.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<h3 id="34-single-integration-point-_write_parsed_outputs">3.4 Single Integration Point — <code>_write_parsed_outputs</code></h3>
+<p><strong>All</strong> checks run from one choke point in the write path, in a fixed order. Write-failure detection runs first (and hardest — it blocks the write and triggers retry); the remaining checks run as post-write validation against the persisted file:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In dispatch_helper.py _write_parsed_outputs</span>
+
+<span class="k">for</span> <span class="n">full_path</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">parsed_outputs</span><span class="p">:</span>
+    <span class="c1"># 1. WRITE-FAILURE DETECTION (pre-write, blocks the write)</span>
+    <span class="n">is_failure</span><span class="p">,</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">is_failure</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;dispatch_write_failure_detected&quot;</span><span class="p">,</span>
+                     <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="n">DispatchWriteFailureError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;LLM reported write failure for </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2">: &#39;</span><span class="si">{</span><span class="n">signature</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;The output is a diagnostic message, not file content. &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;Retry with explicit write-capability confirmation.&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+    <span class="c1"># 2-5. POST-WRITE INTEGRITY (in fixed order; collect all issues)</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">name</span>
+    <span class="n">is_chapter</span> <span class="o">=</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;chapter-&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_audit_file</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="n">is_audit</span> <span class="o">=</span> <span class="n">_is_audit_file</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_chapter</span><span class="p">:</span>
+        <span class="c1"># 2. PROSE LEAKAGE</span>
+        <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_prose_leakage</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="c1"># 3. FENCE BALANCE</span>
+        <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_markdown_fence_balance</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">is_audit</span><span class="p">:</span>
+        <span class="c1"># 4. AUDIT COMPLETENESS</span>
+        <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_audit_completeness</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="c1"># 5. AUDIT LINE-REF SKEW (needs the corresponding chapter file)</span>
+        <span class="n">chapter_path</span> <span class="o">=</span> <span class="n">_resolve_chapter_for_audit</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_audit_line_refs</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;llm_output_integrity_issue&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">finding</span><span class="o">=</span><span class="n">issue</span><span class="p">)</span>
+        <span class="c1"># Surface to G4 via the composite-checker registry so the gate</span>
+        <span class="c1"># can FAIL/WARN per the severity rules in §4.5.</span>
+</code></pre></div>
+<h3 id="35-retry-with-write-capability-confirmation">3.5 Retry with Write-Capability Confirmation</h3>
+<p>When a write-failure is detected, the retry prompt explicitly confirms write capability:</p>
+<div class="highlight"><pre><span></span><code><span class="n">RETRY_WRITE_CONFIRMATION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;CRITICAL: You have filesystem write access in this environment. &quot;</span>
+    <span class="s2">&quot;Output the complete file content directly — do not explain, apologize, &quot;</span>
+    <span class="s2">&quot;or reference sandbox limitations. Previous attempt failed with: &#39;</span><span class="si">{signature}</span><span class="s2">&#39;.&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+<h3 id="36-severity-routing-to-g4">3.6 Severity Routing to G4</h3>
+<p>Post-write findings are surfaced to G4 as composite checkers with these severities:
+- <code>G4.pi.model_leakage</code>, <code>G4.pi.unfinished_ending</code> → <strong>FAIL</strong>
+- <code>G4.pi.fence_imbalance</code> → <strong>WARN</strong>
+- <code>G4.ac.too_short</code>, <code>G4.ac.no_verdict</code>, <code>G4.ac.aborted_stub</code> → <strong>FAIL</strong>
+- <code>G4.av.stale_line_ref</code> → <strong>FAIL</strong></p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/llm_output_integrity.py</code> (new)</td>
+<td>Unified pattern catalog + all five check functions</td>
+<td>Single source of truth for LLM output integrity</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_write_parsed_outputs</code>)</td>
+<td>Single integration point running all checks in order</td>
+<td>One choke point instead of scattered G4-only checks</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code> (retry path)</td>
+<td>Add write-capability confirmation to retry prompt</td>
+<td>Break the write-failure loop</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/generic.py</code></td>
+<td>Register composite checkers fed from the post-write findings</td>
+<td>Route severities to the gate</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><strong>Write failure (start):</strong> Ch24-style "由于沙箱限制，我无法直接写文件..." at file start → detected, dispatch fails, retry triggered</li>
+<li><strong>Write failure (dominant):</strong> Ch40-style "read-only sandbox" diagnostic comprising &gt;50% of output → detected, dispatch fails</li>
+<li><strong>No false positive:</strong> A chapter whose prose legitimately mentions "sandbox" or "cannot write" in passing (not at start, &lt;50% of content) → passes normally</li>
+<li><strong>Prose leakage:</strong> Ch56-style "Now the decisions JSON:" → <code>G4.pi.model_leakage</code> FAIL</li>
+<li><strong>Aborted stub:</strong> Ch32-style 145-byte audit → <code>G4.ac.aborted_stub</code> FAIL</li>
+<li><strong>Version skew:</strong> Audit referencing L41 in a 3-line file → <code>G4.av.stale_line_ref</code> FAIL</li>
+<li><strong>Fence balance:</strong> Odd <code>`` count →</code>G4.pi.fence_imbalance` WARN</li>
+<li><strong>All 9 affected chapters</strong> (Ch1,11,14,19,22,29,33,42,56) flagged for fence imbalance</li>
+<li><strong>Normal output</strong> with no failure/leakage signatures → passes through normally</li>
+<li><strong>Regression:</strong> <code>just check</code> passes fully</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 19 (this spec, LLM Output Integrity)
+    |
+    +---&gt; Complements: Spec 2 (JSON validation) — this covers non-JSON files + pre-content failures
+    +---&gt; Complements: Spec 3 (content-size guard) — this covers content semantics
+    +---&gt; Subsumes: former Spec 20 (Write-Path Failure Detection) — merged here
+
+Prerequisites: None (standalone integrity fix)
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

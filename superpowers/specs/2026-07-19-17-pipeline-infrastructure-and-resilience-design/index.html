@@ -1,0 +1,2678 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-17-pipeline-infrastructure-and-resilience-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 7: Pipeline Infrastructure and Resilience Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 7: Pipeline Infrastructure and Resilience Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-17-pipeline-infrastructure-and-resilience-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-17-pipeline-infrastructure-and-resilience-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 7: Pipeline Infrastructure and Resilience Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-17-pipeline-infrastructure-and-resilience-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-7-pipeline-infrastructure-and-resilience-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 7: Pipeline Infrastructure and Resilience Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-p0-blocking-correctness-issues-from-pipeline-maturity-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 P0 Blocking Correctness Issues (from pipeline maturity audit)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 P0 Blocking Correctness Issues (from pipeline maturity audit)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p01-phase_runner-dead-path-already-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.1: phase_runner dead path — ALREADY FIXED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p02-shenbi-progress-script-unregistered-already-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.2: shenbi-progress script unregistered — ALREADY FIXED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p03-rollback-stub-misleads-users-already-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.3: rollback stub misleads users — ALREADY FIXED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p04-codex_api-dead-branch-already-fixed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.4: codex_api dead branch — ALREADY FIXED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p05-no-validated-end-to-end-run-exists" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.5: No validated end-to-end run exists
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-p1-engineering-gaps-from-pipeline-maturity-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 P1 Engineering Gaps (from pipeline maturity audit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-p2-consistency-issues-from-pipeline-maturity-audit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 P2 Consistency Issues (from pipeline maturity audit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-crash-recovery-no-signal-handling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Crash Recovery (no signal handling)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-runtime-inefficiencies-5-accumulated-issues" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Runtime Inefficiencies (5 accumulated issues)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-observability-gaps" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Observability Gaps
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-progress-tracking-broken" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 Progress Tracking Broken
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-state-machine-current_step-corruption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 State Machine current_step Corruption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-hardcoded-timeout-does-not-scale" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9 Hardcoded Timeout Does Not Scale
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-p0-blocking-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 P0 Blocking Fixes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 P0 Blocking Fixes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p01-fix-run_gate-dead-path-already-fixed-no-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.1: Fix run_gate() dead path — ALREADY FIXED, NO ACTION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p02-fix-shenbi-progress-registration-already-fixed-no-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.2: Fix shenbi-progress registration — ALREADY FIXED, NO ACTION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p03-remove-rollback-cli-registration-already-fixed-no-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.3: Remove rollback CLI registration — ALREADY FIXED, NO ACTION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p04-delete-codex_api-dead-branch-already-fixed-no-action" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.4: Delete codex_api dead branch — ALREADY FIXED, NO ACTION
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p05-end-to-end-real-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P0.5: End-to-end real run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-engineering-practices-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Engineering Practices (P1)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Engineering Practices (P1)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p12-scoring-independence-hardening" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.2: Scoring independence hardening
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p13-structured-output-replace-regex-parsing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.3: Structured output (replace regex parsing)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p14-llm-level-retry-with-exponential-backoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.4: LLM-level retry with exponential backoff
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p15-streaming-with-early-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.5: Streaming with early-stop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p16-per-skill-temperaturemodel-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.6: Per-skill temperature/model config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p18-golden-evaluation-set" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.8: Golden evaluation set
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p19-dual-state-machine-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P1.9: Dual state machine documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-consistency-fixes-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Consistency Fixes (P2)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Consistency Fixes (P2)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#p21-cjk-zero-width-normalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.1: CJK zero-width normalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p22-severity-enum-unification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.2: Severity enum unification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p23-dead-constant-cleanup-threshold-single-source" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.3: Dead constant cleanup + threshold single-source
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p24-legacypy-accurate-docstring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.4: legacy.py accurate docstring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p25-deferred-pass-stubs-to-unimplemented" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.5: Deferred PASS stubs to UNIMPLEMENTED
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#p26-stale-documentation-fix" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        P2.6: Stale documentation fix
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-crash-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Crash Recovery
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.4 Crash Recovery">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#signal-handlers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Signal handlers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#emergency-cleanup" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Emergency cleanup
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#chapter-loop-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Chapter loop integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#resume-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Resume recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-runtime-optimizations-observability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Runtime Optimizations + Observability
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.5 Runtime Optimizations + Observability">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#runtime-optimization-1-meta-block-stripping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime optimization 1: META block stripping
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-optimization-2-genre-config-caching" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime optimization 2: genre-config caching
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-optimization-3-truth-index-periodic-rebuild" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime optimization 3: Truth-index periodic rebuild
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-optimization-4-pipeline-state-compaction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime optimization 4: Pipeline-state compaction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-optimization-5-world-file-freshness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime optimization 5: World file freshness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#per-step-timing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Per-step timing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#api-token-tracking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        API token tracking
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#word-count-stability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Word count stability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progress-tracking-emit-mark_done-events" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Progress tracking: emit MARK_DONE events
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#state-machine-heal-current_step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        State machine: heal current_step
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dynamic-timeout" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dynamic timeout
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#original-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Original Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-7-pipeline-infrastructure-and-resilience-design">Spec 7: Pipeline Infrastructure and Resilience Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Consolidated Design
+<strong>Severity:</strong> Critical (P0.5 end-to-end validation gap + P1 engineering gaps; P0.1-P0.4 already fixed)
+<strong>Sources Merged:</strong>
+- <code>2026-07-16-pipeline-maturity-and-bp-fixes-design.md</code> (P0 bugs, P1 engineering, P2 consistency)
+- <code>2026-07-18-graceful-shutdown-crash-recovery-design.md</code> (crash recovery)
+- <code>2026-07-18-pipeline-runtime-optimizations-design.md</code> (5 runtime optimizations)
+- <code>2026-07-17-improve-pipeline-observability-metrics-design.md</code> (observability)
+- <code>2026-07-17-restore-progress-tracking-design.md</code> (progress tracking)
+- <code>2026-07-17-fix-state-machine-current-step-corruption-design.md</code> (state machine fix)
+- <code>2026-07-17-fix-state-settling-timeout-design.md</code> (dynamic timeout)
+<strong>Purpose:</strong> Unify 7 source specs into a single consolidated plan covering all pipeline infrastructure gaps: P0 blocking bugs, crash recovery, runtime optimization, observability, progress tracking, state machine correctness, and adaptive timeouts.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<blockquote>
+<p><strong>CORRECTION NOTICE (2026-07-15):</strong> The original audit listed P0.1-P0.4 as blocking bugs. <strong>All four are ALREADY FIXED in the current code</strong> (P0.1 phase_runner, P0.2 shenbi-progress, P0.3 rollback stub, P0.4 codex_api branch). See Section 2.1 for verified current state. The only genuine remaining P0 blocker is <strong>P0.5 (no validated end-to-end run)</strong>. The crash-recovery, state-machine, progress-tracking, timeout, and observability gaps below remain accurate and stand.</p>
+</blockquote>
+<p>The Shenbi pipeline underwent a comprehensive audit (5 parallel analysis agents + line-by-line code verification on 2026-07-15). The audit revealed a paradox: a 91/100 architecture score wraps a 45/100 unverified kernel. While 585 commits refined gates, contracts, and state machines, <strong>no complete novel has ever been produced through the pipeline</strong>. The root cause is systematic infrastructure debt across multiple dimensions:</p>
+<table>
+<thead>
+<tr>
+<th>Infrastructure Gap</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>P0.1-P0.4 "blocking bugs"</strong> (4 items)</td>
+<td><strong>ALREADY FIXED</strong> — phase_runner gate path, shenbi-progress writes, rollback stub, and codex_api branch all resolved in current code. No action needed (see §2.1).</td>
+</tr>
+<tr>
+<td><strong>No validated end-to-end run</strong> (P0.5)</td>
+<td>The sole remaining P0: <code>novel-output/</code> is empty, <code>.gitignore</code> suppresses output, no auditable artifact proves the pipeline works.</td>
+</tr>
+<tr>
+<td><strong>No signal handling</strong></td>
+<td>40-hour/56-chapter runs can be killed by OOM, Ctrl-C, or SIGTERM with zero progress preservation</td>
+</tr>
+<tr>
+<td><strong>No performance instrumentation</strong></td>
+<td>9.3x step-time variance (10 min to 93 min) with no per-step timing to locate bottlenecks</td>
+</tr>
+<tr>
+<td><strong>Progress tracking broken</strong></td>
+<td><code>progress.json</code> frozen at Genesis for entire 40-hour run; <code>MARK_DONE</code> trace events never emitted</td>
+</tr>
+<tr>
+<td><strong>State machine corrupt</strong></td>
+<td><code>_advance</code> sets <code>step_index</code> but not <code>current_step</code>; on interrupt, <code>current_step=""</code> renders resume impossible</td>
+</tr>
+<tr>
+<td><strong>Hardcoded timeouts</strong></td>
+<td>900s for all dispatch regardless of chapter size; Ch35 (38KB) hits timeout boundary</td>
+</tr>
+<tr>
+<td><strong>Runtime waste</strong></td>
+<td>META blocks sent to auditors (16-31% waste), genre-config reread 7x per chapter, truth-index stale, pipeline-state unbounded, world files never updated</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Shared root cause:</strong> The pipeline was engineered for architectural elegance (state machines, gates, contracts) but the fundamental "run, survive, resume, observe" infrastructure was never built. This spec addresses all seven dimensions in a unified, dependency-ordered plan.</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-p0-blocking-correctness-issues-from-pipeline-maturity-audit">2.1 P0 Blocking Correctness Issues (from pipeline maturity audit)</h3>
+<p><strong>Source:</strong> <code>2026-07-16-pipeline-maturity-and-bp-fixes-design.md</code> Section 4</p>
+<p>The original audit listed five blocking issues. <strong>P0.1-P0.4 are all ALREADY FIXED</strong> in the current codebase (verified 2026-07-15); only P0.5 remains a genuine blocker:</p>
+<h4 id="p01-phase_runner-dead-path-already-fixed">P0.1: phase_runner dead path — ALREADY FIXED</h4>
+<ul>
+<li><strong>File:</strong> <code>src/shenbi/phase_runner.py:54-75</code></li>
+<li><strong>Status:</strong> ALREADY FIXED — migrated to <code>shenbi.gates.cli</code> with OSError catch. No action needed.</li>
+<li><strong>Current code:</strong> <code>run_gate()</code> (lines 54-75) already targets <code>python -m shenbi.gates.cli</code> (line 64). The except clause is <code>except (json.JSONDecodeError, ValueError, OSError)</code> (line 70) — <code>OSError</code> is the parent of <code>FileNotFoundError</code>. The docstring explicitly documents the PR-19 migration away from the deleted <code>tests/validate-gate.py</code>.</li>
+<li><strong>Note:</strong> Original audit's claim that this was broken was based on stale code; the migration was already complete.</li>
+</ul>
+<h4 id="p02-shenbi-progress-script-unregistered-already-fixed">P0.2: shenbi-progress script unregistered — ALREADY FIXED</h4>
+<ul>
+<li><strong>File:</strong> <code>src/shenbi/dispatcher/modes/codex.py:20-48</code></li>
+<li><strong>Status:</strong> ALREADY FIXED — replaced by direct <code>_record_completion</code> write. No action needed.</li>
+<li><strong>Current code:</strong> <code>_record_completion</code> (lines 20-48) writes directly to <code>progress.json</code> via <code>safe_write</code>, appending to <code>completed_skill_names</code> and recording the skill score/status. The docstring states "Replaces the historical <code>shenbi-progress mark-done</code> subprocess, which invoked an entry point never registered in pyproject.toml." There is no subprocess call to <code>shenbi-progress</code> and no unregistered entry point.</li>
+</ul>
+<h4 id="p03-rollback-stub-misleads-users-already-fixed">P0.3: rollback stub misleads users — ALREADY FIXED</h4>
+<ul>
+<li><strong>File:</strong> <code>src/shenbi/pipeline/cli.py:783-803</code>, <code>main()</code> subparser registration</li>
+<li><strong>Status:</strong> ALREADY FIXED — returns 1, subparser removed. No action needed.</li>
+<li><strong>Current code:</strong> <code>cmd_rollback</code> (lines 783-803) returns <code>1</code> (line 803), emits <code>{"status": "not_implemented", ...}</code>, and the docstring notes "The subparser registration has been removed so 'pipeline --help' does not advertise this command." <code>main()</code> subparsers are: <code>init</code>, <code>next</code>, <code>status</code>, <code>review</code>, <code>resume</code>, <code>chapters</code> — no <code>rollback</code> subparser exists.</li>
+</ul>
+<h4 id="p04-codex_api-dead-branch-already-fixed">P0.4: codex_api dead branch — ALREADY FIXED</h4>
+<ul>
+<li><strong>File:</strong> <code>src/shenbi/dispatcher/executor.py:164-174,230-239</code></li>
+<li><strong>Status:</strong> ALREADY FIXED — no codex-api branch in dispatch(). No action needed.</li>
+<li><strong>Current code:</strong> <code>detect_mode()</code> (lines 164-174) returns only <code>"codex"</code> or <code>"internal"</code>. <code>dispatch()</code> (lines 230-239) contains only a <code>codex</code> branch (lines 233-236) with <code>internal</code> as the fallback (lines 237-239). There is no <code>codex-api</code> branch anywhere in the dispatch path; a grep for <code>codex-api</code>/<code>codex_api</code>/<code>dispatch_codex_api</code> in <code>executor.py</code> returns no matches.</li>
+</ul>
+<h4 id="p05-no-validated-end-to-end-run-exists">P0.5: No validated end-to-end run exists</h4>
+<ul>
+<li><strong>File:</strong> <code>.gitignore</code>, <code>novel-output/</code> (create)</li>
+<li><strong>Root cause:</strong> <code>novel-output/</code> exists but is UNTRACKED (not committed to git) and <code>progress.json</code> is frozen. The pipeline ran but its outputs cannot be audited via git history, and the progress view does not reflect actual completion. <code>tests/rounds/</code> was deleted (commit <code>b978d3cc</code>). Previous "phantom data" incident (Round 005 with fake T2/T3 data).</li>
+<li><strong>Symptom:</strong> The project's core defect -- no auditable real output proves the pipeline works.</li>
+<li><strong>Fix:</strong> (a) establish a git-tracked audit mechanism for pipeline outputs (add <code>.gitignore</code> exceptions for <code>novel-output/</code> so artifacts can be committed and reviewed via git history), (b) fix <code>progress.json</code> materialization (§3.5). Run complete pipeline on <code>outline-example.md</code> (星火燃穹). Submit all intermediate artifacts (pipeline-state.json, genesis/, chapters/, truth/, audits/, gate-markers/).</li>
+</ul>
+<h3 id="22-p1-engineering-gaps-from-pipeline-maturity-audit">2.2 P1 Engineering Gaps (from pipeline maturity audit)</h3>
+<p><strong>Source:</strong> <code>2026-07-16-pipeline-maturity-and-bp-fixes-design.md</code> Section 5</p>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Current State</th>
+<th>Industry Standard</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No retry</td>
+<td>Single <code>chat.completions.create</code>, 429/500/timeout = immediate failure</td>
+<td>tenacity exponential backoff (3 retries)</td>
+</tr>
+<tr>
+<td>No streaming</td>
+<td>Blocking <code>create()</code> for 16K tokens, no incremental feedback</td>
+<td><code>stream=True</code> with early-stop patterns</td>
+</tr>
+<tr>
+<td>No structured output</td>
+<td>Regex <code>### FILE:</code> parsing -- one format drift loses a chapter</td>
+<td>JSON mode + Pydantic <code>model_validate_json</code></td>
+</tr>
+<tr>
+<td>Hardcoded temperature</td>
+<td><code>_API_TEMPERATURE = 0.7</code> for all 67 skills</td>
+<td>Per-skill config via <code>executor_config.toml</code></td>
+</tr>
+<tr>
+<td>Internal mode silent pass</td>
+<td><code>internal.py</code> returns success with no scoring output</td>
+<td>Hard-reject: raise <code>DispatcherError</code></td>
+</tr>
+<tr>
+<td>No golden evaluation set</td>
+<td>1875 tests mock LLM; zero end-to-end quality assertions</td>
+<td>10-chapter golden set with human scores</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-p2-consistency-issues-from-pipeline-maturity-audit">2.3 P2 Consistency Issues (from pipeline maturity audit)</h3>
+<p><strong>Source:</strong> <code>2026-07-16-pipeline-maturity-and-bp-fixes-design.md</code> Section 6</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>File</th>
+<th>Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CJK normalization</td>
+<td><code>contracts/fields.py:23-24</code></td>
+<td>Only ASCII whitespace + U+3000 normalized; no zero-width folding, no NFKC</td>
+</tr>
+<tr>
+<td>Severity type split</td>
+<td><code>contracts/schemas/decisions.py:28,52</code></td>
+<td><code>Selection.severity</code> is <code>Literal["low","high"]</code> but <code>Adjustment.severity</code> is free <code>str</code></td>
+</tr>
+<tr>
+<td>Hardcoded thresholds</td>
+<td><code>scoring.py:176-183</code></td>
+<td><code>classify</code> uses magic numbers 90/75/60 instead of <code>TEST_PASS</code> from <code>thresholds.py</code></td>
+</tr>
+<tr>
+<td>legacy.py mislabel</td>
+<td><code>contracts/legacy.py:1</code></td>
+<td>Marked DEPRECATED but is the canonical active loader consumed by all gates/dispatchers</td>
+</tr>
+<tr>
+<td>Deferred PASS stubs</td>
+<td><code>g7.py:108-112</code>, <code>g_dispatch.py:67-69</code>, etc.</td>
+<td>Multiple gates return unconditional PASS with "deferred" note; <code>UNIMPLEMENTED</code> status exists but unused</td>
+</tr>
+<tr>
+<td>Stale docs</td>
+<td><code>docs/getting-started/first-novel.md:231-233</code></td>
+<td>Claims orchestration is "placeholder" but <code>pipeline next/resume</code> is fully implemented</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-crash-recovery-no-signal-handling">2.4 Crash Recovery (no signal handling)</h3>
+<p><strong>Source:</strong> <code>2026-07-18-graceful-shutdown-crash-recovery-design.md</code></p>
+<ul>
+<li><strong>Root cause:</strong> Pipeline has zero signal handlers. <code>kill</code> or <code>Ctrl-C</code> directly terminates the process. No atexit hook. No emergency snapshot. No resume logic for interrupted state.</li>
+<li><strong>Evidence:</strong> Ch56 interrupted with <code>current_step=''</code>, <code>step_index=9</code>. Pipeline state preserved but recovery impossible without manual intervention.</li>
+<li><strong>Impact:</strong> 40-hour/56-chapter runs vulnerable to OOM, API rate limits, network interruptions, or accidental termination -- no progress preservation.</li>
+</ul>
+<h3 id="25-runtime-inefficiencies-5-accumulated-issues">2.5 Runtime Inefficiencies (5 accumulated issues)</h3>
+<p><strong>Source:</strong> <code>2026-07-18-pipeline-runtime-optimizations-design.md</code></p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>META blocks sent to auditors</td>
+<td>13 auditors + state-settling + lifecycle receive <code>&lt;!--META-BEGIN--&gt;...&lt;!--META-END--&gt;</code> blocks; Ch10: 16% waste, average 31% across chapters</td>
+</tr>
+<tr>
+<td>genre-config.json repeat I/O</td>
+<td>3.6KB file read ~8 times per chapter, each triggering disk I/O</td>
+</tr>
+<tr>
+<td>Stale truth-index</td>
+<td>Built at Genesis, never rebuilt; grows stale across 56 chapters</td>
+</tr>
+<tr>
+<td>Unbounded pipeline-state.json</td>
+<td>132KB at 56 chapters, full <code>json.dump</code> on every save; retry_feedback (54 entries) permanently accumulates</td>
+</tr>
+<tr>
+<td>Stale world files</td>
+<td><code>world/</code> files written at Genesis, never updated; story advances from Ironforge to Misty Mountains but <code>locations.md</code> unchanged</td>
+</tr>
+</tbody>
+</table>
+<h3 id="26-observability-gaps">2.6 Observability Gaps</h3>
+<p><strong>Source:</strong> <code>2026-07-17-improve-pipeline-observability-metrics-design.md</code></p>
+<table>
+<thead>
+<tr>
+<th>Gap</th>
+<th>Symptom</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No per-step timing</td>
+<td>Chapter times vary 9.3x (10 min to 93 min) with no per-skill breakdown to identify bottlenecks</td>
+</tr>
+<tr>
+<td>No token tracking</td>
+<td>Entire 40-hour run has zero token counts or cost logs; <code>response.usage</code> never recorded</td>
+</tr>
+<tr>
+<td>Word count instability</td>
+<td>Range 101 words (Ch55, damaged) to 18,363 words (Ch47); standard deviation too high</td>
+</tr>
+</tbody>
+</table>
+<h3 id="27-progress-tracking-broken">2.7 Progress Tracking Broken</h3>
+<p><strong>Source:</strong> <code>2026-07-17-restore-progress-tracking-design.md</code></p>
+<ul>
+<li><strong>Root cause:</strong> <code>_record_step_done</code> (<code>chapter_loop.py:443-451</code>) updates in-memory <code>PipelineState</code> but never emits <code>MARK_DONE</code> trace events. <code>progress.json</code> is a trace-derived view (<code>trace/materialize.py:31-101</code>) -- without trace events, it remains frozen.</li>
+<li><strong>Evidence:</strong> <code>progress.json</code> last modified at Genesis (04:53:55). Remained unchanged for 40 hours and 56 chapters.</li>
+<li><strong>Symptom:</strong> Progress tracking, which G3.4 scoring independence depends on, is non-functional.</li>
+</ul>
+<h3 id="28-state-machine-current_step-corruption">2.8 State Machine current_step Corruption</h3>
+<p><strong>Source:</strong> <code>2026-07-17-fix-state-machine-current-step-corruption-design.md</code></p>
+<ul>
+<li><strong>Root cause:</strong> <code>_advance</code> (<code>chapter_loop.py:489-563</code>) sets <code>step_index</code> but never sets <code>current_step</code>. <code>ChapterLoopStateData.current_step</code> defaults to <code>""</code>. If pipeline is interrupted between steps, the persisted state has <code>step_index=9, current_step=""</code> -- a contradiction.</li>
+<li><strong>Effect:</strong> <code>pipeline resume</code> uses <code>current_step</code> to determine recovery point. Empty string causes undefined behavior: may skip steps, restart from step 0, or enter illegal state.</li>
+</ul>
+<h3 id="29-hardcoded-timeout-does-not-scale">2.9 Hardcoded Timeout Does Not Scale</h3>
+<p><strong>Source:</strong> <code>2026-07-17-fix-state-settling-timeout-design.md</code></p>
+<ul>
+<li><strong>Root cause:</strong> <code>dispatch_helper.py</code> uses a global hardcoded 900s (15 min) dispatch timeout. State-settling, the heaviest step (reads all truth files + current chapter + updates 7 truth files), exceeds this for large chapters.</li>
+<li><strong>Evidence:</strong> Ch35 (38KB) state-settling exceeded 900s, triggering escalation checkpoint. Retry succeeded but exposed the flaw.</li>
+<li><strong>Risk:</strong> Chapter size vs. timeout:</li>
+<li>&lt;10KB: 2-5 min (safe)</li>
+<li>20-30KB: 10-15 min (borderline)</li>
+<li>30-40KB: 15-25 min (<strong>exceeds 900s</strong>)</li>
+</ul>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-p0-blocking-fixes">3.1 P0 Blocking Fixes</h3>
+<p><strong>Dependency chain:</strong> P0.1-P0.4 are all ALREADY FIXED (no work needed). P0.5 depends on execution backend readiness only — the four "blocking bugs" it was originally gated on have already been resolved.</p>
+<h4 id="p01-fix-run_gate-dead-path-already-fixed-no-action">P0.1: Fix run_gate() dead path — ALREADY FIXED, NO ACTION</h4>
+<p><strong>File:</strong> <code>src/shenbi/phase_runner.py:54-75</code></p>
+<p>Already implemented. <code>run_gate()</code> invokes <code>python -m shenbi.gates.cli</code> (line 64) and catches <code>(json.JSONDecodeError, ValueError, OSError)</code> (line 70). No changes required. (The <code>scoring.py</code> gate references in the original audit were not part of this dead-path bug.)</p>
+<h4 id="p02-fix-shenbi-progress-registration-already-fixed-no-action">P0.2: Fix shenbi-progress registration — ALREADY FIXED, NO ACTION</h4>
+<p><strong>File:</strong> <code>src/shenbi/dispatcher/modes/codex.py:20-48</code></p>
+<p>Already implemented. <code>_record_completion</code> writes directly to <code>progress.json</code> via <code>safe_write</code>; there is no <code>shenbi-progress</code> subprocess call and no entry point to register. No changes required.</p>
+<h4 id="p03-remove-rollback-cli-registration-already-fixed-no-action">P0.3: Remove rollback CLI registration — ALREADY FIXED, NO ACTION</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/cli.py:783-803</code></p>
+<p>Already implemented. <code>cmd_rollback</code> returns exit code <code>1</code> (line 803) and the <code>rollback</code> subparser is not registered in <code>main()</code> (subparsers are: init, next, status, review, resume, chapters). No changes required.</p>
+<h4 id="p04-delete-codex_api-dead-branch-already-fixed-no-action">P0.4: Delete codex_api dead branch — ALREADY FIXED, NO ACTION</h4>
+<p><strong>File:</strong> <code>src/shenbi/dispatcher/executor.py:164-174,230-239</code></p>
+<p>Already implemented. <code>dispatch()</code> contains only a <code>codex</code> branch with <code>internal</code> fallback; no <code>codex-api</code> branch exists. No changes required.</p>
+<h4 id="p05-end-to-end-real-run">P0.5: End-to-end real run</h4>
+<ol>
+<li>Add <code>.gitignore</code> exceptions for <code>novel-output/</code></li>
+<li>Configure execution backend (<code>SHENBI_LLM_API_KEY</code> + <code>SHENBI_LLM_BASE_URL</code> + <code>SHENBI_LLM_MODEL</code>)</li>
+<li>Run full pipeline on <code>outline-example.md</code> (星火燃穹)</li>
+<li>Submit auditable artifacts: <code>pipeline-state.json</code>, <code>genesis/</code>, <code>chapters/</code>, <code>truth/</code>, <code>audits/</code>, <code>gate-markers/</code></li>
+<li>Risk mitigation: run 5-chapter canary first; pipeline is resumable; quality not expected to be perfect</li>
+</ol>
+<h3 id="32-engineering-practices-p1">3.2 Engineering Practices (P1)</h3>
+<h4 id="p12-scoring-independence-hardening">P1.2: Scoring independence hardening</h4>
+<p><strong>File:</strong> <code>src/shenbi/dispatcher/modes/internal.py</code>, <code>dispatch_helper.py</code></p>
+<ul>
+<li><code>internal.py</code>: Replace silent pass with <code>raise DispatcherError("internal mode has no LLM backend, cannot score. Set SHENBI_LLM_API_KEY.")</code></li>
+<li><code>dispatch_helper.dispatch_skill</code>: Write <code>current_scorer_agent</code> to <code>progress.json</code> after scoring skill execution, enabling G3.4 fail-closed logic in pipeline path</li>
+<li>Scoring session physical isolation: inject unique <code>request_id</code>, separate client instance via <code>SHENBI_SCORING_SESSION=1</code></li>
+</ul>
+<h4 id="p13-structured-output-replace-regex-parsing">P1.3: Structured output (replace regex parsing)</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:272-291,402-459</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">FileOutput</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">path</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SkillOutput</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">files</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileOutput</span><span class="p">]</span>
+    <span class="n">decisions</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+    <span class="n">response_format</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;json_object&quot;</span><span class="p">},</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="n">temp</span><span class="p">,</span> <span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tok</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">output</span> <span class="o">=</span> <span class="n">SkillOutput</span><span class="o">.</span><span class="n">model_validate_json</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<p>CLI backend retains <code>### FILE:</code> regex fallback. API path uses 0 regex.</p>
+<h4 id="p14-llm-level-retry-with-exponential-backoff">P1.4: LLM-level retry with exponential backoff</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tenacity</span><span class="w"> </span><span class="kn">import</span> <span class="n">retry</span><span class="p">,</span> <span class="n">stop_after_attempt</span><span class="p">,</span> <span class="n">wait_exponential_jitter</span><span class="p">,</span> <span class="n">retry_if_exception_type</span>
+
+<span class="nd">@retry</span><span class="p">(</span>
+    <span class="n">stop</span><span class="o">=</span><span class="n">stop_after_attempt</span><span class="p">(</span><span class="mi">3</span><span class="p">),</span>
+    <span class="n">wait</span><span class="o">=</span><span class="n">wait_exponential_jitter</span><span class="p">(</span><span class="n">initial</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="nb">max</span><span class="o">=</span><span class="mi">30</span><span class="p">),</span>
+    <span class="n">retry</span><span class="o">=</span><span class="n">retry_if_exception_type</span><span class="p">((</span><span class="n">httpx</span><span class="o">.</span><span class="n">HTTPStatusError</span><span class="p">,</span> <span class="n">httpx</span><span class="o">.</span><span class="n">TimeoutException</span><span class="p">)),</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_call_llm</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</code></pre></div>
+<p>Retry layers: LLM layer (P1.4) handles transient 429/5xx/timeout. Gate layer (existing <code>error_handler</code>) handles structural failures (G4 failure). LLM layer exhausts first.</p>
+<h4 id="p15-streaming-with-early-stop">P1.5: Streaming with early-stop</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_call_llm_streaming</span><span class="p">(</span><span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="p">,</span> <span class="n">early_stop_patterns</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">collected</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">stop_reason</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">stream</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span> <span class="n">stream</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">stream</span><span class="p">:</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">collected</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">delta</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">early_stop_patterns</span><span class="p">:</span>
+            <span class="n">text_so_far</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collected</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">early_stop_patterns</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">text_so_far</span><span class="p">:</span>
+                    <span class="n">stop_reason</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;early_stop: matched </span><span class="si">{</span><span class="n">pat</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="k">break</span>
+            <span class="k">if</span> <span class="n">stop_reason</span><span class="p">:</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">collected</span><span class="p">),</span> <span class="n">stop_reason</span>
+</code></pre></div>
+<p>Early-stop patterns from <code>genre-config.json</code> <code>fatigueWords</code> and <code>chapter-drafting</code> SKILL.md banned sentence patterns.</p>
+<h4 id="p16-per-skill-temperaturemodel-config">P1.6: Per-skill temperature/model config</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py:40-49</code>, new <code>executor_config.toml</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">[default]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span>
+<span class="n">max_tokens</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">16384</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.85</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-review-continuity&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.2</span>
+
+<span class="k">[overrides.</span><span class="s2">&quot;shenbi-review-anti-ai&quot;</span><span class="k">]</span>
+<span class="n">temperature</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.15</span>
+</code></pre></div>
+<p>After migration, delete <code>_API_TEMPERATURE</code> and <code>_API_MAX_TOKENS</code> constants.</p>
+<h4 id="p18-golden-evaluation-set">P1.8: Golden evaluation set</h4>
+<p><strong>Directory:</strong> <code>tests/golden/</code> (new)</p>
+<ul>
+<li>10-20 chapters from P0.5 real output, human-scored per rubric</li>
+<li><code>shenbi-score --calibrate-against</code> mode: Pearson/Spearman correlation, Cohen's kappa</li>
+<li>Nightly CI smoke test: 1 chapter real run (alert on failure, not PR-blocking)</li>
+</ul>
+<h4 id="p19-dual-state-machine-documentation">P1.9: Dual state machine documentation</h4>
+<p><strong>File:</strong> <code>src/shenbi/phase_runner.py:1-11</code>, <code>src/shenbi/pipeline/cli.py:1-19</code></p>
+<p>Add explicit annotations distinguishing the test orchestrator (<code>shenbi-phase</code>) from the novel generator (<code>pipeline</code> CLI). Add "Two State Machines" section to <code>docs/architecture/overview.md</code>.</p>
+<h3 id="33-consistency-fixes-p2">3.3 Consistency Fixes (P2)</h3>
+<h4 id="p21-cjk-zero-width-normalization">P2.1: CJK zero-width normalization</h4>
+<p><strong>File:</strong> <code>src/shenbi/contracts/fields.py:23-24</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_normalize_ws</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u3000</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">c</span> <span class="ow">not</span> <span class="ow">in</span> <span class="s2">&quot;</span><span class="se">\u200b\ufeff\u200c\u200d</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">unicodedata</span><span class="o">.</span><span class="n">normalize</span><span class="p">(</span><span class="s2">&quot;NFKC&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">text</span>
+</code></pre></div>
+<p>Also transcode or remove <code>report-example.txt</code> (GBK-encoded public domain text mistakenly labeled as audit report).</p>
+<h4 id="p22-severity-enum-unification">P2.2: Severity enum unification</h4>
+<p><strong>File:</strong> <code>src/shenbi/contracts/schemas/decisions.py:28,52</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">Severity</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Selection</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Adjustment</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Severity</span>  <span class="c1"># was: str</span>
+</code></pre></div>
+<p>Bump schema version: <code>shenbi-decisions-v1</code> to <code>shenbi-decisions-v2</code>. v1 <code>low</code>/<code>high</code> remain valid; <code>medium</code> is new.</p>
+<h4 id="p23-dead-constant-cleanup-threshold-single-source">P2.3: Dead constant cleanup + threshold single-source</h4>
+<p><strong>File:</strong> <code>src/shenbi/scoring.py:176-183</code>, <code>src/shenbi/contracts/thresholds.py</code></p>
+<ul>
+<li><code>scoring.classify</code>: Replace hardcoded 90 with <code>TEST_PASS</code> import</li>
+<li>G6: Wire <code>T3_PASS</code> for T3 score checks</li>
+<li>Verify <code>CONVERGENCE</code>: delete if orphaned, annotate if reserved</li>
+</ul>
+<h4 id="p24-legacypy-accurate-docstring">P2.4: legacy.py accurate docstring</h4>
+<p><strong>File:</strong> <code>src/shenbi/contracts/legacy.py:1</code></p>
+<p>Replace DEPRECATED notice with accurate description: "Canonical contract loader and validator. Despite historical naming, this is the current single source of truth consumed by all gates, dispatchers, and pipeline."</p>
+<h4 id="p25-deferred-pass-stubs-to-unimplemented">P2.5: Deferred PASS stubs to UNIMPLEMENTED</h4>
+<p><strong>Files:</strong> <code>g7.py:108-112</code>, <code>g_dispatch.py:67-69</code>, <code>g_reconcile.py:74-76</code>, <code>g_transition.py:66-91</code>, <code>g0.py:237-238</code></p>
+<p>Each stub: <code>c.append({"id": "G7.2", "s": "PASS", "note": "deferred"})</code> becomes <code>c.append(shared.unimplemented("G7.2", "skill-traces check not yet implemented"))</code>. <code>UNIMPLEMENTED</code> treated as PASS in gate chain (non-blocking), but flagged WARN in audit report.</p>
+<p>Note: G3.1 (<code>g3.py:85-91</code>) is intentionally skipped with <code>"s": "SKIP"</code> -- not a deferred stub, do not change.</p>
+<h4 id="p26-stale-documentation-fix">P2.6: Stale documentation fix</h4>
+<p><strong>File:</strong> <code>docs/getting-started/first-novel.md:231-233</code></p>
+<p>Update or remove the claim that orchestration is "a placeholder." Pipeline <code>next</code>/<code>resume</code> are fully implemented (<code>cli.py:582-751</code>).</p>
+<h3 id="34-crash-recovery">3.4 Crash Recovery</h3>
+<p><strong>Source:</strong> <code>2026-07-18-graceful-shutdown-crash-recovery-design.md</code> Section 2</p>
+<p><strong>New file:</strong> <code>src/shenbi/pipeline/crash_recovery.py</code></p>
+<h4 id="signal-handlers">Signal handlers</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">register_emergency_handlers</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="s1">&#39;PipelineState&#39;</span><span class="p">):</span>
+    <span class="n">_emergency_state</span><span class="p">[</span><span class="s1">&#39;project_dir&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">project_dir</span>
+    <span class="n">_emergency_state</span><span class="p">[</span><span class="s1">&#39;pipeline_state&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">state</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGTERM</span><span class="p">,</span> <span class="n">_handle_emergency_signal</span><span class="p">)</span>
+    <span class="n">signal</span><span class="o">.</span><span class="n">signal</span><span class="p">(</span><span class="n">signal</span><span class="o">.</span><span class="n">SIGINT</span><span class="p">,</span> <span class="n">_handle_emergency_signal</span><span class="p">)</span>
+    <span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_emergency_cleanup</span><span class="p">)</span>
+</code></pre></div>
+<p>On SIGTERM/SIGINT: set <code>shutdown_requested = True</code>, call <code>_emergency_cleanup()</code>, then re-raise signal for correct exit code.</p>
+<h4 id="emergency-cleanup">Emergency cleanup</h4>
+<p><code>_emergency_cleanup()</code> (also called by atexit for normal exits with unsaved changes):
+1. Mark current step as <code>EMERGENCY_SHUTDOWN_AT_{step.skill}</code>
+2. Save pipeline state via <code>save_pipeline_state()</code>
+3. Create emergency snapshot via <code>_snapshot_chapter_files(label="emergency")</code>
+4. Clear staging via <code>clear_staging()</code></p>
+<p>All wrapped in try/except -- cleanup failure must not prevent process exit.</p>
+<h4 id="chapter-loop-integration">Chapter loop integration</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">CHAPTER_STEPS</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">is_shutdown_requested</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;graceful_shutdown_at_step_boundary&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+        <span class="k">break</span>  <span class="c1"># exit at step boundary, not mid-LLM-call</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">run_chapter_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="resume-recovery">Resume recovery</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/cli.py:cmd_resume</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span> <span class="ow">and</span> <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;EMERGENCY_SHUTDOWN&quot;</span><span class="p">):</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;resuming_from_emergency_shutdown&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+    <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="n">CHAPTER_STEPS</span><span class="p">[</span><span class="n">cl</span><span class="o">.</span><span class="n">step_index</span><span class="p">]</span><span class="o">.</span><span class="n">skill</span> <span class="k">if</span> <span class="n">cl</span><span class="o">.</span><span class="n">step_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">CHAPTER_STEPS</span><span class="p">)</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">save_pipeline_state</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="35-runtime-optimizations-observability">3.5 Runtime Optimizations + Observability</h3>
+<h4 id="runtime-optimization-1-meta-block-stripping">Runtime optimization 1: META block stripping</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">_META_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;&lt;!--META-BEGIN--&gt;.*?&lt;!--META-END--&gt;&#39;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_strip_meta_for_non_drafting</span><span class="p">(</span><span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">skill_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;shenbi-chapter-drafting&#39;</span><span class="p">,</span> <span class="s1">&#39;shenbi-chapter-revision&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">_META_PATTERN</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+</code></pre></div>
+<p>Saves 16-31% input per non-drafting call (13 auditors + state-settling + lifecycle).</p>
+<h4 id="runtime-optimization-2-genre-config-caching">Runtime optimization 2: genre-config caching</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code></p>
+<p>Module-level cache keyed by chapter number. ~7 disk I/O per chapter reduced to 1.</p>
+<h4 id="runtime-optimization-3-truth-index-periodic-rebuild">Runtime optimization 3: Truth-index periodic rebuild</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py:_complete_chapter</code></p>
+<p>Rebuild truth-index at volume boundaries or every 15 chapters.</p>
+<h4 id="runtime-optimization-4-pipeline-state-compaction">Runtime optimization 4: Pipeline-state compaction</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/state.py</code></p>
+<ul>
+<li>Archive chapter states beyond last 10 to <code>pipeline-state-archive.json</code></li>
+<li>Prune <code>retry_feedback</code> to last 30 entries</li>
+<li>Reduces 236KB (at 100 chapters) to ~80KB</li>
+</ul>
+<h4 id="runtime-optimization-5-world-file-freshness">Runtime optimization 5: World file freshness</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py:_complete_chapter</code></p>
+<p>At volume boundaries: compare <code>locations.md</code> against SCR-extracted locations from last 10 chapters. Log WARNING for missing locations; generate human review note (non-blocking).</p>
+<h4 id="per-step-timing">Per-step timing</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py:run_chapter_step</code></p>
+<div class="highlight"><pre><span></span><code><span class="n">step_start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="c1"># ... execute step ...</span>
+<span class="k">finally</span><span class="p">:</span>
+    <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">monotonic</span><span class="p">()</span> <span class="o">-</span> <span class="n">step_start</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;step_timing&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=...</span><span class="p">,</span> <span class="n">step</span><span class="o">=...</span><span class="p">,</span> <span class="n">elapsed_seconds</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">elapsed</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">_record_step_timing</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">,</span> <span class="n">elapsed</span><span class="p">)</span>
+</code></pre></div>
+<p>End-of-run summary: per-skill avg/min/max times.</p>
+<h4 id="api-token-tracking">API token tracking</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">response</span><span class="p">,</span> <span class="s1">&#39;usage&#39;</span><span class="p">):</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="n">response</span><span class="o">.</span><span class="n">usage</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;llm_token_usage&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill_name</span><span class="p">,</span>
+                <span class="n">prompt_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+                <span class="n">completion_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+                <span class="n">total_tokens</span><span class="o">=</span><span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">)</span>
+    <span class="n">_record_token_usage</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">usage</span><span class="p">)</span>
+</code></pre></div>
+<p>Non-API paths (codex CLI) approximate from progress tracking.</p>
+<h4 id="word-count-stability">Word count stability</h4>
+<ul>
+<li>Chapter memo/planning prompts: tighten ranges (5000-8000 Transition, 8000-12000 Advance)</li>
+<li>G4 post-write bounds: transition &gt;8000 words = issue; climax &lt;6000 = issue</li>
+<li>Hard floor: 4000 words; hard ceiling: 15000 words</li>
+</ul>
+<h4 id="progress-tracking-emit-mark_done-events">Progress tracking: emit MARK_DONE events</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py:_record_step_done</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_record_step_done</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">):</span>
+    <span class="c1"># ... existing logic ...</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.trace.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_event</span>
+    <span class="n">write_event</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">event_type</span><span class="o">=</span><span class="s2">&quot;MARK_DONE&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill_name</span><span class="p">,</span>
+                <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">timestamp</span><span class="o">=</span><span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">())</span>
+</code></pre></div>
+<p>Materialize progress every 5 steps or at chapter completion. Auto-rebuild on resume if trace has events but progress.json is stale.</p>
+<h4 id="state-machine-heal-current_step">State machine: heal current_step</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/state.py</code> or persistence layer</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_heal_current_step</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cl</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span> <span class="ow">and</span> <span class="n">cl</span><span class="o">.</span><span class="n">step_index</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">cl</span><span class="o">.</span><span class="n">step_index</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">CHAPTER_STEPS</span><span class="p">):</span>
+            <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="n">CHAPTER_STEPS</span><span class="p">[</span><span class="n">cl</span><span class="o">.</span><span class="n">step_index</span><span class="p">]</span><span class="o">.</span><span class="n">skill</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">cl</span><span class="o">.</span><span class="n">current_step</span> <span class="o">=</span> <span class="s2">&quot;chapter_complete&quot;</span>
+</code></pre></div>
+<p>Also fix <code>_advance</code> (<code>chapter_loop.py:489-563</code>) to explicitly set <code>current_step</code> alongside <code>step_index</code>.</p>
+<p>Add <code>_validate_state_consistency()</code> at resume: check for step_index &gt; 0 but empty current_step, heal if found.</p>
+<h4 id="dynamic-timeout">Dynamic timeout</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_compute_dispatch_timeout</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="mi">300</span>  <span class="c1"># 5 min</span>
+    <span class="k">if</span> <span class="n">chapter_path</span> <span class="ow">and</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">chapter_size_kb</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">/</span> <span class="mi">1024</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">chapter_size_kb</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">extra</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">return</span> <span class="nb">min</span><span class="p">(</span><span class="n">base</span> <span class="o">+</span> <span class="n">extra</span><span class="p">,</span> <span class="mi">1800</span><span class="p">)</span>  <span class="c1"># max 30 min</span>
+
+<span class="c1"># state-settling gets 2x multiplier</span>
+<span class="k">if</span> <span class="n">skill_name</span> <span class="o">==</span> <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">:</span>
+    <span class="n">timeout</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">timeout</span> <span class="o">*</span> <span class="mf">2.0</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Timeout examples:</strong>
+- 10KB chapter: ~600s
+- 38KB chapter: ~1440s
+- Cap: 1800s (30 min)</p>
+<p><strong>Graceful degradation on timeout:</strong> Save partial LLM output, reuse previous truth file versions for incomplete updates, log WARN (not HARD failure).</p>
+<p><strong>Code-path coverage (critical):</strong> The 900s timeout above only applies to the legacy CLI subprocess path (<code>subprocess.run(..., timeout=timeout)</code>). The API path (<code>_dispatch_via_api</code>) passes NO timeout to the API client — the <code>_call_llm</code> wrapper in §P1.4 retries transient errors but never enforces a wall-clock ceiling. The fix must address all three paths: (a) CLI subprocess (current timeout — apply <code>_compute_dispatch_timeout</code>), (b) API path (needs <code>client.chat.completions.create(timeout=...)</code> wired from <code>_compute_dispatch_timeout</code>), (c) IDE-CLI path (separate <code>_IDE_AGENT_TIMEOUT</code> — scale it with chapter size using the same formula).</p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Source Spec</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/phase_runner.py:54-75</code></td>
+<td>P0.1</td>
+<td><strong>ALREADY FIXED</strong> — targets <code>shenbi.gates.cli</code>, catches <code>OSError</code>. No action needed.</td>
+</tr>
+<tr>
+<td><code>src/shenbi/dispatcher/modes/codex.py:20-48</code></td>
+<td>P0.2</td>
+<td><strong>ALREADY FIXED</strong> — <code>_record_completion</code> writes <code>progress.json</code> directly. No action needed.</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py:783-803</code></td>
+<td>P0.3</td>
+<td><strong>ALREADY FIXED</strong> — <code>cmd_rollback</code> returns 1, subparser removed. No action needed.</td>
+</tr>
+<tr>
+<td><code>src/shenbi/dispatcher/executor.py:164-174,230-239</code></td>
+<td>P0.4</td>
+<td><strong>ALREADY FIXED</strong> — no <code>codex-api</code> branch in <code>dispatch()</code>. No action needed.</td>
+</tr>
+<tr>
+<td><code>.gitignore</code></td>
+<td>P0.5</td>
+<td>Add <code>novel-output/</code> exception</td>
+</tr>
+<tr>
+<td><code>src/shenbi/dispatcher/modes/internal.py</code></td>
+<td>P1.2</td>
+<td>Hard-reject scoring in internal mode</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:272-291,402-459</code></td>
+<td>P1.3</td>
+<td>JSON mode + Pydantic structured output</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></td>
+<td>P1.4</td>
+<td>tenacity retry decorator</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:402-459</code></td>
+<td>P1.5</td>
+<td>Streaming with early-stop</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:40-49,425-441</code></td>
+<td>P1.6</td>
+<td>Per-skill temperature config; delete <code>_API_TEMPERATURE</code></td>
+</tr>
+<tr>
+<td><code>tests/golden/</code> (new)</td>
+<td>P1.8</td>
+<td>Golden evaluation set</td>
+</tr>
+<tr>
+<td><code>src/shenbi/phase_runner.py:1-11</code></td>
+<td>P1.9</td>
+<td>Docstring annotation</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py:1-19</code></td>
+<td>P1.9</td>
+<td>Docstring annotation</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/fields.py:23-24</code></td>
+<td>P2.1</td>
+<td>CJK zero-width + NFKC normalization</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/schemas/decisions.py:28,52</code></td>
+<td>P2.2</td>
+<td>Severity Literal union</td>
+</tr>
+<tr>
+<td><code>src/shenbi/scoring.py:176-183</code></td>
+<td>P2.3</td>
+<td>Use <code>TEST_PASS</code> constant</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/legacy.py:1</code></td>
+<td>P2.4</td>
+<td>Accurate docstring</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g7.py:108-112</code></td>
+<td>P2.5</td>
+<td>Deferred PASS → UNIMPLEMENTED</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g_dispatch.py:67-69</code></td>
+<td>P2.5</td>
+<td>Deferred PASS → UNIMPLEMENTED</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g_reconcile.py:74-76</code></td>
+<td>P2.5</td>
+<td>Deferred PASS → UNIMPLEMENTED</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g_transition.py:66-91</code></td>
+<td>P2.5</td>
+<td>Deferred PASS → UNIMPLEMENTED</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g0.py:237-238</code></td>
+<td>P2.5</td>
+<td>Deferred PASS → UNIMPLEMENTED</td>
+</tr>
+<tr>
+<td><code>docs/getting-started/first-novel.md:231-233</code></td>
+<td>P2.6</td>
+<td>Remove stale placeholder claim</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/crash_recovery.py</code> (new)</td>
+<td>Crash Recovery</td>
+<td>Signal handlers, emergency cleanup, shutdown flag</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Crash Recovery</td>
+<td><code>is_shutdown_requested()</code> check between steps</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py:cmd_resume</code></td>
+<td>Crash Recovery</td>
+<td>Emergency shutdown recovery logic</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Runtime</td>
+<td>META strip, genre-config cache, dynamic timeout</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Runtime</td>
+<td>Truth-index rebuild, world file freshness check</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/state.py</code></td>
+<td>Runtime</td>
+<td>Pipeline-state compaction + archive</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:run_chapter_step</code></td>
+<td>Observability</td>
+<td>Per-step timing with <code>time.monotonic()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Observability</td>
+<td>Record <code>response.usage</code> token counts</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:_record_step_done</code></td>
+<td>Progress</td>
+<td>Emit <code>MARK_DONE</code> trace events</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Progress</td>
+<td>Materialize progress every 5 steps</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py:cmd_resume</code></td>
+<td>Progress</td>
+<td>Auto-rebuild progress on resume</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/state.py</code></td>
+<td>State Machine</td>
+<td><code>_heal_current_step()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:489-563</code></td>
+<td>State Machine</td>
+<td><code>_advance</code> explicitly sets <code>current_step</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py:cmd_resume</code></td>
+<td>State Machine</td>
+<td><code>_validate_state_consistency()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Timeout</td>
+<td><code>_compute_dispatch_timeout()</code> dynamic timeout</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><code>shenbi-phase start</code> no longer raises <code>FileNotFoundError</code> (P0.1) — <strong>ALREADY FIXED</strong> (verified: <code>run_gate</code> uses <code>shenbi.gates.cli</code> + <code>OSError</code> catch)</li>
+<li>Codex mode dispatch does not fail on <code>shenbi-progress</code> subprocess (P0.2) — <strong>ALREADY FIXED</strong> (verified: <code>_record_completion</code> writes <code>progress.json</code> directly, no subprocess)</li>
+<li><code>pipeline --help</code> does not show <code>rollback</code> command (P0.3) — <strong>ALREADY FIXED</strong> (verified: subparser removed, <code>cmd_rollback</code> returns 1)</li>
+<li>No code path can reach <code>dispatch_codex_api</code> (P0.4) — <strong>ALREADY FIXED</strong> (verified: no <code>codex-api</code> branch in <code>dispatch()</code>)</li>
+<li><code>novel-output/xinghuo-ranqiong/</code> contains complete auditable artifacts (P0.5)</li>
+<li>Internal mode scoring raises <code>DispatcherError</code> (P1.2)</li>
+<li>API path output parsing uses 0 regex (P1.3) -- grep confirms</li>
+<li>429 responses auto-retry 3 times with exponential backoff (P1.4)</li>
+<li>Long chapters (&gt;5000 words) produce streaming output, chunk interval &lt;2s (P1.5)</li>
+<li>Different skills use different temperatures as configured (P1.6)</li>
+<li><code>tests/golden/</code> contains &gt;=10 chapters with human scores (P1.8)</li>
+<li>Both CLI help texts have explicit "testing orchestrator" vs "novel generator" annotations (P1.9)</li>
+<li>Zero-width/half-width field matching passes property tests (P2.1)</li>
+<li><code>severity: "medium"</code> validates; <code>"critical"</code> is rejected (P2.2)</li>
+<li><code>classify</code> uses <code>TEST_PASS</code> constant, not magic number 90 (P2.3)</li>
+<li><code>legacy.py</code> docstring accurately describes its role (P2.4)</li>
+<li>No <code>"deferred"</code> + <code>PASS</code> combination remains in gate code (P2.5)</li>
+<li><code>first-novel.md</code> no longer claims orchestration is a placeholder (P2.6)</li>
+<li><code>kill -TERM &lt;pid&gt;</code> saves pipeline state + creates emergency snapshot before exit</li>
+<li><code>Ctrl-C</code> triggers same emergency cleanup</li>
+<li><code>pipeline resume</code> correctly recovers from emergency shutdown state</li>
+<li>Step boundary check: shutdown occurs between steps, not mid-LLM-call</li>
+<li>Emergency cleanup failure does not prevent process exit</li>
+<li>Audit skill inputs do not contain <code>&lt;!--META-BEGIN--&gt;</code> blocks</li>
+<li>Same-chapter <code>genre-config.json</code> reads trigger exactly 1 disk I/O</li>
+<li><code>truth-index.json</code> mtime updates after volume boundary</li>
+<li>Simulated 100-chapter <code>pipeline-state.json</code> &lt; 100KB</li>
+<li>New locations not in <code>locations.md</code> produce WARNING log</li>
+<li>Pipeline logs contain per-step timing with skill-level granularity</li>
+<li>Pipeline completion prints timing summary (avg/min/max per skill)</li>
+<li>API path logs contain <code>llm_token_usage</code> with prompt/completion/total tokens</li>
+<li>10 consecutive chapters have word counts within target range (+/-30%)</li>
+<li><code>progress.json</code> updates after each chapter completion during a 3-chapter mini-pipeline</li>
+<li><code>progress.json</code> contains latest <code>completed_skill_names</code> and chapter progress</li>
+<li>Interrupt-resume cycle results in <code>progress.json</code> reflecting latest state</li>
+<li>Unit test: <code>step_index=9, current_step=""</code> auto-heals to <code>CHAPTER_STEPS[9].skill</code></li>
+<li>Unit test: after <code>_advance</code>, <code>current_step</code> is non-empty</li>
+<li>Unit test: all steps complete sets <code>current_step="chapter_complete"</code></li>
+<li>10KB chapter timeout ~600s; 38KB chapter timeout ~1440s</li>
+<li>Timeout never exceeds 1800s cap</li>
+<li><code>just check</code> full suite passes at every stage</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Execution Backend Decision (OpenAI-compatible API as primary)
+    |
+    +-- P0.1 (phase_runner dead path) -------- ALREADY FIXED
+    |   P0.2 (shenbi-progress unregistered) -- ALREADY FIXED   (P0.1-P0.4 all verified
+    |   P0.3 (rollback stub removal) --------- ALREADY FIXED    complete in current code;
+    +-- P0.4 (codex_api dead branch) --------- ALREADY FIXED    no work required)
+                |
+                v (P0.1-4 already complete)
+            P0.5 (end-to-end real run) -- requires execution backend ready
+                |
+                v (first auditable artifact produced)
+    +-- P1.3 (structured output) --&gt; P1.4 (retry) --&gt; P1.5 (streaming) --&gt; P1.6 (temperature config)
+    |       These four form &quot;production-grade API executor&quot;
+    +-- P1.2 (scoring independence) -- depends on execution backend decision
+    +-- P1.8 (golden set) -- depends on P0.5 real output
+    +-- P1.9 (dual state machine docs) -- independent
+                |
+                v
+    +-- P2.1-P2.6 (consistency cleanup) -- mostly independent, parallelizable
+    +-- Crash Recovery -- depends on State Machine fix (current_step correctness)
+    +-- Runtime Optimizations -- independent
+    +-- Observability -- weak dependency on Progress Tracking (shared trace infrastructure)
+    +-- Progress Tracking -- independent
+    +-- State Machine Fix -- independent
+    +-- Dynamic Timeout -- independent
+                |
+                v
+        Final acceptance: end-to-end pass + full `just check` + auditable artifacts committed
+</code></pre></div>
+<h3 id="original-code-mapping">Original Code Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Consolidated Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>maturity-bp</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>crash-recovery</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>runtime-opt</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>L1</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>L2</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>L3</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>M2</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>H5</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+<tr>
+<td>M4</td>
+<td>Spec 7 (this spec)</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

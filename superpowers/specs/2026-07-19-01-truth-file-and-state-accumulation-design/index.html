@@ -1,0 +1,2064 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-01-truth-file-and-state-accumulation-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 1: Truth File and State Accumulation Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 1: Truth File and State Accumulation Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-01-truth-file-and-state-accumulation-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-01-truth-file-and-state-accumulation-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 1: Truth File and State Accumulation Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-01-truth-file-and-state-accumulation-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-1-truth-file-and-state-accumulation-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 1: Truth File and State Accumulation Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis-per-source-spec-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis (Per-Source-Spec Breakdown)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis (Per-Source-Spec Breakdown)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-truth-file-overwrite-pattern-cn3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Truth File Overwrite Pattern (CN3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-protagonist-disappearance-cn1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Protagonist Disappearance (CN1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-hook-system-bifurcation-cn2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Hook System Bifurcation (CN2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-resonance-score-null-cn4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Resonance Score Null (CN4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-style-learning-never-updated-cn5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Style Learning Never Updated (CN5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-pipeline-state-stale-data-cn6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 Pipeline State Stale Data (CN6)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-distinguish-replace-mode-vs-append-mode-truth-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Distinguish Replace-Mode vs Append-Mode Truth Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-implement-write_truth_file-utility-with-key-based-upsert-capability" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Implement write_truth_file() Utility with Key-Based Upsert Capability
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-write-protect-character_matrixmd-human-character-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Write-Protect character_matrix.md Human Character Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-persist-resonance-scores-to-trend-file-after-g4-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Persist Resonance Scores to Trend File After G4 Pass
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-fix-style-learning-trigger-execution-not-add-new-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Fix Style-Learning Trigger Execution (NOT Add New Triggers)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-fix-pipeline-state-audit-count-via-filesystem-verification-self-heal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Fix Pipeline-State Audit Count via Filesystem Verification + Self-Heal
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-register-missing-audit-types-in-audit-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Register Missing Audit Types in Audit Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-original-issue-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Original Issue Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-1-truth-file-and-state-accumulation-design">Spec 1: Truth File and State Accumulation Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical
+<strong>Consolidated from:</strong>
+- <code>2026-07-17-fix-truth-file-overwrite-pattern-design.md</code> (CN3)
+- <code>2026-07-17-fix-protagonist-disappearance-design.md</code> (CN1)
+- <code>2026-07-17-fix-hook-system-bifurcation-design.md</code>
+- <code>2026-07-17-fix-resonance-score-null-design.md</code>
+- <code>2026-07-17-fix-style-learning-never-updated-design.md</code>
+- <code>2026-07-17-fix-pipeline-state-stale-data-design.md</code></p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The shenbi pipeline's truth-file system (the L1-L2 memory layer of the 6-layer memory hierarchy) is fundamentally broken in production. Five accumulation-style truth files contain only the last chapter's data instead of the full 56-chapter history. This single root cause cascades into six distinct failure modes: resonance trend analysis is useless, the hook/foreshadowing economy is non-functional, protagonist presence cannot be tracked, style learning never updates, and pipeline state audit counts are stale.</p>
+<p><strong>Root cause (refined after codebase verification):</strong> The <code>state-settling</code> skill's prompt <strong>does</strong> mandate incremental append-only updates (iron-rule #4: "增量更新 — 追加变更，不重写整个文件"). However, this is a <strong>prompt-only guardrail with zero programmatic enforcement</strong>. The dispatch write path (<code>dispatch_helper.py:294-323</code> <code>_write_parsed_outputs</code>) parses <code>### FILE:</code> blocks from the agent's response and calls <code>safe_write(full_path, content)</code> for each — and the agent is instructed to emit each file in full (prompt: "complete file content"). Since <code>safe_write</code> (<code>safe_write.py:108</code>) uses <code>os.replace</code> for atomic overwrite, any agent that emits a full file (even when told not to) silently destroys accumulated history. There is no distinction between replace-mode files (current snapshots) and append-mode files (cumulative histories), and no post-write verification that accumulation files actually grew.</p>
+<p><strong>Impact scope:</strong> All 7 truth files have identical last-modified timestamps (21:17:47) indicating batch overwrite, not incremental append. The entire memory system produces only Chapter 55/56 data -- 54 chapters of history are destroyed.</p>
+<hr />
+<h2 id="2-root-cause-analysis-per-source-spec-breakdown">2. Root Cause Analysis (Per-Source-Spec Breakdown)</h2>
+<h3 id="21-truth-file-overwrite-pattern-cn3">2.1 Truth File Overwrite Pattern (CN3)</h3>
+<p><strong>Discovery (D18-D20):</strong> Audit of <code>novel-output/xinghuo-ranqiong/truth/</code> revealed:</p>
+<table>
+<thead>
+<tr>
+<th>Truth File</th>
+<th>Expected</th>
+<th>Actual</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>resonance_trend.md</code></td>
+<td>55-56 rows</td>
+<td>1 row (Ch55)</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>audit_drift.md</code></td>
+<td>55-56 sections</td>
+<td>1 section (Ch55)</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>emotional_arcs.md</code></td>
+<td>56 chapter entries</td>
+<td>Ch55-56 only</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>chapter_summaries.md</code></td>
+<td>56 chapter refs</td>
+<td>1 chapter</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>pending_hooks.md</code></td>
+<td>56 chapters of hooks</td>
+<td>Ch55-56 only</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>character_matrix.md</code></td>
+<td>56 chapter states</td>
+<td>Last chapter snapshot</td>
+<td>Overwrite</td>
+</tr>
+<tr>
+<td><code>current_state.md</code></td>
+<td>Chapter snapshot</td>
+<td>Last chapter</td>
+<td>Overwrite</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Direct cause:</strong> The <code>state-settling</code> skill prompt mandates incremental append (iron-rule #4), but this is a <strong>prompt-only guardrail with no programmatic enforcement</strong>. The dispatch write path (<code>dispatch_helper.py:294-323</code> <code>_write_parsed_outputs</code>) instructs the agent to emit "complete file content" and then calls <code>safe_write</code> (overwrite) for each <code>### FILE:</code> block. When the LLM obeys the emit-full-file instruction over the append-only rule, the full file overwrites accumulated history. The underlying <code>safe_write</code> (<code>src/shenbi/safe_write.py:108</code>) uses <code>os.replace</code> for atomic overwrite -- there is no append capability and no read-merge-write path for accumulation files.</p>
+<p><strong>Important nuance (verified):</strong> Not all 7 files are equally affected. <code>pending_hooks.md</code> has a <strong>dual-writer architecture</strong>: the deterministic <code>hook_planting.py:204-276</code> (<code>_append_to_pending_hooks</code>) correctly reads frontmatter YAML, deduplicates by hook <code>id</code>, merges, and writes back — so the structured <code>hooks</code> array accumulates properly. However, the markdown <strong>body</strong> is overwritten by the LLM <code>foreshadowing-track</code>/<code>state-settling</code> path. So the spec's claim should be refined: the structured hooks list accumulates; the prose body history is lost.</p>
+<p><strong>Why this went undetected:</strong> No post-write verification checked whether truth files had grown or shrunk. No row-count assertion existed in G4 validation for accumulation-mode files. The G4 <code>state_settling.py</code> checker (113 lines) only verifies content presence via regex heading checks (<code>## 角色</code>/<code>## 人物</code>) — it never inspects HOW the file was written or whether prior content was preserved.</p>
+<h3 id="22-protagonist-disappearance-cn1">2.2 Protagonist Disappearance (CN1)</h3>
+<p><strong>Discovery (Agent 1 Audit 3):</strong> Protagonist Lin Feng disappears from text starting Ch35:</p>
+<table>
+<thead>
+<tr>
+<th>Dimension</th>
+<th>Ch1-10</th>
+<th>Ch20</th>
+<th>Ch35</th>
+<th>Ch50</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Human dialogue</td>
+<td>Present</td>
+<td>Absent (solo chapter)</td>
+<td><strong>Absent</strong></td>
+<td><strong>Absent</strong></td>
+</tr>
+<tr>
+<td>Physical action</td>
+<td>Present</td>
+<td>Present (parameterized)</td>
+<td><strong>Absent</strong></td>
+<td><strong>Absent</strong></td>
+</tr>
+<tr>
+<td>Inner monologue</td>
+<td>Present</td>
+<td>Present</td>
+<td><strong>Absent</strong></td>
+<td><strong>Absent</strong></td>
+</tr>
+<tr>
+<td>Name "林烽"</td>
+<td>Appears</td>
+<td>Appears</td>
+<td><strong>Absent</strong></td>
+<td><strong>Absent</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Direct cause:</strong> <code>character_matrix.md</code> is overwritten each chapter by the state-settling dispatch path. Parameter agents ("冷", "光", "安静", "缺口") are written into <code>character_matrix.md</code> as if they were characters, forming a self-reinforcing parameter-character system. Verified evidence: the live <code>character_matrix.md</code> opens with a <code>## 参数角色定位</code> table listing 11 parameter agents but NO human protagonist (林烽), whereas the early-stage fixture <code>tests/fixtures/truth-character_matrix.md</code> (lines 19-39) properly defines 林烽 with a full character table. The human role definitions declared in <code>characters/protagonist.md</code> are erased after each overwrite cycle.</p>
+<p><strong>Aggravating factor:</strong> Parameter agents are <strong>duplicated</strong> into BOTH <code>character_matrix.md</code> AND <code>particle_ledger.md</code> (which already exists and already tracks parameter state). The defect is not the absence of <code>particle_ledger.md</code> — it exists — but the leak/duplication into <code>character_matrix.md</code> where human characters should be authoritative.</p>
+<p><strong>Result:</strong> Approximately 21 chapters (Ch35-56, 37.5%) contain zero human protagonist presence. The declared character relationships (Chen Weimin, Zhao Tiezhu, Chu Yunlan, etc.) never appear.</p>
+<h3 id="23-hook-system-bifurcation-cn2">2.3 Hook System Bifurcation (CN2)</h3>
+<p><strong>Discovery (Agent 1 Audit 2 + D4):</strong></p>
+<ul>
+<li><code>pending_hooks.md</code> uses non-standardized format (zero MH-xxx/PO-xxx IDs)</li>
+<li>12 MH-xxx IDs referenced in chapter META blocks (MH-001 through MH-028)</li>
+<li>Starting Ch42, the hook system silently switches from MH-xxx to P0-xx with no mapping</li>
+<li><code>book_spine.md</code> shows 6 main hooks (MH01-MH06) all at 0% progress</li>
+<li><code>foreshadowing-plant/track/recall</code> skills ran on all 56 chapters but their output was never structurally appended to <code>pending_hooks.md</code></li>
+</ul>
+<p><strong>Dual root cause:</strong>
+1. <code>foreshadowing-plant</code> is replaced in the pipeline by deterministic <code>hook_planting.py</code> (<code>chapter_loop.py:1189-1194</code>), which correctly appends to the frontmatter <code>hooks</code> array with ID-based dedup. However, <code>foreshadowing-track</code> (LLM path) and <code>state-settling</code> emit the full markdown body, and the dispatch write path overwrites it — so the per-chapter tracking prose history is lost even though structured hook data accumulates.
+2. The markdown body of <code>pending_hooks.md</code> is overwritten each chapter by the LLM dispatch path, destroying historical tracking prose. (The frontmatter hooks array survives via the deterministic plant path.)</p>
+<p><strong>Result:</strong> The entire foreshadowing economy (one of shenbi's core design advantages) is completely non-functional. No hook lifecycle tracking (PLANTED -&gt; RELEVANT -&gt; TRIGGERED -&gt; RESOLVED) occurs.</p>
+<p><strong>Hook ID scheme inconsistency (verified):</strong> The codebase has multiple ID regex patterns that don't agree:
+- <code>hook_planting.py:144</code>: <code>re.match(r"^(MH|H)-", cells[0])</code> — expects <code>MH-xxx</code> or <code>H-xxx</code> (with hyphen)
+- <code>truth_index.py:30</code>: <code>_HOOK_ID_RE = re.compile(r"[HM]\d+")</code> — matches <code>H01</code>, <code>M01</code> (no hyphen, no prefix combo)
+- Production data: <code>MH-001</code> through <code>MH-028</code> in chapter META blocks, <code>P0-xx</code> starting Ch42, <code>MH01-MH06</code> in book_spine.md</p>
+<p>A prompt update to the LLM track skill cannot fix a deterministic ID-generation inconsistency. The fix must standardize the canonical ID format across <code>hook_planting.py</code> (generation), <code>truth_index.py</code> (indexing), and production data (migration if needed).</p>
+<h3 id="24-resonance-score-null-cn4">2.4 Resonance Score Null (CN4)</h3>
+<p><strong>Discovery (Agent 3 Section 6):</strong></p>
+<ul>
+<li>All 56 chapters have <code>resonance_score: null</code></li>
+<li><code>resonance_trend.md</code> contains only a single Ch55 entry of 70/100</li>
+<li><code>shenbi-review-resonance</code> passes G4 gates but scores are never stored</li>
+</ul>
+<p><strong>Direct cause:</strong> The resonance audit report (<code>audits/chapter-N-resonance.md</code>) contains a detailed scoring table. Two parsers already exist in the codebase — <code>_parse_resonance_score</code> (<code>chapter_loop.py:667</code>, reads the per-chapter report) and <code>parse_resonance_scores</code> (<code>escalation_bridge.py:10</code>, reads <code>resonance_trend.md</code>) — but <strong>neither writes</strong> to <code>resonance_trend.md</code> or persists scores durably. The orchestrator stores the parsed score only in in-memory state (<code>cs.resonance_score</code> at <code>chapter_loop.py:1431</code>), then calls <code>_route_revision_after_resonance</code> (<code>chapter_loop.py:1021</code>) which only logs a warning if below floor. Maintenance of <code>resonance_trend.md</code> is delegated entirely to the <code>shenbi-review-resonance</code> LLM skill (SKILL.md lines 141-145: "趋势（写入 resonance_trend）...追加行"), but since that skill's output goes through the overwrite dispatch path, the trend file never accumulates. Missing links:
+1. G4 checks resonance report format (detail_table, verdict, evidence) but never extracts scores.
+2. <code>_route_revision_after_resonance</code> (<code>chapter_loop.py:1021</code>) reads the in-memory score but never persists it to the trend file.
+3. Even in the single case where a score exists (Ch55 value 70), it is only present because the LLM happened to emit it during that chapter's overwrite -- it was never accumulated.</p>
+<p><strong>Result:</strong> The entire scoring system is non-functional. No chapter quality trend tracking. No score-based revision routing.</p>
+<h3 id="25-style-learning-never-updated-cn5">2.5 Style Learning Never Updated (CN5)</h3>
+<p><strong>Discovery (D12):</strong> <code>style/style_profile.md</code> state:</p>
+<ul>
+<li><strong>Generation mode:</strong> Seed fingerprint (bootstrap)</li>
+<li><strong>Confidence:</strong> low</li>
+<li><strong>Sample chapter count:</strong> 0</li>
+<li><strong>Sample total characters:</strong> 0</li>
+<li><strong>All statistics:</strong> "Inferred values"</li>
+<li>First formal extraction should trigger after 3 chapters -- never triggered</li>
+<li>Periodic update (every 12 chapters) -- never triggered</li>
+<li><strong>56 chapters generated, zero style profile updates</strong></li>
+</ul>
+<p><strong>Direct cause (verified — trigger system EXISTS but may not execute):</strong> The style-learning trigger system is NOT missing — it is fully wired through a dedicated trigger module, NOT <code>chapter_loop.py</code>/<code>CHAPTER_STEPS</code>:</p>
+<ol>
+<li><code>src/shenbi/pipeline/triggers.py</code> defines <code>TRIGGER_STEPS</code> with TWO entries for <code>shenbi-style-learning</code>: a periodic entry (lines 176-181, <code>category="style_learning"</code>) and a volume-boundary entry (lines 213-217, <code>category="volume_boundary"</code>).</li>
+<li><code>check_triggers</code> (<code>triggers.py:401</code>) sets <code>r.style_learning = True</code> at <code>chapter % STYLE_INTERVAL == 0</code> (line 418, <code>STYLE_INTERVAL = 12</code>) and at volume boundaries (line 431).</li>
+<li><code>run_triggered_skills</code> (<code>triggers.py:503</code>) dispatches each triggered skill and runs G4.</li>
+<li>This is invoked from <code>cli.py</code> (not <code>chapter_loop.py</code>) after each chapter completes.</li>
+</ol>
+<p>The real bug is therefore NOT a missing trigger — it is that the trigger fires but the result is not persisted. Likely failure points:
+- <code>run_triggered_skills</code> returns <code>False</code> on dispatch/G4 failure (line 562, 573) and the caller silently continues.
+- Resume after checkpoint/interrupt: <code>cli.py</code>'s trigger invocation may be guarded by a <code>step_index == 0</code> or <code>is_at_checkpoint</code> condition that skips trigger execution on resume.
+- The style-learning skill output goes through the overwrite dispatch path, so even if it runs, the output may not accumulate correctly.</p>
+<p><strong>Fix direction:</strong> Do NOT add a parallel trigger in <code>chapter_loop.py</code>. Instead: (a) add logging/assertion in <code>run_triggered_skills</code> to detect dispatch/G4 failures, (b) add self-heal on resume — if <code>style_profile.md</code> is still bootstrap mode and &gt;= 3 chapters are completed, force <code>r.style_learning = True</code> on the next <code>check_triggers</code> call, (c) ensure the trigger invocation path in <code>cli.py</code> is not skipped on resume.</p>
+<p><strong>Result:</strong> Style drift detection (see Spec 4 / Context Persistence and Linguistic Drift Prevention) loses its baseline reference. All 56 chapters of style evolution are untracked. This is a key root cause of why prose collapse went undetected.</p>
+<h3 id="26-pipeline-state-stale-data-cn6">2.6 Pipeline State Stale Data (CN6)</h3>
+<p><strong>Discovery (Agent 3 Section 5):</strong></p>
+<ul>
+<li>Pipeline state reports 11 audit types, but <code>audits/chapter-N-*.md</code> actually has 13 types on disk</li>
+<li><code>resonance.md</code> and <code>review-summary.md</code> are never recorded in state</li>
+<li>Ch56: pipeline state reports 0 audits, but 7 audit files exist on disk</li>
+</ul>
+<p><strong>Direct cause:</strong> Audit counts in <code>pipeline-state.json</code> are updated by code logic rather than verified against the filesystem. The audit type registry in <code>audit_layer.py</code> uses three structures — <code>GENRE_ACTIVATION_MATRIX</code> (lines 44-54, maps genre dimensions to review skills), <code>_CORE_CIRCLE_KEYS</code> (lines 57-67, core-circle audit keys: antiAi, character, pacing, continuity, foreshadowing, memoCompliance, pov), and <code>BOUNDARY_TRIGGERS</code> (lines 76-81, long-span/arc-payoff/spinoff/chapter-pattern). Missing audit types (<code>resonance.md</code>, <code>review-summary.md</code>) are not registered in any of these. The state-update logic increments counters programmatically but never cross-checks with actual disk files.</p>
+<p><strong>Result:</strong> Pipeline state is untrustworthy -- resume may skip completed steps or re-execute them. Failed resume logic compounds other failures.</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-distinguish-replace-mode-vs-append-mode-truth-files">3.1 Distinguish Replace-Mode vs Append-Mode Truth Files</h3>
+<p>Introduce an <code>update_mode</code> field in truth file frontmatter metadata to declare whether a file is a snapshot (replace) or a cumulative history (append).</p>
+<p><strong>Replace-mode files (snapshot type):</strong>
+- <code>current_state.md</code> -- current chapter snapshot
+- <code>character_matrix.md</code> -- character state snapshot (but see 3.3 for write-protection)
+- <code>current_focus.md</code> -- focus snapshot</p>
+<p><strong>Append-mode files (cumulative type):</strong>
+- <code>resonance_trend.md</code> -- per-chapter resonance scores
+- <code>audit_drift.md</code> -- per-chapter drift audit results
+- <code>emotional_arcs.md</code> -- per-chapter emotional arc entries
+- <code>chapter_summaries.md</code> -- per-chapter summary references
+- <code>pending_hooks.md</code> -- per-chapter hook/foreshadowing data</p>
+<p><strong>Frontmatter convention:</strong>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">update_mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">upsert_markdown_row</span><span class="w">    </span><span class="c1"># or: replace, upsert_yaml</span>
+<span class="nt">chapter_key</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;Ch{{n}}&quot;</span>
+<span class="nn">---</span>
+</code></pre></div></p>
+<h3 id="32-implement-write_truth_file-utility-with-key-based-upsert-capability">3.2 Implement <code>write_truth_file()</code> Utility with Key-Based Upsert Capability</h3>
+<p>Create a dedicated truth-file write utility that respects the <code>update_mode</code> field. Location: new module <code>src/shenbi/pipeline/truth_io.py</code> (alongside <code>truth_index.py</code>).</p>
+<p><strong>Critical design lesson from the codebase itself:</strong> The existing <code>truth_index.py</code> (Route A) explicitly abandoned substring matching in favor of structured-key matching (module docstring: "the broken approach" → canonical names from structured truth files). The proposed substring-based idempotency (<code>if new_content.strip() not in existing</code>) repeats that known-broken pattern: LLM-generated prose is never byte-identical across runs, causing both false negatives (trivial whitespace diffs defeat the check → duplicate rows) and false positives (short new sections that are substrings get silently dropped). The codebase already has a correct implementation in <code>hook_planting.py:204-276</code> (<code>_append_to_pending_hooks</code>): read structured data (YAML frontmatter), deduplicate by stable key (<code>id</code>), merge, write back. <code>write_truth_file()</code> should generalize this pattern.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># truth_io.py (new file, alongside src/shenbi/pipeline/truth_index.py)</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+<span class="c1"># Natural key per accumulation file — determines dedup identity</span>
+<span class="c1"># Two serialization formats:</span>
+<span class="c1">#   - &quot;yaml&quot;: YAML frontmatter list[dict] (hooks, structured records)</span>
+<span class="c1">#   - &quot;markdown_table&quot;: | row | row | markdown table (trend files, read by</span>
+<span class="c1">#     escalation_bridge.py:15-17 which splits on &quot;|&quot; and reads cells[6])</span>
+<span class="n">_ACCUM_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># filename: (format, key_field, key_column_index)</span>
+    <span class="c1"># key_column_index = 0-based index of the key column in markdown rows</span>
+    <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">:</span>  <span class="p">(</span><span class="s2">&quot;markdown_table&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="s2">&quot;audit_drift.md&quot;</span><span class="p">:</span>      <span class="p">(</span><span class="s2">&quot;markdown_table&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="s2">&quot;emotional_arcs.md&quot;</span><span class="p">:</span>   <span class="p">(</span><span class="s2">&quot;markdown_table&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="s2">&quot;chapter_summaries.md&quot;</span><span class="p">:(</span><span class="s2">&quot;markdown_table&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+    <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">:</span>    <span class="p">(</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span>           <span class="s2">&quot;id&quot;</span><span class="p">,</span>      <span class="kc">None</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_truth_file</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_data</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span>  <span class="c1"># str for markdown_table mode, list[dict] for yaml</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>       <span class="c1"># replace | upsert_yaml | upsert_markdown_row</span>
+    <span class="n">key_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write to a truth file, respecting update_mode.</span>
+
+<span class="sd">    Modes:</span>
+<span class="sd">    - replace: atomic overwrite via safe_write (snapshot files)</span>
+<span class="sd">    - upsert_yaml: read existing YAML records, dedup by key_field, merge,</span>
+<span class="sd">      re-serialize, write (structured data like hooks)</span>
+<span class="sd">    - upsert_markdown_row: read existing markdown table rows, dedup by key</span>
+<span class="sd">      column, merge new row, write (trend files read by escalation_bridge)</span>
+
+<span class="sd">    Idempotency is based on natural keys (chapter number, hook id), NOT</span>
+<span class="sd">    substring matching — see truth_index.py design lesson.</span>
+
+<span class="sd">    CRITICAL: For markdown_table files, the output format MUST match what</span>
+<span class="sd">    downstream readers expect. E.g., escalation_bridge.py:15-17 parses</span>
+<span class="sd">    lines starting with &quot;|&quot;, splits on &quot;|&quot;, requires &gt;=7 cells, reads</span>
+<span class="sd">    cells[6] as the overall score. Producing YAML here would silently</span>
+<span class="sd">    break escalation routing.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">filename</span>
+
+    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;upsert_markdown_row&quot;</span><span class="p">:</span>
+        <span class="n">existing</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">_upsert_markdown_table_row</span><span class="p">(</span><span class="n">existing</span><span class="p">,</span> <span class="n">new_data</span><span class="p">,</span> <span class="n">key_field</span> <span class="ow">or</span> <span class="s2">&quot;chapter&quot;</span><span class="p">)</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">merged</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;upsert_yaml&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">key_field</span> <span class="o">=</span> <span class="n">_ACCUM_REGISTRY</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">filename</span><span class="p">,</span> <span class="p">(</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span>
+        <span class="n">existing_records</span> <span class="o">=</span> <span class="n">_read_yaml_records</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">merged</span> <span class="o">=</span> <span class="n">_upsert_by_key</span><span class="p">(</span><span class="n">existing_records</span><span class="p">,</span> <span class="n">new_data</span><span class="p">,</span> <span class="n">key_field</span><span class="p">)</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">_serialize_yaml_records</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span> <span class="n">filename</span><span class="p">)</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>  <span class="c1"># replace</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">new_data</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_data</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="n">_serialize_yaml_records</span><span class="p">(</span><span class="n">new_data</span><span class="p">,</span> <span class="n">filename</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_upsert_markdown_table_row</span><span class="p">(</span><span class="n">existing</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">new_row</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">key_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dedup markdown table row by key column value.</span>
+
+<span class="sd">    Extracts the key from new_row&#39;s first | cell, removes any existing</span>
+<span class="sd">    row with the same key, appends new_row. Preserves headers and non-table</span>
+<span class="sd">    content (frontmatter, prose).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Extract key from new_row (first cell after |)</span>
+    <span class="n">new_key_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\|\s*(\S+)&quot;</span><span class="p">,</span> <span class="n">new_row</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">new_key_match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">existing</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">new_row</span>
+    <span class="n">new_key</span> <span class="o">=</span> <span class="n">new_key_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">lines</span> <span class="o">=</span> <span class="n">existing</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">result_lines</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">lines</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">line</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">):</span>
+            <span class="n">existing_key_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\|\s*(\S+)&quot;</span><span class="p">,</span> <span class="n">line</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">existing_key_match</span> <span class="ow">and</span> <span class="n">existing_key_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">==</span> <span class="n">new_key</span><span class="p">:</span>
+                <span class="k">continue</span>  <span class="c1"># Skip duplicate — replace with new_row</span>
+        <span class="n">result_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="n">result_lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">new_row</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">result_lines</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Key design decisions:</strong>
+- <strong>Key-based idempotency</strong> (not substring): Dedup on a stable natural key (<code>chapter</code> for trend files, <code>id</code> for hooks). This is the proven pattern from <code>hook_planting.py</code> and aligns with <code>truth_index.py</code>'s design philosophy.
+- <strong>Structured records</strong> (<code>list[dict]</code>): Callers pass structured data, not raw prose. The utility handles serialization. This eliminates the "LLM emits full file" problem at the API boundary — the caller never has the option to emit a full file.
+- <strong>Serialization format</strong>: For YAML-mode files (hooks), YAML frontmatter (authoritative structured data) + markdown body (human-readable projection). This matches principle #3 in <code>truth-files-reference.md</code> (~line 21: "YAML frontmatter 权威 — 结构化数据以 YAML 为准，Markdown body 是投影"). For markdown-table files (trend files), the format is dictated by existing readers like <code>escalation_bridge.py:15-17</code> and must remain <code>|</code>-delimited table rows.
+- <code>safe_write</code> remains the sole atomic write path — upsert reads, merges in memory, then writes atomically.</p>
+<h3 id="33-write-protect-character_matrixmd-human-character-definitions">3.3 Write-Protect <code>character_matrix.md</code> Human Character Definitions</h3>
+<p><code>character_matrix.md</code> must be partitioned into two sections:</p>
+<ol>
+<li><strong>Character definitions</strong> (human-authored, never auto-overwritten): Names, roles, relationships, arcs from <code>characters/protagonist.md</code> and other character design files.</li>
+<li><strong>Per-chapter state</strong> (append-only): Character appearances, state changes, emotional arc updates.</li>
+</ol>
+<p><strong>Write-protection mechanism (preventive, not just post-hoc detection):</strong></p>
+<p>Post-hoc G4 detection alone is insufficient — failing G4 sends the chapter back to revision, which will likely produce the same erasure. The write path itself must preserve the definitions section. Two-layer approach:</p>
+<ol>
+<li><strong>Write-path protection (primary):</strong> Route <code>character_matrix.md</code> writes through a custom merge function in <code>truth_io.py</code> that:</li>
+<li>Reads the existing <code>## 角色定义</code> (or <code>## 人物</code>) section from the current file.</li>
+<li>Reads canonical human character definitions from <code>characters/*.md</code> frontmatter (<code>name</code>, <code>role</code>, <code>relationships</code>).</li>
+<li>Merges: human definitions section is re-injected from canonical source, only the per-chapter state section is updated from the skill's output.</li>
+<li>
+<p>Parameter agents (冷, 光, 安静, etc.) are stripped from the definitions section and redirected to <code>particle_ledger.md</code> (which already tracks them).</p>
+</li>
+<li>
+<p><strong>G4 post-hoc detection (secondary safety net):</strong> Enhance <code>g4_state_settling.py</code> to verify human character definitions persist after each write.</p>
+</li>
+</ol>
+<p><strong>Verified current state of G4 checker:</strong> <code>src/shenbi/gates/g4/state_settling.py</code> (113 lines) is a pure content-presence checker — it only verifies a character heading regex (<code>## 角色</code>/<code>## 人物</code>) exists via <code>g4_state_settling</code>. It has NO write-protection logic, no diff/append validation, and never inspects whether prior content was preserved. This checker must be enhanced.</p>
+<p><strong>Implementation — G4 <code>state_settling.py</code> (secondary safety net):</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Enhanced g4_state_settling checker — add to existing state_settling.py</span>
+<span class="c1"># Rule: character_matrix.md &quot;角色定义&quot; section must retain human characters</span>
+<span class="c1"># Parameter agents (冷, 光, 安静, etc.) belong in particle_ledger.md (which</span>
+<span class="c1"># already exists and already tracks them) — NOT duplicated in character_matrix.md</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_character_matrix_integrity</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">GateContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Issue</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify human character definitions persist and parameter agents don&#39;t leak.&quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="c1"># Read canonical human character names from characters/*.md frontmatter</span>
+    <span class="n">human_names</span> <span class="o">=</span> <span class="n">_load_human_character_names</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="c1"># Check at least one human character name appears in definitions section</span>
+    <span class="n">definitions_section</span> <span class="o">=</span> <span class="n">_extract_section</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;角色定义&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">_extract_section</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="s2">&quot;人物&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">definitions_section</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span> <span class="ow">in</span> <span class="n">definitions_section</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">human_names</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Issue</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;G4.ss.human_chars_erased&quot;</span><span class="p">,</span>
+            <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="s2">&quot;Human character definitions erased from character_matrix.md; &quot;</span>
+                    <span class="s2">&quot;only parameter agents remain&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<p><strong>Additionally</strong> — add protagonist presence G4 check. Verified: <code>src/shenbi/gates/g4/chapter_drafting.py</code> (205 lines) currently has NO protagonist_presence check. It validates PRE_WRITE_CHECK, POST_WRITE_SELF_CHECK, transition-word density, fatigue words, meta-narrative, word count, content uniqueness, scene concreteness, and chapter-end hook. The new check must be added:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># G4.cd.protagonist_presence check — add to chapter_drafting.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_protagonist_presence</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">context</span><span class="p">:</span> <span class="n">GateContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Issue</span><span class="p">]:</span>
+    <span class="n">protagonist_names</span> <span class="o">=</span> <span class="n">_load_protagonist_names</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># from characters/protagonist.md</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">extract_prose</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="n">name_count</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">n</span><span class="p">)</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">protagonist_names</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name_count</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Issue</span><span class="p">(</span>
+            <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;G4.cd.protagonist_absent&quot;</span><span class="p">,</span>
+            <span class="n">severity</span><span class="o">=</span><span class="s2">&quot;error&quot;</span><span class="p">,</span>
+            <span class="n">message</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Protagonist appears &lt;3 times (</span><span class="si">{</span><span class="n">name_count</span><span class="si">}</span><span class="s2">) in chapter&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<h3 id="34-persist-resonance-scores-to-trend-file-after-g4-pass">3.4 Persist Resonance Scores to Trend File After G4 Pass</h3>
+<p><strong>Reuse existing parsers — do NOT create a new one.</strong> Two parsers already exist:
+- <code>_parse_resonance_score</code> (<code>chapter_loop.py:667</code>) — reads the per-chapter audit report, returns overall score. Already called at line 1431 and stored in <code>cs.resonance_score</code>.
+- <code>parse_resonance_scores</code> (<code>escalation_bridge.py:10-24</code>) — reads <code>resonance_trend.md</code> as a <strong>markdown table</strong>: scans lines starting with <code>|</code>, splits on <code>|</code>, requires <code>len(cells) &gt;= 7</code>, reads <code>cells[6]</code> (7th column = overall score). Returns <code>list[float]</code>.</p>
+<p><strong>Critical format constraint:</strong> The existing reader (<code>escalation_bridge.py:15-17</code>) parses markdown table rows (<code>|</code>-delimited, 7+ columns, column 7 = overall). The writer MUST produce this exact format — NOT YAML frontmatter. If the <code>write_truth_file</code> upsert produces YAML records, <code>parse_resonance_scores</code> returns <code>[]</code> and escalation silently breaks.</p>
+<p>The missing piece is purely the <strong>write/persistence step</strong>. After <code>_parse_resonance_score</code> succeeds and the score is stored in <code>cs.resonance_score</code> (line 1431), persist it to <code>resonance_trend.md</code> as a markdown table row via key-based upsert:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In chapter_loop.py, after line 1431 (cs.resonance_score = _parse_resonance_score(...))</span>
+<span class="c1"># and after _route_revision_after_resonance (line 1438)</span>
+
+<span class="c1"># Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML)</span>
+<span class="c1"># Format must match what parse_resonance_scores (escalation_bridge.py:15-17) reads:</span>
+<span class="c1">#   | Ch{N} | {role} | {dim1} | {dim2} | ... | {overall} | {confidence} |</span>
+<span class="c1"># Key-based dedup on chapter number column (cells[0])</span>
+
+<span class="c1"># Note: _parse_resonance_score (chapter_loop.py:667) returns int|None (overall score only).</span>
+<span class="c1"># For the markdown-table format that escalation_bridge.py reads, we need 7 columns.</span>
+<span class="c1"># Populate what we have; use placeholders for missing dimensions.</span>
+<span class="c1"># If per-dimension scores are needed in the future, extend _parse_resonance_score.</span>
+
+<span class="n">overall</span> <span class="o">=</span> <span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span>  <span class="c1"># int|None, already parsed at line 1431</span>
+<span class="k">if</span> <span class="n">overall</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">return</span>  <span class="c1"># skip persistence if no score</span>
+
+<span class="c1"># Simplified 7-column row matching escalation_bridge.py:15-17 format</span>
+<span class="c1"># (column 7 = overall score, which is all the reader extracts)</span>
+<span class="n">trend_row</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;| Ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> | - | - | - | - | </span><span class="si">{</span><span class="n">overall</span><span class="si">}</span><span class="s2"> | - |&quot;</span>
+<span class="n">write_truth_file</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">,</span> <span class="s2">&quot;resonance_trend.md&quot;</span><span class="p">,</span>
+    <span class="n">trend_row</span><span class="p">,</span>
+    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;upsert_markdown_row&quot;</span><span class="p">,</span>
+    <span class="n">key_field</span><span class="o">=</span><span class="s2">&quot;chapter&quot;</span><span class="p">,</span>       <span class="c1"># dedup on first column (Ch{N})</span>
+<span class="p">)</span>
+</code></pre></div>
+<p><strong>Note on <code>write_truth_file</code> modes:</strong> The utility (section 3.2) must support both structured-record upsert (YAML-keyed, for hooks) and markdown-row upsert (table-row-keyed, for trend files). For markdown-row files, dedup works by parsing the key column from each <code>|</code>-delimited row and matching against the new record's key.</p>
+<h3 id="35-fix-style-learning-trigger-execution-not-add-new-triggers">3.5 Fix Style-Learning Trigger Execution (NOT Add New Triggers)</h3>
+<p><strong>The trigger system already exists</strong> in <code>triggers.py</code> (verified): <code>TRIGGER_STEPS</code> has two <code>shenbi-style-learning</code> entries (periodic at lines 176-181, volume-boundary at 213-217), <code>check_triggers</code> fires at <code>chapter % 12 == 0</code> and volume boundaries, and <code>run_triggered_skills</code> executes them. Do NOT add a parallel trigger in <code>chapter_loop.py</code> — that would conflict with the existing system.</p>
+<p><strong>Fix strategy — diagnose why triggers fire but produce no updates:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In triggers.py run_triggered_skills() — add failure visibility</span>
+<span class="c1"># Currently (line 550-562): dispatch failure -&gt; log.error -&gt; return False</span>
+<span class="c1"># The caller may not check the return value, silently swallowing the failure.</span>
+
+<span class="c1"># Fix 1: Surface trigger failures to pipeline state</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">run_triggered_skills</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="c1"># ... existing dispatch loop ...</span>
+    <span class="k">for</span> <span class="n">step</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">:</span>
+        <span class="n">disp</span> <span class="o">=</span> <span class="n">dispatch_skill</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">prompt</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">disp</span><span class="o">.</span><span class="n">success</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;trigger_dispatch_failed&quot;</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+            <span class="c1"># NEW: Record failure in state for post-mortem</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">last_trigger_failure</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+                <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">,</span>
+                <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">step</span><span class="o">.</span><span class="n">mode</span><span class="p">,</span>
+                <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">_iso_now</span><span class="p">(),</span>
+            <span class="p">}</span>
+            <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># ...</span>
+
+<span class="c1"># Fix 2: Self-heal on resume — in cli.py or check_triggers</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_triggers</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">total_chapters</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TriggerResult</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">TriggerResult</span><span class="p">()</span>
+    <span class="c1"># ... existing trigger logic ...</span>
+
+    <span class="c1"># NEW: Self-heal — if style profile is stale, force trigger</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">r</span><span class="o">.</span><span class="n">style_learning</span> <span class="ow">and</span> <span class="n">_style_profile_is_stale</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">project_dir</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;style_learning_self_heal_triggered&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">style_learning</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="n">r</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_style_profile_is_stale</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if style_profile.md is still bootstrap mode with &gt;=3 chapters done.&quot;&quot;&quot;</span>
+    <span class="n">profile</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">profile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">profile</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">is_bootstrap</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;confidence: low&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">or</span> <span class="s2">&quot;Generation mode: Seed&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">sample_count_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[Ss]ample.{0,20}count.{0,5}(\d+)&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">sample_count</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">sample_count_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">sample_count_match</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">if</span> <span class="n">is_bootstrap</span> <span class="ow">and</span> <span class="n">sample_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="c1"># Check how many chapters exist on disk</span>
+        <span class="n">chapter_count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">((</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">)))</span>
+        <span class="k">return</span> <span class="n">chapter_count</span> <span class="o">&gt;=</span> <span class="mi">3</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p><strong>Additional fix:</strong> Audit <code>cli.py</code> trigger invocation path (around line 214) to ensure trigger execution is NOT skipped on resume after checkpoint/interrupt. The likely culprit is a <code>step_index == 0</code> or <code>is_at_checkpoint</code> guard that bypasses <code>run_triggered_skills</code> on resume.</p>
+<h3 id="36-fix-pipeline-state-audit-count-via-filesystem-verification-self-heal">3.6 Fix Pipeline-State Audit Count via Filesystem Verification + Self-Heal</h3>
+<p>Add a filesystem-verified audit counter before state save. Self-heal direction matters — only auto-correct when disk has MORE audits than recorded (missed count, safe). When disk has FEWER (possible data loss), flag as error, do NOT silently overwrite:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_count_audits_on_disk</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count actual audit files on disk for a chapter.&quot;&quot;&quot;</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-*.md&quot;</span><span class="p">)))</span>
+
+<span class="c1"># Before state save (chapter_loop.py, near state persistence)</span>
+<span class="n">actual_audits</span> <span class="o">=</span> <span class="n">_count_audits_on_disk</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">actual_audits</span> <span class="o">!=</span> <span class="n">recorded_audits</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">actual_audits</span> <span class="o">&gt;</span> <span class="n">recorded_audits</span><span class="p">:</span>
+        <span class="c1"># Safe direction: disk has more — we missed counting some</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;audit_count_undercount&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                       <span class="n">recorded</span><span class="o">=</span><span class="n">recorded_audits</span><span class="p">,</span> <span class="n">actual</span><span class="o">=</span><span class="n">actual_audits</span><span class="p">)</span>
+        <span class="n">ch_state</span><span class="p">[</span><span class="s1">&#39;audit_count&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">actual_audits</span>  <span class="c1"># self-heal</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Unsafe direction: disk has fewer — possible data loss or gate bypass</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;audit_count_overcount&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                     <span class="n">recorded</span><span class="o">=</span><span class="n">recorded_audits</span><span class="p">,</span> <span class="n">actual</span><span class="o">=</span><span class="n">actual_audits</span><span class="p">)</span>
+        <span class="c1"># Do NOT self-heal — flag for investigation</span>
+        <span class="n">ch_state</span><span class="p">[</span><span class="s1">&#39;audit_count_anomaly&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="kc">True</span>
+</code></pre></div>
+<h3 id="37-register-missing-audit-types-in-audit-registry">3.7 Register Missing Audit Types in Audit Registry</h3>
+<p>The codebase has no single <code>AUDIT_TYPES</code> constant. Instead, audit routing is split across three structures in <code>audit_layer.py</code>: <code>GENRE_ACTIVATION_MATRIX</code> (lines 44-54), <code>_CORE_CIRCLE_KEYS</code> (lines 57-67), and <code>BOUNDARY_TRIGGERS</code> (lines 76-81). Ensure <code>resonance.md</code> and <code>review-summary.md</code> are tracked by adding them to <code>_CORE_CIRCLE_KEYS</code> (or a new <code>_SPECIAL_AUDIT_KEYS</code> set if they don't fit the core-circle model), so they are counted in pipeline state audit tallies.</p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/safe_write.py:108</code></td>
+<td>Reference only</td>
+<td><code>os.replace</code> is the atomic write mechanism; no code change needed, but upsert-mode callers must read-merge-write before calling <code>safe_write</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/truth_io.py</code> (NEW)</td>
+<td>New module with <code>write_truth_file()</code></td>
+<td>Key-based upsert truth file writer — NOT substring matching (see truth_index.py design lesson)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:294-323</code> (<code>_write_parsed_outputs</code>)</td>
+<td>Add upsert routing</td>
+<td>Route append-mode truth file writes through <code>write_truth_file(mode="upsert")</code> instead of raw <code>safe_write</code></td>
+</tr>
+<tr>
+<td><code>skills/shenbi-state-settling/SKILL.md</code></td>
+<td>Prompt + contract update</td>
+<td>Instruct LLM to output only new chapter records for append-mode files; add <code>update_mode</code> to truth file frontmatter convention</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-state-settling/truth-files-reference.md</code></td>
+<td>Add <code>update_mode</code> field documentation</td>
+<td>Distinguish replace vs append truth files in the reference</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:1427-1438</code> (after resonance G4 pass)</td>
+<td>Add score persistence to trend file</td>
+<td>Use existing <code>_parse_resonance_score</code> (line 667) result, persist via <code>write_truth_file(mode="upsert_markdown_row")</code> to <code>resonance_trend.md</code>. Format MUST match <code>escalation_bridge.py:15-17</code> reader (markdown table, 7+ columns, column 7 = overall)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/orchestration/escalation_bridge.py:10</code></td>
+<td>Reference only (READ side)</td>
+<td><code>parse_resonance_scores</code> reads <code>resonance_trend.md</code> as markdown table — writer must produce compatible format</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/triggers.py:401-443</code> (<code>check_triggers</code>) + <code>:503-617</code> (<code>run_triggered_skills</code>)</td>
+<td>Add self-heal + failure visibility</td>
+<td>Style-learning trigger system EXISTS here — do NOT add parallel trigger in <code>chapter_loop.py</code>. Add <code>_style_profile_is_stale()</code> self-heal + <code>state.last_trigger_failure</code> recording</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py</code> (~line 214)</td>
+<td>Audit trigger invocation on resume</td>
+<td>Ensure <code>run_triggered_skills</code> is NOT skipped on resume after checkpoint/interrupt</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (near state save)</td>
+<td>Add audit count filesystem verification</td>
+<td>Self-heal stale audit counts</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/state_settling.py</code></td>
+<td>Enhance existing checker with character_matrix integrity validation</td>
+<td>Currently only checks heading regex (113 lines); add <code>_check_character_matrix_integrity</code> to verify human character definitions persist</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/chapter_drafting.py</code></td>
+<td>Add <code>G4.cd.protagonist_presence</code> check</td>
+<td>Currently 205 lines with NO protagonist check; add <code>_check_protagonist_presence</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/audit_layer.py:57-67</code> (<code>_CORE_CIRCLE_KEYS</code>)</td>
+<td>Register <code>resonance</code> and <code>review-summary</code> audit keys</td>
+<td>Ensure all 13 audit types are tracked in state</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-track/SKILL.md</code></td>
+<td>Prompt update</td>
+<td>Clarify hook ID standardization and body-append format (frontmatter hooks array already handled by deterministic <code>hook_planting.py</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><strong>Mini-pipeline (5 chapters):</strong></li>
+<li><code>resonance_trend.md</code> has 5 data rows (not 1)</li>
+<li><code>chapter_summaries.md</code> references 5 chapters (not 1)</li>
+<li><code>pending_hooks.md</code> contains hook data from all 5 chapters</li>
+<li>
+<p><code>emotional_arcs.md</code> has 5 chapter entries</p>
+</li>
+<li>
+<p><strong>Idempotency:</strong> Running the same chapter twice does not produce duplicate entries in append-mode files.</p>
+</li>
+<li>
+<p><strong>Resonance scores:</strong> All 5 chapters have <code>resonance_score != null</code> in pipeline state.</p>
+</li>
+<li>
+<p><strong>Style learning:</strong> After 4 chapters, <code>style_profile.md</code> is non-bootstrap (confidence &gt;= medium, sample_chapter_count &gt;= 3).</p>
+</li>
+<li>
+<p><strong>Protagonist presence:</strong> Every chapter's G4 check confirms protagonist name appears &gt;= 3 times.</p>
+</li>
+<li>
+<p><strong>Character matrix integrity:</strong> <code>character_matrix.md</code> retains human character definitions; parameter agents go to <code>particle_ledger.md</code>.</p>
+</li>
+<li>
+<p><strong>Audit count accuracy:</strong> Pipeline state audit counts match filesystem <code>chapter-N-*.md</code> file count for every chapter.</p>
+</li>
+<li>
+<p><strong>Regression:</strong> <code>just check</code> passes fully.</p>
+</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 1 (this spec, Truth File and State Accumulation)
+    |
+    +---&gt; Spec 4 (Context Persistence and Linguistic Drift Prevention) -- needs historical resonance data for baseline
+    |
+    +---&gt; Spec 3 (Dispatch Safety and File Integrity) -- pipeline state accuracy affects resume safety
+
+Prerequisites: None (standalone fix)
+</code></pre></div>
+<h3 id="61-original-issue-code-mapping">6.1 Original Issue Code Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Consolidated To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CN1</td>
+<td>主角消失 (Protagonist Disappearance)</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>CN2</td>
+<td>Hook System Bifurcation</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>CN3</td>
+<td>Truth File Overwrite</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>CN4</td>
+<td>Resonance Score Null</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>CN5</td>
+<td>Style Learning Never Updated</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>CN6</td>
+<td>Pipeline State Stale Data</td>
+<td>Spec 1 (this spec)</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>JSON Corruption</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Revision System Failure</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>G4 Format Mismatch</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>Revision Overwrite Chapter Content</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Staging Residue Leak</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Snapshot Coverage Gaps</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>LN1-LN3</td>
+<td>Snapshot Bloat / Lockfile / Budget Copy</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Progressive Prose Collapse</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Context Assembly Persistence Gap</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>HN1</td>
+<td>Template Duplication</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>content-looping</td>
+<td>Chapter Content Looping</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>title-degradation, plan-content-mismatch, RS1, static-review-checklist</td>
+<td>Review Quality Issues</td>
+<td>Spec 5</td>
+</tr>
+<tr>
+<td>step-reorganization, parallelize, SCR, M1</td>
+<td>Pipeline Architecture</td>
+<td>Spec 6</td>
+</tr>
+<tr>
+<td>maturity-bp-fixes, crash-recovery, runtime-optimizations, L1-L3, M2, H5, M4</td>
+<td>Pipeline Infrastructure</td>
+<td>Spec 7</td>
+</tr>
+<tr>
+<td>llm-context-optimization</td>
+<td>LLM Context Engineering</td>
+<td>Spec 8</td>
+</tr>
+<tr>
+<td>volume-map, character-archive, C3</td>
+<td>Content Planning and Deliverable Design</td>
+<td>Spec 9</td>
+</tr>
+<tr>
+<td>gate-markers, review-checklist-static, snapshot-differential</td>
+<td>Data Storage Optimization</td>
+<td>Spec 10</td>
+</tr>
+<tr>
+<td>validation, chapter-size-time</td>
+<td>End-to-End Validation Protocol</td>
+<td>Spec 11</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

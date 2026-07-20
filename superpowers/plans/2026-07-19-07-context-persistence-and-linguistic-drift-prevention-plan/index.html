@@ -1,0 +1,2181 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 4: Context Persistence and Linguistic Drift Prevention — Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 4: Context Persistence and Linguistic Drift Prevention — Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 4: Context Persistence and Linguistic Drift Prevention — Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-4-context-persistence-and-linguistic-drift-prevention-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 4: Context Persistence and Linguistic Drift Prevention — Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-force-context-file-persistence-gap-1-assembly-errors-swallowed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Force Context File Persistence (Gap 1 — assembly errors swallowed)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-persist-curated-context-gap-2-computed-but-never-written" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Persist Curated Context (Gap 2 — computed but never written)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-create-linguistic-drift-detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Create Linguistic Drift Detector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-add-opening-similarity-and-content-looping-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Add Opening Similarity and Content Looping Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-integrate-3-tier-intervention-in-chapter-loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Integrate 3-Tier Intervention in Chapter Loop
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5a-establish-linguistic-baseline-new" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5a: Establish Linguistic Baseline (NEW)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-add-context-audit-and-backfill-cli" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Add Context Audit and Backfill CLI
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-4-context-persistence-and-linguistic-drift-prevention-implementation-plan">Spec 4: Context Persistence and Linguistic Drift Prevention — Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Fix 43/56 chapters missing L3 context files (77% coverage gap) and close two distinct persistence failures: (a) assembly persistence errors swallowed by try/except with no post-check, and (b) the curated context computed by <code>_run_context_curation</code> that is NEVER written to disk. Add text-based linguistic drift detection independent of the contaminated LLM resonance scorer.</p>
+<p><strong>Architecture:</strong> Three-layer defense: (1) Force persistence of <code>context/chapter-N-context.md</code> (fix Gap 1) AND persist the curated 9-section context via <code>safe_write</code> (fix Gap 2 — currently computed and discarded), (2) Create <code>linguistic_drift.py</code> with 5 pragmatic domain-specific alarm metrics — these are NOT industry-standard stylometry (Burrows' Delta/Zeta); they are deliberately cheap, deterministic surface counters tuned to the specific observed failure mode, co-located with <code>compute_drift.py</code>, (3) 3-tier intervention (WARN/HARD/ESCALATE) in chapter loop. SYSTEM_TERMS and pattern fingerprints are project-config-driven (read from <code>genre-config.json -&gt; drift_detection</code>), not hardcoded, with a generic &gt;3σ frequency-divergence alarm as a second-tier check that catches novel degradation without hardcoding.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, structlog, difflib.SequenceMatcher</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>just check</code> passes with zero failures</li>
+<li><code>context/chapter-N-context.md</code> exists for every chapter (100% coverage)</li>
+<li><code>context/chapter-N-curated.md</code> exists for every chapter (curation output must be persisted, not discarded)</li>
+<li>System term density &lt; 30‰ throughout a 10-chapter smoke test</li>
+<li>Opening similarity &lt; 60% across all adjacent chapters</li>
+<li>Sliding window content overlap &lt; 35%</li>
+<li>Drift detection fires within 5 chapters of deviation onset</li>
+<li>No false-positive interventions on chapters 1-15 (baseline period)</li>
+<li><strong>Canonical module location:</strong> <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code> — co-located with the existing <code>compute_drift.py</code>. Spec 6's reference to <code>src/shenbi/pipeline/linguistic_drift.py</code> is SUPERSEDED; all drift detection lives under <code>skill_utils/drift_detection/</code>.</li>
+<li><strong>Assembly vs write are separate functions:</strong> <code>assemble_context(project_dir, chapter_plan_path)</code> returns a <code>ContextPackage</code> and does NOT write; <code>write_context_file(project_dir, chapter, pkg)</code> is the separate function that calls <code>safe_write</code>. Both must be called. Do not collapse them into one.</li>
+<li><strong>Linguistic metrics are pragmatic alarm detectors, NOT stylometry:</strong> they are ad hoc surface counters tuned to the observed parametric-prose failure mode — deliberately cheap, deterministic, and independent of LLM scoring. They are a gap-filling first alarm; embedding-novelty / Burrows' Delta are future enhancements (Shout-Out spec).</li>
+<li><strong>SYSTEM_TERMS are project-config-driven,</strong> read from <code>genre-config.json -&gt; drift_detection.system_terms</code> / <code>.pattern_fingerprints</code>, with hardcoded values only as a bootstrap fallback when the config is absent. A generic &gt;3σ frequency-divergence alarm from the first-3-chapters baseline is added as a second-tier check that flags ANY term diverging &gt;3σ, catching novel degradation without hardcoding.</li>
+</ul>
+<hr />
+<h3 id="task-1-force-context-file-persistence-gap-1-assembly-errors-swallowed">Task 1: Force Context File Persistence (Gap 1 — assembly errors swallowed)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:566-591</code> (<code>_run_context_assembly</code>)
+- Test: <code>tests/unit/pipeline/test_context_persistence.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>assemble_context(project_dir, chapter_plan_path: str) -&gt; ContextPackage</code> and <code>write_context_file(project_dir, chapter, pkg) -&gt; Path</code> from <code>context_assemble.py:209-271</code> (two SEPARATE functions — assembly returns data, write persists; do not collapse)
+- Produces: <code>_run_context_assembly(project_dir, chapter)</code> always leaves <code>context/chapter-N-context.md</code> on disk, even when assembly throws</p>
+<p><strong>Root cause being fixed (spec §2.2, Gap 1):</strong> the entire <code>_run_context_assembly</code> body is wrapped in <code>try/except Exception</code> that only does <code>log.warning(...)</code> — there is no post-check verifying the file exists and no fallback. If <code>write_context_file</code> throws, the pipeline silently continues to chapter-drafting with no context file.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_context_persistence.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_run_context_assembly</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_context_file_written_on_assembly</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Context file must exist after assembly, even on partial failure.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Write a minimal plan so assemble_context can read it</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# Plan</span><span class="se">\n</span><span class="s2">role: opening</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">_run_context_assembly</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">context_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-context.md&quot;</span>
+        <span class="k">assert</span> <span class="n">context_file</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;Context file not created at </span><span class="si">{</span><span class="n">context_file</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">context_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;Context file empty&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_context_file_fallback_written_when_assembly_throws</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;When assemble_context raises, a minimal fallback context MUST still be written.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-plan.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# Plan</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># Force assemble_context to raise</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.context_assemble.assemble_context&quot;</span><span class="p">,</span>
+            <span class="n">side_effect</span><span class="o">=</span><span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;boom&quot;</span><span class="p">),</span>
+        <span class="p">):</span>
+            <span class="n">_run_context_assembly</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">context_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-context.md&quot;</span>
+        <span class="k">assert</span> <span class="n">context_file</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">&quot;Fallback context must be written when assembly throws &quot;</span>
+            <span class="s2">&quot;(spec §3.1 Gap 1: error-swallowing try/except must add post-check + fallback)&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_persistence.py -v</code>
+Expected: FAIL (<code>test_context_file_fallback_written_when_assembly_throws</code> fails: file not created because the try/except swallows the error with no fallback)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/chapter_loop.py, REPLACE _run_context_assembly (lines 566-591):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_context_assembly</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Materialize the three-route context package for the chapter.</span>
+
+<span class="sd">    Calls :func:`assemble_context` + :func:`write_context_file` from</span>
+<span class="sd">    ``context_assemble``. Closing spec §3.1 Gap 1: the previous body wrapped</span>
+<span class="sd">    everything in a try/except that only logged a warning, so a throw from</span>
+<span class="sd">    ``write_context_file`` left NO context file on disk and the pipeline</span>
+<span class="sd">    silently continued. This version adds a mandatory post-check that verifies</span>
+<span class="sd">    the file exists and writes a minimal Route-C fallback if it does not.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plan_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;plans/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-plan.md&quot;</span>
+    <span class="n">context_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+            <span class="n">assemble_context</span><span class="p">,</span>
+            <span class="n">write_context_file</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">pkg</span> <span class="o">=</span> <span class="n">assemble_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">plan_path</span><span class="p">)</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">write_context_file</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">pkg</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;context_assembled_for_chapter&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">sections</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">sections</span><span class="p">),</span>
+            <span class="n">total_tokens</span><span class="o">=</span><span class="n">pkg</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">,</span>
+            <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="p">),</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;context_assembly_failed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># HARD VERIFY (Gap 1 fix): output file must exist regardless of the try/except.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;context_assembly_no_output&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="n">_write_minimal_context_fallback</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_minimal_context_fallback</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a minimal Route-C-only context when full assembly failed.</span>
+
+<span class="sd">    Uses :func:`safe_write` (atomic + locked) so the fallback itself cannot be</span>
+<span class="sd">    half-written.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">_route_c</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">_route_c</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># fixed-rule retrieval only</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="s2">&quot;## Context (Minimal Fallback)</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Full context assembly failed; only Route C fixed rules available.</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">body</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_persistence.py -v</code>
+Expected: PASS (both tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_context_persistence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: force context file persistence with post-check + fallback (Gap 1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-persist-curated-context-gap-2-computed-but-never-written">Task 2: Persist Curated Context (Gap 2 — computed but never written)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:594-610</code> (<code>_run_context_curation</code>)
+- Test: <code>tests/unit/pipeline/test_context_persistence.py</code> (add curation tests)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>curate_context(project_dir, chapter) -&gt; str</code> from <code>context_curation.py:81</code> (returns a curated 9-section string)
+- Produces: <code>_run_context_curation(project_dir, chapter)</code> writes <code>context/chapter-N-curated.md</code> via <code>safe_write</code></p>
+<p><strong>Root cause being fixed (spec §2.2, Gap 2 — newly discovered):</strong> <code>_run_context_curation</code> (line 594-610) calls <code>curate_context()</code> which returns a curated 9-section string, but the return value is only logged (<code>log.info("context_curated", chapter=chapter, length=len(curated))</code>) — the curated string is NEVER written to disk. The curation output is computed and discarded. This is a second, independent persistence failure from Gap 1.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to tests/unit/pipeline/test_context_persistence.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_curated_context_written_on_curation</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Curated context MUST be written to disk (Gap 2 fix).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_run_context_curation</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="c1"># curate_context returns a string; ensure it gets persisted</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.context_curation.curate_context&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="s2">&quot;## Curated</span><span class="se">\n\n</span><span class="s2">Section body.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">_run_context_curation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+        <span class="n">curated_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-curated.md&quot;</span>
+        <span class="k">assert</span> <span class="n">curated_file</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">&quot;Curated context must be written to disk (spec §3.1 Gap 2: &quot;</span>
+            <span class="s2">&quot;curate_context output was previously computed and discarded)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;Section body&quot;</span> <span class="ow">in</span> <span class="n">curated_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_curated_context_uses_safe_write</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Curation persistence must go through safe_write (atomic + locked).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_run_context_curation</span>
+
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.context_curation.curate_context&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="s2">&quot;curated body&quot;</span><span class="p">,</span>
+        <span class="p">),</span> <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.safe_write.safe_write&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_sw</span><span class="p">:</span>
+            <span class="n">_run_context_curation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">assert</span> <span class="n">mock_sw</span><span class="o">.</span><span class="n">called</span><span class="p">,</span> <span class="s2">&quot;safe_write must be used to persist curated context&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_persistence.py::test_curated_context_written_on_curation -v</code>
+Expected: FAIL (curated file does not exist — currently discarded)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/chapter_loop.py, REPLACE _run_context_curation (lines 594-610):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_run_context_curation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run deterministic context curation and PERSIST it (Gap 2 fix).</span>
+
+<span class="sd">    Replaces the ``shenbi-context-composing`` LLM call (step 5) with</span>
+<span class="sd">    deterministic Python operations: 9-section structuring, ending diversity</span>
+<span class="sd">    check, and hook debt briefing generation.</span>
+
+<span class="sd">    Closing spec §3.1 Gap 2: the previous body called ``curate_context`` and</span>
+<span class="sd">    only logged the result length — the curated string was computed and then</span>
+<span class="sd">    DISCARDED, never written to disk. This version persists the curated</span>
+<span class="sd">    9-section document via :func:`safe_write` and post-checks the file.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_curation</span><span class="w"> </span><span class="kn">import</span> <span class="n">curate_context</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">curated_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-curated.md&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">curated</span> <span class="o">=</span> <span class="n">curate_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="n">curated_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">curated_path</span><span class="p">,</span> <span class="n">curated</span><span class="p">)</span>  <span class="c1"># FIX: actually persist (was discarded)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;context_curated&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">length</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">curated</span><span class="p">),</span>
+                 <span class="n">output</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">curated_path</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;context_curation_failed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="c1"># Post-check: curation failures are non-fatal, but surface a hard error if</span>
+    <span class="c1"># the output is unexpectedly absent after a non-throwing run.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">curated_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;context_curation_no_output&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_persistence.py -v</code>
+Expected: PASS (all tests, including the two new curation tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_context_persistence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: persist curated context via safe_write (Gap 2 — was computed and discarded)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-create-linguistic-drift-detector">Task 3: Create Linguistic Drift Detector</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code>
+- Test: <code>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py</code></p>
+<p><strong>Module location (canonical):</strong> <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code> — co-located with the existing <code>compute_drift.py</code>. Spec 6's reference to <code>src/shenbi/pipeline/linguistic_drift.py</code> is SUPERSEDED; all drift detection lives under <code>skill_utils/drift_detection/</code>.</p>
+<p><strong>Design rationale:</strong> these are pragmatic domain-specific alarm detectors, NOT industry-standard stylometry. Classical stylometry (Burrows' Delta, Zeta, n-gram authorship attribution) uses function-word frequencies, type-token ratio, Yule's K lexical diversity. The 5 metrics here are ad hoc surface counters tuned to the specific observed failure mode (system-term leakage, em-dash enumeration, pattern fingerprinting). They are deliberately cheap, deterministic, and independent of LLM scoring — which is the actual goal (an alarm system that works even when the resonance LLM scorer is contaminated). Embedding-novelty / Burrows' Delta on sliding windows are future enhancements (Shout-Out spec), not this task.</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>compute_linguistic_metrics(text: str, project_dir: Path | None = None) -&gt; dict</code> — returns 5 metric values (all per-mille)
+- Produces: <code>detect_drift(metrics: dict, baseline: dict) -&gt; DriftResult</code> — compares against baseline
+- Produces: <code>load_drift_config(project_dir) -&gt; DriftConfig</code> — reads <code>genre-config.json -&gt; drift_detection</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/drift_detection/test_linguistic_drift.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DriftResult</span><span class="p">,</span>
+    <span class="n">compute_linguistic_metrics</span><span class="p">,</span>
+    <span class="n">detect_drift</span><span class="p">,</span>
+    <span class="n">frequency_divergence_alarms</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">NORMAL_PROSE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">林风站在废料场边缘，望着远处燃烧的天际线。他的手指无意识地摩挲着口袋里的金属碎片。</span>
+<span class="s2">&quot;你确定要这么做？&quot;陈维民的声音从身后传来，带着一丝不易察觉的颤抖。</span>
+<span class="s2">林风没有回头。&quot;没有别的路了。&quot;</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+<span class="n">DEGRADED_PROSE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">冷在场于第七层深度。系统参数确认：冷值 7.3，在场度 0.89。</span>
+<span class="s2">冷知道深度在第八层。参数更新：冷值 8.1，在场度 0.92。</span>
+<span class="s2">冷在场于第九层深度。系统确认：冷值 9.0，在场度 0.95。</span>
+<span class="s2">静在场。光冷。隙在场。</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compute_metrics_normal_prose</span><span class="p">():</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">NORMAL_PROSE</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;system_term_density&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">10.0</span>  <span class="c1"># &lt; 10 per mille</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span>  <span class="c1"># has dialogue</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;em_dash_density&quot;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mf">10.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compute_metrics_degraded_prose</span><span class="p">():</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">DEGRADED_PROSE</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;system_term_density&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">50.0</span>  <span class="c1"># &gt; 50 per mille</span>
+    <span class="k">assert</span> <span class="n">metrics</span><span class="p">[</span><span class="s2">&quot;short_sentence_chain_density&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mf">0.0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_detect_drift_triggers_on_large_deviation</span><span class="p">():</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">NORMAL_PROSE</span><span class="p">)</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">DEGRADED_PROSE</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;HARD&quot;</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_detect_drift_no_false_positive</span><span class="p">():</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">NORMAL_PROSE</span><span class="p">)</span>
+    <span class="n">similar</span> <span class="o">=</span> <span class="n">NORMAL_PROSE</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">风起了。</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">similar</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_system_terms_loaded_from_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SYSTEM_TERMS come from genre-config.json when present (not hardcoded).&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_drift_config</span>
+
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;drift_detection&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;system_terms&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;自定义甲&quot;</span><span class="p">,</span> <span class="s2">&quot;自定义乙&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;pattern_fingerprints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;自定义句式&quot;</span><span class="p">],</span>
+        <span class="p">}</span>
+    <span class="p">}),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">load_drift_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;自定义甲&quot;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">system_terms</span>
+    <span class="k">assert</span> <span class="s2">&quot;自定义句式&quot;</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">pattern_fingerprints</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_frequency_divergence_flags_outlier_terms</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic &gt;3 sigma frequency-divergence alarm catches novel degradation.&quot;&quot;&quot;</span>
+    <span class="n">baseline_text</span> <span class="o">=</span> <span class="s2">&quot;林风看着远处的山。&quot;</span> <span class="o">*</span> <span class="mi">50</span>  <span class="c1"># normal vocabulary</span>
+    <span class="c1"># &#39;在场度&#39; is a new outlier term absent from baseline</span>
+    <span class="n">degraded</span> <span class="o">=</span> <span class="n">baseline_text</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;在场度 0.89。&quot;</span> <span class="o">*</span> <span class="mi">30</span><span class="p">)</span>
+    <span class="n">current_metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">degraded</span><span class="p">)</span>
+    <span class="n">baseline_metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">baseline_text</span><span class="p">)</span>
+
+    <span class="n">alarms</span> <span class="o">=</span> <span class="n">frequency_divergence_alarms</span><span class="p">(</span>
+        <span class="n">degraded</span><span class="p">,</span> <span class="n">baseline_text</span><span class="p">,</span> <span class="n">sigma_threshold</span><span class="o">=</span><span class="mf">3.0</span><span class="p">)</span>
+    <span class="c1"># The novel outlier term must be flagged without being in SYSTEM_TERMS</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;在场度&quot;</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">alarms</span><span class="p">),</span> <span class="p">(</span>
+        <span class="s2">&quot;Generic &gt;3 sigma alarm must catch novel degradation terms not in SYSTEM_TERMS&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py -v</code>
+Expected: FAIL (module not found — <code>skill_utils/drift_detection/linguistic_drift.py</code> does not exist yet)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/drift_detection/linguistic_drift.py</span>
+<span class="sd">&quot;&quot;&quot;Pragmatic linguistic-drift alarm detectors.</span>
+
+<span class="sd">These are NOT industry-standard stylometry (Burrows&#39; Delta, Zeta, n-gram</span>
+<span class="sd">authorship attribution). They are deliberately cheap, deterministic surface</span>
+<span class="sd">counters tuned to the specific observed failure mode: parametric prose</span>
+<span class="sd">collapse (system-term leakage, em-dash enumeration, pattern fingerprinting).</span>
+<span class="sd">The goal is an alarm system that works even when the resonance LLM scorer is</span>
+<span class="sd">contaminated by the same degraded context it scores. Embedding-novelty /</span>
+<span class="sd">Burrows&#39; Delta are future enhancements (Shout-Out spec), not this module.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">math</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">difflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequenceMatcher</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DriftConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Project-specific drift terms, loaded from genre-config.json.</span>
+
+<span class="sd">    Falls back to a conservative bootstrap set when the config is absent so</span>
+<span class="sd">    detection still works on fresh projects.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">system_terms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span>
+        <span class="c1"># Bootstrap fallback only; overridden by genre-config.json in real runs.</span>
+        <span class="s2">&quot;参数&quot;</span><span class="p">,</span> <span class="s2">&quot;系统&quot;</span><span class="p">,</span> <span class="s2">&quot;格式串&quot;</span><span class="p">,</span> <span class="s2">&quot;历法&quot;</span><span class="p">,</span> <span class="s2">&quot;槽位&quot;</span><span class="p">,</span> <span class="s2">&quot;帧序列&quot;</span><span class="p">,</span> <span class="s2">&quot;阈值&quot;</span><span class="p">,</span> <span class="s2">&quot;在场于&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;Phase&quot;</span><span class="p">,</span> <span class="s2">&quot;MH-&quot;</span><span class="p">,</span> <span class="s2">&quot;冷在场&quot;</span><span class="p">,</span> <span class="s2">&quot;冷值&quot;</span><span class="p">,</span> <span class="s2">&quot;在场度&quot;</span><span class="p">,</span> <span class="s2">&quot;冷知道&quot;</span><span class="p">,</span>
+    <span class="p">])</span>
+    <span class="n">pattern_fingerprints</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;冷在&quot;</span><span class="p">,</span> <span class="s2">&quot;冷知道&quot;</span><span class="p">])</span>
+
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DriftResult</span><span class="p">:</span>
+    <span class="n">is_drift</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;NONE&quot;</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;HARD&quot;</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">]</span>
+    <span class="n">metrics</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">deviations</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">message</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">load_drift_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DriftConfig</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load drift terms from ``genre-config.json -&gt; drift_detection``.</span>
+
+<span class="sd">    SYSTEM_TERMS and pattern fingerprints are project-specific (they describe</span>
+<span class="sd">    THIS novel&#39;s parametric failure vocabulary) and MUST be config-driven</span>
+<span class="sd">    rather than hardcoded. Returns a bootstrap DriftConfig if the file or key</span>
+<span class="sd">    is absent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">project_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">DriftConfig</span><span class="p">()</span>
+    <span class="n">config_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">config_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">DriftConfig</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">raw</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">config_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">DriftConfig</span><span class="p">()</span>
+    <span class="n">dd</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;drift_detection&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">DriftConfig</span><span class="p">(</span>
+        <span class="n">system_terms</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span><span class="n">dd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;system_terms&quot;</span><span class="p">,</span> <span class="n">DriftConfig</span><span class="p">()</span><span class="o">.</span><span class="n">system_terms</span><span class="p">)),</span>
+        <span class="n">pattern_fingerprints</span><span class="o">=</span><span class="nb">list</span><span class="p">(</span>
+            <span class="n">dd</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;pattern_fingerprints&quot;</span><span class="p">,</span> <span class="n">DriftConfig</span><span class="p">()</span><span class="o">.</span><span class="n">pattern_fingerprints</span><span class="p">)),</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_short_chain_chars</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count characters in chains of 5+ consecutive short sentences (&lt;=15 chars).&quot;&quot;&quot;</span>
+    <span class="n">short_sents</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:[^。！？\n]{1,15}[。！？\n]){5,}&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">short_sents</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_linguistic_metrics</span><span class="p">(</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute 5 linguistic drift metrics, each normalized per mille.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        text: The chapter prose to analyze.</span>
+<span class="sd">        project_dir: Project root (used to load config-driven SYSTEM_TERMS).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">load_drift_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">text_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># M1: System term density — parametric language indicator</span>
+    <span class="n">system_term_re</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">system_terms</span><span class="p">))</span>
+    <span class="n">system_term_density</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">system_term_re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="c1"># M2: Em-dash density — enumeration separator in degraded prose</span>
+    <span class="n">em_dash_density</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;——&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="c1"># M3: Short-sentence chain density — consecutive &lt;=15 char sentences</span>
+    <span class="n">short_sentence_chain_density</span> <span class="o">=</span> <span class="n">_short_chain_chars</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="c1"># M4: Pattern density — project fingerprint of degradation (config-driven)</span>
+    <span class="n">pattern_density</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cfg</span><span class="o">.</span><span class="n">pattern_fingerprints</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span>
+
+    <span class="c1"># M5: Dialogue density — quotation-mark frequency, proxy for natural talk</span>
+    <span class="n">dialogue_density</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\u201c</span><span class="s2">&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span>  <span class="c1"># Chinese left double quote</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">system_term_density</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;em_dash_density&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">em_dash_density</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;short_sentence_chain_density&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">short_sentence_chain_density</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;pattern_density&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">pattern_density</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">dialogue_density</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+        <span class="s2">&quot;total_chars&quot;</span><span class="p">:</span> <span class="n">text_len</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">frequency_divergence_alarms</span><span class="p">(</span>
+    <span class="n">current_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">baseline_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">sigma_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">3.0</span><span class="p">,</span>
+    <span class="n">min_count</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generic second-tier alarm: flag ANY term whose frequency diverges &gt;3 sigma.</span>
+
+<span class="sd">    This catches novel degradation patterns WITHOUT hardcoding them into</span>
+<span class="sd">    SYSTEM_TERMS. Computes a per-term frequency distribution from the baseline</span>
+<span class="sd">    (first chapters) and flags current terms whose count exceeds the baseline</span>
+<span class="sd">    mean + ``sigma_threshold`` standard deviations, requiring at least</span>
+<span class="sd">    ``min_count`` occurrences to avoid noise.</span>
+
+<span class="sd">    &gt; **CJK caution:** CJK bigram frequency distributions are fat-tailed.</span>
+<span class="sd">    &gt; Sigma-threshold outlier detection on raw bigram counts will be unreliable</span>
+<span class="sd">    &gt; for N &lt; 100 chapters. Use TF-IDF weighting or relative frequency ratio</span>
+<span class="sd">    &gt; (current chapter vs. baseline) instead of absolute sigma thresholds.</span>
+<span class="sd">    &gt; Until sufficient data is accumulated, treat frequency_alarms as</span>
+<span class="sd">    &gt; informational (WARN) rather than blocking (HARD).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_term_freqs</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Counter</span><span class="p">:</span>
+        <span class="c1"># Bigrams of CJK chars — cheap surface units that capture novel phrases</span>
+        <span class="n">cjk</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="s2">&quot;</span><span class="se">\u4e00</span><span class="s2">&quot;</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s2">&quot;</span><span class="se">\u9fff</span><span class="s2">&quot;</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">Counter</span><span class="p">(</span><span class="n">cjk</span><span class="p">[</span><span class="n">i</span><span class="p">:</span><span class="n">i</span> <span class="o">+</span> <span class="mi">2</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cjk</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="n">base</span> <span class="o">=</span> <span class="n">_term_freqs</span><span class="p">(</span><span class="n">baseline_text</span><span class="p">)</span>
+    <span class="n">curr</span> <span class="o">=</span> <span class="n">_term_freqs</span><span class="p">(</span><span class="n">current_text</span><span class="p">)</span>
+    <span class="n">base_total</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="ow">or</span> <span class="mi">1</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">base</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="n">mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="k">if</span> <span class="n">counts</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">variance</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">c</span> <span class="o">-</span> <span class="n">mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">counts</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">counts</span><span class="p">)</span> <span class="k">if</span> <span class="n">counts</span> <span class="k">else</span> <span class="mf">0.0</span>
+    <span class="n">stddev</span> <span class="o">=</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">variance</span><span class="p">)</span> <span class="ow">or</span> <span class="mf">1.0</span>
+    <span class="n">cutoff</span> <span class="o">=</span> <span class="n">mean</span> <span class="o">+</span> <span class="n">sigma_threshold</span> <span class="o">*</span> <span class="n">stddev</span>
+
+    <span class="n">alarms</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">term</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">curr</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="n">min_count</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">cutoff</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="c1"># Flag only terms far ABOVE their baseline presence (novel burst)</span>
+        <span class="n">baseline_rate</span> <span class="o">=</span> <span class="n">base</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">term</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">/</span> <span class="n">base_total</span>
+        <span class="n">current_rate</span> <span class="o">=</span> <span class="n">c</span> <span class="o">/</span> <span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">curr</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="ow">or</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">baseline_rate</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">current_rate</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">alarms</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">term</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">alarms</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">baseline</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DriftResult</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect linguistic drift by comparing current metrics against baseline.</span>
+
+<span class="sd">    Threshold: any of the density metrics deviates &gt;500% from baseline, or the</span>
+<span class="sd">    dialogue density collapses to &lt;20% of baseline. Severity is driven by the</span>
+<span class="sd">    absolute system_term_density (per mille): 30-50 -&gt; WARN, 50-100 -&gt; HARD,</span>
+<span class="sd">    &gt;100 -&gt; ESCALATE.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">deviations</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">max_deviation_ratio</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">trigger_metric</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">for</span> <span class="n">metric</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;system_term_density&quot;</span><span class="p">,</span> <span class="s2">&quot;em_dash_density&quot;</span><span class="p">,</span> <span class="s2">&quot;pattern_density&quot;</span><span class="p">,</span>
+                   <span class="s2">&quot;short_sentence_chain_density&quot;</span><span class="p">]:</span>
+        <span class="n">base_val</span> <span class="o">=</span> <span class="n">baseline</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">curr_val</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">metric</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+        <span class="n">ratio</span> <span class="o">=</span> <span class="p">(</span><span class="n">curr_val</span> <span class="o">/</span> <span class="n">base_val</span><span class="p">)</span> <span class="k">if</span> <span class="n">base_val</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="p">(</span><span class="mf">6.0</span> <span class="k">if</span> <span class="n">curr_val</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="k">else</span> <span class="mf">1.0</span><span class="p">)</span>
+        <span class="n">deviations</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">ratio</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">max_deviation_ratio</span><span class="p">:</span>
+            <span class="n">max_deviation_ratio</span> <span class="o">=</span> <span class="n">ratio</span>
+            <span class="n">trigger_metric</span> <span class="o">=</span> <span class="n">metric</span>
+
+    <span class="c1"># Dialogue density: trigger when it drops below 20% of baseline</span>
+    <span class="n">base_dialogue</span> <span class="o">=</span> <span class="n">baseline</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="n">curr_dialogue</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">base_dialogue</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">dialogue_ratio</span> <span class="o">=</span> <span class="n">curr_dialogue</span> <span class="o">/</span> <span class="n">base_dialogue</span>
+        <span class="n">deviations</span><span class="p">[</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">round</span><span class="p">(</span><span class="n">dialogue_ratio</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">dialogue_ratio</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">:</span>
+            <span class="n">max_deviation_ratio</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_deviation_ratio</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">)</span>
+            <span class="n">trigger_metric</span> <span class="o">=</span> <span class="n">trigger_metric</span> <span class="ow">or</span> <span class="s2">&quot;dialogue_density&quot;</span>
+
+    <span class="n">is_drift</span> <span class="o">=</span> <span class="n">max_deviation_ratio</span> <span class="o">&gt;</span> <span class="mf">5.0</span>  <span class="c1"># &gt;500% deviation threshold</span>
+
+    <span class="n">stm_density</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;system_term_density&quot;</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">)</span>  <span class="c1"># already per mille</span>
+    <span class="k">if</span> <span class="n">stm_density</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="s2">&quot;ESCALATE&quot;</span>
+    <span class="k">elif</span> <span class="n">stm_density</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="s2">&quot;HARD&quot;</span>
+    <span class="k">elif</span> <span class="n">stm_density</span> <span class="o">&gt;</span> <span class="mi">30</span> <span class="ow">or</span> <span class="n">is_drift</span><span class="p">:</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="s2">&quot;WARN&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">severity</span> <span class="o">=</span> <span class="s2">&quot;NONE&quot;</span>
+
+    <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Drift detected: </span><span class="si">{</span><span class="n">trigger_metric</span><span class="si">}</span><span class="s2"> deviated </span><span class="si">{</span><span class="n">max_deviation_ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;from baseline. System term density: </span><span class="si">{</span><span class="n">stm_density</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> per mille.&quot;</span>
+    <span class="p">)</span> <span class="k">if</span> <span class="n">is_drift</span> <span class="k">else</span> <span class="s2">&quot;No linguistic drift detected.&quot;</span>
+
+    <span class="k">return</span> <span class="n">DriftResult</span><span class="p">(</span>
+        <span class="n">is_drift</span><span class="o">=</span><span class="n">is_drift</span><span class="p">,</span>
+        <span class="n">severity</span><span class="o">=</span><span class="n">severity</span><span class="p">,</span>
+        <span class="n">metrics</span><span class="o">=</span><span class="n">current</span><span class="p">,</span>
+        <span class="n">deviations</span><span class="o">=</span><span class="n">deviations</span><span class="p">,</span>
+        <span class="n">message</span><span class="o">=</span><span class="n">message</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/drift_detection/linguistic_drift.py<span class="w"> </span>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add pragmatic linguistic-drift alarm detectors (config-driven + 3-sigma)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-add-opening-similarity-and-content-looping-detection">Task 4: Add Opening Similarity and Content Looping Detection</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code>
+- Test: <code>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py</code> (add tests)</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>check_opening_similarity(chapter_text: str, prev_chapter_text: str) -&gt; float</code>
+- Produces: <code>check_window_redundancy(chapters: list[str], window_size: int = 4) -&gt; float</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to tests/unit/skill_utils/drift_detection/test_linguistic_drift.py:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_opening_similarity_identical</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_opening_similarity</span>
+    <span class="n">ch1</span> <span class="o">=</span> <span class="s2">&quot;冷在场于第七层深度。冷知道深度在第八层。&quot;</span> <span class="o">+</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">300</span>
+    <span class="n">ch2</span> <span class="o">=</span> <span class="s2">&quot;冷在场于第七层深度。冷知道深度在第八层。&quot;</span> <span class="o">+</span> <span class="s2">&quot;y&quot;</span> <span class="o">*</span> <span class="mi">300</span>
+    <span class="n">similarity</span> <span class="o">=</span> <span class="n">check_opening_similarity</span><span class="p">(</span><span class="n">ch1</span><span class="p">,</span> <span class="n">ch2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">similarity</span> <span class="o">&gt;</span> <span class="mf">0.6</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected &gt;0.6, got </span><span class="si">{</span><span class="n">similarity</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_opening_similarity_different</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_opening_similarity</span>
+    <span class="n">ch1</span> <span class="o">=</span> <span class="s2">&quot;林风站在山顶，望着远方的云海翻涌。&quot;</span> <span class="o">+</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">300</span>
+    <span class="n">ch2</span> <span class="o">=</span> <span class="s2">&quot;陈维民推开实验室的门，灯光自动亮起。&quot;</span> <span class="o">+</span> <span class="s2">&quot;y&quot;</span> <span class="o">*</span> <span class="mi">300</span>
+    <span class="n">similarity</span> <span class="o">=</span> <span class="n">check_opening_similarity</span><span class="p">(</span><span class="n">ch1</span><span class="p">,</span> <span class="n">ch2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">similarity</span> <span class="o">&lt;</span> <span class="mf">0.6</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected &lt;0.6, got </span><span class="si">{</span><span class="n">similarity</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_window_redundancy_detects_looping</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_window_redundancy</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;冷在场于第七层深度。&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;冷在场于第八层深度。&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;冷在场于第九层深度。&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="s2">&quot;冷在场于第十层深度。&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">max_sim</span> <span class="o">=</span> <span class="n">check_window_redundancy</span><span class="p">(</span><span class="n">chapters</span><span class="p">,</span> <span class="n">window_size</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">max_sim</span> <span class="o">&gt;</span> <span class="mf">0.35</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Expected &gt;0.35, got </span><span class="si">{</span><span class="n">max_sim</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py::test_check_opening_similarity_identical -v</code>
+Expected: FAIL (function not defined)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to src/shenbi/skill_utils/drift_detection/linguistic_drift.py:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">difflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequenceMatcher</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_opening_similarity</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">prev_chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare first 300 characters of consecutive chapters using SequenceMatcher.&quot;&quot;&quot;</span>
+    <span class="n">opening1</span> <span class="o">=</span> <span class="n">chapter_text</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+    <span class="n">opening2</span> <span class="o">=</span> <span class="n">prev_chapter_text</span><span class="p">[:</span><span class="mi">300</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">opening1</span><span class="p">,</span> <span class="n">opening2</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_window_redundancy</span><span class="p">(</span><span class="n">chapters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute pairwise similarity of all chapter pairs within a sliding window.</span>
+<span class="sd">    Returns the maximum similarity found. Threshold: &gt;0.35 flags content looping.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapters</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="mf">0.0</span>
+    <span class="n">max_similarity</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">window</span> <span class="o">=</span> <span class="n">chapters</span><span class="p">[</span><span class="o">-</span><span class="n">window_size</span><span class="p">:]</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapters</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">window_size</span> <span class="k">else</span> <span class="n">chapters</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)):</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="p">[</span><span class="n">i</span><span class="p">][:</span><span class="mi">500</span><span class="p">],</span> <span class="n">window</span><span class="p">[</span><span class="n">j</span><span class="p">][:</span><span class="mi">500</span><span class="p">])</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+            <span class="n">max_similarity</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_similarity</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">max_similarity</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/drift_detection/linguistic_drift.py<span class="w"> </span>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add opening similarity and content looping detection&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-integrate-3-tier-intervention-in-chapter-loop">Task 5: Integrate 3-Tier Intervention in Chapter Loop</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (add drift check after snapshot step)
+- Modify: <code>src/shenbi/skill_utils/drift_detection/compute_drift.py:147</code> (add 4th trigger after <code>detect_volume_drift</code>)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>compute_linguistic_metrics()</code> from <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code>
+- Consumes: <code>detect_drift()</code> from the same module
+- Produces: <code>_check_linguistic_drift(project_dir, chapter) -&gt; DriftResult | None</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_drift_intervention.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DriftResult</span><span class="p">,</span>
+    <span class="n">compute_linguistic_metrics</span><span class="p">,</span>
+    <span class="n">detect_drift</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_intervention_triggers_on_degraded_text</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;3-tier intervention should fire when system term density exceeds thresholds.&quot;&quot;&quot;</span>
+    <span class="n">normal</span> <span class="o">=</span> <span class="s2">&quot;林风站在山顶，望着远方。&quot;</span> <span class="o">*</span> <span class="mi">20</span>
+    <span class="n">degraded</span> <span class="o">=</span> <span class="s2">&quot;冷在场于第七层深度。冷值7.3，在场度0.89。&quot;</span> <span class="o">*</span> <span class="mi">20</span>
+
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">normal</span><span class="p">)</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">degraded</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;HARD&quot;</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">message</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">20</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_drift_intervention.py -v</code>
+Expected: FAIL (test file not found → create it) then PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/chapter_loop.py, add after the snapshot step:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_check_linguistic_drift</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DriftResult</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check chapter text for linguistic drift and apply tiered intervention.</span>
+
+<span class="sd">    Reads the just-written ``chapters/chapter-{chapter}.md`` (no zero-padding),</span>
+<span class="sd">    compares its pragmatic alarm metrics (Task 3) against the established</span>
+<span class="sd">    baseline, and applies WARN/HARD/ESCALATE intervention per spec §3.4.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+        <span class="n">check_opening_similarity</span><span class="p">,</span>
+        <span class="n">compute_linguistic_metrics</span><span class="p">,</span>
+        <span class="n">detect_drift</span><span class="p">,</span>
+    <span class="p">)</span>
+
+    <span class="n">chapter_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)</span>
+    <span class="n">baseline_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+    <span class="k">if</span> <span class="n">baseline_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">baseline</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">baseline_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no_linguistic_baseline&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">current</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;linguistic_drift_detected&quot;</span><span class="p">,</span>
+                     <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                     <span class="n">severity</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span>
+                     <span class="n">metrics</span><span class="o">=</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;drift_escalate_pause_for_review&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DriftEscalationError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">: system term density &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;system_term_density&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> per mille. &quot;</span>
+                <span class="s2">&quot;Pipeline paused for human review.&quot;</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;HARD&quot;</span><span class="p">:</span>
+            <span class="n">_inject_drift_correction</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span><span class="p">:</span>
+            <span class="n">_inject_drift_warning</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+
+    <span class="c1"># Check opening similarity against the previous chapter</span>
+    <span class="k">if</span> <span class="n">chapter</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">prev_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.md&quot;</span>
+        <span class="k">if</span> <span class="n">prev_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">prev_text</span> <span class="o">=</span> <span class="n">prev_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+            <span class="n">opening_sim</span> <span class="o">=</span> <span class="n">check_opening_similarity</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">prev_text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">opening_sim</span> <span class="o">&gt;</span> <span class="mf">0.6</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;opening_similarity_high&quot;</span><span class="p">,</span>
+                            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">similarity</span><span class="o">=</span><span class="nb">round</span><span class="p">(</span><span class="n">opening_sim</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+                <span class="n">_inject_opening_variation_directive</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">opening_sim</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inject_drift_correction</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">DriftResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a PRE_WRITE_CHECK directive for the next chapter to correct drift.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">directive</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;## PRE_WRITE_CHECK (AUTO-GENERATED - DRIFT DETECTED)</span>
+
+<span class="s2">CRITICAL: Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> has system term density of </span><span class="si">{</span><span class="n">result</span><span class="o">.</span><span class="n">metrics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;system_term_density&#39;</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> per mille (baseline: &lt;5).</span>
+<span class="s2">The next chapter MUST:</span>
+<span class="s2">1. Use natural Chinese narrative prose — NO system parameter language (冷在场, 冷值, 在场度)</span>
+<span class="s2">2. Include at least 3 dialogue exchanges with human characters</span>
+<span class="s2">3. Include at least 2 physical actions or sensory descriptions</span>
+<span class="s2">4. Use varied sentence structures — no repeated sentence templates</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">directive_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;drift-correction-</span><span class="si">{</span><span class="n">chapter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">directive_file</span><span class="p">,</span> <span class="n">directive</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inject_drift_warning</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">result</span><span class="p">:</span> <span class="n">DriftResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a gentle warning for the next chapter.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">warning</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;## PRE_WRITE_CHECK (AUTO-GENERATED - STYLE WARNING)</span>
+
+<span class="s2">Note: Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> shows early signs of parametric language.</span>
+<span class="s2">Please prioritize natural prose and human character dialogue in the next chapter.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">warning_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;drift-warning-</span><span class="si">{</span><span class="n">chapter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">warning_file</span><span class="p">,</span> <span class="n">warning</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_inject_opening_variation_directive</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">similarity</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Warn about high opening similarity.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">directive</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;## PRE_WRITE_CHECK (OPENING VARIATION)</span>
+
+<span class="s2">The opening of Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">similarity</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.0f</span><span class="si">}</span><span class="s2">% similar to Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">.</span>
+<span class="s2">Next chapter MUST use a different opening approach.</span>
+<span class="s2">Forbidden openings: &quot;冷知道/冷在/冷在场于&quot; sentence patterns.</span>
+<span class="s2">&quot;&quot;&quot;</span>
+    <span class="n">directive_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;opening-variation-</span><span class="si">{</span><span class="n">chapter</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">directive_file</span><span class="p">,</span> <span class="n">directive</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DriftEscalationError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when linguistic drift reaches ESCALATE severity.&quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/skill_utils/drift_detection/compute_drift.py, add a 4th trigger:</span>
+
+<span class="c1"># After detect_volume_drift (ends ~line 146), alongside the three score-based</span>
+<span class="c1"># conditions, add:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">check_linguistic_drift_trigger</span><span class="p">(</span><span class="n">linguistic_result</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;4th trigger: linguistic alarm metrics exceed thresholds.</span>
+
+<span class="sd">    Independent of resonance scores (which are contaminated by the degraded</span>
+<span class="sd">    LLM context). Fires on HARD/ESCALATE linguistic drift only.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">linguistic_result</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">return</span> <span class="n">linguistic_result</span><span class="o">.</span><span class="n">is_drift</span> <span class="ow">and</span> <span class="n">linguistic_result</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;HARD&quot;</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_drift_intervention.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/skill_utils/drift_detection/compute_drift.py<span class="w"> </span>tests/unit/pipeline/test_drift_intervention.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: integrate 3-tier linguistic drift intervention in chapter loop&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5a-establish-linguistic-baseline-new">Task 5a: Establish Linguistic Baseline (NEW)</h3>
+<p><strong>Files:</strong>
+- New: <code>src/shenbi/skill_utils/drift_detection/baseline.py</code></p>
+<p><strong>Purpose:</strong> Compute and persist the linguistic baseline from the first 3 chapters
+so that subsequent drift detection has a reference point.</p>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># baseline.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">establish_baseline</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute linguistic baseline from specified chapters.</span>
+
+<span class="sd">    Reads chapter prose, computes system-term density, bigram frequencies,</span>
+<span class="sd">    opening similarity, and window redundancy. Persists to</span>
+<span class="sd">    style/linguistic_baseline.json via safe_write.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="o">...</span>
+</code></pre></div>
+Wire this into <code>_run_context_assembly</code> or chapter_loop so it runs once
+after chapter 3 completes.</p>
+<hr />
+<h3 id="task-6-add-context-audit-and-backfill-cli">Task 6: Add Context Audit and Backfill CLI</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (add <code>_audit_context_coverage</code>)
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (add <code>backfill-context</code> command)</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_audit_context_coverage(project_dir, current_chapter) -&gt; list[int]</code> — returns missing chapter numbers
+- Produces: <code>pipeline backfill-context --chapters 13-54</code> CLI command</p>
+<p><strong>Note on signatures (verified against code):</strong> <code>assemble_context(project_dir, chapter_plan_path: str)</code> takes a PLAN PATH string (not a chapter int) and returns a <code>ContextPackage</code>; <code>write_context_file(project_dir, chapter, pkg)</code> is the separate function that persists via <code>safe_write</code>; <code>curate_context(project_dir, chapter)</code> returns the curated string directly (it re-reads what assembly wrote). The backfill must call these with the correct arguments and must NOT pass <code>assemble_context</code>'s return value into <code>curate_context</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_context_audit.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_audit_context_coverage_finds_gaps</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_audit_context_coverage</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">context_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span>
+        <span class="n">context_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="c1"># Create context for chapters 1, 2, 5 only — gaps at 3, 4</span>
+        <span class="c1"># (real naming: chapter-{ch}-context.md, no zero-padding)</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">5</span><span class="p">]:</span>
+            <span class="p">(</span><span class="n">context_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-context.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">missing</span> <span class="o">=</span> <span class="n">_audit_context_coverage</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="mi">3</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Chapter 3 should be missing, got </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="mi">4</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Chapter 4 should be missing, got </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">missing</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;Chapter 1 should not be missing&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_audit.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/chapter_loop.py:</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_audit_context_coverage</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan all chapters up to current_chapter and return list of missing context files.</span>
+
+<span class="sd">    Uses the real (non-padded) ``chapter-{ch}-context.md`` naming. Called at</span>
+<span class="sd">    pipeline resume initialization to surface the 77% coverage gap (spec §3.1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">structlog</span>
+    <span class="n">log</span> <span class="o">=</span> <span class="n">structlog</span><span class="o">.</span><span class="n">get_logger</span><span class="p">()</span>
+    <span class="n">context_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">current_chapter</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">context_file</span> <span class="o">=</span> <span class="n">context_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">context_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;context_coverage_gap&quot;</span><span class="p">,</span> <span class="n">missing_chapters</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
+                    <span class="n">gap_ratio</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">current_chapter</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">missing</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># In src/shenbi/pipeline/cli.py, add a backfill-context command:</span>
+<span class="nd">@pipeline</span><span class="o">.</span><span class="n">command</span><span class="p">(</span><span class="s2">&quot;backfill-context&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--chapters&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Chapter range, e.g. &#39;13-54&#39;&quot;</span><span class="p">)</span>
+<span class="nd">@click</span><span class="o">.</span><span class="n">option</span><span class="p">(</span><span class="s2">&quot;--project-dir&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="n">click</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">exists</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">backfill_context</span><span class="p">(</span><span class="n">chapters</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Re-run deterministic context assembly + curation for a chapter range.</span>
+
+<span class="sd">    These are deterministic Python functions and can be re-executed safely to</span>
+<span class="sd">    close coverage gaps for already-generated chapters. Uses the real</span>
+<span class="sd">    assemble_context(project_dir, plan_path) / write_context_file / curate_context</span>
+<span class="sd">    signatures (spec §3.1 backfill).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">assemble_context</span><span class="p">,</span> <span class="n">write_context_file</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_curation</span><span class="w"> </span><span class="kn">import</span> <span class="n">curate_context</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">project_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="s2">&quot;-&quot;</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">:</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">chapters</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;-&quot;</span><span class="p">)</span>
+        <span class="n">chapter_range</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">start</span><span class="p">),</span> <span class="nb">int</span><span class="p">(</span><span class="n">end</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">chapter_range</span> <span class="o">=</span> <span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="n">chapters</span><span class="p">)]</span>
+
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">chapter_range</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">plan_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;plans/chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-plan.md&quot;</span>
+            <span class="n">pkg</span> <span class="o">=</span> <span class="n">assemble_context</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="n">plan_path</span><span class="p">)</span>
+            <span class="n">write_context_file</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="n">ch</span><span class="p">,</span> <span class="n">pkg</span><span class="p">)</span>  <span class="c1"># safe_write inside</span>
+            <span class="n">curated</span> <span class="o">=</span> <span class="n">curate_context</span><span class="p">(</span><span class="n">project_path</span><span class="p">,</span> <span class="n">ch</span><span class="p">)</span>
+            <span class="n">curated_path</span> <span class="o">=</span> <span class="n">project_path</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-curated.md&quot;</span>
+            <span class="n">curated_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+            <span class="n">safe_write</span><span class="p">(</span><span class="n">curated_path</span><span class="p">,</span> <span class="n">curated</span><span class="p">)</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  Backfilled context for chapter </span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">click</span><span class="o">.</span><span class="n">echo</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  FAILED chapter </span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_context_audit.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/unit/pipeline/test_context_audit.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add context coverage audit and backfill-context CLI command&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

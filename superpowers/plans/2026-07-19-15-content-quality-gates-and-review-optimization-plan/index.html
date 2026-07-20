@@ -1,0 +1,2116 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-15-content-quality-gates-and-review-optimization-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Content Quality Gates and Review Optimization Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Content Quality Gates and Review Optimization Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-15-content-quality-gates-and-review-optimization-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-15-content-quality-gates-and-review-optimization-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Content Quality Gates and Review Optimization Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-15-content-quality-gates-and-review-optimization-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#content-quality-gates-and-review-optimization-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Content Quality Gates and Review Optimization Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-add-g4cdtitle-check-in-chapter-drafting-gate" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Add G4.cd.title Check in Chapter Drafting Gate
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-integrate-g4cdtitle-into-post-drafting-gate-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Integrate G4.cd.title into Post-Drafting Gate Check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-add-g4cdhook_fulfillment-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Add G4.cd.hook_fulfillment Check
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-add-arithmetic-consistency-verification-to-continuity-audit-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Add Arithmetic Consistency Verification to Continuity Audit SKILL.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-wire-check_escalation-into-the-reactive-escalation-review-dispatch-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Wire check_escalation() into the Reactive Escalation-Review Dispatch Path
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-split-review-checklist-into-static-template-dynamic-deltas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Split Review Checklist into Static Template + Dynamic Deltas
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-ensure-context-composing-checklist-regeneration-uses-current-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Ensure Context-Composing Checklist Regeneration Uses Current Sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-8-add-title-quality-constraints-to-planning-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Add Title Quality Constraints to Planning SKILL.md
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-9-end-to-end-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: End-to-End Verification
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="content-quality-gates-and-review-optimization-implementation-plan">Content Quality Gates and Review Optimization Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Eliminate four systemic quality failures (title degradation, plan-content mismatch, identical review summaries, static checklists) by adding G4 title/hook checks, wiring the EXISTING <code>check_escalation()</code> helper into the reactive escalation-review dispatch path (so empty signals produce a deterministic summary instead of a templated LLM report), and splitting review checklists into static + dynamic layers (reusing the EXISTING mtime invalidation and <code>_extract_hook_deliverables</code>).</p>
+<p><strong>Architecture:</strong> Two new G4 sub-checks (<code>G4.cd.title</code>, <code>G4.cd.hook_fulfillment</code>) validate chapter output post-drafting via deterministic regex parsing. The escalation-review skill is ALREADY dispatched reactively (not as a <code>CHAPTER_STEPS</code> entry) on retry exhaustion (<code>chapter_loop.py:414-420</code> via <code>revision_router.dispatch_escalation</code>) and on closure failure (<code>cli.py:284</code>); the fix wires the EXISTING-but-unwired <code>check_escalation()</code> helper (<code>skill_utils/escalation/check.py</code>) into those reactive dispatch points so empty signals produce a deterministic summary instead of a templated LLM report. Review checklists already have mtime-based cache invalidation (<code>_get_max_source_mtime</code>) and <code>_extract_hook_deliverables</code> (reading <code>truth/pending_hooks.md</code>); the task is to diagnose why they yield static output, not re-add extraction. The split uses a static Genesis template (<code>review-checklist-template.json</code>) and per-chapter dynamic deltas (<code>review-checklist-N.json</code>), with filenames aligned with Spec 10.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, re, json, structlog</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ol>
+<li><code>just check</code> full pass at every task boundary</li>
+<li>No regression in chapter generation quality</li>
+<li>Zero date-label titles across 10 consecutive chapters</li>
+<li>Zero duplicate titles across all chapters</li>
+<li>Zero titles containing chapter numbers</li>
+<li>Ch20 simulation regression: <code>G4.cd.hook_fulfillment</code> catches MH-003 absence</li>
+<li>Zero templated <code>review-summary.md</code> files generated when no escalation signals present (deterministic summary used instead); escalation-review dispatches that DO occur with non-empty signals still run</li>
+<li><code>ai_blacklist</code> shows variation across 3 consecutive chapters</li>
+<li><code>hook_deliverables</code> count &gt;= number of active hooks declared in chapter plan</li>
+<li>Checklist regenerates each chapter (the EXISTING <code>_get_max_source_mtime</code> invalidation fires correctly when upstream <code>truth/</code> files are updated)</li>
+</ol>
+<hr />
+<h2 id="task-1-add-g4cdtitle-check-in-chapter-drafting-gate">Task 1: Add G4.cd.title Check in Chapter Drafting Gate</h2>
+<p><strong>Files:</strong>
+- <code>src/shenbi/gates/g4/chapter_drafting.py</code> -- add <code>check_chapter_title()</code> function
+- <code>src/shenbi/pipeline/chapter_loop.py</code> -- call new check post-drafting in <code>_run_g4_checks()</code></p>
+<p><strong>TDD Cycle:</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>1a. Write test:</strong> Create <code>tests/gates/g4/test_title_check.py</code>
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test G4.cd.title chapter title quality enforcement.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_chapter_title</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestChapterTitleValidation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_rejects_chapter_number_in_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;第40章 废料场&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;contains_chapter_number&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_rejects_duplicate_title</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">previous</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;废料场&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;痕迹&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;痕迹&quot;</span><span class="p">,</span> <span class="n">previous</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;duplicate_of_ch5&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_warns_day_of_week_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;Saturday&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;day_label_instead_of_thematic_name&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_warns_chinese_week_label</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;第四周Saturday&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;day_label_instead_of_thematic_name&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_poetic_single_character</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;沉&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_poetic_two_character</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;废料场&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;晨&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handles_empty_previous_titles</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="s2">&quot;雾&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>1b. Run test -- confirm FAIL (function not yet existing).</strong></p>
+</li>
+<li>
+<p>[ ] <strong>1c. Implement</strong> <code>check_chapter_title()</code> in <code>src/shenbi/gates/g4/chapter_drafting.py</code>:
+  <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_chapter_title</span><span class="p">(</span><span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">previous_titles</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.cd.title: Validate chapter title quality.</span>
+
+<span class="sd">    Checks:</span>
+<span class="sd">    - No chapter numbers in title</span>
+<span class="sd">    - No duplicate titles</span>
+<span class="sd">    - No day-of-week labels (WARN, not HARD)</span>
+<span class="sd">    - Thematic naming encouraged (1-4 Chinese characters)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># HARD FAIL: Chapter number in title</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;第\d+章&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.cd.title:contains_chapter_number -- &quot;</span>
+                       <span class="s2">&quot;title must not include chapter number (SKILL.md:125)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># HARD FAIL: Duplicate title</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">previous_titles</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.cd.title:duplicate_of_ch</span><span class="si">{</span><span class="n">previous_titles</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;title &#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&#39; already used&quot;</span><span class="p">)</span>
+
+    <span class="c1"># WARN: Day-of-week or date label</span>
+    <span class="n">day_pattern</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s1">&#39;(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|&#39;</span>
+        <span class="sa">r</span><span class="s1">&#39;周[一二三四五六日])&#39;</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">day_pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">title</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.cd.title:day_label_instead_of_thematic_name -- &quot;</span>
+                       <span class="s2">&quot;prefer thematic 1-4 character name over date label&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>1d. Run test -- confirm PASS.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>1e. Commit:</strong> <code>feat(g4): add G4.cd.title check for chapter title quality enforcement</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-2-integrate-g4cdtitle-into-post-drafting-gate-check">Task 2: Integrate G4.cd.title into Post-Drafting Gate Check</h2>
+<p><strong>Files:</strong>
+- <code>src/shenbi/pipeline/chapter_loop.py</code> -- call <code>check_chapter_title</code> in post-drafting gate function</p>
+<p><strong>TDD Cycle:</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>2a. Write test:</strong> Create <code>tests/pipeline/test_title_gate_integration.py</code>
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test title gate integration into chapter loop post-drafting checks.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span><span class="p">,</span> <span class="n">MagicMock</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestTitleGateIntegration</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_title_check_called_post_drafting</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Verify _run_g4_checks calls check_chapter_title after drafting.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_run_g4_checks</span>
+        <span class="n">title_dict</span> <span class="o">=</span> <span class="n">_run_g4_checks</span><span class="p">(</span><span class="n">MagicMock</span><span class="p">(),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s1">&#39;text&#39;</span> <span class="ow">in</span> <span class="n">title_dict</span>
+        <span class="k">assert</span> <span class="s1">&#39;chapter&#39;</span> <span class="ow">in</span> <span class="n">title_dict</span>
+        <span class="k">assert</span> <span class="s1">&#39;style&#39;</span> <span class="ow">in</span> <span class="n">title_dict</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_detects_title_degradation_in_pipeline</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Integration: chapter with &#39;Saturday&#39; title produces WARN.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_chapter_title</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;沉&quot;</span>
+        <span class="k">assert</span> <span class="mi">1</span> <span class="o">&lt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">title</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="mi">20</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_duplicate_title_flagged_across_chapters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two chapters with same title: second is flagged.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_chapter_title</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+        <span class="n">title</span> <span class="o">=</span> <span class="s2">&quot;废料场&quot;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;第\d+章&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>2b. Run test -- confirm FAIL.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>2c. Implement</strong> integration in <code>_run_g4_checks()</code> (<code>src/shenbi/pipeline/chapter_loop.py</code>):
+  <div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_g4_checks</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run post-drafting G4 quality checks.&quot;&quot;&quot;</span>
+    <span class="n">all_issues</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">project_dir</span>
+
+    <span class="n">chapter_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.md&#39;</span>
+    <span class="n">plan_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;plans&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-plan.md&#39;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">all_issues</span>
+
+    <span class="c1"># --- G4.cd.title ---</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_chapter_title</span>
+    <span class="n">title</span> <span class="o">=</span> <span class="n">_extract_chapter_title</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">)</span>
+    <span class="n">previous_titles</span> <span class="o">=</span> <span class="n">_load_previous_titles</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">title_issues</span> <span class="o">=</span> <span class="n">check_chapter_title</span><span class="p">(</span><span class="n">title</span><span class="p">,</span> <span class="n">previous_titles</span><span class="p">)</span>
+    <span class="n">all_issues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">title_issues</span><span class="p">)</span>
+
+    <span class="c1"># --- G4.cd.hook_fulfillment ---</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_hook_fulfillment</span>
+    <span class="n">hook_issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan_path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">)</span>
+    <span class="n">all_issues</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">hook_issues</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">all_issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_chapter_title</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract title from chapter markdown file. Title is first H1 heading.&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;^#\s+(.+?)$&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">match</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_previous_titles</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load all previous chapter titles for duplicate detection.&quot;&quot;&quot;</span>
+    <span class="n">previous</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">current_chapter</span><span class="p">):</span>
+        <span class="n">ch_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s1">.md&#39;</span>
+        <span class="k">if</span> <span class="n">ch_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">title</span> <span class="o">=</span> <span class="n">_extract_chapter_title</span><span class="p">(</span><span class="n">ch_path</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">title</span><span class="p">:</span>
+                <span class="n">previous</span><span class="p">[</span><span class="n">title</span><span class="p">]</span> <span class="o">=</span> <span class="n">ch</span>
+    <span class="k">return</span> <span class="n">previous</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>2d. Run test -- confirm PASS.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>2e. Run <code>just check</code> -- confirm full pass.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>2f. Commit:</strong> <code>feat(pipeline): integrate G4.cd.title into post-drafting gate check</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-3-add-g4cdhook_fulfillment-check">Task 3: Add G4.cd.hook_fulfillment Check</h2>
+<p><strong>Files:</strong>
+- <code>src/shenbi/gates/g4/chapter_drafting.py</code> -- add <code>check_hook_fulfillment()</code> function</p>
+<p><strong>TDD Cycle:</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>3a. Write test:</strong> Create <code>tests/gates/g4/test_hook_fulfillment.py</code>
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test G4.cd.hook_fulfillment plan-content cross-validation.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_hook_fulfillment</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestHookFulfillment</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_detects_missing_hooks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plan.md&quot;</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;&quot;&quot;</span>
+<span class="s2">## 7. Hook Ledger</span>
+
+<span class="s2">| MH-003 | advance | Progress the copper coin mystery |</span>
+<span class="s2">| MH-007 | reference | Mention the amulet backstory |</span>
+<span class="s2">&quot;&quot;&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;This chapter mentions MH-007 briefly but not MH-003.&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;MH-003&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;MH-007&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_when_all_hooks_fulfilled</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plan.md&quot;</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 7. Hook Ledger</span><span class="se">\n\n</span><span class="s2">| MH-003 | advance | desc |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;MH-003 advancement in this scene.&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_hooks_in_plan_returns_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plan.md&quot;</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 7. Hook Ledger</span><span class="se">\n\n</span><span class="s2">No hooks this chapter.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;Regular chapter body.&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_plan_missing_returns_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;nonexistent.md&quot;</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;Content.&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handles_hook_ids_with_letters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;plan.md&quot;</span>
+        <span class="n">plan</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;| CP-012 | advance | Character progression hook |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;CP-012 is referenced here.&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>3b. Run test -- confirm FAIL.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>3c. Implement</strong> <code>check_hook_fulfillment()</code> in <code>src/shenbi/gates/g4/chapter_drafting.py</code>:
+  <div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.</span>
+
+<span class="sd">    Extracts hook IDs from plan Section 7 (Hook Ledger) and searches</span>
+<span class="sd">    for their presence in the chapter prose.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plan_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">plan_text</span> <span class="o">=</span> <span class="n">plan_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Extract hook IDs from plan -- match patterns like MH-003, CP-012, etc.</span>
+    <span class="n">plan_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z]{2,4}-\d+&#39;</span><span class="p">,</span> <span class="n">plan_text</span><span class="p">))</span>
+    <span class="c1"># Extract hook IDs from chapter body</span>
+    <span class="n">chapter_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[A-Z]{2,4}-\d+&#39;</span><span class="p">,</span> <span class="n">chapter_text</span><span class="p">))</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">plan_hooks</span> <span class="o">-</span> <span class="n">chapter_hooks</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;G4.cd.hook_unfulfilled: plan requires hooks </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but none found in chapter body&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>3d. Run test -- confirm PASS.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>3e. Commit:</strong> <code>feat(g4): add G4.cd.hook_fulfillment check for plan-content cross-validation</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-4-add-arithmetic-consistency-verification-to-continuity-audit-skillmd">Task 4: Add Arithmetic Consistency Verification to Continuity Audit SKILL.md</h2>
+<p><strong>Files:</strong>
+- <code>skills/shenbi-review-continuity/SKILL.md</code> -- add arithmetic verification instructions to prompt</p>
+<p><strong>No TDD needed (content-only change).</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>4a.</strong> Read <code>skills/shenbi-review-continuity/SKILL.md</code> to locate audit instructions section.</p>
+</li>
+<li>
+<p>[ ] <strong>4b.</strong> Append arithmetic verification block after existing audit instructions, before output format section:
+  <div class="highlight"><pre><span></span><code><span class="gu">## Arithmetic Consistency Verification</span>
+
+For each chapter, verify:
+<span class="k">1.</span> <span class="gs">**Currency accumulation**</span>: Copper/silver coin totals must be arithmetically
+   consistent with previous chapters. Recompute from known baselines.
+   If the previous chapter had N coins and the current chapter adds M,
+   the total must be N+M (accounting for expenditures).
+<span class="k">2.</span> <span class="gs">**Date and count patterns**</span>: Verify daily-increment patterns
+   (e.g., &quot;每日+1&quot; sequences). Flag discrepancies &gt; 0.
+<span class="k">3.</span> <span class="gs">**Inventory tracking**</span>: If a character acquires or expends items,
+   verify the running totals.
+
+Report any arithmetic discrepancy with:
+<span class="k">-</span><span class="w"> </span>The incorrect value found in the chapter
+<span class="k">-</span><span class="w"> </span>The correct computed value
+<span class="k">-</span><span class="w"> </span>The line reference (approximate line number in chapter body)
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>4c. Commit:</strong> <code>docs(skills): add arithmetic consistency verification to continuity audit</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-5-wire-check_escalation-into-the-reactive-escalation-review-dispatch-path">Task 5: Wire check_escalation() into the Reactive Escalation-Review Dispatch Path</h2>
+<blockquote>
+<p><strong>Spec-aligned note (RS1):</strong> <code>escalation-review</code> is NOT a <code>CHAPTER_STEPS</code> entry. It is dispatched reactively from <code>revision_router.dispatch_escalation</code> on retry exhaustion (<code>chapter_loop.py:414-420</code>) and on closure failure (<code>cli.py:284</code>). There is therefore no <code>shenbi-escalation-review</code> branch to add to <code>_should_run_step</code>. The fix wires the EXISTING-but-unwired <code>check_escalation()</code> helper (<code>skill_utils/escalation/check.py</code>, returns <code>list[EscalationSignal]</code>) into those reactive dispatch points. When signals are empty, a deterministic summary is generated on disk instead of dispatching the LLM. The G4 checker <code>gates/g4/escalation_review.py</code> (35 lines) already exists and only validates section presence -- optionally extend it to detect templated summaries.</p>
+</blockquote>
+<p><strong>Files:</strong>
+- <code>src/shenbi/skill_utils/escalation/check.py</code> -- <strong>EXISTS</strong> -- <code>check_escalation()</code> is already defined but never imported by <code>chapter_loop.py</code> or <code>_should_run_step</code>. No signature change.
+- <code>src/shenbi/pipeline/chapter_loop.py</code> -- import + call <code>check_escalation()</code> before <code>dispatch_escalation</code> at the reactive dispatch site (~<code>chapter_loop.py:414-420</code>)
+- <code>src/shenbi/pipeline/chapter_loop.py</code> -- add <code>_generate_deterministic_review_summary()</code>, <code>_parse_audit_verdict()</code>
+- <code>src/shenbi/gates/g4/escalation_review.py</code> -- <strong>EXISTS (35 lines, section-presence check)</strong> -- optionally extend to flag templated/identical summaries</p>
+<p><strong>check_escalation() signature (already in code at <code>skill_utils/escalation/check.py:53</code> -- do NOT change):</strong>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_escalation</span><span class="p">(</span>
+    <span class="n">resonance_scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">sensitivity_blocking</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">volume_objective_met</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">regeneration_attempts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">arc_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stratum_axis_drift</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">...</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">EscalationSignal</span><span class="p">]:</span>
+</code></pre></div></p>
+<p><strong>TDD Cycle:</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>5a. Write test:</strong> Create <code>tests/pipeline/test_escalation_review_conditional.py</code>
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test reactive escalation-review: check_escalation() gates the LLM dispatch.&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">MagicMock</span><span class="p">,</span> <span class="n">patch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_generate_deterministic_review_summary</span><span class="p">,</span>
+    <span class="n">_parse_audit_verdict</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_escalation</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckEscalationHelperExists</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_signals_when_clean</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># check_escalation returns [] when there is no blocking signal</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+            <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">81</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">84</span><span class="p">],</span>
+            <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">signals</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_signals_on_sensitivity_blocking</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+            <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mi">80</span><span class="p">,</span> <span class="mi">82</span><span class="p">,</span> <span class="mi">81</span><span class="p">,</span> <span class="mi">83</span><span class="p">,</span> <span class="mi">84</span><span class="p">],</span>
+            <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">signals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestParseAuditVerdict</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parses_pass_verdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audit.md&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Verdict</span><span class="se">\n\n</span><span class="s2">PASS - All checks passed.&quot;</span><span class="p">)</span>
+        <span class="n">verdict</span> <span class="o">=</span> <span class="n">_parse_audit_verdict</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">verdict</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;PASS&#39;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parses_blocking_verdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audit.md&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Verdict</span><span class="se">\n\n</span><span class="s2">BLOCKING - Critical issue found.&quot;</span><span class="p">)</span>
+        <span class="n">verdict</span> <span class="o">=</span> <span class="n">_parse_audit_verdict</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">verdict</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;BLOCKING&#39;</span>
+        <span class="k">assert</span> <span class="n">verdict</span><span class="p">[</span><span class="s1">&#39;blocking&#39;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_parses_warn_verdict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audit.md&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Verdict</span><span class="se">\n\n</span><span class="s2">WARN - Minor concern noted.&quot;</span><span class="p">)</span>
+        <span class="n">verdict</span> <span class="o">=</span> <span class="n">_parse_audit_verdict</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">verdict</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="s1">&#39;WARN&#39;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDeterministicSummary</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_generates_summary_when_no_escalation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span>
+        <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">atype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;continuity&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">]:</span>
+            <span class="n">f</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-5-</span><span class="si">{</span><span class="n">atype</span><span class="si">}</span><span class="s1">.md&#39;</span>
+            <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Verdict</span><span class="se">\n\n</span><span class="s2">PASS - OK.&quot;</span><span class="p">)</span>
+        <span class="n">_generate_deterministic_review_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="s1">&#39;chapter-5-review-summary.md&#39;</span>
+        <span class="k">assert</span> <span class="n">summary</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s1">&#39;continuity&#39;</span> <span class="ow">in</span> <span class="n">content</span>
+        <span class="k">assert</span> <span class="s1">&#39;character&#39;</span> <span class="ow">in</span> <span class="n">content</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_does_not_generate_when_no_audit_files</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span>
+        <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">_generate_deterministic_review_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="s1">&#39;chapter-5-review-summary.md&#39;</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">summary</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_summary_contains_chapter_specific_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span>
+        <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="s1">&#39;chapter-7-continuity.md&#39;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Verdict</span><span class="se">\n\n</span><span class="s2">PASS - Timeline consistent through Ch7.&quot;</span><span class="p">)</span>
+        <span class="n">_generate_deterministic_review_summary</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">7</span><span class="p">)</span>
+        <span class="n">summary</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="s1">&#39;chapter-7-review-summary.md&#39;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">summary</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s1">&#39;Chapter 7&#39;</span> <span class="ow">in</span> <span class="n">content</span>
+        <span class="k">assert</span> <span class="s1">&#39;Timeline consistent&#39;</span> <span class="ow">in</span> <span class="n">content</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>5b. Run test -- confirm FAIL.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>5c. Implement</strong> the reactive gate in <code>src/shenbi/pipeline/chapter_loop.py</code> at the <code>dispatch_escalation</code> call site (~<code>chapter_loop.py:414-420</code>). Gather the arguments required by the EXISTING <code>check_escalation()</code> signature and only dispatch the LLM when signals are non-empty:</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># --- at the reactive escalation dispatch site (~chapter_loop.py:414-420) ---</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_escalation</span>
+
+<span class="c1"># Gather arguments from pipeline state for the EXISTING helper signature.</span>
+<span class="c1"># check_escalation(resonance_scores, sensitivity_blocking,</span>
+<span class="c1">#                  volume_objective_met, regeneration_attempts,</span>
+<span class="c1">#                  arc_score=None, stratum_axis_drift=False)</span>
+<span class="n">chapter</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span>
+<span class="n">cs</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="n">chapter</span><span class="p">]</span>  <span class="c1"># Declare cs from state</span>
+<span class="n">resonance_scores</span> <span class="o">=</span> <span class="n">_get_recent_resonance_scores</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+    <span class="n">resonance_scores</span><span class="o">=</span><span class="n">resonance_scores</span><span class="p">,</span>
+    <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="n">_has_sensitivity_blocking</span><span class="p">(</span><span class="n">cs</span><span class="p">),</span>
+    <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">regeneration_attempts</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">signals</span><span class="p">:</span>
+    <span class="c1"># No escalation signal -&gt; deterministic summary instead of LLM dispatch.</span>
+    <span class="n">_generate_deterministic_review_summary</span><span class="p">(</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span>
+    <span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;escalation_review_skipped_no_signals&quot;</span><span class="p">,</span>
+             <span class="n">chapter</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">)</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">context</span><span class="o">=...</span><span class="p">)</span>
+</code></pre></div>
+<p>Add the helper stubs for <code>_get_recent_resonance_scores()</code> and <code>_has_sensitivity_blocking()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_get_recent_resonance_scores</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract recent resonance scores from pipeline state.&quot;&quot;&quot;</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ch_num</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="o">-</span><span class="n">window</span><span class="p">:]:</span>
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="n">ch_num</span><span class="p">]</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="s1">&#39;resonance_score&#39;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">scores</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">resonance_score</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">scores</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_sensitivity_blocking</span><span class="p">(</span><span class="n">cs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if sensitivity blocking is active for this chapter.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="s1">&#39;sensitivity_blocking&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>Add the supporting deterministic-summary helpers (these are the only NEW functions):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ALL_AUDIT_TYPES</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s1">&#39;continuity&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">,</span> <span class="s1">&#39;world-rules&#39;</span><span class="p">,</span> <span class="s1">&#39;pacing&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;dialogue&#39;</span><span class="p">,</span> <span class="s1">&#39;motivation&#39;</span><span class="p">,</span> <span class="s1">&#39;pov&#39;</span><span class="p">,</span> <span class="s1">&#39;memo-compliance&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;foreshadowing&#39;</span><span class="p">,</span> <span class="s1">&#39;anti-ai&#39;</span><span class="p">,</span> <span class="s1">&#39;texture&#39;</span><span class="p">,</span> <span class="s1">&#39;reader-pull&#39;</span><span class="p">,</span>
+    <span class="s1">&#39;resonance&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity&#39;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_audit_verdict</span><span class="p">(</span><span class="n">audit_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse the verdict section from an audit report file.</span>
+
+<span class="sd">    Returns dict with keys: status, blocking, summary.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">audit_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="s1">&#39;UNKNOWN&#39;</span><span class="p">,</span> <span class="s1">&#39;blocking&#39;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="s1">&#39;&#39;</span><span class="p">}</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">audit_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Extract verdict status from ## Verdict section</span>
+    <span class="n">status_match</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s1">&#39;##\s*Verdict\s*\n+\s*(PASS|BLOCKING|WARN|FAIL)&#39;</span><span class="p">,</span>
+        <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span>
+    <span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">status_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">status_match</span> <span class="k">else</span> <span class="s1">&#39;UNKNOWN&#39;</span>
+
+    <span class="c1"># Extract summary line after verdict</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="s1">&#39;&#39;</span>
+    <span class="k">if</span> <span class="n">status_match</span><span class="p">:</span>
+        <span class="n">rest</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="n">status_match</span><span class="o">.</span><span class="n">end</span><span class="p">():]</span>
+        <span class="n">summary_line</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;-\s*(.+?)$&#39;</span><span class="p">,</span> <span class="n">rest</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">summary_line</span><span class="p">:</span>
+            <span class="n">summary</span> <span class="o">=</span> <span class="n">summary_line</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;status&#39;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span>
+        <span class="s1">&#39;blocking&#39;</span><span class="p">:</span> <span class="n">status</span> <span class="ow">in</span> <span class="p">(</span><span class="s1">&#39;BLOCKING&#39;</span><span class="p">,</span> <span class="s1">&#39;FAIL&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;summary&#39;</span><span class="p">:</span> <span class="n">summary</span><span class="p">,</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_deterministic_review_summary</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate review summary by scanning audit files on disk. No LLM call.</span>
+
+<span class="sd">    Only creates the summary file when escalation signals are absent.</span>
+<span class="sd">    When escalation IS triggered, the LLM-based escalation-review handles it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">audit_type</span> <span class="ow">in</span> <span class="n">ALL_AUDIT_TYPES</span><span class="p">:</span>
+        <span class="n">audit_file</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">audit_type</span><span class="si">}</span><span class="s1">.md&#39;</span>
+        <span class="k">if</span> <span class="n">audit_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">verdict</span> <span class="o">=</span> <span class="n">_parse_audit_verdict</span><span class="p">(</span><span class="n">audit_file</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">audit_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">verdict</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">has_blocking</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;blocking&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">has_blocking</span><span class="p">:</span>
+        <span class="k">return</span>  <span class="c1"># Let LLM escalation-review handle blocking cases</span>
+
+    <span class="c1"># Render deterministic summary</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;# Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> -- Consolidated Review Results&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
+    <span class="c1"># Count by status</span>
+    <span class="n">status_counts</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">results</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span> <span class="s1">&#39;UNKNOWN&#39;</span><span class="p">)</span>
+        <span class="n">status_counts</span><span class="p">[</span><span class="n">s</span><span class="p">]</span> <span class="o">=</span> <span class="n">status_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+
+    <span class="n">total</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">status</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">status_counts</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **</span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">**: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## Individual Audit Results&quot;</span><span class="p">)</span>
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">audit_type</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">results</span><span class="o">.</span><span class="n">keys</span><span class="p">()):</span>
+        <span class="n">verdict</span> <span class="o">=</span> <span class="n">results</span><span class="p">[</span><span class="n">audit_type</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;- **</span><span class="si">{</span><span class="n">audit_type</span><span class="si">}</span><span class="s2">**: </span><span class="si">{</span><span class="n">verdict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;?&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">verdict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;summary&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;(no details)&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">summary_path</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-review-summary.md&#39;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">summary_path</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>5d.</strong> Apply the same reactive gate at the closure-failure dispatch site in <code>src/shenbi/pipeline/cli.py:284</code> (import + call <code>check_escalation()</code> before the <code>dispatch_escalation</code> call there; fall back to deterministic summary on empty signals).</p>
+</li>
+<li>
+<p>[ ] <strong>5e.</strong> (Optional) Extend <code>src/shenbi/gates/g4/escalation_review.py</code> (EXISTS, 35 lines, currently only checks section presence of 触发信号 / 升级上下文 / 决策选项) to flag templated/identical summaries beyond the existing section-presence check.</p>
+</li>
+<li>
+<p>[ ] <strong>5f. Run test -- confirm PASS.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>5g. Run <code>just check</code> -- confirm full pass.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>5h. Commit:</strong> <code>feat(pipeline): wire check_escalation() into reactive escalation-review dispatch with deterministic fallback</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-6-split-review-checklist-into-static-template-dynamic-deltas">Task 6: Split Review Checklist into Static Template + Dynamic Deltas</h2>
+<blockquote>
+<p><strong>Spec-aligned note (Spec 5 §2.4, §3.5, §4.3):</strong> <code>_extract_hook_deliverables</code> (reads <code>truth/pending_hooks.md</code>, PLANTED/ACTIVE/PENDING states) and <code>_get_max_source_mtime</code> (mtime-based cache invalidation) ALREADY EXIST in <code>src/shenbi/pipeline/review_checklist.py</code>. Do NOT re-add them. The real task: (a) diagnose why the existing extraction yields empty <code>hook_deliverables</code> and a frozen <code>ai_blacklist</code> in practice (likely <code>truth/pending_hooks.md</code> state mismatch or mtime-cache hits), and (b) refactor <code>build_review_checklist()</code> into a static template + per-chapter dynamic deltas with filenames aligned with Spec 10. Static template: <code>context/review-checklist-template.json</code>. Per-chapter deltas: <code>context/review-checklist-N.json</code> (note the <code>-chapter-</code> infix, not <code>-ch-</code>, per Spec 10 §3.2).</p>
+</blockquote>
+<p><strong>Files:</strong>
+- <code>src/shenbi/pipeline/review_checklist.py</code> -- refactor <code>build_review_checklist()</code> into static + dynamic layers; diagnose existing extraction; add <code>_scan_recent_fatigue_patterns()</code> (genuinely new)</p>
+<p><strong>TDD Cycle:</strong></p>
+<ul>
+<li>
+<p>[ ] <strong>6a. Write test:</strong> Create <code>tests/pipeline/test_review_checklist.py</code>
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Test review checklist split into static template + dynamic deltas.</span>
+
+<span class="sd">NOTE: _extract_hook_deliverables and _get_max_source_mtime ALREADY EXIST.</span>
+<span class="sd">These tests cover the NEW static/dynamic layering and the NEW fatigue scanner.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.review_checklist</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">build_review_checklist</span><span class="p">,</span>
+    <span class="n">_load_static_template</span><span class="p">,</span>
+    <span class="n">_scan_recent_fatigue_patterns</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestStaticTemplate</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_loads_genesis_template</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">context_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span>
+        <span class="n">context_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">static</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;genre_rules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;no modern slang&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;formatting_constraints&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;8-section structure&quot;</span><span class="p">],</span>
+            <span class="s2">&quot;ai_blacklist&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;骤然&quot;</span><span class="p">,</span> <span class="s2">&quot;仿佛&quot;</span><span class="p">,</span> <span class="s2">&quot;只见&quot;</span><span class="p">,</span> <span class="s2">&quot;突然&quot;</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="c1"># Filename aligned with Spec 10</span>
+        <span class="p">(</span><span class="n">context_dir</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-template.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">static</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">_load_static_template</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">result</span><span class="p">[</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">4</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;genre_rules&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;no modern slang&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestScanRecentFatiguePatterns</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_flags_repeated_fatigue_words</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">chapters_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span>
+        <span class="n">chapters_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="c1"># 3 recent chapters with heavy &quot;骤然&quot; usage</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">]:</span>
+            <span class="p">(</span><span class="n">chapters_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s1">.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;骤然&quot;</span> <span class="o">*</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="n">flagged</span> <span class="o">=</span> <span class="n">_scan_recent_fatigue_patterns</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s1">&#39;骤然&#39;</span> <span class="ow">in</span> <span class="n">flagged</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_recent_chapters_returns_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">_scan_recent_fatigue_patterns</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBuildReviewChecklist</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_merges_static_and_dynamic</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">context_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span>
+        <span class="n">context_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">plans_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;plans&#39;</span>
+        <span class="n">plans_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+        <span class="c1"># Static template (Spec 10 filename)</span>
+        <span class="n">static</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ai_blacklist&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;骤然&quot;</span><span class="p">,</span> <span class="s2">&quot;仿佛&quot;</span><span class="p">],</span> <span class="s2">&quot;genre_rules&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;r1&quot;</span><span class="p">]}</span>
+        <span class="p">(</span><span class="n">context_dir</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-template.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">static</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="c1"># Plan with hooks (existing _extract_hook_deliverables reads</span>
+        <span class="c1"># truth/pending_hooks.md, not the plan; set up a minimal truth file</span>
+        <span class="c1"># so the existing extraction is exercised).</span>
+        <span class="n">truth_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;truth&#39;</span>
+        <span class="n">truth_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">truth_dir</span> <span class="o">/</span> <span class="s1">&#39;pending_hooks.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;hooks:</span><span class="se">\n</span><span class="s2">  - id: MH-001</span><span class="se">\n</span><span class="s2">    state: ACTIVE</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+        <span class="n">checklist</span> <span class="o">=</span> <span class="n">build_review_checklist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">checklist</span><span class="p">[</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">])</span> <span class="o">&gt;=</span> <span class="mi">2</span>  <span class="c1"># static base</span>
+        <span class="k">assert</span> <span class="s1">&#39;transition_budget&#39;</span> <span class="ow">in</span> <span class="n">checklist</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_persists_per_chapter_delta_with_spec10_filename</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">context_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span>
+        <span class="n">context_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">static</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ai_blacklist&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;骤然&quot;</span><span class="p">]}</span>
+        <span class="p">(</span><span class="n">context_dir</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-template.json&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">static</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">build_review_checklist</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+        <span class="c1"># Spec 10 filename: review-checklist-N.json</span>
+        <span class="n">delta</span> <span class="o">=</span> <span class="n">context_dir</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-3.json&#39;</span>
+        <span class="k">assert</span> <span class="n">delta</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestExistingExtractionDiagnosis</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Diagnose why the EXISTING _extract_hook_deliverables returns empty.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_active_hooks_appear_in_deliverables</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;EXISTS: pending_hooks.md with ACTIVE hooks must populate deliverables.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.review_checklist</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_hook_deliverables</span>
+        <span class="n">truth_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;truth&#39;</span>
+        <span class="n">truth_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">truth_dir</span> <span class="o">/</span> <span class="s1">&#39;pending_hooks.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;hooks:</span><span class="se">\n</span><span class="s2">  - id: MH-003</span><span class="se">\n</span><span class="s2">    state: ACTIVE</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">deliverables</span> <span class="o">=</span> <span class="n">_extract_hook_deliverables</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">deliverables</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_only_planted_hooks_excluded</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The existing filter keeps PLANTED/ACTIVE/PENDING; RESOLVED excluded.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.review_checklist</span><span class="w"> </span><span class="kn">import</span> <span class="n">_extract_hook_deliverables</span>
+        <span class="n">truth_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s1">&#39;truth&#39;</span>
+        <span class="n">truth_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">truth_dir</span> <span class="o">/</span> <span class="s1">&#39;pending_hooks.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;hooks:</span><span class="se">\n</span><span class="s2">  - id: MH-003</span><span class="se">\n</span><span class="s2">    state: RESOLVED</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">deliverables</span> <span class="o">=</span> <span class="n">_extract_hook_deliverables</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">deliverables</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>6b. Diagnose the existing extraction.</strong> Before writing new code, run a diagnostic against <code>truth/pending_hooks.md</code> from real output: confirm whether hooks are in PLANTED/ACTIVE/PENDING states and whether <code>_get_max_source_mtime</code> registers a change after <code>pending_hooks.md</code> is touched. Log the finding; the fix targets the data/trigger path.</p>
+</li>
+<li>
+<p>[ ] <strong>6c. Run test -- confirm FAIL</strong> (on the new static/dynamic layering and the new fatigue scanner).</p>
+</li>
+<li>
+<p>[ ] <strong>6d. Implement</strong> the static + dynamic split in <code>src/shenbi/pipeline/review_checklist.py</code>. KEEP the existing <code>_extract_hook_deliverables</code> (reads <code>truth/pending_hooks.md</code>) and <code>_get_max_source_mtime</code>; ADD <code>_load_static_template</code>, <code>_scan_recent_fatigue_patterns</code>, and refactor <code>build_review_checklist</code>:
+  <div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Review checklist builder -- static Genesis template + per-chapter dynamic deltas.</span>
+
+<span class="sd">NOTE: _extract_hook_deliverables (reads truth/pending_hooks.md, PLANTED/ACTIVE/PENDING)</span>
+<span class="sd">and _get_max_source_mtime (mtime-based cache invalidation) ALREADY EXIST and are</span>
+<span class="sd">retained unchanged. This module adds the static/dynamic layering on top.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_static_template</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Load the static Genesis review checklist template.</span>
+
+<span class="sd">    Filename aligned with Spec 10: context/review-checklist-template.json</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">template_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-template.json&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">template_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">{</span>
+            <span class="s1">&#39;genre_rules&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;formatting_constraints&#39;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s1">&#39;ai_blacklist&#39;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="p">}</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">template_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_scan_recent_fatigue_patterns</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan recent chapters for AI fatigue patterns to add to blacklist.</span>
+
+<span class="sd">    Returns list of words/phrases that have appeared excessively</span>
+<span class="sd">    in recent chapters (last 5).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fatigue_words</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">start_ch</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">chapter</span> <span class="o">-</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="n">word_counts</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">start_ch</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+        <span class="n">ch_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s1">.md&#39;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ch_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">ch_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">word</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;骤然&#39;</span><span class="p">,</span> <span class="s1">&#39;仿佛&#39;</span><span class="p">,</span> <span class="s1">&#39;只见&#39;</span><span class="p">,</span> <span class="s1">&#39;突然&#39;</span><span class="p">,</span> <span class="s1">&#39;缓缓&#39;</span><span class="p">,</span> <span class="s1">&#39;微微&#39;</span><span class="p">,</span> <span class="s1">&#39;深深&#39;</span><span class="p">]:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+            <span class="n">word_counts</span><span class="p">[</span><span class="n">word</span><span class="p">]</span> <span class="o">=</span> <span class="n">word_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">word</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="n">count</span>
+
+    <span class="k">for</span> <span class="n">word</span><span class="p">,</span> <span class="n">count</span> <span class="ow">in</span> <span class="n">word_counts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">count</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">fatigue_words</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">word</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">fatigue_words</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_review_checklist</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the full review checklist by merging static template with</span>
+<span class="sd">    per-chapter dynamic deltas. Reuses the EXISTING _extract_hook_deliverables</span>
+<span class="sd">    (truth/pending_hooks.md) and _get_max_source_mtime for invalidation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">static</span> <span class="o">=</span> <span class="n">_load_static_template</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="c1"># _extract_hook_deliverables ALREADY EXISTS (reads truth/pending_hooks.md)</span>
+    <span class="n">dynamic</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;hook_deliverables&#39;</span><span class="p">:</span> <span class="n">_extract_hook_deliverables</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">),</span>
+        <span class="s1">&#39;ai_blacklist_additions&#39;</span><span class="p">:</span> <span class="n">_scan_recent_fatigue_patterns</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;transition_budget&#39;</span><span class="p">:</span> <span class="n">_compute_transition_budget</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="n">merged</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">static</span><span class="p">)</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;hook_deliverables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;hook_deliverables&#39;</span><span class="p">]</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">static</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span>
+        <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;ai_blacklist_additions&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;transition_budget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;transition_budget&#39;</span><span class="p">]</span>
+
+    <span class="c1"># Persist the per-chapter delta (Spec 10 filename: review-checklist-N.json)</span>
+    <span class="n">delta_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;review-checklist-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.json&#39;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">delta_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">merged</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">merged</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>6e. Run test -- confirm PASS.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>6f. Commit:</strong> <code>feat(pipeline): split review checklist into static template + per-chapter dynamic deltas (diagnose existing extraction)</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-7-ensure-context-composing-checklist-regeneration-uses-current-sources">Task 7: Ensure Context-Composing Checklist Regeneration Uses Current Sources</h2>
+<blockquote>
+<p><strong>Spec-aligned note (Spec 5 §3.7):</strong> <code>review_checklist.py</code> ALREADY implements mtime-based cache invalidation (<code>_get_max_source_mtime</code>, lines 195-224) comparing genre-config, chapter file, and <code>truth/</code> mtimes against the cache mtime. The remaining risk is that the upstream <code>truth/</code> files are not touched when they should be (e.g., <code>pending_hooks.md</code> not updated with hook state changes), so the mtime check registers no change and yields a cache hit. The fix ensures the upstream truth files are updated each chapter so the EXISTING invalidation fires. Filenames aligned with Spec 10.</p>
+</blockquote>
+<p><strong>Files:</strong>
+- <code>src/shenbi/pipeline/chapter_loop.py</code> -- ensure upstream truth files are touched each chapter so the existing mtime invalidation fires
+- <code>skills/shenbi-context-composing/SKILL.md</code> -- update contract for dynamic deltas</p>
+<ul>
+<li>
+<p>[ ] <strong>7a.</strong> In <code>src/shenbi/pipeline/chapter_loop.py</code>, confirm that the truth files feeding <code>_get_max_source_mtime</code> (<code>truth/current_state.md</code>, <code>truth/chapter_summaries.md</code>, <code>truth/pending_hooks.md</code>) are updated each chapter. If any is not written, the existing mtime invalidation never fires -- that is the actual root cause of the static-output symptom. If a cache is explicitly retained, clear it before composing:
+  <div class="highlight"><pre><span></span><code><span class="c1"># Ensure upstream truth files are touched so the EXISTING mtime</span>
+<span class="c1"># invalidation (_get_max_source_mtime) registers a change.</span>
+<span class="c1"># If a checklist cache object exists, clear it before composing.</span>
+<span class="n">_checklist_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>  <span class="c1"># only if a cache object exists; otherwise rely on mtime</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>7b.</strong> Update <code>skills/shenbi-context-composing/SKILL.md</code> contract to declare that it generates dynamic per-chapter deltas with Spec 10 filenames:
+  <div class="highlight"><pre><span></span><code><span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/current_state.md</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/chapter_summaries.md</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/pending_hooks.md</span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">plans/chapter-N-plan.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">7. Hook Ledger</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">context/review-checklist-template.json</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">context/review-checklist-N.json</span><span class="p p-Indicator">,</span><span class="nt"> mode</span><span class="p">:</span><span class="w"> </span><span class="nv">create</span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">force_regenerate</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>7c. Run <code>just check</code> -- confirm full pass.</strong></p>
+</li>
+<li>
+<p>[ ] <strong>7d. Commit:</strong> <code>fix(pipeline): ensure truth files are touched so mtime invalidation fires for checklist regeneration</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-8-add-title-quality-constraints-to-planning-skillmd">Task 8: Add Title Quality Constraints to Planning SKILL.md</h2>
+<p><strong>Files:</strong>
+- <code>skills/shenbi-chapter-planning/SKILL.md</code> -- add title quality requirements to system prompt</p>
+<ul>
+<li>
+<p>[ ] <strong>8a.</strong> Add to the chapter planning prompt template, in the section where chapter metadata is described:
+  <div class="highlight"><pre><span></span><code><span class="gu">## Chapter Title Requirements</span>
+<span class="k">-</span><span class="w"> </span>Title must be a 1-4 Chinese character thematic phrase
+<span class="k">-</span><span class="w"> </span>Prohibited: day-of-week labels (Monday, 周一, Tuesday, 周二, etc.)
+<span class="k">-</span><span class="w"> </span>Prohibited: chapter numbers (第N章)
+<span class="k">-</span><span class="w"> </span>Prohibited: duplicate of any previous chapter title
+<span class="k">-</span><span class="w"> </span>Preferred: poetic, evocative single or double-character names
+</code></pre></div></p>
+</li>
+<li>
+<p>[ ] <strong>8b. Commit:</strong> <code>docs(skills): add title quality constraints to chapter planning prompt</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="task-9-end-to-end-verification">Task 9: End-to-End Verification</h2>
+<ul>
+<li>[ ] <strong>9a.</strong> Run <code>just check</code> -- confirm full pass.</li>
+<li>[ ] <strong>9b.</strong> Run a 3-chapter mini-pipeline test:
+  <div class="highlight"><pre><span></span><code>python<span class="w"> </span>-m<span class="w"> </span>shenbi.pipeline.cli<span class="w"> </span>next<span class="w"> </span>--project-dir<span class="w"> </span>novel-output/test-quality-gates
+</code></pre></div></li>
+<li>[ ] <strong>9c.</strong> Verify: no date-label titles in output.</li>
+<li>[ ] <strong>9d.</strong> Verify: <code>review-checklist-*.json</code> files differ between chapters.</li>
+<li>[ ] <strong>9e.</strong> Verify: <code>hook_deliverables</code> is non-empty when plan has hooks (and the EXISTING <code>_extract_hook_deliverables</code> from <code>truth/pending_hooks.md</code> is populated).</li>
+<li>[ ] <strong>9f.</strong> Verify: no templated <code>review-summary.md</code> generated when no escalation signals; deterministic summary used instead.</li>
+<li>
+<p>[ ] <strong>9g.</strong> Verify: <code>G4.cd.title</code> catches chapter-number titles in regression test.</p>
+</li>
+<li>
+<p>[ ] <strong>9h. Commit:</strong> <code>test: end-to-end verification of quality gates and review optimization</code></p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

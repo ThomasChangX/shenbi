@@ -1,0 +1,1719 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-09-ci-optimization/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>CI Optimization Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="CI Optimization Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-09-ci-optimization.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-09-ci-optimization/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="CI Optimization Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-09-ci-optimization.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#ci-optimization-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              CI Optimization Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Prerequisites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-matrix-reduction-collapse-windows-test-step-part-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Matrix reduction + collapse Windows test step (Part 1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-delete-mutation-testing-dead-job-merge-codegen-jobs-part-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Delete mutation-testing dead job + merge codegen jobs (Part 2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-renovate-path-filter-delete-doc-links-job-part-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Renovate path filter + delete doc-links job (Part 3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-create-nightlyyml-part-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Create nightly.yml (Part 4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-post-edit-validation-spec-validation-section" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Post-edit validation (spec Validation section)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="ci-optimization-implementation-plan">CI Optimization Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Reduce PR CI wall-clock from ~16.6min to ~8min and billable minutes from ~90 to ~20 by shrinking the matrix, deleting dead code, merging redundant jobs, and migrating low-frequency checks to a dispatch-only nightly workflow.</p>
+<p><strong>Architecture:</strong> Surgical edits to <code>.github/workflows/ci.yml</code> (matrix reduction, job merge, path filter, dead-code deletion) plus a new <code>.github/workflows/nightly.yml</code> (dispatch-only, collecting Windows/3.13/doc-links). No application code changes.</p>
+<p><strong>Tech Stack:</strong> GitHub Actions (YAML), <code>uv</code>, pytest.</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-07-09-ci-optimization-design.md</code></p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>All YAML must pass <code>uv run yamllint --strict .github/workflows/</code> (enforced by the <code>action-validation</code> job).</li>
+<li>No application code (<code>src/shenbi/</code>, <code>tests/</code>) is touched — only <code>.github/workflows/</code>.</li>
+<li><code>continue-on-error</code> only on <code>python-version == '3.13'</code> (triggers only on push(main)).</li>
+<li>Windows is removed from the matrix entirely (defensive support, not a target platform).</li>
+<li>The new <code>nightly.yml</code> must have NO active <code>schedule:</code> trigger (dispatch-only).</li>
+<li>Commit messages follow Conventional Commits (<code>chore:</code>, <code>ci:</code>, etc.).</li>
+</ul>
+<hr />
+<h2 id="prerequisites">Prerequisites</h2>
+<p>Before Task 1, create a feature branch (do not commit to <code>main</code> directly):</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>ci/optimize-pr-matrix
+</code></pre></div>
+<p>All tasks commit to this branch. Task 5 pushes it and opens a PR.</p>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Action</th>
+<th>Responsibility</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.github/workflows/ci.yml</code></td>
+<td>Modify</td>
+<td>Matrix reduction, delete mutation-testing, merge contract-sync+plugin-manifest into codegen-idempotency, renovate path filter, delete doc-links, collapse Windows test step</td>
+</tr>
+<tr>
+<td><code>.github/workflows/nightly.yml</code></td>
+<td>Create</td>
+<td>Dispatch-only workflow collecting windows-smoke, python-313-migration, doc-links</td>
+</tr>
+</tbody>
+</table>
+<p>No other files change.</p>
+<hr />
+<h3 id="task-1-matrix-reduction-collapse-windows-test-step-part-1">Task 1: Matrix reduction + collapse Windows test step (Part 1)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/ci.yml</code> (strategy block lines 12-23, test steps lines 54-64, comment lines 19-22)</p>
+<p><strong>Interfaces:</strong>
+- Produces: a <code>quality</code> job that produces 4 matrix legs on PR (ubuntu/macOS × 3.11/3.12) and 6 on push(main) (adds 3.13 × 2 OS), with a single unconditional test step.</p>
+<ul>
+<li>[ ] <strong>Step 1: Replace the strategy block (lines 12-23)</strong></li>
+</ul>
+<p>Replace this exact text:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">quality</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.os }}</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-latest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macos-latest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">windows-latest</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;3.11&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.12&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;3.13&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="c1"># 3.13 allow-failure during rollout (spec Risk table).</span>
+<span class="w">    </span><span class="c1"># Windows coverage threshold is 88 (vs 89 POSIX) because fcntl-based</span>
+<span class="w">    </span><span class="c1"># locking (~50 lines in filelock_utils.py) is structurally unreachable</span>
+<span class="w">    </span><span class="c1"># on Windows — covered on POSIX, uncovered on Windows.</span>
+<span class="w">    </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.python-version == &#39;3.13&#39; }}</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Note (pre-existing inconsistency):</strong> The original ci.yml comment above says "88% threshold" but the actual Windows step used <code>--cov-fail-under=85</code>. This mismatch predates this plan — the "replace" block is verbatim from the original file so the Edit matches. Both the comment and the Windows step are deleted in Step 2, so the inconsistency is removed rather than propagated.</p>
+</blockquote>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">quality</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.os }}</span>
+<span class="w">    </span><span class="nt">strategy</span><span class="p">:</span>
+<span class="w">      </span><span class="c1"># PR: fail fast to cancel sibling jobs on failure (save billable</span>
+<span class="w">      </span><span class="c1"># minutes). push(main): full visibility, no early cancel.</span>
+<span class="w">      </span><span class="nt">fail-fast</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event_name == &#39;pull_request&#39; }}</span>
+<span class="w">      </span><span class="nt">matrix</span><span class="p">:</span>
+<span class="w">        </span><span class="c1"># Windows removed — defensive support, not a target platform.</span>
+<span class="w">        </span><span class="c1"># See .github/workflows/nightly.yml windows-smoke for fallback</span>
+<span class="w">        </span><span class="c1"># code regression protection (dispatch-only).</span>
+<span class="w">        </span><span class="nt">os</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">ubuntu-latest</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">macos-latest</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="c1"># PR: 3.11 + 3.12 only. push(main): adds 3.13 (migration monitoring).</span>
+<span class="w">        </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event_name == &#39;pull_request&#39;</span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">&amp;&amp; fromJson(&#39;[&quot;3.11&quot;, &quot;3.12&quot;]&#39;)</span>
+<span class="w">                </span><span class="l l-Scalar l-Scalar-Plain">|| fromJson(&#39;[&quot;3.11&quot;, &quot;3.12&quot;, &quot;3.13&quot;]&#39;) }}</span>
+<span class="w">    </span><span class="c1"># 3.13 allow-failure during rollout (spec Risk table).</span>
+<span class="w">    </span><span class="c1"># Only triggers on push(main) — PR never includes 3.13.</span>
+<span class="w">    </span><span class="nt">continue-on-error</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ matrix.python-version == &#39;3.13&#39; }}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Collapse the two Windows/POSIX test steps into one</strong></li>
+</ul>
+<p>Replace this exact text (lines 54-64):</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last)</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">matrix.os != &#39;windows-latest&#39;</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last, Windows)</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">matrix.os == &#39;windows-latest&#39;</span>
+<span class="w">        </span><span class="c1"># 88% threshold on Windows: fcntl-based locking (~50 lines in</span>
+<span class="w">        </span><span class="c1"># filelock_utils.py) is structurally unreachable on Windows but</span>
+<span class="w">        </span><span class="c1"># covered on POSIX — the 1% gap is permanent platform divergence.</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci --cov-fail-under=85</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run coverage threshold test (serial, last only)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -p no:xdist -m &quot;last&quot; --no-cov --hypothesis-profile=ci</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run tests (parallel, excluding last)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run coverage threshold test (serial, last only)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -p no:xdist -m &quot;last&quot; --no-cov --hypothesis-profile=ci</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Validate YAML locally</strong></li>
+</ul>
+<p>Run: <code>uv run yamllint --strict .github/workflows/ci.yml</code>
+Expected: no errors (warnings on line-length are acceptable if the existing config allows them).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: shrink quality matrix (remove Windows, gate 3.13 to push)</span>
+
+<span class="s2">PR matrix: ubuntu/macOS × 3.11/3.12 = 4 jobs (was 9).</span>
+<span class="s2">push(main): adds 3.13 × 2 OS = 6 jobs.</span>
+<span class="s2">Collapses the Windows-specific test step (dead code after removal).</span>
+<span class="s2">fail-fast: true on PR (cancel siblings), false on main.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-delete-mutation-testing-dead-job-merge-codegen-jobs-part-2">Task 2: Delete mutation-testing dead job + merge codegen jobs (Part 2)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/ci.yml</code> (delete mutation-testing lines 105-140, replace contract-sync + plugin-manifest-freshness lines 66-153)</p>
+<p><strong>Interfaces:</strong>
+- Produces: a single <code>codegen-idempotency</code> job (merged from <code>contract-sync</code> + <code>plugin-manifest-freshness</code>) and the deleted <code>mutation-testing</code> job.</p>
+<ul>
+<li>[ ] <strong>Step 1: Replace contract-sync job with merged codegen-idempotency</strong></li>
+</ul>
+<p>Replace this exact text (lines 66-79):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">contract-sync</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regenerate contract-derived artifacts</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run shenbi-sync-contracts</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regenerate auto-check docs (spec P6)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/generate_autocheck_docs.py</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Idempotency — generated artifacts must match committed</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">codegen-idempotency</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Merges former contract-sync + plugin-manifest-freshness. Both follow</span>
+<span class="w">    </span><span class="c1"># the same pattern: run generators, git diff for drift. Sharing one</span>
+<span class="w">    </span><span class="c1"># uv sync saves ~25s of redundant environment setup.</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="c1"># Three generators run sequentially (each &lt;1s, order-independent).</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contract artifacts (deps.json, body views, DAG)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run shenbi-sync-contracts</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Auto-check docs (spec P6)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/generate_autocheck_docs.py</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Plugin manifests (.claude/.codex/.cursor/.opencode)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run shenbi-generate-plugins</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Idempotency — all generated artifacts must match committed</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ \</span>
+<span class="w">                                </span><span class="no">.claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Delete the plugin-manifest-freshness job</strong></li>
+</ul>
+<p>Delete this exact text (lines 142-153):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">plugin-manifest-freshness</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Verify plugin manifests are up to date</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">uv run shenbi-generate-plugins</span>
+<span class="w">          </span><span class="no">git diff --exit-code .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Delete the mutation-testing dead job</strong></li>
+</ul>
+<p>Delete this exact text (lines 105-140):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">mutation-testing</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="c1"># DISABLED on PRs: mutmut 3.x&#39;s mutants/ workspace omits the full</span>
+<span class="w">    </span><span class="c1"># src/shenbi/ package (ModuleNotFoundError: shenbi.gates.g4) and skills/,</span>
+<span class="w">    </span><span class="c1"># so the suite cannot establish a green baseline there. Re-enable (and</span>
+<span class="w">    </span><span class="c1"># drop this guard) once mutmut is reconfigured for this project layout.</span>
+<span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">fetch-depth</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Run mutation testing</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no"># mutmut 3.x reads source_paths from [tool.mutmut] config;</span>
+<span class="w">          </span><span class="no"># per-file CLI scoping is not supported (no --paths-to-mutate</span>
+<span class="w">          </span><span class="no"># or --use-cache flags in 3.x). Changed-file detection only</span>
+<span class="w">          </span><span class="no"># decides whether to run mutmut at all.</span>
+<span class="w">          </span><span class="no">BASE=&quot;origin/${{ github.event.pull_request.base.ref }}&quot;</span>
+<span class="w">          </span><span class="no">CHANGED=$(git diff --name-only &quot;${BASE}...HEAD&quot; \</span>
+<span class="w">            </span><span class="no">-- &#39;src/shenbi/&#39;)</span>
+<span class="w">          </span><span class="no">if [ -z &quot;$CHANGED&quot; ]; then</span>
+<span class="w">            </span><span class="no">echo &quot;No Python changes; skipping mutation testing&quot;</span>
+<span class="w">            </span><span class="no">exit 0</span>
+<span class="w">          </span><span class="no">fi</span>
+<span class="w">          </span><span class="no">uv run mutmut run</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Compare to baseline (blocks on regression &gt; 5%)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no"># compare_mutation_score.py runs &#39;mutmut results&#39; internally</span>
+<span class="w">          </span><span class="no"># and parses output; it only accepts --baseline and --threshold</span>
+<span class="w">          </span><span class="no"># (Plan 2 PR-23). No --current flag exists.</span>
+<span class="w">          </span><span class="no">uv run python tools/compare_mutation_score.py \</span>
+<span class="w">            </span><span class="no">--baseline tests/baselines/mutation-score.txt</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Validate YAML locally</strong></li>
+</ul>
+<p>Run: <code>uv run yamllint --strict .github/workflows/ci.yml</code>
+Expected: no errors.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: merge codegen jobs + delete dead mutation-testing</span>
+
+<span class="s2">- contract-sync + plugin-manifest-freshness -&gt; codegen-idempotency</span>
+<span class="s2">  (shared uv sync, single git diff over all artifact paths)</span>
+<span class="s2">- delete mutation-testing (was if:false dead code, zero value)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-renovate-path-filter-delete-doc-links-job-part-3">Task 3: Renovate path filter + delete doc-links job (Part 3)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/ci.yml</code> (action-validation job lines 89-103, doc-links job lines 155-170)</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>action-validation</code> with a <code>gh api</code>-based renovate conditional; <code>doc-links</code> job removed.</p>
+<ul>
+<li>[ ] <strong>Step 1: Replace action-validation job to add renovate path filter</strong></li>
+</ul>
+<p>Replace this exact text (lines 89-103):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">action-validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate GitHub Actions YAML</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run yamllint --strict .github/workflows/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate Renovate config schema</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no"># renovate-config-validator is provided by the renovate npm package.</span>
+<span class="w">          </span><span class="no"># Using npx avoids adding a persistent dep.</span>
+<span class="w">          </span><span class="no">npx --yes -p renovate renovate-config-validator renovate.json</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">action-validation</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate GitHub Actions YAML</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run yamllint --strict .github/workflows/</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Validate Renovate config schema</span>
+<span class="w">        </span><span class="c1"># Only run when renovate.json changes (saves 43s npx download).</span>
+<span class="w">        </span><span class="c1"># Uses gh api (not git diff) because the default checkout is</span>
+<span class="w">        </span><span class="c1"># shallow (fetch-depth: 1) — git diff against origin/&lt;base&gt; would</span>
+<span class="w">        </span><span class="c1"># silently return empty and permanently disable this check.</span>
+<span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.event_name == &#39;pull_request&#39; }}</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">URL=&quot;repos/${{ github.repository }}/pulls/${{ github.event.pull_request.number }}/files&quot;</span>
+<span class="w">          </span><span class="no">CHANGED=$(gh api &quot;$URL&quot; \</span>
+<span class="w">            </span><span class="no">--jq &#39;[.[] | select(.filename == &quot;renovate.json&quot;)] | length&#39;)</span>
+<span class="w">          </span><span class="no">if [ &quot;$CHANGED&quot; -gt 0 ]; then</span>
+<span class="w">            </span><span class="no">npx --yes -p renovate renovate-config-validator renovate.json</span>
+<span class="w">          </span><span class="no">else</span>
+<span class="w">            </span><span class="no">echo &quot;renovate.json unchanged — skipping&quot;</span>
+<span class="w">          </span><span class="no">fi</span>
+<span class="w">        </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">GH_TOKEN</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ secrets.GITHUB_TOKEN }}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Delete the doc-links job</strong></li>
+</ul>
+<p>Delete this exact text (lines 155-170):</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">doc-links</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm install -g markdown-link-check</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v5</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Strip trailing blank lines</strong></li>
+</ul>
+<p>The deletions in Tasks 2 &amp; 3 remove job bodies but leave separator blank lines, which pile up at end-of-file. yamllint's <code>empty-lines</code> rule (max 0 trailing) fails on this. Clean it up:</p>
+<p>Run: <code>uv run python -c "p='.github/workflows/ci.yml'; t=open(p).read().rstrip('\n')+'\n'; open(p,'w').write(t)"</code>
+This collapses trailing blank lines to a single trailing newline.</p>
+<ul>
+<li>[ ] <strong>Step 4: Validate YAML locally</strong></li>
+</ul>
+<p>Run: <code>uv run yamllint --strict .github/workflows/ci.yml</code>
+Expected: no errors.</p>
+<blockquote>
+<p><strong>If yamllint reports <code>line-length</code> on the <code>gh api</code> block:</strong> ensure the URL is extracted into the <code>URL=</code> variable as shown in Step 1 (each line must be ≤100 chars). If it reports <code>empty-lines</code>, re-run Step 3.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: gate renovate validator to renovate.json changes, drop doc-links</span>
+
+<span class="s2">- action-validation: renovate validator runs only when renovate.json</span>
+<span class="s2">  changes (gh api query, not git diff — avoids shallow-clone bug)</span>
+<span class="s2">- doc-links removed (migrated to nightly.yml in next task)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-create-nightlyyml-part-4">Task 4: Create nightly.yml (Part 4)</h3>
+<p><strong>Files:</strong>
+- Create: <code>.github/workflows/nightly.yml</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: a dispatch-only workflow with three jobs: <code>windows-smoke</code>, <code>python-313-migration</code>, <code>doc-links</code>. No active schedule.</p>
+<ul>
+<li>[ ] <strong>Step 1: Create the nightly.yml file</strong></li>
+</ul>
+<p>Create <code>.github/workflows/nightly.yml</code> with this exact content:</p>
+<div class="highlight"><pre><span></span><code><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Nightly</span>
+<span class="c1"># ─────────────────────────────────────────────────────────────</span>
+<span class="c1"># Current state: DISABLED (does not auto-execute)</span>
+<span class="c1">#</span>
+<span class="c1"># These checks have regression value but are not worth running</span>
+<span class="c1"># automatically per-PR or on a schedule at this time:</span>
+<span class="c1">#   - windows-smoke:        Smoke test for Windows fallback code</span>
+<span class="c1">#                           (defensive support, not a target platform)</span>
+<span class="c1">#   - python-313-migration: Python 3.13 migration monitoring</span>
+<span class="c1">#   - doc-links:            Markdown link checks (internal + external).</span>
+<span class="c1">#                           External links depend on third-party site</span>
+<span class="c1">#                           availability (flaky); internal links are a</span>
+<span class="c1">#                           valid signal but gated here for simplicity.</span>
+<span class="c1">#</span>
+<span class="c1"># To enable: uncomment the schedule trigger below and monitor</span>
+<span class="c1"># Actions failure alerts.</span>
+<span class="c1"># ─────────────────────────────────────────────────────────────</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># schedule:</span>
+<span class="w">  </span><span class="c1">#   - cron: &#39;0 6 * * *&#39;   # Uncomment to enable daily auto-execution</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span><span class="w">        </span><span class="c1"># Manual trigger only</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">windows-smoke</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Windows fallback code regression protection. The ~50 lines of</span>
+<span class="w">    </span><span class="c1"># sys.platform != &quot;win32&quot; branches in filelock_utils.py / safe_write.py</span>
+<span class="w">    </span><span class="c1"># are # pragma: no cover in tests (structurally untestable). This smoke</span>
+<span class="w">    </span><span class="c1"># test ensures import + basic flow still works on Windows.</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">windows-latest</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">PYTHONUTF8</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv python install 3.12</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --cov-fail-under=85</span>
+
+<span class="w">  </span><span class="nt">python-313-migration</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># 3.13 migration monitoring. No continue-on-error: nightly itself is</span>
+<span class="w">    </span><span class="c1"># non-blocking (not in any branch protection), so setting it would</span>
+<span class="w">    </span><span class="c1"># silently suppress 3.13 regression signals. Failure here = real</span>
+<span class="w">    </span><span class="c1"># regression, should be visible.</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv python install 3.13</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto -m &quot;not last&quot; --hypothesis-profile=ci</span>
+
+<span class="w">  </span><span class="nt">doc-links</span><span class="p">:</span>
+<span class="w">    </span><span class="c1"># Markdown link checks (internal relative links + external HTTP links).</span>
+<span class="w">    </span><span class="c1"># External links depend on third-party site availability (flaky risk);</span>
+<span class="w">    </span><span class="c1"># kept here to avoid external outages blocking PRs. Internal link rot</span>
+<span class="w">    </span><span class="c1"># (e.g. renamed file) also surfaces here instead of per-PR — accepted</span>
+<span class="w">    </span><span class="c1"># trade-off.</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-node@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">node-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;20&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">npm install -g markdown-link-check</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/setup-python@v5</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">python-version</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;3.11&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pytest -n auto tests/integration/test_doc_links.py -q --no-cov</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Trailing newline required:</strong> The <code>Write</code> tool writes content verbatim. Ensure the file ends with a single newline after the last line (<code>...--no-cov\n</code>). yamllint's <code>new-line-at-end-of-file</code> rule fails otherwise. After writing, run <code>printf '\n' &gt;&gt; .github/workflows/nightly.yml</code> if unsure.</p>
+<p><strong>Note on removed <code># Future: mutation-testing</code> block:</strong> The original plan/spec had a trailing 2-space-indented comment block here. yamllint's <code>comments-indentation</code> rule flags comments indented under <code>jobs:</code> that don't align with a sibling job. The mutmut note is preserved in the top-of-file header comment and in the spec — no information lost.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: Validate YAML locally</strong></li>
+</ul>
+<p>Run: <code>uv run yamllint --strict .github/workflows/nightly.yml</code>
+Expected: no errors.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify schedule is commented out (dispatch-only invariant)</strong></li>
+</ul>
+<p>Run: <code>grep -n "schedule:" .github/workflows/nightly.yml</code>
+Expected: the only match is the commented line <code># schedule:</code> (line ~24). If an uncommented <code>schedule:</code> exists, the dispatch-only invariant is violated.</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/nightly.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: add dispatch-only nightly.yml for low-frequency checks</span>
+
+<span class="s2">Collects windows-smoke, python-313-migration, doc-links.</span>
+<span class="s2">schedule: is commented out (dispatch-only) — zero automatic resource</span>
+<span class="s2">consumption. Uncomment schedule + monitor alerts to re-enable.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-post-edit-validation-spec-validation-section">Task 5: Post-edit validation (spec Validation section)</h3>
+<p><strong>Files:</strong>
+- Read-only: <code>.github/workflows/ci.yml</code>, <code>.github/workflows/nightly.yml</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: confirmation that the edits are structurally correct before pushing.</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify ci.yml job inventory (no leftover dead jobs)</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-nE<span class="w"> </span><span class="s2">&quot;^  [a-z][a-z-]+:</span>$<span class="s2">&quot;</span><span class="w"> </span>.github/workflows/ci.yml
+</code></pre></div>
+Expected jobs present: <code>quality:</code>, <code>codegen-idempotency:</code>, <code>dependency-review:</code>, <code>action-validation:</code>.
+Expected jobs ABSENT: <code>mutation-testing:</code>, <code>contract-sync:</code>, <code>plugin-manifest-freshness:</code>, <code>doc-links:</code>.</p>
+<p>(The <code>:$</code> anchor avoids false positives from <code>push:</code>, <code>pull_request:</code>, <code>on:</code>, etc. that appear under <code>on:</code>/<code>concurrency:</code>.)</p>
+<p>If any absent job still appears, a deletion in Tasks 2-3 was incomplete.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify nightly.yml job inventory</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-nE<span class="w"> </span><span class="s2">&quot;^  [a-z][a-z-]+:</span>$<span class="s2">&quot;</span><span class="w"> </span>.github/workflows/nightly.yml
+</code></pre></div>
+Expected: <code>windows-smoke:</code>, <code>python-313-migration:</code>, <code>doc-links:</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify matrix produces intended leg counts (YAML lint + manual review)</strong></li>
+</ul>
+<p>Run: <code>uv run yamllint --strict .github/workflows/ci.yml .github/workflows/nightly.yml</code>
+Expected: no errors.</p>
+<p>Manually confirm the strategy block in ci.yml reads:
+- <code>os: [ubuntu-latest, macos-latest]</code> (no windows)
+- <code>python-version</code> conditional: PR → <code>["3.11", "3.12"]</code>, else → <code>["3.11", "3.12", "3.13"]</code>
+- <code>fail-fast: ${{ github.event_name == 'pull_request' }}</code></p>
+<ul>
+<li>[ ] <strong>Step 4: Verify single test step (no dead Windows step)</strong></li>
+</ul>
+<p>Run: <code>grep -c "Run tests (parallel" .github/workflows/ci.yml</code>
+Expected: <code>1</code> (exactly one "Run tests (parallel" step). If <code>2</code>, the Windows step wasn't collapsed.</p>
+<ul>
+<li>[ ] <strong>Step 5: Verify codegen-idempotency git diff covers all paths (perturbation test)</strong></li>
+</ul>
+<p>The merged <code>git diff</code> in <code>codegen-idempotency</code> must catch drift across all 7 paths. Verify by perturbing one generated artifact, confirming the local <code>git diff --exit-code</code> fails, then reverting:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Perturb a committed plugin manifest (one of the 7 paths)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&lt;!-- perturbation --&gt;&quot;</span><span class="w"> </span>&gt;&gt;<span class="w"> </span>.claude-plugin/plugin.json
+<span class="c1"># Run the same diff the CI job runs</span>
+git<span class="w"> </span>diff<span class="w"> </span>--exit-code<span class="w"> </span>--<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/<span class="w"> </span>skills/<span class="w"> </span><span class="se">\</span>
+<span class="w">      </span>.claude-plugin/<span class="w"> </span>.codex-plugin/<span class="w"> </span>.cursor-plugin/<span class="w"> </span>.opencode/
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;exit code: </span><span class="nv">$?</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># Expected: non-zero (drift detected)</span>
+<span class="c1"># Revert</span>
+git<span class="w"> </span>checkout<span class="w"> </span>--<span class="w"> </span>.claude-plugin/plugin.json
+</code></pre></div>
+<p>Expected: the diff exits non-zero (drift detected). If it exits <code>0</code>, a path was dropped from the merged diff — the codegen merge (Task 2) is incomplete.</p>
+<ul>
+<li>[ ] <strong>Step 6: No commit (validation-only task)</strong></li>
+</ul>
+<p>This task produces no code changes. If all checks pass, the implementation is complete. Push and open a PR to validate on real CI.</p>
+<ul>
+<li>[ ] <strong>Step 7: Push and validate on real CI (spec Validation item 1-2)</strong></li>
+</ul>
+<p>After pushing and opening a PR:
+- Confirm the <code>quality</code> job shows exactly <strong>4</strong> matrix legs (not 9).
+- In a separate PR that modifies <code>renovate.json</code>, confirm the <code>Validate Renovate config schema</code> step <strong>runs</strong> (not "skipping").</p>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>HEAD
+gh<span class="w"> </span>pr<span class="w"> </span>create<span class="w"> </span>--title<span class="w"> </span><span class="s2">&quot;ci: optimize PR CI (matrix shrink, codegen merge, nightly)&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--body<span class="w"> </span><span class="s2">&quot;See docs/superpowers/specs/2026-07-09-ci-optimization-design.md&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

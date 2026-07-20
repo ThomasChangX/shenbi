@@ -1,0 +1,2365 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-02-output-validation-and-format-enforcement-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Output Validation and Format Enforcement Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Output Validation and Format Enforcement Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-02-output-validation-and-format-enforcement-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-02-output-validation-and-format-enforcement-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Output Validation and Format Enforcement Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-02-output-validation-and-format-enforcement-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#output-validation-and-format-enforcement-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Output Validation and Format Enforcement Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-add-pre-write-json-validation-with-raw_decode-recovery" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Add Pre-Write JSON Validation with raw_decode() Recovery
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-add-control-character-sanitization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Add Control Character Sanitization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-add-multi-json-concatenation-detection-in-g2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Add Multi-JSON Concatenation Detection in G2
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-create-dedicated-revision-g4-checker-decisionsdoc-schema-json-result-string" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Create Dedicated Revision G4 Checker (DecisionsDoc Schema, JSON Result String)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-ensure-every-revision-route-writes-a-decisionsdoc-compliant-decisions-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Ensure Every Revision Route Writes a DecisionsDoc-Compliant Decisions File
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-add-g4-format-examples-for-retry-feedback-enrichment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Add G4 Format Examples for Retry Feedback Enrichment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-add-verdict-parsing-for-the-two-genuine-gaps-and-verdict" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Add Verdict Parsing for the Two Genuine Gaps (判定 and Verdict:)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="output-validation-and-format-enforcement-implementation-plan">Output Validation and Format Enforcement Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add layered JSON validation defense (pre-write recovery that requires schema + required-field completeness, G2 multi-concatenation detection, control character sanitization), create a dedicated revision G4 checker that works WITHIN the DecisionsDoc schema and returns a JSON result string, enrich G4 retry feedback with format examples, add lenient parsing for the two genuine resonance-verdict gaps (<strong>判定</strong> and Verdict:), and ensure every revision route writes a DecisionsDoc-compliant decisions file.</p>
+<p><strong>Architecture:</strong> Pre-write validation in <code>dispatch_helper.py</code> uses <code>json.JSONDecoder().raw_decode()</code> to recover the dominant corruption pattern — trailing markdown after a single valid JSON object. Recovery is tightened: after truncation, the recovered object must pass <code>DecisionsDoc.model_validate</code> (schema + required-field completeness); otherwise raise rather than persisting a structurally-invalid file. A new <code>g4/chapter_revision.py</code> checker validates the <code>adjustments</code> array (NOT a non-existent <code>changes</code> array) WITHIN the existing <code>DecisionsDoc</code> schema and returns a JSON result string for <code>make_composite_checker</code> compatibility. <code>G4_FORMAT_EXAMPLES</code> dict in <code>chapter_loop.py</code> enriches retry feedback. Resonance G4 verdict matching already accepts both <code>:</code> and <code>：</code> — only the two genuine gaps (<code>**判定**</code> markdown bold and <code>Verdict:</code> English prefix) are added. Guard ordering in <code>_write_parsed_outputs</code>: sanitize → validate JSON → content-size guard → truth file routing → wildcard → safe_write.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, structlog, json, re, pydantic</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Dominant corruption pattern: valid JSON + trailing markdown after a single JSON object (NOT multi-JSON concatenation — that earlier claim was FALSE; no repo file has multiple <code>$schema</code> keys)</li>
+<li>Valid JSON + trailing markdown: Layer 1 truncates to first valid JSON object, then requires schema + required-field completeness before recovering; otherwise raises ValueError</li>
+<li>3+ concatenated JSON objects: Layer 1 extracts first + Layer 2 reports (defensive measure against future retry-loop concatenation; not currently observed)</li>
+<li>Completely invalid JSON: Layer 1 raises ValueError (stops the pipeline rather than persisting corrupt data)</li>
+<li>Revision decisions conform to <code>DecisionsDoc</code> schema (<code>extra="forbid"</code>): use <code>selections</code> and <code>adjustments</code>, NOT a <code>changes</code> array</li>
+<li>Valid spot-fix revision (non-empty <code>adjustments</code>, each rationale &gt;= 20 chars): PASS</li>
+<li>Valid no-op revision (<code>adjustments: []</code> with a <code>selections</code> entry documenting the skip): PASS</li>
+<li>Empty <code>adjustments</code> without a documented skip in <code>selections</code>: HARD FAIL</li>
+<li>Adjustment with rationale &lt; 20 chars: HARD FAIL</li>
+<li>JSON syntax error in revision output: HARD FAIL (caught by g4_decisions)</li>
+<li>5 consecutive resonance audits: retry count &lt;= 1 per chapter</li>
+<li>The two genuine verdict gaps (<code>**判定**</code> markdown bold, <code>Verdict:</code> English prefix) match correctly; the existing regex already accepts both <code>:</code> and <code>：</code></li>
+<li>All 56 chapters have <code>revision-decisions.json</code> conforming to DecisionsDoc schema regardless of route</li>
+<li>0 illegal control characters in any staging or final JSON file</li>
+<li>Regression: <code>just check</code> passes fully</li>
+</ul>
+<hr />
+<h3 id="task-1-add-pre-write-json-validation-with-raw_decode-recovery">Task 1: Add Pre-Write JSON Validation with <code>raw_decode()</code> Recovery</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_write_parsed_outputs</code>, around line 316)
+- Test: <code>tests/unit/pipeline/test_dispatch_helper.py</code> (create if not exists)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: JSON content from LLM output parsing
+- Produces: <code>_validate_json_output(content, path) -&gt; str</code> returning cleaned content, raises ValueError on unrecoverable</p>
+<p><strong>Recovery tightening (from spec §3 Layer 1):</strong> The dominant corruption pattern (61.8% of decisions files) is a valid JSON object followed by trailing markdown — NOT multi-JSON concatenation (the earlier "Ch5 has 35 concatenated JSONs" claim was FALSE; no repo file has multiple <code>$schema</code> keys). Recovery via <code>raw_decode()</code> truncates to the first complete JSON object. After truncation, the recovered object MUST pass schema validation (<code>DecisionsDoc.model_validate</code> for <code>shenbi-decisions-v1</code>) AND required-field completeness before it is accepted — otherwise raise <code>ValueError</code> rather than persisting a structurally-incomplete file. This prevents recovering a truncated-tail object that is missing required fields.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for JSON validation in dispatch_helper.</span>
+
+<span class="sd">The dominant corruption pattern (verified by filesystem audit) is a valid</span>
+<span class="sd">JSON object followed by trailing markdown — NOT multi-JSON concatenation.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_validate_json_output</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_passes_clean_json</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean JSON passes validation unchanged.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">,</span> <span class="s2">&quot;number&quot;</span><span class="p">:</span> <span class="mi">42</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_truncates_trailing_markdown</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dominant pattern: valid JSON + trailing markdown -&gt; truncate to first object.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;key&quot;: &quot;value&quot;}</span><span class="se">\n\n</span><span class="s1">---</span><span class="se">\n</span><span class="s1">**G4 failure summary:**</span><span class="se">\n</span><span class="s1">- Fixed X</span><span class="se">\n</span><span class="s1">&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parsed</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="s2">&quot;G4 failure summary&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_recovers_decisions_with_complete_schema</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A shenbi-decisions-v1 object + trailing markdown passes schema + recovers.&quot;&quot;&quot;</span>
+    <span class="n">valid_decisions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">valid_decisions</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">**两项 G4 失败修复摘要：**</span><span class="se">\n</span><span class="s2">1. 修正转折词。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;chapter-5-decisions.json&quot;</span><span class="p">))</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;$schema&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span>
+    <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span>
+    <span class="k">assert</span> <span class="s2">&quot;G4 失败修复摘要&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_recovers_revision_decisions_adjustments</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A revision decisions object with non-empty adjustments recovers.&quot;&quot;&quot;</span>
+    <span class="n">valid_rev</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">&quot;issue_id&quot;</span><span class="p">:</span> <span class="s2">&quot;resonance.sentiment&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+             <span class="s2">&quot;handling&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span> <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="s2">&quot;Dialogue lacked emotional grounding in scene.&quot;</span><span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">valid_rev</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">Summary text.&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">))</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;adjustments&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;issue_id&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;resonance.sentiment&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_raises_when_recovered_object_missing_required_fields</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Recovery tightened: if the recovered object fails DecisionsDoc schema</span>
+<span class="sd">    (missing required fields), raise rather than persisting an incomplete file.&quot;&quot;&quot;</span>
+    <span class="c1"># Object with trailing markdown but MISSING required fields (no skill/chapter/...)</span>
+    <span class="n">incomplete</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;partial&quot;</span><span class="p">}</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">incomplete</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">tail markdown&quot;</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;schema|incomplete|unrecoverable&quot;</span><span class="p">):</span>
+        <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;chapter-5-decisions.json&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_handles_multiple_concatenated_json_defensively</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Defensive (not the dominant pattern): multiple concatenated JSON objects</span>
+<span class="sd">    extracts only the first, then validates it against schema. If the first</span>
+<span class="sd">    object is not a decisions doc, the non-decisions branch returns it as-is.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;a&quot;:1}</span><span class="se">\n</span><span class="s1">{&quot;b&quot;:2}</span><span class="se">\n</span><span class="s1">{&quot;c&quot;:3}&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">parsed</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="s2">&quot;b&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_raises_on_unrecoverable</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Completely invalid JSON (no recoverable object) raises ValueError.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;not json at all&quot;</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;unrecoverable&quot;</span><span class="p">):</span>
+        <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;test.json&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_validate_json_skips_non_json_files</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Non-JSON files are returned unchanged.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;# Chapter 5</span><span class="se">\n\n</span><span class="s2">## Section 1</span><span class="se">\n</span><span class="s2">Prose content here.&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;chapter-5.md&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">content</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name '_validate_json_output'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Add to <code>src/shenbi/pipeline/dispatch_helper.py</code> (before <code>_write_parsed_outputs</code>). Recovery is tightened: after <code>raw_decode()</code> truncation, a <code>shenbi-decisions-v1</code> object must pass <code>DecisionsDoc.model_validate</code> (schema + required-field completeness) before being accepted; otherwise raise.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate and clean JSON content before writing to disk.</span>
+
+<span class="sd">    Recovery policy (tightened per spec §3 Layer 1):</span>
+<span class="sd">    - Clean JSON parses and is returned unchanged.</span>
+<span class="sd">    - The dominant corruption pattern (valid JSON + trailing markdown) is</span>
+<span class="sd">      recovered via ``json.JSONDecoder().raw_decode()`` (truncates to the</span>
+<span class="sd">      first complete JSON object).</span>
+<span class="sd">    - After truncation, if the recovered object declares</span>
+<span class="sd">      ``$schema == &quot;shenbi-decisions-v1&quot;`` it MUST pass</span>
+<span class="sd">      ``DecisionsDoc.model_validate`` (schema + required-field completeness).</span>
+<span class="sd">      A recovered object missing required fields raises ValueError rather</span>
+<span class="sd">      than being persisted (prevents recovering a truncated-tail fragment).</span>
+<span class="sd">    - Non-decisions JSON files (no matching ``$schema``) are returned as-is</span>
+<span class="sd">      after truncation.</span>
+<span class="sd">    - Completely unrecoverable content raises ValueError.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        content: Raw content to validate.</span>
+<span class="sd">        path: Target file path (used to check extension and for error messages).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Cleaned JSON string.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: If content is JSON-typed but unrecoverable, or if a</span>
+<span class="sd">            recovered decisions object fails schema validation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">content</span>
+
+    <span class="c1"># Try strict parse first — fastest path for clean JSON</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">content</span>
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+        <span class="k">pass</span>
+
+    <span class="c1"># Recovery: extract first complete JSON object</span>
+    <span class="n">decoder</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecoder</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">clean_data</span><span class="p">,</span> <span class="n">end_pos</span> <span class="o">=</span> <span class="n">decoder</span><span class="o">.</span><span class="n">raw_decode</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;decisions_json_unrecoverable&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Decisions JSON invalid and unrecoverable for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="c1"># Tightened recovery: a shenbi-decisions-v1 object must pass schema +</span>
+    <span class="c1"># required-field completeness before being accepted. This prevents</span>
+    <span class="c1"># recovering a truncated-tail fragment that is missing required fields.</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">clean_data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">clean_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;$schema&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.schemas.decisions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DecisionsDoc</span>
+            <span class="n">DecisionsDoc</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">clean_data</span><span class="p">)</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">ValidationError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">)</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;decisions_json_recovered_but_schema_incomplete&quot;</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Recovered decisions JSON for </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> failed schema validation &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(missing required fields): </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">&quot;decisions_json_truncated&quot;</span><span class="p">,</span>
+        <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+        <span class="n">original_len</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span>
+        <span class="n">cleaned_len</span><span class="o">=</span><span class="n">end_pos</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">clean_data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+</code></pre></div>
+<p>Then integrate into <code>_write_parsed_outputs</code> at line 316. Before the <code>safe_write(full_path, content)</code> call:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Replace line 316: safe_write(full_path, content)</span>
+<span class="c1"># With:</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">_validate_json_output</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">full_path</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;output_validation_failed&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">))</span>
+    <span class="k">raise</span>  <span class="c1"># Pipeline must stop rather than persist corrupt data</span>
+
+<span class="n">safe_write</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py -v</code>
+Expected: PASS (all 6 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add pre-write JSON validation with raw_decode() recovery&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-add-control-character-sanitization">Task 2: Add Control Character Sanitization</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (add <code>sanitize_json_content()</code>, integrate into <code>_write_parsed_outputs</code>)
+- Test: <code>tests/unit/pipeline/test_dispatch_helper.py</code> (add tests)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Raw JSON content from LLM output
+- Produces: <code>sanitize_json_content(content: str) -&gt; str</code> with illegal control characters removed</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to tests/unit/pipeline/test_dispatch_helper.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">sanitize_json_content</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sanitize_strips_illegal_control_characters</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Removes control characters except \\n, \\r, \\t.&quot;&quot;&quot;</span>
+    <span class="c1"># Build string with illegal control chars</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;key&quot;: &quot;val</span><span class="se">\x00\x01\x02\x08\x0b\x0c\x0e\x1f</span><span class="s1">ue&quot;}&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\x00</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\x01</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\x08</span><span class="s2">&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;value&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sanitize_preserves_legal_control_characters</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Preserves \\n, \\r, \\t which are valid in JSON strings.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;text&quot;: &quot;line1</span><span class="se">\\</span><span class="s1">nline2</span><span class="se">\\</span><span class="s1">r</span><span class="se">\\</span><span class="s1">n</span><span class="se">\\</span><span class="s1">tindented&quot;}&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">n&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">r&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;</span><span class="se">\\</span><span class="s2">t&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sanitize_handles_clean_input</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Clean input is returned unchanged.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;key&quot;: &quot;value&quot;}&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="n">content</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_sanitize_handles_chinese_characters</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Chinese characters are preserved.&quot;&quot;&quot;</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s1">&#39;{&quot;name&quot;: &quot;林烽&quot;, &quot;status&quot;: &quot;在场&quot;}&#39;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;林烽&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;在场&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py::test_sanitize_strips_illegal_control_characters -v</code>
+Expected: FAIL (ImportError: sanitize_json_content not defined)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Add to <code>src/shenbi/pipeline/dispatch_helper.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_re</span>
+
+<span class="c1"># Regex matching control characters EXCEPT newline (\n), carriage return (\r),</span>
+<span class="c1"># and tab (\t) which are valid in JSON strings when properly escaped.</span>
+<span class="n">_ILLEGAL_CTRL_RE</span> <span class="o">=</span> <span class="n">_re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[\x00-\x08\x0b\x0c\x0e-\x1f]&#39;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove illegal control characters from JSON content.</span>
+
+<span class="sd">    JSON spec (RFC 8259) only permits specific control characters</span>
+<span class="sd">    (``\\n``, ``\\r``, ``\\t``) within strings. All other control</span>
+<span class="sd">    characters in the range ``0x00-0x1F`` are stripped before write.</span>
+
+<span class="sd">    This applies to both staging and final paths equally.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        content: Raw JSON string to sanitize.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        Sanitized string with illegal control characters removed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_ILLEGAL_CTRL_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<p>Then integrate into <code>_write_parsed_outputs</code>. Sanitize BEFORE validation (control characters can break JSON parsing), following the cross-spec guard ordering.</p>
+<p><strong>Guard ordering in <code>_write_parsed_outputs</code> (defined across Specs 1/2/3/9 — the order MUST be):</strong></p>
+<ol>
+<li><strong>Sanitize</strong> control characters (this task, Spec 2 Layer 3) — strips illegal control chars that would break the JSON parse in step 2</li>
+<li><strong>Validate JSON</strong> + recover (Task 1 of this plan, Spec 2 Layer 1) — <code>raw_decode()</code> recovery + schema completeness check</li>
+<li><strong>Content-size guard</strong> for chapter files (Spec 3 §3.2) — refuse writes &lt; 20% of original chapter prose</li>
+<li><strong>Truth file mode routing</strong> via <code>write_truth_file</code> (Spec 1 §3.2) — upsert instead of overwrite for cumulative files</li>
+<li><strong>Wildcard write-path resolution</strong> (Spec 9 §3.2.1)</li>
+<li><strong><code>safe_write</code></strong> call (original)</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># In _write_parsed_outputs, BEFORE the _validate_json_output call:</span>
+<span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">suffix</span> <span class="o">==</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">sanitize_json_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<p>Because sanitization runs before validation, <code>_validate_json_output</code> sees clean content. (Task 1's <code>_validate_json_output</code> integration call and <code>safe_write</code> remain in their positions relative to this new sanitize line — sanitize is the first guard, validate is the second.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py -v -k "sanitize or validate"</code>
+Expected: PASS (all sanitize and validate tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add control character sanitization for JSON outputs&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-add-multi-json-concatenation-detection-in-g2">Task 3: Add Multi-JSON Concatenation Detection in G2</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g2.py</code> (add G2.dec.4 check, around line 85-90)
+- Test: <code>tests/unit/gates/test_g2.py</code> (add test for new check)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: JSON file content during G2 gate check
+- Produces: <code>G2.dec.4</code> failure when multiple <code>"$schema"</code> keys found</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to tests/unit/gates/test_g2.py (create if not exists)</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g2</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_g2_dec4_detects_concatenated_json</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G2.dec.4 fails when multiple JSON objects exist in one file.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="c1"># Create a file with two concatenated decision JSONs</span>
+        <span class="n">decisions_json</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;chapter-5-decisions.json&quot;</span>
+        <span class="n">obj1</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span> <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-drafting&quot;</span><span class="p">}</span>
+        <span class="n">obj2</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span> <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-revision&quot;</span><span class="p">}</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj1</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">obj2</span><span class="p">)</span>
+        <span class="n">decisions_json</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">gate_G2</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">decisions_json</span><span class="p">)],</span> <span class="n">file_type</span><span class="o">=</span><span class="s2">&quot;decisions&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;G2.dec.4&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+        <span class="k">assert</span> <span class="s2">&quot;FAIL&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_g2_dec4_passes_single_json</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G2.dec.4 passes when only one JSON object is present.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">decisions_json</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;chapter-5-decisions.json&quot;</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter-drafting&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">decisions_json</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">gate_G2</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">decisions_json</span><span class="p">)],</span> <span class="n">file_type</span><span class="o">=</span><span class="s2">&quot;decisions&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;G2.dec.4&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">or</span> <span class="s2">&quot;PASS&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g2.py::test_g2_dec4_detects_concatenated_json -v</code>
+Expected: FAIL (no G2.dec.4 detected, assertion error)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g2.py</code>, in the <code>gate_G2</code> function, inside the <code>file_type == "decisions"</code> branch, add the G2.dec.4 multi-JSON check <strong>BEFORE</strong> <code>data = json.loads(content)</code>. The check MUST run before <code>json.loads()</code> because concatenated JSON (<code>{"a":1}\n{"b":2}</code>) makes <code>json.loads()</code> raise <code>JSONDecodeError</code> (it does not accept trailing data after the first object), so the check would be unreachable if placed after the parse.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())</span>
+<span class="c1"># (G4 retry feedback can cause LLM to concatenate old + new JSON under</span>
+<span class="c1"># one ### FILE: marker. This catches it early.)</span>
+<span class="c1">#</span>
+<span class="c1"># CRITICAL ORDERING: json.loads() raises JSONDecodeError on concatenated JSON</span>
+<span class="c1"># (&quot;Extra data&quot; error), so this check must execute first. If we placed it</span>
+<span class="c1"># after data = json.loads(content), the line above would raise before the</span>
+<span class="c1"># check is ever reached, making the check dead code.</span>
+<span class="k">if</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;&quot;$schema&quot;&#39;</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G2.dec.4&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;multiple JSON objects concatenated (</span><span class="si">{</span><span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="s1">&#39;$schema&#39;</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">chr</span><span class="p">(</span><span class="mi">34</span><span class="p">))</span><span class="si">}</span><span class="s2"> schemas found)&quot;</span><span class="p">,</span>
+    <span class="p">})</span>
+    <span class="k">continue</span>  <span class="c1"># skip the json.loads() below for this file — it would raise</span>
+
+<span class="c1"># Now safe to parse a (single-object) decisions JSON:</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g2.py::test_g2_dec4_detects_concatenated_json tests/unit/gates/test_g2.py::test_g2_dec4_passes_single_json -v</code>
+Expected: PASS (both tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/gates/test_g2.py<span class="w"> </span>src/shenbi/gates/g2.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add G2.dec.4 multi-JSON concatenation detection&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-create-dedicated-revision-g4-checker-decisionsdoc-schema-json-result-string">Task 4: Create Dedicated Revision G4 Checker (DecisionsDoc Schema, JSON Result String)</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/gates/g4/chapter_revision.py</code>
+- Modify: <code>src/shenbi/gates/g4/generic.py:237</code> (route <code>shenbi-chapter-revision</code> to <code>make_composite_checker(g4_decisions, g4_chapter_revision)</code>)
+- Test: <code>tests/unit/gates/g4/test_chapter_revision.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Revision decisions JSON file paths; the existing <code>DecisionsDoc</code> schema (<code>contracts/schemas/decisions.py:69-83</code>, <code>extra="forbid"</code>)
+- Produces: <code>g4_chapter_revision(fps, rd, project_dir, repo_root) -&gt; str</code> returning a JSON result string for <code>make_composite_checker</code></p>
+<p><strong>Critical schema constraint (from spec §3 G4 Revision Checker Upgrade):</strong> Revision decisions files conform to <code>DecisionsDoc</code> — they have <code>selections</code> and <code>adjustments</code> arrays, NOT a <code>changes</code> array. <code>generic.py:237</code> already routes <code>shenbi-chapter-revision</code> to <code>g4_decisions</code>, so the LLM is told to produce <code>selections</code>/<code>adjustments</code>. The new checker MUST validate revision-specific content WITHIN the existing schema — do NOT invent <code>changes</code>/<code>route</code>/<code>skip_reason</code> fields (they would fail <code>extra="forbid"</code>).</p>
+<p><strong>Return type (from spec §3 Return type correction):</strong> The function returns a JSON result string matching the G4 checker protocol. <code>make_composite_checker</code> (<code>decisions_validator.py:87</code>) calls <code>json.loads(existing_result)</code> and expects <code>{"status": "...", "checks": [...], "must_fix": [...]}</code>. Do NOT return a bare <code>list[str]</code> — that breaks <code>make_composite_checker</code>. Status values: <code>PASS</code> or <code>HARD_FAIL</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for G4 chapter_revision checker.</span>
+
+<span class="sd">Revision decisions conform to DecisionsDoc: selections + adjustments arrays</span>
+<span class="sd">(NOT a changes array). The checker validates adjustment content semantics</span>
+<span class="sd">within that schema and returns a JSON result string for make_composite_checker.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_revision</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_revision</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_json</span><span class="p">(</span><span class="n">tmpdir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">tmpdir</span> <span class="o">/</span> <span class="n">filename</span>
+    <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The checker returns a JSON result string — parse it for assertions.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_valid_spot_fix_revision_passes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spot-fix with non-empty adjustments (each rationale &gt;= 20 chars) passes.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_write_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;issue_id&quot;</span><span class="p">:</span> <span class="s2">&quot;resonance.sentiment&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;handling&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="s2">&quot;Replace parameterized prose with human sensory scene.&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;issue_id&quot;</span><span class="p">:</span> <span class="s2">&quot;resonance.immersion&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;handling&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="s2">&quot;Remove system-term enumeration, add dialogue setup.&quot;</span><span class="p">,</span>
+                <span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_valid_no_op_revision_passes</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;No-op with empty adjustments but a documented skip in selections passes.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_write_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;no_revision_needed&quot;</span><span class="p">,</span> <span class="s2">&quot;selected&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                 <span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;omitted&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_empty_adjustments_without_skip_documentation_fails</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Empty adjustments with no skip selection in selections is HARD FAIL.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_write_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;HARD_FAIL&quot;</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;empty_adjustments&quot;</span> <span class="ow">in</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_adjustment_with_thin_rationale_fails</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;An adjustment whose rationale is &lt; 20 chars is a HARD FAIL.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_write_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;issue_id&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;handling&quot;</span><span class="p">:</span> <span class="s2">&quot;compensate_via_pacing&quot;</span><span class="p">,</span> <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="s2">&quot;too short&quot;</span><span class="p">},</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;HARD_FAIL&quot;</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;thin_rationale&quot;</span> <span class="ow">in</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_invalid_json_fails</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;JSON syntax error in revision output is reported (g4_decisions also catches it).&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">d</span> <span class="o">/</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;{invalid json&quot;</span><span class="p">)</span>
+
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_result</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;HARD_FAIL&quot;</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;invalid_json&quot;</span> <span class="ow">in</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_result_is_json_string_compatible_with_composite_checker</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return value is a JSON string parseable into {status, checks, must_fix}.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">path</span> <span class="o">=</span> <span class="n">_write_json</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span><span class="p">,</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span> <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">})</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_chapter_revision</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)])</span>
+        <span class="c1"># make_composite_checker (decisions_validator.py:87) does json.loads(existing_result)</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">parsed</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">&gt;=</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">,</span> <span class="s2">&quot;must_fix&quot;</span><span class="p">}</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;HARD_FAIL&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_chapter_revision.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError</code> or <code>ImportError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;G4 checker for shenbi-chapter-revision outputs.</span>
+
+<span class="sd">Validates revision-specific content WITHIN the DecisionsDoc schema</span>
+<span class="sd">(selections/adjustments), NOT against a non-existent `changes` array.</span>
+<span class="sd">DecisionsDoc has `extra=&quot;forbid&quot;`, so the checker must not invent fields.</span>
+
+<span class="sd">Returns a JSON result string matching the G4 checker protocol:</span>
+<span class="sd">make_composite_checker (decisions_validator.py:87) does</span>
+<span class="sd">json.loads(existing_result) and expects {&quot;status&quot;, &quot;checks&quot;, &quot;must_fix&quot;}.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Minimum rationale length per adjustment entry (the Adjustment model requires</span>
+<span class="c1"># `rationale` but does not enforce a minimum length).</span>
+<span class="n">_MIN_RATIONALE_LEN</span> <span class="o">=</span> <span class="mi">20</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">g4_chapter_revision</span><span class="p">(</span>
+    <span class="n">fps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">rd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">repo_root</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate revision decisions for content quality within DecisionsDoc.</span>
+
+<span class="sd">    Works WITHIN the existing schema (selections/adjustments). Checks:</span>
+<span class="sd">        - If ``adjustments`` is empty, ``selections`` MUST document a no-op/</span>
+<span class="sd">          skip decision (e.g. target contains &#39;no_revision&#39;/&#39;skip&#39;).</span>
+<span class="sd">        - Each adjustment&#39;s ``rationale`` must be &gt;= 20 characters.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A JSON result string: ``{&quot;status&quot;: &quot;PASS&quot;|&quot;HARD_FAIL&quot;,</span>
+<span class="sd">        &quot;checks&quot;: [...], &quot;must_fix&quot;: [...]}``. This shape is what</span>
+<span class="sd">        ``make_composite_checker`` expects via ``json.loads(existing_result)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">fps</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="s2">&quot;revision&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">p</span><span class="o">.</span><span class="n">suffix</span> <span class="o">!=</span> <span class="s2">&quot;.json&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># Only check revision decisions JSON</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.rev.invalid_json:</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.rev.not_object:</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+
+        <span class="n">adjustments</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;adjustments&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+        <span class="c1"># HARD: if no adjustments, the revision mode must be documented</span>
+        <span class="c1"># in selections (a no-op/skip decision).</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">adjustments</span><span class="p">:</span>
+            <span class="n">selections</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;selections&quot;</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">has_skip_selection</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+                <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span>
+                    <span class="s2">&quot;no_revision&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="s2">&quot;skip&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                    <span class="ow">or</span> <span class="s2">&quot;skip&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;basis&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+                <span class="p">)</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">selections</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_skip_selection</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G4.rev.empty_adjustments_no_skip:</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;revision has zero adjustments and no documented skip reason&quot;</span>
+                <span class="p">)</span>
+
+        <span class="c1"># HARD: each adjustment must have substantive rationale (&gt;= 20 chars)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">adj</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">adjustments</span><span class="p">):</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">adj</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.rev.adjustment_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_not_object:</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                <span class="k">continue</span>
+            <span class="n">rationale</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">adj</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;rationale&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">rationale</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_MIN_RATIONALE_LEN</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G4.rev.adjustment_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">_thin_rationale:</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;rationale must be &gt;= </span><span class="si">{</span><span class="n">_MIN_RATIONALE_LEN</span><span class="si">}</span><span class="s2"> chars, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">rationale</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Return a JSON result string matching the G4 checker protocol.</span>
+    <span class="c1"># make_composite_checker (decisions_validator.py:87) does</span>
+    <span class="c1"># json.loads(existing_result) and expects {&quot;status&quot;,&quot;checks&quot;,&quot;must_fix&quot;}.</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">issues</span> <span class="k">else</span> <span class="s2">&quot;HARD_FAIL&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="n">issues</span><span class="p">,</span>
+        <span class="s2">&quot;must_fix&quot;</span><span class="p">:</span> <span class="n">issues</span><span class="p">,</span>
+    <span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</code></pre></div>
+<p>Then integrate in <code>src/shenbi/gates/g4/generic.py:237</code>. The existing routing sends <code>shenbi-chapter-revision</code> to <code>g4_decisions</code> only. Replace it with a composite checker so BOTH the JSON syntax/schema check AND the revision-content check run:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In generic.py around line 237, where skill -&gt; checker routing is defined:</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.decisions_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">make_composite_checker</span><span class="p">,</span> <span class="n">g4_decisions</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_revision</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_chapter_revision</span>
+
+<span class="c1"># Route shenbi-chapter-revision to BOTH the schema check and the revision-</span>
+<span class="c1"># content check. make_composite_checker partitions files by extension and</span>
+<span class="c1"># merges the JSON result strings from both checkers.</span>
+<span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">:</span> <span class="n">make_composite_checker</span><span class="p">(</span><span class="n">g4_decisions</span><span class="p">,</span> <span class="n">g4_chapter_revision</span><span class="p">),</span>
+</code></pre></div>
+<p>(Adjust the exact routing-table syntax to match what <code>grep</code> finds in <code>generic.py</code> at execution time. The key requirement: <code>shenbi-chapter-revision</code> runs both <code>g4_decisions</code> and <code>g4_chapter_revision</code>, and the composite result is what the pipeline consumes.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_chapter_revision.py -v</code>
+Expected: PASS (all 6 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/gates/g4/test_chapter_revision.py<span class="w"> </span>src/shenbi/gates/g4/chapter_revision.py<span class="w"> </span>src/shenbi/gates/g4/generic.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add G4 revision checker (DecisionsDoc adjustments, JSON result string)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-ensure-every-revision-route-writes-a-decisionsdoc-compliant-decisions-file">Task 5: Ensure Every Revision Route Writes a DecisionsDoc-Compliant Decisions File</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (revision step success handler, around line 1243-1286 — NOT line 1438 which is the resonance path)
+- Test: <code>tests/unit/pipeline/test_revision_decisions_fallback.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Revision step completion status
+- Produces: Minimal <code>revision-decisions.json</code> written for no-revision routes, conforming to <code>DecisionsDoc</code></p>
+<p><strong>Critical schema constraint (from spec §3 Ensure Every Revision Route):</strong> The fallback file MUST conform to <code>DecisionsDoc</code> (<code>extra="forbid"</code>) — fields <code>$schema</code>, <code>skill</code>, <code>chapter</code>, <code>selections</code>, <code>adjustments</code>, <code>produced_at</code>. It must NOT use <code>route</code>/<code>changes</code>/<code>rationale</code> keys that would fail <code>g4_decisions</code> validation. The integration point is the revision step success handler (~line 1243-1286, the <code>if "chapter-revision" in step.skill:</code> block), NOT line 1438 (that is the resonance path).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for revision decisions fallback generation.</span>
+
+<span class="sd">The fallback must conform to DecisionsDoc (extra=&quot;forbid&quot;): $schema, skill,</span>
+<span class="sd">chapter, selections, adjustments, produced_at. It must NOT use route/changes/</span>
+<span class="sd">rationale keys.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">tempfile</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_ensure_revision_decisions_exists</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fallback_generates_decisionsdoc_compliant_file_when_missing</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Missing revision-decisions.json -&gt; fallback writes a DecisionsDoc file.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">chapters_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="n">chapters_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">_ensure_revision_decisions_exists</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">rev_path</span> <span class="o">=</span> <span class="n">chapters_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span>
+        <span class="k">assert</span> <span class="n">rev_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rev_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="c1"># DecisionsDoc required fields</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;$schema&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;skill&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;adjustments&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="s2">&quot;produced_at&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="c1"># The skip decision is documented in selections, not a `route` key</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;selections&quot;</span><span class="p">],</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="s2">&quot;no_revision&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;target&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+            <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;selections&quot;</span><span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="c1"># Must NOT contain forbidden keys</span>
+        <span class="k">assert</span> <span class="s2">&quot;route&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="k">assert</span> <span class="s2">&quot;changes&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span>
+        <span class="k">assert</span> <span class="s2">&quot;rationale&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fallback_does_not_overwrite_existing</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;If revision decisions already exist, fallback does nothing.&quot;&quot;&quot;</span>
+    <span class="k">with</span> <span class="n">tempfile</span><span class="o">.</span><span class="n">TemporaryDirectory</span><span class="p">()</span> <span class="k">as</span> <span class="n">tmp</span><span class="p">:</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span>
+        <span class="n">chapters_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="n">chapters_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">existing</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+            <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="p">{</span><span class="s2">&quot;issue_id&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;high&quot;</span><span class="p">,</span>
+                 <span class="s2">&quot;handling&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span> <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="s2">&quot;Fix the dialogue pacing in scene.&quot;</span><span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-07-19T00:00:00+00:00&quot;</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">rev_path</span> <span class="o">=</span> <span class="n">chapters_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-5-revision-decisions.json&quot;</span>
+        <span class="n">rev_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">existing</span><span class="p">))</span>
+
+        <span class="n">_ensure_revision_decisions_exists</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+        <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">rev_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="c1"># Not overwritten — still has the non-empty adjustments</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">[</span><span class="s2">&quot;adjustments&quot;</span><span class="p">])</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_fallback_only_creates_when_revision_was_routed</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Fallback only creates when revision routing was recorded in state.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_is_revision_routed</span>
+    <span class="k">assert</span> <span class="n">_is_revision_routed</span><span class="p">(</span><span class="n">route</span><span class="o">=</span><span class="s2">&quot;no_revision&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">_is_revision_routed</span><span class="p">(</span><span class="n">route</span><span class="o">=</span><span class="s2">&quot;spot_fix&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">_is_revision_routed</span><span class="p">(</span><span class="n">route</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_revision_decisions_fallback.py -v</code>
+Expected: FAIL (ImportError)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Add to <code>src/shenbi/pipeline/chapter_loop.py</code>. The minimal file conforms to <code>DecisionsDoc</code> (<code>extra="forbid"</code>): <code>$schema</code>, <code>skill</code>, <code>chapter</code>, <code>selections</code>, <code>adjustments</code>, <code>produced_at</code> — NOT <code>route</code>/<code>changes</code>/<code>rationale</code>.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_is_revision_routed</span><span class="p">(</span><span class="n">route</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if a revision route was actually assigned.</span>
+
+<span class="sd">    Returns True for any non-None route, including &#39;no_revision&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">route</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_ensure_revision_decisions_exists</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">log</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a minimal revision decisions file if one does not exist.</span>
+
+<span class="sd">    The file conforms to DecisionsDoc (extra=&quot;forbid&quot;): $schema, skill,</span>
+<span class="sd">    chapter, selections, adjustments, produced_at. The skip decision is</span>
+<span class="sd">    documented in `selections` (not a `route` key). This ensures every</span>
+<span class="sd">    chapter routed through revision (including no-revision) produces an</span>
+<span class="sd">    audit-trail artifact.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_dir: Root directory of the novel project.</span>
+<span class="sd">        chapter: Chapter number.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rev_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-revision-decisions.json&quot;</span>
+    <span class="k">if</span> <span class="n">rev_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">ch_state</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapters</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">))</span>
+        <span class="n">route</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ch_state</span><span class="p">,</span> <span class="s2">&quot;revision_route&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">ch_state</span> <span class="k">else</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_is_revision_routed</span><span class="p">(</span><span class="n">route</span><span class="p">):</span>
+            <span class="k">return</span>  <span class="c1"># Chapter was never routed through revision</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">min_decisions</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;$schema&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+        <span class="s2">&quot;selections&quot;</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;target&quot;</span><span class="p">:</span> <span class="s2">&quot;no_revision_needed&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;selected&quot;</span><span class="p">:</span> <span class="p">[],</span>
+                <span class="s2">&quot;basis&quot;</span><span class="p">:</span> <span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;low&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;omitted&quot;</span><span class="p">:</span> <span class="p">[],</span>
+            <span class="p">}</span>
+        <span class="p">],</span>
+        <span class="s2">&quot;adjustments&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># empty = no changes made</span>
+        <span class="s2">&quot;produced_at&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(),</span>
+    <span class="p">}</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">rev_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">min_decisions</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">log</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;revision_decisions_fallback_written&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p>Then integrate into the revision step success handler (around line 1243-1286 in <code>chapter_loop.py</code>, in the <code>if "chapter-revision" in step.skill:</code> block — NOT at line 1438 which is the resonance path):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In the revision step success handler, after the revision step concludes:</span>
+<span class="n">_ensure_revision_decisions_exists</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">state</span><span class="p">,</span> <span class="n">log</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_revision_decisions_fallback.py -v</code>
+Expected: PASS (all 3 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_revision_decisions_fallback.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: ensure every revision route writes a DecisionsDoc-compliant decisions file&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-add-g4-format-examples-for-retry-feedback-enrichment">Task 6: Add G4 Format Examples for Retry Feedback Enrichment</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (add <code>G4_FORMAT_EXAMPLES</code> dict and <code>_enrich_g4_feedback()</code>)
+- Test: <code>tests/unit/pipeline/test_g4_feedback.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: G4 failure list strings (check IDs)
+- Produces: <code>_enrich_g4_feedback(failures: list[str]) -&gt; str</code> with format examples appended</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for enriched G4 retry feedback.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_enrich_g4_feedback</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_enrich_adds_format_example_for_known_check</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Known check IDs get format example appended.&quot;&quot;&quot;</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;G4.rr.verdict:chapter-1-resonance.md:no_valid_verdict&quot;</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;校准门判定&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;判定: 通过&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;G4.rr.verdict&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_enrich_adds_detail_table_example</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.rr.detail_table gets the scoring table format example.&quot;&quot;&quot;</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;G4.rr.detail_table:chapter-2-resonance.md:missing_[&#39;裁判理由&#39;]&quot;</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;评分明细表格式&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_enrich_adds_evidence_example</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.rr.evidence gets the file:line reference example.&quot;&quot;&quot;</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;G4.rr.evidence:chapter-3-resonance.md:no_file_line_ref&quot;</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;chapter-N.md L45-52&quot;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">or</span> <span class="s2">&quot;文件和行号&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_enrich_handles_unknown_checks</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Unknown check IDs get generic feedback without format examples.&quot;&quot;&quot;</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;G4.unknown_check:file.md:some_issue&quot;</span><span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;G4.unknown_check&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="c1"># Should not crash or add examples for unknown checks</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_enrich_handles_multiple_failures</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multiple failures all get documented with their examples.&quot;&quot;&quot;</span>
+    <span class="n">failures</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;G4.rr.verdict:ch1-res.md:no_valid_verdict&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;G4.rr.evidence:ch1-res.md:no_file_line_ref&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="s2">&quot;校准门判定&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="s2">&quot;文件和行号&quot;</span> <span class="ow">in</span> <span class="n">result</span> <span class="ow">or</span> <span class="s2">&quot;chapter-N.md&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_g4_feedback.py -v</code>
+Expected: FAIL (ImportError: _enrich_g4_feedback not defined)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Add to <code>src/shenbi/pipeline/chapter_loop.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Format examples mapped to G4 check ID prefixes (used for retry feedback)</span>
+<span class="n">G4_FORMAT_EXAMPLES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;G4.rr.detail_table&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;评分明细表格式：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 维度 | 得分 | 满分 | 置信度 | 证据 | 裁判理由 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|------|------|------|--------|------|----------|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 情感落地 | 25 | 30 | 高 | chapter-N.md L45-52 &gt; </span><span class="se">\&quot;</span><span class="s2">...</span><span class="se">\&quot;</span><span class="s2"> | ... |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;注意：六列必须完整，不可缺列。&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;G4.rr.verdict&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;校准门判定必须包含以下行：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;判定: 通过    （或：判定: 阻断  / 判定: 待人机复核）</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;注意：&#39;判定: &#39; 后必须有空格，且必须使用中文冒号&quot;</span>
+    <span class="p">),</span>
+    <span class="s2">&quot;G4.rr.evidence&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;证据列每行必须包含文件和行号引用，格式：</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;chapter-N.md L45-52 &gt; </span><span class="se">\&quot;</span><span class="s2">引用原文</span><span class="se">\&quot;\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;至少一行包含 Lnn 或 line nn 格式的行号引用。&quot;</span>
+    <span class="p">),</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_enrich_g4_feedback</span><span class="p">(</span><span class="n">failures</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build enriched retry feedback with format examples for each failed check.</span>
+
+<span class="sd">    For each failure in ``failures``, extracts the check ID prefix and</span>
+<span class="sd">    appends the corresponding format example from ``G4_FORMAT_EXAMPLES``.</span>
+<span class="sd">    Failures without a known check ID receive generic retry guidance.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        failures: List of G4 failure strings (e.g., &quot;G4.rr.verdict:file.md:reason&quot;).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        A formatted feedback string suitable for inclusion in retry prompts.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;以下 G4 检查失败，请按指定格式修正：&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">failures</span><span class="p">:</span>
+        <span class="c1"># Extract check ID prefix (e.g., &quot;G4.rr.verdict&quot; from &quot;G4.rr.verdict:file:reason&quot;)</span>
+        <span class="n">check_prefix</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">f</span> <span class="k">else</span> <span class="n">f</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **</span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">**&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">check_prefix</span> <span class="ow">in</span> <span class="n">G4_FORMAT_EXAMPLES</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  期望格式：&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">fmt_line</span> <span class="ow">in</span> <span class="n">G4_FORMAT_EXAMPLES</span><span class="p">[</span><span class="n">check_prefix</span><span class="p">]</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">):</span>
+                <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  </span><span class="si">{</span><span class="n">fmt_line</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  (请重新生成此检查的输出以达到标准格式)&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+</code></pre></div>
+<p>Then integrate into the retry feedback construction in <code>_handle_failure</code> (around line 383 in <code>chapter_loop.py</code>). Where retry feedback is assembled:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In _handle_failure, when building retry feedback for G4 failures:</span>
+<span class="k">if</span> <span class="n">g4_failures</span><span class="p">:</span>
+    <span class="n">enriched</span> <span class="o">=</span> <span class="n">_enrich_g4_feedback</span><span class="p">(</span><span class="n">g4_failures</span><span class="p">)</span>
+    <span class="c1"># Use enriched instead of bare failure list in the retry prompt</span>
+    <span class="n">retry_context</span> <span class="o">=</span> <span class="n">enriched</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_g4_feedback.py -v</code>
+Expected: PASS (all 5 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_g4_feedback.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add G4 format examples for enriched retry feedback&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-add-verdict-parsing-for-the-two-genuine-gaps-and-verdict">Task 7: Add Verdict Parsing for the Two Genuine Gaps (<strong>判定</strong> and Verdict:)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/review_resonance.py</code> (around line 64, verdict matching)
+- Test: <code>tests/unit/gates/g4/test_review_resonance.py</code> (add supplement-pattern tests)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Resonance audit report content
+- Produces: <code>_match_verdict(text)</code> that tries the existing pattern first, then the two genuine gap patterns</p>
+<p><strong>What is and is NOT a gap (from spec §3 Add Lenient Parsing):</strong> The existing regex at <code>review_resonance.py:64</code> is <code>r'判定\s*[:：]\s*(\S+)'</code> — it ALREADY accepts both half-width <code>:</code> and full-width <code>：</code> with optional whitespace, matches any non-whitespace token (validated against <code>_VERDICTS</code>), and is NOT anchored. So <code>判定: 通过</code>, <code>判定：阻断</code>, <code>判定:通过</code> (no space), and <code>## 判定：通过</code> (heading prefix) ALL already match. Only TWO genuine gaps remain:
+1. <code>**判定**: 通过</code> — markdown bold wrapping (<code>**</code> breaks the <code>判定</code> prefix match)
+2. <code>Verdict: PASS</code> — English verdict prefix (<code>判定</code> is not in the string)</p>
+<p>Do NOT add patterns for the colon variant or no-space variant — they already work. Adding them would be redundant and misrepresents the existing code.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to tests/unit/gates/g4/test_review_resonance.py</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.review_resonance</span><span class="w"> </span><span class="kn">import</span> <span class="n">_match_verdict</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_standard_already_handled</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The existing pattern already matches the standard format.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;判定: 通过&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;通过&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_full_width_colon_already_handled</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Full-width colon is already accepted by the existing regex.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;判定：阻断&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;阻断&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_no_space_already_handled</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;No space after colon is already accepted (\\s* is optional).&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;判定:通过&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;通过&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_bold_format_is_the_genuine_gap</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Genuine gap 1: &#39;**判定**: 通过&#39; (markdown bold) needs a supplement pattern.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;**判定**: 通过&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;通过&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;**判定**：阻断&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;阻断&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_english_prefix_is_the_genuine_gap</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Genuine gap 2: &#39;Verdict: &lt;token&gt;&#39; (English prefix) needs a supplement pattern.</span>
+
+<span class="sd">    The token is validated against the Chinese verdict set, so an English PASS</span>
+<span class="sd">    returns None (not in 通过/阻断/待人机复核). But a Verdict: line carrying a</span>
+<span class="sd">    Chinese verdict token should match.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># English prefix + Chinese verdict token -&gt; matches the token</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;Verdict: 通过&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;通过&quot;</span>
+    <span class="c1"># English prefix + English token not in verdict set -&gt; None</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;Verdict: PASS&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_match_verdict_none_for_invalid</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Invalid verdict returns None.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;判定: maybe&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="s2">&quot;something else entirely&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_review_resonance.py::test_match_verdict_bold_format_is_the_genuine_gap -v</code>
+Expected: FAIL (ImportError: <code>_match_verdict</code> not defined, or the bold/English cases are not matched by the existing single regex)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g4/review_resonance.py</code>, add a helper that tries the EXISTING pattern first (so all already-handled variants keep working unchanged), then falls back to the TWO genuine gap patterns only.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">_re</span>
+
+<span class="c1"># The existing pattern (review_resonance.py:64) already handles:</span>
+<span class="c1">#   - half-width : and full-width ：</span>
+<span class="c1">#   - optional whitespace (\s*)</span>
+<span class="c1">#   - any non-whitespace token (validated against _VERDICTS downstream)</span>
+<span class="c1">#   - not anchored (## 判定：通过 heading-style also matches)</span>
+<span class="n">_EXISTING_VERDICT_RE</span> <span class="o">=</span> <span class="n">_re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;判定\s*[:：]\s*(\S+)&quot;</span><span class="p">)</span>
+
+<span class="c1"># Only TWO genuine gaps remain (verified by testing the existing regex):</span>
+<span class="c1">#   1. **判定**: 通过  (markdown bold wrapping breaks the 判定 prefix match)</span>
+<span class="c1">#   2. Verdict: &lt;token&gt;  (English verdict prefix)</span>
+<span class="n">_GAP_VERDICT_PATTERNS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="n">_re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\*\*判定\*\*\s*[:：]\s*(\S+)&quot;</span><span class="p">),</span>   <span class="c1"># markdown bold</span>
+    <span class="n">_re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Verdict\s*[:：]\s*(\S+)&quot;</span><span class="p">),</span>        <span class="c1"># English prefix</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_match_verdict</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Match a resonance verdict token, trying the existing pattern first.</span>
+
+<span class="sd">    The existing regex already covers the colon/full-width/no-space/heading</span>
+<span class="sd">    variants. This helper adds ONLY the two genuine gaps: markdown bold</span>
+<span class="sd">    (``**判定**``) and English prefix (``Verdict:``). The matched token is</span>
+<span class="sd">    returned as-is; membership validation against the verdict set is the</span>
+<span class="sd">    caller&#39;s responsibility (preserving the existing behavior).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        text: Text content of the resonance report.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        The matched verdict token string, or ``None``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">match</span> <span class="o">=</span> <span class="n">_EXISTING_VERDICT_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">pattern</span> <span class="ow">in</span> <span class="n">_GAP_VERDICT_PATTERNS</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">pattern</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Then update the verdict matching in <code>g4_review_resonance</code> (around line 64) to call <code>_match_verdict</code>, keeping the downstream <code>_VERDICTS</code> membership check so a non-verdict token still yields no verdict:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Replace the existing verdict extraction (around line 62-69):</span>
+<span class="c1"># Old:</span>
+<span class="c1">#     verdict_match = re.search(r&quot;判定\s*[:：]\s*(\S+)&quot;, content)</span>
+<span class="c1">#     if verdict_match:</span>
+<span class="c1">#         for v in _VERDICTS:</span>
+<span class="c1">#             if verdict_match.group(1).startswith(v):</span>
+<span class="c1">#                 verdict = v</span>
+<span class="c1">#                 break</span>
+<span class="c1"># New: reuse _match_verdict (which tries existing pattern + the 2 gaps),</span>
+<span class="c1"># then keep the existing _VERDICTS membership check.</span>
+<span class="n">verdict_token</span> <span class="o">=</span> <span class="n">_match_verdict</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">verdict_token</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_VERDICTS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">verdict_token</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">v</span><span class="p">):</span>
+            <span class="n">verdict</span> <span class="o">=</span> <span class="n">v</span>
+            <span class="k">break</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_review_resonance.py -v</code>
+Expected: PASS (all verdict tests, including the bold and English-prefix gaps)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/gates/g4/test_review_resonance.py<span class="w"> </span>src/shenbi/gates/g4/review_resonance.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: match the two genuine verdict gaps (**判定** and Verdict:) in resonance G4&quot;</span>
+</code></pre></div>
+<hr />
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

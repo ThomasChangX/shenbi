@@ -1,0 +1,2664 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-07-clean-context-handoff-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Clean-Context Handoff — Decisions-Sidecar + Field-Level Reads - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Clean-Context Handoff — Decisions-Sidecar + Field-Level Reads - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-07-clean-context-handoff-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-07-clean-context-handoff-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Clean-Context Handoff — Decisions-Sidecar + Field-Level Reads - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-07-clean-context-handoff-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#clean-context-handoff-decisions-sidecar-field-level-reads" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Clean-Context Handoff — Decisions-Sidecar + Field-Level Reads
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Non-Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#industry-best-practice-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Industry Best Practice Alignment
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Industry Best Practice Alignment">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#anthropic-how-we-built-our-multi-agent-research-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anthropic — "How we built our multi-agent research system"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#langchain-handoffs-documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        LangChain — "Handoffs" documentation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#approach" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Approach
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layer-a-decisions-sidecar-artifact" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer A: Decisions-Sidecar Artifact
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer A: Decisions-Sidecar Artifact">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a1-role-based-grading" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.1 Role-Based Grading
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a2-unified-decisions-schema-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.2 Unified Decisions Schema (v1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a3-p25-optimization-rationale-on-anomaly-high-stakes-escape-hatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.3 P2.5 Optimization: Rationale on Anomaly + High-Stakes Escape Hatch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a4-enum-definitions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.4 Enum Definitions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a5-per-skill-decisions-content" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.5 Per-Skill Decisions Content
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a6-downstream-consumption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A.6 Downstream Consumption
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#layer-b-field-level-reads-contract" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Layer B: Field-Level Reads Contract
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Layer B: Field-Level Reads Contract">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#b1-mechanism-existing-storage-new-filtering" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B.1 Mechanism (Existing Storage + New Filtering)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b2-scope-12-skills-two-batches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B.2 Scope (12 Skills, Two Batches)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b3-field-naming-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B.3 Field Naming Convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b4-g1-soft-check-non-blocking-pre-filter-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B.4 G1 Soft Check (Non-Blocking, Pre-Filter Validation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b5-ci-lint-contract-fields-vs-truth-file-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B.5 CI Lint: Contract Fields vs Truth File Consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#consistency-modifications-to-existing-code" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Consistency Modifications to Existing Code
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Consistency Modifications to Existing Code">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m1m2-truth-filesyaml-registration-two-copies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M1+M2: truth-files.yaml Registration (Two Copies)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m3-derive_file_type-decisions-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M3: derive_file_type Decisions Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m4-g2-decisions-validation-branch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M4: G2 Decisions Validation Branch
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m5-phase_runner-output-discovery-root-cause-fix-replaces-rglob-patch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M5: phase_runner Output Discovery — Root-Cause Fix (Replaces rglob Patch)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m6-dispatch_helper-multi-file-output-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M6: dispatch_helper Multi-File Output Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m7-new-schema-document" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M7: New Schema Document
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#m8-phase_runner-hardcoded-file_type-fix-new-discovered-in-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        M8: phase_runner Hardcoded file_type Fix (NEW — discovered in verification)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#testing-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Testing Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Testing Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#t1-unit-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T1: Unit Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t2-integration-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T2: Integration Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#t3-regression-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        T3: Regression Tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#implementation-phasing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Implementation Phasing
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Implementation Phasing">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-infrastructure-2-ephemeral-skills-3-4-days" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 — Infrastructure + 2 Ephemeral Skills (3-4 days)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-5-natural-language-artifact-skills-2-3-days" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 — 5 Natural-Language Artifact Skills (2-3 days)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-layer-b-field-level-reads-real-filtering-4-5-days" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 — Layer B Field-Level Reads + Real Filtering (4-5 days)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-regression-documentation-2-days" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4 — Regression + Documentation (2 days)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cost-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cost Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Cost Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#one-time-cost" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        One-Time Cost
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#runtime-cost-per-chapter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Runtime Cost (Per Chapter)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risk-register" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk Register
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practice-alignment-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Best Practice Alignment Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#key-decisions-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Key Decisions Log
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-deferred-to-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions (Deferred to Implementation)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="clean-context-handoff-decisions-sidecar-field-level-reads">Clean-Context Handoff — Decisions-Sidecar + Field-Level Reads</h1>
+<p><strong>Date</strong>: 2026-07-07
+<strong>Status</strong>: Approved (design phase, pre-implementation)
+<strong>Scope</strong>: Layer A (decisions-sidecar artifact, 7 skills) + Layer B (field-level reads with real context filtering, 12 skills) + 7 consistency modifications to existing framework code.</p>
+<h2 id="problem">Problem</h2>
+<p>Shenbi's multi-skill architecture is already clean-context at the runtime level — each <code>dispatch_codex</code> call is an independent <code>subprocess.run(["codex", "exec", prompt])</code> with zero cross-dispatch memory state. Every skill's context is rebuilt from files declared in its contract <code>reads</code>, not inherited from a previous agent's "brain."</p>
+<p>However, this clean-context property is <strong>not fully exploited</strong> because intent handoff between skills is incomplete:</p>
+<ol>
+<li>
+<p><strong>Ephemeral skills don't persist their reasoning.</strong> <code>shenbi-context-composing</code> (kind=ephemeral, writes=[]) assembles a layered context package but its curation decisions (which chapters selected, which rules included, why drift was handled a certain way) exist only in the assembled <code>context/chapter-N-context.md</code> as implicit structure. The next skill reads the result but not the intent.</p>
+</li>
+<li>
+<p><strong>Natural-language artifacts lose intent.</strong> When <code>chapter-drafting</code> writes <code>chapters/chapter-N.md</code>, the downstream skills (<code>state-settling</code>, <code>review-*</code>) see the prose but not the decisions behind it (why this opening, why this pacing adjustment, why this foreshadowing placement).</p>
+</li>
+<li>
+<p><strong>Reads are file-level, not field-level.</strong> Contracts declare <code>reads: [truth/audit_drift.md]</code> but don't say which fields matter. Downstream skills must read entire files and guess what to focus on — a context-filtering gap that LangChain's handoff docs explicitly call out as a design decision ("different agents may need different context depending on their role"). The <code>read_fields</code> field is already stored in <code>Contract.read_fields</code> (legacy.py:47) but <strong>never consumed</strong> — <code>_build_skill_prompt</code> (dispatch_helper.py:151) reads plain strings, ignoring <code>read_fields</code> entirely. Layer B closes this gap by implementing real filtering.</p>
+</li>
+</ol>
+<p>This creates a "game of telephone" effect (Anthropic's term): intent degrades at each skill boundary because the handoff artifact carries results but not decisions. Cross-model dispatch amplifies this — a different model reading the same file may interpret the implicit intent differently.</p>
+<h2 id="goals">Goals</h2>
+<ul>
+<li><strong>Fully align with clean-context best practice</strong> (Anthropic multi-agent research system + LangChain handoffs). All skills remain independently dispatchable, zero memory inheritance, cross-model capable.</li>
+<li><strong>Eliminate the game of telephone</strong> by persisting curation/authoring decisions as structured artifacts (decisions-sidecar JSON) that downstream skills read as lightweight references.</li>
+<li><strong>Add field-level context filtering</strong> so downstream skills know which parts of a file to focus on, without reading the entire file blindly. This requires implementing real filtering in <code>_build_skill_prompt</code> (currently <code>read_fields</code> is stored but never consumed).</li>
+<li><strong>Preserve downstream autonomy</strong> — decisions convey "what was selected and on what basis," not "how to think about it." Avoid anchoring downstream agents on upstream reasoning.</li>
+</ul>
+<h2 id="non-goals">Non-Goals</h2>
+<ul>
+<li><strong>Atomic segments / forced same-model.</strong> The previous design iteration proposed Layer C (atomic segments forcing same-model on tightly-coupled skill chains). This is <strong>rejected</strong> — the architecture is already clean-context (each dispatch is a fresh process), so "same model inherits implicit context" is a false premise. Forcing same-model violates clean-context without solving any real problem.</li>
+<li><strong>Reasoning trace persistence.</strong> We persist structured decision summaries, not reasoning chains. Anthropic explicitly warns that raw reasoning traces "confuse the receiving agent" and increase token cost without proportional value.</li>
+<li><strong>Centralized intent log.</strong> A single <code>truth/intent-log.md</code> or <code>decisions.jsonl</code> would violate bounded-context-window design and create concurrent-write conflicts on parallel chapter pipelines. Rejected.</li>
+<li><strong>Embedding decisions in artifact frontmatter.</strong> Putting YAML decisions in <code>chapter.md</code> frontmatter violates the "lightweight reference" principle — the reference should be separate from the artifact it describes.</li>
+</ul>
+<h2 id="industry-best-practice-alignment">Industry Best Practice Alignment</h2>
+<p>This design is grounded in two primary sources:</p>
+<h3 id="anthropic-how-we-built-our-multi-agent-research-system">Anthropic — "How we built our multi-agent research system"</h3>
+<p>Key applicable principles (from the engineering blog post, June 2025):</p>
+<ol>
+<li>
+<p><strong>"Subagent output to a filesystem to minimize the 'game of telephone.'"</strong> Direct subagent outputs should bypass the main coordinator via artifact systems where "specialized agents can create outputs that persist independently." Subagents "pass lightweight references back to the coordinator." This is the foundation of Layer A.</p>
+</li>
+<li>
+<p><strong>"Works particularly well for structured outputs."</strong> The artifact pattern is explicitly scoped to structured outputs (code, reports, data visualizations), not universally applied. This justifies the role-based grading in Section 2.1 — decisions.json is added where it adds value, not everywhere.</p>
+</li>
+<li>
+<p><strong>"Summarize completed work phases and store essential information in external memory."</strong> Handoffs carry summaries, not full reasoning. This shapes the P2.5 optimization (rationale only on manual_override + high-stakes).</p>
+</li>
+<li>
+<p><strong>"Agents can spawn fresh subagents with clean contexts while maintaining continuity through careful handoffs."</strong> Clean-context and continuity are not in tension — continuity comes from persisted artifacts, not memory inheritance. This is the core insight that makes Layer C unnecessary.</p>
+</li>
+</ol>
+<h3 id="langchain-handoffs-documentation">LangChain — "Handoffs" documentation</h3>
+<ol>
+<li>
+<p><strong>"Context filtering strategy: Will each agent receive full conversation history, filtered portions, or summaries?"</strong> This is the foundation of Layer B — field-level reads are the "filtered portions" strategy.</p>
+</li>
+<li>
+<p><strong>"Why not pass all subagent messages? The receiving agent may become confused by irrelevant internal reasoning."</strong> This drives the P2.5 optimization — rationale is only included when it's relevant (manual_override + high-stakes), not for every routine decision.</p>
+</li>
+<li>
+<p><strong>"Different agents may need different context depending on their role."</strong> This justifies role-based grading — review skills don't need decisions.json, drafting skills do.</p>
+</li>
+</ol>
+<h2 id="approach">Approach</h2>
+<p>Two-layer design (Layer C from previous iteration deleted):</p>
+<div class="highlight"><pre><span></span><code>Layer A — Decisions-sidecar artifact
+  Range: 7 skills (2 ephemeral must-do + 5 natural-language artifact must-do)
+  Mechanism: each skill&#39;s writes gains an independent decisions.json
+  Solves: ephemeral handoff amnesia + creative intent loss
+  Aligns: Anthropic &quot;artifact + lightweight reference&quot;
+
+Layer B — Field-level reads contract with real filtering
+  Range: 12 skills (6 high-coupling + 6 medium-coupling)
+  Mechanism: frontmatter reads gains {file, fields} dict-form + _build_skill_prompt
+             consumes read_fields to filter file content before LLM sees it
+  Solves: downstream doesn&#39;t know which fields to focus on (currently reads full files)
+  Aligns: LangChain &quot;context filtering strategy&quot; (filtered portions — now actually implemented)
+</code></pre></div>
+<p>Three core principles:</p>
+<ol>
+<li><strong>Clean-context fully aligned.</strong> All skills remain cross-model capable. Intent travels via artifacts, never via memory or same-model assumption.</li>
+<li><strong>Intent as artifact, not reasoning trace.</strong> decisions.json carries structured decision summaries (enum fields + conditional one-line rationale), never reasoning chains.</li>
+<li><strong>Role-based context filtering.</strong> Different skill roles produce/consume different decisions, per LangChain's guidance.</li>
+</ol>
+<hr />
+<h2 id="layer-a-decisions-sidecar-artifact">Layer A: Decisions-Sidecar Artifact</h2>
+<h3 id="a1-role-based-grading">A.1 Role-Based Grading</h3>
+<p>Per Anthropic's "particularly well for structured outputs" scoping:</p>
+<table>
+<thead>
+<tr>
+<th>Role</th>
+<th>Skills</th>
+<th>Layer A Action</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>ephemeral</strong> (must)</td>
+<td><code>shenbi-context-composing</code>, <code>shenbi-market-radar</code></td>
+<td>kind→artifact + add decisions.json to writes</td>
+<td>No artifact = no reference for downstream = max telephone effect</td>
+</tr>
+<tr>
+<td><strong>natural-language artifact</strong> (must)</td>
+<td><code>shenbi-chapter-drafting</code>, <code>shenbi-chapter-planning</code>, <code>shenbi-chapter-revision</code>, <code>shenbi-state-settling</code>, <code>shenbi-short-drafting</code></td>
+<td>add decisions.json to writes (kind stays artifact)</td>
+<td>Artifact is result but intent ("why written this way") is lost; decisions lets downstream see intent</td>
+</tr>
+<tr>
+<td><strong>structured artifact</strong> (skip)</td>
+<td><code>shenbi-genre-config</code>, <code>shenbi-book-spine-init</code>, <code>shenbi-score-*</code></td>
+<td>no change</td>
+<td>Artifact is already structured output; reference is sufficient</td>
+</tr>
+<tr>
+<td><strong>review/report</strong> (skip)</td>
+<td>all <code>shenbi-review-*</code></td>
+<td>no change</td>
+<td>Output is itself evaluation; no downstream intent to propagate</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total: 7 skills modified.</strong></p>
+<h3 id="a2-unified-decisions-schema-v1">A.2 Unified Decisions Schema (v1)</h3>
+<p>All skills share one schema; role-specific fields are optional:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;$schema&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;skill&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi-context-composing&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;chapter&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;produced_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-07T12:00:00Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;selections&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;truth/chapter_summaries.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;ch1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ch2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ch3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ch4&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;basis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;adjacent_to_target_chapter&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;low&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;omitted&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;truth/arcs/arc-N.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;arc_climax_beat&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;basis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;high&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;本章是高潮兑现点，arc_climax_beat 必须兑现&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;target&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;selected&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;rule_2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rule_4&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;basis&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;manual_override&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;omitted&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;rule_1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rule_3&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;rule_5&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rule_5 与本章 POV 冲突，故排除&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;adjustments&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;issue_id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drift_003&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;severity&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;medium&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;handling&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;compensate_via_pacing&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;rationale&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;drift 已由 plan 的慢节奏吸收&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;budget&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;context_tokens_estimate&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8500</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;limit&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">12000</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;trim_applied&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;none&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="a3-p25-optimization-rationale-on-anomaly-high-stakes-escape-hatch">A.3 P2.5 Optimization: Rationale on Anomaly + High-Stakes Escape Hatch</h3>
+<p><strong>Core insight</strong>: routine decisions don't need explanation — only deviations from routine do. Anthropic warns about "irrelevant internal reasoning"; routine-decision rationale is exactly that.</p>
+<p><strong>Rule</strong>: <code>rationale</code> field is:
+- <strong>Forbidden</strong> when <code>basis</code> is a routine enum (<code>adjacent_to_target_chapter</code>, <code>arc_relevance</code>, <code>volume_scope</code>) <strong>AND</strong> <code>severity</code> is not <code>high</code>
+- <strong>Required</strong> when <code>basis == manual_override</code>
+- <strong>Required</strong> when <code>severity == high</code> (regardless of basis — high-stakes routine decisions carry intent worth transmitting)
+- <strong>Always required</strong> in <code>adjustments[]</code> (drift handling is inherently anomalous)</p>
+<p><strong>P2.5 escape hatch</strong>: some routine decisions are high-stakes (e.g., selecting the climax chapter under <code>basis: arc_relevance</code>). Forcing these to be rationale-free would lose intent exactly where it matters most. The optional <code>severity: high</code> flag lets the skill author mark these decisions as requiring rationale, without breaking the "compress routine anchoring" principle for the 90% of low-stakes routine decisions.</p>
+<p><strong>Effect</strong>:
+- ~90% of selections are routine + low-stakes → zero rationale → zero anchoring
+- ~5% manual_override → rationale present → downstream knows it's an exception
+- ~5% high-stakes routine (<code>severity: high</code>) → rationale present → downstream knows to pay attention
+- Token cost: decisions.json shrinks from ~400-500 token to ~220-320 token average (slightly above P2's ~200-300 due to high-stakes rationale inclusion)</p>
+<p><strong>Why this beats alternatives</strong> (evaluated in design phase):
+- P1 (cut rationale entirely): loses intent on anomalies — over-compressed
+- P2 (rationale only on manual_override, no severity): misses high-stakes routine decisions (e.g., climax chapter selection) — blind spot
+- P3 (separate rationale audit file): file count bloat, "don't read by default" is a soft convention — over-engineered
+- P4 (structured rationale): schema complexity not worth it — over-designed
+- P5 (downstream declares not-reading rationale): fields are soft constraint, LLM still sees full file — weak enforcement</p>
+<h3 id="a4-enum-definitions">A.4 Enum Definitions</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g4/_decisions_schema.py (new)</span>
+
+<span class="n">DECISIONS_SCHEMA_VERSION</span> <span class="o">=</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span>
+
+<span class="n">VALID_BASIS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;adjacent_to_target_chapter&quot;</span><span class="p">,</span>  <span class="c1"># routine: chapters near target</span>
+    <span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span>               <span class="c1"># routine: related to current arc</span>
+    <span class="s2">&quot;volume_scope&quot;</span><span class="p">,</span>                <span class="c1"># routine: within current volume</span>
+    <span class="s2">&quot;manual_override&quot;</span><span class="p">,</span>             <span class="c1"># anomaly: human/skill explicitly overrode routine</span>
+<span class="p">}</span>
+
+<span class="n">VALID_SEVERITY</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;low&quot;</span><span class="p">,</span>     <span class="c1"># default for routine decisions — rationale forbidden</span>
+    <span class="s2">&quot;high&quot;</span><span class="p">,</span>    <span class="c1"># high-stakes routine decision — rationale required (P2.5 escape hatch)</span>
+<span class="p">}</span>
+
+<span class="n">VALID_HANDLING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;compensate_via_pacing&quot;</span><span class="p">,</span>       <span class="c1"># drift absorbed by pacing adjustment</span>
+    <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span>            <span class="c1"># drift surfaced explicitly in text</span>
+    <span class="s2">&quot;defer_to_next_chapter&quot;</span><span class="p">,</span>       <span class="c1"># drift deferred to next chapter</span>
+    <span class="s2">&quot;ignore&quot;</span><span class="p">,</span>                      <span class="c1"># drift below threshold, no action</span>
+<span class="p">}</span>
+
+<span class="n">VALID_TRIM</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;oldest_first&quot;</span><span class="p">,</span> <span class="s2">&quot;lowest_relevance&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">}</span>
+
+<span class="n">ROUTINE_BASIS</span> <span class="o">=</span> <span class="n">VALID_BASIS</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;manual_override&quot;</span><span class="p">}</span>
+
+<span class="c1"># P2.5 rationale rule:</span>
+<span class="c1"># - basis in ROUTINE_BASIS and severity != &quot;high&quot; → rationale FORBIDDEN</span>
+<span class="c1"># - basis == &quot;manual_override&quot; → rationale REQUIRED (severity ignored)</span>
+<span class="c1"># - severity == &quot;high&quot; (any basis) → rationale REQUIRED</span>
+<span class="c1"># - adjustments[] → rationale ALWAYS REQUIRED (anomalous by definition)</span>
+</code></pre></div>
+<h3 id="a5-per-skill-decisions-content">A.5 Per-Skill Decisions Content</h3>
+<p>Each of the 7 skills records different decision types:</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>selections targets</th>
+<th>adjustments type</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context-composing</code></td>
+<td>truth files, world/rules, chapters</td>
+<td>drift adjustments, budget trims</td>
+<td>Primary use case — curates layered memory</td>
+</tr>
+<tr>
+<td><code>market-radar</code></td>
+<td>market data sources, trend signals</td>
+<td>none (or trend_exceptions)</td>
+<td>Genre/market analysis decisions</td>
+</tr>
+<tr>
+<td><code>chapter-drafting</code></td>
+<td>plan beats (which used/modified), foreshadowing placements</td>
+<td>pacing deviations from plan, opening strategy</td>
+<td>Records "why I deviated from plan"</td>
+</tr>
+<tr>
+<td><code>chapter-planning</code></td>
+<td>arc elements selected for this chapter, beats chosen</td>
+<td>plan deviations from volume outline</td>
+<td>Records "why this chapter shape"</td>
+</tr>
+<tr>
+<td><code>chapter-revision</code></td>
+<td>review issues addressed, revision strategies</td>
+<td>issues deferred, severity calls</td>
+<td>Records "why I fixed it this way"</td>
+</tr>
+<tr>
+<td><code>state-settling</code></td>
+<td>state deltas recorded, summaries written</td>
+<td>conflicts detected, resolutions</td>
+<td>Records "what state changed and why"</td>
+</tr>
+<tr>
+<td><code>short-drafting</code></td>
+<td>outline elements used, structure choices</td>
+<td>length adjustments, tone shifts</td>
+<td>Records short-story-specific decisions</td>
+</tr>
+</tbody>
+</table>
+<h3 id="a6-downstream-consumption">A.6 Downstream Consumption</h3>
+<p><code>chapter-drafting</code> (and other consumers) gain decisions.json in their reads:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># skills/shenbi-chapter-drafting/SKILL.md frontmatter</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/chapter-N-context.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">context/chapter-N-context-decisions.json</span><span class="w">   </span><span class="c1"># ← NEW: G1 enforces read</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">style/style_profile.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+</code></pre></div>
+<p><strong>G1 enforces this</strong>: if <code>context-composing</code> didn't produce decisions.json, G1 blocks <code>chapter-drafting</code> from starting. This is a hard contract, not optional.</p>
+<hr />
+<h2 id="layer-b-field-level-reads-contract">Layer B: Field-Level Reads Contract</h2>
+<h3 id="b1-mechanism-existing-storage-new-filtering">B.1 Mechanism (Existing Storage + New Filtering)</h3>
+<p><strong>Storage (already exists)</strong>: <code>legacy.py:54</code> <code>_normalize_read_item</code> already supports dict-form <code>{file, fields}</code> and stores it in <code>Contract.read_fields</code>. 2 review skills (<code>shenbi-review-arc-payoff</code>, <code>shenbi-review-resonance</code>) already declare fields.</p>
+<p><strong>Filtering (NEW — the real fix)</strong>: <code>_build_skill_prompt</code> (dispatch_helper.py:151-191) currently reads <code>contract.get("reads", [])</code> as plain strings and writes entire file contents into the prompt — <code>read_fields</code> is <strong>never consumed</strong>. Layer B implements real filtering so the LLM only sees the declared fields, not the entire file. This is what actually aligns with LangChain's "filtered portions" strategy.</p>
+<p><strong>Before (current behavior — full file read)</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py:151 (current)</span>
+<span class="k">for</span> <span class="n">read_path</span> <span class="ow">in</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolved</span>
+    <span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw_inputs</span><span class="p">[</span><span class="n">resolved</span><span class="p">]</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># ENTIRE file</span>
+</code></pre></div></p>
+<p><strong>After (Layer B — real filtering)</strong>:
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py:151 (modified)</span>
+<span class="n">fields_map</span> <span class="o">=</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;read_fields&quot;</span><span class="p">,</span> <span class="p">{})</span>   <span class="c1"># ← NEW: consume the stored field map</span>
+<span class="k">for</span> <span class="n">read_path</span> <span class="ow">in</span> <span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_resolve_path</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolved</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">full_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">raw_inputs</span><span class="p">[</span><span class="n">resolved</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;[file not found: </span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">]&quot;</span>
+        <span class="k">continue</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fields</span> <span class="o">=</span> <span class="n">fields_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">resolved</span><span class="p">)</span> <span class="ow">or</span> <span class="n">fields_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">read_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fields</span><span class="p">:</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">_filter_to_fields</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span> <span class="n">resolved</span><span class="p">)</span>   <span class="c1"># ← NEW: real filtering</span>
+    <span class="n">raw_inputs</span><span class="p">[</span><span class="n">resolved</span><span class="p">]</span> <span class="o">=</span> <span class="n">text</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_filter_to_fields</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return only the declared fields from a file.</span>
+<span class="sd">    - markdown: extract ## H2 sections whose heading matches a field name</span>
+<span class="sd">    - json: project to only the declared top-level keys</span>
+<span class="sd">    - If no fields match, return full text + WARN (escape hatch).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.md&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_extract_h2_sections</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">_project_json_keys</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">fields</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>  <span class="c1"># unknown extension: no filtering (safe default)</span>
+</code></pre></div></p>
+<p><strong>Escape hatch (critical)</strong>: if <code>_filter_to_fields</code> returns empty (no declared field found in the file), the implementation falls back to returning the full file text and logs a WARN. This prevents silent information loss when a truth file's headings have drifted from the contract declaration.</p>
+<h3 id="b2-scope-12-skills-two-batches">B.2 Scope (12 Skills, Two Batches)</h3>
+<p><strong>Batch 1 (6 skills, high coupling — done in Phase 3)</strong>:
+- <code>shenbi-context-composing</code> (overlaps with Layer A)
+- <code>shenbi-chapter-drafting</code> (overlaps with Layer A)
+- <code>shenbi-chapter-planning</code> (overlaps with Layer A)
+- <code>shenbi-state-settling</code> (overlaps with Layer A)
+- <code>shenbi-foreshadowing-plant</code>
+- <code>shenbi-foreshadowing-track</code></p>
+<p><strong>Batch 2 (6 skills, medium coupling — done in Phase 3)</strong>:
+- <code>shenbi-chapter-revision</code>
+- <code>shenbi-short-drafting</code>
+- <code>shenbi-style-polishing</code>
+- <code>shenbi-length-normalizing</code>
+- <code>shenbi-review-continuity</code>
+- <code>shenbi-review-pacing</code></p>
+<h3 id="b3-field-naming-convention">B.3 Field Naming Convention</h3>
+<p>To prevent field-name drift:
+- <strong>markdown files</strong>: fields = <code>##</code> H2 heading text (exact match, as-is). Real truth files use <strong>Chinese</strong> headings (<code>## 主角</code>, <code>## 主角情感弧线</code>, <code>## 主角状态</code>, <code>## 当前世界局势</code>). Field declarations MUST use the actual heading text — do NOT translate to English or snake_case. The normalizer only strips the <code>##</code> prefix and trims whitespace; it does NOT lowercase or translate.
+- <strong>json files</strong>: fields = top-level keys (exact match)</p>
+<p><strong>Critical discovery (round 2 review)</strong>: the original convention "snake_cased English fields" is incompatible with reality — truth files use Chinese headings. An English field like <code>active_drifts</code> will never match <code>## 活跃漂移</code>, making filtering completely inert. Field declarations MUST use the real heading text.</p>
+<p>This enables automated lint: scan truth file's actual headings/keys, compare to contract.fields, report mismatches.</p>
+<h3 id="b4-g1-soft-check-non-blocking-pre-filter-validation">B.4 G1 Soft Check (Non-Blocking, Pre-Filter Validation)</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g1.py — new soft check (runs before dispatch)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_fields_exist</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">inputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">fields_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;WARN (not FAIL) if declared fields not found in input files.</span>
+
+<span class="sd">    Runs before _build_skill_prompt&#39;s filtering, so the skill author sees</span>
+<span class="sd">    field-name drift warnings before the LLM ever sees filtered content.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">fields</span> <span class="ow">in</span> <span class="n">fields_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fields</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">_read_input</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">_extract_headings_or_keys</span><span class="p">(</span><span class="n">content</span><span class="p">,</span> <span class="n">path</span><span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fields</span><span class="p">)</span> <span class="o">-</span> <span class="n">actual</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">: declared fields </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2"> not found in file&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">warnings</span>  <span class="c1"># WARN only, does not block dispatch</span>
+</code></pre></div>
+<p><strong>Why WARN not FAIL</strong>: truth files evolve, field names change. Hard-blocking would make skills unstartable when a truth file renames a heading. WARN keeps problems visible without fragility. The escape hatch in B.1 ensures that even if a field is missing, the LLM still receives the full file (no silent information loss).</p>
+<h3 id="b5-ci-lint-contract-fields-vs-truth-file-consistency">B.5 CI Lint: Contract Fields vs Truth File Consistency</h3>
+<p>New script <code>scripts/lint_contract_fields.py</code>:
+- Scan all skills' contract.reads dict-form fields
+- For each file, read actual headings (markdown) or keys (json)
+- Compare declared fields vs actual
+- Output mismatch report</p>
+<p>Hooked into <code>justfile</code> via <code>just lint</code> or <code>just check</code>, runs in CI.</p>
+<hr />
+<h2 id="consistency-modifications-to-existing-code">Consistency Modifications to Existing Code</h2>
+<p>Adding decisions.json is not an isolated change — 7 existing files must be synchronized to avoid registration failures, G2 misclassification, G4 misses, output-format ambiguity, and phase_runner file_type bypass.</p>
+<h3 id="m1m2-truth-filesyaml-registration-two-copies">M1+M2: truth-files.yaml Registration (Two Copies)</h3>
+<p><strong>Files</strong>: <code>docs/framework/truth-files.yaml</code>, <code>site/framework/truth-files.yaml</code></p>
+<div class="highlight"><pre><span></span><code><span class="nt">concepts</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">context/chapter-N-context-decisions.json</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">decisions</span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># NEW</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-N-decisions.json</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">decisions</span><span class="p p-Indicator">}</span><span class="w">           </span><span class="c1"># NEW</span>
+
+<span class="nt">patterns</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="nv">context/chapter-N-context-decisions.json</span><span class="p p-Indicator">,</span><span class="nt"> glob</span><span class="p">:</span><span class="w"> </span><span class="nv">context/chapter-*-context-decisions.json</span><span class="p p-Indicator">}</span><span class="w">  </span><span class="c1"># NEW</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">parametric</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-N-decisions.json</span><span class="p p-Indicator">,</span><span class="nt"> glob</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-*-decisions.json</span><span class="p p-Indicator">}</span><span class="w">                 </span><span class="c1"># NEW</span>
+
+<span class="nt">globs</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="nv">context/chapter-*-context-decisions.json</span><span class="p p-Indicator">}</span><span class="w">   </span><span class="c1"># NEW</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">pattern</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-*-decisions.json</span><span class="p p-Indicator">}</span><span class="w">            </span><span class="c1"># NEW</span>
+</code></pre></div>
+<p>New <code>kind: decisions</code> at registry level (contract.kind stays <code>artifact</code>; the registry kind drives <code>derive_file_type</code>).</p>
+<h3 id="m3-derive_file_type-decisions-branch">M3: derive_file_type Decisions Branch</h3>
+<p><strong>File</strong>: <code>src/shenbi/dispatcher/executor.py</code></p>
+<p><strong>Priority note (I1)</strong>: when a skill writes BOTH truth AND decisions files (e.g., <code>state-settling</code> updates <code>truth/current_state.md</code> AND writes <code>truth/state-settling-decisions.json</code>), the truth check fires first and returns <code>"truth"</code>. The decisions branch is never reached, so G2.dec schema validation is skipped for that skill's decisions.json. This is a known limitation — the fix is to validate decisions.json independently per-file (a future enhancement), not to change the priority (truth validation must not be skipped). For now, state-settling's decisions.json relies on G4 (not G2) for schema validation.</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_decisions_file_set</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Files listed as kind=&#39;decisions&#39; in truth-files.yaml.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">name</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">kind</span> <span class="ow">in</span> <span class="n">bootstrap_registry</span><span class="p">()</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;decisions&quot;</span>
+    <span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_file_type</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Derive G2 FILE_TYPE from the contract layer.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">ContractError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;chapter&quot;</span>
+    <span class="n">kind</span> <span class="o">=</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;kind&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">REPORT</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;report&quot;</span>
+    <span class="k">if</span> <span class="n">kind</span> <span class="o">==</span> <span class="n">OutputKind</span><span class="o">.</span><span class="n">EPHEMERAL</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;chapter&quot;</span>
+    <span class="n">outputs</span> <span class="o">=</span> <span class="p">{</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">],</span> <span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;updates&quot;</span><span class="p">]}</span>
+    <span class="k">if</span> <span class="n">outputs</span> <span class="o">&amp;</span> <span class="n">_truth_file_set</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="k">if</span> <span class="n">outputs</span> <span class="o">&amp;</span> <span class="n">_decisions_file_set</span><span class="p">():</span>     <span class="c1"># NEW</span>
+        <span class="k">return</span> <span class="s2">&quot;decisions&quot;</span>                   <span class="c1"># NEW</span>
+    <span class="k">return</span> <span class="s2">&quot;chapter&quot;</span>
+</code></pre></div>
+<h3 id="m4-g2-decisions-validation-branch">M4: G2 Decisions Validation Branch</h3>
+<p><strong>File</strong>: <code>src/shenbi/gates/g2.py</code></p>
+<p>New branch before <code>file_type == "chapter"</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;decisions&quot;</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">fps</span><span class="p">:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="c1"># G2.dec.1 — valid JSON</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G2.dec.1&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="s2">&quot;invalid JSON&quot;</span><span class="p">})</span>
+            <span class="k">continue</span>
+        <span class="c1"># G2.dec.2 — schema version</span>
+        <span class="k">if</span> <span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;$schema&quot;</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span><span class="p">:</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G2.dec.2&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;schema version mismatch: </span><span class="si">{</span><span class="n">data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;$schema&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+        <span class="c1"># G2.dec.3 — required keys</span>
+        <span class="n">required</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;skill&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="s2">&quot;selections&quot;</span><span class="p">,</span> <span class="s2">&quot;produced_at&quot;</span><span class="p">}</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="n">required</span> <span class="o">-</span> <span class="n">data</span><span class="o">.</span><span class="n">keys</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G2.dec.3&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span>
+                       <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;missing keys: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">})</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G2.dec&quot;</span><span class="p">,</span> <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="n">fp</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">})</span>
+        <span class="k">continue</span>  <span class="c1"># skip G2.6/G2.7 word count — critical for JSON files</span>
+</code></pre></div>
+<p><strong>Critical</strong>: the <code>continue</code> skips G2.6/G2.7 (Chinese word count) which would otherwise misfire on JSON and always FAIL.</p>
+<h3 id="m5-phase_runner-output-discovery-root-cause-fix-replaces-rglob-patch">M5: phase_runner Output Discovery — Root-Cause Fix (Replaces rglob Patch)</h3>
+<p><strong>File</strong>: <code>src/shenbi/phase_runner.py</code></p>
+<p><strong>Problem</strong>: <code>cmd_post_skill()</code> (line 150) uses <code>proj.rglob("*.md")</code> to discover outputs — a heuristic that doesn't know which files the skill actually wrote. The original spec proposed expanding rglob to include <code>.json</code> decisions files, but that's a patch on the wrong mechanism.</p>
+<p><strong>Root-cause fix</strong>: use <code>derive_output_files(skill, chapter, round_dir)</code> which already returns the authoritative list from the contract.</p>
+<p><strong>Signature note</strong>: <code>cmd_post_skill(phase, skill, round_dir, project_dir)</code> currently has no <code>chapter</code> parameter. <code>derive_output_files(skill, chapter, round_dir)</code> takes <code>chapter: int | None</code>. Two options:
+- (a) Extract chapter from the pipeline state or the skill's last step record (if available)
+- (b) Pass <code>chapter=None</code> — <code>derive_output_files</code> handles this by returning paths with unresolved <code>N</code>/<code>NNN</code> placeholders, which are then filtered out (won't match actual files). This works but may miss chapter-scoped outputs.</p>
+<p><strong>Recommended</strong>: option (a) — thread <code>chapter</code> through <code>cmd_post_skill</code> from the caller (the phase state machine already tracks the current chapter in pipeline mode). If chapter is unavailable (non-pipeline T2), fall back to <code>chapter=None</code> and accept that only non-parametric outputs are discovered.</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># cmd_post_skill() — before:</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">proj</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">)</span> <span class="k">if</span> <span class="n">f</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">][:</span><span class="mi">20</span><span class="p">]</span>
+
+<span class="c1"># after (option a — chapter threaded through):</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_output_files</span>
+<span class="c1"># chapter passed in from caller, or extracted from pipeline state</span>
+<span class="n">output_files</span> <span class="o">=</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">derive_output_files</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">round_dir</span><span class="p">))</span>
+                 <span class="k">if</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">Path</span><span class="p">(</span><span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Why this is better than rglob expansion</strong>:
+- No file-extension heuristics (<code>.md</code> vs <code>.json</code> vs future formats)
+- No "decisions" substring matching (brittle)
+- Contract is the single source of truth — if the contract says the skill writes it, it's discovered
+- Future-proofs against new file types (no rglob changes needed when adding new artifact kinds)
+- Removes 5 lines of heuristic code instead of adding 7 lines of more complex heuristics</p>
+<p><strong>Note</strong>: <code>derive_output_files</code> resolves paths relative to <code>round_dir</code> when provided. In phase_runner, <code>round_dir</code> and <code>project_dir</code> may differ (round_dir is the test round directory, project_dir is the novel project). The caller must pass the correct base — likely <code>project_dir</code> for output discovery, since that's where the skill writes. Verify during Phase 1 implementation which path <code>derive_output_files</code> should resolve against.</p>
+<h3 id="m6-dispatch_helper-multi-file-output-format">M6: dispatch_helper Multi-File Output Format</h3>
+<p><strong>File</strong>: <code>src/shenbi/pipeline/dispatch_helper.py</code></p>
+<p>When contract has multiple writes, emit multi-file output format template:</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">output_paths</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+    <span class="n">user_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="s2">&quot;This skill produces MULTIPLE files. Output each file separately:</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;```file: &lt;path1&gt;</span><span class="se">\n</span><span class="s2">&lt;content1&gt;</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;```file: &lt;path2&gt;</span><span class="se">\n</span><span class="s2">&lt;content2&gt;</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Decisions JSON must conform to shenbi-decisions-v1 schema &quot;</span>
+        <span class="s2">&quot;(see docs/framework/decisions-schema.md).&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+<h3 id="m7-new-schema-document">M7: New Schema Document</h3>
+<p><strong>File</strong>: <code>docs/framework/decisions-schema.md</code> (new)</p>
+<p>Single source of truth for:
+- Schema version <code>shenbi-decisions-v1</code>
+- Field definitions (selections/adjustments/budget)
+- Enum value lists (basis/handling/trim_applied)
+- Per-skill required-field differences
+- Example JSON</p>
+<p>Referenced by both G4 validation logic and skill authors.</p>
+<h3 id="m8-phase_runner-hardcoded-file_type-fix-new-discovered-in-verification">M8: phase_runner Hardcoded file_type Fix (NEW — discovered in verification)</h3>
+<p><strong>File</strong>: <code>src/shenbi/phase_runner.py:153</code></p>
+<p><strong>Problem discovered during spec verification</strong>: <code>cmd_post_skill()</code> calls G2 with a hardcoded <code>"chapter"</code> file_type:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># phase_runner.py:153 (current — the bug)</span>
+<span class="n">g2</span> <span class="o">=</span> <span class="n">run_gate</span><span class="p">(</span><span class="s2">&quot;G2&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_files</span><span class="p">),</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)])</span>
+                              <span class="c1"># ^^^^^^^^^^ hardcoded — bypasses derive_file_type</span>
+</code></pre></div>
+<p>This means M3 (<code>derive_file_type</code> returns <code>"decisions"</code>) and M4 (G2 decisions branch) are <strong>completely ineffective on the T2/T3 dispatch path</strong> — phase_runner always passes <code>"chapter"</code>, so G2 never enters the decisions branch. Only the T1 dispatch path (<code>executor.py</code>) calls <code>derive_file_type</code> correctly.</p>
+<p><strong>Fix</strong>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># phase_runner.py:153 (after)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_file_type</span>
+<span class="n">file_type</span> <span class="o">=</span> <span class="n">derive_file_type</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+<span class="n">g2</span> <span class="o">=</span> <span class="n">run_gate</span><span class="p">(</span><span class="s2">&quot;G2&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">output_files</span><span class="p">),</span> <span class="n">file_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)])</span>
+</code></pre></div>
+<p><strong>Why this matters</strong>: without M8, M3+M4 are dead code on the T2/T3 path. A skill producing decisions.json through the pipeline would have its decisions.json validated as a "chapter" file — triggering G2.6/G2.7 Chinese word count on JSON and always FAILing. This is the exact failure M4 was designed to prevent, but M4 can't prevent it if phase_runner bypasses the file_type derivation.</p>
+<p><strong>Verification</strong>: grep confirms <code>phase_runner.py:153</code> is the only G2 call site with a hardcoded file_type. <code>executor.py:227</code> already calls <code>run_g2(output_files, file_type, round_dir)</code> with the derived type.</p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Why Not</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>derive_input_files()</code></td>
+<td>Already generic, reads from contract["reads"], auto-supports .json</td>
+</tr>
+<tr>
+<td><code>write audit</code> (snapshot_tree)</td>
+<td>Path-based snapshot, file-type agnostic</td>
+</tr>
+<tr>
+<td><code>G1</code> (existence check)</td>
+<td>Already generic</td>
+</tr>
+<tr>
+<td><code>G3</code> (independence)</td>
+<td>Unrelated to file types</td>
+</tr>
+<tr>
+<td><code>G6/G7</code> (audit)</td>
+<td>Audits by skill output, not file type</td>
+</tr>
+<tr>
+<td><code>safe_write</code></td>
+<td>Generic write, content-agnostic</td>
+</tr>
+<tr>
+<td><code>deps.json</code></td>
+<td>Lists prerequisites, not output files</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Note</strong>: <code>_build_skill_prompt</code> (dispatch_helper.py) IS modified by Layer B (B.1) to consume <code>read_fields</code> and filter file content — it is no longer in the "not modified" list.</p>
+<hr />
+<h2 id="testing-strategy">Testing Strategy</h2>
+<h3 id="t1-unit-tests">T1: Unit Tests</h3>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>File</th>
+<th>Key Cases</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>derive_file_type</code> decisions branch</td>
+<td><code>tests/unit/test_derive_file_type.py</code> (extend)</td>
+<td>writes with decisions.json → "decisions"; without → "chapter" (regression)</td>
+</tr>
+<tr>
+<td>G2 decisions branch</td>
+<td><code>tests/unit/test_g2.py</code> (extend)</td>
+<td>valid decisions.json → PASS; missing $schema → G2.dec.2 FAIL; invalid JSON → G2.dec.1 FAIL; <strong>word count NOT run</strong> (critical regression assertion)</td>
+</tr>
+<tr>
+<td>G4 decisions schema</td>
+<td><code>tests/unit/test_g4_context_composing.py</code> (new)</td>
+<td>basis enum valid/invalid; rationale on routine+low-severity basis → FAIL; rationale missing on manual_override → FAIL; rationale missing on severity:high → FAIL; rationale &gt;100 chars → FAIL</td>
+</tr>
+<tr>
+<td>registry resolve new paths</td>
+<td><code>tests/unit/test_contracts.py</code> (extend)</td>
+<td><code>context/chapter-N-context-decisions.json</code> resolves; unregistered path still ContractError</td>
+</tr>
+<tr>
+<td>phase_runner output discovery (M5)</td>
+<td><code>tests/unit/test_phase_runner.py</code> (extend)</td>
+<td><code>derive_output_files</code> returns contract-declared outputs; non-contract files excluded; .json decisions included via contract not via extension heuristic</td>
+</tr>
+<tr>
+<td>phase_runner G2 file_type (M8)</td>
+<td><code>tests/unit/test_phase_runner.py</code> (extend)</td>
+<td>skill with decisions writes → G2 receives "decisions" not "chapter"; regression: skill with only chapter writes → G2 still receives "chapter"</td>
+</tr>
+<tr>
+<td>P2.5 rationale rule</td>
+<td><code>tests/unit/test_decisions_schema.py</code> (new)</td>
+<td>routine+low-severity + rationale → FAIL; routine+high-severity + no rationale → FAIL; manual_override + no rationale → FAIL; adjustments + no rationale → FAIL</td>
+</tr>
+<tr>
+<td>Layer B real filtering (B.1)</td>
+<td><code>tests/unit/test_dispatch_helper.py</code> (new)</td>
+<td>markdown with declared H2 fields → only those sections in prompt; json with declared keys → only those keys; missing field → fallback to full file + WARN (escape hatch)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Fixture principle</strong>: per G0.9, decisions.json test fixtures must be real skill outputs copied to <code>tests/fixtures/</code>, not hand-crafted mocks. Phase 1's real context-composing output becomes the test baseline.</p>
+<h3 id="t2-integration-test">T2: Integration Test</h3>
+<p>New test: <code>tests/rounds/test_decisions_handoff_integration.py</code></p>
+<div class="highlight"><pre><span></span><code>Verification chain:
+  context-composing produces context.md + decisions.json
+    → G2 file_type=decisions PASS
+    → G4 schema validation PASS
+  chapter-drafting reads include decisions.json
+    → G1 validates decisions.json is read (non-empty)
+    → chapter-drafting produces chapter.md + chapter-decisions.json
+    → G2/G4 PASS
+</code></pre></div>
+<p><strong>Go/no-go assertion</strong>: chapter-drafting output quality (scored by independent subagent per G3.4) ≥ pre-change baseline. If score drops &gt;2 points, decisions.json is anchoring downstream (P2.5 insufficient) — escalate to re-evaluating schema (fall back to P2: cut severity escape hatch; or P1: cut rationale entirely).</p>
+<h3 id="t3-regression-tests">T3: Regression Tests</h3>
+<table>
+<thead>
+<tr>
+<th>Regression Point</th>
+<th>Verification</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>53 unchanged skills' G2 still uses chapter/truth/report branches</td>
+<td>Run <code>derive_file_type</code> on all 53 (68 total - 15 touched), compare to pre-change results</td>
+</tr>
+<tr>
+<td>phase_runner output discovery change (M5) doesn't affect existing skills</td>
+<td>Run existing T2 planning/drafting phases, output_files list unchanged (derive_output_files returns same .md paths as rglob did for .md-only skills)</td>
+</tr>
+<tr>
+<td>truth-files.yaml additions don't break existing resolve</td>
+<td>All existing contracts' reads still resolve successfully</td>
+</tr>
+<tr>
+<td>Clean-context invariant</td>
+<td>New property test: consecutive dispatches of same skill don't share process state (locks in existing behavior against regression)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="implementation-phasing">Implementation Phasing</h2>
+<p>Four phases, each with explicit go/no-go gates:</p>
+<h3 id="phase-1-infrastructure-2-ephemeral-skills-3-4-days">Phase 1 — Infrastructure + 2 Ephemeral Skills (3-4 days)</h3>
+<ol>
+<li>Modify truth-files.yaml (M1+M2): register new paths</li>
+<li>Modify derive_file_type + G2 decisions branch (M3+M4)</li>
+<li>Fix phase_runner output discovery (M5: replace rglob with derive_output_files)</li>
+<li><strong>Fix phase_runner hardcoded "chapter" (M8): call derive_file_type</strong> — critical, without this M3+M4 are dead on T2/T3 path</li>
+<li>Modify dispatch_helper output format (M6)</li>
+<li>Create decisions-schema.md (M7)</li>
+<li>Modify context-composing + market-radar frontmatter + body</li>
+<li>All unit tests pass</li>
+</ol>
+<p><strong>GO/NO-GO</strong>: Run 1 chapter. context-composing produces decisions.json and G2/G4 pass?
+- NO → schema or G2 branch has issues. Stop, fix before Phase 2.
+- Also verify: G2 receives <code>file_type="decisions"</code> (not "chapter") — if not, M8 is broken.</p>
+<h3 id="phase-2-5-natural-language-artifact-skills-2-3-days">Phase 2 — 5 Natural-Language Artifact Skills (2-3 days)</h3>
+<ol>
+<li><strong>First: resolve Open Question #4</strong> — investigate PRE_WRITE_CHECK overlap for chapter-drafting and check the other 4 skills for existing intent-embedding mechanisms. May narrow scope.</li>
+<li>Modify chapter-drafting/planning/revision/state-settling/short-drafting: add decisions.json to writes + decisions.json to reads of consumers</li>
+<li>Add G4 schema validation for each skill's specific decisions (incl. P2.5 severity rule)</li>
+<li>Unit tests + T2 integration test</li>
+</ol>
+<p><strong>GO/NO-GO</strong>: Run full T2 chapter-prep → drafting chain. Score ≥ baseline?
+- Drop &gt;2 points → decisions anchoring downstream. Re-evaluate schema (consider cutting rationale entirely).</p>
+<h3 id="phase-3-layer-b-field-level-reads-real-filtering-4-5-days">Phase 3 — Layer B Field-Level Reads + Real Filtering (4-5 days)</h3>
+<ol>
+<li><strong>Implement <code>_filter_to_fields</code> in dispatch_helper.py</strong> (B.1) — markdown H2 extraction + JSON key projection + escape hatch fallback</li>
+<li><strong>Wire <code>read_fields</code> into <code>_build_skill_prompt</code></strong> (B.1) — consume the stored field map, replace full-file reads with filtered reads</li>
+<li>Batch 1: 6 high-coupling skills get {file, fields} dict-form</li>
+<li>G1 soft-check WARN logic (B.4) — pre-filter validation</li>
+<li>CI lint script (B.5), hooked into <code>just check</code></li>
+<li>Batch 2: 6 medium-coupling skills</li>
+<li>Unit tests for filtering (escape hatch, missing field, markdown vs json)</li>
+</ol>
+<p><strong>GO/NO-GO</strong>: Lint reports zero mismatches? G1 WARN doesn't block existing dispatch? <strong>Filtering reduces token without breaking skill output quality</strong> (spot-check: run chapter-drafting with filtered vs unfiltered reads, compare scores — drop &gt;2 points = filtering too aggressive, widen fields or fallback to full file)?</p>
+<h3 id="phase-4-regression-documentation-2-days">Phase 4 — Regression + Documentation (2 days)</h3>
+<ol>
+<li>Full T1/T2 regression</li>
+<li>Update AGENTS.md with decisions.json mechanism</li>
+<li>Finalize docs/framework/decisions-schema.md</li>
+<li><code>just check</code> fully green</li>
+</ol>
+<p><strong>Total: 11-14 days.</strong></p>
+<hr />
+<h2 id="cost-analysis">Cost Analysis</h2>
+<h3 id="one-time-cost">One-Time Cost</h3>
+<table>
+<thead>
+<tr>
+<th>Work Item</th>
+<th>Effort</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>M1-M8 consistency modifications (M8 is new)</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>Layer A: 7 skills frontmatter + body + G4</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>Layer B: 12 skills field-level reads + real filtering in dispatch_helper</td>
+<td>4-5 days (up from 3-4 — real filtering implementation + escape hatch)</td>
+</tr>
+<tr>
+<td>Tests (unit + T2 integration + regression)</td>
+<td>2-3 days</td>
+</tr>
+<tr>
+<td>Documentation + schema</td>
+<td>1 day</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>11-14 days</strong> (up from 10-13 due to Layer B real filtering + M8)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="runtime-cost-per-chapter">Runtime Cost (Per Chapter)</h3>
+<table>
+<thead>
+<tr>
+<th>Cost Item</th>
+<th>Before</th>
+<th>After</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>context-composing LLM call</td>
+<td>1</td>
+<td>1 + ~320 token JSON (P2.5 optimized)</td>
+<td>+2-3%</td>
+</tr>
+<tr>
+<td>chapter-drafting reads</td>
+<td>~8k token</td>
+<td>+decisions.json ~270 token (P2.5 avg, slightly above P2)</td>
+<td>+3%</td>
+</tr>
+<tr>
+<td>7 skills each produce decisions</td>
+<td>0</td>
+<td>7 × ~270 token (P2.5 avg)</td>
+<td>+1.9k token/chapter</td>
+</tr>
+<tr>
+<td>Layer B filtering savings</td>
+<td>0</td>
+<td>-~2-4k token/chapter (filtered reads vs full files)</td>
+<td><strong>saves</strong></td>
+</tr>
+<tr>
+<td>G2/G4 decisions validation</td>
+<td>0</td>
+<td>7 schema checks</td>
+<td>+tens of ms, negligible</td>
+</tr>
+<tr>
+<td>Gate failure re-run rate</td>
+<td>baseline</td>
+<td>est. -20-40%</td>
+<td><strong>saves</strong></td>
+</tr>
+<tr>
+<td><strong>Net runtime</strong></td>
+<td>—</td>
+<td>+1-3% token (down from +3-5% — Layer B filtering offsets decisions.json cost)</td>
+<td><strong>near-neutral</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Honest assessment</strong>: P2.5 adds slightly more token than P2 (~+20 token/decision for high-stakes rationale), but Layer B real filtering <strong>saves</strong> ~2-4k token/chapter by not sending full file contents. Net runtime cost is now near-neutral (1-3%), and may even be <strong>net-negative</strong> (saving ~1.5k token) when filtering savings exceed decisions.json cost — a meaningful improvement over the pre-filtering estimate (3-5%). Gate failure reduction is pure savings on top.</p>
+<hr />
+<h2 id="risk-register">Risk Register</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Layer</th>
+<th>Severity</th>
+<th>Mitigation</th>
+<th>Residual</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Decisions schema enum incomplete, skill decisions don't fit</td>
+<td>A</td>
+<td>Medium</td>
+<td><code>manual_override</code> fallback + review after 3 chapters</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Downstream anchored by rationale</strong></td>
+<td>A</td>
+<td><strong>Medium</strong></td>
+<td>P2.5: rationale only on manual_override + high-stakes; Phase 2 go/no-go checks score drop &gt;2; fallback to P2/P1</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>G2 decisions branch misfires, blocks legitimate output</td>
+<td>M4</td>
+<td>Medium</td>
+<td>Unit test coverage + Phase 1 real-run validation</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>phase_runner hardcoded "chapter" not fixed (M8 missed)</strong></td>
+<td>M8</td>
+<td><strong>High</strong></td>
+<td>M8 fix: call <code>derive_file_type(skill)</code>; unit test asserts file_type propagation</td>
+<td>Low (after M8)</td>
+</tr>
+<tr>
+<td>truth-files.yaml two copies out of sync</td>
+<td>M1+M2</td>
+<td>Low</td>
+<td>Lint: docs/ vs site/ consistency check</td>
+<td>Low</td>
+</tr>
+<tr>
+<td><strong>Layer B filtering drops needed-but-undeclared fields</strong></td>
+<td>B</td>
+<td><strong>Medium</strong></td>
+<td>Escape hatch: missing field → fallback to full file + WARN; G1 pre-check warns on field drift</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Field-level annotations drift from truth file evolution</td>
+<td>B</td>
+<td>Medium</td>
+<td>CI lint scans actual headings vs declared fields</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>7 skills produce low-quality decisions</td>
+<td>A</td>
+<td>Medium</td>
+<td>G4 schema validation + 5-chapter manual sampling</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>chapter-drafting decisions.json duplicates PRE_WRITE_CHECK</td>
+<td>A</td>
+<td>Medium</td>
+<td>Open Q #4: investigate overlap before Phase 2; may narrow L-A.2 scope</td>
+<td>Medium</td>
+</tr>
+<tr>
+<td>Old round compatibility during migration</td>
+<td>Global</td>
+<td>Medium</td>
+<td>decisions.json optional for old rounds, G4 soft-check period</td>
+<td>Low</td>
+</tr>
+<tr>
+<td>Clean-context regression (implicit state introduced)</td>
+<td>Global</td>
+<td>Low</td>
+<td>Property test locks invariant</td>
+<td>Low</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Largest residual risk</strong>: downstream anchoring. P2.5 compresses anchoring surface to ~90% (only manual_override + high-stakes routine decisions carry rationale), and Phase 2 go/no-go explicitly checks for score degradation. If anchoring persists despite P2.5, the fallback is P2 (cut severity escape hatch, rationale only on manual_override) or P1 (cut rationale entirely, keep only enum + selected/omitted).</p>
+<hr />
+<h2 id="best-practice-alignment-summary">Best Practice Alignment Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Best Practice (Anthropic/LangChain)</th>
+<th>Alignment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Artifact + lightweight reference, minimize telephone</td>
+<td>✅ Layer A decisions.json is artifact, downstream reads as reference</td>
+</tr>
+<tr>
+<td>Summary, not reasoning trace</td>
+<td>✅ Structured decision summary, not reasoning chain</td>
+</tr>
+<tr>
+<td>Context filtering strategy (full/filtered/summary)</td>
+<td>✅ Layer B implements real filtering in <code>_build_skill_prompt</code> — LLM sees only declared fields, not full file (was: annotation-only, now: actual filtering)</td>
+</tr>
+<tr>
+<td>Careful handoffs maintain continuity</td>
+<td>✅ decisions artifact carries intent across handoff</td>
+</tr>
+<tr>
+<td><strong>Clean-context subagents</strong></td>
+<td><strong>✅ Fully aligned</strong> — all skills cross-model capable, zero memory inheritance</td>
+</tr>
+<tr>
+<td>Treat context management as first-class</td>
+<td>✅ Context handoff elevated from implicit prompt to explicit contract</td>
+</tr>
+<tr>
+<td>"Works particularly well for structured outputs"</td>
+<td>✅ Role-based grading applies decisions only where it adds value</td>
+</tr>
+<tr>
+<td>"Irrelevant internal reasoning confuses receiver"</td>
+<td>✅ P2.5: rationale only on anomalies + high-stakes routine, low-stakes routine is rationale-free</td>
+</tr>
+</tbody>
+</table>
+<p><strong>All 8 best practices fully aligned.</strong></p>
+<hr />
+<h2 id="key-decisions-log">Key Decisions Log</h2>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Chosen</th>
+<th>Rejected Alternatives</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Atomic segments (Layer C)</td>
+<td><strong>Deleted</strong></td>
+<td>Keep as Layer C</td>
+<td>Architecture already clean-context; same-model assumption is false premise</td>
+</tr>
+<tr>
+<td>Layer A scope</td>
+<td><strong>Role-graded (7 skills)</strong></td>
+<td>All ephemeral only / all artifact skills</td>
+<td>Anthropic "structured outputs" scoping justifies grading</td>
+</tr>
+<tr>
+<td>decisions.json approach</td>
+<td><strong>Sidecar artifact</strong></td>
+<td>Frontmatter-embedded / centralized log</td>
+<td>Sidecar = lightweight reference; others violate best practice</td>
+</tr>
+<tr>
+<td>rationale inclusion</td>
+<td><strong>P2.5: anomaly + high-stakes</strong></td>
+<td>Always / never / structured / separate file / P2 (no severity)</td>
+<td>P2.5 compresses anchoring to ~90% routine while preserving intent on anomalies AND high-stakes routine decisions (climax chapter selection etc.)</td>
+</tr>
+<tr>
+<td>G1 fields check</td>
+<td><strong>WARN non-blocking</strong></td>
+<td>Hard FAIL</td>
+<td>Truth files evolve; hard-block creates fragility</td>
+</tr>
+<tr>
+<td>decisions file_type</td>
+<td><strong>New "decisions" type</strong></td>
+<td>Reuse chapter/truth</td>
+<td>JSON needs different G2 validation (no word count)</td>
+</tr>
+<tr>
+<td>phase_runner output discovery</td>
+<td><strong>derive_output_files (root-cause fix)</strong></td>
+<td>rglob expansion (patch)</td>
+<td>Contract is single source of truth; no file-extension heuristics</td>
+</tr>
+<tr>
+<td>phase_runner G2 file_type</td>
+<td><strong>M8: call derive_file_type (NEW)</strong></td>
+<td>Hardcoded "chapter" (current bug)</td>
+<td>Without M8, M3+M4 are dead code on T2/T3 path</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="open-questions-deferred-to-implementation">Open Questions (Deferred to Implementation)</h2>
+<ol>
+<li><strong>market-radar decisions content</strong>: its decisions schema is less clear than context-composing (what does a "market analysis decision" look like?). Resolve during Phase 1 implementation — may need a market-radar-specific selections schema.</li>
+<li><strong>short-drafting overlap with chapter-drafting</strong>: short-drafting may share most decisions fields with chapter-drafting. Decide during Phase 2 whether to share schema or fork.</li>
+<li><strong>chapter-revision reads chapter-drafting's decisions</strong>: chapter-revision produces its own decisions.json (Layer A.5), but should its <code>reads</code> also include <code>chapters/chapter-N-decisions.json</code> from the prior drafting pass? Likely yes (revision needs to understand drafting intent to revise coherently), but the exact contract reads update is deferred to Phase 2 when implementing chapter-revision.</li>
+<li><strong>chapter-drafting PRE_WRITE_CHECK overlap (raised in spec verification)</strong>: <code>chapter-drafting</code> already embeds a <code>PRE_WRITE_CHECK</code> block as the first section of <code>chapters/chapter-N.md</code> (SKILL.md:64 — "PRE_WRITE_CHECK 必须作为章节文件的第一个区块输出"), recording "本章核心任务 / 要兑现的伏笔 / 本章禁忌 / 近3章结尾方式 / AI味重点防范". This partially overlaps with what Layer A's decisions.json would record for chapter-drafting. Before Phase 2 implementation, investigate: (a) does decisions.json duplicate PRE_WRITE_CHECK, or capture different intent (e.g., pacing deviations, foreshadowing placement rationale)? (b) should the 4 other NL-artifact skills (chapter-planning, chapter-revision, state-settling, short-drafting) also be checked for existing embedded-intent mechanisms before adding decisions.json? If overlap is high, consider narrowing L-A.2 scope to skills without existing intent-embedding, or making decisions.json conditional (only written when deviating from plan).</li>
+</ol>
+<p><strong>RESOLVED (2026-07-07, Task 9 — <code>tests/unit/gates/test_pre_write_check_overlap.py</code>):</strong></p>
+<p>Audit results (verbatim from the gate test's <code>-s</code> output):</p>
+<table>
+<thead>
+<tr>
+<th>Skill</th>
+<th>exists</th>
+<th>PRE_WRITE_CHECK</th>
+<th>POST_WRITE_SELF_CHECK</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>shenbi-chapter-drafting</code></td>
+<td>✓</td>
+<td><strong>yes</strong></td>
+<td><strong>yes</strong></td>
+</tr>
+<tr>
+<td><code>shenbi-chapter-planning</code></td>
+<td>✓</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>shenbi-chapter-revision</code></td>
+<td>✓</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>shenbi-state-settling</code></td>
+<td>✓</td>
+<td>no</td>
+<td>no</td>
+</tr>
+<tr>
+<td><code>shenbi-short-drafting</code></td>
+<td>✓</td>
+<td>no</td>
+<td>no</td>
+</tr>
+</tbody>
+</table>
+<p><strong>(a) For chapter-drafting — complementary, not redundant.</strong> <code>PRE_WRITE_CHECK</code> / <code>POST_WRITE_SELF_CHECK</code> (SKILL.md:70-119) are a <em>per-chapter pre-flight self-check</em>, embedded in the chapter file as a <code>&lt;!--META--&gt;</code> block and <strong>human-approved before prose is written</strong>. Their scope is execution guardrails: 本章核心任务 / 要兑现的伏笔 / 本章禁忌 / 近3章结尾方式 / AI味重点防范 / 转折词预算, and a post-hoc density checklist. They answer "did I line up the runway before writing?" <code>decisions.json</code> (per §Layer A table) records a different thing — <strong>plan-vs-prose deviations</strong>: which plan beats were used/modified, foreshadowing placement rationale, pacing deviations from plan, opening strategy (§"Selections/adjustments targets" row for chapter-drafting). It answers "why did I deviate from the plan, and how?" Different scope (guardrails vs. deviations), different lifecycle (PRE_WRITE_CHECK is consumed and approved by the human pre-write; decisions.json is consumed by downstream skills post-write), different consumers (human vs. <code>state-settling</code>/<code>review-*</code>). No field-level duplication.</p>
+<p><strong>(b) For the other 4 skills — decisions.json is the ONLY intent channel.</strong> chapter-planning, chapter-revision, state-settling, and short-drafting have no embedded PRE_WRITE_CHECK/POST_WRITE_SELF_CHECK at all. Adding decisions.json introduces intent persistence where none exists; this is unambiguously complementary.</p>
+<p><strong>Decision: proceed with all 5 skills in Phase 2 (no scope narrowing, no conditional writing).</strong> The audit gate passes and is now a permanent record. The only nuance to carry into Phase 2: for chapter-drafting, ensure the decisions.json schema's fields (pacing/opening/beat-selection deviations) do NOT re-derive the PRE_WRITE_CHECK guardrail fields — they are complementary and should stay disjoint. Phase 2 step 1 (resolve OQ#4) is now complete.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

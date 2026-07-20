@@ -1,0 +1,2115 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-10-content-planning-and-deliverable-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 9: Content Planning and Deliverable Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 9: Content Planning and Deliverable Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-10-content-planning-and-deliverable-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-10-content-planning-and-deliverable-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 9: Content Planning and Deliverable Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-10-content-planning-and-deliverable-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-9-content-planning-and-deliverable-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 9: Content Planning and Deliverable Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-volume_mapmd-consumed-for-validation-not-for-content-injection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 volume_map.md: Consumed for Validation, Not for Content Injection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-character-archive-completeness-asymmetric-gates-and-prompt-skew" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Character Archive Completeness: Asymmetric Gates and Prompt Skew
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-meta-block-design-choice-with-downstream-risk" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 META Block: Design Choice with Downstream Risk
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-volume-map-consumption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Volume Map Consumption
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Volume Map Consumption">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-inject-volume_map-into-context_assemblepy-route-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.1 Inject volume_map into context_assemble.py Route C
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#312-deterministic-plan-skeleton-generator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.2 Deterministic Plan Skeleton Generator
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#313-blueprint-alignment-checks-warn-level-non-blocking" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.3 Blueprint Alignment Checks (WARN-level, non-blocking)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#314-cross-volume-bridge-tracker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.4 Cross-Volume Bridge Tracker
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-character-archive-completeness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Character Archive Completeness
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Character Archive Completeness">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-wildcard-path-resolution-in-_write_parsed_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 Wildcard Path Resolution in _write_parsed_outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#322-skillmd-prompt-restructuring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.2 SKILL.md Prompt Restructuring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-g4-gate-enhancement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3 G4 Gate Enhancement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-historical-archetype-driven-character-design" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4 Historical Archetype-Driven Character Design
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#325-restore-character_matrixmd-with-slug-based-cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.5 Restore character_matrix.md with Slug-Based Cross-References
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-meta-block-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 META Block Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 META Block Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-documentation-short-term" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1 Documentation (short-term)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-monitoring-gate-short-term" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2 Monitoring Gate (short-term)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#333-separation-plan-mid-term-deferred" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.3 Separation Plan (mid-term, deferred)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Affected Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volume-map-consumption" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Volume Map Consumption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#character-archive-completeness" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Character Archive Completeness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#meta-block-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        META Block Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#volume-map-consumption_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Volume Map Consumption
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#character-archive-completeness_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Character Archive Completeness
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#meta-block-strategy_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        META Block Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-original-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Original Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-9-content-planning-and-deliverable-design">Spec 9: Content Planning and Deliverable Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical (composite)
+<strong>Merged from:</strong> <code>2026-07-17-fix-volume-map-not-consumed-design.md</code>, <code>2026-07-17-fix-character-archive-completeness-design.md</code>, <code>2026-07-17-improve-meta-block-design.md</code> (C3)
+<strong>Purpose:</strong> Fix the three most severe content planning and delivery defects in the pipeline: the 460-line volume_map.md blueprint is never consumed for per-chapter content/context injection (it IS consumed for structure validation and chapter-count derivation), character archives for major/minor supporting characters are never created, and META blocks embedded in deliverable chapter files constitute ~31% of content that downstream consumers must strip.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The Shenbi pipeline was designed as a blueprint-driven novel generation system. The Genesis phase produces elaborate planning artifacts including a 100-chapter volume map, character archives, and meta-quality controls. However, three architectural defects prevent these artifacts from fulfilling their purpose:</p>
+<ol>
+<li>
+<p><strong>volume_map.md is never consumed for per-chapter content or context injection.</strong> The 460-line document defines 5 volumes, 100 chapters, 16 cross-volume bridges, and tension curves. It IS read for structure validation and chapter-count derivation (by gates <code>g2.py:289-290</code>, <code>g5.py:233,236</code>, <code>g6.py:300-301</code>, <code>g4/story_architecture.py:51</code>, <code>g4/volume_outlining.py:35</code>; by <code>triggers.py:75,283,361-374</code> for <code>total_chapters</code> recompute; by <code>genesis.py:65</code> and <code>cli.py:148,638</code>), but it is NOT read for per-chapter content/context injection: zero code in <code>chapter_loop.py</code>, <code>context_assemble.py</code>, or <code>dispatch_helper.py</code> injects its content into the LLM prompt at planning or drafting time. Result: 100/100 chapters deviate from the blueprint, 16/16 key plot points are missing, and 4/4 cross-volume bridges are never activated.</p>
+</li>
+<li>
+<p><strong>Character archives for supporting characters are never created.</strong> The <code>shenbi-character-design</code> SKILL.md contract declares writes to <code>characters/major/*.md</code> and <code>characters/minor/*.md</code>, but after 56 chapters of generation these directories do not exist. Six named supporting characters (Chen Weimin, Zhao Tiezhu, Chu Yunlan, Koen Whiteman, Gangshan Tieya, Middle-aged Woman) lack independent archives, making it impossible for downstream skills to query character state.</p>
+</li>
+<li>
+<p><strong>META blocks contaminate deliverable chapter files.</strong> The <code>shenbi-chapter-drafting</code> SKILL.md (lines 95-130) requires PRE_WRITE_CHECK and POST_WRITE_SELF_CHECK blocks embedded in <code>chapters/chapter-N.md</code>. While <code>shared.py:120-121</code> strips them for word counting, any consumer reading chapter files directly encounters internal quality-control artifacts. Average META block ratio is 31.3% of file size; worst case (Ch24) is 49.9%.</p>
+</li>
+</ol>
+<p>These three defects share a common root cause: <strong>the pipeline's planning-to-execution bridge is incomplete.</strong> Genesis produces plans, but the chapter loop has no mechanism to consume them.</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-volume_mapmd-consumed-for-validation-not-for-content-injection">2.1 volume_map.md: Consumed for Validation, Not for Content Injection</h3>
+<p><strong>Evidence chain:</strong></p>
+<p>The <code>shenbi-volume-outlining</code> skill generates <code>outline/volume_map.md</code> during Genesis -- a 460-line document containing:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Content</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1: Volume</td>
+<td>5 volumes, each with Objective + chapter range</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>L2: Key Result</td>
+<td>3-4 KRs per volume, each with opening/progression/turn/closing nodes</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>L3: Chapter</td>
+<td>100 chapters, each with node role and content description</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>L4: Tension</td>
+<td>Four-segment tension curve per volume + proportion constraints</td>
+<td>Planned</td>
+</tr>
+<tr>
+<td>L5: Bridge</td>
+<td>16 cross-volume hooks (item/event/info/character) + expected activation chapters</td>
+<td>Planned</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>shenbi-chapter-planning</code> SKILL.md contract declares <code>reads: outline/volume_map.md</code>. This file IS read elsewhere in the pipeline -- for structure validation and chapter-count derivation. Specifically: <code>gates/g2.py:289-290</code> (tension-curve annotation lookup), <code>gates/g5.py:233,236</code> (coverage contract), <code>gates/g6.py:300-301</code> (volume boundary adherence, G6.11), <code>gates/g4/story_architecture.py:51</code> (volume Objective+KR check), <code>gates/g4/volume_outlining.py:35</code> (volume coverage), <code>pipeline/triggers.py:75,283,361-374</code> (volume parsing and <code>total_chapters</code> recompute from <code>章节数</code>/<code>Chapters:</code> sums), <code>pipeline/genesis.py:65</code> (genesis step output path), and <code>pipeline/cli.py:148,638</code> (<code>total_chapters</code> refresh + contract reads).</p>
+<p>However, this declaration <strong>is never enforced for content injection.</strong> The file is not read to build per-chapter LLM context. Tracing the content-generation path:</p>
+<ol>
+<li><code>chapter_loop.py</code> (1450 lines): zero references to <code>volume_map</code> content in chapter planning/drafting</li>
+<li><code>context_assemble.py</code> (318 lines): zero references to <code>volume_map</code>. Route C (line 175, <code>_ROUTE_C_FILES</code> at lines 45-49) loads only <code>book_spine.md</code>, <code>audit_drift.md</code>, and <code>style_profile.md</code></li>
+<li><code>dispatch_helper.py</code> (656 lines): zero references to <code>volume_map</code>. <code>_build_skill_prompt</code> does not inject volume context</li>
+</ol>
+<p><strong>Impact cascade:</strong> This is not merely a missing feature -- it explains multiple downstream failures:
+- Progressive prose collapse (C2): LLM loses narrative direction, degenerates to parameter enumeration
+- Protagonist disappearance (CN1): volume_map explicitly plans character appearances per chapter, but LLM never sees them
+- Cross-volume bridge failure (CN2): 16 bridges have precise activation chapters, but no one tracks them
+- Overall narrative deviation: pipeline diverges from blueprint starting at Ch10</p>
+<p><strong>Code location:</strong> The contract declared at <code>skills/shenbi-chapter-planning/SKILL.md</code> (<code>reads</code> frontmatter) is a static declaration with no runtime enforcement of content injection. The pipeline's <code>dispatch_helper.py:_build_skill_prompt</code> (approx. line 400-530) assembles skill prompts but does not read the contract's <code>reads</code> field to inject declared input files. The <code>context_assemble.py:assembly_context</code> function (line 140+) assembles chapter context via three routes (A: entity index, B: embedding search, C: fixed rules) but none include volume_map parsing.</p>
+<h3 id="22-character-archive-completeness-asymmetric-gates-and-prompt-skew">2.2 Character Archive Completeness: Asymmetric Gates and Prompt Skew</h3>
+<p><strong>Evidence chain:</strong></p>
+<div class="highlight"><pre><span></span><code>characters/
+├── protagonist.md          Exists (7,976 bytes) -- only Lin Feng
+├── relationships.md        Exists (28,340 bytes) -- 6 relationship pairs
+├── major/                  Does not exist
+└── minor/                  Does not exist
+</code></pre></div>
+<p>The <code>shenbi-character-design</code> SKILL.md frontmatter declares:
+<div class="highlight"><pre><span></span><code><span class="nt">writes</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">characters/protagonist.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">characters/major/*.md</span><span class="w">       </span><span class="c1"># Never created</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">characters/minor/*.md</span><span class="w">       </span><span class="c1"># Never created</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">characters/relationships.md</span>
+</code></pre></div></p>
+<p><strong>Three root causes converge:</strong></p>
+<ol>
+<li>
+<p><strong>G4 asymmetry (primary):</strong> <code>g4/character_design.py</code> (140 lines) only validates protagonist structure. The <code>g4_character_design</code> function (line 18) checks <code>G4.protag.*</code> fields (name, role, personality_tags, core_value, goal_surface, goal_deep, fear, arc_type, arc_starting, arc_turning, arc_ending, voice_profile at lines 47-59). The <code>major_chars</code> check <strong>already exists</strong> as <code>G4.cd.major_chars</code> (lines 118-136: PASS if <code>characters/major/</code> contains &gt;= 2 files, WARN if == 1, SKIP if the directory is absent), but there is <strong>no equivalent check for <code>characters/minor/</code>.</strong> The gate therefore passes (or skips) as long as protagonist.md validates and major_chars is satisfied; minor character archives are never enforced.</p>
+</li>
+<li>
+<p><strong>SKILL.md prompt skew (contributing):</strong> The <code>shenbi-character-design</code> SKILL.md prompt allocates approximately 80% of its token budget to protagonist design. Supporting characters are briefly mentioned. The flow diagram (lines 38-49) shows "Ask: supporting characters?" as a binary branch, making major/minor generation optional.</p>
+</li>
+<li>
+<p><strong><code>_write_parsed_outputs</code> may not handle wildcard paths (contributing):</strong> The <code>dispatch_helper.py:_write_parsed_outputs</code> function (line 294) parses LLM output using <code>### FILE: path/to/file.md</code> markers (line 217-226). Wildcard contract paths like <code>characters/major/*.md</code> function as declarative contracts, not executable patterns. If the LLM outputs <code>### FILE: characters/major/chen-weimin.md</code>, the system must auto-create the <code>major/</code> directory -- but this behavior is not guaranteed.</p>
+</li>
+</ol>
+<p><strong>Impact:</strong> Six characters appearing in chapter plans and relationships.md have no independent archives:</p>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>First Appears</th>
+<th>Role</th>
+<th>In relationships.md</th>
+<th>Independent Archive</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chen Weimin</td>
+<td>Ch10+</td>
+<td>Spiritual mentor</td>
+<td>Yes (detailed arc Ch12-45)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Zhao Tiezhu</td>
+<td>Ch12+</td>
+<td>Military partner</td>
+<td>Yes (detailed arc Ch12-47)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Chu Yunlan</td>
+<td>Ch25+</td>
+<td>—</td>
+<td>Yes (mentioned)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Koen Whiteman</td>
+<td>Ch30+</td>
+<td>—</td>
+<td>Yes (mentioned)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Gangshan Tieya</td>
+<td>Ch30+</td>
+<td>—</td>
+<td>Yes (mentioned)</td>
+<td>No</td>
+</tr>
+<tr>
+<td>Middle-aged Woman</td>
+<td>Ch1-5</td>
+<td>—</td>
+<td>No</td>
+<td>No</td>
+</tr>
+</tbody>
+</table>
+<p>Downstream skills (chapter-planning, state-settling) cannot query character state by name. <code>character_matrix.md</code> was replaced by parametric proxy (fixed in Spec 1: Truth File and State Accumulation), removing the sole structured character tracker. Every LLM call must independently "remember" character traits, causing inconsistency.</p>
+<h3 id="23-meta-block-design-choice-with-downstream-risk">2.3 META Block: Design Choice with Downstream Risk</h3>
+<p><strong>Evidence chain:</strong></p>
+<p>The <code>shenbi-chapter-drafting</code> SKILL.md (lines 95-130) explicitly requires META blocks in chapter deliverables:</p>
+<div class="highlight"><pre><span></span><code>&lt;!--META-BEGIN--&gt;
+<span class="gu">## PRE_WRITE_CHECK</span>
+[core task, hooks to fulfill, taboos, ending pattern, AI traps, resonance gaps, transition budget]
+&lt;!--META-END--&gt;
+
+<span class="gh"># Chapter Title</span>
+[prose content]
+
+&lt;!--META-BEGIN--&gt;
+<span class="gu">## POST_WRITE_SELF_CHECK</span>
+[transition density check, curiosity check, meta-narrative check]
+&lt;!--META-END--&gt;
+</code></pre></div>
+<p>The design intent is documented at SKILL.md:129: "Downstream parsers (word count, audit, scoring) must strip META blocks before processing pure prose."</p>
+<p><strong>Stripping implementation</strong> at <code>gates/shared.py:120-121</code>:
+<div class="highlight"><pre><span></span><code><span class="n">c</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;&lt;!--META-BEGIN--&gt;.*?&lt;!--META-END--&gt;&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">flags</span><span class="o">=</span><span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>This is design, not accident.</strong> However, three problems remain:</p>
+<ol>
+<li>
+<p><strong>File semantic confusion:</strong> <code>chapter-N.md</code> is simultaneously a "deliverable novel chapter" and an "internal quality control document." Any consumer bypassing <code>shared.py</code> (human reader, external tool, future AI reader) encounters internal checklists.</p>
+</li>
+<li>
+<p><strong>Git diff noise:</strong> META block changes (plan adjustments) and prose changes are commingled in the same file.</p>
+</li>
+<li>
+<p><strong>Token waste:</strong> ~31% of tokens per chapter transmit content that downstream must strip.</p>
+</li>
+</ol>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-volume-map-consumption">3.1 Volume Map Consumption</h3>
+<p>Three coordinated changes to ensure the volume_map blueprint reaches the LLM at planning and drafting time.</p>
+<h4 id="311-inject-volume_map-into-context_assemblepy-route-c">3.1.1 Inject volume_map into context_assemble.py Route C</h4>
+<p><strong>Critical:</strong> Volume boundaries MUST be parsed from <code>volume_map.md</code> at runtime (using the existing <code>triggers.py:read_volume_boundaries()</code> function), NOT hard-coded as Python literals. Hard-coding <code>('Volume 1', (1, 15))</code> duplicates the map and will diverge.</p>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/context_assemble.py</code></p>
+<p>Current Route C (lines 44-49, 175-184) loads only <code>book_spine.md</code>, <code>audit_drift.md</code>, <code>style_profile.md</code>. Add volume_map extraction:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Add to _ROUTE_C_FILES or as a separate function call in assemble_context()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_volume_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract current volume context from volume_map.md for the given chapter.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">    - Current volume Objective</span>
+<span class="sd">    - Current KR goal and node</span>
+<span class="sd">    - Expected chapter content per volume_map</span>
+<span class="sd">    - Next cross-volume bridge activation chapter</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">vm_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;outline&#39;</span> <span class="o">/</span> <span class="s1">&#39;volume_map.md&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vm_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="n">volume_map</span> <span class="o">=</span> <span class="n">vm_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Determine which volume this chapter belongs to</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.triggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_volume_boundaries</span>
+
+    <span class="c1"># Parse volume boundaries from volume_map.md at runtime (NEVER hard-code)</span>
+    <span class="n">boundary_chapters</span> <span class="o">=</span> <span class="n">read_volume_boundaries</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="c1"># Returns set of {last-chapter-of-each-volume}, e.g. {15, 35, 55, 75, 100}</span>
+    <span class="c1"># Build (vol_name, ch_range) tuples from the boundary set</span>
+    <span class="n">boundaries_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">boundary_chapters</span><span class="p">)</span>
+    <span class="n">volume_ranges</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">prev_end</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boundaries_sorted</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">volume_ranges</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="sa">f</span><span class="s2">&quot;Volume </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">prev_end</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">end</span><span class="p">)))</span>
+        <span class="n">prev_end</span> <span class="o">=</span> <span class="n">end</span>
+
+    <span class="n">current_volume</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">for</span> <span class="n">vol_name</span><span class="p">,</span> <span class="p">(</span><span class="n">ch_start</span><span class="p">,</span> <span class="n">ch_end</span><span class="p">)</span> <span class="ow">in</span> <span class="n">volume_ranges</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">ch_start</span> <span class="o">&lt;=</span> <span class="n">chapter</span> <span class="o">&lt;=</span> <span class="n">ch_end</span><span class="p">:</span>
+            <span class="n">current_volume</span> <span class="o">=</span> <span class="n">vol_name</span>
+            <span class="k">break</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">current_volume</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="c1"># Extract volume section, chapter node, pending bridges</span>
+    <span class="c1"># (extraction logic using regex or section parsing)</span>
+    <span class="o">...</span>
+</code></pre></div>
+<h4 id="312-deterministic-plan-skeleton-generator">3.1.2 Deterministic Plan Skeleton Generator</h4>
+<p><strong>Critical:</strong> Pre-filled sections from the skeleton MUST be marked as EDITABLE CONTEXT, not locked output. The LLM should see them as "suggested starting point — you may modify, override, or deviate." If the skeleton is treated as immutable, creative deviation drops to ~0%, conflicting with the design intent. Add an explicit instruction in the skeleton prompt: "以下为参考骨架，可根据创作需要调整" (The following is a reference skeleton; adjust as needed for creative purposes).</p>
+<p><strong>New file:</strong> <code>src/shenbi/pipeline/plan_skeleton.py</code></p>
+<p>The chapter planning step currently has the LLM generate all 8 plan sections from scratch. Analysis shows 87.5% of content can be deterministically derived from volume_map:</p>
+<table>
+<thead>
+<tr>
+<th>Section</th>
+<th>volume_map Provides</th>
+<th>LLM Role</th>
+<th>Token Saving</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Current Task</td>
+<td>Fully (node role + description)</td>
+<td>Polish wording</td>
+<td>-80%</td>
+</tr>
+<tr>
+<td>2. Reader Expectations</td>
+<td>Partial (tension curve)</td>
+<td>Combine with previous chapter</td>
+<td>-40%</td>
+</tr>
+<tr>
+<td>3. Fulfill/Defer Decisions</td>
+<td>Cross-volume bridges (bridge_tracker)</td>
+<td>Add intra-chapter hooks</td>
+<td>-50%</td>
+</tr>
+<tr>
+<td>4. Transition Role</td>
+<td>Node role (opening/progression/turn/closing)</td>
+<td>Polish wording</td>
+<td>-80%</td>
+</tr>
+<tr>
+<td>5. Key Decisions</td>
+<td>Not derivable</td>
+<td><strong>Full LLM</strong></td>
+<td>-0%</td>
+</tr>
+<tr>
+<td>6. End-of-Chapter Change</td>
+<td>Basic (current node + next chapter)</td>
+<td>Refine specifics</td>
+<td>-60%</td>
+</tr>
+<tr>
+<td>7. Hook Ledger</td>
+<td>Bridges (bridge_tracker + pending hooks)</td>
+<td>Fill operational details</td>
+<td>-50%</td>
+</tr>
+<tr>
+<td>8. Don't Do</td>
+<td>Partial (volume boundary constraints)</td>
+<td>Chapter-level taboos</td>
+<td>-30%</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td></td>
+<td></td>
+<td><strong>~55%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>The skeleton generator function <code>generate_plan_skeleton(project_dir, chapter)</code> produces a markdown template where sections 1, 4, 6, 7 are pre-filled with deterministic content from volume_map, and sections 2, 3, 5, 8 contain placeholders with guidance for LLM completion. The LLM's role shifts from "generator" to "polisher + creative filler." Expected token reduction: ~55%. Alignment with blueprint: from 0% to near 100%.</p>
+<h4 id="313-blueprint-alignment-checks-warn-level-non-blocking">3.1.3 Blueprint Alignment Checks (WARN-level, non-blocking)</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code></p>
+<p>After chapter drafting completes, add a <code>_check_volume_map_alignment()</code> function that:
+- Checks key term presence: compares terms from volume_map's chapter node description against chapter text. Warns if &gt;70% missing.
+- Checks character appearances: compares expected debut/appearance characters from volume_map against chapter text.
+- Emits WARN-level issues only -- blueprint is guidance, creative deviation is allowed.</p>
+<h4 id="314-cross-volume-bridge-tracker">3.1.4 Cross-Volume Bridge Tracker</h4>
+<p><strong>New file:</strong> <code>truth/bridge_tracker.md</code></p>
+<p>Tracks all 16 cross-volume bridges with state:</p>
+<table>
+<thead>
+<tr>
+<th>Bridge ID</th>
+<th>Content</th>
+<th>Expected Activation Ch</th>
+<th>Actual Activation Ch</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1-B1</td>
+<td>Brahmi inscription metal fragment</td>
+<td>Ch26</td>
+<td>—</td>
+<td>PENDING</td>
+</tr>
+<tr>
+<td>V1-B4</td>
+<td>Chu Yunlan debut</td>
+<td>Ch27</td>
+<td>—</td>
+<td>PENDING</td>
+</tr>
+</tbody>
+</table>
+<p>Updated by <code>shenbi-foreshadowing-track</code> each chapter: when chapter content contains bridge key terms, mark ACTIVATED.</p>
+<h3 id="32-character-archive-completeness">3.2 Character Archive Completeness</h3>
+<h4 id="321-wildcard-path-resolution-in-_write_parsed_outputs">3.2.1 Wildcard Path Resolution in _write_parsed_outputs</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/dispatch_helper.py</code> (line 294)</p>
+<p>Modify <code>_write_parsed_outputs</code> to:
+1. Recognize wildcard patterns (<code>*</code>) in contract write paths
+2. Auto-create intermediate directories when LLM outputs a <code>### FILE:</code> marker with a concrete path under a wildcard pattern
+3. Validate that all declared write patterns have at least one corresponding output file</p>
+<h4 id="322-skillmd-prompt-restructuring">3.2.2 SKILL.md Prompt Restructuring</h4>
+<p><strong>File:</strong> <code>skills/shenbi-character-design/SKILL.md</code></p>
+<p>Restructure into four explicit phases:
+- <strong>Phase 1: Protagonist Depth Portrait</strong> -&gt; <code>characters/protagonist.md</code>
+- <strong>Phase 2: Major Supporting Character Portraits</strong> -&gt; <code>characters/major/{slug}.md</code> (one per character)
+- <strong>Phase 3: Minor Character Registration</strong> -&gt; <code>characters/minor/{slug}.md</code> (one per character)
+- <strong>Phase 4: Relationship Graph</strong> -&gt; <code>characters/relationships.md</code></p>
+<p>Add iron law: every character explicitly named in <code>chapter_outline.md</code> or <code>three_act.md</code> must have a corresponding archive in <code>major/</code> or <code>minor/</code>. Major = appears in 3+ chapters with independent arc. Minor = appears in 1-2 chapters or as functional role.</p>
+<h4 id="323-g4-gate-enhancement">3.2.3 G4 Gate Enhancement</h4>
+<p><strong>File:</strong> <code>src/shenbi/gates/g4/character_design.py</code></p>
+<p>The existing <code>G4.cd.major_chars</code> check (lines 118-136) already validates <code>characters/major/</code> (PASS if &gt;= 2 files, WARN if == 1, SKIP if absent). Adjust its threshold and add the missing minor check:
+- <code>G4.cd.major_chars</code> (existing): raise threshold so <code>characters/major/</code> contains &gt;= 3 <code>.md</code> files (currently &gt;= 2)
+- <code>G4.cd.minor_chars</code> (new): <code>characters/minor/</code> directory must contain &gt;= 2 <code>.md</code> files</p>
+<h4 id="324-historical-archetype-driven-character-design">3.2.4 Historical Archetype-Driven Character Design</h4>
+<p>Each character archive (major and minor) must declare 1-2 historical figure archetypes as design anchors. This replaces abstract personality-tag-based design with concrete, traceable behavior logic.</p>
+<p><strong>New required fields per character archive:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="nt">archetype_sources</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;historical figure name&gt;</span>
+<span class="w">    </span><span class="nt">period</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;era&gt;</span>
+<span class="w">    </span><span class="nt">traits_borrowed</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">&lt;at least 3 borrowed traits&gt;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">traits_discarded</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">&lt;at least 2 discarded traits&gt;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">adaptation_rationale</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">&lt;at least 100 characters explaining why this archetype</span>
+<span class="w">      </span><span class="l l-Scalar l-Scalar-Plain">was chosen and how it was adapted to the novel&#39;s world&gt;</span>
+</code></pre></div>
+<p><strong>Archetype selection principles</strong> (added to SKILL.md prompt):
+1. Prefer specific historical figures over abstract archetypes ("Zhou Enlai 1930s Shanghai underground period" over "wise elder archetype")
+2. 1-2 archetypes per character (1 provides core behavioral logic, optional 2nd provides supplementary dimension)
+3. Archetypes must be adapted to the novel's world (skills -&gt; world equivalents, social roles -&gt; caste system mapping)
+4. Explicit borrow/discard lists: character is not a copy of the historical figure
+5. Avoid: overused figures, mythological/fictional figures, living public figures</p>
+<h4 id="325-restore-character_matrixmd-with-slug-based-cross-references">3.2.5 Restore character_matrix.md with Slug-Based Cross-References</h4>
+<p><strong>File:</strong> <code>truth/character_matrix.md</code> (restore from parametric proxy)</p>
+<p>The matrix should use slug-based cross-references to character archives:</p>
+<table>
+<thead>
+<tr>
+<th>Character</th>
+<th>Slug</th>
+<th>Current State</th>
+<th>Current Location</th>
+<th>Current Emotion</th>
+<th>Active Relationships</th>
+<th>Arc Stage</th>
+<th>Last Updated Ch</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Lin Feng</td>
+<td>lin-feng</td>
+<td>Active</td>
+<td>...</td>
+<td>...</td>
+<td>Chen Weimin (mentor)</td>
+<td>Stage 1-&gt;2</td>
+<td>Ch56</td>
+</tr>
+<tr>
+<td>Chen Weimin</td>
+<td>chen-weimin</td>
+<td>Deceased (Ch45)</td>
+<td>—</td>
+<td>—</td>
+<td>Lin Feng (successor)</td>
+<td>Complete</td>
+<td>Ch45</td>
+</tr>
+<tr>
+<td>Zhao Tiezhu</td>
+<td>zhao-tiezhu</td>
+<td>Active</td>
+<td>...</td>
+<td>...</td>
+<td>Lin Feng (partner)</td>
+<td>Stage 3</td>
+<td>Ch56</td>
+</tr>
+</tbody>
+</table>
+<p>Updated by <code>shenbi-state-settling</code> each chapter with arc_log entries.</p>
+<h3 id="33-meta-block-strategy">3.3 META Block Strategy</h3>
+<p><strong>Short-term (this spec, zero code changes):</strong> Keep status quo. Add documentation and monitoring.</p>
+<p><strong>Mid-term (future spec, after H1 JSON format stabilizes and H2 revision system is fixed):</strong> Move META blocks to separate <code>chapter-N-meta.md</code> files.</p>
+<h4 id="331-documentation-short-term">3.3.1 Documentation (short-term)</h4>
+<p><strong>New file:</strong> <code>docs/framework/chapter-file-format.md</code></p>
+<p>Document the complete format specification for <code>chapters/chapter-N.md</code>:
+- META block existence and rationale (quality control self-check)
+- Stripping method for downstream consumers (reference <code>shared.py:120-121</code>)
+- META block field definitions
+- Clear statement: "META blocks are not part of the novel prose"</p>
+<p><strong>Update:</strong> <code>skills/shenbi-chapter-drafting/SKILL.md</code> around line 129 -- elevate existing comment to prominent warning block.</p>
+<h4 id="332-monitoring-gate-short-term">3.3.2 Monitoring Gate (short-term)</h4>
+<p><strong>File:</strong> <code>src/shenbi/gates/g2.py</code></p>
+<p>Add <code>G2.meta_ratio</code> check: WARN when META block proportion exceeds 50% of chapter file (indicates planning bloat).</p>
+<h4 id="333-separation-plan-mid-term-deferred">3.3.3 Separation Plan (mid-term, deferred)</h4>
+<p>When <code>decisions.json</code> format and revision system (both fixed in Spec 2: Output Validation) are stable:
+- <code>shenbi-chapter-drafting</code> writes <code>chapters/chapter-N-meta.md</code> as separate output
+- <code>chapters/chapter-N.md</code> becomes pure prose deliverable
+- Remove META stripping logic from <code>shared.py:120-121</code>
+- Update all downstream audit/scoring skills to read from <code>chapter-N-meta.md</code></p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<h3 id="volume-map-consumption">Volume Map Consumption</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/context_assemble.py</code> (318 lines)</td>
+<td>Add <code>_load_volume_context()</code>; inject volume context into Route C assembly (approx. line 175)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/plan_skeleton.py</code></td>
+<td><strong>New file</strong> -- <code>generate_plan_skeleton()</code> for deterministic skeleton from volume_map</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (1450 lines)</td>
+<td>Add <code>_check_volume_map_alignment()</code> WARN-level check after chapter drafting; add bridge_tracker update hook (approx. line 600-700)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code> (656 lines)</td>
+<td>Inject volume context into shenbi-chapter-planning prompt in <code>_build_skill_prompt</code> (approx. line 400-530)</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-planning/SKILL.md</code></td>
+<td>Update prompt to receive and consume plan skeleton</td>
+</tr>
+<tr>
+<td><code>truth/bridge_tracker.md</code></td>
+<td><strong>New file</strong> -- cross-volume bridge state tracker</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-track/SKILL.md</code></td>
+<td>Add bridge_tracker update responsibility</td>
+</tr>
+</tbody>
+</table>
+<h3 id="character-archive-completeness">Character Archive Completeness</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code> (656 lines)</td>
+<td><code>_write_parsed_outputs</code> (line 294): add wildcard path resolution + auto-create directories</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-character-design/SKILL.md</code></td>
+<td>Restructure prompt into 4 phases; add archetype-driven design methodology; add iron laws</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/character_design.py</code> (140 lines)</td>
+<td>Raise existing <code>G4.cd.major_chars</code> threshold to &gt;= 3 (lines 118-136); add new <code>G4.cd.minor_chars</code> (&gt;= 2) check</td>
+</tr>
+<tr>
+<td><code>truth/character_matrix.md</code></td>
+<td>Restore from parametric proxy with slug-based cross-references</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-state-settling/SKILL.md</code></td>
+<td>Add character_matrix.md update with arc_log entries per chapter</td>
+</tr>
+</tbody>
+</table>
+<h3 id="meta-block-strategy">META Block Strategy</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>docs/framework/chapter-file-format.md</code></td>
+<td><strong>New file</strong> -- chapter format specification with META block documentation</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-drafting/SKILL.md</code> (line 129)</td>
+<td>Elevate META stripping comment to prominent warning block</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g2.py</code> (306 lines)</td>
+<td>Add <code>G2.meta_ratio</code> WARN check (&gt; 50% triggers warning)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<h3 id="volume-map-consumption_1">Volume Map Consumption</h3>
+<ol>
+<li><code>context_assemble.py</code> Route C output includes current volume Objective and chapter node info</li>
+<li><code>plan_skeleton.py</code> generates deterministic skeleton for each chapter; LLM planning prompt receives skeleton, not blank slate</li>
+<li>Hybrid planning token consumption reduced by &gt;= 40% vs pure LLM planning</li>
+<li>Over 10 consecutive chapters, key term match rate with volume_map &gt;= 80% (from current 0%)</li>
+<li>Section 5 (Key Decisions) retains full LLM creative generation -- skeletonization does not eliminate creativity</li>
+<li>Bridge tracker updates state within expected activation chapter range</li>
+<li><code>just check</code> passes with zero failures</li>
+</ol>
+<h3 id="character-archive-completeness_1">Character Archive Completeness</h3>
+<ol>
+<li>After Genesis, <code>characters/major/</code> contains &gt;= 3 <code>.md</code> files</li>
+<li>After Genesis, <code>characters/minor/</code> contains &gt;= 2 <code>.md</code> files</li>
+<li>Each major character archive includes <code>archetype_sources</code> field with &gt;= 1 historical archetype</li>
+<li>Each archive includes explicit borrow/discard lists (&gt;= 3 borrowed traits, &gt;= 2 discarded)</li>
+<li><code>adaptation_rationale</code> &gt;= 100 characters per archetype</li>
+<li>Archetypes are specific historical figures (not abstract type labels)</li>
+<li>Downstream skills (chapter-planning) can read <code>characters/major/{slug}.md</code> successfully</li>
+<li>State-settling updates <code>character_matrix.md</code> using slug references</li>
+<li>After 10 consecutive chapters, <code>protagonist.md</code> <code>arc_log</code> contains progressive stage entries</li>
+</ol>
+<h3 id="meta-block-strategy_1">META Block Strategy</h3>
+<ol>
+<li><code>docs/framework/chapter-file-format.md</code> exists and is complete and accurate</li>
+<li>SKILL.md warning is prominently visible</li>
+<li><code>just check</code> passes with zero failures (no code changes)</li>
+<li><code>G2.meta_ratio</code> WARN triggers when META ratio exceeds 50%</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 1 (Truth File and State Accumulation)
+  ├── character_matrix.md restoration depends on this
+  ├── bridge_tracker needs append mode
+  ├── character_matrix incremental updates need this
+  └── character_matrix.md slug-based cross-references
+
+This Spec
+  ├── shenbi-chapter-planning (consumes plan skeleton)
+  ├── shenbi-chapter-drafting (consumes volume context)
+  ├── shenbi-foreshadowing-track (bridge_tracker updates)
+  ├── shenbi-character-design SKILL.md rewrite
+  ├── shenbi-state-settling (character_matrix update logic)
+  └── shenbi-chapter-drafting SKILL.md (META documentation)
+
+Mid-term:
+  └── Spec 2 (Output Validation and Format Enforcement)
+      └── META block separation to chapter-N-meta.md
+</code></pre></div>
+<hr />
+<h2 id="7-original-code-mapping">7. Original Code Mapping</h2>
+<p>This consolidated spec merges the following original issue codes:</p>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Section in This Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>volume-map</code></td>
+<td>volume_map.md not consumed for per-chapter content/context injection (validation consumption exists)</td>
+<td>2.1, 3.1</td>
+</tr>
+<tr>
+<td><code>character-archive</code></td>
+<td>Supporting character archives never created</td>
+<td>2.2, 3.2</td>
+</tr>
+<tr>
+<td><code>C3</code></td>
+<td>META blocks contaminate deliverable chapter files</td>
+<td>2.3, 3.3</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,1791 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/01-pr-fraud/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 01: P-1 PR Completion Fraud - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 01: P-1 PR Completion Fraud - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/01-pr-fraud.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/01-pr-fraud/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 01: P-1 PR Completion Fraud - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/01-pr-fraud.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-01-p-1-pr-completion-fraud" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 01: P-1 PR Completion Fraud
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#compounding-evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Compounding evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-1-acceptance-criteria-allowed-stubs-as-completion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 1: Acceptance criteria allowed stubs as completion
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-2-p-1e-was-a-deferred-but-unwritten-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 2: "P-1.E" was a deferred-but-unwritten plan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-3-stub-forwarder-looks-like-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 3: Stub + forwarder looks like "infrastructure"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-4-pr-review-didnt-catch-the-gap" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 4: PR review didn't catch the gap
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components (PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components (PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-19-validate-gatepy-true-modularization-supersedes-pr-12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-19: validate-gate.py true modularization (supersedes PR-12)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-20-dispatch-subagentsh-true-python-rewrite-supersedes-pr-13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-20: dispatch-subagent.sh true Python rewrite (supersedes PR-13)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-21-archive-all-7-phantom-rounds-supersedes-pr-14" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-21: archive all 7 phantom rounds (supersedes PR-14)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-22-rename-novel-output-skill-output-supersedes-pr-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-22: rename novel-output → skill-output (supersedes PR-15)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-23-mutation-testing-baseline-supersedes-pr-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-23: mutation testing baseline (supersedes PR-16)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cluster-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cluster Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks-specific-to-this-cluster" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks Specific to This Cluster
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-01-p-1-pr-completion-fraud">Cluster 01: P-1 PR Completion Fraud</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F1–F6</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>P-1.D's plan delivered 5 PRs as <strong>scaffolding only</strong> — empty stub modules with
+subprocess forwarders, deferred work, partial archive, no rename, no baseline.
+The P-1.D plan document (<code>docs/superpowers/plans/2026-06-14-p-1.d-refactor-cleanup-extras.md</code>)
+explicitly used phrases like "Full per-gate file split <strong>deferred</strong> to dedicated
+session" and "Full Python rewrite <strong>deferred</strong>" in the Approach sections of
+PR-12, PR-13, PR-15, PR-16. The "dedicated session" never came. The merge
+commit <code>9e5c457</code> declared P-1 complete.</p>
+<h3 id="evidence">Evidence</h3>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Plan claim</th>
+<th>Actual file</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR-12</td>
+<td>"Create <code>tests/gates/</code> package with <code>__init__.py</code> re-exporting from current <code>validate-gate.py</code>. Full per-gate file split deferred"</td>
+<td><code>tests/gates/cli.py</code> (17 lines, subprocess forwarder); <code>tests/gates/__init__.py</code> (6 lines, docstring only); <code>tests/gates/g4/__init__.py</code> (1 line, docstring only)</td>
+<td><code>tests/validate-gate.py</code> still 4318 lines</td>
+</tr>
+<tr>
+<td>PR-13</td>
+<td>"Create <code>tests/dispatcher/</code> package with <code>__init__.py</code> + <code>cli.py</code> + <code>executor.py</code>. Shell wrapper stays as shim. Full Python rewrite deferred"</td>
+<td><code>tests/dispatcher/cli.py</code> (17 lines, subprocess forwarder); no <code>executor.py</code> exists</td>
+<td><code>tests/dispatch-subagent.sh</code> still 203 lines</td>
+</tr>
+<tr>
+<td>PR-14</td>
+<td>"Move rounds 001-007 to <code>tests/rounds/archived/</code> with README per round"</td>
+<td><code>tests/rounds/archived/</code> contains only <code>round-001-2026-06-11/</code> + <code>README.md</code></td>
+<td>Rounds 002-007 still in <code>tests/rounds/</code> root</td>
+</tr>
+<tr>
+<td>PR-15</td>
+<td>"Update all references [from novel-output → skill-output]"</td>
+<td>Zero references updated; <code>command-to-give.md</code> has 6 refs, <code>AGENTS.md</code> has 1</td>
+<td>7+ <code>novel-output</code> references in tracked files</td>
+</tr>
+<tr>
+<td>PR-16</td>
+<td>"benchmark + audit + SBOM config" including "mutation score baseline"</td>
+<td>No <code>.mutmut-cache</code>, no <code>tests/baselines/mutation-score.txt</code></td>
+<td>mutmut configured but never run</td>
+</tr>
+</tbody>
+</table>
+<h3 id="compounding-evidence">Compounding evidence</h3>
+<ul>
+<li><code>tests/dispatcher/__init__.py</code> docstring: <em>"The actual Python rewrite of
+  dispatch-subagent.sh is </em><em>deferred to P-1.E</em><em>."</em></li>
+<li><code>tests/gates/__init__.py</code> docstring: <em>"The actual per-gate split (g0.py,
+  g1.py, ... g7.py) is </em><em>deferred to P-1.E</em><em>."</em></li>
+<li><code>pyproject.toml:43-45</code>: <em>"[project.scripts] 暂不定义。P-1.E 完成 Python
+  原生重写后再加 entry points。"</em></li>
+<li><code>pyproject.toml:134-135</code>: <em>"P-1.A temporary overrides ... PR-12 (P-1.E)
+  will add type hints and remove these overrides."</em></li>
+</ul>
+<p><strong>P-1.E has been referenced 4+ times in tracked files but no plan file for
+P-1.E ever existed.</strong> The "deferred" work became invisible debt.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="root-cause-1-acceptance-criteria-allowed-stubs-as-completion">Root cause 1: Acceptance criteria allowed stubs as completion</h3>
+<p>P-1.D plan's Task structure used <code>**Approach:**</code> paragraphs that mixed
+"what's done in this PR" with "what's deferred". The deferral language was
+permissive ("deferred to dedicated session") rather than blocking ("this PR
+is blocked until ..."). This allowed the implementer to mark a PR as done by
+creating a forwarder, without violating the literal plan text.</p>
+<p><strong>Fix</strong>: All P-1.E PR acceptance criteria are written as <strong>verifiable
+predicates</strong> (file count, line count, behavior parity tests), not narrative
+descriptions.</p>
+<h3 id="root-cause-2-p-1e-was-a-deferred-but-unwritten-plan">Root cause 2: "P-1.E" was a deferred-but-unwritten plan</h3>
+<p>When the P-1.D implementer hit scope or time pressure, they pushed the hard
+work to "P-1.E" without creating the P-1.E plan file. The deferral became
+invisible: no issue, no follow-up PR, no plan file. The merge commit message
+("feat: P-1 Foundation Hygiene (...)") didn't mention the deferrals.</p>
+<p><strong>Fix</strong>: This spec creates the P-1.E plan file (the document you're reading).
+After merge, no <code>P-1.E</code>-style deferral is allowed without:
+1. An open GitHub issue tracking the deferred work
+2. A "Deferred" section in the merging PR's description
+3. The deferral explicitly mentioned in the merge commit message</p>
+<p>This is codified as a new project rule in <code>CONTRIBUTING.md</code> (canonical PR-40, Cluster 06).</p>
+<h3 id="root-cause-3-stub-forwarder-looks-like-infrastructure">Root cause 3: Stub + forwarder looks like "infrastructure"</h3>
+<p>The empty <code>tests/gates/__init__.py</code> and <code>tests/dispatcher/__init__.py</code> files
+were rationalized as "creating the interface that P-1.E+ code expects" —
+sounding like infrastructure work. But the interface is a Python import path,
+which is trivial to add later. <strong>An interface without an implementation is
+not infrastructure; it's documentation of intent.</strong></p>
+<p><strong>Fix</strong>: Future "scaffolding" PRs must include at least one <strong>real consumer</strong>
+of the scaffolded interface (a test, a downstream module, or a working CLI
+invocation). Scaffolding with zero consumers is forbidden.</p>
+<h3 id="root-cause-4-pr-review-didnt-catch-the-gap">Root cause 4: PR review didn't catch the gap</h3>
+<p>The merged P-1.D PRs were reviewed (Copilot review mentioned in session
+history) but the review focused on correctness of the stub code, not on
+whether the stub fulfilled the PR's stated goal. A 17-line forwarder can be
+perfectly correct code while failing the PR's purpose.</p>
+<p><strong>Fix</strong>: Canonical PR-40 (Cluster 06) adds <code>PULL_REQUEST_TEMPLATE.md</code> with mandatory checkboxes:
+- [ ] This PR fulfills all stated goals (not deferred)
+- [ ] If any work is deferred: GitHub issue linked + "Deferred" section in description
+- [ ] No <code>print()</code> added in framework code
+- [ ] No new <code>ignore_errors</code>/<code>exclude</code> in tooling config</p>
+<h2 id="target-state">Target State</h2>
+<p>After P-1.E Cluster 01 completes:</p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>State</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>Removed; logic split into <code>src/shenbi/gates/{g0..g7}.py</code> + <code>src/shenbi/gates/g4/&lt;skill&gt;.py</code></td>
+</tr>
+<tr>
+<td><code>tests/gates/cli.py</code> forwarder</td>
+<td>Removed; replaced by real <code>src/shenbi/gates/cli.py</code> entry point</td>
+</tr>
+<tr>
+<td><code>tests/dispatch-subagent.sh</code></td>
+<td>Reduced to 10-line shim OR removed if backward-compat not needed</td>
+</tr>
+<tr>
+<td><code>tests/dispatcher/cli.py</code> forwarder</td>
+<td>Removed; replaced by real <code>src/shenbi/dispatcher/{cli,executor}.py</code></td>
+</tr>
+<tr>
+<td><code>tests/rounds/archived/</code></td>
+<td>Contains rounds 001-007, each with <code>README.md</code></td>
+</tr>
+<tr>
+<td><code>command-to-give.md</code>, <code>AGENTS.md</code></td>
+<td>All <code>novel-output/</code> references replaced with <code>skill-output/</code></td>
+</tr>
+<tr>
+<td><code>.mutmut-cache</code></td>
+<td>Committed; <code>tests/baselines/mutation-score.txt</code> exists</td>
+</tr>
+<tr>
+<td>All <code>P-1.E</code> references in tracked files</td>
+<td>Either done (comment removed) or replaced with GitHub issue link</td>
+</tr>
+</tbody>
+</table>
+<h2 id="components-prs">Components (PRs)</h2>
+<h3 id="pr-19-validate-gatepy-true-modularization-supersedes-pr-12">PR-19: validate-gate.py true modularization (supersedes PR-12)</h3>
+<p><strong>Files created</strong>:</p>
+<div class="highlight"><pre><span></span><code>src/shenbi/gates/
+├── __init__.py          (~30 lines: re-exports public API)
+├── shared.py            (~150 lines: jload, yload, passed, fail, write_gate_marker, ...)
+├── cli.py               (~80 lines: argparse dispatcher)
+├── g0.py                (~100 lines: G0 + G0.x sub-checks)
+├── g1.py                (~80 lines)
+├── g2.py                (~120 lines: includes _is_important_chapter)
+├── g3.py                (~60 lines)
+├── g4/
+│   ├── __init__.py      (~50 lines: gate_G4 router)
+│   ├── generic.py       (~200 lines: g4_generic_generative / bughunt / clean)
+│   ├── worldbuilding.py
+│   ├── character_design.py
+│   ├── chapter_drafting.py
+│   ├── story_architecture.py
+│   ├── power_system.py
+│   ├── faction_builder.py
+│   ├── location_builder.py
+│   ├── relationship_map.py
+│   ├── pacing_design.py
+│   ├── plot_thread_weaver.py
+│   ├── genre_config.py
+│   ├── volume_outlining.py
+│   ├── chapter_planning.py
+│   ├── foreshadowing_track.py
+│   ├── context_composing.py
+│   ├── foreshadowing_plant.py
+│   ├── state_setting.py
+│   ├── style_polishing.py
+│   ├── anti_detect.py
+│   ├── length_normalizing.py
+│   └── ... (one file per skill with a G4 checker)
+├── g5.py                (~80 lines)
+├── g6.py                (~100 lines)
+├── g7.py                (~250 lines: includes G7.16 phase close)
+├── g_transition.py      (~80 lines)
+├── g_dispatch.py        (~100 lines)
+└── g_reconcile.py       (~80 lines)
+</code></pre></div>
+<p><strong>Approach</strong>: Strangler-fig with baseline differential testing.</p>
+<ol>
+<li><strong>Baseline generation</strong> (pre-PR): script <code>tests/regenerate-baselines.sh</code>
+   runs all G0-G7 + all G4 checkers on a fixed corpus of fixture projects,
+   captures stdout JSON to <code>tests/baselines/gate-outputs/&lt;gate&gt;.json</code>.</li>
+<li><strong>Modularization</strong>: split <code>validate-gate.py</code> mechanically. Each function
+   moves to its target file unchanged. <code>shared.py</code> collects helpers.</li>
+<li><strong>Differential test</strong>: re-run the baseline corpus against the new modular
+   version. Output must match baseline exactly (modulo timestamp).</li>
+<li><strong>CLI compatibility</strong>: <code>python -m shenbi.gates.cli G0 &lt;args&gt;</code> must produce
+   identical output to old <code>python tests/validate-gate.py G0 &lt;args&gt;</code>.</li>
+<li><strong>Remove</strong> <code>tests/validate-gate.py</code> and <code>tests/gates/</code> (the stub).</li>
+</ol>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] No file in <code>src/shenbi/gates/</code> exceeds 500 lines</li>
+<li>[ ] Single function bodies don't exceed 80 lines (split if longer)</li>
+<li>[ ] <code>tests/baselines/gate-outputs/</code> directory exists with one JSON per gate</li>
+<li>[ ] <code>pytest tests/integration/test_gate_differential.py</code> passes (compares
+      new outputs to baselines)</li>
+<li>[ ] <code>python -m shenbi.gates.cli --help</code> works</li>
+<li>[ ] Zero references to <code>tests/validate-gate.py</code> in tracked files (excluding
+      <code>tests/rounds/archived/</code> and ADRs)</li>
+</ul>
+<h3 id="pr-20-dispatch-subagentsh-true-python-rewrite-supersedes-pr-13">PR-20: dispatch-subagent.sh true Python rewrite (supersedes PR-13)</h3>
+<p><strong>Files created</strong>:</p>
+<div class="highlight"><pre><span></span><code>src/shenbi/dispatcher/
+├── __init__.py          (~20 lines)
+├── cli.py               (~100 lines: argparse + main())
+├── executor.py          (~250 lines: actual dispatch logic)
+└── modes/
+    ├── __init__.py
+    ├── codex.py         (~80 lines: codex CLI integration)
+    ├── codex_api.py     (~80 lines: codex API mode, currently stubbed in shell)
+    └── internal.py      (~60 lines: development fallback)
+</code></pre></div>
+<p><strong>Files modified</strong>:</p>
+<ul>
+<li><code>tests/dispatch-subagent.sh</code>: reduced to 10-line shim that calls
+  <code>python -m shenbi.dispatcher.cli "$@"</code>. Removed in PR-22 if no consumer
+  depends on it.</li>
+</ul>
+<p><strong>Approach</strong>:</p>
+<ol>
+<li>Translate shell logic line-by-line into <code>executor.py</code>. Each shell <code>case</code>
+   becomes Python <code>if/elif</code>. Each shell <code>python3 -c '...'</code> block becomes a
+   function in <code>executor.py</code>.</li>
+<li>Replace shell <code>echo</code> with <code>structlog.get_logger(__name__).info(...)</code>
+   (depends on PR-24 structlog integration; if PR-24 hasn't merged, use
+   <code>print()</code> for now and PR-24 will sweep).</li>
+<li>Replace <code>subprocess.run(...)</code> for <code>validate-gate.py</code> with direct Python
+   import <code>from shenbi.gates.cli import run_gate</code>. This eliminates the
+   subprocess boundary between dispatcher and gates.</li>
+<li>Add proper exception types from <code>shenbi.exceptions</code>:
+   <code>DispatcherError</code>, <code>SubAgentTimeoutError</code>, <code>SubAgentProtocolError</code>.</li>
+</ol>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>tests/dispatcher/cli.py</code> (the stub) removed</li>
+<li>[ ] <code>tests/dispatch-subagent.sh</code> ≤ 10 lines OR removed (with grep showing
+      zero consumers)</li>
+<li>[ ] <code>python -m shenbi.dispatcher.cli shenbi-worldbuilding generative
+      /tmp/round-xxx "&lt;prompt&gt;"</code> works (smoke test)</li>
+<li>[ ] <code>tests/unit/test_dispatcher.py</code> exists with ≥ 15 tests covering
+      input validation, G1/G2 gate invocation, codex mode dispatch,
+      timeout handling</li>
+<li>[ ] No <code>subprocess.run(["python3", "-c", ...])</code> in dispatcher code</li>
+</ul>
+<h3 id="pr-21-archive-all-7-phantom-rounds-supersedes-pr-14">PR-21: archive all 7 phantom rounds (supersedes PR-14)</h3>
+<p><strong>Files moved</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/rounds/round-{002..007}-*  →  tests/rounds/archived/round-{002..007}-*
+</code></pre></div>
+<p><strong>Files created</strong>:</p>
+<div class="highlight"><pre><span></span><code>tests/rounds/archived/
+├── README.md                      # Already exists, update if needed
+├── round-001-2026-06-11/README.md # Already exists
+├── round-002-2026-06-11/README.md # NEW
+├── round-003-2026-06-11/README.md # NEW
+├── round-004-2026-06-12/README.md # NEW
+├── round-005-2026-06-12/README.md # NEW
+├── round-006-2026-06-13/README.md # NEW
+└── round-007-2026-06-14/README.md # NEW
+</code></pre></div>
+<p><strong>Per-round README content</strong> (template):</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># Round NNN (YYYY-MM-DD) — Archived</span>
+
+<span class="gu">## Status</span>
+[completed | partial | failed]
+
+<span class="gu">## Skills tested</span>
+<span class="k">-</span><span class="w"> </span>&lt;skill-name&gt; (&lt;test-type&gt;): score X/100
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Known issues</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## Archive reason</span>
+Produced under pre-P-1 framework version. Outputs are reference data only;
+not valid for regression testing per project policy (P0 forward-only
+verification, see <span class="sb">`08-p0-plan-patches.md`</span>).
+
+<span class="gu">## Restored from</span>
+Originally at <span class="sb">`tests/rounds/round-NNN-YYYY-MM-DD/`</span>. Moved in PR-21.
+</code></pre></div>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>tests/rounds/</code> direct children are only: <code>archived/</code>,
+      <code>round-000-TEMPLATE/</code>, <code>CHANGELOG.md</code></li>
+<li>[ ] Each archived round has a README.md</li>
+<li>[ ] <code>pytest</code> does not collect from <code>tests/rounds/archived/</code> (verified by
+      <code>pytest --collect-only</code> showing zero matches)</li>
+<li>[ ] ruff/mypy/basedpyright/pytest all configured to exclude
+      <code>tests/rounds/archived/</code></li>
+</ul>
+<h3 id="pr-22-rename-novel-output-skill-output-supersedes-pr-15">PR-22: rename novel-output → skill-output (supersedes PR-15)</h3>
+<p><strong>Files modified</strong> (comprehensive grep required):</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Type of reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>command-to-give.md</code></td>
+<td>6 prose references in protocol description</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>1 reference in project structure section</td>
+</tr>
+<tr>
+<td><code>tests/rounds/round-000-TEMPLATE/</code></td>
+<td>Template subdirectory name</td>
+</tr>
+<tr>
+<td>All <code>src/shenbi/**/*.py</code> modules that write/read paths</td>
+<td>String literals</td>
+</tr>
+<tr>
+<td><code>docs/superpowers/specs/*.md</code></td>
+<td>Prose references</td>
+</tr>
+<tr>
+<td><code>docs/adr/*.md</code></td>
+<td>Prose references</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Approach</strong>:</p>
+<ol>
+<li>Run <code>grep -rn "novel-output" --include='*.py' --include='*.md' --include='*.sh'</code>
+   to enumerate all references.</li>
+<li>Categorize: (a) <strong>path string</strong> (needs rename), (b) <strong>prose description</strong>
+   (needs rewrite), (c) <strong>historical reference in archived data</strong> (leave
+   alone, e.g., <code>tests/rounds/archived/</code>).</li>
+<li>Rename path strings in Python code via direct edit.</li>
+<li>Rewrite prose references in markdown.</li>
+<li><strong>Exclude</strong> <code>tests/rounds/archived/</code> from rename (historical data).</li>
+</ol>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>grep -rn "novel-output" --include='*.py' --include='*.md' --include='*.sh' \
+      --exclude-dir=archived --exclude-dir=.venv --exclude-dir=.worktrees</code> returns
+      zero matches</li>
+<li>[ ] <code>tests/rounds/round-000-TEMPLATE/skill-output/</code> exists (renamed)</li>
+<li>[ ] All skills' SKILL.md <code>**Writes:**</code> paths that referenced <code>novel-output/</code>
+      now reference <code>skill-output/</code> (audit by grep)</li>
+<li>[ ] <code>tests/dispatch-subagent.sh</code> deleted (per Cluster 01 OQ-1 decision:
+      shim was kept during PR-20, removed in PR-22 as the natural cleanup
+      point — the rename already touches all path references)</li>
+</ul>
+<h3 id="pr-23-mutation-testing-baseline-supersedes-pr-16">PR-23: mutation testing baseline (supersedes PR-16)</h3>
+<p><strong>Files created</strong>:</p>
+<div class="highlight"><pre><span></span><code>.mutmut-cache                        # Generated, git-tracked
+tests/baselines/
+└── mutation-score.txt               # Baseline record
+tools/
+└── compare_mutation_score.py        # CI baseline comparator (used by PR-35 + justfile)
+</code></pre></div>
+<p><strong><code>tests/baselines/mutation-score.txt</code> content</strong>:</p>
+<div class="highlight"><pre><span></span><code># Mutation testing baseline — PR-23 (2026-06-15)
+# Generated by: mutmut run --paths-to-mutate src/shenbi/exceptions.py,src/shenbi/logging.py,src/shenbi/gates/shared.py
+# Target: 60% mutation score after P-2, 80% after P-3
+
+Module                              Mutants   Killed   Survived   Timeout   Score %
+src/shenbi/exceptions.py                45       42        3         0       93.3
+src/shenbi/logging.py                   28       22        6         0       78.6
+src/shenbi/gates/shared.py              67       51       16         0       76.1
+---------------------------------------------------------------------------------
+TOTAL                                  140      115       25         0       82.1
+</code></pre></div>
+<p><strong>Approach</strong>:</p>
+<ol>
+<li>Configure <code>[tool.mutmut]</code> in <code>pyproject.toml</code> (already done in P-1.A).</li>
+<li>Run <code>mutmut run</code> on the three target modules.</li>
+<li>Capture output to <code>tests/baselines/mutation-score.txt</code>.</li>
+<li>Commit <code>.mutmut-cache</code> for incremental future runs.</li>
+<li>Add CI check in canonical PR-35 (Cluster 05, CI hardening): mutation score must not drop below baseline - 5%.</li>
+</ol>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>.mutmut-cache</code> exists and is git-tracked</li>
+<li>[ ] <code>tests/baselines/mutation-score.txt</code> exists with ≥ 3 module entries</li>
+<li>[ ] Overall mutation score ≥ 60% (initial baseline target; ramp to 80% over P-2/P-3)</li>
+<li>[ ] CI workflow runs <code>mutmut run --use-cache</code> and compares to baseline</li>
+</ul>
+<h2 id="cross-cluster-dependencies">Cross-cluster Dependencies</h2>
+<ul>
+<li><strong>PR-19 (validate-gate modularization) depends on PR-18 (Cluster 02, src layout)</strong>:
+  <code>validate-gate.py</code> moves to <code>src/shenbi/gates/</code>, so the src layout must exist first.</li>
+<li><strong>PR-20 (dispatch rewrite) depends on PR-18 + PR-19</strong>: dispatcher imports from
+  <code>shenbi.gates</code>, which exists after PR-18 + PR-19.</li>
+<li><strong>PR-23 (mutation baseline) depends on PR-19</strong>: mutmut targets include
+  <code>src/shenbi/gates/shared.py</code>, which is created during PR-19's modularization.</li>
+<li><strong>PR-21 (archive rounds), PR-22 (rename)</strong>: independent of other Cluster 01
+  PRs; can run in any order.</li>
+</ul>
+<h2 id="risks-specific-to-this-cluster">Risks Specific to This Cluster</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>validate-gate.py rewrite introduces subtle behavioral drift (e.g., timestamp format, error message wording)</td>
+<td>Differential testing against pre-PR baseline; baseline files committed</td>
+</tr>
+<tr>
+<td>dispatcher rewrite changes scoring protocol expectations</td>
+<td>Keep shell shim during PR-20; integration tests in <code>tests/integration/test_dispatch_protocol.py</code></td>
+</tr>
+<tr>
+<td>Round archival loses metadata</td>
+<td>Each round gets README with score summary before move; git history preserves original path</td>
+</tr>
+<tr>
+<td>Novel-output rename breaks downstream agent skill prompts that hardcode the path</td>
+<td>Grep <code>skills/**/SKILL.md</code> for <code>novel-output</code> references; rewrite all before merge</td>
+</tr>
+<tr>
+<td>Mutation testing reveals existing test quality is poor (low kill rate)</td>
+<td>Accept reality; baseline records the truth; ramp target scheduled</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Delete <code>tests/dispatch-subagent.sh</code> or keep as shim?</td>
+<td><strong>Keep as ≤10-line shim during PR-20, delete in PR-22 (rename novel-output).</strong></td>
+<td>Grep <code>tests/rounds/</code> for direct references first; archived rounds may invoke it from their <code>meta.json</code>. Shim ensures backward-compat during transition; deletion removes the lie once and for all. PR-22 is the natural cleanup point since the rename already touches all path references.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Archive round-007 immediately or keep 30 days?</td>
+<td><strong>Archive immediately.</strong></td>
+<td>The user's directive (line 1027 of session 8031a07e) is explicit: "我们的改动是为了优化和修复solution而不是修复之前已经跑过的Round". Round 007's data is reference-only per Cluster 08 Patch-04 (forward-only verification). 30-day retention implies regression value, which we've disavowed.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Mutation testing for skill Python scripts?</td>
+<td><strong>Yes, in PR-27 (skill scripts lint/type scope).</strong></td>
+<td>Skills <code>compute_pattern.py</code> (176 lines) and <code>compute_stats.py</code> (392 lines) are framework code, not data. Mutation testing on them is consistent with the rest of <code>src/shenbi/</code>.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

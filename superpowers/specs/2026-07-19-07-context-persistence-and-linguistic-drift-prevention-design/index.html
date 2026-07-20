@@ -1,0 +1,2104 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 4: Context Persistence and Linguistic Drift Prevention Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 4: Context Persistence and Linguistic Drift Prevention Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 4: Context Persistence and Linguistic Drift Prevention Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-4-context-persistence-and-linguistic-drift-prevention-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 4: Context Persistence and Linguistic Drift Prevention Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis-per-source-spec-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis (Per-Source-Spec Breakdown)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis (Per-Source-Spec Breakdown)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-progressive-prose-collapse-c2-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Progressive Prose Collapse (C2, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-context-assembly-persistence-gap-h3-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Context Assembly Persistence Gap (H3, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-cross-chapter-template-duplication-hn1-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Cross-Chapter Template Duplication (HN1, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-chapter-content-looping-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Chapter Content Looping (consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-force-persistence-of-contextchapter-n-contextmd-and-curated-context" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Force Persistence of context/chapter-N-context.md and Curated Context
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-create-linguistic-drift-detector" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Create Linguistic Drift Detector
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-add-4th-trigger-condition-to-drift-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Add 4th Trigger Condition to Drift Detection
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-three-tier-intervention-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Three-Tier Intervention Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-establish-baselines-from-bootstrap-or-first-3-chapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Establish Baselines from Bootstrap or First 3 Chapters
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-opening-similarity-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Opening Similarity Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-sliding-window-content-looping-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Sliding Window Content Looping Check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-inject-corrective-directives-into-chapter-planning" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 Inject Corrective Directives into Chapter Planning
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-original-issue-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Original Issue Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-4-context-persistence-and-linguistic-drift-prevention-design">Spec 4: Context Persistence and Linguistic Drift Prevention Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical
+<strong>Consolidated from:</strong>
+- <code>2026-07-17-fix-progressive-prose-collapse-design.md</code> (C2)
+- <code>2026-07-17-fix-context-assembly-persistence-gap-design.md</code> (H3)
+- <code>2026-07-17-fix-cross-chapter-template-duplication-design.md</code> (HN1)
+- <code>2026-07-17-fix-chapter-content-looping-design.md</code></p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The shenbi pipeline suffers from a progressive, self-reinforcing collapse of prose quality across long-generation runs. Starting around Chapter 30, natural Chinese narrative prose degrades into parameter-enumeration strings -- a regression that accelerates monotonically from 9.6 per mille system-term density at Ch30 to 135.8 per mille at Ch53. This collapse goes completely undetected by the existing drift-detection system because it only analyzes resonance scores (which are produced by an LLM that is itself contaminated by the degraded context). The root cause is a two-part feedback loop: (1) 43/56 chapters (77%) are missing their L3 compressed context files (<code>context/chapter-N-context.md</code>), so the LLM sees only parametric planning language and produces parametric prose; (2) the resulting degraded prose normalizes the resonance scorer's expectations, so score-based drift detection never triggers. Additional symptoms include cross-chapter template duplication (9 chapter-pair openings at &gt;60% similarity) and content looping (Ch36-39 forming a 32-52% overlap cluster).</p>
+<p><strong>Impact scope:</strong> 27/56 chapters (48%) show some degree of prose degradation. Ch40 onward (17 chapters, 30%) are essentially undeliverable as literature. Template duplication creates a mechanical reading experience. Content looping means four consecutive chapters fail to advance the narrative.</p>
+<hr />
+<h2 id="2-root-cause-analysis-per-source-spec-breakdown">2. Root Cause Analysis (Per-Source-Spec Breakdown)</h2>
+<h3 id="21-progressive-prose-collapse-c2-consumed-into-this-spec">2.1 Progressive Prose Collapse (C2, consumed into this spec)</h3>
+<p><strong>Discovery:</strong> System-term density analysis across all 56 chapters:</p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Chapters</th>
+<th>System-Term Density (per mille)</th>
+<th>"冷" Occurrences</th>
+<th>"在场于" Occurrences</th>
+<th>Narrative Characteristic</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Normal narrative</td>
+<td>Ch1-15</td>
+<td>0-5.5</td>
+<td>0-3</td>
+<td>0</td>
+<td>Natural Chinese prose</td>
+</tr>
+<tr>
+<td>Early degradation</td>
+<td>Ch25-29</td>
+<td>5.3-11.7</td>
+<td>2-33</td>
+<td>0</td>
+<td>Parameterized phrasing appears</td>
+</tr>
+<tr>
+<td>Mid degradation</td>
+<td>Ch30-35</td>
+<td>9.6-28.6</td>
+<td>54-197</td>
+<td>0</td>
+<td>"——" enumeration chains</td>
+</tr>
+<tr>
+<td>Severe degradation</td>
+<td>Ch40-45</td>
+<td>33.6-74.8</td>
+<td>33+</td>
+<td>100+</td>
+<td>System-spec prose style</td>
+</tr>
+<tr>
+<td>Extreme degradation</td>
+<td>Ch46-56</td>
+<td>74.8-135.8</td>
+<td>114+</td>
+<td>405+</td>
+<td>Unreadable enumeration</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Degraded prose example (Ch50):</strong></p>
+<blockquote>
+<p>"冷知道自己在周二——冷知道周二在周一之后——冷知道周二在第二周——冷知道周一在周日之后——冷知道周日——冷知道周日不在——冷在场于周二——"</p>
+</blockquote>
+<p><strong>Normal prose comparison (Ch1):</strong></p>
+<blockquote>
+<p>"他把铜线缠成圈塞进布袋。布袋里已经装了几块碎黄铜和一小截铅管，加起来不到两斤。"</p>
+</blockquote>
+<p><strong>The self-reinforcing feedback loop:</strong></p>
+<div class="highlight"><pre><span></span><code>L3 context missing (H3)
+  -&gt; LLM sees system parameters, not narrative prose
+    -&gt; Prose degrades into parameter enumeration
+      -&gt; Resonance scorer (also an LLM) is contaminated by degraded context
+        -&gt; Scorer normalizes degraded prose as &quot;acceptable&quot;
+          -&gt; Drift detection based on resonance scores finds no issue
+            -&gt; No intervention -&gt; Degradation continues and accelerates
+</code></pre></div>
+<p><strong>Why existing drift detection did not trigger:</strong></p>
+<p><code>src/shenbi/skill_utils/drift_detection/compute_drift.py:86-146</code> uses three trigger conditions, all based on resonance scores:
+1. <strong>Monotonic decline</strong> (line 86-107): &gt;=3 consecutive non-excluded chapters with cumulative decline &gt;=3 points
+2. <strong>Below mean-2sigma</strong> (line 109-133): &gt;=2 consecutive chapters below mean minus 2 standard deviations
+3. <strong>Volume-level decline</strong> (line 136-146): consecutive 2-volume score decline</p>
+<p><strong>Critical flaw:</strong> All three conditions are based on resonance scores produced by <code>shenbi-review-resonance</code> -- an LLM-based scorer. When the LLM's context window is saturated with parameterized language, the resonance scorer's judgment is also contaminated. The scorer becomes "accustomed" to degraded prose and does not assign significantly lower scores. The scoring system is measuring itself with its own corrupted instrument.</p>
+<p><strong>What is missing:</strong> The detector does not analyze the text itself -- it only analyzes scores about the text. Missing dimensions:
+- System-term density ("参数", "在场于", "格式串", "槽位", "帧序列", etc.)
+- Em-dash density (degraded prose uses "——" as enumeration separators)
+- Short-sentence chain density (consecutive &lt;10-character sentences)
+- Pattern density ("冷在" / "冷知道"句式)
+- Dialogue density (quotation mark frequency -- natural prose has dialogue)</p>
+<h3 id="22-context-assembly-persistence-gap-h3-consumed-into-this-spec">2.2 Context Assembly Persistence Gap (H3, consumed into this spec)</h3>
+<p><strong>Discovery:</strong> Context file coverage across 56 chapters:</p>
+<table>
+<thead>
+<tr>
+<th>Status</th>
+<th>Chapters</th>
+<th>Count</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Has context</td>
+<td>Ch1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 55, 56</td>
+<td>13 (23%)</td>
+</tr>
+<tr>
+<td>Missing context</td>
+<td>Ch2, 13-54</td>
+<td>43 (77%)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical correlation:</strong> Ch13 is the exact point where context files begin to go missing en masse, and Ch30 is where system-term density begins its significant upward trend. The 17-chapter delay between context loss and visible prose degradation is consistent with the expected behavior of a gradually degrading LLM context window -- the narrative anchor erodes slowly, then collapses.</p>
+<p><strong>Context generation mechanism (verified against code):</strong></p>
+<ul>
+<li><code>chapter_loop.py:566</code> (<code>_run_context_assembly</code>): Calls <code>assemble_context</code> (from <code>context_assemble.py:209-260</code>) which uses Route A (entity index) + Route B (embedding search) + Route C (fixed rules). <strong>Critical:</strong> <code>assemble_context</code> itself does NOT write to disk — it returns a <code>ContextPackage</code>. Persistence is handled by a <strong>separate function</strong> <code>write_context_file</code> (<code>context_assemble.py:263-271</code>, line 270: <code>safe_write(out, pkg.to_markdown())</code>). The <code>_run_context_assembly</code> wrapper calls both (lines 575-582).</li>
+<li><strong>Persistence gap confirmed:</strong> The entire <code>_run_context_assembly</code> body is wrapped in <code>try/except Exception</code> (lines 574, 590-591) that only does <code>log.warning("context_assembly_failed", ...)</code> — there is <strong>no post-check verifying the file exists, and no fallback</strong>. If <code>write_context_file</code> throws, the pipeline silently continues to chapter-drafting with no context file.</li>
+<li>Followed by <code>_run_context_curation</code> (<code>chapter_loop.py:594</code>) which calls <code>curate_context</code> (from <code>context_curation.py:81-115</code>). <strong>Second persistence gap (newly discovered):</strong> <code>curate_context</code> returns a curated 9-section string, but <code>_run_context_curation</code> (line 607) only logs its length — <strong>the curated string is never written to disk</strong>. The curation output is computed and discarded.</li>
+<li>Step 4 wiring confirmed: <code>chapter_loop.py:127-133</code> defines <code>ChapterStep(4, "pipeline-context-assemble", ...)</code>, dispatched at lines 1170-1174.</li>
+</ul>
+<p><strong>Root cause (verified — hypotheses 1 and 2 confirmed):</strong>
+1. ~~Step 4 is skipped under certain conditions~~ — Step 4 IS wired and runs
+2. <strong><code>assemble_context</code> returns data but persistence fails silently</strong> — CONFIRMED: the try/except swallows errors with no post-check
+3. ~~Context file is overwritten~~ — not applicable
+4. ~~Context assembly only triggers at volume boundaries~~ — it runs per-chapter at step 4</p>
+<p><strong>The curated context (<code>_run_context_curation</code>) is NEVER persisted</strong> — this is a second, independent persistence failure. The 9-section L3 document that curation produces is computed and then discarded.</p>
+<h3 id="23-cross-chapter-template-duplication-hn1-consumed-into-this-spec">2.3 Cross-Chapter Template Duplication (HN1, consumed into this spec)</h3>
+<p><strong>Discovery (D25 + Agent 2):</strong> 9 chapter-pair openings exceed 60% similarity:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter Pair</th>
+<th>Opening Similarity</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch43-Ch46</td>
+<td>83%</td>
+<td>"冷知道深度在第X层——冷在第X日知道深度"</td>
+</tr>
+<tr>
+<td>Ch50-Ch51</td>
+<td>82%</td>
+<td>"冷知道自己在周X——冷知道周X在周X之后"</td>
+</tr>
+<tr>
+<td>Ch43-Ch45</td>
+<td>81%</td>
+<td>Same template, weekday substitution only</td>
+</tr>
+<tr>
+<td>Ch51-Ch53</td>
+<td>63%</td>
+<td>Same as above</td>
+</tr>
+<tr>
+<td>Ch52-Ch53</td>
+<td>75%</td>
+<td>"冷知道周X在周X之后"</td>
+</tr>
+</tbody>
+</table>
+<p>Ch41-Ch42 endings are <strong>100% identical</strong>.</p>
+<p><strong>Impact:</strong> These are not "stylistic consistency" -- they are template fill-in-the-blank. Readers encountering nearly identical openings in consecutive chapters perceive mechanical repetition. This is a direct symptom of the prose collapse (C2).</p>
+<h3 id="24-chapter-content-looping-consumed-into-this-spec">2.4 Chapter Content Looping (consumed into this spec)</h3>
+<p><strong>Discovery (Agent 2):</strong> Ch36-39 form a content-overlap cluster:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter Pair</th>
+<th>Similarity</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch37-Ch38 (adjacent)</td>
+<td>45.4%</td>
+</tr>
+<tr>
+<td>Ch38-Ch39 (adjacent)</td>
+<td>47.1%</td>
+</tr>
+<tr>
+<td>Ch37-Ch39 (non-adjacent)</td>
+<td><strong>51.9%</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Non-adjacent overlap exceeding adjacent overlap indicates content is cycling through four chapters rather than advancing linearly. The narrative is looping.</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<p>The fix operates on two fronts simultaneously: (A) restore the L3 context layer to give the LLM narrative anchors, and (B) add text-linguistic drift detection as an independent alarm system that does not rely on contaminated LLM scoring.</p>
+<h3 id="31-force-persistence-of-contextchapter-n-contextmd-and-curated-context">3.1 Force Persistence of <code>context/chapter-N-context.md</code> and Curated Context</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py:_run_context_assembly</code> (line 566) and <code>_run_context_curation</code> (line 594)</p>
+<p><strong>Two persistence gaps must be fixed:</strong></p>
+<p><strong>Gap 1: Assembly persistence failure (try/except swallows errors)</strong>
+The existing <code>_run_context_assembly</code> wraps <code>assemble_context</code> + <code>write_context_file</code> in try/except that only logs a warning. Add mandatory post-check with fallback:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_context_assembly</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run context assembly -- MUST produce context/chapter-N-context.md.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">assemble_context</span><span class="p">,</span> <span class="n">write_context_file</span>
+
+    <span class="n">context_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">pkg</span> <span class="o">=</span> <span class="n">assemble_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="n">write_context_file</span><span class="p">(</span><span class="n">pkg</span><span class="p">,</span> <span class="n">context_path</span><span class="p">)</span>  <span class="c1"># explicit write call</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;context_assembly_failed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+
+    <span class="c1"># HARD VERIFY: output file must exist</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">context_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;context_assembly_no_output&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="c1"># Fallback: write minimal context (Route C fixed rules only)</span>
+        <span class="n">_write_minimal_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Gap 2: Curated context is computed but never written (newly discovered)</strong>
+<code>_run_context_curation</code> (line 594-608) calls <code>curate_context()</code> which returns a curated string, but the return value is only logged, never persisted:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_context_curation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run context curation -- MUST persist curated context.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_curation</span><span class="w"> </span><span class="kn">import</span> <span class="n">curate_context</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">curated_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-curated.md&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">curated</span> <span class="o">=</span> <span class="n">curate_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="c1"># FIX: Actually write the curated output (currently discarded!)</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">curated_path</span><span class="p">,</span> <span class="n">curated</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">exception</span><span class="p">(</span><span class="s2">&quot;context_curation_failed&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">curated_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;context_curation_no_output&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Startup coverage audit</strong> (at pipeline resume initialization):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_audit_context_coverage</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Audit context file coverage for all completed chapters.&quot;&quot;&quot;</span>
+    <span class="n">missing</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">):</span>
+        <span class="n">ctx_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">ctx_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;context_coverage_gap&quot;</span><span class="p">,</span> <span class="n">missing_chapters</span><span class="o">=</span><span class="n">missing</span><span class="p">,</span>
+                       <span class="n">gap_ratio</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;missing&quot;</span><span class="p">:</span> <span class="n">missing</span><span class="p">,</span> <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">}</span>
+</code></pre></div>
+<p><strong>Backfill command</strong> for existing gaps:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>backfill-context<span class="w"> </span>&lt;project_dir&gt;<span class="w"> </span>--chapters<span class="w"> </span><span class="m">13</span>-54
+</code></pre></div>
+<p>Backfill logic runs <code>assemble_context</code> + <code>curate_context</code> for each missing chapter. These are deterministic functions and can be re-executed safely.</p>
+<h3 id="32-create-linguistic-drift-detector">3.2 Create Linguistic Drift Detector</h3>
+<p><strong>Location:</strong> New file <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code></p>
+<p><strong>Module location (canonical):</strong> <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code> — co-located with the existing <code>compute_drift.py</code>. Spec 6's ADD-3 reference to <code>src/shenbi/pipeline/linguistic_drift.py</code> is SUPERSEDED — all drift detection code lives under <code>skill_utils/drift_detection/</code>.</p>
+<p><strong>Design rationale — these are pragmatic domain-specific alarm detectors, NOT industry-standard stylometry.</strong> Classical stylometry (Burrows' Delta, Zeta, n-gram authorship attribution) uses function-word frequencies, type-token ratio, Yule's K lexical diversity. The 5 metrics proposed here are <strong>ad hoc surface counters tuned to the specific observed failure mode</strong> (system-term leakage, em-dash enumeration, pattern fingerprinting). They are deliberately cheap, deterministic, and independent of LLM scoring — which is the actual goal (an alarm system that works even when the LLM scorer is contaminated). State-of-the-art linguistic drift detection uses embedding-based novelty (sentence-embedding cosine), repetition metrics (distinct-n, self-BLEU), perplexity probes, and Burrows' Delta on sliding windows. These could be future enhancements (see Shout-Out spec), but the proposed metrics are sufficient as a gap-filling first alarm.</p>
+<p>Create a text-analysis-based drift detector with five metrics:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">difflib</span><span class="w"> </span><span class="kn">import</span> <span class="n">SequenceMatcher</span>
+
+<span class="c1"># System terms that indicate parametric/prose degradation</span>
+<span class="n">SYSTEM_TERMS</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s1">&#39;(参数|系统|格式串|历法|槽位|帧序列|阈值|在场于|&#39;</span>
+    <span class="sa">r</span><span class="s1">&#39;知道.{0,10}在|Phase\s+\d|MH-\d+|P[012]\.\d+)&#39;</span>
+<span class="p">)</span>
+
+<span class="c1"># **Important:** `SYSTEM_TERMS` and the `pattern_density` fingerprints</span>
+<span class="c1"># (`冷在`, `冷知道`) are project-specific. They MUST be moved to a</span>
+<span class="c1"># per-project configuration file (e.g.,</span>
+<span class="c1"># `genre-config.json -&gt; drift_detection.system_terms`) rather than</span>
+<span class="c1"># hardcoded. Additionally, a generic frequency-divergence alarm should be</span>
+<span class="c1"># added as a second-tier check: compute the baseline vocabulary</span>
+<span class="c1"># distribution from the first 3 chapters and flag ANY term whose</span>
+<span class="c1"># frequency diverges &gt;3σ from baseline. This catches novel-specific</span>
+<span class="c1"># degradation patterns without hardcoding.</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_linguistic_metrics</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute linguistic metrics for a chapter&#39;s prose text.</span>
+
+<span class="sd">    Returns dict with 5 metrics, each normalized per mille of text length.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">metrics</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="c1"># 1. System term density -- parametric language indicator</span>
+        <span class="s1">&#39;system_term_density&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">SYSTEM_TERMS</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">))</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+
+        <span class="c1"># 2. Em-dash density -- enumeration separator in degraded prose</span>
+        <span class="s1">&#39;em_dash_density&#39;</span><span class="p">:</span> <span class="n">chapter_text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;——&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+
+        <span class="c1"># 3. Short-sentence chain density -- consecutive &lt;=15 char sentences</span>
+        <span class="s1">&#39;short_sentence_chain_density&#39;</span><span class="p">:</span> <span class="n">_short_chain_chars</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+
+        <span class="c1"># 4. Pattern density -- &quot;冷在&quot;/&quot;冷知道&quot;句式 fingerprint of degradation</span>
+        <span class="s1">&#39;pattern_density&#39;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="n">chapter_text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;冷在&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="n">chapter_text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;冷知道&#39;</span><span class="p">)</span>
+        <span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+
+        <span class="c1"># 5. Dialogue density -- quotation mark frequency, proxy for natural conversation</span>
+        <span class="s1">&#39;dialogue_density&#39;</span><span class="p">:</span> <span class="n">chapter_text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s1">&#39;&quot;&#39;</span><span class="p">)</span> <span class="o">/</span> <span class="n">text_len</span> <span class="o">*</span> <span class="mi">1000</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">metrics</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_short_chain_chars</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count characters in chains of 5+ consecutive short sentences (&lt;=15 chars).&quot;&quot;&quot;</span>
+    <span class="n">short_sents</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?:[^。]{1,15}。){5,}&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sum</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">short_sents</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">compute_linguistic_drift</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">baseline</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute linguistic drift as deviation from baseline metrics.</span>
+
+<span class="sd">    Returns dict with &#39;metrics&#39;, &#39;deviations&#39; (per-metric), and &#39;max_deviation&#39;.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">metrics</span> <span class="o">=</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">)</span>
+
+    <span class="n">deviations</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">metrics</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">baseline</span> <span class="ow">and</span> <span class="n">baseline</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">deviations</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">value</span> <span class="o">-</span> <span class="n">baseline</span><span class="p">[</span><span class="n">key</span><span class="p">])</span> <span class="o">/</span> <span class="n">baseline</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+    <span class="n">max_deviation</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">deviations</span><span class="o">.</span><span class="n">values</span><span class="p">())</span> <span class="k">if</span> <span class="n">deviations</span> <span class="k">else</span> <span class="mf">0.0</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;metrics&#39;</span><span class="p">:</span> <span class="n">metrics</span><span class="p">,</span>
+        <span class="s1">&#39;deviations&#39;</span><span class="p">:</span> <span class="n">deviations</span><span class="p">,</span>
+        <span class="s1">&#39;max_deviation&#39;</span><span class="p">:</span> <span class="n">max_deviation</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div>
+<h3 id="33-add-4th-trigger-condition-to-drift-detection">3.3 Add 4th Trigger Condition to Drift Detection</h3>
+<p><strong>Location:</strong> <code>compute_drift.py</code> (after line 146, after <code>detect_volume_drift</code>)</p>
+<p>Add a linguistic drift trigger condition alongside the three existing score-based conditions:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_linguistic_drift_trigger</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">baseline_metrics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if linguistic drift exceeds trigger thresholds.</span>
+
+<span class="sd">    Returns (triggered, severity_level).</span>
+
+<span class="sd">    Thresholds:</span>
+<span class="sd">        - Any single metric deviation &gt; 500% from baseline triggers</span>
+<span class="sd">        - Severity based on system_term_density absolute value</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">compute_linguistic_drift</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">baseline_metrics</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;max_deviation&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mf">5.0</span><span class="p">:</span>  <span class="c1"># 500% threshold</span>
+        <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;normal&quot;</span>
+
+    <span class="n">density</span> <span class="o">=</span> <span class="n">result</span><span class="p">[</span><span class="s1">&#39;metrics&#39;</span><span class="p">][</span><span class="s1">&#39;system_term_density&#39;</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">density</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span>
+    <span class="k">elif</span> <span class="n">density</span> <span class="o">&gt;</span> <span class="mi">50</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;HARD&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;WARN&quot;</span>
+</code></pre></div>
+<h3 id="34-three-tier-intervention-strategy">3.4 Three-Tier Intervention Strategy</h3>
+<p>When linguistic drift is detected, apply tiered intervention:</p>
+<table>
+<thead>
+<tr>
+<th>Tier</th>
+<th>Trigger</th>
+<th>Action</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>WARN</strong></td>
+<td>density 30-50 per mille, or moderate deviation</td>
+<td>Inject corrective directive into next chapter's PRE_WRITE_CHECK: "Avoid parametric language; use natural dialogue and concrete sensory detail"</td>
+</tr>
+<tr>
+<td><strong>HARD</strong></td>
+<td>density &gt;50 per mille, or &gt;500% deviation</td>
+<td>Force-trigger <code>shenbi-drift-guidance</code> skill; write specific corrective instructions to <code>audit_drift.md</code>; inject mandatory style constraints</td>
+</tr>
+<tr>
+<td><strong>ESCALATE</strong></td>
+<td>density &gt;100 per mille, or &gt;1000% deviation</td>
+<td>Pause auto-generation; trigger human review checkpoint; require manual approval before continuing</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Intervention injection point</strong> -- in <code>_should_run_step</code> or chapter planning prompt assembly (<code>chapter_loop.py</code>, around the drift-guidance trigger):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># After linguistic drift check, before chapter planning</span>
+<span class="n">triggered</span><span class="p">,</span> <span class="n">severity</span> <span class="o">=</span> <span class="n">check_linguistic_drift_trigger</span><span class="p">(</span><span class="n">chapter_text</span><span class="p">,</span> <span class="n">baseline_metrics</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">triggered</span><span class="p">:</span>
+    <span class="n">corrective_directive</span> <span class="o">=</span> <span class="n">_build_corrective_directive</span><span class="p">(</span><span class="n">severity</span><span class="p">,</span> <span class="n">result</span><span class="p">)</span>
+    <span class="c1"># Inject into next chapter&#39;s planning context</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">next_chapter_context_override</span> <span class="o">=</span> <span class="n">corrective_directive</span>
+</code></pre></div>
+<h3 id="35-establish-baselines-from-bootstrap-or-first-3-chapters">3.5 Establish Baselines from Bootstrap or First 3 Chapters</h3>
+<p><strong>Location:</strong> Integrated into <code>shenbi-style-learning</code>'s <code>compute_stats.py</code> and the new <code>linguistic_drift.py</code></p>
+<p>Baseline establishment strategy:</p>
+<ol>
+<li><strong>Primary source:</strong> <code>style/style_profile.md</code> after first formal extraction (Chapter 3+)</li>
+<li><strong>Fallback:</strong> Compute from the first 3 completed chapters' prose text</li>
+<li><strong>Bootstrap:</strong> If fewer than 3 chapters exist, use seed-fingerprint approximations</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">establish_linguistic_baseline</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Establish linguistic baseline metrics from available chapters.&quot;&quot;&quot;</span>
+    <span class="c1"># Try style_profile first</span>
+    <span class="n">style_profile</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span>
+    <span class="k">if</span> <span class="n">style_profile</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="c1"># Extract linguistic baseline from style profile</span>
+        <span class="n">baseline</span> <span class="o">=</span> <span class="n">_extract_baseline_from_style_profile</span><span class="p">(</span><span class="n">style_profile</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">baseline</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">baseline</span>
+
+    <span class="c1"># Fallback: compute from first 3 completed chapters</span>
+    <span class="n">completed</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">completed</span> <span class="o">&gt;=</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">chapter_texts</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">completed</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">ch_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+            <span class="k">if</span> <span class="n">ch_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">chapter_texts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ch_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+
+        <span class="k">if</span> <span class="n">chapter_texts</span><span class="p">:</span>
+            <span class="n">combined</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">chapter_texts</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">compute_linguistic_metrics</span><span class="p">(</span><span class="n">combined</span><span class="p">)</span>
+
+    <span class="c1"># Bootstrap: return conservative defaults</span>
+    <span class="k">return</span> <span class="n">_bootstrap_baseline</span><span class="p">()</span>
+</code></pre></div>
+<h3 id="36-opening-similarity-check">3.6 Opening Similarity Check</h3>
+<p><strong>Location:</strong> <code>linguistic_drift.py</code> (new function), triggered before chapter planning</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_opening_similarity</span><span class="p">(</span><span class="n">prev_chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">current_chapter_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+                              <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span><span class="p">,</span> <span class="n">chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">300</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if chapter openings are too similar.</span>
+
+<span class="sd">    Returns warning string if similarity exceeds threshold, None otherwise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">prev_open</span> <span class="o">=</span> <span class="n">prev_chapter_text</span><span class="p">[:</span><span class="n">chars</span><span class="p">]</span>
+    <span class="n">curr_open</span> <span class="o">=</span> <span class="n">current_chapter_text</span><span class="p">[:</span><span class="n">chars</span><span class="p">]</span>
+    <span class="n">ratio</span> <span class="o">=</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">prev_open</span><span class="p">,</span> <span class="n">curr_open</span><span class="p">)</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">ratio</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;OPENING_DUPLICATE: </span><span class="si">{</span><span class="n">ratio</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> similarity in first </span><span class="si">{</span><span class="n">chars</span><span class="si">}</span><span class="s2"> characters&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p><strong>Intervention:</strong> When opening similarity exceeds 60%, inject into next chapter's PRE_WRITE_CHECK:
+- "Previous chapter opening is {ratio}% similar to this one. Use a different opening approach."
+- "Prohibited: '冷知道/冷在/冷在场于'句式 as opening"</p>
+<h3 id="37-sliding-window-content-looping-check">3.7 Sliding Window Content Looping Check</h3>
+<p><strong>Location:</strong> <code>linguistic_drift.py</code> (new function), integrated into drift detection pipeline</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_window_redundancy</span><span class="p">(</span><span class="n">chapter_texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">window_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">4</span><span class="p">,</span>
+                             <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.35</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect content looping within a sliding window of chapters.</span>
+
+<span class="sd">    Returns warning string if max pairwise similarity in window exceeds threshold.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapter_texts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">window_size</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">window</span> <span class="o">=</span> <span class="n">chapter_texts</span><span class="p">[</span><span class="o">-</span><span class="n">window_size</span><span class="p">:]</span>
+    <span class="n">max_sim</span> <span class="o">=</span> <span class="mf">0.0</span>
+
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">window</span><span class="p">)):</span>
+            <span class="n">sim</span> <span class="o">=</span> <span class="n">SequenceMatcher</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="n">window</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">window</span><span class="p">[</span><span class="n">j</span><span class="p">])</span><span class="o">.</span><span class="n">ratio</span><span class="p">()</span>
+            <span class="n">max_sim</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_sim</span><span class="p">,</span> <span class="n">sim</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">max_sim</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;WINDOW_REDUNDANCY: max_sim=</span><span class="si">{</span><span class="n">max_sim</span><span class="si">:</span><span class="s2">.0%</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">window_size</span><span class="si">}</span><span class="s2">-chapter window&quot;</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<h3 id="38-inject-corrective-directives-into-chapter-planning">3.8 Inject Corrective Directives into Chapter Planning</h3>
+<p>All drift detection results (linguistic, opening similarity, content looping) are consolidated and injected into the next chapter's planning context before the drafting skill runs.</p>
+<p><strong>Integration point:</strong> In <code>chapter_loop.py</code>, before dispatching <code>shenbi-chapter-drafting</code> (or in the PRE_WRITE_CHECK phase of chapter planning):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Consolidate all drift warnings</span>
+<span class="n">drift_warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="c1"># Linguistic drift check</span>
+<span class="n">triggered</span><span class="p">,</span> <span class="n">severity</span> <span class="o">=</span> <span class="n">check_linguistic_drift_trigger</span><span class="p">(</span><span class="n">current_text</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">triggered</span><span class="p">:</span>
+    <span class="n">drift_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_build_corrective_directive</span><span class="p">(</span><span class="n">severity</span><span class="p">,</span> <span class="n">result</span><span class="p">))</span>
+
+<span class="c1"># Opening similarity check</span>
+<span class="n">opening_warning</span> <span class="o">=</span> <span class="n">check_opening_similarity</span><span class="p">(</span><span class="n">prev_text</span><span class="p">,</span> <span class="n">current_text</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">opening_warning</span><span class="p">:</span>
+    <span class="n">drift_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">opening_warning</span><span class="p">)</span>
+
+<span class="c1"># Content looping check</span>
+<span class="n">recent_texts</span> <span class="o">=</span> <span class="n">_load_recent_chapter_texts</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span>
+<span class="n">looping_warning</span> <span class="o">=</span> <span class="n">check_window_redundancy</span><span class="p">(</span><span class="n">recent_texts</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">looping_warning</span><span class="p">:</span>
+    <span class="n">drift_warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">looping_warning</span><span class="p">)</span>
+
+<span class="c1"># Inject into next chapter planning context</span>
+<span class="k">if</span> <span class="n">drift_warnings</span><span class="p">:</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">drift_corrective_context</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">drift_warnings</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:566</code> (<code>_run_context_assembly</code>)</td>
+<td>Replace error-swallowing try/except with explicit <code>write_context_file</code> call + post-check + fallback</td>
+<td>Force persistence of L3 context; close 77% coverage gap</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:594</code> (<code>_run_context_curation</code>)</td>
+<td><strong>Add <code>safe_write</code> for curated output</strong> (currently computed and discarded)</td>
+<td>Close newly-discovered second persistence gap</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/context_assemble.py:209-260</code> (<code>assemble_context</code>) + <code>:263-271</code> (<code>write_context_file</code>)</td>
+<td>Reference only (already correct structure)</td>
+<td>Assembly returns ContextPackage; write is separate function — spec must use both</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (resume entry)</td>
+<td>Add <code>_audit_context_coverage()</code></td>
+<td>Surface context gaps at pipeline start</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py</code> (new command)</td>
+<td>Add <code>backfill-context</code> CLI command</td>
+<td>Allow backfilling context files for already-generated chapters</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code> (new file)</td>
+<td>Create linguistic drift detector with 5 metrics</td>
+<td>Add text-based detection independent of LLM scoring</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/drift_detection/compute_drift.py:147</code> (after)</td>
+<td>Add <code>check_linguistic_drift_trigger()</code> as 4th trigger condition</td>
+<td>Integrate linguistic drift into existing detection framework</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code></td>
+<td>Add <code>check_opening_similarity()</code></td>
+<td>Detect template-duplicate chapter openings</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py</code></td>
+<td>Add <code>check_window_redundancy()</code></td>
+<td>Detect content looping in sliding 4-chapter windows</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (pre-drafting)</td>
+<td>Inject corrective directives from drift detection into planning context</td>
+<td>Close the loop: detect -&gt; intervene</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-style-learning/SKILL.md</code></td>
+<td>Add linguistic baseline extraction instructions</td>
+<td>Ensure style learning captures text metrics, not just scores</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-drift-guidance/SKILL.md</code></td>
+<td>Add linguistic correction directives for HARD/ESCALATE tiers</td>
+<td>Give LLM concrete anti-drift writing instructions</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><strong>Context persistence</strong> (<code>tests/unit/pipeline/test_context_assembly.py</code>):</li>
+<li>Run <code>assemble_context</code> -&gt; assert <code>context/chapter-N-context.md</code> exists</li>
+<li>Run <code>_audit_context_coverage</code> -&gt; correctly report missing chapters</li>
+<li>
+<p>Mini-pipeline (3 chapters): every chapter has context file</p>
+</li>
+<li>
+<p><strong>Linguistic drift detector</strong> (<code>tests/unit/skill_utils/test_linguistic_drift.py</code>):</p>
+</li>
+<li>Normal prose (Ch1 excerpt) -&gt; <code>max_deviation &lt; 1.0</code> from baseline</li>
+<li>Degraded prose (Ch50 excerpt) -&gt; <code>max_deviation &gt; 5.0</code>, <code>system_term_density &gt; 50 per mille</code></li>
+<li>
+<p>Baseline correctly computed from normal prose chapters</p>
+</li>
+<li>
+<p><strong>Opening similarity:</strong></p>
+</li>
+<li>Two identical openings -&gt; <code>check_opening_similarity()</code> returns warning with ratio &gt;= 90%</li>
+<li>Two distinct openings -&gt; returns None</li>
+<li>
+<p>Threshold 60% correctly distinguishes template duplication from coincidental similarity</p>
+</li>
+<li>
+<p><strong>Content looping:</strong></p>
+</li>
+<li>4 chapters with 45% max pairwise similarity -&gt; <code>check_window_redundancy()</code> triggers</li>
+<li>4 chapters with 20% max pairwise similarity -&gt; does not trigger</li>
+<li>
+<p>Non-adjacent similarity properly detected (Ch37-Ch39 case)</p>
+</li>
+<li>
+<p><strong>Three-tier intervention:</strong></p>
+</li>
+<li>WARN tier: corrective directive injected but pipeline continues</li>
+<li>HARD tier: <code>shenbi-drift-guidance</code> forcibly triggered</li>
+<li>
+<p>ESCALATE tier: pipeline pauses for human review</p>
+</li>
+<li>
+<p><strong>End-to-end validation:</strong></p>
+</li>
+<li>Generate 10+ chapters with fixed pipeline</li>
+<li>Monitor system-term density trend -- must not monotonically increase</li>
+<li>Chapter opening similarity &lt;= 40% for any 5 consecutive chapters</li>
+<li>
+<p>Any 4-chapter sliding window max similarity &lt;= 35%</p>
+</li>
+<li>
+<p><strong>Regression:</strong> <code>just check</code> passes fully</p>
+</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 4 (this spec, Context Persistence and Linguistic Drift Prevention)
+    |
+    +---&gt; Depends on: Spec 1 (Truth File and State Accumulation) -- needs resonance_trend.md data for baseline
+    +---&gt; Depends on: Spec 2 (Output Validation and Format Enforcement) -- needs valid JSON decisions for planning context
+    +---&gt; Depends on: Spec 3 (Dispatch Safety and File Integrity) -- snapshot integrity enables recovery if drift requires rollback
+
+Prerequisites:
+    - H3&#39;s context assembly mechanism (consumed into this spec, Spec 4)
+    - compute_drift.py existing framework (extended, not replaced)
+</code></pre></div>
+<h3 id="61-original-issue-code-mapping">6.1 Original Issue Code Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Consolidated To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C2</td>
+<td>Progressive Prose Collapse</td>
+<td>Spec 4 (this spec)</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Context Assembly Persistence Gap</td>
+<td>Spec 4 (this spec)</td>
+</tr>
+<tr>
+<td>HN1</td>
+<td>Template Duplication</td>
+<td>Spec 4 (this spec)</td>
+</tr>
+<tr>
+<td>content-looping</td>
+<td>Chapter Content Looping</td>
+<td>Spec 4 (this spec)</td>
+</tr>
+<tr>
+<td>CN1</td>
+<td>主角消失 (Protagonist Disappearance)</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN2</td>
+<td>Hook System Bifurcation</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN3</td>
+<td>Truth File Overwrite</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN4</td>
+<td>Resonance Score Null</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN5</td>
+<td>Style Learning Never Updated</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN6</td>
+<td>Pipeline State Stale Data</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>JSON Corruption</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Revision System Failure</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>G4 Format Mismatch</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>C1</td>
+<td>Revision Overwrite Chapter Content</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Staging Residue Leak</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Snapshot Coverage Gaps</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>LN1-LN3</td>
+<td>Snapshot Bloat / Lockfile / Budget Copy</td>
+<td>Spec 3</td>
+</tr>
+<tr>
+<td>title-degradation, plan-content-mismatch, RS1, static-review-checklist</td>
+<td>Review Quality Issues</td>
+<td>Spec 5</td>
+</tr>
+<tr>
+<td>step-reorganization, parallelize, SCR, M1</td>
+<td>Pipeline Architecture</td>
+<td>Spec 6</td>
+</tr>
+<tr>
+<td>maturity-bp-fixes, crash-recovery, runtime-optimizations, L1-L3, M2, H5, M4</td>
+<td>Pipeline Infrastructure</td>
+<td>Spec 7</td>
+</tr>
+<tr>
+<td>llm-context-optimization</td>
+<td>LLM Context Engineering</td>
+<td>Spec 8</td>
+</tr>
+<tr>
+<td>volume-map, character-archive, C3</td>
+<td>Content Planning and Deliverable Design</td>
+<td>Spec 9</td>
+</tr>
+<tr>
+<td>gate-markers, review-checklist-static, snapshot-differential</td>
+<td>Data Storage Optimization</td>
+<td>Spec 10</td>
+</tr>
+<tr>
+<td>validation, chapter-size-time</td>
+<td>End-to-End Validation Protocol</td>
+<td>Spec 11</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

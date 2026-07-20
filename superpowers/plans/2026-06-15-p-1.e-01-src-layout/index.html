@@ -1,0 +1,2799 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-01-src-layout/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.E Plan 1: src/shenbi/ Layout Migration (PR-18 + PR-47) - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.E Plan 1: src/shenbi/ Layout Migration (PR-18 + PR-47) - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-01-src-layout.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-01-src-layout/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.E Plan 1: src/shenbi/ Layout Migration (PR-18 + PR-47) - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-01-src-layout.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1e-plan-1-srcshenbi-layout-migration-pr-18-pr-47" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.E Plan 1: src/shenbi/ Layout Migration (PR-18 + PR-47)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#files-moved-13-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files MOVED (13 total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-created-2-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files CREATED (2 total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-modified-11-total" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files MODIFIED (11 total)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#files-not-moved-handled-by-other-plans" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Files NOT MOVED (handled by other plans)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-0-pre-flight-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: Pre-flight check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-1-create-srcshenbi-skeleton" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Create src/shenbi/ skeleton
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-update-pyprojecttoml-wheel-coverage-config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Update pyproject.toml wheel + coverage config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-move-4-simple-framework-modules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Move 4 simple framework modules
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-move-scoringpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Move scoring.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-move-and-rename-phase-runnerpy-phase_runnerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Move and rename phase-runner.py → phase_runner.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-move-and-rename-summarize-roundpy-summarize_roundpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Move and rename summarize-round.py → summarize_round.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-move-and-rename-update-progresspy-update_progresspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Move and rename update-progress.py → update_progress.py
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-move-gates-package-fix-forwarder-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Move gates/ package + fix forwarder path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-move-dispatcher-package-fix-forwarder-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: Move dispatcher/ package + fix forwarder path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-update-mypybasedpyright-config-for-new-module-paths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: Update mypy/basedpyright config for new module paths
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-add-projectscripts-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: Add [project.scripts] entry points
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-update-testsdispatch-subagentsh-invocations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: Update tests/dispatch-subagent.sh invocations
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-update-testsround-execsh-invocation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: Update tests/round-exec.sh invocation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-14-update-docs-minimal-path-references-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 14: Update docs (minimal — path references only)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-15-final-verification-sweep" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 15: Final verification + sweep
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-16-close-pr-18-push-branch-open-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 16: Close PR-18 — push branch + open PR
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-17-pr-47-remove-force-include-from-wheel-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 17: PR-47 — Remove force-include from wheel build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-coverage-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec coverage check
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#placeholder-scan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Placeholder scan
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type-consistency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Type consistency
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1e-plan-1-srcshenbi-layout-migration-pr-18-pr-47">P-1.E Plan 1: src/shenbi/ Layout Migration (PR-18 + PR-47)</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Migrate Shenbi framework runtime code from <code>tests/</code> to <code>src/shenbi/</code> (PR-18), then remove <code>force-include</code> block from wheel build (PR-47). This is the <strong>blocking prerequisite</strong> for all other P-1.E plans.</p>
+<p><strong>Architecture:</strong> Atomic src-layout migration. Files move with <code>git mv</code> to preserve history. Hyphenated filenames (<code>phase-runner.py</code>, <code>summarize-round.py</code>, <code>update-progress.py</code>) are renamed to valid Python module names (underscores). <code>tests/validate-gate.py</code> (4318 lines) and <code>tests/dispatch-subagent.sh</code> (203 lines) <strong>stay in place</strong> — they're handled by PR-19 and PR-20 in Plan 2. The forwarder stubs in <code>tests/gates/cli.py</code> and <code>tests/dispatcher/cli.py</code> move WITH path fixups (their <code>__file__</code>-relative paths change after relocation). Six <code>[project.scripts]</code> entry points declared; the seventh (<code>shenbi-generate-plugins</code>) waits for PR-45. <strong>No behavior changes — modules retain identical runtime behavior, but <code>__file__</code>-relative path computations in 4 runtime modules + 2 forwarder stubs are updated to resolve to the repo root from their new <code>src/shenbi/</code> location.</strong></p>
+<p><strong>Tech Stack:</strong> Python 3.11+, uv 0.10+, hatchling build backend, pyproject.toml (PEP 621).</p>
+<p><strong>Spec reference:</strong> <a href="../../specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout/"><code>docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout.md</code></a> (Cluster 02, PR-18 + PR-47)</p>
+<p><strong>Depends on:</strong> Nothing (this is the first P-1.E plan).</p>
+<p><strong>Blocks:</strong> All other P-1.E plans (PR-19 through PR-46 assume <code>src/shenbi/</code> exists).</p>
+<p><strong>Estimated effort:</strong> L (3-4 hours, 20 tasks)</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<h3 id="files-moved-13-total">Files MOVED (13 total)</h3>
+<table>
+<thead>
+<tr>
+<th>Current path</th>
+<th>New path</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/exceptions.py</code></td>
+<td><code>src/shenbi/exceptions.py</code></td>
+<td>no rename</td>
+</tr>
+<tr>
+<td><code>tests/logging.py</code></td>
+<td><code>src/shenbi/logging.py</code></td>
+<td>no rename</td>
+</tr>
+<tr>
+<td><code>tests/error_guidance.py</code></td>
+<td><code>src/shenbi/error_guidance.py</code></td>
+<td>no rename</td>
+</tr>
+<tr>
+<td><code>tests/recovery.py</code></td>
+<td><code>src/shenbi/recovery.py</code></td>
+<td>no rename</td>
+</tr>
+<tr>
+<td><code>tests/scoring.py</code></td>
+<td><code>src/shenbi/scoring.py</code></td>
+<td>no rename; has <code>main()</code> at line 209; <strong>needs path fixup</strong> (3 <code>__file__</code> refs)</td>
+</tr>
+<tr>
+<td><code>tests/phase-runner.py</code></td>
+<td><code>src/shenbi/phase_runner.py</code></td>
+<td><strong>rename</strong> hyphen → underscore; <strong>needs path fixup</strong> (<code>TESTS</code>/<code>PROJECT</code>)</td>
+</tr>
+<tr>
+<td><code>tests/summarize-round.py</code></td>
+<td><code>src/shenbi/summarize_round.py</code></td>
+<td><strong>rename</strong> hyphen → underscore; <strong>needs path fixup</strong> (<code>validate-gate.py</code> ref)</td>
+</tr>
+<tr>
+<td><code>tests/update-progress.py</code></td>
+<td><code>src/shenbi/update_progress.py</code></td>
+<td><strong>rename</strong> hyphen → underscore; <strong>needs path fixup</strong> (<code>PROJECT</code> -- hard blocker)</td>
+</tr>
+<tr>
+<td><code>tests/gates/__init__.py</code></td>
+<td><code>src/shenbi/gates/__init__.py</code></td>
+<td>forwarder package</td>
+</tr>
+<tr>
+<td><code>tests/gates/cli.py</code></td>
+<td><code>src/shenbi/gates/cli.py</code></td>
+<td>forwarder; needs path fixup</td>
+</tr>
+<tr>
+<td><code>tests/gates/g4/__init__.py</code></td>
+<td><code>src/shenbi/gates/g4/__init__.py</code></td>
+<td>empty subpackage</td>
+</tr>
+<tr>
+<td><code>tests/dispatcher/__init__.py</code></td>
+<td><code>src/shenbi/dispatcher/__init__.py</code></td>
+<td>forwarder package</td>
+</tr>
+<tr>
+<td><code>tests/dispatcher/cli.py</code></td>
+<td><code>src/shenbi/dispatcher/cli.py</code></td>
+<td>forwarder; needs path fixup</td>
+</tr>
+</tbody>
+</table>
+<h3 id="files-created-2-total">Files CREATED (2 total)</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/__init__.py</code></td>
+<td>Package marker + version + public API</td>
+</tr>
+<tr>
+<td><code>src/shenbi/py.typed</code></td>
+<td>PEP 561 marker (typed package distribution)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="files-modified-11-total">Files MODIFIED (11 total)</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>What changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pyproject.toml</code></td>
+<td>wheel <code>packages</code> from <code>["tests"]</code> -&gt; <code>["src/shenbi"]</code>; remove <code>force-include</code> block (PR-47); add <code>[project.scripts]</code>; update <code>[tool.coverage.run].source</code>; update <code>--cov</code> in pytest <code>addopts</code>; update mutmut <code>paths-to-mutate</code>; update mypy/basedpyright overrides; update ruff per-file-ignores; remove old <code>[tool.hatch.build.targets.wheel.force-include]</code></td>
+</tr>
+<tr>
+<td><code>tests/unit/test_logging.py</code></td>
+<td>import: <code>tests.logging</code> → <code>shenbi.logging</code></td>
+</tr>
+<tr>
+<td><code>tests/unit/test_exceptions.py</code></td>
+<td>imports: <code>tests.exceptions</code>, <code>tests.error_guidance</code>, <code>tests.recovery</code>, bare <code>from tests import exceptions</code> -&gt; <code>shenbi.*</code></td>
+</tr>
+<tr>
+<td><code>tests/dispatch-subagent.sh</code></td>
+<td>invocation: <code>python3 "${SCRIPT_DIR}/scoring.py"</code> → <code>shenbi-score</code>; <code>python3 "${SCRIPT_DIR}/update-progress.py"</code> → <code>shenbi-progress</code></td>
+</tr>
+<tr>
+<td><code>tests/round-exec.sh</code></td>
+<td>invocation: <code>python3 tests/update-progress.py init</code> → <code>shenbi-progress init</code></td>
+</tr>
+<tr>
+<td><code>.github/workflows/ci.yml</code></td>
+<td>update <code>mypy tests/</code> -&gt; <code>mypy src/shenbi/</code> for relocated framework code</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>update path references in commands</td>
+</tr>
+<tr>
+<td><code>GEMINI.md</code></td>
+<td>update path references</td>
+</tr>
+<tr>
+<td><code>CLAUDE.md</code></td>
+<td>add P-1.E note + new structure mention</td>
+</tr>
+<tr>
+<td><code>command-to-give.md</code></td>
+<td>update all <code>python3 tests/X.py</code> invocations to entry points</td>
+</tr>
+<tr>
+<td><code>goal-prompt.md</code></td>
+<td>update tool script list</td>
+</tr>
+</tbody>
+</table>
+<h3 id="files-not-moved-handled-by-other-plans">Files NOT MOVED (handled by other plans)</h3>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Handled by</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests/validate-gate.py</code></td>
+<td>PR-19 (Plan 2, Cluster 01)</td>
+</tr>
+<tr>
+<td><code>tests/dispatch-subagent.sh</code></td>
+<td>PR-20 (Plan 2, Cluster 01) — file stays, content rewritten</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="tasks">Tasks</h2>
+<h3 id="task-0-pre-flight-check">Task 0: Pre-flight check</h3>
+<p><strong>Files:</strong> None (verification only).</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify clean working tree</strong></li>
+</ul>
+<p>Run: <code>git status --short</code>
+Expected: empty output (no uncommitted changes).</p>
+<p>If output non-empty: <code>git stash</code> or commit pending work before proceeding.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify on <code>main</code> branch</strong></li>
+</ul>
+<p>Run: <code>git branch --show-current</code>
+Expected: <code>main</code></p>
+<p>If not on <code>main</code>: <code>git checkout main &amp;&amp; git pull --ff-only</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify baseline tests pass</strong></li>
+</ul>
+<p>Run: <code>uv sync --extra dev &amp;&amp; uv run pytest -q</code>
+Expected: <code>42 passed, 1 skipped</code> (or close — count must not decrease).</p>
+<ul>
+<li>[ ] <strong>Step 4: Snapshot current state</strong></li>
+</ul>
+<p>Run: <code>git rev-parse HEAD &gt; /tmp/p1e-plan-1-baseline-sha.txt &amp;&amp; wc -l tests/*.py &gt; /tmp/p1e-plan-1-baseline-loc.txt</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Create feature branch (commit on branch, not main)</strong></li>
+</ul>
+<p>Run: <code>git checkout -b feat/p-1.e-pr-18-src-layout</code></p>
+<p>All ~14 commits land on this branch. Task 16 pushes the branch and opens a PR. <strong>Do not commit on <code>main</code></strong> — round-3 review flagged the hazard of intermediate commits on main (accidental <code>git push origin main</code>, branch-protection hook conflicts, etc.).</p>
+<ul>
+<li>[ ] <strong>Step 6: Verify pre-commit hooks work (execution-time check)</strong></li>
+</ul>
+<p>Run: <code>git add .pre-commit-config.yaml &amp;&amp; git commit --allow-empty -m "test pre-commit" 2&gt;&amp;1 | tail -20</code></p>
+<p>Expected: pre-commit hooks run; if any hook fails with "Unknown rule selector" or similar config-parse error, the repo has a pre-existing <code>.pre-commit-config.yaml</code> version mismatch.</p>
+<p><strong>Known issue observed in 2026-06-15 execution</strong>: <code>.pre-commit-config.yaml</code> pinned ruff to v0.1.13 (Jan 2024) but <code>pyproject.toml</code> used <code>RUF059</code> (added in ruff 0.2+). Every commit failed with <code>Unknown rule selector: RUF059</code>. Fix: bump <code>.pre-commit-config.yaml</code> ruff version to match the installed ruff (<code>uv run ruff --version</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">repo</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">https://github.com/astral-sh/ruff-pre-commit</span>
+<span class="w">  </span><span class="nt">rev</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v0.15.17</span><span class="w">   </span><span class="c1"># match `uv run ruff --version`</span>
+<span class="w">  </span><span class="nt">hooks</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff</span>
+<span class="w">      </span><span class="nt">args</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">--fix</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">--exit-non-zero-on-fix</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ruff-format</span>
+</code></pre></div>
+<p>Commit this pre-flight fix as <code>fix(pre-commit): bump ruff to vX.Y.Z to support &lt;RULE&gt;</code> before proceeding.</p>
+<p>If the test commit succeeds, reset it: <code>git reset --hard HEAD~1</code>.</p>
+<hr />
+<h3 id="task-1-create-srcshenbi-skeleton">Task 1: Create <code>src/shenbi/</code> skeleton</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/__init__.py</code>
+- Create: <code>src/shenbi/py.typed</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Create <code>src/shenbi/__init__.py</code></strong></li>
+</ul>
+<p>File content:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Shenbi novel-writing AI skill framework.</span>
+
+<span class="sd">Submodules:</span>
+<span class="sd">    - exceptions: typed exception hierarchy</span>
+<span class="sd">    - logging: structlog configuration</span>
+<span class="sd">    - scoring: rubric-based 0-100 scorer</span>
+<span class="sd">    - phase_runner: T2/T3 phase state machine</span>
+<span class="sd">    - summarize_round: round aggregation + G7 close</span>
+<span class="sd">    - update_progress: progress.json single-writer</span>
+<span class="sd">    - gates: G0-G7 gate enforcement (forwarder until PR-19)</span>
+<span class="sd">    - dispatcher: sub-agent dispatch (forwarder until PR-20)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1.0&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Create <code>src/shenbi/py.typed</code></strong></li>
+</ul>
+<p>File content (single empty file):</p>
+<div class="highlight"><pre><span></span><code>
+</code></pre></div>
+<p>(Empty file per PEP 561.)</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit skeleton</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/__init__.py<span class="w"> </span>src/shenbi/py.typed
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): add src/shenbi/ package skeleton + py.typed marker</span>
+
+<span class="s2">PEP 561 typed package marker enables downstream mypy/pyright to use</span>
+<span class="s2">Shenbi&#39;s type annotations when imported.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-update-pyprojecttoml-wheel-coverage-config">Task 2: Update <code>pyproject.toml</code> wheel + coverage config</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (lines 51-56, 60, 181, 203)</p>
+<ul>
+<li>[ ] <strong>Step 1: Change wheel packages</strong></li>
+</ul>
+<p>Edit <code>pyproject.toml</code>. Find (lines 51-56):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="s2">&quot;docs/adr/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docs/adr/&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/shenbi&quot;</span><span class="p">]</span>
+
+<span class="c1"># NOTE: Task 17 / PR-47 removes the force-include block entirely.</span>
+<span class="c1"># It stays here temporarily to avoid breaking the build before files move.</span>
+<span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="s2">&quot;docs/adr/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docs/adr/&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update coverage source</strong></li>
+</ul>
+<p>Find (line 203):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.coverage.run]</span>
+<span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.coverage.run]</span>
+<span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/shenbi&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2b: Update pytest <code>--cov</code> and mutmut paths</strong></li>
+</ul>
+<p>Two more <code>pyproject.toml</code> edits in the same commit:</p>
+<p>Find (line 181, in <code>[tool.pytest.ini_options].addopts</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="s2">&quot;--cov=tests&quot;</span><span class="err">,</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="s2">&quot;--cov=shenbi&quot;</span><span class="err">,</span>
+</code></pre></div>
+<p>(pytest-cov uses <code>--cov</code> to determine measurement targets, overriding <code>[tool.coverage.run].source</code>. Leaving <code>--cov=tests</code> would measure only remaining test files, not the relocated framework code.)</p>
+<p>Find (line 60, in <code>[tool.mutmut]</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="n">paths-to-mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/exceptions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/logging.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/gates/shared.py&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">paths-to-mutate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/shenbi/exceptions.py&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src/shenbi/logging.py&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>(<code>tests/gates/shared.py</code> does not exist yet; it was pre-existing dead config. <code>tests/exceptions.py</code> and <code>tests/logging.py</code> are relocated by Task 3.)</p>
+<ul>
+<li>[ ] <strong>Step 2c: Add ruff <code>per-file-ignores</code> for <code>src/shenbi/*.py</code> and mypy decorator override for <code>tests.*</code></strong></li>
+</ul>
+<p>Two config changes needed BEFORE Task 3 moves any files (so the first moved-file commit doesn't fail pre-commit hooks):</p>
+<p><strong>Why this can't wait until Task 10</strong>: Task 3 moves <code>tests/exceptions.py</code>, <code>tests/logging.py</code>, etc. into <code>src/shenbi/</code>. The existing <code>[tool.ruff.lint.per-file-ignores]</code> glob <code>"tests/*.py"</code> no longer matches them after the move, so ~75 D10x/E501/PLR0912/... violations surface immediately. Pre-commit ruff hook fails on the Task 3 commit. (Verified in 2026-06-15 execution.)</p>
+<p>Find (in <code>[tool.ruff.lint.per-file-ignores]</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="s2">&quot;tests/exceptions.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D107&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D105&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N818&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Insert ABOVE that line, mirroring the <code>"tests/*.py"</code> list verbatim:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># P-1.E temporary: moved legacy code now at src/shenbi/*.py inherits the</span>
+<span class="c1"># same suppression set as tests/*.py. Removed module-by-module in PR-25</span>
+<span class="c1"># (Cluster 03) as type annotations and cleanup land.</span>
+<span class="s2">&quot;src/shenbi/*.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;D103&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D101&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D205&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D415&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;E501&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E741&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;E722&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;F841&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;N802&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N806&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N999&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;PLR0911&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR0912&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR0915&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR1714&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLR2004&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;PLC0415&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLW1510&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;PLW2901&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;PIE810&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;RUF001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF003&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF005&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;RUF059&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;SIM102&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;SIM105&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;C401&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;C416&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;B007&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="s2">&quot;src/shenbi/exceptions.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D107&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D105&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N818&quot;</span><span class="p">]</span>
+<span class="s2">&quot;tests/exceptions.py&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;D107&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;D105&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;N818&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Also add a mypy override for test files (pytest's <code>@pytest.fixture()</code> decorator is untyped; mypy strict catches this once the test file's imports resolve cleanly to typed modules — which starts happening in Task 3):</p>
+<p>Find (in <code>[[tool.mypy.overrides]]</code> for <code>tests.validate-gate</code> etc.):</p>
+<div class="highlight"><pre><span></span><code><span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests.validate-gate&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.scoring&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="err">]</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div>
+<p>Insert AFTER that block:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Pytest decorators (@pytest.fixture) are untyped; relax strict-mode check</span>
+<span class="c1"># for test files so mypy doesn&#39;t false-positive on standard pytest usage.</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests.*&quot;</span><span class="p">]</span>
+<span class="n">disallow_untyped_decorators</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</code></pre></div>
+<p>(Verified in 2026-06-15 execution: Task 3's <code>from shenbi.logging import ...</code> resolves to a cleanly-typed module, where the prior <code>from tests.logging import ...</code> had failed resolution and masked the decorator issue.)</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify build still works (no moves yet)</strong></li>
+</ul>
+<p>Run: <code>uv sync --extra dev &amp;&amp; uv build --wheel</code>
+Expected: build succeeds, warning about empty <code>src/shenbi/</code> (only <code>__init__.py</code>).</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify pytest still collects</strong></li>
+</ul>
+<p>Run: <code>uv run pytest --collect-only -q --no-cov | head -5</code>
+Expected: lists existing 43 tests.</p>
+<p><strong>Execution note</strong>: <code>--collect-only</code> does NOT run tests. With <code>--cov</code> enabled and <code>fail_under = 8</code>, the session-end coverage gate fires on near-zero measured code (no tests actually executed) and exits 1. Adding <code>--no-cov</code> for collection-only checks avoids the false-positive failure. If you see <code>Required test coverage of 8.0% not reached. Total coverage: 3.35%</code>, that's the same root cause — re-run with <code>--no-cov</code>.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): switch wheel package from tests/ to src/shenbi/</span>
+
+<span class="s2">Wheel now ships src/shenbi/ as the installable package. Coverage source</span>
+<span class="s2">updated to match. --cov in pytest addopts and mutmut paths-to-mutate</span>
+<span class="s2">updated for new module locations. force-include block retained temporarily;</span>
+<span class="s2">removed in Task 17 / PR-47.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-move-4-simple-framework-modules">Task 3: Move 4 simple framework modules</h3>
+<p><strong>Files:</strong>
+- Move: <code>tests/exceptions.py</code> → <code>src/shenbi/exceptions.py</code>
+- Move: <code>tests/logging.py</code> → <code>src/shenbi/logging.py</code>
+- Move: <code>tests/error_guidance.py</code> → <code>src/shenbi/error_guidance.py</code>
+- Move: <code>tests/recovery.py</code> → <code>src/shenbi/recovery.py</code>
+- Modify: <code>tests/unit/test_logging.py:23</code>
+- Modify: <code>tests/unit/test_exceptions.py:3-13</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Move 4 files with <code>git mv</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/exceptions.py<span class="w"> </span>src/shenbi/exceptions.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/logging.py<span class="w"> </span>src/shenbi/logging.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/error_guidance.py<span class="w"> </span>src/shenbi/error_guidance.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/recovery.py<span class="w"> </span>src/shenbi/recovery.py
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run pytest — expect import failures</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_logging.py tests/unit/test_exceptions.py -q</code>
+Expected: <code>ModuleNotFoundError: No module named 'tests.logging'</code> (or similar).</p>
+<ul>
+<li>[ ] <strong>Step 3: Update <code>tests/unit/test_logging.py</code></strong></li>
+</ul>
+<p>Find line 23:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tests.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span><span class="p">,</span> <span class="n">get_logger</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">configure_logging</span><span class="p">,</span> <span class="n">get_logger</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Update <code>tests/unit/test_exceptions.py</code></strong></li>
+</ul>
+<p>Find lines 4-13:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tests.error_guidance</span><span class="w"> </span><span class="kn">import</span> <span class="n">ERROR_GUIDANCE</span><span class="p">,</span> <span class="n">get_guidance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tests.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="o">...</span>
+<span class="p">)</span>
+<span class="o">...</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">tests.recovery</span><span class="w"> </span><span class="kn">import</span> <span class="n">RECOVERY_STRATEGIES</span><span class="p">,</span> <span class="n">RecoveryStrategy</span>
+</code></pre></div>
+<p>Line 3 also has a <strong>bare import</strong> that the above pattern misses:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">tests</span><span class="w"> </span><span class="kn">import</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">exc_mod</span>
+</code></pre></div>
+<p>Replace this with:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi</span><span class="w"> </span><span class="kn">import</span> <span class="n">exceptions</span> <span class="k">as</span> <span class="n">exc_mod</span>
+</code></pre></div>
+<p>In total, <strong>four substitutions</strong>: <code>tests.error_guidance</code> -&gt; <code>shenbi.error_guidance</code>, <code>tests.exceptions</code> -&gt; <code>shenbi.exceptions</code>, <code>tests.recovery</code> -&gt; <code>shenbi.recovery</code>, and <code>from tests import exceptions</code> -&gt; <code>from shenbi import exceptions</code>.</p>
+<ul>
+<li>[ ] <strong>Step 5: Run pytest — expect pass</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_logging.py tests/unit/test_exceptions.py -q</code>
+Expected: <code>18 passed</code> (or similar).</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full test suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest -q</code>
+Expected: <code>42 passed, 1 skipped</code> (same as Task 0 baseline).</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move exceptions/logging/error_guidance/recovery to src/shenbi/</span>
+
+<span class="s2">4 simple framework modules relocated. Test imports updated. No behavior</span>
+<span class="s2">changes.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-move-scoringpy">Task 4: Move <code>scoring.py</code></h3>
+<p><strong>Files:</strong>
+- Move: <code>tests/scoring.py</code> → <code>src/shenbi/scoring.py</code>
+- Modify: <code>src/shenbi/scoring.py</code> (fix <code>__file__</code>-relative paths after move)
+- Modify: any callers (shell scripts handled in Task 12/13; Python callers checked below)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify <code>scoring.py</code> has <code>main()</code></strong></li>
+</ul>
+<p>Run: <code>grep -c "^def main" tests/scoring.py</code>
+Expected: <code>1</code> (exactly one <code>def main()</code>).</p>
+<p>If <code>0</code>: STOP. Add a <code>main()</code> function that parses <code>sys.argv</code> and calls the existing scoring logic.</p>
+<ul>
+<li>[ ] <strong>Step 2: Move with <code>git mv</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/scoring.py<span class="w"> </span>src/shenbi/scoring.py
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2b: Fix <code>__file__</code>-relative paths in <code>src/shenbi/scoring.py</code></strong></li>
+</ul>
+<p><code>scoring.py</code> has three <code>Path(__file__).parent</code> references that break after the
+move. From <code>src/shenbi/scoring.py</code>, <code>Path(__file__).parent</code> resolves to
+<code>src/shenbi/</code> instead of <code>tests/</code>.</p>
+<p>Find (line 187):</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">deps_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">deps_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;tiers&quot;</span> <span class="o">/</span> <span class="s2">&quot;deps.json&quot;</span>
+</code></pre></div>
+<p>Find (line 231, in the <code>--gate-only</code> block):</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Find (line 260, in the tier gate-check block):</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>parents[2]</code> resolves from <code>src/shenbi/scoring.py</code> to the repo root; appending
+<code>"tests"</code> gives the correct path to <code>validate-gate.py</code> and <code>tiers/deps.json</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Check for Python callers</strong></li>
+</ul>
+<p>Run: <code>grep -rn "from tests.scoring\|import tests.scoring" --include='*.py' .</code>
+Expected: empty (no Python callers).</p>
+<p>If non-empty: update each match to use <code>shenbi.scoring</code>.</p>
+<ul>
+<li>[ ] <strong>Step 4: Smoke test direct import</strong></li>
+</ul>
+<p>Run: <code>uv run python -c "from shenbi.scoring import main; print('OK')"</code>
+Expected: <code>OK</code></p>
+<ul>
+<li>[ ] <strong>Step 4b: Update <code>tests/unit/test_gates_integrity.py</code> SC path constant</strong></li>
+</ul>
+<p>The test file has hardcoded path constants for subprocess invocation of the framework scripts. Find (around line 177):</p>
+<div class="highlight"><pre><span></span><code><span class="n">SC</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;scoring.py&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">SC</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span> <span class="o">/</span> <span class="s2">&quot;scoring.py&quot;</span>
+</code></pre></div>
+<p>(<code>Path(__file__).resolve().parent.parent</code> from <code>tests/unit/test_gates_integrity.py</code> resolves to <code>tests/</code>, where <code>scoring.py</code> no longer exists. <code>parents[2]</code> reaches repo root, then descend into the new location.)</p>
+<p>Do NOT update <code>PR</code> yet — <code>phase-runner.py</code> is still at <code>tests/phase-runner.py</code> until Task 5.</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full test suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest -q</code>
+Expected: <code>42 passed, 1 skipped</code> (scoring has no direct tests yet; cluster 04 PR-28 adds them).</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move scoring.py to src/shenbi/scoring.py&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-move-and-rename-phase-runnerpy-phase_runnerpy">Task 5: Move and rename <code>phase-runner.py</code> → <code>phase_runner.py</code></h3>
+<p><strong>Files:</strong>
+- Move + rename: <code>tests/phase-runner.py</code> → <code>src/shenbi/phase_runner.py</code>
+- Modify: <code>src/shenbi/phase_runner.py</code> (fix <code>__file__</code>-relative paths after move)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify <code>main()</code> exists</strong></li>
+</ul>
+<p>Run: <code>grep -c "^def main" tests/phase-runner.py</code>
+Expected: <code>1</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Move + rename</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/phase-runner.py<span class="w"> </span>src/shenbi/phase_runner.py
+</code></pre></div>
+<p>(<code>git mv</code> handles both move and rename in one step.)</p>
+<ul>
+<li>[ ] <strong>Step 2b: Fix <code>__file__</code>-relative paths in <code>src/shenbi/phase_runner.py</code></strong></li>
+</ul>
+<p><code>phase-runner.py</code> computes <code>TESTS</code> and <code>PROJECT</code> from <code>__file__</code>. After moving
+to <code>src/shenbi/</code>, these resolve incorrectly.</p>
+<p>Find (lines 19-20):</p>
+<div class="highlight"><pre><span></span><code><span class="n">TESTS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span>
+<span class="n">PROJECT</span> <span class="o">=</span> <span class="n">TESTS</span><span class="o">.</span><span class="n">parent</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">TESTS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span>
+<span class="n">PROJECT</span> <span class="o">=</span> <span class="n">TESTS</span><span class="o">.</span><span class="n">parent</span>
+</code></pre></div>
+<p>After this fix, <code>TESTS</code> = <code>&lt;repo&gt;/tests/</code>, <code>PROJECT</code> = repo root. This keeps
+<code>load_deps()</code> (<code>TESTS / "tiers" / "deps.json"</code>) and <code>run_gate()</code>
+(<code>TESTS / "validate-gate.py"</code>) resolving correctly from the new location.</p>
+<ul>
+<li>[ ] <strong>Step 3: Check for Python callers</strong></li>
+</ul>
+<p>Run: <code>grep -rn "phase-runner\|phase_runner" --include='*.py' . | grep -v ".venv\|.worktrees"</code>
+Expected: empty or only line-comments.</p>
+<p>If non-empty (actual import): update to <code>from shenbi.phase_runner import ...</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3b: Update <code>tests/unit/test_gates_integrity.py</code> PR path constant</strong></li>
+</ul>
+<p>Find (around line 178):</p>
+<div class="highlight"><pre><span></span><code><span class="n">PR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;phase-runner.py&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">PR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span> <span class="o">/</span> <span class="s2">&quot;phase_runner.py&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Smoke test</strong></li>
+</ul>
+<p>Run: <code>uv run python -c "from shenbi.phase_runner import main; print('OK')"</code>
+Expected: <code>OK</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move phase-runner.py → src/shenbi/phase_runner.py</span>
+
+<span class="s2">Renamed hyphen → underscore per PEP 8 module naming convention.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-move-and-rename-summarize-roundpy-summarize_roundpy">Task 6: Move and rename <code>summarize-round.py</code> → <code>summarize_round.py</code></h3>
+<p><strong>Files:</strong>
+- Move + rename: <code>tests/summarize-round.py</code> → <code>src/shenbi/summarize_round.py</code>
+- Modify: <code>src/shenbi/summarize_round.py</code> (fix <code>__file__</code>-relative path after move)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify <code>main()</code> exists</strong></li>
+</ul>
+<p>Run: <code>grep -c "^def main" tests/summarize-round.py</code>
+Expected: <code>1</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Move + rename</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/summarize-round.py<span class="w"> </span>src/shenbi/summarize_round.py
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2b: Fix <code>__file__</code>-relative path in <code>src/shenbi/summarize_round.py</code></strong></li>
+</ul>
+<p>Find (line 54, in <code>main()</code>):</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><code>parents[2]</code> resolves from <code>src/shenbi/summarize_round.py</code> to the repo root,
+so <code>validate-gate.py</code> is found at <code>tests/validate-gate.py</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Check for Python callers</strong></li>
+</ul>
+<p>Run: <code>grep -rn "summarize-round\|summarize_round" --include='*.py' . | grep -v ".venv\|.worktrees"</code>
+Expected: empty.</p>
+<p>If non-empty: update.</p>
+<ul>
+<li>[ ] <strong>Step 4: Smoke test</strong></li>
+</ul>
+<p>Run: <code>uv run python -c "from shenbi.summarize_round import main; print('OK')"</code>
+Expected: <code>OK</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move summarize-round.py → src/shenbi/summarize_round.py&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-move-and-rename-update-progresspy-update_progresspy">Task 7: Move and rename <code>update-progress.py</code> → <code>update_progress.py</code></h3>
+<p><strong>Files:</strong>
+- Move + rename: <code>tests/update-progress.py</code> → <code>src/shenbi/update_progress.py</code>
+- Modify: <code>src/shenbi/update_progress.py</code> (fix <code>__file__</code>-relative path after move)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify <code>main()</code> exists</strong></li>
+</ul>
+<p>Run: <code>grep -c "^def main" tests/update-progress.py</code>
+Expected: <code>1</code>.</p>
+<ul>
+<li>[ ] <strong>Step 2: Move + rename</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/update-progress.py<span class="w"> </span>src/shenbi/update_progress.py
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2b: Fix <code>__file__</code>-relative path in <code>src/shenbi/update_progress.py</code></strong></li>
+</ul>
+<p><strong>This is a hard blocker.</strong> <code>update-progress.py</code> computes <code>PROJECT</code> at module
+level (line 15) and calls <code>SKILLS.iterdir()</code> at module level (line 17). After
+moving to <code>src/shenbi/</code>, <code>Path(__file__).resolve().parent.parent</code> resolves to
+<code>src/</code> instead of the repo root, so <code>SKILLS</code> points to the nonexistent
+<code>src/skills/</code> and the import itself raises <code>FileNotFoundError</code>.</p>
+<p>Find (line 15):</p>
+<div class="highlight"><pre><span></span><code><span class="n">PROJECT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">PROJECT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+</code></pre></div>
+<p>After this fix, <code>PROJECT</code> = repo root, <code>SKILLS</code> = <code>repo_root/skills/</code>
+(correct), and the module-level <code>ALL_SKILLS = sorted(d.name for d in
+SKILLS.iterdir() ...)</code> works. Without this fix, Step 4's smoke test fails with
+an import-time <code>FileNotFoundError</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Check for Python callers</strong></li>
+</ul>
+<p>Run: <code>grep -rn "update-progress\|update_progress" --include='*.py' . | grep -v ".venv\|.worktrees"</code>
+Expected: empty.</p>
+<ul>
+<li>[ ] <strong>Step 4: Smoke test</strong></li>
+</ul>
+<p>Run: <code>uv run python -c "from shenbi.update_progress import main; print('OK')"</code>
+Expected: <code>OK</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move update-progress.py → src/shenbi/update_progress.py&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-move-gates-package-fix-forwarder-path">Task 8: Move <code>gates/</code> package + fix forwarder path</h3>
+<p><strong>Files:</strong>
+- Move: <code>tests/gates/__init__.py</code> → <code>src/shenbi/gates/__init__.py</code>
+- Move: <code>tests/gates/cli.py</code> → <code>src/shenbi/gates/cli.py</code>
+- Move: <code>tests/gates/g4/__init__.py</code> → <code>src/shenbi/gates/g4/__init__.py</code>
+- Modify: <code>src/shenbi/gates/cli.py</code> (path fixup)</p>
+<ul>
+<li>[ ] <strong>Step 1: Create target directory and move files</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>src/shenbi/gates/g4
+git<span class="w"> </span>mv<span class="w"> </span>tests/gates/__init__.py<span class="w"> </span>src/shenbi/gates/__init__.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/gates/cli.py<span class="w"> </span>src/shenbi/gates/cli.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/gates/g4/__init__.py<span class="w"> </span>src/shenbi/gates/g4/__init__.py
+rmdir<span class="w"> </span>tests/gates/g4<span class="w"> </span>tests/gates<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Fix forwarder path in <code>src/shenbi/gates/cli.py</code></strong></li>
+</ul>
+<p>The current path computation:</p>
+<div class="highlight"><pre><span></span><code><span class="n">VG_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span>
+</code></pre></div>
+<p>resolves to <code>src/shenbi/validate-gate.py</code> after move, but <code>validate-gate.py</code> is still at <code>tests/validate-gate.py</code>.</p>
+<p>Open <code>src/shenbi/gates/cli.py</code>. Replace the entire file with:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;CLI entry point for gate validation.</span>
+
+<span class="sd">P-1.D created this module as a forwarder stub. PR-19 (Plan 2, Cluster 01)</span>
+<span class="sd">replaces it with a real modular implementation. Until then, this forwarder</span>
+<span class="sd">shells out to the legacy tests/validate-gate.py.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">VG_PATH</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Forward to existing validate-gate.py CLI.&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">VG_PATH</span><span class="p">),</span> <span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]],</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Smoke test forwarder</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.gates.cli</code>
+Expected: prints usage info from <code>validate-gate.py</code> (or specific gate error; either way, no ModuleNotFoundError or FileNotFoundError).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move gates/ forwarder package to src/shenbi/gates/</span>
+
+<span class="s2">Path computation in cli.py updated: parents[3] resolves to repo root from</span>
+<span class="s2">new location src/shenbi/gates/cli.py. Forwarder continues to call</span>
+<span class="s2">tests/validate-gate.py until PR-19 replaces it with real modularization.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-9-move-dispatcher-package-fix-forwarder-path">Task 9: Move <code>dispatcher/</code> package + fix forwarder path</h3>
+<p><strong>Files:</strong>
+- Move: <code>tests/dispatcher/__init__.py</code> → <code>src/shenbi/dispatcher/__init__.py</code>
+- Move: <code>tests/dispatcher/cli.py</code> → <code>src/shenbi/dispatcher/cli.py</code>
+- Modify: <code>src/shenbi/dispatcher/cli.py</code> (path fixup)</p>
+<ul>
+<li>[ ] <strong>Step 1: Move files</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>src/shenbi/dispatcher
+git<span class="w"> </span>mv<span class="w"> </span>tests/dispatcher/__init__.py<span class="w"> </span>src/shenbi/dispatcher/__init__.py
+git<span class="w"> </span>mv<span class="w"> </span>tests/dispatcher/cli.py<span class="w"> </span>src/shenbi/dispatcher/cli.py
+rmdir<span class="w"> </span>tests/dispatcher<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Fix forwarder path in <code>src/shenbi/dispatcher/cli.py</code></strong></li>
+</ul>
+<p>Replace entire file with:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;CLI entry point for dispatcher.</span>
+
+<span class="sd">P-1.D created this as a forwarder stub. PR-20 (Plan 2, Cluster 01) replaces</span>
+<span class="sd">it with a real Python implementation. Until then, this forwarder shells</span>
+<span class="sd">out to the legacy tests/dispatch-subagent.sh.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">SCRIPT_PATH</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;dispatch-subagent.sh&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Forward to existing dispatch-subagent.sh.&quot;&quot;&quot;</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="s2">&quot;bash&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">SCRIPT_PATH</span><span class="p">),</span> <span class="o">*</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">:]])</span>
+    <span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Smoke test forwarder</strong></li>
+</ul>
+<p>Run: <code>uv run python -m shenbi.dispatcher.cli</code>
+Expected: usage message from <code>dispatch-subagent.sh</code> (<code>Usage: dispatch-subagent.sh &lt;skill_name&gt; ...</code>).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): move dispatcher/ forwarder package to src/shenbi/dispatcher/</span>
+
+<span class="s2">Path computation updated like gates/cli.py. Forwarder continues to call</span>
+<span class="s2">tests/dispatch-subagent.sh until PR-20 replaces it.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-10-update-mypybasedpyright-config-for-new-module-paths">Task 10: Update mypy/basedpyright config for new module paths</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (<code>[[tool.mypy.overrides]]</code> + <code>[tool.basedpyright]</code>)
+- Modify: <code>.github/workflows/ci.yml</code> (update mypy target path)</p>
+<p>After Tasks 3–9, framework modules now live under <code>shenbi.*</code> instead of <code>tests.*</code>. The existing mypy overrides reference <code>tests.scoring</code>, <code>tests.phase-runner</code>, etc. — these no longer match anything, so mypy would check the moved modules under <code>strict</code> and fail (the legacy code has no annotations). This task updates the mypy overrides and basedpyright excludes to reference the new paths.</p>
+<p><strong>Note</strong>: The ruff per-file-ignores for <code>src/shenbi/*.py</code> and the mypy <code>disallow_untyped_decorators = false</code> override for <code>tests.*</code> were added in Task 2 Step 2c (before any file moves), so they're already in place by the time this task runs.</p>
+<ul>
+<li>[ ] <strong>Step 1: Read current overrides</strong></li>
+</ul>
+<p>Run: <code>grep -n "tests\.\(scoring\|phase-runner\|summarize-round\|update-progress\|validate-gate\)\|tests\.unit\.test_gates_integrity\|tests\.gates\.g4" pyproject.toml</code></p>
+<p>Expected: 6+ matches in <code>[[tool.mypy.overrides]]</code> blocks.</p>
+<ul>
+<li>[ ] <strong>Step 2: Replace the <code>tests.*</code> module list with <code>shenbi.*</code> equivalents</strong></li>
+</ul>
+<p>Find the existing block:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests.validate-gate&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.scoring&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.phase-runner&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.summarize-round&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.update-progress&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.unit.test_gates_integrity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+</code></pre></div>
+<p>Replace with (note: <code>validate-gate.py</code> is <strong>not yet moved</strong> — it stays in <code>tests/</code> until PR-19; the rest have moved):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># P-1.E temporary: modules moved to src/shenbi/ but not yet annotated.</span>
+<span class="c1"># Removed module-by-module in PR-25 (Cluster 03) as type annotations land.</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests.validate-gate&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.scoring&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.phase_runner&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.summarize_round&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.update_progress&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.gates&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.gates.cli&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.dispatcher&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;shenbi.dispatcher.cli&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests.unit.test_gates_integrity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="c1"># P-1.E temporary: G4 per-skill checkers copied from validate-gate.py</span>
+<span class="c1"># still need annotations. Removed in PR-25.</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.gates.g4.*&quot;</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</code></pre></div>
+<p>Also <strong>delete</strong> the now-dead "Forward declarations" block (pyproject.toml
+lines 152-155) that references <code>tests.gates.g4.*</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Forward declarations (no-op until modules exist)</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;tests.gates.g4.*&quot;</span>
+<span class="n">disallow_untyped_defs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">false</span>
+</code></pre></div>
+<p>(The new <code>shenbi.gates.g4.*</code> override above supersedes it.)</p>
+<ul>
+<li>[ ] <strong>Step 3: Update <code>[tool.basedpyright]</code> exclude list</strong></li>
+</ul>
+<p>Find the existing <code>[tool.basedpyright]</code> section. Update the <code>exclude</code> list to reference <code>src/shenbi/</code> paths instead of (or in addition to) <code>tests/</code> paths for the moved modules. Specifically:</p>
+<ul>
+<li>Replace <code>"tests/scoring.py"</code> → <code>"src/shenbi/scoring.py"</code></li>
+<li>Replace <code>"tests/phase-runner.py"</code> → <code>"src/shenbi/phase_runner.py"</code></li>
+<li>Replace <code>"tests/summarize-round.py"</code> → <code>"src/shenbi/summarize_round.py"</code></li>
+<li>Replace <code>"tests/update-progress.py"</code> → <code>"src/shenbi/update_progress.py"</code></li>
+<li>Keep <code>"tests/validate-gate.py"</code> (not moved yet)</li>
+<li>Keep <code>"tests/dispatch-subagent.sh"</code> (not moved yet)</li>
+</ul>
+<p>Also update the <code>include</code> list. Find:</p>
+<div class="highlight"><pre><span></span><code><span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;src/shenbi&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>(Without this, basedpyright would not type-check the relocated framework code at all.)</p>
+<p>Run after edit: <code>grep -n "tests/scoring\|tests/phase-runner\|tests/summarize-round\|tests/update-progress" pyproject.toml</code>
+Expected: zero matches in <code>[tool.basedpyright]</code> section.</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify mypy passes with new overrides</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>src/shenbi/
+</code></pre></div>
+<p>Expected: <code>Success: no issues found</code> (overrides suppress errors in legacy modules).</p>
+<ul>
+<li>[ ] <strong>Step 5: Verify basedpyright passes</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>basedpyright
+</code></pre></div>
+<p>Expected: <code>0 errors, 0 warnings</code>.</p>
+<ul>
+<li>[ ] <strong>Step 5b: Update CI workflow mypy target</strong></li>
+</ul>
+<p>CI currently runs <code>uv run mypy tests/</code>. After the move, framework code is in
+<code>src/shenbi/</code>, so CI would type-check only remaining test files.</p>
+<p>Find (<code>.github/workflows/ci.yml</code>, in the <code>quality</code> job):</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mypy tests/</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run mypy src/shenbi/</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5c: Verify ruff per-file-ignores for <code>src/shenbi/</code> (already applied in Task 2 Step 2c)</strong></li>
+</ul>
+<p>Task 2 Step 2c added <code>"src/shenbi/*.py"</code> and <code>"src/shenbi/exceptions.py"</code> per-file-ignores BEFORE any file moves. This step is a verification only.</p>
+<p>Run: <code>uv run ruff check src/shenbi/</code>
+Expected: <code>All checks passed!</code> (zero violations).</p>
+<p>If you see violations, return to Task 2 Step 2c and confirm the <code>"src/shenbi/*.py"</code> ignore list mirrors <code>"tests/*.py"</code> exactly.</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): update mypy/basedpyright/ruff config for src/shenbi/ paths</span>
+
+<span class="s2">Modules moved in Tasks 3-9 now live under shenbi.* instead of tests.*.</span>
+<span class="s2">Overrides and per-file-ignores updated to match new paths so strict</span>
+<span class="s2">mypy/basedpyright/ruff don&#39;t fail</span>
+<span class="s2">on legacy untyped code. CI mypy target updated to src/shenbi/. Dead</span>
+<span class="s2">tests.gates.g4.* override removed. basedpyright include updated. ruff</span>
+<span class="s2">per-file-ignores added for src/shenbi/*.py. These overrides are removed</span>
+<span class="s2">module-by-module in PR-25 (Cluster 03) as type annotations land.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-11-add-projectscripts-entry-points">Task 11: Add <code>[project.scripts]</code> entry points</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (lines 43-45 currently commented out)</p>
+<ul>
+<li>[ ] <strong>Step 1: Replace the commented-out <code>[project.scripts]</code> block</strong></li>
+</ul>
+<p>Find (lines 43-45):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 注：[project.scripts] 暂不定义。</span>
+<span class="c1"># gates/cli.py 和 dispatcher/cli.py 当前 forward 到 legacy 脚本（subprocess）。</span>
+<span class="c1"># P-1.E 完成 Python 原生重写后再加 entry points。</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[project.scripts]</span>
+<span class="c1"># 6 entry points land in PR-18. shenbi-generate-plugins added in PR-45</span>
+<span class="c1"># (Cluster 07) when src/shenbi/plugins/generate.py is created.</span>
+<span class="n">shenbi-validate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.gates.cli:main&quot;</span>
+<span class="n">shenbi-dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.dispatcher.cli:main&quot;</span>
+<span class="n">shenbi-score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.scoring:main&quot;</span>
+<span class="n">shenbi-summarize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.summarize_round:main&quot;</span>
+<span class="n">shenbi-progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.update_progress:main&quot;</span>
+<span class="n">shenbi-phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.phase_runner:main&quot;</span>
+</code></pre></div>
+<p><strong>Note on 6 vs 7 entry points:</strong> The spec acceptance criterion says "All 7
+entry points work after <code>uv sync</code>," but the spec target state itself shows
+<code>plugins/</code> as "NEW: plugin manifest generator (PR-45)" (spec line 144). The
+7th entry point (<code>shenbi-generate-plugins</code>) requires
+<code>src/shenbi/plugins/generate.py</code>, which does not exist until PR-45. Delivering
+6 of 7 entry points is the correct resolution of this spec-internal
+inconsistency; the 7th lands in PR-45 when the module is created.</p>
+<ul>
+<li>[ ] <strong>Step 2: Re-sync to install entry points</strong></li>
+</ul>
+<p>Run: <code>uv sync --extra dev</code>
+Expected: completes without error.</p>
+<ul>
+<li>[ ] <strong>Step 3: Smoke test all 6 entry points</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-validate<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-dispatch<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-score<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-summarize<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-progress<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+uv<span class="w"> </span>run<span class="w"> </span>shenbi-phase<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-3
+</code></pre></div>
+<p>Expected: each prints usage/error message (not "command not found" and not ModuleNotFoundError).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>uv.lock
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): add 6 console_scripts entry points</span>
+
+<span class="s2">shenbi-validate, shenbi-dispatch, shenbi-score, shenbi-summarize,</span>
+<span class="s2">shenbi-progress, shenbi-phase all work via &#39;uv run &lt;name&gt;&#39; after sync.</span>
+<span class="s2">shenbi-generate-plugins deferred to PR-45 (plugins/generate.py not yet</span>
+<span class="s2">created). uv.lock updated: adding [project.scripts] changes project metadata.&quot;</span>
+</code></pre></div>
+<p><strong>Execution note (2026-06-15)</strong>: For <code>[project.scripts]</code> additions specifically, <code>uv sync</code> does NOT change <code>uv.lock</code> because console_scripts aren't dependency resolutions. <code>git add uv.lock</code> is a no-op in this case (no error, just nothing to stage). The principle still holds for other pyproject.toml changes that DO touch dependencies (<code>[project.dependencies]</code>, <code>[project.optional-dependencies]</code>, <code>[dependency-groups]</code>) — those MUST include uv.lock in the commit or CI's <code>uv sync --frozen</code> fails. Verify with <code>git status --short uv.lock</code> after the sync; if it shows as modified, commit it; if clean, the <code>git add uv.lock</code> is harmless.</p>
+<hr />
+<h3 id="task-12-update-testsdispatch-subagentsh-invocations">Task 12: Update <code>tests/dispatch-subagent.sh</code> invocations</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/dispatch-subagent.sh</code> (lines 160-165, 173, 195, 197)</p>
+<p>The shell script invokes <code>scoring.py</code> and <code>update-progress.py</code> via <code>python3 "${SCRIPT_DIR}/..."</code>. After move, these paths are broken. Switch to entry points.</p>
+<p><strong>Note on invocation strategy:</strong> Console scripts install to <code>.venv/bin/</code> via <code>uv sync</code>. Shell scripts invoked without venv activation need <code>uv run</code> to find them. Steps 1-2 below use <code>uv run</code> for programmatic invocations. Step 3's echo strings are informational (showing users the command to run) and stay bare.</p>
+<ul>
+<li>[ ] <strong>Step 1: Update scoring invocation</strong></li>
+</ul>
+<p>Find (around line 160):</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nv">SCORE_OUTPUT</span><span class="o">=</span><span class="k">$(</span>python3<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SCRIPT_DIR</span><span class="si">}</span><span class="s2">/scoring.py&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RUBRIC_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SCORES_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--test-type<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--round-dir<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--subagent<span class="k">)</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nv">SCORE_OUTPUT</span><span class="o">=</span><span class="k">$(</span>uv<span class="w"> </span>run<span class="w"> </span>shenbi-score<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">RUBRIC_PATH</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SCORES_FILE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--test-type<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--round-dir<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>--subagent<span class="k">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update update-progress invocation</strong></li>
+</ul>
+<p>Find (around line 173):</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>python3<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SCRIPT_DIR</span><span class="si">}</span><span class="s2">/update-progress.py&quot;</span><span class="w"> </span>mark-done<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SKILL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">FINAL_SCORE</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>shenbi-progress<span class="w"> </span>mark-done<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">SKILL</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">FINAL_SCORE</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Update informational echo strings</strong></li>
+</ul>
+<p>Find (around line 195):</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    3. python3 tests/scoring.py </span><span class="si">${</span><span class="nv">RUBRIC_PATH</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">SCORES_FILE</span><span class="si">}</span><span class="s2"> \\&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    3. shenbi-score </span><span class="si">${</span><span class="nv">RUBRIC_PATH</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">SCORES_FILE</span><span class="si">}</span><span class="s2"> \\&quot;</span>
+</code></pre></div>
+<p>Find (around line 197):</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    4. python3 tests/update-progress.py mark-done </span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">SKILL</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2"> &lt;final_score&gt;&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    4. shenbi-progress mark-done </span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">SKILL</span><span class="si">}</span><span class="s2"> </span><span class="si">${</span><span class="nv">TEST_TYPE</span><span class="si">}</span><span class="s2"> &lt;final_score&gt;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Verify the file still parses</strong></li>
+</ul>
+<p>Run: <code>bash -n tests/dispatch-subagent.sh</code>
+Expected: no output (syntax OK).</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/dispatch-subagent.sh
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): switch dispatch-subagent.sh to entry points</span>
+
+<span class="s2">scoring.py and update-progress.py invocations now use shenbi-score and</span>
+<span class="s2">shenbi-progress console scripts via &#39;uv run&#39;. Path-brittleness eliminated.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-13-update-testsround-execsh-invocation">Task 13: Update <code>tests/round-exec.sh</code> invocation</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/round-exec.sh</code> (line 90)</p>
+<ul>
+<li>[ ] <strong>Step 1: Update update-progress invocation</strong></li>
+</ul>
+<p>Find (line 90):</p>
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>tests/update-progress.py<span class="w"> </span>init<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TIER</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--expected-chapters<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EXPECTED_CHAPTERS</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>shenbi-progress<span class="w"> </span>init<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">ROUND_DIR</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">TIER</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>--expected-chapters<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">EXPECTED_CHAPTERS</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Verify the file still parses</strong></li>
+</ul>
+<p>Run: <code>bash -n tests/round-exec.sh</code>
+Expected: no output.</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/round-exec.sh
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-18): switch round-exec.sh update-progress call to entry point&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-14-update-docs-minimal-path-references-only">Task 14: Update docs (minimal — path references only)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>AGENTS.md</code>
+- Modify: <code>GEMINI.md</code>
+- Modify: <code>CLAUDE.md</code>
+- Modify: <code>command-to-give.md</code>
+- Modify: <code>goal-prompt.md</code></p>
+<p>PR-44 (Cluster 07) does the full doc restructure. This task only fixes the path references that would be <strong>broken or misleading</strong> after PR-18.</p>
+<ul>
+<li>[ ] <strong>Step 1: Update <code>AGENTS.md</code></strong></li>
+</ul>
+<p>Find lines 31-32:</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span><span class="sb">`python3 tests/scoring.py &lt;rubric&gt; &lt;scores.json&gt; --test-type generative`</span> — Score output against rubric; exit 0=success, 2=validation failure.
+<span class="k">-</span><span class="w"> </span><span class="sb">`python3 tests/summarize-round.py &lt;round_dir&gt;`</span> — Aggregate round scores; runs G7 close validation.
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span><span class="sb">`shenbi-score &lt;rubric&gt; &lt;scores.json&gt; --test-type generative`</span> — Score output against rubric; exit 0=success, 2=validation failure.
+<span class="k">-</span><span class="w"> </span><span class="sb">`shenbi-summarize &lt;round_dir&gt;`</span> — Aggregate round scores; runs G7 close validation.
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Update <code>command-to-give.md</code></strong></li>
+</ul>
+<p>This file has many <code>python3 tests/X.py</code> invocations. Run sed-style replacement:</p>
+<div class="highlight"><pre><span></span><code>sed<span class="w"> </span>-i.bak<span class="w"> </span><span class="s1">&#39;s|python3 tests/scoring\.py|shenbi-score|g; s|python3 tests/summarize-round\.py|shenbi-summarize|g; s|python3 tests/update-progress\.py|shenbi-progress|g; s|python3 tests/phase-runner\.py|shenbi-phase|g&#39;</span><span class="w"> </span>command-to-give.md
+rm<span class="w"> </span>command-to-give.md.bak
+</code></pre></div>
+<p>Verify: <code>grep "python3 tests/" command-to-give.md</code>
+Expected: only references to <code>tests/validate-gate.py</code> (not moved yet), <code>tests/dispatch-subagent.sh</code> (not moved yet), or <code>tests/round-exec.sh</code> (shell script, not a .py file; not moved yet).</p>
+<ul>
+<li>[ ] <strong>Step 3: Update <code>goal-prompt.md</code></strong></li>
+</ul>
+<p>Find (line 24):</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span>工具脚本: <span class="sb">`tests/scoring.py`</span>, <span class="sb">`tests/validate-gate.py`</span>, <span class="sb">`tests/round-exec.sh`</span>, <span class="sb">`tests/summarize-round.py`</span>, <span class="sb">`tests/phase-runner.py`</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span>工具脚本: <span class="sb">`shenbi-score`</span>, <span class="sb">`tests/validate-gate.py`</span> (until PR-19), <span class="sb">`tests/round-exec.sh`</span>, <span class="sb">`shenbi-summarize`</span>, <span class="sb">`shenbi-phase`</span>
+</code></pre></div>
+<p>Find (line 25):</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span>新增工具: <span class="sb">`tests/update-progress.py`</span>（progress.json 单写入入口）, <span class="sb">`tests/dispatch-subagent.sh`</span>（独立评分 dispatch）, <span class="sb">`tests/lock-tool-hashes.sh`</span>（工具哈希锁定）
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">-</span><span class="w"> </span>新增工具: <span class="sb">`shenbi-progress`</span>（progress.json 单写入入口）, <span class="sb">`tests/dispatch-subagent.sh`</span>（独立评分 dispatch，PR-20 重写）, <span class="sb">`tests/lock-tool-hashes.sh`</span>（工具哈希锁定）
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Update <code>CLAUDE.md</code></strong></li>
+</ul>
+<p>Append at end of <code>## 项目定位</code> section:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## P-1.E Foundation Update (2026-06-15)</span>
+
+The project has migrated framework runtime code from <span class="sb">`tests/`</span> to <span class="sb">`src/shenbi/`</span>.
+Skill authors and contributors should:
+
+<span class="k">-</span><span class="w"> </span>Use entry points: <span class="sb">`shenbi-score`</span>, <span class="sb">`shenbi-progress`</span>, <span class="sb">`shenbi-phase`</span>, <span class="sb">`shenbi-summarize`</span>, <span class="sb">`shenbi-validate`</span>, <span class="sb">`shenbi-dispatch`</span>
+<span class="k">-</span><span class="w"> </span>Find framework code under <span class="sb">`src/shenbi/`</span> (not <span class="sb">`tests/`</span>)
+<span class="k">-</span><span class="w"> </span>See <span class="sb">`docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/README.md`</span> for full details
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Update <code>GEMINI.md</code></strong></li>
+</ul>
+<p>Find the Tool Mapping table (around line 12-20). Append after it:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## P-1.E Layout (2026-06-15)</span>
+
+Framework runtime code now lives under <span class="sb">`src/shenbi/`</span>. Invoke via entry points
+(<span class="sb">`shenbi-score`</span>, <span class="sb">`shenbi-progress`</span>, <span class="sb">`shenbi-phase`</span>, <span class="sb">`shenbi-summarize`</span>,
+<span class="sb">`shenbi-validate`</span>, <span class="sb">`shenbi-dispatch`</span>) rather than <span class="sb">`python3 tests/X.py`</span>.
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>AGENTS.md<span class="w"> </span>CLAUDE.md<span class="w"> </span>GEMINI.md<span class="w"> </span>command-to-give.md<span class="w"> </span>goal-prompt.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(P-1.E PR-18): update entry-point references in 5 docs</span>
+
+<span class="s2">AGENTS, GEMINI, CLAUDE, command-to-give, goal-prompt now use shenbi-*</span>
+<span class="s2">entry points instead of python3 tests/X.py. Full doc restructure in PR-44.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-15-final-verification-sweep">Task 15: Final verification + sweep</h3>
+<p><strong>Files:</strong> None (verification only).</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify no remaining <code>tests.X</code> Python imports</strong></li>
+</ul>
+<p>Run: <code>grep -rn "from tests\.\|from tests import\|import tests\." --include='*.py' . | grep -v ".venv\|.worktrees\|/archived/"</code>
+Expected: empty.</p>
+<p>If non-empty: fix each match.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify no remaining <code>tests/X.py</code> invocations in shell scripts (excepted: validate-gate.py, dispatch-subagent.sh)</strong></li>
+</ul>
+<p>Run: <code>grep -rn "python3.*tests/" --include='*.sh' . | grep -v ".venv\|.worktrees\|/archived/\|validate-gate\.py\|dispatch-subagent\.sh"</code>
+Expected: empty.</p>
+<p>If non-empty: fix each match.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify all 6 entry points work</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>ep<span class="w"> </span><span class="k">in</span><span class="w"> </span>shenbi-validate<span class="w"> </span>shenbi-dispatch<span class="w"> </span>shenbi-score<span class="w"> </span>shenbi-summarize<span class="w"> </span>shenbi-progress<span class="w"> </span>shenbi-phase<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== </span><span class="nv">$ep</span><span class="s2"> ===&quot;</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ep</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-2
+<span class="k">done</span>
+</code></pre></div>
+<p>Expected: each prints usage/error message (not "command not found").</p>
+<ul>
+<li>[ ] <strong>Step 3b: Verify entry points resolve from shell scripts</strong></li>
+</ul>
+<p>The shell scripts in Tasks 12-13 use <code>uv run shenbi-*</code>. Confirm they parse and
+the entry points resolve without venv activation:</p>
+<div class="highlight"><pre><span></span><code>bash<span class="w"> </span>-n<span class="w"> </span>tests/dispatch-subagent.sh
+bash<span class="w"> </span>-n<span class="w"> </span>tests/round-exec.sh
+</code></pre></div>
+<p>Expected: no output (syntax OK).</p>
+<ul>
+<li>[ ] <strong>Step 4: Run full test suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest -q</code>
+Expected: <code>42 passed, 1 skipped</code> (no regressions).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run all CI checks locally</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>.
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>.
+uv<span class="w"> </span>run<span class="w"> </span>mypy<span class="w"> </span>src/shenbi/
+uv<span class="w"> </span>run<span class="w"> </span>basedpyright
+</code></pre></div>
+<p>Expected: all pass. The temporary <code>shenbi.*</code> overrides added in Task 10 suppress strict-mode mypy errors on legacy modules, and the ruff per-file-ignores added in Task 10 Step 5c suppress the corresponding ruff violations; both are removed module-by-module in PR-25 (Cluster 03) as type annotations land. <code>mypy tests/</code> is not part of this check — <code>tests.validate-gate</code> (still in tree until PR-19) and <code>tests.unit.test_gates_integrity</code> remain in the override list for the same reason.</p>
+<ul>
+<li>[ ] <strong>Step 6: Verify wheel builds with both old and new content</strong></li>
+</ul>
+<p>Run: <code>uv build --wheel &amp;&amp; unzip -l dist/*.whl | head -20</code>
+Expected: wheel contains <code>src/shenbi/...</code> files; also <code>skills/</code> and <code>docs/adr/</code> (force-include still active, removed in Task 17 (PR-47)).</p>
+<hr />
+<h3 id="task-16-close-pr-18-push-branch-open-pr">Task 16: Close PR-18 — push branch + open PR</h3>
+<ul>
+<li>[ ] <strong>Step 1: Verify all commits are in place</strong></li>
+</ul>
+<p>Run: <code>git log --oneline -15</code>
+Expected: ~14 commits since baseline SHA from Task 0.</p>
+<ul>
+<li>[ ] <strong>Step 2: Push to remote</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/p-1.e-pr-18-src-layout
+git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feat/p-1.e-pr-18-src-layout
+</code></pre></div>
+<p>(Commits were made on <code>main</code> per Task 0 Step 2. This branches from current HEAD, preserving all commits on the feature branch without pushing directly to <code>main</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify CI green on remote</strong></li>
+</ul>
+<p>Open GitHub PR. Wait for CI. All checks must pass before merging.</p>
+<ul>
+<li>[ ] <strong>Step 4: Merge PR-18</strong></li>
+</ul>
+<p>Squash-merge or rebase-merge per project convention.</p>
+<hr />
+<h3 id="task-17-pr-47-remove-force-include-from-wheel-build">Task 17: PR-47 — Remove <code>force-include</code> from wheel build</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> (remove <code>[tool.hatch.build.targets.wheel.force-include]</code> block)</p>
+<ul>
+<li>[ ] <strong>Step 1: Switch to new feature branch</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>checkout<span class="w"> </span>-b<span class="w"> </span>feat/p-1.e-pr-47-remove-force-include
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Remove the force-include block</strong></li>
+</ul>
+<p>Find in <code>pyproject.toml</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="s2">&quot;docs/adr/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docs/adr/&quot;</span>
+</code></pre></div>
+<p>Delete these three lines plus the section header.</p>
+<ul>
+<li>[ ] <strong>Step 3: Build wheel and verify size</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>rm<span class="w"> </span>-rf<span class="w"> </span>dist/
+uv<span class="w"> </span>build<span class="w"> </span>--wheel
+ls<span class="w"> </span>-la<span class="w"> </span>dist/*.whl
+</code></pre></div>
+<p>Expected: wheel file &lt; 100 KB.</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify wheel contents</strong></li>
+</ul>
+<p>Run: <code>unzip -l dist/*.whl</code>
+Expected: only <code>src/shenbi/...</code> files + <code>py.typed</code> + METADATA. No <code>skills/</code> or <code>docs/adr/</code>.</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full test suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest -q</code>
+Expected: <code>42 passed, 1 skipped</code> (no regressions; force-include removal doesn't affect tests).</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit + push</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-47): remove force-include from wheel build</span>
+
+<span class="s2">Wheel now ships only src/shenbi/ runtime code. Skills and ADRs are repo</span>
+<span class="s2">assets, not installable artifacts. Users needing skills should &#39;git clone&#39;</span>
+<span class="s2">the repo, not pip-install.</span>
+
+<span class="s2">Per spec acceptance criterion: wheel size &lt; 100KB, contains only src/shenbi/.&quot;</span>
+
+git<span class="w"> </span>push<span class="w"> </span>-u<span class="w"> </span>origin<span class="w"> </span>feat/p-1.e-pr-47-remove-force-include
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: Open PR + merge after CI green</strong></li>
+</ul>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<h3 id="spec-coverage-check">Spec coverage check</h3>
+<p>Mapping spec acceptance criteria (Cluster 02 PR-18 + PR-47) to tasks:</p>
+<table>
+<thead>
+<tr>
+<th>Spec acceptance</th>
+<th>Task(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/</code> directory exists with at least 7 modules</td>
+<td>Tasks 1, 3-9 (8 modules: <strong>init</strong>, exceptions, logging, error_guidance, recovery, scoring, phase_runner, summarize_round, update_progress + gates/ + dispatcher/)</td>
+</tr>
+<tr>
+<td><code>tests/</code> contains only conftest.py + test subdirs + deferred files</td>
+<td>Tasks 3-9 (move 8 modules + 2 forwarder pkgs)</td>
+</tr>
+<tr>
+<td><code>python -c "import shenbi; print(shenbi.__version__)"</code> works</td>
+<td>Task 1 Step 1 (creates <code>__init__.py</code> with <code>__version__</code>)</td>
+</tr>
+<tr>
+<td>All entry points work after <code>uv sync</code></td>
+<td>Task 11 (6 of 7 entry points; 7th (<code>shenbi-generate-plugins</code>) deferred to PR-45 — spec target state line 144 shows <code>plugins/</code> as PR-45)</td>
+</tr>
+<tr>
+<td><code>pytest</code> collection still works</td>
+<td>Verified in every task's Step "Run pytest"</td>
+</tr>
+<tr>
+<td><code>uv build --wheel</code> produces wheel containing only <code>src/shenbi/</code></td>
+<td>Task 17 Step 4</td>
+</tr>
+<tr>
+<td>Zero references to <code>tests.exceptions</code>, <code>tests.logging</code>, etc.</td>
+<td>Task 15 Step 1</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code>, <code>GEMINI.md</code>, <code>CLAUDE.md</code> updated</td>
+<td>Task 14</td>
+</tr>
+<tr>
+<td><code>force-include</code> block removed from pyproject.toml (PR-47)</td>
+<td>Task 17 Step 2</td>
+</tr>
+<tr>
+<td><code>uv build --wheel</code> produces wheel &lt; 100KB</td>
+<td>Task 17 Step 3</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md notes skills are not pip-installable</td>
+<td><strong>GAP</strong> — added to Plan 6 (Cluster 06 PR-40)</td>
+</tr>
+</tbody>
+</table>
+<p>One gap: CONTRIBUTING.md note about skills not being pip-installable is in Plan 6, not Plan 1. This is correct — CONTRIBUTING.md doesn't exist yet (created in PR-40).</p>
+<h3 id="placeholder-scan">Placeholder scan</h3>
+<p>Searched plan for red flags:
+- ✅ No "TBD", "TODO", "implement later"
+- ✅ No "Add appropriate error handling" / "handle edge cases"
+- ✅ No "Write tests for the above" without code
+- ✅ No "Similar to Task N" (each task self-contained)
+- ✅ Every code step has actual code/commands
+- ✅ All file paths exact
+- ✅ All commands have expected output</p>
+<h3 id="type-consistency">Type consistency</h3>
+<ul>
+<li><code>REPO_ROOT = Path(__file__).resolve().parents[3]</code> — used in both <code>gates/cli.py</code> (Task 8) and <code>dispatcher/cli.py</code> (Task 9). Consistent.</li>
+<li><code>parents[2]</code> for runtime modules at <code>src/shenbi/*.py</code> (scoring, phase_runner, summarize_round, update_progress). From <code>src/shenbi/module.py</code>, <code>parents[0]</code> = <code>src/shenbi/</code>, <code>parents[1]</code> = <code>src/</code>, <code>parents[2]</code> = repo root. Appending <code>"tests"</code> gives the correct path to <code>validate-gate.py</code> and <code>tiers/deps.json</code>. Consistent across Tasks 4-7.</li>
+<li><code>parents[3]</code> for forwarder stubs at <code>src/shenbi/gates/cli.py</code> and <code>src/shenbi/dispatcher/cli.py</code> (one directory deeper). From <code>src/shenbi/gates/cli.py</code>, <code>parents[3]</code> = repo root. Consistent across Tasks 8-9.</li>
+<li>Entry point names: <code>shenbi-score</code>, <code>shenbi-progress</code>, <code>shenbi-phase</code>, <code>shenbi-summarize</code>, <code>shenbi-validate</code>, <code>shenbi-dispatch</code>. Same across pyproject.toml (Task 11), shell scripts (Tasks 12-13), docs (Task 14). Consistent.</li>
+<li>Module names: <code>shenbi.scoring</code>, <code>shenbi.update_progress</code>, <code>shenbi.phase_runner</code>, <code>shenbi.summarize_round</code>. Same across <code>__init__.py</code> (Task 1), entry points (Task 11), imports (Tasks 3-7). Consistent.</li>
+</ul>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan complete and saved to <code>docs/superpowers/plans/2026-06-15-p-1.e-01-src-layout.md</code>.</p>
+<p><strong>Two execution options:</strong></p>
+<p><strong>1. Subagent-Driven (recommended)</strong> — I dispatch a fresh subagent per task, review between tasks, fast iteration. Best for the 17 tasks in this plan; you stay in this session and approve each task's result.</p>
+<p><strong>2. Inline Execution</strong> — Execute tasks in this session using executing-plans skill, batch execution with checkpoints. Faster turnaround but uses more of this session's context.</p>
+<p><strong>Which approach?</strong></p>
+<p>After execution completes and PR-18 + PR-47 merge, proceed to Plan 2 (PR-19 ~ PR-23, Cluster 01 PR fraud) which depends on Plan 1.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

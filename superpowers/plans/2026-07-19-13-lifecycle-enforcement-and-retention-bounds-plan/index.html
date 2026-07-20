@@ -1,0 +1,1681 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Lifecycle Enforcement and Retention Bounds Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Lifecycle Enforcement and Retention Bounds Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Lifecycle Enforcement and Retention Bounds Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#lifecycle-enforcement-and-retention-bounds-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Lifecycle Enforcement and Retention Bounds Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-wire-soft-fail-trackers-to-check_escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Wire soft-fail trackers to check_escalation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-fix-the-_prune_old_snapshots-boundary-condition" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Fix the _prune_old_snapshots boundary condition
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-full-regression-just-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Full regression — just check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="lifecycle-enforcement-and-retention-bounds-implementation-plan">Lifecycle Enforcement and Retention Bounds Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Wire the orphaned soft-fail-tracker escalation signal into the existing <code>check_escalation</code> consumer so that transition/fatigue drift actually triggers an escalation review, and fix the off-by-one in the existing chapter-number-based snapshot pruner so the on-disk snapshot count never exceeds the configured retention cap.</p>
+<p><strong>Architecture:</strong> Two surgical changes to <code>src/shenbi/pipeline/chapter_loop.py</code>. (1) At the existing soft-fail escalation site (where <code>should_escalate</code> is already computed and logged but then discarded), add a call to <code>check_escalation</code> using its real signature <code>(resonance_scores, sensitivity_blocking, volume_objective_met, regeneration_attempts, ...)</code> — scores come from the existing <code>_get_recent_resonance_scores</code> helper — and route a non-empty signal list to the existing <code>dispatch_escalation</code> path. (2) In <code>_prune_old_snapshots</code>, replace the <code>ch &lt; keep_from</code> comparison (which keeps one chapter too many) with a slice that keeps exactly <code>retention</code> chapters (<code>all_chapters[:-retention]</code>), and add a post-prune guard that logs an error if the cap is still exceeded. No new modules; snapshot pruning is NOT replaced with an mtime-based pruner (that approach was rejected in the spec).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, <code>pathlib</code>, <code>json</code>, pytest. No new runtime dependencies.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> retained</li>
+<li><code>pathlib.Path</code> for all file I/O; <code>safe_write</code> for manifest writes (already used by <code>_save_manifest</code>)</li>
+<li>No <code>print()</code> in framework code; use structlog (<code>shenbi.logging.get_logger</code>)</li>
+<li><strong><code>check_escalation</code> signature is fixed</strong> — call it as <code>check_escalation(resonance_scores=..., sensitivity_blocking=..., volume_objective_met=..., regeneration_attempts=..., ...)</code> (verified at <code>src/shenbi/skill_utils/escalation/check.py:52-64</code>). Do NOT invent parameters.</li>
+<li><strong>Snapshot pruning ALREADY EXISTS</strong> (<code>_prune_old_snapshots</code> at <code>chapter_loop.py:870-905</code>, called at <code>:960</code>) and is chapter-number-based. This plan ONLY fixes its boundary condition — it does NOT introduce an mtime-based pruner (spec §3.2 explicitly rejected that).</li>
+<li>Tests under <code>tests/unit/pipeline/</code> alongside the existing <code>test_chapter_loop.py</code></li>
+<li>Conventional Commits: <code>fix:</code> for both corrections</li>
+<li><code>just check</code> (ruff + mypy + basedpyright + pytest) must pass after every task</li>
+</ul>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md</code></p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/pipeline/
+    chapter_loop.py              # MODIFY — soft-fail escalation wiring (Task 1)
+                                 #        + _prune_old_snapshots boundary fix (Task 2)
+
+tests/unit/pipeline/
+    test_chapter_loop.py         # EXISTING — must stay green
+    test_soft_fail_escalation.py # NEW — soft-fail -&gt; check_escalation wiring
+    test_snapshot_pruning.py     # NEW — boundary condition + guard
+</code></pre></div>
+<blockquote>
+<p><strong>Codebase facts baked in:</strong>
+- <code>SoftFailTracker.record(chapter) -&gt; bool</code> already returns <code>True</code> when the escalation threshold is met (<code>state.py:107-111</code>). The chapter loop already computes <code>should_escalate</code> at <code>chapter_loop.py:1305-1319</code> and logs <code>chapter_g4_soft_escalated</code> — but then does nothing with it. Task 1 consumes that boolean.
+- <code>check_escalation</code> lives at <code>skill_utils/escalation/check.py</code> and returns <code>list[EscalationSignal]</code>. Its real parameters: <code>resonance_scores, sensitivity_blocking, volume_objective_met, regeneration_attempts, arc_score=None, stratum_axis_drift=False, window=5, slope_threshold=-2.0, regen_loop_limit=3, arc_threshold=70.0</code>.
+- <code>_get_recent_resonance_scores(project_dir, chapter, window=3)</code> already exists at <code>chapter_loop.py:813</code> and reads <code>audits/chapter-N-resonance.md</code>. Reuse it — do not reimplement.
+- <code>dispatch_escalation(project_dir, ...)</code> from <code>revision_router.py</code> is the existing escalation-review dispatch path (<code>chapter_loop.py:414-416</code>). Reuse it.
+- <code>_prune_old_snapshots</code> reads the manifest (<code>snapshots/manifest.json</code>) whose <code>chapters</code> dict maps chapter-number-strings to filename lists. The current logic <code>keep_from = max(all_chapters) - retention; to_prune = [ch for ch in all_chapters if ch &lt; keep_from]</code> keeps <code>retention + 1</code> chapters (off-by-one) — e.g. with retention=50, max=56 it keeps chapters 6..56 = 51. The fix keeps exactly <code>retention</code>.</p>
+</blockquote>
+<hr />
+<h3 id="task-1-wire-soft-fail-trackers-to-check_escalation">Task 1: Wire soft-fail trackers to <code>check_escalation</code></h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:1313-1319</code> (the <code>if should_escalate:</code> block inside the G4 soft-fail handling) and add a new helper <code>_check_soft_fail_escalation</code> nearby
+- Test: <code>tests/unit/pipeline/test_soft_fail_escalation.py</code> (new)</p>
+<p><strong>Interfaces:</strong>
+- Consumes:
+  - <code>SoftFailTracker</code> / <code>state.chapter_loop.soft_fail_trackers</code> (existing)
+  - <code>check_escalation</code> from <code>shenbi.skill_utils.escalation.check</code> (existing, real signature)
+  - <code>_get_recent_resonance_scores(project_dir, chapter, window=3)</code> (existing at <code>chapter_loop.py:813</code>)
+  - <code>dispatch_escalation(project_dir, ...)</code> from <code>shenbi.pipeline.revision_router</code> (existing)
+- Produces: when a soft-fail tracker crosses its threshold, <code>check_escalation</code> is invoked with the recent resonance scores and any fired signals are routed to the existing escalation-review dispatch. The function is a no-op when <code>check_escalation</code> returns no signals.</p>
+<p><strong>Context:</strong> The current code computes <code>should_escalate = tracker.record(chapter)</code> and logs <code>chapter_g4_soft_escalated</code>, then falls through. We replace the bare log with a call into <code>_check_soft_fail_escalation</code>, which gathers the inputs <code>check_escalation</code> needs (scores from the existing helper; <code>sensitivity_blocking</code> / <code>volume_objective_met</code> / <code>regeneration_attempts</code> from state) and dispatches escalation-review when signals fire. <code>regeneration_attempts</code> maps to the per-step retry count already tracked in <code>state.chapter_loop.retry_counts</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_soft_fail_escalation.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the soft-fail-tracker -&gt; check_escalation wiring (Spec 22 E32).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_soft_fail_escalation</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">SoftFailTracker</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_state_with_soft_fail_window</span><span class="p">(</span><span class="n">chapters</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="n">PipelineState</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build a state whose ``transition`` tracker has recorded *chapters*.&quot;&quot;&quot;</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/novel&quot;</span><span class="p">)</span>
+    <span class="n">tracker</span> <span class="o">=</span> <span class="n">SoftFailTracker</span><span class="p">(</span><span class="n">check_id</span><span class="o">=</span><span class="s2">&quot;G4.lt.transition&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">chapters</span><span class="p">:</span>
+        <span class="n">tracker</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">soft_fail_trackers</span><span class="p">[</span><span class="s2">&quot;G4.lt.transition&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">tracker</span>
+    <span class="k">return</span> <span class="n">state</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckSoftFailEscalation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_below_threshold_does_not_dispatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">_state_with_soft_fail_window</span><span class="p">([</span><span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">])</span>  <span class="c1"># 2 occurrences &lt; threshold 3</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.check_escalation&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_check</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.dispatch_escalation&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_disp</span><span class="p">:</span>
+            <span class="n">_check_soft_fail_escalation</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">mock_check</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+        <span class="n">mock_disp</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_over_threshold_dispatches_when_signals_fire</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="c1"># 4 occurrences within the window -&gt; should_escalate True.</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">_state_with_soft_fail_window</span><span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+        <span class="c1"># check_escalation returns a non-empty signal list.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">EscalationSignal</span>
+
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.check_escalation&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="p">[</span><span class="n">EscalationSignal</span><span class="p">(</span><span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;score_decline&quot;</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)],</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_check</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.dispatch_escalation&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_disp</span><span class="p">:</span>
+            <span class="n">_check_soft_fail_escalation</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">mock_check</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+        <span class="c1"># Verify the real signature was used.</span>
+        <span class="n">kwargs</span> <span class="o">=</span> <span class="n">mock_check</span><span class="o">.</span><span class="n">call_args</span><span class="o">.</span><span class="n">kwargs</span>
+        <span class="k">assert</span> <span class="s2">&quot;resonance_scores&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="k">assert</span> <span class="s2">&quot;sensitivity_blocking&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="k">assert</span> <span class="s2">&quot;volume_objective_met&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="k">assert</span> <span class="s2">&quot;regeneration_attempts&quot;</span> <span class="ow">in</span> <span class="n">kwargs</span>
+        <span class="n">mock_disp</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_over_threshold_no_dispatch_when_no_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">_state_with_soft_fail_window</span><span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.check_escalation&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_check</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.dispatch_escalation&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_disp</span><span class="p">:</span>
+            <span class="n">_check_soft_fail_escalation</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">mock_check</span><span class="o">.</span><span class="n">assert_called_once</span><span class="p">()</span>
+        <span class="n">mock_disp</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_recent_resonance_scores</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The scores fed to check_escalation come from the existing</span>
+<span class="sd">        _get_recent_resonance_scores helper (window 5 to match the escalation</span>
+<span class="sd">        default).&quot;&quot;&quot;</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">_state_with_soft_fail_window</span><span class="p">([</span><span class="mi">9</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">11</span><span class="p">,</span> <span class="mi">12</span><span class="p">])</span>
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_recent_resonance_scores&quot;</span><span class="p">,</span>
+            <span class="n">return_value</span><span class="o">=</span><span class="p">[</span><span class="mi">90</span><span class="p">,</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">80</span><span class="p">,</span> <span class="mi">75</span><span class="p">,</span> <span class="mi">70</span><span class="p">],</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_scores</span><span class="p">,</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop.check_escalation&quot;</span><span class="p">,</span> <span class="n">return_value</span><span class="o">=</span><span class="p">[]</span>
+        <span class="p">):</span>
+            <span class="n">_check_soft_fail_escalation</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
+        <span class="n">mock_scores</span><span class="o">.</span><span class="n">assert_called_once_with</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_soft_fail_escalation.py -v</code>
+Expected: FAIL — <code>ImportError: cannot import name '_check_soft_fail_escalation'</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/chapter_loop.py</code>, add the import near the top (with the other lazy imports, or at module top if no circular-import risk — <code>check_escalation</code> is a leaf helper, so a top-level import is fine):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_escalation</span>
+</code></pre></div>
+<p>(If a circular-import error arises at module load, move it inside <code>_check_soft_fail_escalation</code> as a function-local import — the same pattern already used at <code>chapter_loop.py:400, 414</code>.)</p>
+<p>Add the helper function. Place it just above the G4-handling block that contains the <code>if should_escalate:</code> (around line 1300), so it is in scope:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_check_soft_fail_escalation</span><span class="p">(</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Consume soft-fail-tracker escalation and route to check_escalation.</span>
+
+<span class="sd">    Spec 22 E32: the trackers detected transition/fatigue drift but the signal</span>
+<span class="sd">    was orphaned. This wires it to the existing ``check_escalation`` consumer</span>
+<span class="sd">    using its real signature. When any tracker has crossed its threshold AND</span>
+<span class="sd">    ``check_escalation`` fires &gt;=1 signal, dispatch escalation-review via the</span>
+<span class="sd">    existing ``dispatch_escalation`` path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_escalation</span>
+
+    <span class="n">any_escalated</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">occurrences</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">t</span><span class="o">.</span><span class="n">escalation_threshold</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">soft_fail_trackers</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">any_escalated</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Gather check_escalation inputs (real signature).</span>
+    <span class="n">resonance_scores</span> <span class="o">=</span> <span class="n">_get_recent_resonance_scores</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="n">sensitivity_blocking</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="s2">&quot;sensitivity&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">cid</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">cid</span><span class="p">,</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">soft_fail_trackers</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">occurrences</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">t</span><span class="o">.</span><span class="n">escalation_threshold</span>
+    <span class="p">)</span>
+    <span class="c1"># Check if volume boundary is met by reading volume_map.md</span>
+    <span class="n">volume_boundaries</span> <span class="o">=</span> <span class="n">read_volume_boundaries</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">current_volume</span> <span class="o">=</span> <span class="n">_find_current_volume</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">volume_boundaries</span><span class="p">)</span>
+    <span class="n">volume_objective_met</span> <span class="o">=</span> <span class="n">_check_volume_completion</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">current_volume</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="c1"># TODO: implement _find_current_volume() and _check_volume_completion() stubs</span>
+    <span class="c1"># if they do not yet exist.</span>
+    <span class="c1"># regeneration_attempts: max per-step retry count currently in flight.</span>
+    <span class="n">regeneration_attempts</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">values</span><span class="p">(),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="n">resonance_scores</span><span class="p">,</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="n">sensitivity_blocking</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="n">volume_objective_met</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="n">regeneration_attempts</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">signals</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;soft_fail_escalation_no_signals&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">scores</span><span class="o">=</span><span class="n">resonance_scores</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">&quot;soft_fail_escalation_triggered&quot;</span><span class="p">,</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+        <span class="n">signals</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;trigger&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">trigger</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">detail</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="c1"># dispatch_escalation&#39;s real signature is (project_dir, chapter, context=&quot;&quot;).</span>
+    <span class="c1"># It has no `reason=` / `signals=` kwargs. Write the signals to a sidecar</span>
+    <span class="c1"># file the escalation skill can read, then dispatch with context pointing</span>
+    <span class="c1"># to that file.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">asdict</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">signals_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;context&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-escalation-signals.json&quot;</span>
+    <span class="n">safe_write</span><span class="p">(</span>
+        <span class="n">signals_path</span><span class="p">,</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([</span><span class="n">asdict</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">],</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">dispatch_escalation</span><span class="p">(</span>
+        <span class="n">project_dir</span><span class="p">,</span>
+        <span class="n">chapter</span><span class="p">,</span>
+        <span class="n">context</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Soft-fail escalation triggered. Signals at: </span><span class="si">{</span><span class="n">signals_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p><code>dispatch_escalation</code>'s real signature is <code>dispatch_escalation(project_dir, chapter, context="")</code> (verified at <code>src/shenbi/pipeline/revision_router.py:143</code>). It has NO <code>reason=</code> / <code>signals=</code> kwargs, so the signals are written to a sidecar JSON file under <code>context/</code> and the file path is passed via <code>context=</code>. The escalation-review skill reads that sidecar. The test asserts <code>dispatch_escalation</code> is called once; it does not lock the kwargs.</p>
+</blockquote>
+<p>Now wire the call site. In the G4 soft-fail block (around line 1313), replace:</p>
+<div class="highlight"><pre><span></span><code>            <span class="k">if</span> <span class="n">should_escalate</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;chapter_g4_soft_escalated&quot;</span><span class="p">,</span>
+                    <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                    <span class="n">check_id</span><span class="o">=</span><span class="n">tracker_key</span><span class="p">,</span>
+                    <span class="n">occurrences</span><span class="o">=</span><span class="n">tracker</span><span class="o">.</span><span class="n">occurrences</span><span class="p">,</span>
+                <span class="p">)</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code>            <span class="k">if</span> <span class="n">should_escalate</span><span class="p">:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                    <span class="s2">&quot;chapter_g4_soft_escalated&quot;</span><span class="p">,</span>
+                    <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                    <span class="n">check_id</span><span class="o">=</span><span class="n">tracker_key</span><span class="p">,</span>
+                    <span class="n">occurrences</span><span class="o">=</span><span class="n">tracker</span><span class="o">.</span><span class="n">occurrences</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="c1"># Spec 22 E32: route the orphaned escalation signal to the</span>
+                <span class="c1"># check_escalation consumer + dispatch escalation-review.</span>
+                <span class="n">_check_soft_fail_escalation</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p>(<code>Path(project_dir)</code> normalizes whatever type <code>project_dir</code> has in this scope — it is <code>Path | str</code> per <code>_handle_failure</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_soft_fail_escalation.py tests/unit/pipeline/test_chapter_loop.py -v</code>
+Expected: PASS — the new wiring tests pass and the existing chapter-loop tests are unaffected.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_soft_fail_escalation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(chapter_loop): wire soft-fail trackers to check_escalation consumer (E32)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-fix-the-_prune_old_snapshots-boundary-condition">Task 2: Fix the <code>_prune_old_snapshots</code> boundary condition</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:870-900</code> (<code>_prune_old_snapshots</code>)
+- Test: <code>tests/unit/pipeline/test_snapshot_pruning.py</code> (new)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_get_snapshot_retention(project_dir)</code> (existing), <code>_load_manifest</code> / <code>_save_manifest</code> (existing)
+- Produces: <code>_prune_old_snapshots</code> now keeps exactly <code>retention</code> chapters (not <code>retention + 1</code>) and logs <code>snapshot_prune_failed</code> if the cap is still exceeded after pruning. Signature unchanged (<code>_prune_old_snapshots(project_dir) -&gt; None</code>).</p>
+<p><strong>Context:</strong> The current logic:
+<div class="highlight"><pre><span></span><code><span class="n">keep_from</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">all_chapters</span><span class="p">)</span> <span class="o">-</span> <span class="n">retention</span>     <span class="c1"># e.g. 56 - 50 = 6</span>
+<span class="n">to_prune</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">all_chapters</span> <span class="k">if</span> <span class="n">ch</span> <span class="o">&lt;</span> <span class="n">keep_from</span><span class="p">]</span>   <span class="c1"># prunes 1..5, keeps 6..56 = 51</span>
+</code></pre></div>
+keeps <code>retention + 1</code> chapters. The fix keeps exactly <code>retention</code> by pruning <code>all_chapters[:-retention]</code> (all but the last <code>retention</code>). This is robust to gaps in chapter numbering and does not depend on <code>max()</code>. A post-prune guard re-checks the manifest and logs <code>snapshot_prune_failed</code> if it still overshoots (e.g. a concurrent writer added snapshots between the prune and the guard).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_snapshot_pruning.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the snapshot-retention pruner boundary condition (Spec 22 E40).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_prune_old_snapshots</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_manifest</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+    <span class="n">snap_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="c1"># Create the snapshot files on disk so the pruner can unlink them.</span>
+    <span class="k">for</span> <span class="n">ch_key</span><span class="p">,</span> <span class="n">files</span> <span class="ow">in</span> <span class="n">chapters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">fname</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+            <span class="p">(</span><span class="n">snap_dir</span> <span class="o">/</span> <span class="n">fname</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;snap&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">snap_dir</span> <span class="o">/</span> <span class="s2">&quot;manifest.json&quot;</span>
+    <span class="n">manifest_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;chapters&quot;</span><span class="p">:</span> <span class="n">chapters</span><span class="p">},</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_chapter_count</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chapters&quot;</span><span class="p">,</span> <span class="p">{}))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPruneBoundary</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_keeps_exactly_retention_chapters</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="c1"># 56 chapters, retention 50 -&gt; keep 50, prune 6.</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-t.md&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">57</span><span class="p">)}</span>
+        <span class="n">_write_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">)</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_snapshot_retention&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_pd</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_prune_old_snapshots</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">_chapter_count</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span>
+        <span class="c1"># The newest 50 (chapters 7..56) survive; 1..6 are pruned.</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">surviving</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;chapters&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">surviving</span> <span class="o">==</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">7</span><span class="p">,</span> <span class="mi">57</span><span class="p">))</span>
+        <span class="c1"># Pruned files are gone from disk.</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-001-t.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-056-t.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_overshoot_at_boundary</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The exact E40 scenario: retention 50, 52 chapters on disk -&gt; 50 after.&quot;&quot;&quot;</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-t.md&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">53</span><span class="p">)}</span>
+        <span class="n">_write_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">)</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_snapshot_retention&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_pd</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_prune_old_snapshots</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">_chapter_count</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">50</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_under_cap_no_prune</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="p">{</span><span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-t.md&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">11</span><span class="p">)}</span>
+        <span class="n">_write_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">)</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_snapshot_retention&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_pd</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_prune_old_snapshots</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">_chapter_count</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">10</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_empty_manifest_no_op</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="n">_write_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_snapshot_retention&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_pd</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_prune_old_snapshots</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>  <span class="c1"># must not raise</span>
+
+        <span class="k">assert</span> <span class="n">_chapter_count</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handles_gaps_in_chapter_numbers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retention counts CHAPTERS, not the numeric range — gaps must not</span>
+<span class="sd">        cause over-pruning.&quot;&quot;&quot;</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">str</span><span class="p">(</span><span class="n">n</span><span class="p">):</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">n</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-t.md&quot;</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+        <span class="p">}</span>
+        <span class="n">_write_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapters</span><span class="p">)</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.chapter_loop._get_snapshot_retention&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">_pd</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="n">_prune_old_snapshots</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+
+        <span class="c1"># 10 chapters, keep newest 5.</span>
+        <span class="k">assert</span> <span class="n">_chapter_count</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="mi">5</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span>
+            <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">surviving</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s2">&quot;chapters&quot;</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">surviving</span> <span class="o">==</span> <span class="p">[</span><span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">,</span> <span class="mi">50</span><span class="p">,</span> <span class="mi">60</span><span class="p">,</span> <span class="mi">70</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_snapshot_pruning.py -v</code>
+Expected: FAIL — <code>test_keeps_exactly_retention_chapters</code> gets 51 chapters (the off-by-one); <code>test_no_overshoot_at_boundary</code> gets 52 (no prune happens because <code>keep_from = 52 - 50 = 2</code>, <code>to_prune = ch &lt; 2</code> = only chapter 1, leaving 51 — still over cap, and the guard does not exist).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/chapter_loop.py</code>, replace the body of <code>_prune_old_snapshots</code> (lines 870-900):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_prune_old_snapshots</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove snapshot files older than the retention window.</span>
+
+<span class="sd">    Keeps only the most recent ``snapshot_retention_chapters`` worth of</span>
+<span class="sd">    snapshots (counting CHAPTERS, not the numeric range — robust to gaps).</span>
+<span class="sd">    Removes files from disk and updates the manifest. Spec 22 E40: fixes the</span>
+<span class="sd">    off-by-one in the previous ``ch &lt; keep_from`` comparator (which kept</span>
+<span class="sd">    ``retention + 1``) and adds a post-prune guard.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">retention</span> <span class="o">=</span> <span class="n">_get_snapshot_retention</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">_load_manifest</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">chapters_dict</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;chapters&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+    <span class="n">all_chapters</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">k</span><span class="p">)</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">chapters_dict</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">all_chapters</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">retention</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Keep the newest ``retention`` chapters; prune the rest. Slice-based so</span>
+    <span class="c1"># gaps in chapter numbering do not distort the count.</span>
+    <span class="n">keep_set</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">all_chapters</span><span class="p">[</span><span class="o">-</span><span class="n">retention</span><span class="p">:])</span>
+    <span class="n">to_prune</span> <span class="o">=</span> <span class="p">[</span><span class="n">ch</span> <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">all_chapters</span> <span class="k">if</span> <span class="n">ch</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">keep_set</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">to_prune</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="n">to_prune</span><span class="p">:</span>
+        <span class="n">ch_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">filename</span> <span class="ow">in</span> <span class="n">chapters_dict</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">ch_key</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">file_path</span> <span class="o">=</span> <span class="n">snap_dir</span> <span class="o">/</span> <span class="n">filename</span>
+            <span class="k">if</span> <span class="n">file_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+                <span class="n">file_path</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+        <span class="n">chapters_dict</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">ch_key</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="n">_save_manifest</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">manifest</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;snapshots_pruned&quot;</span><span class="p">,</span> <span class="n">pruned</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">to_prune</span><span class="p">),</span> <span class="n">retention</span><span class="o">=</span><span class="n">retention</span><span class="p">)</span>
+
+    <span class="c1"># GUARD: assert the cap is now respected (fail loudly if a concurrent</span>
+    <span class="c1"># writer re-added snapshots between the prune and this check).</span>
+    <span class="n">remaining</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapters_dict</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">remaining</span> <span class="o">&gt;</span> <span class="n">retention</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;snapshot_prune_failed&quot;</span><span class="p">,</span>
+            <span class="n">count</span><span class="o">=</span><span class="n">remaining</span><span class="p">,</span>
+            <span class="n">cap</span><span class="o">=</span><span class="n">retention</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="s2">&quot;snapshot count still exceeds cap after pruning — &quot;</span>
+            <span class="s2">&quot;concurrent writer or manifest corruption suspected&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_snapshot_pruning.py tests/unit/pipeline/test_chapter_loop.py -v</code>
+Expected: PASS — all boundary tests pass and existing chapter-loop tests are unaffected.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_snapshot_pruning.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(chapter_loop): correct _prune_old_snapshots off-by-one + add prune-failed guard (E40)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-full-regression-just-check">Task 3: Full regression — <code>just check</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Run the complete check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS — ruff, mypy, basedpyright, lint_status_strings, lint_repo_consistency all green.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the full unit suite with coverage</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/ -q --cov=shenbi --cov-fail-under=85</code>
+Expected: PASS, coverage ≥ 85%.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify against the production manifest (informational)</strong></li>
+</ul>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">m = json.loads(Path(&#39;novel-output/xinghuo-ranqiong/snapshots/manifest.json&#39;).read_text())</span>
+<span class="s2">chapters = m.get(&#39;chapters&#39;, {})</span>
+<span class="s2">print(&#39;snapshot chapter count:&#39;, len(chapters))</span>
+<span class="s2">print(&#39;configured cap: 50&#39;)</span>
+<span class="s2">print(&#39;overflow:&#39;, max(0, len(chapters) - 50))</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>Expected (before any production prune runs): confirms the E40 overflow the fix targets. (This step does not modify production data — the next pipeline run will prune correctly.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit any cleanup</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-u
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: ruff/mypy cleanup after lifecycle-enforcement plan&quot;</span><span class="w"> </span>--allow-empty
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage:</strong>
+- §2.1 / §3.1 wire soft-fail trackers to <code>check_escalation</code> → Task 1 ✓
+- §2.2 / §3.2 fix the boundary condition in the EXISTING <code>_prune_old_snapshots</code> (not a new mtime pruner) → Task 2 ✓
+- §4 affected files: only <code>chapter_loop.py</code> modified ✓
+- §3.2 "REJECTED" note (no new <code>retention.py</code> / no mtime-based pruner) → honoured: Task 2 modifies the existing chapter-number pruner only ✓
+- §5 criteria 1 (soft-fail escalation triggers review) → Task 1 tests ✓
+- §5 criteria 2, 3 (cap respected + prune-failed guard) → Task 2 tests ✓
+- §5 criterion 4 (no regression to mtime-based pruning) → Task 2 keeps chapter-number-based slicing ✓
+- §5 criterion 5 (<code>just check</code>) → Task 3 Step 1 ✓</p>
+<p><strong>2. Placeholder scan:</strong> No TBD/TODO. The one open-ended note (Task 1: "if <code>dispatch_escalation</code>'s kwargs differ, mirror the call at <code>chapter_loop.py:416</code>") gives a concrete reference line and is acceptable because the test does not lock the kwargs — but the implementer should check <code>revision_router.py</code> and align. Every code block is complete.</p>
+<p><strong>3. Type consistency:</strong> <code>_check_soft_fail_escalation(state, project_dir, chapter)</code> is consistent between Task 1's definition, its call site, and the test. <code>_prune_old_snapshots(project_dir)</code> signature is unchanged. <code>_get_recent_resonance_scores(project_dir, chapter, window=5)</code> matches the existing helper at <code>chapter_loop.py:813</code> (called with <code>window=5</code> to match <code>check_escalation</code>'s default window). <code>check_escalation</code> is called with exactly its real parameters. <code>SoftFailTracker.occurrences</code> / <code>.escalation_threshold</code> match <code>state.py:103-105</code>.</p>
+<p><strong>Key codebase facts baked in:</strong>
+- <code>should_escalate = tracker.record(chapter)</code> is already computed at <code>chapter_loop.py:1305</code> and the <code>if should_escalate:</code> block at <code>:1313</code> is the exact insertion point.
+- <code>check_escalation</code> real signature (verified at <code>skill_utils/escalation/check.py:52-64</code>): <code>resonance_scores, sensitivity_blocking, volume_objective_met, regeneration_attempts, arc_score=None, stratum_axis_drift=False, ...</code>.
+- <code>_get_recent_resonance_scores</code> already exists at <code>chapter_loop.py:813</code>.
+- <code>_prune_old_snapshots</code> already exists at <code>chapter_loop.py:870</code> and is called at <code>:960</code>; the manifest format is <code>{"chapters": {"&lt;n&gt;": ["&lt;filename&gt;", ...]}}</code>.
+- The off-by-one is <code>ch &lt; keep_from</code> keeping <code>retention + 1</code>; the slice fix <code>all_chapters[-retention:]</code> keeps exactly <code>retention</code> and is robust to numbering gaps.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

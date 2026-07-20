@@ -1,0 +1,1556 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 02: Structural Layout — tests/ as Runtime Package - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 02: Structural Layout — tests/ as Runtime Package - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 02: Structural Layout — tests/ as Runtime Package - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/02-structural-layout.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-02-structural-layout-tests-as-runtime-package" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 02: Structural Layout — tests/ as Runtime Package
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#specific-consequences" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Specific consequences
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-1-project-evolved-from-shell-script-based-prototype" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 1: Project evolved from shell-script-based prototype
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-2-no-projectscripts-entry-points" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 2: No [project.scripts] entry points
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-3-tests-was-treated-as-the-project-not-tests-of-the-project" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 3: tests/ was treated as "the project", not "tests of the project"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components (PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components (PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-18-srcshenbi-layout-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-18: src/shenbi/ layout migration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-47-remove-force-include-from-wheel-build" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-47: Remove force-include from wheel build
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-02-structural-layout-tests-as-runtime-package">Cluster 02: Structural Layout — <code>tests/</code> as Runtime Package</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F7–F9</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>The Shenbi framework runtime code (validate-gate, scoring, dispatcher, phase
+runner, summarize-round, update-progress, error-guidance, exceptions, logging)
+<strong>lives under <code>tests/</code></strong>. <code>pyproject.toml:52</code> ships <code>tests/</code> as the wheel
+package:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>This conflates "framework runtime code" with "test code" — both physically
+and semantically. The name <code>tests/</code> lies about its contents.</p>
+<h3 id="evidence">Evidence</h3>
+<div class="highlight"><pre><span></span><code>tests/
+├── validate-gate.py          # 4318 lines — framework runtime
+├── scoring.py                # 384 lines  — framework runtime
+├── phase-runner.py           # 314 lines  — framework runtime
+├── summarize-round.py        # 182 lines  — framework runtime
+├── update-progress.py        # 324 lines  — framework runtime
+├── error_guidance.py         # 52 lines   — framework runtime
+├── recovery.py               # ?          — framework runtime
+├── exceptions.py             # 153 lines  — framework runtime (P-1.C added)
+├── logging.py                # 43 lines   — framework runtime (P-1.C added)
+├── dispatch-subagent.sh      # 203 lines  — framework runtime
+├── gates/                    # stub       — intended framework runtime
+├── dispatcher/               # stub       — intended framework runtime
+├── conftest.py               # actual test code
+├── unit/ integration/ property/ benchmark/   # actual test code
+├── fixtures/ rounds/ baselines/              # test data
+└── __init__.py               # shipped in wheel
+</code></pre></div>
+<p><strong>13 of 16 top-level entries in <code>tests/</code> are runtime code, not test code.</strong></p>
+<h3 id="specific-consequences">Specific consequences</h3>
+<ol>
+<li><strong>Importing <code>tests.scoring</code> from production is "normal"</strong> — but the name
+   <code>tests</code> signals to every reader "this is test code, safe to delete or
+   skip reading". Multi-agent consumers (Cursor, Codex) reading <code>AGENTS.md</code>
+   see "tests/scoring.py" listed under "Test infrastructure" and may treat
+   it as expendable.</li>
+<li><strong>P0's new tools have no clean home.</strong> <code>build_registry.py</code>,
+   <code>load_registry.py</code>, <code>validate_registry.py</code>, <code>validate_skill.py</code>,
+   <code>migrate_skill.py</code> are all production code. Where do they go?</li>
+<li>If under <code>tests/</code>, the lie continues.</li>
+<li>If under <code>skills/</code>, they're skill data, not framework.</li>
+<li>If under a new top-level <code>framework/</code>, the project has 4 code roots.</li>
+<li><strong><code>pyproject.toml</code> ships <code>tests/</code> in the wheel.</strong> Anyone who installs
+   Shenbi via <code>uv pip install shenbi</code> gets all the test code in their
+   site-packages. This bloats the wheel from ~50KB (real runtime) to ~200KB+
+   (with test data, fixtures, archived rounds).</li>
+<li><strong><code>[tool.hatch.build.targets.wheel.force-include]</code></strong> adds <code>skills/</code> and
+   <code>docs/adr/</code> to the wheel too. This means the wheel is a snapshot of the
+   entire repo, not a curated runtime artifact.</li>
+<li><strong>CI matrix installs wheel and runs <code>pytest</code> from <code>tests/</code></strong>, which works
+   only because <code>tests/</code> is the package. After src layout migration, the
+   install workflow must change.</li>
+<li><strong>Coverage <code>source = ["tests"]</code></strong> (pyproject.toml:203) measures coverage
+   of the wrong directory.</li>
+</ol>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="root-cause-1-project-evolved-from-shell-script-based-prototype">Root cause 1: Project evolved from shell-script-based prototype</h3>
+<p>The original Shenbi was a collection of shell scripts and Python helpers in
+<code>tests/</code> (named thus because they "tested" the skills by running them). As
+the project grew, the helpers became framework code, but the directory name
+stayed. The framing "tests/" was never revisited.</p>
+<p><strong>Fix</strong>: Explicit src layout migration. No gradual approach — rename
+happens once, atomically, in PR-18.</p>
+<h3 id="root-cause-2-no-projectscripts-entry-points">Root cause 2: No <code>[project.scripts]</code> entry points</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># pyproject.toml:43-45</span>
+<span class="c1"># 注：[project.scripts] 暂不定义。</span>
+<span class="c1"># gates/cli.py 和 dispatcher/cli.py 当前 forward 到 legacy 脚本（subprocess）。</span>
+<span class="c1"># P-1.E 完成 Python 原生重写后再加 entry points。</span>
+</code></pre></div>
+<p>Without entry points, users invoke framework tools via
+<code>python tests/validate-gate.py ...</code>. This pins the path
+<code>tests/validate-gate.py</code> into every consumer's muscle memory and every
+agent's plugin manifest. Renaming the path breaks everyone.</p>
+<p><strong>Fix</strong>: PR-18 adds <code>[project.scripts]</code> entries. After merge, all
+documentation and agent plugins use the entry point names
+(<code>shenbi-validate</code>, <code>shenbi-dispatch</code>, etc.), not file paths.</p>
+<h3 id="root-cause-3-tests-was-treated-as-the-project-not-tests-of-the-project">Root cause 3: <code>tests/</code> was treated as "the project", not "tests of the project"</h3>
+<p>The structural decision to put framework code under <code>tests/</code> was never
+questioned because it worked. P-1.A through P-1.D added more code to
+<code>tests/</code> (exceptions.py, logging.py) without asking "should this be here?"
+Each addition made the migration harder.</p>
+<p><strong>Fix</strong>: PR-18 is a non-negotiable prerequisite for P0. P0's brainstorming
+(see <code>08-p0-plan-patches.md</code>) assumes the src layout exists.</p>
+<h2 id="target-state">Target State</h2>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── src/
+│   └── shenbi/
+│       ├── __init__.py             # version, public API
+│       ├── exceptions.py           # moved from tests/
+│       ├── logging.py              # moved from tests/
+│       ├── scoring.py              # moved + refactored
+│       ├── phase_runner.py         # moved + renamed (was phase-runner.py)
+│       ├── summarize_round.py      # moved + renamed
+│       ├── update_progress.py      # moved + renamed
+│       ├── error_guidance.py       # moved
+│       ├── recovery.py             # moved
+│       ├── gates/                  # moved + modularized (PR-18)
+│       │   ├── __init__.py
+│       │   ├── cli.py
+│       │   ├── shared.py
+│       │   ├── g0.py ... g7.py
+│       │   ├── g_transition.py
+│       │   ├── g_dispatch.py
+│       │   ├── g_reconcile.py
+│       │   └── g4/
+│       ├── dispatcher/             # moved + rewritten (PR-20)
+│       │   ├── __init__.py
+│       │   ├── cli.py
+│       │   ├── executor.py
+│       │   └── modes/
+│       └── plugins/                # NEW: plugin manifest generator (PR-45)
+│           ├── __init__.py
+│           └── generate.py
+├── tests/                          # ONLY test code
+│   ├── conftest.py
+│   ├── unit/ integration/ property/ benchmark/
+│   ├── rounds/
+│   ├── fixtures/
+│   └── baselines/
+├── skills/                         # unchanged (P0 will restructure)
+├── docs/                           # unchanged
+└── pyproject.toml                  # updated: src layout, entry points
+</code></pre></div>
+<p><code>pyproject.toml</code> changes:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;hatchling&quot;</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hatchling.build&quot;</span>
+
+<span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/shenbi&quot;</span><span class="p">]</span>
+<span class="c1"># No force-include of skills/ or docs/adr/ — those are repo assets,</span>
+<span class="c1"># not wheel contents. If needed, ship as separate sdist only.</span>
+
+<span class="k">[project.scripts]</span>
+<span class="n">shenbi-validate</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.gates.cli:main&quot;</span>
+<span class="n">shenbi-dispatch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.dispatcher.cli:main&quot;</span>
+<span class="n">shenbi-score</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.scoring:main&quot;</span>
+<span class="n">shenbi-summarize</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.summarize_round:main&quot;</span>
+<span class="n">shenbi-progress</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.update_progress:main&quot;</span>
+<span class="n">shenbi-phase</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.phase_runner:main&quot;</span>
+<span class="n">shenbi-generate-plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;shenbi.plugins.generate:main&quot;</span>
+
+<span class="k">[tool.coverage.run]</span>
+<span class="n">branch</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">source</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/shenbi&quot;</span><span class="p">]</span><span class="w">   </span><span class="c1"># was: [&quot;tests&quot;]</span>
+
+<span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/unit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/property&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/benchmark&quot;</span><span class="p">]</span>
+<span class="c1"># Already correct, but now actually means &quot;tests/&quot; is only tests.</span>
+</code></pre></div>
+<h2 id="components-prs">Components (PRs)</h2>
+<h3 id="pr-18-srcshenbi-layout-migration">PR-18: src/shenbi/ layout migration</h3>
+<p><strong>Pre-migration audit</strong>: Run grep to enumerate all references that need updating:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># All Python imports of tests.* modules</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;from tests\.&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s1">&#39;*.py&#39;</span><span class="w"> </span>.
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;import tests\.&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s1">&#39;*.py&#39;</span><span class="w"> </span>.
+
+<span class="c1"># All path references in shell scripts</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;tests/validate-gate\|tests/scoring\|tests/dispatch&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s1">&#39;*.sh&#39;</span><span class="w"> </span>.
+
+<span class="c1"># All path references in markdown (docs, agent skills)</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;tests/validate-gate\|tests/scoring\|tests/dispatch&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s1">&#39;*.md&#39;</span><span class="w"> </span>.
+
+<span class="c1"># All path references in plugin manifests</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;tests/&quot;</span><span class="w"> </span>.claude-plugin/<span class="w"> </span>.codex-plugin/<span class="w"> </span>.cursor-plugin/<span class="w"> </span>.opencode/
+
+<span class="c1"># Multi-agent entry files</span>
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;tests/&quot;</span><span class="w"> </span>CLAUDE.md<span class="w"> </span>AGENTS.md<span class="w"> </span>GEMINI.md
+</code></pre></div>
+<p>Capture all matches to <code>tests/baselines/src-migration-references.txt</code> for
+use as a checklist.</p>
+<p><strong>Migration steps</strong>:</p>
+<ol>
+<li>Create <code>src/shenbi/__init__.py</code> with version and minimal public API.</li>
+<li>Move <code>tests/exceptions.py</code> → <code>src/shenbi/exceptions.py</code> (no rename).</li>
+<li>Move <code>tests/logging.py</code> → <code>src/shenbi/logging.py</code> (no rename).</li>
+<li>Move <code>tests/error_guidance.py</code> → <code>src/shenbi/error_guidance.py</code>.</li>
+<li>Move <code>tests/recovery.py</code> → <code>src/shenbi/recovery.py</code>.</li>
+<li>Move + rename hyphenated files:</li>
+<li><code>tests/phase-runner.py</code> → <code>src/shenbi/phase_runner.py</code></li>
+<li><code>tests/summarize-round.py</code> → <code>src/shenbi/summarize_round.py</code></li>
+<li><code>tests/update-progress.py</code> → <code>src/shenbi/update_progress.py</code></li>
+<li><code>tests/dispatch-subagent.sh</code> → leave in place (PR-20 handles)</li>
+<li><code>tests/validate-gate.py</code> → leave in place (PR-18 handles)</li>
+<li>Update all imports per the audit checklist.</li>
+<li>Update <code>pyproject.toml</code>: <code>[tool.hatch.build.targets.wheel]</code> → <code>packages = ["src/shenbi"]</code>.</li>
+<li>Add <code>[project.scripts]</code> entries.</li>
+<li>Update <code>pytest.ini_options</code> and <code>coverage.run.source</code>.</li>
+<li>Run full test suite to verify.</li>
+</ol>
+<p><strong>Note on PR-18 / PR-19 / PR-20 dependency</strong>: PR-18 only moves the "easy" files
+(exceptions, logging, error_guidance, recovery, phase_runner, summarize_round,
+update_progress, scoring). <code>validate-gate.py</code> moves during PR-19 (modularization)
+and <code>dispatch-subagent.sh</code> moves during PR-20 (Python rewrite), because both
+require modularization / rewrite, not just relocation.</p>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>src/shenbi/</code> directory exists with at least 7 modules</li>
+<li>[ ] <code>tests/</code> directory contains only: <code>conftest.py</code>, test subdirs, data dirs
+      (<code>fixtures/</code>, <code>rounds/</code>, <code>baselines/</code>), and the two files explicitly
+      deferred to PR-19 / PR-20 (<code>validate-gate.py</code>, <code>dispatch-subagent.sh</code>)</li>
+<li>[ ] <code>python -c "import shenbi; print(shenbi.__version__)"</code> works after
+      <code>uv sync</code></li>
+<li>[ ] All 7 entry points (<code>shenbi-validate</code>, etc.) work after <code>uv sync</code></li>
+<li>[ ] <code>pytest</code> collection still works; no test fails due to import path</li>
+<li>[ ] <code>uv build --wheel</code> produces a wheel containing only <code>src/shenbi/</code>
+      (verify with <code>unzip -l dist/*.whl</code>)</li>
+<li>[ ] Zero references to <code>tests.exceptions</code>, <code>tests.logging</code>, etc. in
+      tracked files (excluding archived rounds and ADRs)</li>
+<li>[ ] <code>AGENTS.md</code>, <code>GEMINI.md</code>, <code>CLAUDE.md</code> updated to reference new paths</li>
+</ul>
+<h3 id="pr-47-remove-force-include-from-wheel-build">PR-47: Remove <code>force-include</code> from wheel build</h3>
+<p>Per the user directive "不考虑开发成本", this is <strong>required</strong> in P-1.E, not
+optional. The <code>force-include</code> block embeds repo assets (skills, ADRs) in
+the wheel, conflating "installable runtime" with "repo documentation".
+Mandatory cleanup.</p>
+<p>Currently <code>pyproject.toml:54-56</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.hatch.build.targets.wheel.force-include]</span>
+<span class="s2">&quot;skills/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;skills/&quot;</span>
+<span class="s2">&quot;docs/adr/&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;docs/adr/&quot;</span>
+</code></pre></div>
+<p>This bundles 76 skill files + 10 ADR files into the wheel. After src layout
+migration, the wheel should contain only <code>src/shenbi/</code>. Skills and ADRs are
+repo assets, not installable artifacts.</p>
+<p>If downstream consumers need skills at runtime, they should clone the repo,
+not pip-install. If they need to read ADRs, point them to the docs site.</p>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>force-include</code> block removed from <code>pyproject.toml</code></li>
+<li>[ ] <code>uv build --wheel</code> produces wheel &lt; 100KB</li>
+<li>[ ] Document in <code>CONTRIBUTING.md</code> that skills are not pip-installable</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Migration breaks downstream agent plugins that hardcode <code>tests/scoring.py</code> paths</td>
+<td>Pre-migration audit (step 1) catches all references; update plugins in same PR</td>
+</tr>
+<tr>
+<td>Hidden dynamic imports (<code>importlib.import_module("tests.scoring")</code>)</td>
+<td>grep for <code>importlib</code> usage; run full test suite</td>
+</tr>
+<tr>
+<td>Coverage drops during migration because new paths not yet measured</td>
+<td>Update <code>[tool.coverage.run].source</code> in same commit</td>
+</tr>
+<tr>
+<td>Wheel size shrinks dramatically, breaking some external automation that expects <code>skills/</code> in installed package</td>
+<td>Audit external consumers; if any exist, provide migration guide</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><code>py.typed</code> marker for PEP 561?</td>
+<td><strong>Yes, add in PR-18.</strong></td>
+<td>PEP 561 standard for shipping type information. Without <code>py.typed</code>, downstream consumers can't benefit from our type annotations even when running mypy. Industry standard for any typed Python package.</td>
+</tr>
+<tr>
+<td>2</td>
+<td><code>shenbi[full]</code> extra with skills data?</td>
+<td><strong>No.</strong></td>
+<td>Skills are not pip-installable data; they're prose + scripts that require the full repo context (agent plugin configs, fixtures, etc.). Users who want skills should <code>git clone</code>. Documented in <code>CONTRIBUTING.md</code> and <code>README.md</code>.</td>
+</tr>
+<tr>
+<td>3</td>
+<td><code>phase_runner</code> vs <code>phase-runner</code> module name?</td>
+<td><strong><code>phase_runner</code> (underscore).</strong></td>
+<td>Python module names cannot contain hyphens (PEP 8 §4.4 "Package and Module Names"). The rename from <code>phase-runner.py</code> to <code>phase_runner.py</code> is mandated by Python syntax, not a stylistic choice.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

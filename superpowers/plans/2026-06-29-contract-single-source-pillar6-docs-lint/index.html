@@ -1,0 +1,2430 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-29-contract-single-source-pillar6-docs-lint/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>契约单源架构 - 支柱六（文档派生 + AST 纯度 lint + CapabilityFS）实施计划 v1 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="契约单源架构 - 支柱六（文档派生 + AST 纯度 lint + CapabilityFS）实施计划 v1 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-29-contract-single-source-pillar6-docs-lint.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-29-contract-single-source-pillar6-docs-lint/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="契约单源架构 - 支柱六（文档派生 + AST 纯度 lint + CapabilityFS）实施计划 v1 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-29-contract-single-source-pillar6-docs-lint.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#-ast-lint-capabilityfs-v1" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              契约单源架构 - 支柱六（文档派生 + AST 纯度 lint + CapabilityFS）实施计划 v1
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        文件结构
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="文件结构">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-ast-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: AST 纯度 lint 脚本 + 检测准确性测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-allowlist-lint-srcshenbi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Allowlist 诚实测试（lint 通过真实 src/shenbi/ + 无死条目）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-pre-commit-ci-wiring-for-purity-lint" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Pre-commit + CI wiring for purity lint
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-score-arcstratumvolume-m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 评分标尺契约模型（score-arc/stratum/volume -- M3 修复）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 文档派生生成器 + 渲染/幂等/防篡改测试
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-ci-pre-commit-wiring" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 文档派生 CI 幂等检查 + pre-commit wiring
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-capabilityfs-pillar5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: CapabilityFS 测试（消费 pillar5 产物，不重建）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: 全量回归 + 支柱六完成确认
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="-ast-lint-capabilityfs-v1">契约单源架构 - 支柱六（文档派生 + AST 纯度 lint + CapabilityFS）实施计划 v1</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 建立 AST 纯度 lint（禁 <code>src/shenbi/</code> FS 变更原语，除 allowlist）、文档派生生成器（从契约模型生成「可自动检查」表，CI 拒绝手改）、评分标尺显式声明（score-arc/stratum/volume 聚合公式 + PASS_THRESHOLD）、以及进程内 CapabilityFS 只读垫片（测试时阻断写操作）。</p>
+<p><strong>Architecture:</strong> 纯度 lint 是独立 AST 脚本（镜像现有 <code>tools/lint_no_forbid_with_computed_field.py</code> 模式），扫描 <code>src/shenbi/*.py</code> 中的 FS 变更 AST 节点。Allowlist 分两层：永久（safe_write.py + trace/writer.py，有合法直接写理由）和过渡（14 个尚未迁移到 safe_write 的文件，由测试断言无死条目）。文档派生生成器在 <code>tools/</code>，读契约模型 <code>@computed_field</code> + 模块级阈值常量，渲染 sentinel 分隔的 markdown 区块；CI 跑生成 + <code>git diff</code> 拒绝手改。评分标尺用 <code>_scoring_base.py</code> 共享 Pydantic 模型显式声明公式。CapabilityFS（<code>src/shenbi/capability_fs.py</code>，<strong>pillar5 产物</strong>）是进程内只读 FS 句柄：<code>CapabilityFS(allow_root: Path)</code> 实例，读经沙箱允许，写一律 PermissionError。本计划<strong>不重建</strong>该模块——Task 7 只为它写测试。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），ast+pathlib。</p>
+<p><strong>关联 spec:</strong> <a href="../../specs/2026-06-29-contract-single-source-design/">../specs/2026-06-29-contract-single-source-design.md</a> v5.2 支柱六 + 成功判据 4（纯度强制，allowlist 偏差：2 永久 + 14 过渡）。</p>
+<p><strong>v5 修订（round-4 审核 8→目标 9+，Meitner 高精度 reproduced）：</strong> Important：transitional allowlist 修正（删 gates/g7.py——pillar2 执行后 G7 已纯化；加 audit/record.py——pillar4-tierB 执行后新增 append-only ledger）。Minor：加 tier_advance_eligible hard_binary 回归测试；判据 4 allowlist 偏差声明（永久 2 + 过渡 14，非 spec「仅 safe_write」）。</p>
+<p><strong>前置依赖:</strong>
+- <strong>支柱一</strong>已落地：<code>src/shenbi/contracts/</code> 包含 <code>enums.py</code>、<code>base.py</code>、<code>registry.py</code>（REGISTRY 自动发现）、<code>skills/foreshadowing_resolve.py</code>。本计划在 <code>contracts/skills/</code> 新增评分模型。
+- <strong>支柱二</strong>（thresholds.py）：本计划的 <code>_scoring_base.py</code> 从 <code>contracts/thresholds.py</code> import <code>TEST_PASS</code>/<code>T1_PASS</code>（Kant I3 单一源）。pillar2 Task 1 创建此文件。
+- <strong>支柱五</strong>（capability_fs.py）：Task 7 消费该模块，不重建（Kant C1 修复）。
+- <strong>支柱四 Tier A</strong>（safe_write.py + trace/writer.py）：本计划的 allowlist 按文件名引用 safe_write.py 和 trace/writer.py。若 pillar 4 尚未执行（文件不存在），lint 仍正常工作——allowlist 条目对不存在的文件无影响（测试跳过不存在的条目）。trace/replay.py 和 trace/compaction.py（pillar 4 产物）也在过渡 allowlist 中。</p>
+<p><strong>Allowlist 决策（已验证）：</strong>
+- <strong>safe_write.py</strong>（永久）：原子写原语本身（temp + os.replace + fsync + flock）。不 allowlist 它就会 flag 自己。
+- <strong>trace/writer.py</strong>（永久）：TraceWriter 用 <code>.open("a")</code> 做 append-only 写入。safe_write 是 temp+replace（全文件替换），与 append-only 语义不兼容（append 需要 O(1) 追加 + 每行 fsync；safe_write 会 O(n) 读全文件再写回，且丢失 crash 时「除最后一行外全部保留」的语义）。因此 trace/writer.py 永久 allowlist。
+- <strong>trace/replay.py + trace/compaction.py</strong>（过渡）：pillar 4 产物，直接写 trace.jsonl（截断撕裂行 / compaction 重写）。应迁移到 safe_write 或 trace 专用安全写（future work）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+；ast + pathlib + json；框架代码无 print()（用 structlog）。</li>
+<li>Pydantic v2.5+；含 <code>@computed_field</code> 的模型用 <code>model_config={"extra":"ignore"}</code>（N7）。</li>
+<li>mypy strict + ruff 必须 CI 干净。</li>
+<li><strong>覆盖率门（关键）：</strong> <code>pyproject.toml</code> 设 <code>--cov=shenbi</code> + <code>fail_under=90</code>（已验证 pyproject.toml:322-349），因此任何<strong>单文件/子集</strong> <code>uv run pytest &lt;path&gt;</code> 都会因覆盖率不足退出码非零。本计划所有单文件 pytest 命令必须追加 <code>--no-cov</code>。覆盖率门只在全量 <code>uv run pytest -q</code> 时生效。下面各步为简洁省略 <code>--no-cov</code>，执行者一律按此规则补上。</li>
+<li>纯度 lint 扫描根目录是 <code>src/shenbi/</code>（不是 <code>src/</code>），文件相对路径如 <code>gates/shared.py</code>。</li>
+<li>lint 脚本自身在 <code>tools/</code>，不被 lint 扫描。</li>
+<li>文档生成器在 <code>tools/</code>，直接写 SKILL.md（build-time 工具，不受纯度 lint 约束）。</li>
+<li>不修改现有 gate/skill 运行态行为。</li>
+</ul>
+<h2 id="_1">文件结构</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tools/lint_no_fs_mutation.py</code></td>
+<td>AST 纯度 lint：禁 src/shenbi/ FS 变更原语（除 allowlist）</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_lint_no_fs_mutation.py</code></td>
+<td>lint 检测准确性测试（假阳/假阴）+ allowlist 诚实测试</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/skills/_scoring_base.py</code></td>
+<td>评分报告共享模型 + 聚合公式 + PASS_THRESHOLD（M3 修复）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/skills/score_arc.py</code></td>
+<td>score-arc 契约（Report = ScoreReport）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/skills/score_stratum.py</code></td>
+<td>score-stratum 契约</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/skills/score_volume.py</code></td>
+<td>score-volume 契约</td>
+</tr>
+<tr>
+<td><code>tests/unit/contracts/test_scoring_contracts.py</code></td>
+<td>评分模型测试</td>
+</tr>
+<tr>
+<td><code>tools/generate_autocheck_docs.py</code></td>
+<td>文档派生：从契约模型生成「可自动检查」区块</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_generate_autocheck_docs.py</code></td>
+<td>文档派生渲染 + 幂等 + 防篡改测试</td>
+</tr>
+<tr>
+<td><code>src/shenbi/capability_fs.py</code></td>
+<td><strong>pillar5 产物（本计划不重建）</strong>——Task 7 只加测试</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_capability_fs.py</code></td>
+<td>CapabilityFS 测试</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-ast-lint">Task 1: AST 纯度 lint 脚本 + 检测准确性测试</h3>
+<p><strong>Files:</strong> Create <code>tools/lint_no_fs_mutation.py</code>、<code>tests/unit/test_lint_no_fs_mutation.py</code></p>
+<p><strong>Interfaces:</strong> Produces <code>lint_dir(root: Path) -&gt; list[str]</code>、<code>_find_violations(tree, filepath) -&gt; list[str]</code>、<code>PERMANENT_ALLOWLIST</code>、<code>TRANSITIONAL_ALLOWLIST</code>、<code>ALLOWED_FILES</code>。</p>
+<p><strong>检测规则（AST）：</strong>
+- <code>.write_text()</code> / <code>.write_bytes()</code> / <code>.unlink()</code> -&gt; 违规（Path 写/删方法）
+- <code>.open(mode)</code> 或 builtin <code>open(file, mode)</code> 当 mode 含 <code>w</code>/<code>a</code>/<code>x</code> -&gt; 违规
+- <code>os.replace/rename/unlink/remove/rmdir/removedirs(...)</code> -&gt; 违规
+- <code>shutil.copy/copy2/copyfile/move/rmtree/copytree(...)</code> -&gt; 违规
+- <strong>不 flag：</strong> <code>.read_text()</code>、<code>.open()</code> / <code>.open("r")</code>（默认读）、<code>json.dumps()</code>、<code>json.dump()</code>（文件句柄来自已 flag 的 open）、<code>.mkdir()</code>（目录创建非文件突变）、动态 mode（非常量，保守不 flag）</p>
+<p><strong>Allowlist（v1 亲手核对 src/shenbi/ 全部写原语）：</strong></p>
+<p>永久 allowlist（合法直接写）：
+- <code>safe_write.py</code>：原子写原语本身
+- <code>trace/writer.py</code>：append-only，safe_write 不兼容</p>
+<p>过渡 allowlist（尚未迁移到 safe_write；v1 grep 验证每个含违规）：
+- <code>gates/shared.py</code>（marker_file.write_text）、<code>gates/g1.py</code>（shutil.copy2）
+- <code>phase_runner.py</code>（state_file.write_text）
+- <code>plugins/generate.py</code>（output_path.write_text）
+- <code>dispatcher/modes/internal.py</code>（prompt_file.write_text）、<code>dispatcher/modes/codex.py</code>（scores_file.write_text）
+- <code>skill_utils/drift_detection/compute_drift.py</code>（audit_path.open("a")）、<code>skill_utils/style_learning/compute_stats.py</code>（Path.write_text）
+- <code>sync_contracts.py</code>（skill_md.write_text, path.write_text）、<code>update_progress.py</code>（pp.write_text）
+- <code>summarize_round.py</code>（open(summary_path, "w")）
+- <code>trace/replay.py</code>（pillar 4：path.write_text 截断）、<code>trace/compaction.py</code>（pillar 4：path.write_text 重写）
+- <code>audit/record.py</code>（ledger.open("a")，pillar 4-tierB 产物）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_lint_no_fs_mutation.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span><span class="p">))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">lint_no_fs_mutation</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E402</span>
+    <span class="n">ALLOWED_FILES</span><span class="p">,</span>
+    <span class="n">PERMANENT_ALLOWLIST</span><span class="p">,</span>
+    <span class="n">TRANSITIONAL_ALLOWLIST</span><span class="p">,</span>
+    <span class="n">_find_violations</span><span class="p">,</span>
+    <span class="n">lint_dir</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">SRC</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span>
+
+
+<span class="c1"># --- Detection: mutation primitives MUST be flagged ---</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_write_text</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.write_text(&#39;x&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;write_text&quot;</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_write_bytes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.write_bytes(b&#39;x&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_unlink</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.unlink()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;unlink&quot;</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_path_open_write</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.open(&#39;w&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_path_open_append</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.open(&#39;a&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_builtin_open_write</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;open(p, &#39;w&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_os_replace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;os.replace(a, b)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;os.replace&quot;</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_shutil_copy</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;shutil.copy2(a, b)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">vs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;shutil&quot;</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_flags_nested_open_in_json_dump</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;json.dump(data, open(path, &#39;w&#39;)) -- the nested open is caught.&quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;json.dump(data, open(path, &#39;w&#39;))</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="c1"># --- No false positives: reads and safe operations MUST NOT be flagged ---</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_read_text</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.read_text()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_open_read_default</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.open()</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_open_read_explicit</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.open(&#39;r&#39;)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_builtin_open_read</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;open(p)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_json_dumps</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;json.dumps(x)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_os_path_exists</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;os.path.exists(p)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_mkdir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;p.mkdir(parents=True)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_allows_dynamic_mode_open</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Dynamic mode (not a constant) is not flagged (conservative).&quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;ok.py&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;open(p, mode)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run -&gt; fails</strong> (ModuleNotFoundError)</li>
+</ul>
+<p><code>uv run pytest tests/unit/test_lint_no_fs_mutation.py -v --no-cov</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Implement lint script</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/lint_no_fs_mutation.py</span>
+<span class="c1">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Purity lint: forbid FS-mutation primitives in src/shenbi/ except allowlisted files.</span>
+
+<span class="sd">Usage: python tools/lint_no_fs_mutation.py &lt;root_dir&gt;</span>
+<span class="sd">exit 0 = pass; exit 1 = violations found.</span>
+
+<span class="sd">Allowlist rationale:</span>
+<span class="sd">  - safe_write.py: the atomic-write entry point (temp + os.replace + fsync).</span>
+<span class="sd">  - trace/writer.py: TraceWriter does true append-only writes (.open(&quot;a&quot;) +</span>
+<span class="sd">    per-line fsync). safe_write is temp+replace (full-file), incompatible.</span>
+
+<span class="sd">Transitional allowlist: files not yet migrated to safe_write. Each entry is</span>
+<span class="sd">verified by a test to contain actual violations (no dead entries). This list</span>
+<span class="sd">MUST shrink as files migrate.</span>
+
+<span class="sd">NOT detected (known limitations):</span>
+<span class="sd">  - `from os import replace; replace(...)` (import-aliased calls; requires</span>
+<span class="sd">    import tracking, out of scope for AST lint).</span>
+<span class="sd">  - Dynamic open modes (non-constant mode arg; conservative skip).</span>
+<span class="sd">  - os.open (low-level fd-based; only used in allowlisted safe_write).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># --- Allowlist ---</span>
+
+<span class="n">PERMANENT_ALLOWLIST</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;safe_write.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;trace/writer.py&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">TRANSITIONAL_ALLOWLIST</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;gates/shared.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;gates/g1.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;phase_runner.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;plugins/generate.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dispatcher/modes/internal.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dispatcher/modes/codex.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;skill_utils/drift_detection/compute_drift.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;skill_utils/style_learning/compute_stats.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;sync_contracts.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;update_progress.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;summarize_round.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;trace/replay.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;trace/compaction.py&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;audit/record.py&quot;</span><span class="p">,</span>  <span class="c1"># Meitner v5: pillar4-tierB append-only ledger</span>
+<span class="p">})</span>
+
+<span class="n">ALLOWED_FILES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">PERMANENT_ALLOWLIST</span> <span class="o">|</span> <span class="n">TRANSITIONAL_ALLOWLIST</span>
+
+<span class="c1"># --- Detection constants ---</span>
+
+<span class="n">_OS_MUTATIONS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;replace&quot;</span><span class="p">,</span> <span class="s2">&quot;rename&quot;</span><span class="p">,</span> <span class="s2">&quot;unlink&quot;</span><span class="p">,</span> <span class="s2">&quot;remove&quot;</span><span class="p">,</span> <span class="s2">&quot;rmdir&quot;</span><span class="p">,</span> <span class="s2">&quot;removedirs&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">_SHUTIL_MUTATIONS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;copy&quot;</span><span class="p">,</span> <span class="s2">&quot;copy2&quot;</span><span class="p">,</span> <span class="s2">&quot;copyfile&quot;</span><span class="p">,</span> <span class="s2">&quot;move&quot;</span><span class="p">,</span> <span class="s2">&quot;rmtree&quot;</span><span class="p">,</span> <span class="s2">&quot;copytree&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="n">_PATH_WRITE_METHODS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;write_text&quot;</span><span class="p">,</span> <span class="s2">&quot;write_bytes&quot;</span><span class="p">,</span> <span class="s2">&quot;unlink&quot;</span><span class="p">})</span>
+
+<span class="n">_WRITE_CHARS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="s2">&quot;wax&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_write_mode</span><span class="p">(</span><span class="n">mode_arg</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if a mode arg is a string constant containing w/a/x.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode_arg</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Constant</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">mode_arg</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">_WRITE_CHARS</span> <span class="o">&amp;</span> <span class="nb">set</span><span class="p">(</span><span class="n">mode_arg</span><span class="o">.</span><span class="n">value</span><span class="p">))</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_mode</span><span class="p">(</span><span class="n">call</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">,</span> <span class="n">is_method</span><span class="p">:</span> <span class="nb">bool</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ast</span><span class="o">.</span><span class="n">expr</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the mode argument from an open() call.</span>
+
+<span class="sd">    Path.open(mode): mode is args[0].</span>
+<span class="sd">    builtin open(file, mode): mode is args[1].</span>
+<span class="sd">    Keyword &#39;mode=&#39; checked for both.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">kw</span> <span class="ow">in</span> <span class="n">call</span><span class="o">.</span><span class="n">keywords</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">kw</span><span class="o">.</span><span class="n">arg</span> <span class="o">==</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">kw</span><span class="o">.</span><span class="n">value</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="mi">0</span> <span class="k">if</span> <span class="n">is_method</span> <span class="k">else</span> <span class="mi">1</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">call</span><span class="o">.</span><span class="n">args</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">idx</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">call</span><span class="o">.</span><span class="n">args</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_find_violations</span><span class="p">(</span><span class="n">tree</span><span class="p">:</span> <span class="n">ast</span><span class="o">.</span><span class="n">Module</span><span class="p">,</span> <span class="n">filepath</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Walk AST, return violation messages for FS-mutation primitives.&quot;&quot;&quot;</span>
+    <span class="n">violations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Call</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">func</span>
+
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Attribute</span><span class="p">):</span>
+            <span class="n">attr</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">attr</span>
+
+            <span class="c1"># .write_text() / .write_bytes() / .unlink()</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_PATH_WRITE_METHODS</span><span class="p">:</span>
+                <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: forbidden FS-mutation: .</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">()&quot;</span>
+                <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># .open(mode) with write/append mode</span>
+            <span class="k">if</span> <span class="n">attr</span> <span class="o">==</span> <span class="s2">&quot;open&quot;</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">_is_write_mode</span><span class="p">(</span><span class="n">_extract_mode</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">is_method</span><span class="o">=</span><span class="kc">True</span><span class="p">)):</span>
+                    <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: forbidden FS-mutation: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;.open() in write/append mode&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">continue</span>
+
+            <span class="c1"># os.&lt;mutation&gt; or shutil.&lt;mutation&gt;</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">):</span>
+                <span class="n">mod</span> <span class="o">=</span> <span class="n">func</span><span class="o">.</span><span class="n">value</span><span class="o">.</span><span class="n">id</span>
+                <span class="k">if</span> <span class="n">mod</span> <span class="o">==</span> <span class="s2">&quot;os&quot;</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_OS_MUTATIONS</span><span class="p">:</span>
+                    <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: forbidden FS-mutation: os.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">()&quot;</span>
+                    <span class="p">)</span>
+                <span class="k">elif</span> <span class="n">mod</span> <span class="o">==</span> <span class="s2">&quot;shutil&quot;</span> <span class="ow">and</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_SHUTIL_MUTATIONS</span><span class="p">:</span>
+                    <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: forbidden FS-mutation: shutil.</span><span class="si">{</span><span class="n">attr</span><span class="si">}</span><span class="s2">()&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="c1"># builtin open(file, mode)</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">Name</span><span class="p">)</span> <span class="ow">and</span> <span class="n">func</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="s2">&quot;open&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_is_write_mode</span><span class="p">(</span><span class="n">_extract_mode</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">is_method</span><span class="o">=</span><span class="kc">False</span><span class="p">)):</span>
+                <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">filepath</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">node</span><span class="o">.</span><span class="n">lineno</span><span class="si">}</span><span class="s2">: forbidden FS-mutation: &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;open() in write/append mode&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">violations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">lint_dir</span><span class="p">(</span><span class="n">root</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lint all .py under root, skipping allowlisted files.</span>
+
+<span class="sd">    File identity is the posix relative path from root (e.g. &#39;gates/shared.py&#39;).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">all_violations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">py</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">root</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.py&quot;</span><span class="p">)):</span>
+        <span class="n">rel</span> <span class="o">=</span> <span class="n">py</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">as_posix</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">ALLOWED_FILES</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">filename</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">py</span><span class="p">))</span>
+        <span class="n">all_violations</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">_find_violations</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">py</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">all_violations</span>
+
+
+<span class="n">EXPECTED_ARGS</span> <span class="o">=</span> <span class="mi">2</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">)</span> <span class="o">!=</span> <span class="n">EXPECTED_ARGS</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;usage: lint_no_fs_mutation.py &lt;path&gt;&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+    <span class="n">vs</span> <span class="o">=</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vs</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">vs</span> <span class="k">else</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run -&gt; passes</strong> (17 detection tests)</li>
+</ul>
+<p><code>uv run pytest tests/unit/test_lint_no_fs_mutation.py -v --no-cov</code></p>
+<ul>
+<li>[ ] <strong>Step 5: mypy + ruff</strong></li>
+</ul>
+<p><code>uv run mypy tools/lint_no_fs_mutation.py &amp;&amp; uv run ruff check tools/lint_no_fs_mutation.py tests/unit/test_lint_no_fs_mutation.py</code> -&gt; Success / All passed</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_no_fs_mutation.py<span class="w"> </span>tests/unit/test_lint_no_fs_mutation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(lint): add AST purity lint -- forbid FS-mutation in src/shenbi/&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-allowlist-lint-srcshenbi">Task 2: Allowlist 诚实测试（lint 通过真实 src/shenbi/ + 无死条目）</h3>
+<p><strong>Files:</strong> Modify <code>tests/unit/test_lint_no_fs_mutation.py</code>（追加 allowlist 测试）</p>
+<p><strong>Interfaces:</strong> Consumes <code>lint_dir</code>、<code>_find_violations</code>、<code>ALLOWED_FILES</code>。无新产出。</p>
+<ul>
+<li>[ ] <strong>Step 1: Append allowlist tests</strong></li>
+</ul>
+<p>追加到 <code>tests/unit/test_lint_no_fs_mutation.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># --- Allowlist honesty tests ---</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lint_passes_on_real_src</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Lint passes on the actual src/shenbi/ tree (all violators allowlisted).&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="n">lint_dir</span><span class="p">(</span><span class="n">SRC</span><span class="p">)</span> <span class="o">==</span> <span class="p">[],</span> <span class="p">(</span>
+        <span class="s2">&quot;New unallowlisted FS-mutation found. Either route through safe_write &quot;</span>
+        <span class="s2">&quot;or add to TRANSITIONAL_ALLOWLIST (and verify the entry).&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_every_allowlisted_file_has_violations</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Each existing allowlisted file MUST contain actual FS-mutation primitives.</span>
+
+<span class="sd">    Files not yet created (e.g. safe_write.py pre-pillar-4) are skipped.</span>
+<span class="sd">    A file in the allowlist with zero violations is a dead entry -- remove it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">ALLOWED_FILES</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">SRC</span> <span class="o">/</span> <span class="n">rel</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">f</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="n">vs</span> <span class="o">=</span> <span class="n">_find_violations</span><span class="p">(</span><span class="n">tree</span><span class="p">,</span> <span class="n">f</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">vs</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">rel</span><span class="si">}</span><span class="s2"> is allowlisted but has no FS-mutation primitives &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(dead entry -- remove it from the allowlist).&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run -&gt; passes</strong></li>
+</ul>
+<p><code>uv run pytest tests/unit/test_lint_no_fs_mutation.py -v --no-cov</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/test_lint_no_fs_mutation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(lint): add allowlist honesty tests -- no dead entries&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-pre-commit-ci-wiring-for-purity-lint">Task 3: Pre-commit + CI wiring for purity lint</h3>
+<p><strong>Files:</strong> Modify <code>.pre-commit-config.yaml</code>、<code>.github/workflows/ci.yml</code></p>
+<p><strong>Interfaces:</strong> 无新代码产出。镜像现有 N7 lint hook 格式（<code>.pre-commit-config.yaml</code> 的 <code>- repo: local</code> 段，CI 的 <code>uv run python</code> 步骤）。</p>
+<ul>
+<li>[ ] <strong>Step 1: Read existing format</strong></li>
+</ul>
+<p><code>grep -A5 "lint-no-forbid" .pre-commit-config.yaml</code> -- 确认 local hook 格式。
+<code>grep -B1 -A2 "N7 lint" .github/workflows/ci.yml</code> -- 确认 CI 步骤格式。</p>
+<ul>
+<li>[ ] <strong>Step 2: Add pre-commit hook</strong></li>
+</ul>
+<p>在 <code>.pre-commit-config.yaml</code> 的 <code>- repo: local</code> 段（现有 <code>lint-no-forbid-with-computed-field</code> 之后）追加：</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">lint-no-fs-mutation</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">purity lint -- no FS-mutation in src/shenbi/ (spec P4)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/lint_no_fs_mutation.py src/shenbi</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">        </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">^src/shenbi/.*\.py$</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Add CI step</strong></li>
+</ul>
+<p>在 <code>.github/workflows/ci.yml</code> 的 quality job 中，现有 <code>N7 lint</code> 步骤之后追加：</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Purity lint (no FS-mutation in src/shenbi/, spec P4)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/lint_no_fs_mutation.py src/shenbi</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Verify lint passes via CLI</strong></li>
+</ul>
+<p><code>uv run python tools/lint_no_fs_mutation.py src/shenbi</code> -&gt; exit 0</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.pre-commit-config.yaml<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: wire purity lint into pre-commit + CI (spec P4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-score-arcstratumvolume-m3">Task 4: 评分标尺契约模型（score-arc/stratum/volume -- M3 修复）</h3>
+<p><strong>Files:</strong> Create <code>src/shenbi/contracts/skills/_scoring_base.py</code>、<code>src/shenbi/contracts/skills/score_arc.py</code>、<code>src/shenbi/contracts/skills/score_stratum.py</code>、<code>src/shenbi/contracts/skills/score_volume.py</code>、<code>tests/unit/contracts/test_scoring_contracts.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>pydantic</code>。Produces <code>ScoreReport</code>（含 <code>PASS_THRESHOLD=90</code>、<code>TIER_ADVANCE_THRESHOLD=94</code>、<code>ROUTE_C_SOFT_WEIGHT=0.6</code>、<code>ROUTE_A_WEIGHT=0.4</code>、<code>AGGREGATION_FORMULA</code>、4 个 <code>@computed_field</code>、1 个 <code>@model_validator</code>）。三个 <code>score_*.py</code> 各导出 <code>Report = ScoreReport</code>（REGISTRY 自动发现，<code>_scoring_base.py</code> 以 <code>_</code> 前缀跳过发现）。</p>
+<p><strong>聚合公式（M3 修复 -- 评分标尺不再未定义）：</strong>
+- <code>route_c_hard_binary</code> 未全达时该<strong>检查项</strong>得 0（非全卷归零）
+- 否则 <code>final_score = 0.6 * route_c_soft_score + 0.4 * route_a_score</code></p>
+<p>阈值来源分层（round-1 Parfit 修正）：
+- <strong>已验证（AGENTS.md）：</strong> PASS_THRESHOLD=90、TIER_ADVANCE_THRESHOLD=94
+- <strong>首次编码待验证（非来自 AGENTS.md）：</strong> ROUTE_C_SOFT_WEIGHT=0.6、ROUTE_A_WEIGHT=0.4（scoring.py 用 rubric-weighted average，非 Route C/A split；权重需后续与 score-arc rubric 对齐）。AGENTS.md「Thresholds: &gt;=94 for tier advancement, &gt;=90 for individual test pass」。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/contracts/test_scoring_contracts.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationError</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AGGREGATION_FORMULA</span><span class="p">,</span>
+    <span class="n">PASS_THRESHOLD</span><span class="p">,</span>
+    <span class="n">ROUTE_A_WEIGHT</span><span class="p">,</span>
+    <span class="n">ROUTE_C_SOFT_WEIGHT</span><span class="p">,</span>
+    <span class="n">TIER_ADVANCE_THRESHOLD</span><span class="p">,</span>
+    <span class="n">ScoreReport</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_thresholds_explicit</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">PASS_THRESHOLD</span> <span class="o">==</span> <span class="mi">90</span>
+    <span class="k">assert</span> <span class="n">TIER_ADVANCE_THRESHOLD</span> <span class="o">==</span> <span class="mi">94</span>
+    <span class="k">assert</span> <span class="n">ROUTE_C_SOFT_WEIGHT</span> <span class="o">==</span> <span class="mf">0.6</span>
+    <span class="k">assert</span> <span class="n">ROUTE_A_WEIGHT</span> <span class="o">==</span> <span class="mf">0.4</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_aggregation_formula_declared</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="s2">&quot;final_score&quot;</span> <span class="ow">in</span> <span class="n">AGGREGATION_FORMULA</span>
+    <span class="k">assert</span> <span class="s2">&quot;ROUTE_C_SOFT_WEIGHT&quot;</span> <span class="ow">in</span> <span class="n">AGGREGATION_FORMULA</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hard_binary_fail_blocks_pass</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">95.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="c1"># hard_binary failure is an audit flag; does NOT zero final_score (Parfit round-1)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_binary_gate_failed</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">final_score</span> <span class="o">&gt;</span> <span class="mf">0.0</span>  <span class="c1"># weighted average, not zeroed</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">passed</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_all_pass_perfect_score</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_binary_gate_failed</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">final_score</span> <span class="o">==</span> <span class="mf">100.0</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">passed</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">tier_advance_eligible</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_boundary_exactly_90_passes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">75.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">final_score</span> <span class="o">==</span> <span class="mf">90.0</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">passed</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_just_below_90_fails</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">74.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">final_score</span> <span class="o">&lt;</span> <span class="n">PASS_THRESHOLD</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">passed</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hard_binary_fail_blocks_tier_advance</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Meitner v5: tier_advance_eligible also gated on hard_binary.&quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">100.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">final_score</span> <span class="o">==</span> <span class="mf">100.0</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">hard_binary_gate_failed</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">tier_advance_eligible</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_computed_fields_in_model_dump</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">ScoreReport</span><span class="p">(</span>
+        <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+        <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">dump</span> <span class="o">=</span> <span class="n">r</span><span class="o">.</span><span class="n">model_dump</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="s2">&quot;final_score&quot;</span> <span class="ow">in</span> <span class="n">dump</span>
+    <span class="k">assert</span> <span class="s2">&quot;passed&quot;</span> <span class="ow">in</span> <span class="n">dump</span>
+    <span class="k">assert</span> <span class="s2">&quot;tier_advance_eligible&quot;</span> <span class="ow">in</span> <span class="n">dump</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_rejects_pass_exceeds_total</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ValidationError</span><span class="p">):</span>
+        <span class="n">ScoreReport</span><span class="p">(</span>
+            <span class="n">route_c_hard_binary_pass</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">route_c_hard_binary_total</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+            <span class="n">route_c_soft_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span> <span class="n">route_a_score</span><span class="o">=</span><span class="mf">90.0</span><span class="p">,</span>
+        <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_registry_includes_scoring_skills</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="s2">&quot;shenbi-score-arc&quot;</span> <span class="ow">in</span> <span class="n">REGISTRY</span>
+    <span class="k">assert</span> <span class="s2">&quot;shenbi-score-stratum&quot;</span> <span class="ow">in</span> <span class="n">REGISTRY</span>
+    <span class="k">assert</span> <span class="s2">&quot;shenbi-score-volume&quot;</span> <span class="ow">in</span> <span class="n">REGISTRY</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run -&gt; fails</strong> (ModuleNotFoundError)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement shared scoring base</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/skills/_scoring_base.py</span>
+<span class="sd">&quot;&quot;&quot;评分报告共享契约模型（spec M3 修复：评分标尺显式声明）。</span>
+
+<span class="sd">聚合公式（Route C 硬二元门控 + 软分加权）：</span>
+<span class="sd">  final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score</span>
+<span class="sd">                     + ROUTE_A_WEIGHT * route_a_score</span>
+
+<span class="sd">阈值来源：AGENTS.md（&gt;=90 单项通过，&gt;=94 层进）。此前散落在散文/AGENTS.md，</span>
+<span class="sd">现固化于此模型为单一真理之源。</span>
+
+<span class="sd">三个评分 skill（arc/stratum/volume）共用本模型；各自 score_*.py 导出</span>
+<span class="sd">Report = ScoreReport 供 REGISTRY 自动发现。本文件以 _ 前缀跳过发现。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">computed_field</span><span class="p">,</span> <span class="n">model_validator</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">T1_PASS</span><span class="p">,</span> <span class="n">TEST_PASS</span>  <span class="c1"># Kant I3: single-source</span>
+
+<span class="c1"># --- 显式阈值（M3 修复：评分标尺不再未定义） ---</span>
+
+<span class="n">PASS_THRESHOLD</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">TEST_PASS</span>  <span class="c1"># single-source from thresholds.py (Kant I3 fix)</span>
+<span class="n">TIER_ADVANCE_THRESHOLD</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">T1_PASS</span>  <span class="c1"># single-source from thresholds.py (Kant I3 fix)</span>
+
+<span class="c1"># --- 聚合权重 ---</span>
+
+<span class="n">ROUTE_C_SOFT_WEIGHT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.6</span>
+<span class="n">ROUTE_A_WEIGHT</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.4</span>
+
+<span class="c1"># --- 文档派生用公式描述 ---</span>
+
+<span class="n">AGGREGATION_FORMULA</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;# final_score = ROUTE_C_SOFT_WEIGHT * route_c_soft_score &quot;</span>
+    <span class="s2">&quot;+ ROUTE_A_WEIGHT * route_a_score</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="s2">&quot;# passed requires final_score &gt;= PASS_THRESHOLD AND hard_binary all pass&quot;</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ScoreReport</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;评分报告共享模型。Route C 硬二元门控 + Route A/C 软分加权聚合。&quot;&quot;&quot;</span>
+
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;ignore&quot;</span><span class="p">}</span>  <span class="c1"># N7</span>
+
+    <span class="n">route_c_hard_binary_pass</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">route_c_hard_binary_total</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">route_c_soft_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+    <span class="n">route_a_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">le</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hard_binary_pass_le_total</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="s2">&quot;ScoreReport&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_pass</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_total</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;route_c_hard_binary_pass (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_pass</span><span class="si">}</span><span class="s2">) &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&gt; route_c_hard_binary_total (</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_total</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">hard_binary_gate_failed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;True if any hard-binary check failed. Audit flag only.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_pass</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_c_hard_binary_total</span>
+
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">final_score</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+        <span class="c1"># Weighted average; hard_binary failure does NOT zero the score</span>
+        <span class="c1"># (skill: 该检查项 0 分, not 全卷归零). Parfit round-1 fix.</span>
+        <span class="k">return</span> <span class="p">(</span>
+            <span class="n">ROUTE_C_SOFT_WEIGHT</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_c_soft_score</span>
+            <span class="o">+</span> <span class="n">ROUTE_A_WEIGHT</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">route_a_score</span>
+        <span class="p">)</span>
+
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">passed</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Gate semantics (Poincare round-2): hard_binary failure blocks pass</span>
+        <span class="c1"># even if weighted final_score &gt;= 90. Matches scoring.py kill-switch.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_score</span> <span class="o">&gt;=</span> <span class="n">PASS_THRESHOLD</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hard_binary_gate_failed</span>
+
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">tier_advance_eligible</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="c1"># Same kill-switch as passed (Bernoulli round-3): hard_binary failure</span>
+        <span class="c1"># blocks tier advancement even if final_score &gt;= 94.</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_score</span> <span class="o">&gt;=</span> <span class="n">TIER_ADVANCE_THRESHOLD</span> <span class="ow">and</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">hard_binary_gate_failed</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Implement three scoring skill modules</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/skills/score_arc.py</span>
+<span class="sd">&quot;&quot;&quot;score-arc 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+<span class="n">Report</span> <span class="o">=</span> <span class="n">ScoreReport</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/skills/score_stratum.py</span>
+<span class="sd">&quot;&quot;&quot;score-stratum 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+<span class="n">Report</span> <span class="o">=</span> <span class="n">ScoreReport</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/skills/score_volume.py</span>
+<span class="sd">&quot;&quot;&quot;score-volume 契约（M3 修复）。继承 ScoreReport；REGISTRY 自动发现。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+<span class="n">Report</span> <span class="o">=</span> <span class="n">ScoreReport</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Run -&gt; passes</strong></li>
+</ul>
+<p><code>uv run pytest tests/unit/contracts/test_scoring_contracts.py -v --no-cov</code></p>
+<ul>
+<li>[ ] <strong>Step 6: mypy + ruff</strong></li>
+</ul>
+<p><code>uv run mypy src/shenbi/contracts/skills/ &amp;&amp; uv run ruff check src/shenbi/contracts/skills/</code> -&gt; Success / All passed</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/skills/_scoring_base.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/contracts/skills/score_arc.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/contracts/skills/score_stratum.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/contracts/skills/score_volume.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/contracts/test_scoring_contracts.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(contracts): add scoring scale models with explicit PASS_THRESHOLD + formula (M3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5">Task 5: 文档派生生成器 + 渲染/幂等/防篡改测试</h3>
+<p><strong>Files:</strong> Create <code>tools/generate_autocheck_docs.py</code>、<code>tests/unit/test_generate_autocheck_docs.py</code></p>
+<p><strong>Interfaces:</strong> Consumes <code>shenbi.contracts.registry.REGISTRY</code>、<code>shenbi.gates.shared.SKILLS</code>、Pydantic BaseModel metadata。Produces <code>render_autocheck(model_cls) -&gt; str</code>、<code>inject_block(skill_md, block) -&gt; bool</code>。</p>
+<p><strong>生成内容：</strong> 从契约模型的模块级常量 + <code>@computed_field</code> + <code>@model_validator</code> 渲染 markdown「可自动检查」区块，用 sentinel 分隔。CI 跑生成 + <code>git diff --exit-code</code> 拒绝手改（物理预防）。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_generate_autocheck_docs.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span><span class="p">))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">generate_autocheck_docs</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E402</span>
+    <span class="n">BANNER</span><span class="p">,</span>
+    <span class="n">ENDER</span><span class="p">,</span>
+    <span class="n">inject_block</span><span class="p">,</span>
+    <span class="n">render_autocheck</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_render_includes_thresholds</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+    <span class="n">md</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">ScoreReport</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">BANNER</span> <span class="ow">in</span> <span class="n">md</span>
+    <span class="k">assert</span> <span class="n">ENDER</span> <span class="ow">in</span> <span class="n">md</span>
+    <span class="k">assert</span> <span class="s2">&quot;PASS_THRESHOLD&quot;</span> <span class="ow">in</span> <span class="n">md</span>
+    <span class="k">assert</span> <span class="s2">&quot;90&quot;</span> <span class="ow">in</span> <span class="n">md</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_render_includes_computed_fields</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+    <span class="n">md</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">ScoreReport</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;ROUTE_C_SOFT_WEIGHT&quot;</span> <span class="ow">in</span> <span class="n">md</span> <span class="ow">or</span> <span class="s2">&quot;AGGREGATION_FORMULA&quot;</span> <span class="ow">in</span> <span class="n">md</span>  <span class="c1"># Parfit round-1: test the formula</span>
+    <span class="k">assert</span> <span class="s2">&quot;passed&quot;</span> <span class="ow">in</span> <span class="n">md</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_inject_creates_block</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: x</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># Title</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">ScoreReport</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">inject_block</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">BANNER</span> <span class="ow">in</span> <span class="n">content</span>
+    <span class="k">assert</span> <span class="n">ENDER</span> <span class="ow">in</span> <span class="n">content</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_inject_idempotent</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Second inject with the same block -&gt; no change.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: x</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># Title</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">ScoreReport</span><span class="p">)</span>
+    <span class="n">inject_block</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">inject_block</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_tampered_block_overwritten_on_regen</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manual edit inside the sentinel block -&gt; regeneration overwrites it.&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills._scoring_base</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreReport</span>
+
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: x</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># Title</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">block</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">ScoreReport</span><span class="p">)</span>
+    <span class="n">inject_block</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span>
+
+    <span class="c1"># Tamper: inject manual text inside the block</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">tampered</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;PASS_THRESHOLD&quot;</span><span class="p">,</span> <span class="s2">&quot;HACKED_THRESHOLD&quot;</span><span class="p">)</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">tampered</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Regenerate -- must detect change and overwrite</span>
+    <span class="k">assert</span> <span class="n">inject_block</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">block</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="n">final</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;HACKED&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">final</span>
+    <span class="k">assert</span> <span class="s2">&quot;PASS_THRESHOLD&quot;</span> <span class="ow">in</span> <span class="n">final</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Run -&gt; fails</strong> (ModuleNotFoundError)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Implement generator</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tools/generate_autocheck_docs.py</span>
+<span class="c1">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Generate &#39;auto-checkable&#39; doc sections from contract models (spec P6).</span>
+
+<span class="sd">Reads Pydantic contract models from contracts/skills/ and renders a markdown</span>
+<span class="sd">block into each skill&#39;s SKILL.md. The block is delimited by sentinels</span>
+<span class="sd">(AUTO-CHECK-START / AUTO-CHECK-END); regeneration replaces the block wholesale.</span>
+<span class="sd">CI runs this + git diff to reject manual edits.</span>
+
+<span class="sd">Usage: python tools/generate_autocheck_docs.py</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="n">SRC</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span>
+
+<span class="n">BANNER</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- AUTO-CHECK-START --&gt;&quot;</span>
+<span class="n">ENDER</span> <span class="o">=</span> <span class="s2">&quot;&lt;!-- AUTO-CHECK-END --&gt;&quot;</span>
+
+<span class="n">_SKIP_CONSTS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">&quot;AGGREGATION_FORMULA&quot;</span><span class="p">,</span> <span class="s2">&quot;BANNER&quot;</span><span class="p">,</span> <span class="s2">&quot;ENDER&quot;</span><span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_module_constants</span><span class="p">(</span><span class="n">model_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract uppercase module-level constants (int/float/dict).&quot;&quot;&quot;</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mod</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="nb">dir</span><span class="p">(</span><span class="n">mod</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_SKIP_CONSTS</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">name</span><span class="o">.</span><span class="n">isupper</span><span class="p">()</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_THRESHOLDS&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;_WEIGHT&quot;</span><span class="p">)):</span>
+            <span class="k">continue</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)):</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">val</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_type_str</span><span class="p">(</span><span class="n">t</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">t</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;auto&quot;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;__name__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">name</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">name</span>
+    <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">t</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_computed_fields_table</span><span class="p">(</span><span class="n">model_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;| name | type |&quot;</span><span class="p">,</span> <span class="s2">&quot;|------|------|&quot;</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">model_computed_fields</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">rt</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">info</span><span class="p">,</span> <span class="s2">&quot;return_type&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">_type_str</span><span class="p">(</span><span class="n">rt</span><span class="p">)</span><span class="si">}</span><span class="s2"> |&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_validator_names</span><span class="p">(</span><span class="n">model_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">decorators</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">model_cls</span><span class="p">,</span> <span class="s2">&quot;__pydantic_decorators__&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">decorators</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">decorators</span><span class="o">.</span><span class="n">model_validators</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render_autocheck</span><span class="p">(</span><span class="n">model_cls</span><span class="p">:</span> <span class="nb">type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render the auto-checkable markdown block for a contract model.&quot;&quot;&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">BANNER</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;## auto-check (generated -- do not edit)&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+
+    <span class="n">consts</span> <span class="o">=</span> <span class="n">_get_module_constants</span><span class="p">(</span><span class="n">model_cls</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">consts</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;### constants&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;| name | value |&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;|------|-------|&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">consts</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;| </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2"> |&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model_cls</span><span class="o">.</span><span class="vm">__module__</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">mod</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">formula</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;AGGREGATION_FORMULA&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">formula</span><span class="p">:</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;### formula&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">formula</span><span class="p">))</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">model_cls</span><span class="o">.</span><span class="n">model_computed_fields</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;### computed fields&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_computed_fields_table</span><span class="p">(</span><span class="n">model_cls</span><span class="p">))</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">vals</span> <span class="o">=</span> <span class="n">_validator_names</span><span class="p">(</span><span class="n">model_cls</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">vals</span><span class="p">:</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;### invariants&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">vals</span><span class="p">:</span>
+            <span class="n">desc</span> <span class="o">=</span> <span class="n">v</span><span class="o">.</span><span class="n">lstrip</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;_&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">)</span>
+            <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">desc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+
+    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ENDER</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="n">_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">BANNER</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;.*?&quot;</span> <span class="o">+</span> <span class="n">re</span><span class="o">.</span><span class="n">escape</span><span class="p">(</span><span class="n">ENDER</span><span class="p">)</span> <span class="o">+</span> <span class="sa">r</span><span class="s2">&quot;\n?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span>
+<span class="p">)</span>
+<span class="n">_FRONTMATTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(---\n.*?\n---\n)(.*)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">inject_block</span><span class="p">(</span><span class="n">skill_md</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">block</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Replace the auto-check block in a SKILL.md. Return True if changed.&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">skill_md</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">_PATTERN</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">new_text</span> <span class="o">=</span> <span class="n">_PATTERN</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="n">block</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">count</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">_FRONTMATTER_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="n">new_text</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="n">block</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">new_text</span> <span class="o">=</span> <span class="n">block</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">text</span>
+    <span class="k">if</span> <span class="n">new_text</span> <span class="o">!=</span> <span class="n">text</span><span class="p">:</span>
+        <span class="n">skill_md</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">new_text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">SRC</span><span class="p">))</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.registry</span><span class="w"> </span><span class="kn">import</span> <span class="n">REGISTRY</span>  <span class="c1"># noqa: PLC0415</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">SKILLS</span>  <span class="c1"># noqa: PLC0415</span>
+
+    <span class="n">changed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">model_cls</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">REGISTRY</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">skill_md</span> <span class="o">=</span> <span class="n">SKILLS</span> <span class="o">/</span> <span class="n">skill_name</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">skill_md</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="n">block</span> <span class="o">=</span> <span class="n">render_autocheck</span><span class="p">(</span><span class="n">model_cls</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">inject_block</span><span class="p">(</span><span class="n">skill_md</span><span class="p">,</span> <span class="n">block</span><span class="p">):</span>
+            <span class="n">changed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">skill_md</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">changed</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">changed</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;updated: </span><span class="si">{</span><span class="n">c</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;all up to date&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run -&gt; passes</strong></li>
+</ul>
+<p><code>uv run pytest tests/unit/test_generate_autocheck_docs.py -v --no-cov</code></p>
+<ul>
+<li>[ ] <strong>Step 5: mypy + ruff</strong></li>
+</ul>
+<p><code>uv run mypy tools/generate_autocheck_docs.py &amp;&amp; uv run ruff check tools/generate_autocheck_docs.py tests/unit/test_generate_autocheck_docs.py</code> -&gt; Success / All passed</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/generate_autocheck_docs.py<span class="w"> </span>tests/unit/test_generate_autocheck_docs.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(docs): add auto-check doc generator from contract models (spec P6)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-ci-pre-commit-wiring">Task 6: 文档派生 CI 幂等检查 + pre-commit wiring</h3>
+<p><strong>Files:</strong> Modify <code>.github/workflows/ci.yml</code>、<code>.pre-commit-config.yaml</code></p>
+<p><strong>Interfaces:</strong> 无新代码。CI 跑生成器 + <code>git diff --exit-code</code> 拒绝手改。</p>
+<ul>
+<li>[ ] <strong>Step 1: Add CI idempotency step</strong></li>
+</ul>
+<p>在 <code>.github/workflows/ci.yml</code> 的 <code>contract-sync</code> job 中，现有 <code>Idempotency</code> 步骤之前追加：</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Regenerate auto-check docs (spec P6)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/generate_autocheck_docs.py</span>
+</code></pre></div>
+<p>现有 <code>Idempotency -- generated artifacts must match committed</code> 步骤已检查 <code>git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/</code>，覆盖 <code>skills/</code> 下的 SKILL.md 变更。</p>
+<ul>
+<li>[ ] <strong>Step 2: Add pre-commit hook</strong></li>
+</ul>
+<p>在 <code>.pre-commit-config.yaml</code> 的 <code>- repo: local</code> 段追加（现有 <code>contract-sync-idempotency</code> 之后）：</p>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">autocheck-docs-idempotency</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">auto-check docs idempotency (spec P6)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">bash -c &#39;uv run python tools/generate_autocheck_docs.py &gt;/dev/null &amp;&amp;</span>
+<span class="w">          </span><span class="l l-Scalar l-Scalar-Plain">git diff --exit-code -- skills/&#39;</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Verify generator CLI runs</strong></li>
+</ul>
+<p><code>uv run python tools/generate_autocheck_docs.py</code> -&gt; outputs <code>updated: ...</code> or <code>all up to date</code></p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml<span class="w"> </span>.pre-commit-config.yaml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: wire auto-check doc idempotency into CI + pre-commit (spec P6)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-capabilityfs-pillar5">Task 7: CapabilityFS 测试（消费 pillar5 产物，不重建）</h3>
+<p><strong>跨计划一致性（Kant cross-plan review C1 修复）：</strong> <code>capability_fs.py</code> 由 <strong>pillar5</strong> 创建（<code>CapabilityFS(allow_root: Path)</code> 实例 API，非上下文管理器）。本计划<strong>不重建</strong>该文件——只为它写单元测试。pillar5 是本计划的前置依赖之一。</p>
+<p><strong>Files:</strong> Test only: <code>tests/unit/test_capability_fs.py</code>（capability_fs.py 是 pillar5 产物，本计划不 Create）</p>
+<p><strong>Interfaces:</strong> Consumes <code>CapabilityFS</code>（pillar5 产物：<code>CapabilityFS(allow_root: Path)</code> 实例 API，非上下文管理器）。</p>
+<p><strong>设计依据：</strong> spec 支柱五「CapabilityFS（in-process，可行）：测试时给门注入只读 FS 句柄，任意写抛 PermissionError」。不用于 subprocess。本垫片只拦截 <code>pathlib.Path</code> 写方法；builtin <code>open()</code> 或 os/shutil 直接调用由静态 lint 拦截（已知限制）。</p>
+<p><strong>纯度 lint 影响：</strong> <code>capability_fs.py</code> 本身无 FS 变更原语（monkeypatch 是属性赋值非 FS 调用），lint 不会 flag 它。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_capability_fs.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.capability_fs</span><span class="w"> </span><span class="kn">import</span> <span class="n">CapabilityFS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_read_text_allowed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read within allow_root is permitted.&quot;&quot;&quot;</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;a.txt&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;hello&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;hello&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_text_denied</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Any write raises PermissionError (purity backstop).&quot;&quot;&quot;</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;x.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unlink_denied</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">unlink</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;x.txt&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mkdir_denied</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;sub&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escape_root_denied</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Path outside allow_root is rejected (sandbox boundary).&quot;&quot;&quot;</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">PermissionError</span><span class="p">):</span>
+        <span class="n">fs</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/etc/passwd&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_list_dir_allowed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;b.txt&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">names</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">fs</span><span class="o">.</span><span class="n">list_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="s2">&quot;b.txt&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">names</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_read_bytes_allowed</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bin.dat&quot;</span>
+    <span class="n">f</span><span class="o">.</span><span class="n">write_bytes</span><span class="p">(</span><span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">fs</span> <span class="o">=</span> <span class="n">CapabilityFS</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">fs</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="sa">b</span><span class="s2">&quot;</span><span class="se">\x00\x01</span><span class="s2">&quot;</span>
+</code></pre></div>
+<p>Run: <code>uv run mypy src/shenbi/capability_fs.py &amp;&amp; uv run ruff check src/shenbi/capability_fs.py tests/unit/test_capability_fs.py</code> -&gt; Success / All passed</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/capability_fs.py<span class="w"> </span>tests/unit/test_capability_fs.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(capability): add tests for CapabilityFS (pillar5 product, consume not create)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8">Task 8: 全量回归 + 支柱六完成确认</h3>
+<p><strong>Files:</strong> 无。仅验证。</p>
+<ul>
+<li>[ ] <strong>Step 1: Full test suite</strong></li>
+</ul>
+<p><code>uv run pytest -q</code> -&gt; 现有测试集无 regression + 新增测试全 passed。执行者以实际输出为准，只断言「无失败、无 regression」。</p>
+<ul>
+<li>[ ] <strong>Step 2: Type check + lint whole repo</strong></li>
+</ul>
+<p><code>uv run mypy src/shenbi &amp;&amp; uv run ruff check .</code> -&gt; Success / All passed</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify spec 判据对齐（本支柱范围）</strong></li>
+<li>判据 4（纯度强制：AST lint 禁 src/shenbi/ FS 变更，allowlist safe_write.py + trace/writer.py）：Task 1-3 done</li>
+<li>判据 4（in-process CapabilityFS 兜底）：Task 7 done</li>
+<li>支柱六（文档派生：从契约模型生成可自动检查表，CI 拒绝手改）：Task 5-6 done</li>
+<li>M3（评分标尺显式声明聚合公式 + PASS_THRESHOLD）：Task 4 done</li>
+<li>
+<p><strong>范围外：</strong> 69 技能契约迁移（支柱一续）、门阈值派生（支柱二）、CJK（支柱三）、Tier B 写所有权审计（支柱四 Tier B）、属性测试网全面铺开（支柱五）、subprocess read-provenance（future work）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Empty marker commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>--allow-empty<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(docs-lint): pillar 6 complete -- AST purity lint + doc derivation + CapabilityFS&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage（支柱六范围）：</strong> 判据 4（AST 纯度 lint Task 1-3 + CapabilityFS Task 7）。支柱六（文档派生 Task 5-6）。M3（评分标尺 Task 4）。allowlist 决策已验证（safe_write.py + trace/writer.py 永久；14 文件过渡，测试断言无死条目）。<strong>范围外明确声明：</strong> 69 技能迁移、门改造、CJK、Tier B 写审计、subprocess read-provenance。</p>
+<p><strong>2. Placeholder scan：</strong> 无 TBD/TODO；每个 code step 有完整代码；CI/pre-commit 给精确 YAML（参考现有 N7 hook + contract-sync job 格式，已亲手核对 <code>.pre-commit-config.yaml</code> 和 <code>.github/workflows/ci.yml</code>）。</p>
+<p><strong>3. Type consistency：</strong> <code>ScoreReport</code> 的 <code>final_score -&gt; float</code> / <code>passed -&gt; bool</code> / <code>tier_advance_eligible -&gt; bool</code> / <code>hard_binary_gate_failed -&gt; bool</code> 一致。<code>lint_dir(root: Path) -&gt; list[str]</code> / <code>_find_violations(tree: ast.Module, filepath: Path) -&gt; list[str]</code> 一致。<code>render_autocheck(model_cls: type[BaseModel]) -&gt; str</code> / <code>inject_block(skill_md: Path, block: str) -&gt; bool</code> 一致。<code>CapabilityFS(allow_root: Path)</code> 实例 API 与 pillar5 一致（非上下文管理器）。</p>
+<p><strong>4. 已知限制：</strong>
+- 纯度 lint 不检测 import-aliased 调用（<code>from os import replace; replace(...)</code>）。需 import tracking，超出 AST lint 范围。documented in script docstring。
+- 纯度 lint 不检测动态 open mode（非常量）。保守不 flag。
+- CapabilityFS 只拦截 <code>pathlib.Path</code> 写方法；builtin <code>open()</code> 和 os/shutil 直接调用由静态 lint 拦截。documented in module docstring。
+- 文档生成器在 <code>tools/</code>（非 <code>src/shenbi/</code>），直接写 SKILL.md。这是 build-time 工具，与 <code>sync_contracts.py</code>（src/shenbi/，过渡 allowlist）不同——生成器不在运行态，不受纯度 lint 约束。
+- 过渡 allowlist（14 文件）需在后续计划迁移到 safe_write 后逐个移除。<code>test_every_allowlisted_file_has_violations</code> 自动检测死条目。
+- Task 4 的三个评分 skill 共享同一个 <code>ScoreReport</code> 模型（<code>Report = ScoreReport</code> 别名）。如果未来 arc/stratum/volume 需要不同字段，各自 <code>score_*.py</code> 可定义独立子类。</p>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan complete and saved to <code>docs/superpowers/plans/2026-06-29-contract-single-source-pillar6-docs-lint.md</code>. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> - I dispatch a fresh subagent per task, review between tasks, fast iteration</p>
+<p><strong>2. Inline Execution</strong> - Execute tasks in this session using executing-plans, batch execution with checkpoints</p>
+<p>Which approach?</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

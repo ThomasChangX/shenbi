@@ -1,0 +1,2081 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-14-skill-contract-and-description-quality-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Skill Contract and Description Quality Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Skill Contract and Description Quality Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-14-skill-contract-and-description-quality-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-14-skill-contract-and-description-quality-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Skill Contract and Description Quality Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-14-skill-contract-and-description-quality-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#skill-contract-and-description-quality-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Skill Contract and Description Quality Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-g0skill_contract-checker-description-overlap-semantics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: G0.skill_contract checker (description + overlap + semantics)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-add-write-semantics-to-skill-contract-frontmatter" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Add write semantics to skill contract frontmatter
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-relax-contract-validator-to-accept-write-semantics-dispatch-path-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Relax contract validator to accept write semantics + dispatch path enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-skill-description-audit-tool" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Skill description audit tool
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-regression-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Regression verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="skill-contract-and-description-quality-implementation-plan">Skill Contract and Description Quality Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add a G0 contract-linting check for all 69 skills, extend skill frontmatter with explicit write semantics (<code>mode</code>/<code>no_op_behavior</code>/<code>key</code>), enforce declared semantics in the dispatch write path, and ship a description-compliance audit tool.</p>
+<p><strong>Architecture:</strong> Four layers. (1) A <code>G0.skill_contract</code> check (next free ID is <strong>G0.16</strong>) that walks every <code>skills/*/SKILL.md</code>, parses frontmatter via the existing <code>read_frontmatter_contract</code>/<code>yaml</code> loader, and reports description-length, write/update-overlap, and missing-semantics issues. (2) Extend the <code>contract:</code> block so <code>writes</code>/<code>updates</code> entries may be dicts <code>{file, mode, no_op_behavior?, key?}</code> (string entries remain valid; the new sub-fields are opt-in). (3) <code>_write_parsed_outputs</code> reads the dispatched skill's declared <code>mode</code> for each output path and routes to the matching writer. (4) A standalone <code>tools/audit-skill-descriptions.py</code> report generator. The contract YAML format already has <code>reads</code>/<code>writes</code>/<code>updates</code> (see <code>src/shenbi/contracts/legacy.py</code>); only <code>mode</code>/<code>no_op_behavior</code>/<code>key</code> sub-fields are new.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, pyyaml, pytest, structlog</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Skill <code>description</code> MUST be ≤500 chars and contain only when-to-use trigger conditions, never behavioral description (spec §2.1, <code>AGENTS.md</code>).</li>
+<li><code>writes:</code> (create new) and <code>updates:</code> (modify existing) paths MUST be disjoint per skill (spec §2.1).</li>
+<li>New write-semantics sub-fields (<code>mode</code>, <code>no_op_behavior</code>, <code>key</code>) live UNDER existing <code>contract.writes</code>/<code>contract.updates</code> entries as dict-form. Existing string-form entries remain valid — this is additive, not a migration (spec §3.2, and <code>legacy.py:_validate</code> already allows dict-form for <code>reads</code>).</li>
+<li>Valid <code>mode</code> values are a closed set: <code>create_or_overwrite</code>, <code>merge_prose</code>, <code>append_dedup</code>. <code>no_op_behavior</code> is <code>skip_write</code> (only meaningful where a no-op route exists). <code>key</code> names the dedup key column for <code>append_dedup</code> (spec §3.2).</li>
+<li>The next free G0 check ID is <strong>G0.16</strong> (G0.13 independence, G0.14 calibration hash, G0.15 gate-registry consistency are taken — confirmed in <code>src/shenbi/gates/g0.py</code>).</li>
+<li>Contract loading goes through the existing <code>shenbi.contracts</code> loader (<code>load_contract</code>, <code>read_frontmatter_contract</code>, <code>ContractError</code>) — do not add a second frontmatter reader (loader-uniqueness lint).</li>
+<li><code>just check</code> must pass fully after each task.</li>
+</ul>
+<hr />
+<h3 id="task-1-g0skill_contract-checker-description-overlap-semantics">Task 1: G0.skill_contract checker (description + overlap + semantics)</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/gates/g0_skill_contract.py</code>
+- Modify: <code>src/shenbi/gates/g0.py:594-615</code> (wire <code>G0.16</code> after <code>G0.15</code>, before the final <code>return passed</code>)
+- Test: <code>tests/unit/gates/test_g0_skill_contract.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>ALL_SKILLS</code>, <code>SKILLS</code> from <code>shenbi.gates.shared</code>; <code>read_frontmatter_contract</code>, <code>ContractError</code> from <code>shenbi.contracts.legacy</code>; <code>yaml</code>.
+- Produces: <code>check_skill_contracts() -&gt; list[str]</code> (issue strings, empty = pass), <code>_desc_has_behavioral_text(desc) -&gt; bool</code>, <code>DESCRIPTION_MAX_CHARS = 500</code>. <code>gate_G0</code> calls <code>check_skill_contracts()</code> and emits <code>G0.16</code>.</p>
+<p><strong>Context:</strong> There is no automated check today that descriptions are ≤500 chars / trigger-only, that writes/updates are disjoint, or that update paths declare <code>mode</code> (spec §2.1, §2.3). The check must be tolerant: a skill whose contract raises <code>ContractError</code> is skipped (its contract issues surface in their own checks), and a description without behavioral markers passes. The <code>_has_behavioral_description</code> heuristic in the spec is loose; this implementation uses a concrete marker list (imperative openers like "This skill", "Generates", "Writes") which is deterministic and testable.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/test_g0_skill_contract.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for G0.skill_contract check (spec §3.1).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_skill_contract</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">DESCRIPTION_MAX_CHARS</span><span class="p">,</span>
+    <span class="n">_desc_has_behavioral_text</span><span class="p">,</span>
+    <span class="n">check_skill_contracts</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_skill</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">body</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write a synthetic skills/&lt;name&gt;/SKILL.md and return the skills dir.&quot;&quot;&quot;</span>
+    <span class="n">skill_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="n">name</span>
+    <span class="n">skill_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">fm</span> <span class="o">=</span> <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;---</span><span class="se">\n\n</span><span class="s2"># body</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">(</span><span class="n">skill_dir</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">fm</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDescriptionLength</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_max_chars_is_500</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">DESCRIPTION_MAX_CHARS</span> <span class="o">==</span> <span class="mi">500</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_too_long_description_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">501</span><span class="p">,</span> <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ephemeral&quot;</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;desc_too_long&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exactly_500_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">500</span><span class="p">,</span> <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;ephemeral&quot;</span><span class="p">}},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;desc_too_long&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBehavioralText</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_trigger_only_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">_desc_has_behavioral_text</span><span class="p">(</span><span class="s2">&quot;Use when a chapter fails the audit gate.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_behavioral_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">_desc_has_behavioral_text</span><span class="p">(</span><span class="s2">&quot;This skill rewrites the chapter prose.&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_generates_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">_desc_has_behavioral_text</span><span class="p">(</span><span class="s2">&quot;Generates a new plot outline.&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestWriteUpdateOverlap</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_overlap_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use when y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;write_update_overlap&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_disjoint_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use when y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-N-decisions.json&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;write_update_overlap&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestMissingWriteSemantics</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_update_without_mode_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use when y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">}],</span>  <span class="c1"># no mode</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;missing_write_semantics&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_update_with_mode_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use when y&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;merge_prose&quot;</span><span class="p">}</span>
+                    <span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;missing_write_semantics&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestEmptyIssuesOnCleanContract</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_contract_no_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">_make_skill</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-x&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;Use when the chapter needs revision after audit&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;contract&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="s2">&quot;artifact&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-N-*.md&quot;</span><span class="p">],</span>
+                    <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-N-revision-decisions.json&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;create_or_overwrite&quot;</span><span class="p">}</span>
+                    <span class="p">],</span>
+                    <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="p">[</span>
+                        <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-N.md&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;merge_prose&quot;</span><span class="p">,</span> <span class="s2">&quot;no_op_behavior&quot;</span><span class="p">:</span> <span class="s2">&quot;skip_write&quot;</span><span class="p">}</span>
+                    <span class="p">],</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'shenbi.gates.g0_skill_contract'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g0_skill_contract.py</span>
+<span class="sd">&quot;&quot;&quot;G0.skill_contract: validate all skill contracts + descriptions (spec §3.1).</span>
+
+<span class="sd">Checks, for every skills/*/SKILL.md:</span>
+<span class="sd">  - description &lt;= 500 chars (AGENTS.md)</span>
+<span class="sd">  - description is trigger-only (no behavioral &quot;This skill does X&quot; text)</span>
+<span class="sd">  - writes: and updates: paths are disjoint (write=create vs update=modify)</span>
+<span class="sd">  - every writes/updates entry declares a write mode (mode sub-field)</span>
+<span class="sd">Issues are returned as &quot;G0.sc.&lt;check&gt;:&lt;skill&gt;:&lt;detail&gt;&quot; strings; empty == pass.</span>
+<span class="sd">Skills whose frontmatter fails to parse are skipped (their own checks surface</span>
+<span class="sd">those errors).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="n">DESCRIPTION_MAX_CHARS</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># Imperative/behavioral openers that indicate the description describes what</span>
+<span class="c1"># the skill DOES rather than when to USE it. Deterministic, not a full NLP</span>
+<span class="c1"># heuristic — keeps the check cheap and the failures explainable.</span>
+<span class="n">_BEHAVIORAL_MARKERS</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="c1"># English</span>
+    <span class="s2">&quot;this skill&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;this module&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;generates &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;writes &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;creates &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;validates &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;checks &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;analyzes &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;computes &quot;</span><span class="p">,</span>
+    <span class="s2">&quot;extracts &quot;</span><span class="p">,</span>
+    <span class="c1"># Chinese</span>
+    <span class="s2">&quot;该技能&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;该模块&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;生成&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;写入&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;创建&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;验证&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;检查&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;分析&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;计算&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;提取&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;产出&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;输出&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;读取&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;审计&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_desc_has_behavioral_text</span><span class="p">(</span><span class="n">desc</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True if the description reads as behavioral (&#39;does X&#39;) not trigger (&#39;use when Y&#39;).&quot;&quot;&quot;</span>
+    <span class="n">lowered</span> <span class="o">=</span> <span class="n">desc</span><span class="o">.</span><span class="n">lstrip</span><span class="p">()</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">lowered</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">m</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_BEHAVIORAL_MARKERS</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_frontmatter</span><span class="p">(</span><span class="n">skill_md</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SKILL.md frontmatter using the existing contract loader.</span>
+<span class="sd">    Returns None (skip) on any ContractError, keeping the tolerant behavior.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.legacy</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_frontmatter_contract</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">read_frontmatter_contract</span><span class="p">(</span><span class="n">skill_md</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize_paths</span><span class="p">(</span><span class="n">entries</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize writes/updates entries to [(path, meta_dict)].</span>
+
+<span class="sd">    Accepts plain strings (&quot;path&quot;) or dicts ({&quot;file&quot;: &quot;path&quot;, &quot;mode&quot;: ...}).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">entries</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">e</span><span class="p">,</span> <span class="p">{}))</span>
+        <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">e</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">e</span><span class="p">:</span>
+            <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">e</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;file&quot;</span><span class="p">}</span>
+            <span class="n">out</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="nb">str</span><span class="p">(</span><span class="n">e</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]),</span> <span class="n">meta</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_skill_contracts</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate all skill SKILL.md files. Returns issue strings (empty == pass).</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        skills_dir: directory containing skill subdirs. Defaults to the</span>
+<span class="sd">            project skills/ dir (shenbi.gates.shared.SKILLS).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">skills_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">SKILLS</span>
+
+        <span class="n">skills_dir</span> <span class="o">=</span> <span class="n">SKILLS</span>
+
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill_md</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">skills_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*/SKILL.md&quot;</span><span class="p">)):</span>
+        <span class="n">skill_name</span> <span class="o">=</span> <span class="n">skill_md</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">_parse_frontmatter</span><span class="p">(</span><span class="n">skill_md</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>  <span class="c1"># malformed frontmatter surfaces in its own checks</span>
+
+        <span class="n">desc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">DESCRIPTION_MAX_CHARS</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G0.sc.desc_too_long:</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">desc</span> <span class="ow">and</span> <span class="n">_desc_has_behavioral_text</span><span class="p">(</span><span class="n">desc</span><span class="p">):</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G0.sc.desc_has_behavior:</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="n">contract</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contract&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">contract</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">continue</span>  <span class="c1"># missing contract surfaces in its own checks</span>
+
+        <span class="n">writes</span> <span class="o">=</span> <span class="n">_normalize_paths</span><span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;writes&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+        <span class="n">updates</span> <span class="o">=</span> <span class="n">_normalize_paths</span><span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;updates&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+
+        <span class="c1"># writes / updates disjoint</span>
+        <span class="n">write_paths</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">writes</span><span class="p">}</span>
+        <span class="n">update_paths</span> <span class="o">=</span> <span class="p">{</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">updates</span><span class="p">}</span>
+        <span class="n">overlap</span> <span class="o">=</span> <span class="n">write_paths</span> <span class="o">&amp;</span> <span class="n">update_paths</span>
+        <span class="k">if</span> <span class="n">overlap</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G0.sc.write_update_overlap:</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">overlap</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+        <span class="c1"># every write/update entry must declare a mode (semantics)</span>
+        <span class="k">for</span> <span class="n">path</span><span class="p">,</span> <span class="n">meta</span> <span class="ow">in</span> <span class="n">writes</span> <span class="o">+</span> <span class="n">updates</span><span class="p">:</span>
+            <span class="k">if</span> <span class="s2">&quot;mode&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">meta</span><span class="p">:</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G0.sc.missing_write_semantics:</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py -v</code>
+Expected: PASS (all tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Wire G0.16 into gate_G0</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g0.py</code>, immediately before the final <code>return passed("G0", checks)</code> (after the G0.15 block), add:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># G0.16 — skill contract + description quality (spec §3.1). Validates every</span>
+    <span class="c1"># skills/*/SKILL.md: description &lt;= 500 chars and trigger-only, writes/</span>
+    <span class="c1"># updates disjoint, write semantics (mode) declared.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_skill_contract</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_skill_contracts</span>
+
+    <span class="n">sc_issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">sc_issues</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fail</span><span class="p">(</span>
+            <span class="s2">&quot;G0&quot;</span><span class="p">,</span>
+            <span class="n">checks</span>
+            <span class="o">+</span> <span class="p">[</span>
+                <span class="p">{</span>
+                    <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.16&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span>
+                    <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sc_issues</span><span class="p">),</span>
+                <span class="p">}</span>
+            <span class="p">],</span>
+            <span class="s2">&quot;round_creation&quot;</span><span class="p">,</span>
+            <span class="p">[</span>
+                <span class="s2">&quot;G0.16: shorten descriptions to &lt;=500 chars (trigger-only), &quot;</span>
+                <span class="s2">&quot;remove writes/updates overlap, add mode: to declared writes/updates&quot;</span>
+            <span class="p">],</span>
+        <span class="p">)</span>
+    <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.16&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;all skills pass contract + description checks&quot;</span><span class="p">}</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Run g0 tests + verify G0.16 wiring</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py tests/unit/gates/test_g0.py -v</code>
+Expected: PASS.</p>
+<p>Note: If existing skill descriptions/contracts do not yet satisfy G0.16, <code>test_g0.py</code> integration tests that invoke the full <code>gate_G0</code> may fail. That is expected and is fixed in Task 2 by adding <code>mode:</code> to real skill contracts. Do not relax the check to make existing skills pass — fix the skills.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g0_skill_contract.py<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/gates/test_g0_skill_contract.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(g0): add G0.16 skill contract + description quality check</span>
+
+<span class="s2">Spec 14 §3.1. Validates all 69 skills: description &lt;=500 chars and</span>
+<span class="s2">trigger-only, writes/updates disjoint, write mode declared. New check</span>
+<span class="s2">is G0.16 (next free id after G0.15).&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-add-write-semantics-to-skill-contract-frontmatter">Task 2: Add write semantics to skill contract frontmatter</h3>
+<p><strong>Files:</strong>
+- Modify: all 69 <code>skills/*/SKILL.md</code> frontmatter <code>contract.writes</code>/<code>contract.updates</code> entries — convert string entries that need semantics to dict-form <code>{file, mode, no_op_behavior?, key?}</code>. Concretely start with the skills named in the spec findings: <code>skills/shenbi-chapter-revision/SKILL.md</code>, <code>skills/shenbi-state-settling/SKILL.md</code>, <code>skills/shenbi-foreshadowing-track/SKILL.md</code>.
+- Test: <code>tests/unit/gates/test_g0_skill_contract.py</code> (extend with a real-skills regression test)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>check_skill_contracts</code> from Task 1, the closed <code>mode</code> set
+- Produces: every skill that touches mutable files declares <code>mode</code> (and <code>no_op_behavior</code>/<code>key</code> where relevant). G0.16 now passes against the real skills/ tree.</p>
+<p><strong>Context:</strong> The contract YAML format already supports dict-form for <code>reads</code> (<code>legacy.py:_validate</code> calls <code>_normalize_read_item</code>). <code>writes</code>/<code>updates</code> are currently validated as <code>list[str]</code> (see <code>legacy.py:_validate</code> lines 158-161). Task 3 extends that validator to accept dict-form for writes/updates. Until then, this task only edits frontmatter; the legacy validator must be relaxed in Task 3 BEFORE running the full suite, or <code>load_contract</code> will raise on dict-form writes. <strong>Do Task 3's validator edit before running <code>just check</code> in this task's Step 4.</strong> Per the spec note: only <code>mode</code>/<code>no_op_behavior</code>/<code>key</code> are new; <code>reads</code>/<code>writes</code>/<code>updates</code> already exist.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test (real-skills regression)</strong></li>
+</ul>
+<p>Append to <code>tests/unit/gates/test_g0_skill_contract.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestRealSkillsTree</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_real_skills_pass_contract_check</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Every skill in the real skills/ tree passes G0.16.</span>
+
+<span class="sd">        This is the regression gate: after frontmatter is updated to declare</span>
+<span class="sd">        write semantics, the whole tree must be clean.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">SKILLS</span>
+
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_skill_contracts</span><span class="p">(</span><span class="n">SKILLS</span><span class="p">)</span>
+        <span class="c1"># If this fails, the failing skill needs its writes/updates given a</span>
+        <span class="c1"># &#39;mode:&#39; (and the description shortened/triggerified if flagged).</span>
+        <span class="k">assert</span> <span class="n">issues</span> <span class="o">==</span> <span class="p">[],</span> <span class="p">(</span>
+            <span class="s2">&quot;G0.16 contract violations in real skills tree:</span><span class="se">\n</span><span class="s2">  &quot;</span>
+            <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">  &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py::TestRealSkillsTree -v</code>
+Expected: FAIL with a list of <code>G0.sc.missing_write_semantics:...</code> (and possibly <code>desc_too_long</code>/<code>desc_has_behavior</code>) issues for real skills.</p>
+<ul>
+<li>[ ] <strong>Step 3: Update skill frontmatter to declare write semantics</strong></li>
+</ul>
+<p>For each skill flagged by the failing test, edit its <code>skills/&lt;skill&gt;/SKILL.md</code> frontmatter. Convert string <code>writes</code>/<code>updates</code> entries to dict-form with a <code>mode</code>. The closed <code>mode</code> set:</p>
+<table>
+<thead>
+<tr>
+<th>mode</th>
+<th>meaning</th>
+<th>when to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>create_or_overwrite</code></td>
+<td>write new or replace existing</td>
+<td>reports, decisions JSON, snapshots</td>
+</tr>
+<tr>
+<td><code>merge_prose</code></td>
+<td>merge revision into existing prose (content-preserving)</td>
+<td><code>chapters/chapter-N.md</code> revision</td>
+</tr>
+<tr>
+<td><code>append_dedup</code></td>
+<td>append row, dedup by <code>key</code></td>
+<td>truth files via upsert</td>
+</tr>
+</tbody>
+</table>
+<p>Concrete edits for the spec-called-out skills. For <code>skills/shenbi-chapter-revision/SKILL.md</code>, change:</p>
+<p><div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/state_snapshot-pre-rev.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N-revision-decisions.json</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+</code></pre></div>
+to:</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/state_snapshot-pre-rev.md</span>
+<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">create_or_overwrite</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N-revision-decisions.json</span>
+<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">create_or_overwrite</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+<span class="w">      </span><span class="nt">mode</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">merge_prose</span>
+<span class="w">      </span><span class="nt">no_op_behavior</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">skip_write</span>
+</code></pre></div>
+<p>For <code>skills/shenbi-state-settling/SKILL.md</code>, give every <code>updates:</code> truth-file entry <code>mode: append_dedup</code> with the matching <code>key</code> (e.g. <code>key: chapter</code> for row-keyed truth files).</p>
+<p>For <code>skills/shenbi-foreshadowing-track/SKILL.md</code>, give the <code>pending_hooks.md</code> update <code>mode: append_dedup</code> with <code>key: hook_id</code> (or the field the skill dedups on).</p>
+<p>For any <code>writes:</code>/<code>updates:</code> entry in any flagged skill, add the appropriate <code>mode</code>. For descriptions flagged <code>desc_too_long</code> or <code>desc_has_behavior</code>, rewrite to a ≤500-char trigger-only form (e.g. "Use when <condition>" — no "This skill …" / "Generates …").</p>
+<p>Repeat until <code>check_skill_contracts(SKILLS)</code> returns <code>[]</code>.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py::TestRealSkillsTree -v</code>
+Expected: PASS (empty issues list).</p>
+<p>Note: <code>load_contract</code> (legacy validator) must already accept dict-form writes/updates by this point — that relaxation is done in Task 3 Step 3. Run Task 3 first if <code>load_contract</code> raises on the new frontmatter.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/<span class="w"> </span>tests/unit/gates/test_g0_skill_contract.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(contracts): declare write semantics (mode/no_op_behavior/key) in skill frontmatter</span>
+
+<span class="s2">Spec 14 §3.2. Converts writes/updates entries to dict-form with mode for the</span>
+<span class="s2">spec-called-out skills (chapter-revision, state-settling, foreshadowing-track)</span>
+<span class="s2">and any others flagged by G0.16. Only mode/no_op_behavior/key sub-fields are</span>
+<span class="s2">new; reads/writes/updates already existed.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-relax-contract-validator-to-accept-write-semantics-dispatch-path-enforcement">Task 3: Relax contract validator to accept write semantics + dispatch path enforcement</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/legacy.py:142-168</code> (<code>_validate</code> — accept dict-form for <code>writes</code>/<code>updates</code>, return parsed semantics)
+- Modify: <code>src/shenbi/contracts/legacy.py:43-49</code> (<code>Contract</code> TypedDict — add <code>write_semantics: dict[str, dict[str, Any]]</code>)
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:294-323</code> (<code>_write_parsed_outputs</code> — route by declared <code>mode</code>)
+- Test: <code>tests/unit/pipeline/test_dispatch_write_semantics.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_contract</code> (now returning <code>write_semantics</code>), <code>_write_parsed_outputs</code>, <code>safe_write</code>.
+- Produces: <code>Contract.write_semantics: dict[str, dict]</code> keyed by path; <code>_write_parsed_outputs(response, output_paths, project_dir, skill)</code> honors <code>no_op_behavior: skip_write</code> via the new <code>skip_paths</code> parameter. All declared modes (including <code>append_dedup</code>) write the whole file via <code>safe_write</code> — truth-file upsert is the caller's (state-settling skill's) responsibility, not the generic dispatch path's.</p>
+<p><strong>Context:</strong> Today <code>_write_parsed_outputs</code> always overwrites via <code>safe_write</code> regardless of contract (spec §2.2 contract-behavior mismatch). <code>no_op_behavior: skip_write</code> means: in a no-op route, do NOT write the file even if the LLM emitted content for it. Because <code>_write_parsed_outputs</code> does not currently know the revision route, this task adds an optional <code>skip_paths: set[str]</code> parameter (populated by the revision router's no-op decision) so the caller enforces <code>skip_write</code>; the contract declares the intent and G0 verifies it.</p>
+<blockquote>
+<p><strong><code>append_dedup</code> is NOT routed in the dispatch write path.</strong> The generic <code>_write_parsed_outputs</code> dispatch path writes WHOLE FILES (<code>### FILE: &lt;path&gt;\n&lt;body&gt;</code>), not structured rows. Truth-file append/upsert semantics are owned by Spec 1's <code>write_truth_file</code>, which is called EXPLICITLY from the state-settling skill (the skill body constructs the row dict with the real key). Routing <code>append_dedup</code> here would mean fabricating a structured key from raw prose (e.g. <code>content[:32]</code>), which is wrong: the key is a semantic field (<code>chapter</code>, <code>hook_id</code>) that only the calling skill knows. Therefore truth-file <code>append_dedup</code> mode is ENFORCED AT THE CALLER LEVEL (state-settling skill calls <code>write_truth_file</code> directly), NOT at the generic <code>_write_parsed_outputs</code> write level. The contract still declares <code>mode: append_dedup</code> on truth-file update entries so G0.16 can verify the skill declares the semantics — but the dispatch write path only honors <code>no_op_behavior: skip_write</code>; for everything else it writes the whole file via <code>safe_write</code>.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_dispatch_write_semantics.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for contract-driven write semantics in _write_parsed_outputs (spec §3.3).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_write_parsed_outputs</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCreateOrOverwrite</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_default_mode_overwrites</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;create_or_overwrite (and undeclared) -&gt; safe_write, current behavior.&quot;&quot;&quot;</span>
+        <span class="c1"># NOTE: _parse_file_outputs expects the real marker format</span>
+        <span class="c1"># &quot;### FILE: &lt;path&gt;&quot; (see dispatch_helper._parse_file_outputs).</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="o">=</span><span class="s2">&quot;### FILE: chapters/c-1.md</span><span class="se">\n</span><span class="s2">new body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chapters/c-1.md&quot;</span><span class="p">],</span>
+            <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;chapters/c-1.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="s2">&quot;new body&quot;</span> <span class="ow">in</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;c-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAppendDedupNotRoutedInDispatch</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The generic dispatch write path does NOT route append_dedup to</span>
+<span class="sd">    write_truth_file. Truth-file append semantics are enforced at the caller</span>
+<span class="sd">    (state-settling skill calls write_truth_file explicitly with a real key),</span>
+<span class="sd">    NOT by fabricating a key from prose in the generic write path.</span>
+
+<span class="sd">    Here a declared mode: append_dedup truth-file path is still written as a</span>
+<span class="sd">    WHOLE FILE via safe_write — the contract declares the mode for G0.16, but</span>
+<span class="sd">    the dispatch path does not interpret it as an upsert.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_append_dedup_truth_file_is_written_whole_not_upserted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A truth/ path declared mode: append_dedup is written as a whole file</span>
+<span class="sd">        by _write_parsed_outputs (safe_write), NOT routed to write_truth_file.</span>
+<span class="sd">        Upsert is the caller&#39;s (state-settling skill&#39;s) responsibility.&quot;&quot;&quot;</span>
+        <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span>
+        <span class="n">truth</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">truth</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# Current State</span><span class="se">\n\n</span><span class="s2">- chapter: ch0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.dispatch_helper.write_truth_file&quot;</span>
+        <span class="p">)</span> <span class="k">as</span> <span class="n">mock_wtf</span><span class="p">:</span>
+            <span class="n">mock_wtf</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="n">out</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+                <span class="n">response</span><span class="o">=</span><span class="s2">&quot;### FILE: truth/current_state.md</span><span class="se">\n</span><span class="s2">row</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="n">output_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">],</span>
+                <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+                <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="c1"># write_truth_file must NOT be invoked from the dispatch path.</span>
+            <span class="n">mock_wtf</span><span class="o">.</span><span class="n">assert_not_called</span><span class="p">()</span>
+            <span class="c1"># The file is written whole instead.</span>
+            <span class="k">assert</span> <span class="s2">&quot;truth/current_state.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+            <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;row</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNoOpSkipWrite</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_skip_write_paths_not_written</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A path in skip_paths is not written even if content is present.&quot;&quot;&quot;</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="o">=</span><span class="s2">&quot;### FILE: chapters/c-1.md</span><span class="se">\n</span><span class="s2">body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;chapters/c-1.md&quot;</span><span class="p">],</span>
+            <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+            <span class="n">skip_paths</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;chapters/c-1.md&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">out</span> <span class="o">==</span> <span class="p">[]</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;c-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_write_semantics.py -v</code>
+Expected: FAIL with <code>TypeError: _write_parsed_outputs() got an unexpected keyword argument 'skip_paths'</code> (and <code>write_truth_file</code> not imported/routed).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>First, relax the contract validator in <code>src/shenbi/contracts/legacy.py</code>. Update the <code>Contract</code> TypedDict:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Contract</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">OutputKind</span>
+    <span class="n">reads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">writes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">updates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+    <span class="n">write_semantics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+</code></pre></div>
+<p>Add a normalizer near <code>_normalize_read_item</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_normalize_write_item</span><span class="p">(</span><span class="n">item</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">field</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Normalize a writes/updates entry into (path, semantics_meta).</span>
+
+<span class="sd">    Accepts a plain string (no declared semantics -&gt; empty meta) or a dict</span>
+<span class="sd">    {file, mode?, no_op_behavior?, key?}. Dict-form is the new write-semantics</span>
+<span class="sd">    declaration (spec §3.2).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">item</span><span class="p">,</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;file&quot;</span> <span class="ow">in</span> <span class="n">item</span><span class="p">:</span>
+        <span class="n">meta</span> <span class="o">=</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">item</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;file&quot;</span><span class="p">}</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">item</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">]),</span> <span class="n">meta</span>
+    <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;contract.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">[] must be str or </span><span class="se">{{</span><span class="s2">file, mode?</span><span class="se">}}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>In <code>_validate</code>, change the <code>writes</code>/<code>updates</code> handling (the <code>else</code> branch that currently requires <code>all(isinstance(x, str) ...)</code>) to use the normalizer and collect semantics:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">validated</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">read_fields</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">write_semantics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">,</span> <span class="s2">&quot;writes&quot;</span><span class="p">,</span> <span class="s2">&quot;updates&quot;</span><span class="p">):</span>
+        <span class="n">val</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;contract.</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2"> must be a list&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">field</span> <span class="o">==</span> <span class="s2">&quot;reads&quot;</span><span class="p">:</span>
+            <span class="n">paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">fields</span> <span class="o">=</span> <span class="n">_normalize_read_item</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+                <span class="n">paths</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">fields</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                    <span class="n">read_fields</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">fields</span>
+            <span class="n">items</span> <span class="o">=</span> <span class="n">paths</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="k">for</span> <span class="n">item</span> <span class="ow">in</span> <span class="n">val</span><span class="p">:</span>
+                <span class="n">path</span><span class="p">,</span> <span class="n">meta</span> <span class="o">=</span> <span class="n">_normalize_write_item</span><span class="p">(</span><span class="n">item</span><span class="p">,</span> <span class="n">field</span><span class="p">,</span> <span class="n">skill</span><span class="p">)</span>
+                <span class="n">items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">meta</span><span class="p">:</span>
+                    <span class="n">write_semantics</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="o">=</span> <span class="n">meta</span>
+        <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">resolves</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">registry</span><span class="p">):</span>
+                <span class="k">raise</span> <span class="n">ContractError</span><span class="p">(</span>
+                    <span class="s2">&quot;contract path does not resolve in registry&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">field</span><span class="o">=</span><span class="n">field</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">p</span>
+                <span class="p">)</span>
+        <span class="n">validated</span><span class="p">[</span><span class="n">field</span><span class="p">]</span> <span class="o">=</span> <span class="n">items</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;kind&quot;</span><span class="p">:</span> <span class="n">kind</span><span class="p">,</span>
+        <span class="s2">&quot;reads&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;writes&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;updates&quot;</span><span class="p">:</span> <span class="n">validated</span><span class="p">[</span><span class="s2">&quot;updates&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;read_fields&quot;</span><span class="p">:</span> <span class="n">read_fields</span><span class="p">,</span>
+        <span class="s2">&quot;write_semantics&quot;</span><span class="p">:</span> <span class="n">write_semantics</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div>
+<p>Then update <code>_write_parsed_outputs</code> in <code>src/shenbi/pipeline/dispatch_helper.py</code>. Change the signature and body. Add the import at top of the function (lazy, to avoid import cycles):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_write_parsed_outputs</span><span class="p">(</span>
+    <span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">create_truth_templates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">skip_paths</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse agent response and write per-file content, honoring no_op_behavior.</span>
+
+<span class="sd">    This generic dispatch path writes WHOLE FILES (one ``### FILE: &lt;path&gt;`` block</span>
+<span class="sd">    per output). It honors only ``no_op_behavior: skip_write`` (paths in</span>
+<span class="sd">    *skip_paths* are not written). For all declared modes — including</span>
+<span class="sd">    ``append_dedup`` — it writes the whole file via ``safe_write``.</span>
+
+<span class="sd">    Truth-file append/upsert (``mode: append_dedup``) is NOT routed here. That</span>
+<span class="sd">    mode is declared in the contract so G0.16 can verify it, but the upsert</span>
+<span class="sd">    itself is the CALLER&#39;s responsibility: the state-settling skill calls</span>
+<span class="sd">    ``write_truth_file`` directly with a real semantic key field (``chapter``,</span>
+<span class="sd">    ``hook_id``, ...). Fabricating a key from raw prose in this generic path</span>
+<span class="sd">    would be wrong — the key is semantic and only the calling skill knows it.</span>
+<span class="sd">    ``merge_prose`` content-preservation is likewise enforced by G4 / the caller;</span>
+<span class="sd">    the dispatch write itself replaces the file.</span>
+
+<span class="sd">    Returns list of successfully written paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_file_outputs</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">skip</span> <span class="o">=</span> <span class="n">skip_paths</span> <span class="ow">or</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">semantics</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span>
+
+            <span class="n">semantics</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;write_semantics&quot;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+            <span class="n">semantics</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># contract issues surface in G0; never block dispatch here</span>
+
+    <span class="k">for</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">output_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">skip</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;write_skipped_noop&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__stdout__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;output_empty&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">rel_path</span>
+        <span class="n">full_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">mode</span> <span class="o">=</span> <span class="n">semantics</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;mode&quot;</span><span class="p">)</span>
+        <span class="c1"># NOTE: append_dedup is intentionally NOT branched here. The dispatch</span>
+        <span class="c1"># path writes whole files; truth-file upsert is the caller&#39;s job</span>
+        <span class="c1"># (state-settling skill calls write_truth_file with a real key).</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+        <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rel_path</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;output_written&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">create_truth_templates</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">output_paths</span><span class="p">):</span>
+        <span class="n">_init_truth_templates</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">written</span>
+</code></pre></div>
+<p>Then update the two call sites in <code>_dispatch_via_api</code> (line ~449) and <code>_dispatch_via_ide</code> (line ~527) to pass <code>skill=skill</code>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">written</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+        <span class="n">output_text</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span>
+        <span class="n">create_truth_templates</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_dispatch_write_semantics.py tests/unit/pipeline/test_dispatch_helper.py tests/unit/gates/test_g0_skill_contract.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/legacy.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_write_semantics.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(dispatch): enforce declared write semantics + relax contract validator</span>
+
+<span class="s2">Spec 14 §3.2-3.3. _validate now accepts dict-form writes/updates and returns</span>
+<span class="s2">write_semantics. _write_parsed_outputs honors no_op_behavior via</span>
+<span class="s2">skip_paths; all modes write whole files via safe_write (truth-file upsert</span>
+<span class="s2">stays the caller&#39;s job). Callers pass skill= so the contract is consulted.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-skill-description-audit-tool">Task 4: Skill description audit tool</h3>
+<p><strong>Files:</strong>
+- Create: <code>tools/audit-skill-descriptions.py</code>
+- Test: <code>tests/unit/tools/test_audit_skill_descriptions.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_parse_frontmatter</code>, <code>DESCRIPTION_MAX_CHARS</code>, <code>_desc_has_behavioral_text</code> from <code>shenbi.gates.g0_skill_contract</code>
+- Produces: a CLI script <code>python tools/audit-skill-descriptions.py [--skills-dir skills]</code> that prints a per-skill compliance report and exits non-zero if any description violates the rules.</p>
+<p><strong>Context:</strong> Spec §3.4 wants a report surfacing descriptions &gt; 500 chars and behavioral (non-trigger) descriptions. Reusing the Task 1 helpers keeps a single source of truth. The tool is a thin wrapper, not a second implementation of the checks.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/tools/test_audit_skill_descriptions.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for the skill-description audit tool (spec §3.4).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">_TOOLS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span> <span class="o">/</span> <span class="s2">&quot;audit-skill-descriptions.py&quot;</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAuditTool</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_tool_exists</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">_TOOLS</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="sa">f</span><span class="s2">&quot;audit tool missing at </span><span class="si">{</span><span class="n">_TOOLS</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_tool_runs_against_synthetic_dir</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The tool emits a report and exits non-zero on a violation.&quot;&quot;&quot;</span>
+        <span class="n">skill</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;shenbi-bad&quot;</span>
+        <span class="n">skill</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">skill</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">name: shenbi-bad</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;description: |</span><span class="se">\n</span><span class="s2">  This skill generates a huge plot. &quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">600</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;contract: {kind: ephemeral}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_TOOLS</span><span class="p">),</span> <span class="s2">&quot;--skills-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;tool must exit non-zero when violations exist&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-bad&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_dir_exits_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">skill</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;shenbi-good&quot;</span>
+        <span class="n">skill</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">skill</span> <span class="o">/</span> <span class="s2">&quot;SKILL.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s1">&#39;---</span><span class="se">\n</span><span class="s1">name: shenbi-good</span><span class="se">\n</span><span class="s1">description: &quot;Use when a chapter fails the audit&quot;</span><span class="se">\n</span><span class="s1">&#39;</span>
+            <span class="s2">&quot;contract: {kind: ephemeral}</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_TOOLS</span><span class="p">),</span> <span class="s2">&quot;--skills-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;clean dir must pass: </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="si">}</span><span class="se">\n</span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_audit_skill_descriptions.py -v</code>
+Expected: FAIL (<code>_TOOLS</code> does not exist).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Audit skill descriptions for AGENTS.md compliance (spec §3.4).</span>
+
+<span class="sd">Report (and exit non-zero on):</span>
+<span class="sd">  - description longer than 500 chars</span>
+<span class="sd">  - description that reads as behavioral (&#39;This skill does X&#39;) rather than</span>
+<span class="sd">    trigger-only (&#39;Use when Y&#39;)</span>
+
+<span class="sd">Reuses the G0.skill_contract helpers so there is one source of truth for the</span>
+<span class="sd">rules. Run:  python tools/audit-skill-descriptions.py [--skills-dir skills]</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># Allow running from repo root without install.</span>
+<span class="n">_REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+<span class="k">if</span> <span class="nb">str</span><span class="p">(</span><span class="n">_REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span><span class="p">)</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">_REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span><span class="p">))</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_skill_contract</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: E402</span>
+    <span class="n">DESCRIPTION_MAX_CHARS</span><span class="p">,</span>
+    <span class="n">_desc_has_behavioral_text</span><span class="p">,</span>
+    <span class="n">_parse_frontmatter</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">audit</span><span class="p">(</span><span class="n">skills_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return [(skill_name, issue)] for every description violation.&quot;&quot;&quot;</span>
+    <span class="n">violations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill_md</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">skills_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*/SKILL.md&quot;</span><span class="p">)):</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">skill_md</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">_parse_frontmatter</span><span class="p">(</span><span class="n">skill_md</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">fm</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">desc</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;description&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">DESCRIPTION_MAX_CHARS</span><span class="p">:</span>
+            <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;desc_too_long:</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">desc</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">desc</span> <span class="ow">and</span> <span class="n">_desc_has_behavioral_text</span><span class="p">(</span><span class="n">desc</span><span class="p">):</span>
+            <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="s2">&quot;desc_has_behavior&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">violations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">ap</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;Audit skill descriptions for compliance.&quot;</span><span class="p">)</span>
+    <span class="n">ap</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;--skills-dir&quot;</span><span class="p">,</span>
+        <span class="nb">type</span><span class="o">=</span><span class="n">Path</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="n">_REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Directory of skill subdirs (default: repo skills/)&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">ap</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skills_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;error: skills dir not found: </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">skills_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">2</span>
+
+    <span class="n">violations</span> <span class="o">=</span> <span class="n">audit</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">skills_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">violations</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;OK: all descriptions compliant in </span><span class="si">{</span><span class="n">args</span><span class="o">.</span><span class="n">skills_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;# Skill Description Audit — </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">violations</span><span class="p">)</span><span class="si">}</span><span class="s2"> violation(s)</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">issue</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="ne">SystemExit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div>
+<p>Make it executable: <code>chmod +x tools/audit-skill-descriptions.py</code></p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/tools/test_audit_skill_descriptions.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/audit-skill-descriptions.py<span class="w"> </span>tests/unit/tools/test_audit_skill_descriptions.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(tools): add skill description audit report (spec §3.4)</span>
+
+<span class="s2">python tools/audit-skill-descriptions.py flags descriptions &gt; 500 chars and</span>
+<span class="s2">behavioral text, exits non-zero on violations. Reuses G0.skill_contract helpers.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-regression-verification">Task 5: Regression verification</h3>
+<p><strong>Files:</strong>
+- No new files.</p>
+<p><strong>Interfaces:</strong>
+- Consumes: all four prior tasks.</p>
+<p><strong>Context:</strong> Spec §5 verification: G0.skill_contract passes for all 69 skills; all descriptions ≤500 chars; no write/update overlap; all update paths declare semantics; dispatch path honors <code>no_op_behavior: skip_write</code> (truth-file <code>append_dedup</code> upsert is enforced at the caller level, not in the dispatch write path); <code>just check</code> passes.</p>
+<ul>
+<li>[ ] <strong>Step 1: Run the new tests together</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_skill_contract.py tests/unit/pipeline/test_dispatch_write_semantics.py tests/unit/tools/test_audit_skill_descriptions.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the audit tool against the real tree</strong></li>
+</ul>
+<p>Run: <code>python tools/audit-skill-descriptions.py</code>
+Expected: exit 0, "all descriptions compliant".</p>
+<ul>
+<li>[ ] <strong>Step 3: Run the full check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS (G0.16 green; contract loading green with dict-form writes/updates).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit (only if fixes were needed)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(skill-contract): full regression green for spec 14&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,4710 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/shenbi/plans/2026-06-08-phases-2-through-5/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Shenbi Phases 2-5 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Shenbi Phases 2-5 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/shenbi/plans/2026-06-08-phases-2-through-5.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/shenbi/plans/2026-06-08-phases-2-through-5/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Shenbi Phases 2-5 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/shenbi/plans/2026-06-08-phases-2-through-5.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shenbi-phases-2-5-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shenbi Phases 2-5 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure-all-phases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure (all phases)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="shenbi-phases-2-5-implementation-plan">Shenbi Phases 2-5 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Complete all remaining 48 skills across Phases 2-5, transforming Shenbi from a core pipeline into a full-featured novel-writing framework with quality audits, foreshadowing management, import/export capabilities, and multi-platform support.</p>
+<p><strong>Architecture:</strong> Pure SKILL.md skill framework. Skills share a novel project's file system (novel.json, truth/, chapters/, etc.). Each skill follows the shenbi pattern: YAML frontmatter, DOT flowchart, iron laws, anti-rationalization table, supporting files as needed. Skills are discovered by the <code>using-shenbi</code> dispatcher.</p>
+<p><strong>Tech Stack:</strong> Markdown (SKILL.md), YAML frontmatter, DOT/GraphViz flowcharts, bash (hooks)</p>
+<p><strong>Spec:</strong> <code>docs/specs/2026-06-08-shenbi-design.md</code> (v0.2.0, Sections 3-11)</p>
+<p><strong>Pre-existing:</strong> Phase 1 complete (11 skills: using-shenbi, shenbi-writing-skills, worldbuilding, character-design, story-architecture, chapter-planning, context-composing, chapter-drafting, state-settling, review-anti-ai, chapter-revision)</p>
+<p><strong>Phase 1 gaps carried forward (resolved by later phases):</strong>
+- No foreshadowing lifecycle → resolved by Phase 3 (plant → track → resolve)
+- Missing default audit skills (continuity, character) → resolved by Phase 2; sensitivity → resolved by Phase 4a
+- No conditional audit activation → resolved by Phase 2 audit infrastructure + Phase 4 remaining audits
+- No style learning, import pipeline, length normalizing → resolved by Phase 4
+- No volume management or consolidation → resolved by Phase 3 (volume-consolidation) + Phase 4 (volume-outlining)
+- No truth/ file bootstrapping for existing projects → resolved by Phase 4 import pipeline</p>
+<hr />
+<h2 id="file-structure-all-phases">File Structure (all phases)</h2>
+<div class="highlight"><pre><span></span><code>shenbi/
+├── skills/
+│   │   ═══ Phase 2 (质量体系) ═══
+│   ├── shenbi-review-continuity/
+│   │   └── SKILL.md
+│   ├── shenbi-review-character/
+│   │   ├── SKILL.md
+│   │   └── ooc-dimensions.md
+│   ├── shenbi-review-pacing/
+│   │   └── SKILL.md
+│   ├── shenbi-review-foreshadowing/
+│   │   ├── SKILL.md
+│   │   └── hook-lifecycle.md
+│   ├── shenbi-style-polishing/
+│   │   └── SKILL.md
+│   ├── shenbi-foundation-review/
+│   │   ├── SKILL.md
+│   │   └── scoring-rubric.md
+│   ├── shenbi-drift-guidance/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 3 (伏笔与管理) ═══
+│   ├── shenbi-foreshadowing-plant/
+│   │   ├── SKILL.md
+│   │   └── hook-types.md
+│   ├── shenbi-foreshadowing-track/
+│   │   ├── SKILL.md
+│   │   └── lifecycle-states.md
+│   ├── shenbi-foreshadowing-resolve/
+│   │   ├── SKILL.md
+│   │   └── chase-power.md
+│   ├── shenbi-truth-sync/
+│   │   └── SKILL.md
+│   ├── shenbi-snapshot-manage/
+│   │   └── SKILL.md
+│   ├── shenbi-intent-management/
+│   │   └── SKILL.md
+│   ├── shenbi-volume-consolidation/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4a (剩余审计技能 - 默认激活) ═══
+│   ├── shenbi-review-sensitivity/
+│   │   ├── SKILL.md
+│   │   └── sensitive-words.md
+│   │   ═══ Phase 4b (剩余审计技能 - 条件激活) ═══
+│   ├── shenbi-review-world-rules/
+│   │   └── SKILL.md
+│   ├── shenbi-review-reader-pull/
+│   │   └── SKILL.md
+│   ├── shenbi-review-memo-compliance/
+│   │   └── SKILL.md
+│   ├── shenbi-review-dialogue/
+│   │   └── SKILL.md
+│   ├── shenbi-review-motivation/
+│   │   └── SKILL.md
+│   ├── shenbi-review-pov/
+│   │   └── SKILL.md
+│   ├── shenbi-review-texture/
+│   │   └── SKILL.md
+│   ├── shenbi-review-highpoint/
+│   │   └── SKILL.md
+│   ├── shenbi-review-long-span/
+│   │   ├── SKILL.md
+│   │   └── ngram-methodology.md
+│   ├── shenbi-review-era/
+│   │   ├── SKILL.md
+│   │   └── era-reference.md
+│   ├── shenbi-review-fanfic/
+│   │   ├── SKILL.md
+│   │   └── fanfic-modes.md
+│   ├── shenbi-review-spinoff/
+│   │   ├── SKILL.md
+│   │   └── spinoff-violations.md
+│   │
+│   │   ═══ Phase 4c (创世扩展) ═══
+│   ├── shenbi-location-builder/
+│   │   └── SKILL.md
+│   ├── shenbi-relationship-map/
+│   │   └── SKILL.md
+│   ├── shenbi-faction-builder/
+│   │   └── SKILL.md
+│   ├── shenbi-power-system/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4d (规划扩展) ═══
+│   ├── shenbi-volume-outlining/
+│   │   └── SKILL.md
+│   ├── shenbi-pacing-design/
+│   │   └── SKILL.md
+│   ├── shenbi-plot-thread-weaver/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4e (起草扩展) ═══
+│   ├── shenbi-length-normalizing/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4f (修订扩展) ═══
+│   ├── shenbi-anti-detect/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4g (导入层) ═══
+│   ├── shenbi-import-analysis/
+│   │   └── SKILL.md
+│   ├── shenbi-style-learning/
+│   │   └── SKILL.md
+│   ├── shenbi-character-extraction/
+│   │   └── SKILL.md
+│   ├── shenbi-world-extraction/
+│   │   └── SKILL.md
+│   ├── shenbi-canon-import/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4h (短篇层) ═══
+│   ├── shenbi-short-outline/
+│   │   └── SKILL.md
+│   ├── shenbi-short-drafting/
+│   │   └── SKILL.md
+│   ├── shenbi-short-packaging/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 4i (管理层扩展) ═══
+│   ├── shenbi-genre-config/
+│   │   └── SKILL.md
+│   ├── shenbi-chapter-pattern/
+│   │   └── SKILL.md
+│   ├── shenbi-sequel-writing/
+│   │   └── SKILL.md
+│   │
+│   │   ═══ Phase 5 (平台适配与国际化) ═══
+│   ├── shenbi-market-radar/
+│   │   └── SKILL.md
+│   ├── (skills updated in-place for English descriptions)
+│
+├── hooks/
+│   ├── hooks.json
+│   ├── hooks-cursor.json
+│   ├── session-start
+│   └── run-hook.cmd
+│
+├── .claude-plugin/
+│   └── plugin.json
+├── .cursor-plugin/
+│   └── plugin.json
+├── .codex-plugin/
+│   └── plugin.json
+├── .opencode/
+│   └── plugins/
+│       └── shenbi.js
+├── GEMINI.md
+│
+├── tests/
+│   ├── skill-triggering/
+│   │   └── prompts/
+│   │       ├── phase2-continuity-review.md
+│   │       ├── phase2-character-review.md
+│   │       ├── phase2-pacing-review.md
+│   │       ├── phase2-foreshadowing-review.md
+│   │       ├── phase2-style-polishing.md
+│   │       └── phase2-foundation-review.md
+│   ├── skill-behavior/
+│   │   ├── review-catches-bug/
+│   │   │   ├── phase2-continuity-bug.md
+│   │   │   ├── phase2-character-bug.md
+│   │   │   ├── phase2-pacing-bug.md
+│   │   │   ├── phase2-foreshadowing-bug.md
+│   │   │   ├── phase3-plant-track-resolve.md
+│   │   │   └── phase4-various-bugs.md
+│   │   └── revision-fixes-issue/
+│   │       └── phase2-polishing-fix.md
+│   └── pressure-tests/
+│       └── prompts/
+│           ├── audit-skipping-pressure.md
+│           ├── foreshadowing-fatigue-pressure.md
+│           └── import-shortcut-pressure.md
+└── docs/
+    └── shenbi/
+        └── plans/
+            └── 2026-06-08-phases-2-through-5.md
+</code></pre></div>
+<hr />
+<h1 id="phase-2-7-skills">Phase 2: 质量体系 (7 skills)</h1>
+<p><strong>Goal:</strong> Add 7 quality-layer skills: 2 default-activated audits (continuity, character — completing 3 of 4 defaults alongside Phase 1's anti-ai; sensitivity deferred to Phase 4a), 2 conditionally-activated audits (pacing, foreshadowing), style polishing (prose refinement), foundation review (pre-writing gate with scoring rubric), and drift guidance (bridges audit results into next-chapter context). This adds critical quality audits that catch story-breaking issues missed by Phase 1's anti-AI-only audit.</p>
+<p><strong>Architecture:</strong> Each audit skill shares the pattern established by <code>shenbi-review-anti-ai</code>: deterministic checks first, severity levels (error/warning), structured output report, anti-rationalization table. Supporting files for complex checklists. <code>foundation-review</code> is a pre-writing gate. <code>drift-guidance</code> connects audit output to next-chapter context-composing.</p>
+<p><strong>Dependencies:</strong> Phase 1 complete. Phase 2 skills are independent of each other except: <code>drift-guidance</code> reads from any audit skill's output.</p>
+<hr />
+<h3 id="task-2-1-shenbi-review-continuity">Task 2-1: shenbi-review-continuity</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-review-continuity/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-continuity
+<span class="gu">description: Use when checking chapter for timeline consistency, location contradictions, event sequence ordering, or physical spatial logic errors</span>
+<span class="gu">---</span>
+
+<span class="gh"># 连续性审计</span>
+
+这是默认激活的审计技能（每章必查）。检查时间线一致性、地点矛盾、事件时序、物理空间合理性。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_continuity {
+    &quot;Read chapter content&quot; -&gt; &quot;Read truth/current_state.md&quot;;
+    &quot;Read truth/current_state.md&quot; -&gt; &quot;Read truth/chapter_summaries.md (last 3 chapters)&quot;;
+    &quot;Read truth/chapter_summaries.md&quot; -&gt; &quot;Run timeline check&quot;;
+    &quot;Run timeline check&quot; -&gt; &quot;Run location check&quot;;
+    &quot;Run location check&quot; -&gt; &quot;Run event sequence check&quot;;
+    &quot;Run event sequence check&quot; -&gt; &quot;Run physical plausibility check&quot;;
+    &quot;Run physical plausibility check&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+}
+</code></pre></div>
+<h2 id="_1">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>truth/current_state.md</code>, <code>truth/chapter_summaries.md</code>, <code>world/rules.md</code></li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_2">铁律</h2>
+<ol>
+<li><strong>时间线是单向不可逆的</strong> — 不能出现"太阳落山后又出现正午场景"类矛盾</li>
+<li><strong>地点跳跃需要过渡</strong> — 角色不能从A地瞬移到B地除非有明确能力支撑</li>
+<li><strong>事件因果链必须完整</strong> — 每个事件必须有前因后果，不能凭空出现</li>
+<li><strong>物理规则一致</strong> — 本章的物理规则必须与前章一致（除非有明确的世界规则变更）</li>
+</ol>
+<h2 id="_3">检查执行</h2>
+<h3 id="1">1. 时间线检查</h3>
+<ul>
+<li>提取本章所有时间标记（"第二天"、"三天后"、"入夜"等）</li>
+<li>与 <code>truth/current_state.md</code> 和近3章摘要对比</li>
+<li>检查是否有时间倒流或不合理跳跃</li>
+</ul>
+<h3 id="2">2. 地点检查</h3>
+<ul>
+<li>提取本章所有地点提及</li>
+<li>与角色当前位置对比（来自 <code>truth/current_state.md</code>）</li>
+<li>地点之间如果跳跃，检查是否有过渡段落或能力支撑</li>
+<li>使用 Allen 区间代数检查地点间时空关系</li>
+</ul>
+<h3 id="3">3. 事件时序</h3>
+<ul>
+<li>提取本章事件链，按文本顺序编号</li>
+<li>检查事件间逻辑先后关系是否合理</li>
+<li>检测并行事件的时间对齐</li>
+</ul>
+<h3 id="4">4. 物理空间合理性</h3>
+<ul>
+<li>检查场景的空间描述是否一致（同一场景内距离、物体位置）</li>
+<li>如果本章涉及战斗/移动，检查空间逻辑</li>
+</ul>
+<h2 id="_4">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 连续性审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### 时间线</span>
+| 标记 | 位置 | 推断时间 | 上一章末尾时间 | 状态 |
+|------|------|---------|-------------|------|
+| ... | ... | ... | ... | OK/MISMATCH |
+
+<span class="gu">### 地点</span>
+[地点流转记录，标注跳跃和过渡情况]
+
+<span class="gu">### 事件时序</span>
+[事件链编号与逻辑审查]
+
+<span class="gu">### 物理空间</span>
+[空间矛盾标注]
+
+<span class="gu">### 评分: X/10 通过</span>
+</code></pre></div>
+<h2 id="anti-rationalization">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"读者记不住三天前的事件"</td>
+<td>网文读者逐章追更，时间线矛盾是最容易被发现的bug</td>
+</tr>
+<tr>
+<td>"地点跳跃加一句过渡就行"</td>
+<td>过渡不仅是文字，要符合角色能力和时间约束</td>
+</tr>
+<tr>
+<td>"物理合理性不重要，这是玄幻"</td>
+<td>即便玄幻世界，内部物理规则也必须自洽</td>
+</tr>
+<tr>
+<td>"时间线差不多就行了"</td>
+<td>精确的时间线是长篇叙事连续性的骨架</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure**
+
+Read the file and verify it follows the shenbi-writing-skills pattern: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Write pressure test**
+
+Create `tests/skill-behavior/review-catches-bug/phase2-continuity-bug.md` — a chapter with an intentional timeline contradiction (e.g., character arrives at noon but two paragraphs later &quot;the sun was setting&quot;).
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-review-continuity/SKILL.md tests/skill-behavior/review-catches-bug/phase2-continuity-bug.md
+git commit -m &quot;feat: add shenbi-review-continuity skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-2-shenbi-review-character">Task 2-2: shenbi-review-character</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-review-character/SKILL.md</code>
+- Create: <code>skills/shenbi-review-character/ooc-dimensions.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write ooc-dimensions.md (supporting file)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># OOC 检测维度</span>
+
+<span class="gu">## BDI 可信度评估框架</span>
+
+对每个角色评估信念(Belief)、欲望(Desire)、意图(Intention)三元组：
+
+<span class="k">1.</span> <span class="gs">**信念一致性**</span>: 角色根据已知信息做出的推断是否与角色认知一致
+<span class="k">2.</span> <span class="gs">**欲望驱动**</span>: 角色行为是否由已建立的深层欲望驱动
+<span class="k">3.</span> <span class="gs">**意图合理性**</span>: 角色当下的行动意图是否与信念+欲望匹配
+
+<span class="gu">## 检测项目</span>
+
+<span class="gu">### 1. 配角降智</span>
+<span class="k">-</span><span class="w"> </span>为推进主角线而让反派/配角做出不合逻辑的愚蠢决定
+<span class="k">-</span><span class="w"> </span>标志：角色此前被描述为&quot;聪明/精于算计&quot;，但本章做了明显低智选择
+<span class="k">-</span><span class="w"> </span>检测方法：对比角色档案中的 intelligence/tactics 描述
+
+<span class="gu">### 2. 配角工具人化</span>
+<span class="k">-</span><span class="w"> </span>配角出现只为主角提供信息/道具/帮助，没有自身动机
+<span class="k">-</span><span class="w"> </span>标志：配角话语和行为完全服务于主角需求
+<span class="k">-</span><span class="w"> </span>检测方法：检查配角在本章中是否有独立的欲望表达
+
+<span class="gu">### 3. 弧线平坦</span>
+<span class="k">-</span><span class="w"> </span>角色连续多章没有情感或认知变化
+<span class="k">-</span><span class="w"> </span>标志：角色状态在近3章中完全不变
+<span class="k">-</span><span class="w"> </span>检测方法：对比 <span class="sb">`truth/emotional_arcs.md`</span>
+
+<span class="gu">### 4. 声音一致性</span>
+<span class="k">-</span><span class="w"> </span>角色说话风格是否与 <span class="sb">`character.md`</span> 的 <span class="sb">`voice_profile`</span> 一致
+<span class="k">-</span><span class="w"> </span>检查口头禅匹配、句式复杂度、措辞偏好的稳定性
+
+<span class="gu">### 5. 关系动态</span>
+<span class="k">-</span><span class="w"> </span>角色间互动模式是否与前章建立的关系一致
+<span class="k">-</span><span class="w"> </span>未经铺垫的关系突变视为错误
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-character
+<span class="gu">description: Use when checking chapter for character OOC behavior, voice consistency, side character intelligence, or arc flatness</span>
+<span class="gu">---</span>
+
+<span class="gh"># 角色一致性审计</span>
+
+这是默认激活的审计技能（每章必查）。OOC (Out of Character) 检测、声音一致性、配角降智/工具人化检测、弧线平坦检测。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_character {
+    &quot;Read chapter content&quot; -&gt; &quot;Read character profiles (protagonist + major)&quot;;
+    &quot;Read character profiles&quot; -&gt; &quot;Read truth/character_matrix.md&quot;;
+    &quot;Read truth/character_matrix.md&quot; -&gt; &quot;Read truth/emotional_arcs.md (last 3 chapters)&quot;;
+    &quot;Read truth/emotional_arcs.md&quot; -&gt; &quot;Run BDI assessment (ooc-dimensions.md)&quot;;
+    &quot;Run BDI assessment&quot; -&gt; &quot;Run voice consistency check&quot;;
+    &quot;Run voice consistency check&quot; -&gt; &quot;Run side-character check&quot;;
+    &quot;Run side-character check&quot; -&gt; &quot;Run arc flatness check&quot;;
+    &quot;Run arc flatness check&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+    &quot;Report issues with severity&quot; -&gt; &quot;Flag OOC instances by character + dimension&quot;;
+}
+</code></pre></div>
+<h2 id="_5">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>characters/protagonist.md</code>, <code>characters/major/*.md</code>, <code>truth/character_matrix.md</code>, <code>truth/emotional_arcs.md</code></li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_6">铁律</h2>
+<ol>
+<li><strong>OOC = blocking error</strong> — 角色行为违反已建立的性格/动机/声音，视为最高严重级别</li>
+<li><strong>一人一卡</strong> — 每个角色的行为只能与其自身角色档案对比，不能交叉污染</li>
+<li><strong>配角降智是致命毒点</strong> — 为推进剧情让反派/配角降智 = 必须修订</li>
+<li><strong>声音指纹是读者的识别锚</strong> — 角色说话方式突变会让读者感到陌生</li>
+</ol>
+<h2 id="_7">检查执行</h2>
+<p>完整检测维度见 <code>ooc-dimensions.md</code>。执行顺序：</p>
+<ol>
+<li>BDI 可信度评估（信念/欲望/意图三元组）</li>
+<li>声音一致性检查（口头禅、句式、措辞偏好）</li>
+<li>配角降智检测</li>
+<li>配角工具人化检测</li>
+<li>弧线平坦检测</li>
+<li>关系动态检查</li>
+</ol>
+<h2 id="_8">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 角色一致性审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### BDI 评估</span>
+
+| 角色 | 信念 | 欲望 | 意图 | 一致性 |
+|------|------|------|------|--------|
+| 林轩 | OK | OK | OK | PASS |
+| 苏晴 | ? | OK | ISSUE | WARNING |
+
+<span class="gu">### OOC 检测</span>
+
+| 角色 | 维度 | 违规行为 | 预期行为 | 严重度 |
+|------|------|---------|---------|--------|
+| ... | ... | ... | ... | error/warning |
+
+<span class="gu">### 配角检查</span>
+
+| 配角 | 降智? | 工具人? | 独立动机? |
+|------|-------|---------|----------|
+| ... | ... | ... | ... |
+
+<span class="gu">### 声音一致性</span>
+[口头禅匹配 / 句式复杂度 / 措辞偏好]
+
+<span class="gu">### 弧线</span>
+[近3章情感变化曲线]
+
+<span class="gu">### 评分: X/10 通过</span>
+</code></pre></div>
+<h2 id="anti-rationalization_1">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这个角色不需要这么复杂"</td>
+<td>配角降智是网文最大毒点之一，读者会直接弃书</td>
+</tr>
+<tr>
+<td>"为了推动剧情，角色稍微变一下可以"</td>
+<td>角色是故事的灵魂。情节为角色服务，不是反过来</td>
+</tr>
+<tr>
+<td>"声音差异不大，读者听不出"</td>
+<td>角色声音是读者识别角色的锚，相似声音 = 角色模糊</td>
+</tr>
+<tr>
+<td>"这一章没出现多少配角"</td>
+<td>只要出现了就必须确保不降智、不工具人化</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Write pressure test**
+
+Create `tests/skill-behavior/review-catches-bug/phase2-character-bug.md` — a chapter where a previously cautious protagonist makes a reckless decision without motivation change.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-review-character/
+git commit -m &quot;feat: add shenbi-review-character skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-3-shenbi-review-pacing">Task 2-3: shenbi-review-pacing</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-review-pacing/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-pacing
+<span class="gu">description: Use when checking chapter for pacing issues, buildup-release cycle completeness, chapter type sequence monotony, or tension curve flatness</span>
+<span class="gu">---</span>
+
+<span class="gh"># 节奏审计</span>
+
+检查蓄压-爆发周期完整性、连续无爆发检测、日常段落功能验证、章节类型序列多样性。
+
+<span class="k">&gt; </span><span class="ge">激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 7 或 26 时激活。</span>
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_pacing {
+    &quot;Read chapter content&quot; -&gt; &quot;Read genre-config.json (pacingRules + chapterTypes)&quot;;
+    &quot;Read genre-config.json&quot; -&gt; &quot;Read truth/chapter_summaries.md (last 5 chapters)&quot;;
+    &quot;Read truth/chapter_summaries.md&quot; -&gt; &quot;Identify chapter type&quot;;
+    &quot;Identify chapter type&quot; -&gt; &quot;Check buildup-release cycle (last 5 chapters)&quot;;
+    &quot;Check buildup-release cycle&quot; -&gt; &quot;Check consecutive non-FIRE chapters&quot;;
+    &quot;Check consecutive non-FIRE chapters&quot; -&gt; &quot;Check daily-scene function verification&quot;;
+    &quot;Check daily-scene function verification&quot; -&gt; &quot;Check chapter type sequence diversity&quot;;
+    &quot;Check chapter type sequence diversity&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+}
+</code></pre></div>
+<h2 id="_9">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>genre-config.json</code>, <code>truth/chapter_summaries.md</code>, <code>outline/rhythm_principles.md</code> (if exists)</li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_10">铁律</h2>
+<ol>
+<li><strong>蓄压必须有释放</strong> — 连续超过 <code>genre-config.json</code> 的 <code>maxConsecutiveQuest</code> 章 QUEST 无 FIRE → 停滞警告</li>
+<li><strong>爆发后必须有后效</strong> — FIRE 章后不能直接进入下一个 FIRE，需要缓冲</li>
+<li><strong>日常段落必须有功能</strong> — CONSTELLATION 段落不能只是"日常描写"，必须承载信息/关系/伏笔</li>
+</ol>
+<h2 id="_11">检查执行</h2>
+<h3 id="1-">1. 蓄压-爆发周期</h3>
+<ul>
+<li>统计近5章章节类型（QUEST/FIRE/CONSTELLATION）</li>
+<li>检查 <code>maxConsecutiveQuest</code> 和 <code>maxGapQuest</code> 规则是否违反</li>
+</ul>
+<h3 id="2_1">2. 本章节奏分析</h3>
+<ul>
+<li>识别本章类型（与章节备忘的 <code>chapter_type</code> 对比）</li>
+<li>检查类型是否与节奏原则一致</li>
+</ul>
+<h3 id="3_1">3. 日常段落功能验证</h3>
+<ul>
+<li>如果是 CONSTELLATION 章/段，检查其承担的功能（关系推进/信息传递/伏笔铺垫）</li>
+<li>无功能日常 = 流水账警告</li>
+</ul>
+<h3 id="4_1">4. 序列多样性</h3>
+<ul>
+<li>检查近10章类型分布是否过偏（单一类型 &gt; 50% 警告）</li>
+</ul>
+<h2 id="_12">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 节奏审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**本章类型**</span>: COMBAT
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### 近5章类型序列</span>
+| 章节 | 类型 | 蓄压/爆发状态 |
+|------|------|-------------|
+| N-4 | QUEST | 蓄压 |
+| ... | ... | ... |
+
+<span class="gu">### 规则检查</span>
+<span class="k">-</span><span class="w"> </span>maxConsecutiveQuest: 3/5 OK
+<span class="k">-</span><span class="w"> </span>maxGapFIRE: 1/3 OK
+<span class="k">-</span><span class="w"> </span>序列多样性: QUEST 60% OK
+
+<span class="gu">### 评分: X/10 通过</span>
+</code></pre></div>
+<h2 id="anti-rationalization_2">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"连续几章蓄压没问题，读者有耐心"</td>
+<td>现代网文3章无爆点读者开始流失</td>
+</tr>
+<tr>
+<td>"日常章节写写无所谓"</td>
+<td>无功能日常 = 读者跳读窗口 = 弃书风险</td>
+</tr>
+<tr>
+<td>"爆发章后直接接下一个高潮"</td>
+<td>没有缓冲的连续爆发 = 读者麻木</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Write pressure test**
+
+Create `tests/skill-behavior/review-catches-bug/phase2-pacing-bug.md`.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-review-pacing/SKILL.md tests/skill-behavior/review-catches-bug/phase2-pacing-bug.md
+git commit -m &quot;feat: add shenbi-review-pacing skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-4-shenbi-review-foreshadowing">Task 2-4: shenbi-review-foreshadowing</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-review-foreshadowing/SKILL.md</code>
+- Create: <code>skills/shenbi-review-foreshadowing/hook-lifecycle.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write hook-lifecycle.md (supporting file)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># 伏笔生命周期参考</span>
+
+<span class="gu">## 五种状态（Phase 2 审计简化模型）</span>
+
+<span class="k">&gt; </span><span class="ge">Phase 2 审计用简化模型。Phase 3 的完整状态机（含 ABANDONED、EXPIRED、DEFER 操作）见 `skills/shenbi-foreshadowing-track/lifecycle-states.md`。</span>
+
+| 状态 | 含义 | 可执行操作 |
+|------|------|----------|
+| PLANTED | 已种植，读者尚未注意到 | REINFORCE, PROMOTE |
+| RELEVANT | 已被提醒，读者开始注意 | TRIGGER |
+| TRIGGERED | 已触发，准备兑现 | RESOLVE |
+| RESOLVED | 已兑现 | ARCHIVE |
+| ABANDONED | 已放弃 | — (不可恢复) |
+
+<span class="k">&gt; </span><span class="ge">注意：DEFER 操作不在 Phase 2 审计模型中。审计只检查伏笔是否按约定推进，不负责修改伏笔生命周期。DEFER 由 Phase 3 的 `foreshadowing-track` 执行。</span>
+
+<span class="gu">## 培育规则</span>
+
+<span class="k">-</span><span class="w"> </span><span class="sb">`cultivation_interval`</span>: 每 N 章需要一次强化
+<span class="k">-</span><span class="w"> </span><span class="sb">`max_distance`</span>: 最大种植到兑现距离（章）
+<span class="k">-</span><span class="w"> </span><span class="sb">`last_reinforced`</span>: 上次强化所在章
+<span class="k">-</span><span class="w"> </span>超过 <span class="sb">`max_distance`</span> 未兑现 → 警告
+
+<span class="gu">## 密度预算</span>
+
+<span class="k">-</span><span class="w"> </span>每章最多 8 次伏笔操作（plant + reinforce + trigger + resolve）
+<span class="k">-</span><span class="w"> </span>超过 → 密度异常警告
+
+<span class="k">&gt; </span><span class="ge">这是 Phase 2 用于审计的简化版本。完整状态机（含 ABANDONED、ARCHIVED、DEFER）见 Phase 3 的 `skills/shenbi-foreshadowing-track/lifecycle-states.md`。</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-foreshadowing
+<span class="gu">description: Use when checking chapter for foreshadowing debt escalation, cultivation interval expiry, density anomalies, subplot stagnation, or hook ledger consistency</span>
+<span class="gu">---</span>
+
+<span class="gh"># 伏笔审计</span>
+
+检查伏笔债务升级、培育间隔过期、密度异常、支线停滞、伏笔账本一致性。
+
+<span class="k">&gt; </span><span class="ge">激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 6 或 24 时激活。</span>
+
+<span class="k">&gt; </span><span class="ge">**Phase 2 limitation:** Before Phase 3&#39;s foreshadowing-track is implemented, `truth/pending_hooks.md` may be empty or a placeholder. The audit will report PASS by default. Full functionality activates after Phase 3 populates the hook pool.</span>
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_foreshadowing {
+    &quot;Read chapter content&quot; -&gt; &quot;Read truth/pending_hooks.md&quot;;
+    &quot;Read truth/pending_hooks.md&quot; -&gt; &quot;Read plans/chapter-N-plan.md (hook ledger section)&quot;;
+    &quot;Read plans/chapter-N-plan.md&quot; -&gt; &quot;Check cultivation intervals&quot;;
+    &quot;Check cultivation intervals&quot; -&gt; &quot;Check max_distance expirations&quot;;
+    &quot;Check max_distance expirations&quot; -&gt; &quot;Check subplot board for stagnation&quot;;
+    &quot;Check subplot board for stagnation&quot; -&gt; &quot;Check hook memo vs actual chapter delivery&quot;;
+    &quot;Check hook memo vs actual chapter delivery&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+}
+</code></pre></div>
+<h2 id="_13">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>truth/pending_hooks.md</code>, <code>plans/chapter-N-plan.md</code></li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_14">铁律</h2>
+<ol>
+<li><strong>过期伏笔 = error</strong> — 超过 <code>max_distance</code> 未兑现必须标记</li>
+<li><strong>支线停滞 &gt; 5章 = warning</strong> — 支线推进的活跃度</li>
+<li><strong>备忘 hook 账必须与正文一致</strong> — memo 中说要兑现的伏笔正文是否兑现</li>
+<li><strong>密度预算不超 8 操作/章</strong> — 含种植、强化、触发、兑现</li>
+</ol>
+<h2 id="_15">检查执行</h2>
+<p>参见 <code>hook-lifecycle.md</code>。执行顺序：</p>
+<ol>
+<li>培育间隔检查（距上次强化是否超过 <code>cultivation_interval</code>）</li>
+<li>距离上限检查（距种植是否超过 <code>max_distance</code>）</li>
+<li>支线停滞检测（从 <code>subplot_board.md</code> 检查各支线最后更新章节）</li>
+<li>备忘 hook 账验证（memo 中的 open/advance/resolve/defer 与正文匹配）</li>
+<li>密度检查（本操作数是否超 8）</li>
+</ol>
+<h2 id="_16">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 伏笔审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### 培育间隔</span>
+| Hook ID | 上次强化 | 本章 | 间隔 | 阈值 | 状态 |
+|---------|---------|------|------|------|------|
+| ... | ... | ... | ... | ... | OK/OVERDUE |
+
+<span class="gu">### 距离上限</span>
+| Hook ID | 种植章 | 本章 | max_distance | 状态 |
+|---------|--------|------|-------------|------|
+| ... | ... | ... | ... | OK/EXPIRED |
+
+<span class="gu">### 备忘验证</span>
+| 备忘操作 | 实际兑现 | 状态 |
+|---------|---------|------|
+| open hook-003 | ✓ | MATCH |
+| advance hook-002 | ✓ | MATCH |
+| resolve none | — | OK |
+
+<span class="gu">### 密度: N/8 操作</span>
+
+<span class="gu">### 评分: X/10 通过</span>
+</code></pre></div>
+<h2 id="anti-rationalization_3">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这条伏笔太久了，算了放弃"</td>
+<td>放弃伏笔 = 违背读者信任，Chase Power 债务暴增</td>
+</tr>
+<tr>
+<td>"伏笔不重要，故事推进就行"</td>
+<td>伏笔是长篇叙事的骨架，没有伏笔 = 没有期待 = 没有追读</td>
+</tr>
+<tr>
+<td>"8条操作预算太少了"</td>
+<td>每章8条操作 × 2000章 = 16000次伏笔操作，足够</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Write pressure test**
+
+Create `tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md` — a chapter with a hook that was promised to resolve in the memo but is absent from the text, plus a foreshadowing item that exceeds its `max_distance`.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-review-foreshadowing/ tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md
+git commit -m &quot;feat: add shenbi-review-foreshadowing skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="task-2-5-shenbi-style-polishing">Task 2-5: shenbi-style-polishing</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-style-polishing/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-style-polishing
+<span class="gu">description: Use when a chapter has been drafted and audit-passed, and surface-level prose quality needs improvement without altering plot or character</span>
+<span class="gu">---</span>
+
+<span class="gh"># 文字层润色</span>
+
+润色章节的文字表达、节奏和段落呼吸感。禁止增删情节、改变人设、调整主线。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph style_polishing {
+    &quot;Read chapter content&quot; -&gt; &quot;Read style/style_profile.md (if exists)&quot;;
+    &quot;Read style/style_profile.md&quot; -&gt; &quot;Read genre-config.json (fatigueWords + prohibitions)&quot;;
+    &quot;Read genre-config.json&quot; -&gt; &quot;Polish: sentence rhythm&quot;;
+    &quot;Polish: sentence rhythm&quot; -&gt; &quot;Polish: paragraph breathing&quot;;
+    &quot;Polish: paragraph breathing&quot; -&gt; &quot;Polish: word choice (replace fatigue words)&quot;;
+    &quot;Polish: word choice&quot; -&gt; &quot;Check: no plot/character/motivation changes&quot;;
+    &quot;Check: no plot/character/motivation changes&quot; -&gt; &quot;Output polished chapter&quot;;
+}
+</code></pre></div>
+<h2 id="_17">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>genre-config.json</code>, <code>style/style_profile.md</code></li>
+<li><strong>Writes:</strong> none (edits chapter in-place)</li>
+<li><strong>Updates:</strong> <code>chapters/chapter-N.md</code></li>
+</ul>
+<h2 id="_18">铁律</h2>
+<ol>
+<li><strong>只改表达，不动情节</strong> — 不能增删事件、不能改变角色行为、不能调整情感基调</li>
+<li><strong>只改善，不恶化</strong> — 字数变化 ≤ ±15%，不能引入 AI 味</li>
+<li><strong>发现结构问题只标记</strong> — 如果发现需要结构调整的段落，用 <code>[polisher-note]</code> 标记，不自行修改</li>
+<li><strong>保持风格指纹</strong> — 如果 <code>style/style_profile.md</code> 存在，必须遵循风格指纹</li>
+</ol>
+<h2 id="_19">润色维度</h2>
+<h3 id="1_1">1. 句长控制</h3>
+<ul>
+<li>过长的句子（&gt; 50字）考虑拆分为2-3句</li>
+<li>过短的连续短句考虑合并以改善节奏</li>
+<li>目标：句长变异系数 &gt; 0.25</li>
+</ul>
+<h3 id="2_2">2. 段落呼吸</h3>
+<ul>
+<li>过长的段落（&gt; 8句）考虑拆分</li>
+<li>检查段落首句多样性</li>
+<li>检查段落间过渡</li>
+</ul>
+<h3 id="3_2">3. 用词替换</h3>
+<ul>
+<li>替换疲劳词（从 <code>genre-config.json</code> 的 <code>fatigueWords</code> 读取）</li>
+<li>替换重复高频词</li>
+<li>避免连续段落使用相同句式</li>
+</ul>
+<h3 id="4_2">4. 修辞优化</h3>
+<ul>
+<li>标记不自然的比喻</li>
+<li>标记重复的修辞模式</li>
+<li>不做大的修辞重写</li>
+</ul>
+<h2 id="_20">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gh"># 润色后的第N章</span>
+
+[完整的润色后章节正文]
+
+---
+
+<span class="gu">## 润色说明</span>
+
+<span class="gu">### 修改统计</span>
+<span class="k">-</span><span class="w"> </span>句子拆分: N处
+<span class="k">-</span><span class="w"> </span>段落重组: N处
+<span class="k">-</span><span class="w"> </span>用词替换: N处
+<span class="k">-</span><span class="w"> </span>总字数变化: +N/-N (X%)
+
+<span class="gu">### [polisher-note] (如需)</span>
+<span class="k">-</span><span class="w"> </span>[段落位置] 描述: 注意到的结构问题
+</code></pre></div>
+<h2 id="anti-rationalization_4">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"顺手把这段情节也改了吧"</td>
+<td>plot/motivation 修改属于 revision，不属于 polishing</td>
+</tr>
+<tr>
+<td>"改得越多越好"</td>
+<td>过度润色 = 抹去作者风格 = AI 味</td>
+</tr>
+<tr>
+<td>"这段表达有问题我重写一下"</td>
+<td>重写 = 改变叙事视角 = 超出润色范围</td>
+</tr>
+<tr>
+<td>"修辞统一一下更好看"</td>
+<td>修辞多样性是避免 AI 味的关键</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Write pressure test**
+
+Create `tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md` — a chapter with uniform sentence lengths, repeated fatigue words, and a paragraph where polishing must NOT change the plot (verifiable by checking that all events remain intact after polishing).
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-style-polishing/SKILL.md tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md
+git commit -m &quot;feat: add shenbi-style-polishing skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-6-shenbi-foundation-review">Task 2-6: shenbi-foundation-review</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-foundation-review/SKILL.md</code>
+- Create: <code>skills/shenbi-foundation-review/scoring-rubric.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write scoring-rubric.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># 基础设定评分标准</span>
+
+总分 100，80+ 通过。未通过的项目需要返回修改后再审。
+
+<span class="gu">## 维度 1: 核心冲突 (30分)</span>
+
+| 分数 | 标准 |
+|------|------|
+| 25-30 | 三层冲突明确（表面/个人/深层），各层有独立张力 |
+| 18-24 | 有两层冲突，第三层模糊 |
+| 10-17 | 只有一层冲突，其余未定义 |
+| 0-9 | 无明显冲突 |
+
+<span class="gu">## 维度 2: 开篇节奏 (20分)</span>
+
+| 分数 | 标准 |
+|------|------|
+| 17-20 | 前三章有明确 Hook + 悬念 + 第一次升级 |
+| 12-16 | 有 Hook 但节奏偏慢 |
+| 6-11 | 有设定但无冲突推进 |
+| 0-5 | 纯设定/纯日常开头 |
+
+<span class="gu">## 维度 3: 世界一致性 (20分)</span>
+
+| 分数 | 标准 |
+|------|------|
+| 17-20 | 规则明确、无自相矛盾、有足够约束 |
+| 12-16 | 规则存在但有模糊地带 |
+| 6-11 | 规则不完整 |
+| 0-5 | 无明确规则 |
+
+<span class="gu">## 维度 4: 角色区分度 (20分)</span>
+
+| 分数 | 标准 |
+|------|------|
+| 17-20 | 主角+2+配角有独立 voice、动机、成长弧线 |
+| 12-16 | 主角突出，配角扁平但无重复 |
+| 6-11 | 有配角但同质化 |
+| 0-5 | 角色不可区分 |
+
+<span class="gu">## 维度 5: 伏笔潜力 (10分)</span>
+
+| 分数 | 标准 |
+|------|------|
+| 8-10 | 世界观包含 ≥3 个可长期培育的悬念种子 |
+| 5-7 | 有 1-2 个悬念种子 |
+| 2-4 | 有提及但未展开 |
+| 0-1 | 无可识别的伏笔潜力 |
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-foundation-review
+<span class="gu">description: Use when reviewing the complete worldbuilding + character + story architecture foundation before writing begins, or when a human partner asks for a quality assessment of story fundamentals</span>
+<span class="gu">---</span>
+
+<span class="gh"># 基础设定审核</span>
+
+HARD-GATE: 在基础设定未通过审核（总分 ≥ 80）前，不得进入逐章写作。
+
+审核创世层输出（worldbuilding + character-design + story-architecture），对五个维度打分。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph foundation_review {
+    &quot;Read all world/ files&quot; -&gt; &quot;Read all character/ files&quot;;
+    &quot;Read all character/ files&quot; -&gt; &quot;Read outline/story_frame.md&quot;;
+    &quot;Read outline/story_frame.md&quot; -&gt; &quot;Score: core conflict (30pts)&quot;;
+    &quot;Score: core conflict (30pts)&quot; -&gt; &quot;Score: opening rhythm (20pts)&quot;;
+    &quot;Score: opening rhythm (20pts)&quot; -&gt; &quot;Score: world consistency (20pts)&quot;;
+    &quot;Score: world consistency (20pts)&quot; -&gt; &quot;Score: character distinction (20pts)&quot;;
+    &quot;Score: character distinction (20pts)&quot; -&gt; &quot;Score: foreshadowing potential (10pts)&quot;;
+    &quot;Score: foreshadowing potential (10pts)&quot; -&gt; &quot;Total ≥ 80?&quot;;
+    &quot;Total ≥ 80?&quot; -&gt; &quot;APPROVED — proceed to writing&quot; [label=&quot;yes&quot;];
+    &quot;Total ≥ 80?&quot; -&gt; &quot;RETURN — list failing dimensions with fix guidance&quot; [label=&quot;no&quot;];
+}
+</code></pre></div>
+<h2 id="_21">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>world/*.md</code>, <code>characters/**/*.md</code>, <code>outline/*.md</code>, <code>truth/current_state.md</code> (may be empty template), <code>truth/chapter_summaries.md</code> (may be empty template), <code>novel.json</code>, <code>genre-config.json</code></li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<blockquote>
+<p><strong>Note:</strong> <code>truth/current_state.md</code> and <code>truth/chapter_summaries.md</code> are initialized as empty templates by <code>shenbi-worldbuilding</code> (see Phase 1 plan Section "输出契约"). If no chapters have been written, these contain only frontmatter with empty bodies. The foundation-review reads them to verify they exist and are properly initialized; the scoring itself is driven primarily by <code>world/</code>, <code>characters/</code>, and <code>outline/</code> content.</p>
+</blockquote>
+<h2 id="_22">铁律</h2>
+<ol>
+<li><strong>总分 80 = 最低门槛</strong> — &lt; 80 必须返回修改，不商量</li>
+<li><strong>核心冲突 &lt; 18 = 自动不通过</strong> — 无论其他维度多高</li>
+<li><strong>只审核已生成的内容</strong> — 不为缺失的内容假设分数</li>
+<li><strong>每个扣分必须附带具体改进建议</strong> — 不让人类合作者猜测如何改进</li>
+</ol>
+<h2 id="_23">审核清单</h2>
+<p>参见 <code>scoring-rubric.md</code> 获取详细评分标准。</p>
+<h2 id="_24">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 基础设定审核报告</span>
+
+<span class="gs">**项目**</span>: 《XXX》
+<span class="gs">**日期**</span>: YYYY-MM-DD
+<span class="gs">**结果**</span>: 通过 (XX分) / 不通过 (XX分)
+
+<span class="gu">### 评分明细</span>
+
+| 维度 | 得分 | 满分 | 评价 |
+|------|------|------|------|
+| 核心冲突 | XX | 30 | ... |
+| 开篇节奏 | XX | 20 | ... |
+| 世界一致性 | XX | 20 | ... |
+| 角色区分度 | XX | 20 | ... |
+| 伏笔潜力 | XX | 10 | ... |
+| <span class="gs">**总分**</span> | <span class="gs">**XX**</span> | <span class="gs">**100**</span> | |
+
+<span class="gu">### 不通过维度改进建议</span>
+[具体建议，每条指向具体文件/段落]
+</code></pre></div>
+<h2 id="anti-rationalization_5">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"60分也差不多可以开始写了"</td>
+<td>基础不牢，写到20章必崩</td>
+</tr>
+<tr>
+<td>"核心冲突以后补上"</td>
+<td>没有核心冲突的故事没有灵魂，读者能感受到</td>
+</tr>
+<tr>
+<td>"角色区分度不重要，故事好就行"</td>
+<td>同质化角色 = 读者分不清谁是谁 = 弃书</td>
+</tr>
+<tr>
+<td>"这些维度太严格了"</td>
+<td>5维度 ×简单评分 = 最简单的系统性质量把控</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-foundation-review/
+git commit -m &quot;feat: add shenbi-foundation-review skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-7-shenbi-drift-guidance">Task 2-7: shenbi-drift-guidance</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-drift-guidance/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-drift-guidance
+<span class="gu">description: Use when a chapter has completed all audits and results need to be conveyed to the next chapter&#39;s writing context</span>
+<span class="gu">---</span>
+
+<span class="gh"># 审计纠偏传导</span>
+
+把当前章节的审计问题转化为下一章的写作指导，写入 <span class="sb">`truth/audit_drift.md`</span>，在 context-composing 阶段自动导入。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph drift_guidance {
+    &quot;Read all audit reports for current chapter&quot; -&gt; &quot;Categorize issues by source audit&quot;;
+    &quot;Categorize issues by source audit&quot; -&gt; &quot;For each issue: determine if it conducts forward&quot;;
+    &quot;For each issue: determine if it conducts forward&quot; -&gt; &quot;Generate targeted guidance for next chapter&quot;;
+    &quot;Generate targeted guidance for next chapter&quot; -&gt; &quot;Write truth/audit_drift.md&quot;;
+    &quot;Write truth/audit_drift.md&quot; -&gt; &quot;Report conduction summary&quot;;
+}
+</code></pre></div>
+<h2 id="_25">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, all audit reports for current chapter</li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/audit_drift.md</code></li>
+</ul>
+<h2 id="_26">铁律</h2>
+<ol>
+<li><strong>error 级别不传导</strong> — error 必须在当前章修订中修复，修复后不传导</li>
+<li><strong>warning 级别传导</strong> — warning 可以传导给下一章（如"转折词密度偏高→下章注意"）</li>
+<li><strong>每条传导必须指定目标章节</strong> — <code>targeted_chapter</code> 字段</li>
+<li><strong>累积传导 ≤ 5 条</strong> — 过多传导 = 审计噪音</li>
+</ol>
+<h2 id="_27">传导规则</h2>
+<h3 id="_28">不传导的类型</h3>
+<ul>
+<li>破折号、错别字、具体措辞问题 → 必须当前章修复</li>
+<li>结构性问题 → 必须当前章修订</li>
+</ul>
+<h3 id="_29">可传导的类型</h3>
+<ul>
+<li>风格趋势（转折词偏高、段落偏长）</li>
+<li>伏笔提醒（某条伏笔下章需要强化）</li>
+<li>节奏趋势（连续N章无爆发）</li>
+<li>角色弧线（连续N章无情感变化）</li>
+</ul>
+<h2 id="_30">输出格式</h2>
+<p>写入 <code>truth/audit_drift.md</code>：</p>
+<div class="highlight"><pre><span></span><code>---
+chapter: 5
+drift_items:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>source_audit: review-pacing
+    severity: warning
+    issue: &quot;连续3章无 FIRE，下章建议安排爆发点&quot;
+    guidance: &quot;第6章建议在章中或章末安排一个读者可见的阶段性成果（如通过内门考核第一轮）&quot;
+    targeted_chapter: 6
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>source_audit: review-anti-ai
+    severity: warning
+    issue: &quot;转折词密度偏高（4次/3000字）&quot;
+    guidance: &quot;第6章起草时目标转折词 ≤ 3次，优先用动作推进替代然而/突然&quot;
+<span class="gu">    targeted_chapter: 6</span>
+<span class="gu">---</span>
+</code></pre></div>
+<h2 id="anti-rationalization_6">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"下章自然会注意这些问题"</td>
+<td>没有明确指导，问题会在下章重复出现</td>
+</tr>
+<tr>
+<td>"传导太多条了，反正也记不住"</td>
+<td>最多5条，每条指向具体改进项</td>
+</tr>
+<tr>
+<td>"warning不重要，不需要传导"</td>
+<td>warning趋势持续 = 5章后变成error</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-drift-guidance/SKILL.md
+git commit -m &quot;feat: add shenbi-drift-guidance skill (Phase 2)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-2-completion-checklist">Phase 2 Completion Checklist</h3>
+<ul>
+<li>[ ] All 7 Phase 2 skills created and committed</li>
+<li>[ ] Default-audit skills (continuity, character) include an activation note in their SKILL.md body: "这是默认激活的审计技能（每章必查）" — matching the activation rules in spec Section 7.4 (sensitivity deferred to Phase 4a)</li>
+<li>[ ] Verify each skill has valid YAML frontmatter with <code>name</code> (alphanumeric+hyphens) and English <code>description</code> (trigger conditions only, ≤500 chars)</li>
+<li>[ ] Verify each skill follows shenbi-writing-skills pattern (DOT + iron laws + anti-rationalization)</li>
+<li>[ ] Pressure tests written for audit skills: continuity, character, pacing, foreshadowing. Foundation-review and drift-guidance verified through integration testing.</li>
+<li>[ ] Update <code>chapter-revision</code> revision-modes.md auto-routing: add Phase 2 audit output routes (OOC → rewrite, continuity → rewrite)</li>
+</ul>
+<hr />
+<h1 id="phase-3-7-skills">Phase 3: 伏笔与管理 (7 skills)</h1>
+<p><strong>Goal:</strong> Implement the full foreshadowing lifecycle (plant → track → resolve), truth file synchronization, snapshot management, author intent tracking, and volume consolidation.</p>
+<p><strong>Architecture:</strong> The three foreshadowing skills form a pipeline: plant operates before drafting, track operates after state-settling, resolve operates after audits pass. Management skills (truth-sync, snapshot-manage, intent-management, volume-consolidation) provide data infrastructure.</p>
+<p><strong>Dependencies:</strong> Phase 2 complete. Phase 2's <code>review-foreshadowing</code> audits the hooks managed by Phase 3's plant/track/resolve. Both phases share <code>truth/pending_hooks.md</code> as the single source of truth.</p>
+<hr />
+<h3 id="task-3-1-shenbi-foreshadowing-plant">Task 3-1: shenbi-foreshadowing-plant</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-foreshadowing-plant/SKILL.md</code>
+- Create: <code>skills/shenbi-foreshadowing-plant/hook-types.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write hook-types.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># 伏笔类型参考</span>
+
+<span class="gu">## 按真实性分类</span>
+
+| 类型 | 含义 | 标记颜色 | 说明 |
+|------|------|---------|------|
+| GENUINE | 真实伏笔 | 🟢 | 确实会兑现的情节线索 |
+| SMOKESCREEN | 烟雾弹 | 🟡 | 故意误导读者，制造悬念 |
+| SIDE_SHADOW | 侧面影 | 🔵 | 不起眼的暗示，为后续事件做铺垫 |
+
+<span class="gu">## 按维度分类</span>
+
+| 维度 | 含义 | 示例 |
+|------|------|------|
+| THEMATIC | 主题伏笔 | 反复出现的意象、象征物 |
+| CHARACTER | 角色伏笔 | 角色隐藏身份、过去经历 |
+| SYMBOLIC | 象征伏笔 | 物品、地点、数字的象征意义 |
+| STRUCTURAL | 结构伏笔 | 章节结构、叙事模式的预兆 |
+
+<span class="gu">## 升级曲线</span>
+
+| 曲线类型 | 含义 | 使用场景 |
+|---------|------|---------|
+| FLAT | 维持同一强度 | 背景伏笔、长线暗示 |
+| RISING | 逐渐增强 | 主线伏笔、悬念培育 |
+| EXPONENTIAL | 指数增长 | 终极揭秘、卷末高潮 |
+
+<span class="gu">## 微妙度等级</span>
+
+0.0-0.3: 明显（大部分读者会注意到）
+0.3-0.6: 中等（细心的读者会注意到）
+0.6-0.9: 微妙（只有回头重读才会发现）
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-foreshadowing-plant
+<span class="gu">description: Use when a chapter memo&#39;s hook ledger contains OPEN items that need foreshadowing planted before drafting begins</span>
+<span class="gu">---</span>
+
+<span class="gh"># 伏笔种植</span>
+
+HARD-GATE: 必须在章节备忘完成后、正文起草前执行。根据备忘的 hook 账（open项）种植新伏笔。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph foreshadowing_plant {
+    &quot;Read plans/chapter-N-plan.md (hook ledger)&quot; -&gt; &quot;Read truth/pending_hooks.md (existing hooks)&quot;;
+    &quot;Read truth/pending_hooks.md&quot; -&gt; &quot;Check density budget (\u2264 8 operations)&quot;;
+    &quot;Check density budget&quot; -&gt; &quot;For each OPEN hook: design planting&quot;;
+    &quot;For each OPEN hook: design planting&quot; -&gt; &quot;Assign type (GENUINE/SMOKESCREEN/SIDE_SHADOW)&quot;;
+    &quot;Assign type&quot; -&gt; &quot;Assign dimension (THEMATIC/CHARACTER/SYMBOLIC/STRUCTURAL)&quot;;
+    &quot;Assign dimension&quot; -&gt; &quot;Set subtlety (0.0-1.0) + cultivation_interval + max_distance&quot;;
+    &quot;Set subtlety&quot; -&gt; &quot;Set escalation_curve (FLAT/RISING/EXPONENTIAL)&quot;;
+    &quot;Set escalation_curve&quot; -&gt; &quot;Check cross-thread dependencies&quot;;
+    &quot;Check cross-thread dependencies&quot; -&gt; &quot;Write new hooks to truth/pending_hooks.md&quot;;
+}
+</code></pre></div>
+<h2 id="_31">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>truth/pending_hooks.md</code>, chapter plan from chapter-planning output, <code>genre-config.json</code></li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/pending_hooks.md</code></li>
+</ul>
+<h2 id="_32">铁律</h2>
+<ol>
+<li><strong>每章操作 ≤ 8 条</strong> — 包括 plant、reinforce、trigger、resolve</li>
+<li><strong>种植前必须读已有伏笔</strong> — 避免重复或矛盾</li>
+<li><strong>每个新伏笔必须定义完整的元数据</strong> — type, dimension, subtlety, cultivation_interval, max_distance, escalation_curve</li>
+<li><strong>跨线程依赖必须记录</strong> — <code>depends_on</code> 字段</li>
+<li><strong>烟雾弹必须有退出策略</strong> — 标记为 SMOKESCREEN 的伏笔必须在 <code>notes</code> 中写明何时/如何处理</li>
+</ol>
+<h2 id="_33">种植指南</h2>
+<h3 id="_34">选择埋伏笔的位置</h3>
+<ol>
+<li><strong>日常段落</strong> — 最佳位置，读者放松时最容易忽略暗示</li>
+<li><strong>战斗段落</strong> — 适合种植象征性伏笔（某件物品、某个动作）</li>
+<li><strong>对话段落</strong> — 适合种植信息型伏笔（角色的"随口一提"）</li>
+<li><strong>避免</strong> — 不要在章节末尾高潮段埋伏新笔画，读者注意力在还前面</li>
+</ol>
+<h3 id="_35">微妙度策略</h3>
+<ul>
+<li>主线伏笔: subtlety 0.4-0.6（需要能被部分读者注意到）</li>
+<li>支线伏笔: subtlety 0.6-0.8（可以更深）</li>
+<li>烟雾弹: subtlety 0.3-0.5（需要能被注意到才能误导）</li>
+<li>侧面影: subtlety 0.7-0.9（极微妙，为回头重读准备）</li>
+</ul>
+<h2 id="_36">输出格式</h2>
+<p>追加到 <code>truth/pending_hooks.md</code> 的 YAML frontmatter <code>hooks</code> 数组：</p>
+<div class="highlight"><pre><span></span><code><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hook-004</span>
+<span class="w">  </span><span class="nt">content</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;考核结束后，玉珮发出一声低鸣——只有主角听见&quot;</span>
+<span class="w">  </span><span class="nt">state</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">PLANTED</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">GENUINE</span>
+<span class="w">  </span><span class="nt">dimension</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">CHARACTER</span>
+<span class="w">  </span><span class="nt">subtlety</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">0.6</span>
+<span class="w">  </span><span class="nt">plant_chapter</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">cultivation_interval</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">last_reinforced</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">  </span><span class="nt">max_distance</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">20</span>
+<span class="w">  </span><span class="nt">escalation_curve</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">RISING</span>
+<span class="w">  </span><span class="nt">depends_on</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="w">  </span><span class="nt">core_hook</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+<span class="w">  </span><span class="nt">promoted</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div>
+<h2 id="anti-rationalization_7">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章太简单了，不需要伏笔"</td>
+<td>简单章节恰好是埋伏笔的最佳时机——读者放松警惕</td>
+</tr>
+<tr>
+<td>"读者不会注意到这么细节的东西"</td>
+<td>网文读者的重读习惯和评论文化使细节容易被发掘</td>
+</tr>
+<tr>
+<td>"先种上再说，以后决定怎么用"</td>
+<td>无规划伏笔 = 最后不得不放弃 = Chase Power 债务</td>
+</tr>
+<tr>
+<td>"微妙度设高点没人会发现"</td>
+<td>伏笔的目的不是隐藏，是让读者在兑现时产生"啊原来如此"</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Verify skill structure**
+
+Read the file and verify it follows the shenbi-writing-skills pattern: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-foreshadowing-plant/
+git commit -m &quot;feat: add shenbi-foreshadowing-plant skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-2-shenbi-foreshadowing-track">Task 3-2: shenbi-foreshadowing-track</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-foreshadowing-track/SKILL.md</code>
+- Create: <code>skills/shenbi-foreshadowing-track/lifecycle-states.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write lifecycle-states.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># 伏笔生命周期状态机</span>
+
+<span class="gu">## 状态转换图</span>
+
+```dot
+digraph hook_lifecycle {
+    PLANTED -&gt; RELEVANT [label=&quot;REINFORCE (培育强化)&quot;];
+    PLANTED -&gt; PLANTED [label=&quot;PROMOTE (提升微妙度)&quot;];
+    RELEVANT -&gt; TRIGGERED [label=&quot;TRIGGER (触发)&quot;];
+    RELEVANT -&gt; RELEVANT [label=&quot;REINFORCE (继续强化)&quot;];
+    RELEVANT -&gt; RELEVANT [label=&quot;DEFER (延迟兑现)&quot; style=dashed];
+    TRIGGERED -&gt; RESOLVED [label=&quot;RESOLVE (兑现)&quot;];
+    TRIGGERED -&gt; EXPIRED [label=&quot;EXPIRE (超时)&quot; style=dashed color=orange];
+    RESOLVED -&gt; ARCHIVED [label=&quot;ARCHIVE (归档)&quot;];
+    PLANTED -&gt; ABANDONED [label=&quot;ABANDON (放弃)&quot; style=dashed color=red];
+    RELEVANT -&gt; ABANDONED [label=&quot;ABANDON&quot; style=dashed color=red];
+}
+</code></pre></div>
+<h2 id="_37">操作定义</h2>
+<table>
+<thead>
+<tr>
+<th>操作</th>
+<th>适用状态</th>
+<th>效果</th>
+<th>成本</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>REINFORCE</td>
+<td>PLANTED, RELEVANT</td>
+<td>强化读者对该线索的印象，推进 escalation_curve</td>
+<td>1</td>
+</tr>
+<tr>
+<td>PROMOTE</td>
+<td>PLANTED</td>
+<td>降低 subtlety（让伏笔更明显），准备进入 RELEVANT</td>
+<td>1</td>
+</tr>
+<tr>
+<td>TRIGGER</td>
+<td>RELEVANT</td>
+<td>触发伏笔，进入兑现准备</td>
+<td>1</td>
+</tr>
+<tr>
+<td>DEFER</td>
+<td>RELEVANT</td>
+<td>延迟兑现（重置 max_distance 倒计时，不推进状态）</td>
+<td>1</td>
+</tr>
+<tr>
+<td>RESOLVE</td>
+<td>TRIGGERED</td>
+<td>兑现伏笔</td>
+<td>1</td>
+</tr>
+<tr>
+<td>ARCHIVE</td>
+<td>RESOLVED</td>
+<td>归档已完成伏笔</td>
+<td>0</td>
+</tr>
+<tr>
+<td>ABANDON</td>
+<td>PLANTED, RELEVANT</td>
+<td>放弃伏笔（增加 Chase Power 债务）</td>
+<td>0 (+debt)</td>
+</tr>
+<tr>
+<td>EXPIRE</td>
+<td>TRIGGERED</td>
+<td>超过 max_distance 未兑现（自动触发，标记为需紧急处理）</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_38">晋升规则</h2>
+<ul>
+<li>PROMOTE 后 subtlety 降低 0.1-0.2</li>
+<li>subtlety 降至 &lt; 0.3 时自动进入 RELEVANT</li>
+<li>core_hook = true 的伏笔不允许 ABANDON</li>
+</ul>
+<h2 id="_39">培育间隔检查</h2>
+<ul>
+<li><code>current_chapter - last_reinforced &gt; cultivation_interval</code> → 培育过期</li>
+<li>培育过期不处理 → 下次检查标记为 OVERDUE</li>
+<li>连续 2 次 OVERDUE → 自动 ABANDON
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Write SKILL.md**
+
+```markdown
+---
+name: shenbi-foreshadowing-track
+description: Use when a chapter has been drafted and state-settled, and foreshadowing hooks need their lifecycle states evaluated and updated
+---
+
+# 伏笔追踪
+
+在每章起草并结算状态后，更新 `truth/pending_hooks.md` 中所有活跃伏笔的状态。
+
+## 流程
+
+```dot
+digraph foreshadowing_track {
+    &quot;Read chapter content&quot; -&gt; &quot;Read truth/pending_hooks.md&quot;;
+    &quot;Read truth/pending_hooks.md&quot; -&gt; &quot;For each active hook: check if advanced in this chapter&quot;;
+    &quot;For each active hook: check if advanced in this chapter&quot; -&gt; &quot;Update state transitions (lifecycle-states.md)&quot;;
+    &quot;Update state transitions&quot; -&gt; &quot;Update last_reinforced / subtlety&quot;;
+    &quot;Update last_reinforced / subtlety&quot; -&gt; &quot;Check cultivation interval expirations&quot;;
+    &quot;Check cultivation interval expirations&quot; -&gt; &quot;Check max_distance approaching&quot;;
+    &quot;Check max_distance approaching&quot; -&gt; &quot;Compute density budget (this chapter)&quot;;
+    &quot;Compute density budget&quot; -&gt; &quot;Write updated hooks to truth/pending_hooks.md&quot;;
+}
+</code></pre></div></li>
+</ul>
+<h2 id="_40">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>truth/pending_hooks.md</code>, <code>truth/chapter_summaries.md</code></li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/pending_hooks.md</code></li>
+</ul>
+<h2 id="_41">铁律</h2>
+<ol>
+<li><strong>每个活跃伏笔必须在本章被评估</strong> — 不能跳过</li>
+<li><strong>状态转换必须有文本证据</strong> — 不能说"这条应该加强了"就改变状态，必须在正文中找到对应内容</li>
+<li><strong>core_hook = true 绝不允许 ABANDON</strong> — 核心伏笔放弃 = 故事断裂</li>
+<li><strong>密度预算超限必须报告</strong> — 说明哪些操作被推迟</li>
+</ol>
+<h2 id="_42">操作指南</h2>
+<p>详见 <code>lifecycle-states.md</code>。</p>
+<h3 id="_43">本章操作识别</h3>
+<ol>
+<li>在正文中搜索每个活跃伏笔的 <code>content</code> 关键词</li>
+<li>如果出现 → 判断是强化/触发/兑现</li>
+<li>如果未出现 → 检查培育间隔是否过期</li>
+<li>记录所有操作，计入密度预算</li>
+</ol>
+<h3 id="_44">状态更新规则</h3>
+<ul>
+<li>兑现后的小幅伏笔可以保持 RELEVANT（多层次伏笔）</li>
+<li>主线伏笔兑现后必须 RESOLVED → ARCHIVED</li>
+<li>超过 max_distance 的伏笔标记为 EXPIRED</li>
+</ul>
+<h2 id="_45">输出格式</h2>
+<p>更新 <code>truth/pending_hooks.md</code> 的 YAML frontmatter。</p>
+<p>同时输出本操作的追踪报告（markdown body 追加到 file）：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 第N章伏笔追踪</span>
+
+<span class="gu">### 本章操作</span>
+| Hook ID | 操作 | 前状态 | 后状态 | 文本位置 |
+|---------|------|--------|--------|---------|
+| hook-002 | TRIGGER | RELEVANT | TRIGGERED | 第4段 |
+| hook-004 | (新建) | — | PLANTED | 第7段 |
+
+<span class="gu">### 过期警告</span>
+| Hook ID | 上次强化 | 本章 | 间隔 |
+|---------|---------|------|------|
+| hook-001 | 3 | 8 | 5/5 OVERDUE |
+
+<span class="gu">### 密度账本: 3/8 操作</span>
+</code></pre></div>
+<h2 id="anti-rationalization_8">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章伏笔都没出现，就跳过更新"</td>
+<td>不更新 → 培育间隔检查失效 → 伏笔默默死去</td>
+</tr>
+<tr>
+<td>"手动追踪太麻烦"</td>
+<td>不追踪 → 200章后忘了种了哪些伏笔 → 大量未兑现</td>
+</tr>
+<tr>
+<td>"小伏笔不追踪也没事"</td>
+<td>小伏笔 = 故事肌理，肌理断裂读者能感知</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-foreshadowing-track/
+git commit -m &quot;feat: add shenbi-foreshadowing-track skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 5: Write integration pressure test</strong></li>
+</ul>
+<p>Create <code>tests/skill-behavior/review-catches-bug/phase3-plant-track-resolve.md</code> — a multi-chapter scenario testing the full foreshadowing lifecycle: plant a hook in chapter N, verify track correctly updates its state in chapter N+1, and verify resolve produces the correct Chase Power accounting in chapter N+5.</p>
+<hr />
+<h3 id="task-3-3-shenbi-foreshadowing-resolve">Task 3-3: shenbi-foreshadowing-resolve</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-foreshadowing-resolve/SKILL.md</code>
+- Create: <code>skills/shenbi-foreshadowing-resolve/chase-power.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write chase-power.md</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="gh"># Chase Power 期望债务管理</span>
+
+<span class="gu">## 概念</span>
+
+Chase Power 是读者对伏笔兑现的期待强度。每个伏笔种植时有一个初始 Chase Power，随着时间推移增长，兑现时释放。未兑现的伏笔累积 Chase Power 债务，债务过高导致读者信任崩塌。
+
+<span class="gu">## 债务公式</span>
+</code></pre></div>
+Chase Power = Σ (hook_power × time_since_plant × escalation_factor)
+<div class="highlight"><pre><span></span><code>- hook_power: 伏笔在叙事中的重要度（core_hook=2.0, 普通=1.0, 支线=0.5）
+- time_since_plant: 种植后经过的章数
+- escalation_factor: 对应 escalation_curve (FLAT=1.0, RISING=1.5, EXPONENTIAL=2.0)
+
+## 债务等级
+
+| 等级 | CP 债务 | 行动 |
+|------|---------|------|
+| GREEN | &lt; 50 | 正常 |
+| YELLOW | 50-100 | 下3章内需要有伏笔兑现 |
+| ORANGE | 100-200 | 下章必须有伏笔兑现 |
+| RED | &gt; 200 | 立即安排伏笔兑现或考虑放弃部分支线 |
+
+## 兑现质量
+
+| 兑现类型 | 说明 | CP 影响 |
+|---------|------|---------|
+| FULL_PAYOFF | 完全满足读者期待 | CP 释放 100% |
+| PARTIAL_PAYOFF | 部分满足 | CP 释放 50%，剩余转入新伏笔 |
+| TWIST_PAYOFF | 出乎预期但合理 | CP 释放 120%（超额满足） |
+| FLAT_PAYOFF | 草草兑现 | CP 释放 30%，增加读者不满 |
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 2: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-foreshadowing-resolve
+<span class="gu">description: Use when foreshadowing hooks reach TRIGGERED state and need resolution, or when a volume ends and requires foreshadowing inventory</span>
+<span class="gu">---</span>
+
+<span class="gh"># 伏笔兑现管理</span>
+
+管理伏笔的兑现质量、读者期望债务（Chase Power）、卷尾伏笔盘点。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph foreshadowing_resolve {
+    &quot;Read truth/pending_hooks.md (TRIGGERED hooks)&quot; -&gt; &quot;For each TRIGGERED hook: determine resolution approach&quot;;
+    &quot;For each TRIGGERED hook: determine resolution approach&quot; -&gt; &quot;Compute Chase Power debt&quot;;
+    &quot;Compute Chase Power debt&quot; -&gt; &quot;Balance: resolve high-debt hooks first&quot;;
+    &quot;Balance: resolve high-debt hooks first&quot; -&gt; &quot;Evaluate resolution quality (chase-power.md)&quot;;
+    &quot;Evaluate resolution quality&quot; -&gt; &quot;Update hook states to RESOLVED&quot;;
+    &quot;Update hook states to RESOLVED&quot; -&gt; &quot;Generate reader expectation report&quot;;
+    &quot;Generate reader expectation report&quot; -&gt; &quot;Flag unresolved hooks for next volume&quot;;
+}
+</code></pre></div>
+<h2 id="_46">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>truth/pending_hooks.md</code>, <code>truth/chapter_summaries.md</code></li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/pending_hooks.md</code></li>
+</ul>
+<h2 id="_47">铁律</h2>
+<ol>
+<li><strong>Chase Power 红区 = 立即行动</strong> — CP &gt; 200 必须在下章内兑现至少一条伏笔</li>
+<li><strong>核心伏笔兑现不能是 FLAT_PAYOFF</strong> — core_hook 的兑现至少达到 PARTIAL_PAYOFF 质量</li>
+<li><strong>卷尾必须盘点所有活跃伏笔</strong> — 生成"本卷未兑现伏笔"清单</li>
+<li><strong>放弃伏笔必须有人类批准</strong> — ABANDON 操作需要人类合作者确认</li>
+</ol>
+<h2 id="_48">兑现策略</h2>
+<h3 id="_49">逐层兑现</h3>
+<ol>
+<li>先兑现低 CP 支线伏笔 → 释放小量期待，保持读者满足</li>
+<li>再兑现中等主线伏笔 → 推动剧情</li>
+<li>最后兑现高 CP 核心伏笔 → 高潮</li>
+</ol>
+<h3 id="_50">反转兑现</h3>
+<ul>
+<li>烟雾弹 (SMOKESCREEN) 兑现时必须伴随真相揭示</li>
+<li>TWIST_PAYOFF 要求：意外但合理、有文本证据支撑、不破坏已有设定</li>
+</ul>
+<h2 id="_51">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 伏笔兑现报告</span>
+
+<span class="gs">**范围**</span>: 第N章 / 第M卷
+<span class="gs">**Chase Power 债务**</span>: XX (GREEN/YELLOW/ORANGE/RED)
+
+<span class="gu">### 本章兑现的伏笔</span>
+
+| Hook ID | 兑现类型 | CP 释放 | 质量评估 |
+|---------|---------|---------|---------|
+| hook-002 | FULL_PAYOFF | 100% | 满意 |
+| hook-004 | PARTIAL_PAYOFF | 50% | 可接受，剩余转入 hook-005 |
+
+<span class="gu">### 卷尾未兑现清单</span>
+
+| Hook ID | 状态 | CP 贡献 | 建议 |
+|---------|------|---------|------|
+| hook-001 | RELEVANT | 45 | 下卷首章兑现 |
+| hook-003 | PLANTED | 12 | 继续培育 |
+</code></pre></div>
+<h2 id="anti-rationalization_9">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"读者已经忘了这条伏笔"</td>
+<td>忘了 ≠ 不存在。突然兑现反而是惊喜，但放弃是违约</td>
+</tr>
+<tr>
+<td>"最后草草收一下就行"</td>
+<td>FLAT_PAYOFF 对读者体验的伤害 &gt; 不承兑</td>
+</tr>
+<tr>
+<td>"Chase Power 太高了，放弃几条减负"</td>
+<td>放弃伏笔瞬间的负面体验远超维持的成本</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 3: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 4: Commit**
+
+```bash
+git add skills/shenbi-foreshadowing-resolve/
+git commit -m &quot;feat: add shenbi-foreshadowing-resolve skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-4-shenbi-truth-sync">Task 3-4: shenbi-truth-sync</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-truth-sync/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-truth-sync
+<span class="gu">description: Use when restoring consistency between manually edited chapter content and truth files, re-extracting state from revised chapters, or bootstrapping truth files from existing novel content</span>
+<span class="gu">---</span>
+
+<span class="gh"># 真相文件同步</span>
+
+从编辑后的正文重新反推 truth files，校验一致性。当人类合作者手动修改了章节后，需要运行此技能确保 truth files 与正文同步。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph truth_sync {
+    &quot;Read chapters/ (modified chapters)&quot; -&gt; &quot;For each modified chapter: extract 9 fact categories&quot;;
+    &quot;For each modified chapter: extract 9 fact categories&quot; -&gt; &quot;Compare extracted facts with current truth files&quot;;
+    &quot;Compare extracted facts with current truth files&quot; -&gt; &quot;Identify conflicts&quot;;
+    &quot;Identify conflicts&quot; -&gt; &quot;Present conflicts to human for resolution&quot;;
+    &quot;Present conflicts to human for resolution&quot; -&gt; &quot;Apply approved changes to truth files&quot;;
+    &quot;Apply approved changes to truth files&quot; -&gt; &quot;Report sync summary&quot;;
+}
+</code></pre></div>
+<h2 id="_52">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>truth/*.md</code>, <code>world/*.md</code>, <code>characters/**/*.md</code></li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/*.md</code> (in-place corrections)</li>
+</ul>
+<h2 id="_53">铁律</h2>
+<ol>
+<li><strong>正文是权威来源</strong> — truth files 服务于正文，不能反过来"纠正"正文</li>
+<li><strong>冲突必须人工仲裁</strong> — 发现 truth files 与正文不一致时，列出冲突让人类选择保留哪个</li>
+<li><strong>增量更新</strong> — 只更新变化的部分，不重写整个文件</li>
+<li><strong>保留历史</strong> — 在报告中记录同步前/后的差异</li>
+</ol>
+<h2 id="9">9 类事实提取</h2>
+<p>与 <code>shenbi-state-settling</code> 相同的 9 类：
+1. 位置变化 2. 资源变化 3. 关系变化 4. 情绪变化 5. 信息流动
+6. 剧情线索 7. 时间推进 8. 身体状态 9. 行为变化</p>
+<h2 id="_54">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 真相文件同步报告</span>
+
+<span class="gs">**同步范围**</span>: 第N章 至 第M章
+<span class="gs">**操作**</span>: 重新提取 → 比较 → 更新
+
+<span class="gu">### 冲突清单</span>
+
+| 文件 | 字段 | 正文值 | truth值 | 处理 |
+|------|------|--------|---------|------|
+| current_state.md | protagonist.location | &quot;外门演武场&quot; | &quot;内门修炼室&quot; | → 保留正文 |
+| pending_hooks.md | hook-001.state | (未触发) | TRIGGERED | → 等待人类决定 |
+
+<span class="gu">### 变更汇总</span>
+<span class="k">-</span><span class="w"> </span>current_state.md: 2处更新
+<span class="k">-</span><span class="w"> </span>pending_hooks.md: 1处待决定
+<span class="k">-</span><span class="w"> </span>character_matrix.md: 无变化
+</code></pre></div>
+<h2 id="anti-rationalization_10">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"正文改了一处而已，不必同步"</td>
+<td>一处不同步 → 下一章 draft 基于错误信息 → 连锁矛盾</td>
+</tr>
+<tr>
+<td>"truth files 太久没更新，重写算了"</td>
+<td>重写丢失历史，增量更新保留审计轨迹</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-truth-sync/SKILL.md
+git commit -m &quot;feat: add shenbi-truth-sync skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-5-shenbi-snapshot-manage">Task 3-5: shenbi-snapshot-manage</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-snapshot-manage/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-snapshot-manage
+<span class="gu">description: Use when creating chapter completion snapshots, viewing snapshot history, rolling back to a previous snapshot, or recovering novel state after a misstep</span>
+<span class="gu">---</span>
+
+<span class="gh"># 状态快照管理</span>
+
+管理每章完成后的状态快照：创建、查看、回滚、状态恢复。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph snapshot_manage {
+    &quot;Determine operation&quot; -&gt; &quot;Create&quot; [label=&quot;create&quot;];
+    &quot;Determine operation&quot; -&gt; &quot;View&quot; [label=&quot;view&quot;];
+    &quot;Determine operation&quot; -&gt; &quot;Rollback&quot; [label=&quot;rollback&quot;];
+    &quot;Determine operation&quot; -&gt; &quot;List&quot; [label=&quot;list&quot;];
+    &quot;Create&quot; -&gt; &quot;Copy all truth/*.md to snapshots/chapter-NNN/&quot;;
+    &quot;Copy all truth/*.md to snapshots/chapter-NNN/&quot; -&gt; &quot;Copy chapters/chapter-NNN.md to snapshot&quot;;
+    &quot;Copy chapters/chapter-NNN.md to snapshot&quot; -&gt; &quot;Create snapshot manifest&quot;;
+    &quot;Create snapshot manifest&quot; -&gt; &quot;Report snapshot created&quot;;
+}
+</code></pre></div>
+<blockquote>
+<p><strong>Note:</strong> The DOT above shows the primary (create) flow. Other operations (view, rollback, list) are described procedurally below.</p>
+</blockquote>
+<h2 id="_55">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>truth/*.md</code>, <code>chapters/chapter-N.md</code>, <code>characters/**/*.md</code></li>
+<li><strong>Writes:</strong> <code>truth/snapshots/snapshot-*.md</code></li>
+<li><strong>Updates:</strong> none (snapshots are append-only)</li>
+</ul>
+<h2 id="_56">铁律</h2>
+<ol>
+<li><strong>每章完成后必须创建快照</strong> — 不创建快照视为流程未完成</li>
+<li><strong>快照是完整副本</strong> — 包括所有 10 个 truth/ 文件 + 本章正文（见下方完整清单）</li>
+<li><strong>回滚需人类确认</strong> — 回滚是破坏性操作，必须有人类合作者批准</li>
+<li><strong>快照不可修改</strong> — 一旦创建，快照是只读的</li>
+<li><strong>回滚后续处理</strong> — 回滚后 N+1 到当前章节的正文保留但标记为 UNVERIFIED，需要从回滚点重新运行 state-settling + audits 或手动验证一致性</li>
+</ol>
+<h2 id="_57">操作</h2>
+<h3 id="_58">创建快照</h3>
+<ul>
+<li>触发：每章审计通过后</li>
+<li>输出：<code>snapshots/chapter-NNN/</code> 目录，包含所有 truth/ 文件的副本</li>
+</ul>
+<h3 id="_59">查看快照</h3>
+<ul>
+<li>输入：章节号 NNN（或 latest）</li>
+<li>输出：该快照的摘要（章节摘要 + 关键状态变更 + 活跃伏笔）</li>
+</ul>
+<h3 id="_60">回滚</h3>
+<ul>
+<li>输入：章节号 NNN</li>
+<li>HARD-GATE: 需要人类确认</li>
+<li>操作：用 <code>snapshots/chapter-NNN/</code> 覆盖 <code>truth/</code> + 回滚 <code>chapters/chapter-NNN.md</code></li>
+<li>警告：回滚后所有 NNN 之后的章节存在一致性风险</li>
+</ul>
+<h3 id="_61">列出快照</h3>
+<ul>
+<li>输出：所有已创建快照的章节号列表</li>
+</ul>
+<h2 id="_62">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 快照创建 — 第N章</span>
+
+<span class="gs">**时间**</span>: YYYY-MM-DD HH:MM
+<span class="gs">**快照内容**</span>:
+<span class="k">-</span><span class="w"> </span>truth/current_state.md ✓
+<span class="k">-</span><span class="w"> </span>truth/pending_hooks.md ✓
+<span class="k">-</span><span class="w"> </span>truth/chapter_summaries.md ✓
+<span class="k">-</span><span class="w"> </span>truth/character_matrix.md ✓
+<span class="k">-</span><span class="w"> </span>truth/emotional_arcs.md ✓
+<span class="k">-</span><span class="w"> </span>truth/particle_ledger.md ✓
+<span class="k">-</span><span class="w"> </span>truth/subplot_board.md ✓
+<span class="k">-</span><span class="w"> </span>truth/author_intent.md ✓
+<span class="k">-</span><span class="w"> </span>truth/current_focus.md ✓
+<span class="k">-</span><span class="w"> </span>truth/audit_drift.md ✓
+<span class="k">-</span><span class="w"> </span>chapters/chapter-NNN.md ✓
+
+<span class="gs">**快照清单**</span>: snapshots/chapter-001/, ..., chapter-NNN/
+</code></pre></div>
+<h2 id="anti-rationalization_11">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"这章没问题，不用创建快照"</td>
+<td>不创建快照 = 将来无法回滚 = 连锁错误无法恢复</td>
+</tr>
+<tr>
+<td>"快照占空间，少存几个"</td>
+<td>一章快照 ~ 50KB，2000章 = 100MB，完全可控</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-snapshot-manage/SKILL.md
+git commit -m &quot;feat: add shenbi-snapshot-manage skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-6-shenbi-intent-management">Task 3-6: shenbi-intent-management</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-intent-management/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-intent-management
+<span class="gu">description: Use when the author wants to set or update their creative intent, or before chapter-planning when current focus may have changed</span>
+<span class="gu">---</span>
+
+<span class="gh"># 意图管理</span>
+
+维护 <span class="sb">`truth/author_intent.md`</span>（长期意图）和 <span class="sb">`truth/current_focus.md`</span>（1-3章关注点）。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph intent_management {
+    &quot;Read truth/author_intent.md (if exists)&quot; -&gt; &quot;Ask human: any changes to long-term intent?&quot;;
+    &quot;Ask human: any changes to long-term intent?&quot; -&gt; &quot;Update author_intent.md&quot;;
+    &quot;Update author_intent.md&quot; -&gt; &quot;Read truth/current_focus.md&quot;;
+    &quot;Read truth/current_focus.md&quot; -&gt; &quot;Read truth/audit_drift.md (drift guidance)&quot;;
+    &quot;Read truth/audit_drift.md&quot; -&gt; &quot;Generate current_focus for next 1-3 chapters&quot;;
+    &quot;Generate current_focus for next 1-3 chapters&quot; -&gt; &quot;Present to human for approval&quot;;
+}
+</code></pre></div>
+<h2 id="_63">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>truth/author_intent.md</code>, <code>truth/audit_drift.md</code></li>
+<li><strong>Writes:</strong> none</li>
+<li><strong>Updates:</strong> <code>truth/author_intent.md</code>, <code>truth/current_focus.md</code></li>
+</ul>
+<h2 id="_64">铁律</h2>
+<ol>
+<li><strong>author_intent 由人类口述，AI 整理</strong> — 不能替作者做创作决策</li>
+<li><strong>current_focus 每次 chapter-planning 前更新</strong> — 确保章节备忘反映最新关注点</li>
+<li><strong>drift guidance 自动合并到 current_focus</strong> — 纠偏不能遗漏</li>
+</ol>
+<h2 id="_65">文件格式</h2>
+<h3 id="truthauthor_intentmd">truth/author_intent.md</h3>
+<div class="highlight"><pre><span></span><code>---
+updated: 2026-06-15
+current_volume: 1
+long_term_goals:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>&quot;主角最终要成为最强，但不走常规路线&quot;
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>&quot;暗线：玉佩的来源与上古传承的关系&quot;
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>&quot;第一女主线：苏晴在卷末面临抉择&quot;
+narrative_principles:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>&quot;不忘初心——主角的所有行动最终服务于&#39;守护&#39;主题&quot;
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>&quot;拒绝龙傲天——每次胜利都有代价&quot;
+<span class="gu">status: active</span>
+<span class="gu">---</span>
+</code></pre></div>
+<h3 id="truthcurrent_focusmd">truth/current_focus.md</h3>
+<div class="highlight"><pre><span></span><code>---
+next_3_chapters: [6, 7, 8]
+focus_items:
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>priority: P0
+    item: &quot;控制转折词密度 ≤ 3次/章（来自第5章drift）&quot;
+    source: audit_drift
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>priority: P1
+    item: &quot;推进 hook-002 预言兑现&quot;
+    source: foreshadowing
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>priority: P1
+    item: &quot;展示主角领导力成长&quot;
+    source: character_arc
+<span class="w">  </span><span class="k">-</span><span class="w"> </span>priority: P2
+    item: &quot;引入新反派线索&quot;
+    source: plot
+<span class="gu">status: draft</span>
+<span class="gu">---</span>
+
+<span class="gh"># 当前关注点 (第6-8章)</span>
+
+[人类可读的叙事化描述]
+</code></pre></div>
+<h2 id="anti-rationalization_12">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"我记住作者意图了，不用写"</td>
+<td>50章后你还能记住第3章的意图细节？</td>
+</tr>
+<tr>
+<td>"1-3章范围太窄了"</td>
+<td>精确的近期关注点 &gt; 模糊的长期规划</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-intent-management/SKILL.md
+git commit -m &quot;feat: add shenbi-intent-management skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-7-shenbi-volume-consolidation">Task 3-7: shenbi-volume-consolidation</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-volume-consolidation/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-volume-consolidation
+<span class="gu">description: Use when a volume has been completed and needs summarization for context management in subsequent writing</span>
+<span class="gu">---</span>
+
+<span class="gh"># 卷整合</span>
+
+卷完成后：合并逐章摘要为叙事摘要、归档旧摘要、生成卷级长程记忆。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph volume_consolidation {
+    &quot;Read all chapters in this volume&quot; -&gt; &quot;Read truth/chapter_summaries.md (this volume)&quot;;
+    &quot;Read truth/chapter_summaries.md&quot; -&gt; &quot;Merge per-chapter summaries into volume narrative summary&quot;;
+    &quot;Merge per-chapter summaries&quot; -&gt; &quot;Archive old per-chapter summaries&quot;;
+    &quot;Archive old per-chapter summaries&quot; -&gt; &quot;Generate volume-level long-range memory&quot;;
+    &quot;Generate volume-level long-range memory&quot; -&gt; &quot;Summarize volume arc: key events, character growth, unresolved threads&quot;;
+    &quot;Summarize volume arc&quot; -&gt; &quot;Write volume summary to truth/&quot;;
+    &quot;Write volume summary&quot; -&gt; &quot;Report volume completion&quot;;
+}
+</code></pre></div>
+<h2 id="_66">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>truth/chapter_summaries.md</code></li>
+<li><strong>Writes:</strong> <code>truth/volume_summaries.md</code> (new file per volume)</li>
+<li><strong>Updates:</strong> <code>truth/chapter_summaries.md</code> (archives old per-chapter entries)</li>
+</ul>
+<h2 id="_67">铁律</h2>
+<ol>
+<li><strong>卷完成后必须整合</strong> — 逐章摘要继续增长会导致 context-composing 上下文过长</li>
+<li><strong>长程记忆是精炼的</strong> — 每卷的卷级摘要控制在 500 字以内</li>
+<li><strong>保留可回查性</strong> — 归档的逐章摘要仍然可以手动查阅</li>
+<li><strong>未兑现伏笔必须醒目</strong> — 卷级摘要明确列出本卷种下但未兑现的伏笔</li>
+</ol>
+<h2 id="_68">输出</h2>
+<h3 id="_69">卷级叙事摘要</h3>
+<p>追加到 <code>truth/volume_summaries.md</code>（如果不存在则创建）：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># 卷级摘要</span>
+
+<span class="gu">## 第一卷: 入门篇 (第1-15章)</span>
+
+<span class="gu">### 叙事弧线</span>
+[200字：本卷的核心推进线——主角从外门到内门的成长弧]
+
+<span class="gu">### 关键事件</span>
+<span class="k">1.</span> 第1-3章: 入门考核 → 展示世界观 + 种植 hook-001
+<span class="k">2.</span> 第4-7章: 考核中遭遇反派代理人 → 冲突升级
+<span class="k">3.</span> 第8-12章: 内门修炼 → 角色关系发展
+<span class="k">4.</span> 第13-15章: 考核最终战 → hook-002 部分兑现
+
+<span class="gu">### 角色成长</span>
+<span class="k">-</span><span class="w"> </span>林轩: 从&quot;想证明自己&quot;到&quot;为守护而战&quot;（动机深化）
+<span class="k">-</span><span class="w"> </span>苏晴: 从观望到认可（关系弧完成）
+
+<span class="gu">### 未兑现伏笔（带入下卷）</span>
+<span class="k">-</span><span class="w"> </span>hook-001: 玉佩隐藏力量（PLANTED → 下卷核心）
+<span class="k">-</span><span class="w"> </span>hook-003: 反派寻找玉佩的动机（RELEVANT）
+
+<span class="gu">### 卷入尾声状态</span>
+<span class="k">-</span><span class="w"> </span>主角位置: 内门修炼室
+<span class="k">-</span><span class="w"> </span>Chase Power 债务: 45 (GREEN)
+</code></pre></div>
+<h2 id="anti-rationalization_13">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"卷总结太费时间，跳过"</td>
+<td>30章后 context 爆炸，agent 无法处理 = 质量断崖</td>
+</tr>
+<tr>
+<td>"逐章摘要都留着就行"</td>
+<td>逐章摘要用于审计，卷级摘要用于上下文，职能不同</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify skill structure** — Read the file and verify: frontmatter with name+description, DOT flowchart, iron laws, anti-rationalization table.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-volume-consolidation/SKILL.md
+git commit -m &quot;feat: add shenbi-volume-consolidation skill (Phase 3)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-3-completion-checklist">Phase 3 Completion Checklist</h3>
+<ul>
+<li>[ ] All 7 Phase 3 skills created and committed</li>
+<li>[ ] Foreshadowing pipeline (plant → track → resolve) forms a complete write-read cycle</li>
+<li>[ ] <code>shenbi-foreshadowing-track</code> reads from chapter content + <code>pending_hooks.md</code> and writes updated state</li>
+<li>[ ] <code>shenbi-snapshot-manage</code> integrates with the chapter-completion flow</li>
+<li>[ ] <code>shenbi-intent-management</code> feeds into <code>chapter-planning</code></li>
+<li>[ ] <code>shenbi-volume-consolidation</code> creates inputs for <code>context-composing</code></li>
+</ul>
+<hr />
+<h1 id="phase-4-33-skills">Phase 4: 扩展能力 (33 skills)</h1>
+<blockquote>
+<p><strong>Content completeness legend:</strong>
+- ✅ <strong>Full content</strong> — SKILL.md written inline in this plan (same as Phase 1/2/3 tasks)
+- ⚠️ <strong>Stub spec</strong> — One-line specification; implementer must expand using the stub template below</p>
+<p><strong>Phase 4 breakdown by content completeness:</strong>
+- 4a (sensitivity): ✅ Full content (1 skill)
+- 4b (conditional audits): ⚠️ Stub specs (12 skills — expand using template)
+- 4c (genesis extensions): ⚠️ Stub specs (4 skills — expand using template)
+- 4d (planning extensions): ⚠️ Stub specs (3 skills — expand using template)
+- 4e (length-normalizing): ✅ Full content (1 skill)
+- 4f (anti-detect): ✅ Full content (1 skill)
+- 4g (import layer): ⚠️ Stub specs (5 skills — expand using template)
+- 4h (short story): ⚠️ Stub specs (3 skills — expand using template)
+- 4i (management extensions): ⚠️ Stub specs (3 skills — expand using template; market-radar has ✅ full content in Phase 5)</p>
+<p><strong>Total</strong>: 3 skills with ✅ full inline content, 30 skills with ⚠️ stub specs requiring expansion</p>
+</blockquote>
+<p><strong>Goal:</strong> Complete all remaining skills: 13 audit skills, 5 import skills, 3 short-story skills, 4 worldbuilding extensions, 3 planning extensions, 1 drafting extension, 1 revision extension, and 3 management extensions. This fills all functional gaps.</p>
+<p><strong>Architecture:</strong> Audit skills follow the established review-anti-ai pattern. Import skills form an 8-pass analysis pipeline. Short-story skills are a simplified parallel to the main pipeline. Extensions enrich existing layers with advanced capabilities.</p>
+<p><strong>Dependencies:</strong> Phase 2 (audit infrastructure) + Phase 3 (foreshadowing lifecycle, truth/snapshot management).</p>
+<p><strong>Note:</strong> Due to the large number of skills in Phase 4, tasks are batched by layer. Each batch produces 2-5 skills that share similar patterns.</p>
+<p><strong>Implementation pattern for Phase 4 stubs:</strong> Phase 4b-4i skills are described as one-line specifications rather than full inline SKILL.md content (unlike Phase 2-3 which have complete inline content). Implementers should follow the pattern established by Phase 2's detailed skills: YAML frontmatter (name + description), DOT flowchart, iron laws, anti-rationalization table, check execution steps, and structured output format. Use <code>shenbi-writing-skills</code> meta-skill for guidance. Phase 4a (sensitivity), 4e (length-normalizing), and 4f (anti-detect) have full inline content as reference patterns. For skills requiring supporting files (review-long-span, review-era, review-fanfic, review-spinoff), create the supporting files listed in the File Structure tree above.</p>
+<p><strong>Stub expansion template</strong> (use for each Phase 4b-4i skill, excluding 4a/e/f which are already complete):</p>
+<div class="highlight"><pre><span></span><code>1. Write YAML frontmatter: name + description (trigger-condition-only, English, ≤500 chars)
+2. Write DOT flowchart: 5-10 nodes covering read → check → compile → report → pass/fail
+3. Write data contract block: - **Reads:** [...], - **Writes:** report only, - **Updates:** none
+4. Write iron laws: 3-5 absolute rules using MUST/NEVER/NO X WITHOUT Y
+5. Write check execution: 3-5 check categories with deterministic rules where possible
+6. Write output format: markdown table-based report with pass/fail/warning severity
+7. Write anti-rationalization table: 3-5 excuse/reality pairs covering domain-specific AI shortcuts
+8. Write commit instructions: `git add skills/shenbi-&lt;skill&gt;/ &amp;&amp; git commit -m &quot;feat: add &lt;skill&gt; (Phase 4)&quot;`
+</code></pre></div>
+<p><strong>Reference example — <code>shenbi-review-world-rules</code> expanded from stub to full content:</strong></p>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-review-world-rules
+<span class="gu">description: Use when checking chapter for world rule violations, power-system scaling collapse, numerical inconsistencies, or knowledge base contamination from outside the novel&#39;s setting</span>
+<span class="gu">---</span>
+
+<span class="gh"># 世界规则审计</span>
+
+检查设定矛盾、力量体系崩坏、数值一致性、知识库污染。
+
+<span class="k">&gt; </span><span class="ge">激活条件：由 `genre-config.json` 的 `auditDimensions` 包含维度 3,4,5,18 时激活。</span>
+
+<span class="gu">## 流程</span>
+
+\`\`\`dot
+digraph review_world_rules {
+    &quot;Read chapter content&quot; -&gt; &quot;Read world/rules.md (world iron laws)&quot;;
+    &quot;Read world/rules.md&quot; -&gt; &quot;Read world/power_system.md (if exists)&quot;;
+    &quot;Read world/power_system.md&quot; -&gt; &quot;Check rule violations&quot;;
+    &quot;Check rule violations&quot; -&gt; &quot;Check power scaling consistency&quot;;
+    &quot;Check power scaling consistency&quot; -&gt; &quot;Check numerical consistency&quot;;
+    &quot;Check numerical consistency&quot; -&gt; &quot;Check knowledge contamination&quot;;
+    &quot;Check knowledge contamination&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report issues with severity&quot; [label=&quot;no&quot;];
+}
+\`\`\`
+
+<span class="gu">## 数据契约</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Reads:**</span> <span class="sb">`chapters/chapter-N.md`</span>, <span class="sb">`world/rules.md`</span>, <span class="sb">`world/power_system.md`</span> (if exists), <span class="sb">`world/story_bible.md`</span>
+<span class="k">-</span><span class="w"> </span><span class="gs">**Writes:**</span> report only
+<span class="k">-</span><span class="w"> </span><span class="gs">**Updates:**</span> none
+
+<span class="gu">## 铁律</span>
+
+<span class="k">1.</span> <span class="gs">**世界铁律不可违反**</span> — <span class="sb">`world/rules.md`</span> 中定义的规则在本章必须一致，任何违反都是 error
+<span class="k">2.</span> <span class="gs">**力量体系不能崩坏**</span> — 角色能力、等级、技能必须在已建立的体系内运作
+<span class="k">3.</span> <span class="gs">**数值必须自洽**</span> — 年龄、时间、距离、数量、等级等数值与前后章一致
+<span class="k">4.</span> <span class="gs">**知识不能越界**</span> — 角色不能引用小说世界设定之外的现代概念或知识
+<span class="k">5.</span> <span class="gs">**设定不能凭空增减**</span> — 新设定必须有种植过程（至少在前文暗示过），不能&quot;突然出现&quot;
+
+<span class="gu">## 检查执行</span>
+
+<span class="gu">### 1. 规则违反检测</span>
+<span class="k">-</span><span class="w"> </span>逐条对比 <span class="sb">`world/rules.md`</span> 的每条铁律与本章内容
+<span class="k">-</span><span class="w"> </span>标记违反的规则和具体段落
+
+<span class="gu">### 2. 力量体系一致性</span>
+<span class="k">-</span><span class="w"> </span>检查角色能力使用是否符合 <span class="sb">`world/power_system.md`</span> 的等级和能力边界
+<span class="k">-</span><span class="w"> </span>检测&quot;越级打怪&quot;是否有合理铺垫
+
+<span class="gu">### 3. 数值一致性</span>
+<span class="k">-</span><span class="w"> </span>年龄、时间流逝、距离、资源数量与 <span class="sb">`truth/current_state.md`</span> 对比
+<span class="k">-</span><span class="w"> </span>等级、分数、排名的前后一致性
+
+<span class="gu">### 4. 知识污染检测</span>
+<span class="k">-</span><span class="w"> </span>正则检测现代术语、科技概念、非世界观内知识的出现
+<span class="k">-</span><span class="w"> </span>检查角色引用的知识是否在其信息边界内
+
+<span class="gu">## 输出格式</span>
+
+\`\`\`markdown
+<span class="gu">## 世界规则审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**结果**</span>: 通过 / 有瑕疵 / 不通过
+
+<span class="gu">### 规则违反</span>
+| 规则 | 违反位置 | 严重度 |
+|------|---------|--------|
+| ... | ... | ... |
+
+<span class="gu">### 力量体系</span>
+| 角色 | 能力使用 | 是否超限 | 状态 |
+|------|---------|---------|------|
+| ... | ... | ... | OK/VIOLATION |
+
+<span class="gu">### 数值一致性</span>
+| 数值项 | 前章值 | 本章值 | 状态 |
+|--------|--------|--------|------|
+| ... | ... | ... | OK/MISMATCH |
+
+<span class="gu">### 知识污染</span>
+| 污染词/概念 | 位置 | 严重度 |
+|------------|------|--------|
+| ... | ... | ... |
+
+<span class="gu">### 评分: X/10 通过</span>
+\`\`\`
+
+<span class="gu">## Anti-Rationalization</span>
+
+| Excuse | Reality |
+|--------|---------|
+| &quot;力量体系偶尔崩一下没事&quot; | 一次崩坏 = 读者对整个体系的信任崩塌 |
+| &quot;加个新设定很方便&quot; | 未经种植的新设定 = deus ex machina = 读者弃书 |
+| &quot;数值差不多就行&quot; | 读者有心算能力，数值矛盾是最容易被发现的 |
+\`\`\`
+
+<span class="k">&gt; </span><span class="ge">This example demonstrates the expansion pattern. All 29 Phase 4b-4i stub skills follow this same pattern with domain-specific check categories, applicable truth files in the data contract, and anti-rationalization entries relevant to the audit domain.</span>
+
+<span class="gs">**Phase 4b skill count verification**</span>: The Phase 4b checklist references 12 conditional audit skills. Count them: world-rules, reader-pull, memo-compliance, dialogue, motivation, pov, texture, highpoint, long-span, era, fanfic, spinoff = 12 skills. Plus pacing/continuity/character/foreshadowing (already created in Phase 2, referenced in Phase 4b batches for routing integration) = 16 total audit skills in the complete system.
+
+---
+
+<span class="gu">### Phase 4a: Default Audit Completion (1 skill)</span>
+
+<span class="gu">#### Task 4a-1: shenbi-review-sensitivity</span>
+
+<span class="gs">**Files:**</span>
+<span class="k">-</span><span class="w"> </span>Create: <span class="sb">`skills/shenbi-review-sensitivity/SKILL.md`</span>
+<span class="k">-</span><span class="w"> </span>Create: <span class="sb">`skills/shenbi-review-sensitivity/sensitive-words.md`</span>
+
+<span class="k">- [ ]</span> <span class="gs">**Step 1: Write SKILL.md**</span> — default-activated audit for political sensitivity, platform compliance, adult content, and taboo word checks. Follows the review-anti-ai pattern: deterministic checks first, genre-config prohibitions, structured severity levels (error=blocking).
+
+<span class="gu">```markdown</span>
+<span class="gu">---</span>
+name: shenbi-review-sensitivity
+<span class="gu">description: Use when checking chapter for politically sensitive content, platform compliance violations, adult/violence content boundaries, or book-specific prohibited terms</span>
+<span class="gu">---</span>
+
+<span class="gh"># 敏感内容审计</span>
+
+这是默认激活的审计技能（每章必查）。检查政治敏感词、色情/暴力检测、平台合规性、本书禁忌词。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph review_sensitivity {
+    &quot;Read chapter content&quot; -&gt; &quot;Read genre-config.json (prohibitions)&quot;;
+    &quot;Read genre-config.json&quot; -&gt; &quot;Read platform-specific prohibited word lists&quot;;
+    &quot;Read platform-specific prohibited word lists&quot; -&gt; &quot;Run deterministic word match&quot;;
+    &quot;Run deterministic word match&quot; -&gt; &quot;Run content boundary check&quot;;
+    &quot;Run content boundary check&quot; -&gt; &quot;Run platform compliance check&quot;;
+    &quot;Run platform compliance check&quot; -&gt; &quot;Compile results&quot;;
+    &quot;Compile results&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Report PASS&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Report blocking issues&quot; [label=&quot;no&quot;];
+    &quot;Report blocking issues&quot; -&gt; &quot;error level = MUST fix before publication&quot;;
+}
+</code></pre></div>
+<h2 id="_70">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>genre-config.json</code>, <code>novel.json</code></li>
+<li><strong>Writes:</strong> report only</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_71">铁律</h2>
+<ol>
+<li><strong>敏感词 = blocking error</strong> — 直接导致平台下架的问题没有 warning 余地，只分 error 和 pass</li>
+<li><strong>依据目标平台规则</strong> — 如果 novel.json 指定了目标平台，应用对应平台的审核规则</li>
+<li><strong>本书禁忌词必须 0 出现</strong> — genre-config.json 的 prohibitions 列表 = 每章必须为 0</li>
+<li><strong>不与 creative expression 妥协</strong> — 只标记客观违规，不对艺术表达做主观审查</li>
+</ol>
+<h2 id="_72">检查执行</h2>
+<p>详见 <code>sensitive-words.md</code>。</p>
+<h3 id="1_2">1. 平台禁忌词（平台规则级）</h3>
+<ul>
+<li>中国网文平台：政治敏感词、色情描写、极端暴力</li>
+<li>英文平台：对应平台的 prohibited content 规则</li>
+</ul>
+<h3 id="2_3">2. 本书禁忌词</h3>
+<ul>
+<li>从 <code>genre-config.json</code> 的 <code>prohibitions</code> 读取</li>
+<li>每章必须为 0</li>
+</ul>
+<h3 id="3_3">3. 内容边界</h3>
+<ul>
+<li>暴力程度是否超出题材预期</li>
+<li>是否有未做标记的成人内容</li>
+</ul>
+<h2 id="_73">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 敏感内容审计报告</span>
+
+<span class="gs">**章节**</span>: 第N章
+<span class="gs">**目标平台**</span>: 起点中文网
+<span class="gs">**结果**</span>: 通过 / 不通过
+
+<span class="gu">### 平台禁忌词</span>
+| 类型 | 检测项 | 结果 |
+|------|--------|------|
+| 政治 | ... | PASS |
+| 色情 | ... | PASS |
+| 暴力 | ... | PASS |
+
+<span class="gu">### 本书禁忌词</span>
+| 禁忌词 | 出现次数 | 状态 |
+|--------|---------|------|
+| &quot;全场震惊&quot; | 0 | PASS |
+| &quot;不由得倒吸一口凉气&quot; | 0 | PASS |
+
+<span class="gu">### 评分: 通过/不通过</span>
+</code></pre></div>
+<h2 id="anti-rationalization_14">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"敏感词检测太严格了"</td>
+<td>平台审核比你严格得多，下架 = 0 收入</td>
+</tr>
+<tr>
+<td>"这条禁忌词加进去也没事"</td>
+<td>禁忌词是为了安全，不是为了提高写作质量</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Write sensitive-words.md** — reference list of common platform-prohibited categories and detection methods.
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-review-sensitivity/
+git commit -m &quot;feat: add shenbi-review-sensitivity skill (Phase 4a)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-4b-conditional-audit-skills-12-skills-batched-by-cost-tier">Phase 4b: Conditional Audit Skills (12 skills, batched by cost tier)</h3>
+<p>Each of these skills is conditionally activated based on <code>genre-config.json</code> <code>auditDimensions</code>. They follow the same pattern: DOT flowchart, iron laws, deterministic/domain checks, structured output, anti-rationalization table.</p>
+<p><strong>Supporting files needed (create alongside SKILL.md):</strong>
+- <code>review-long-span</code>: <code>ngram-methodology.md</code> — cross-chapter 6-char n-gram comparison algorithm, paragraph length drift formula
+- <code>review-era</code>: <code>era-reference.md</code> — era-specific vocabulary lists, artifact/common-knowledge fact-checking guidelines (by era)
+- <code>review-fanfic</code>: <code>fanfic-modes.md</code> — 4-mode severity rules (canon/au/ooc/cp), each with varying strictness levels
+- <code>review-spinoff</code>: <code>spinoff-violations.md</code> — violation categories (main-story event conflict, future info leak, world rule inconsistency, hook isolation breach)</p>
+<h4 id="task-4b-1-batch-1-structure-checks-2-new-skills-1-reference">Task 4b-1: Batch 1 — Structure Checks (2 new skills + 1 reference)</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-review-memo-compliance</strong> — Checks chapter text against the 8-section chapter memo. Verifies: hook ledger matches, chapter-end changes occurred, prohibited items were avoided. Activated when <code>auditDimensions</code> contains 33.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-texture</strong> — Detects "流水账" (log-style) writing, verifies daily-scene paragraph function, checks paragraph breathing/rhythm, author preaching detection, paragraph length extremes. Activated when <code>auditDimensions</code> contains 17.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-pacing</strong> — Already created in Phase 2 Task 2-3. No additional work needed here (this is the same skill, conditionally activated by dimensions 7/26).</p>
+</li>
+</ul>
+<h4 id="task-4b-2-batch-2-domain-checks-4-new-skills-2-references">Task 4b-2: Batch 2 — Domain Checks (4 new skills + 2 references)</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-review-world-rules</strong> — Checks setting conflicts, power-system崩坏 (power scaling collapse), numerical consistency, knowledge base contamination. Activated when <code>auditDimensions</code> contains 3,4,5,18.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-dialogue</strong> — Checks character speech style consistency, dialogue tag diversity, 了 density, catchphrase matching. Activated when <code>auditDimensions</code> contains 16.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-motivation</strong> — Checks character action interest-driven logic, motivation plausibility, behavior chain completeness. Activated when <code>auditDimensions</code> contains 11.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-pov</strong> — Checks POV switch transitions, information boundary (characters referencing info they shouldn't know). Activated when <code>auditDimensions</code> contains 9,19.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-continuity</strong> — Already created in Phase 2 Task 2-1 (default-activated, always on). No additional work.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-character</strong> — Already created in Phase 2 Task 2-2 (default-activated, always on). No additional work.</p>
+</li>
+</ul>
+<h4 id="task-4b-3-batch-3-advanced-checks-2-new-skills-1-reference">Task 4b-3: Batch 3 — Advanced Checks (2 new skills + 1 reference)</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-review-reader-pull</strong> — Checks chapter opening hook strength, chapter-end suspense, reader expectation management. Activated when <code>auditDimensions</code> contains 32.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-highpoint</strong> — Checks suppression-explosion pattern, twist detection, climax keyword diversity, 爽点虚化 (payoff &lt; reader expectation). Activated when <code>auditDimensions</code> contains 15.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-foreshadowing</strong> — Already created in Phase 2 Task 2-4 (conditionally activated by dimensions 6/24). No additional work.</p>
+</li>
+</ul>
+<h4 id="task-4b-4-batch-4-special-condition-checks-4-skills">Task 4b-4: Batch 4 — Special Condition Checks (4 skills)</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-review-long-span</strong> — Cross-chapter word/image/sentence pattern repetition checks, 6-char n-gram cross-chapter repetition, paragraph length drift detection. Extra condition: <code>current_chapter ≥ 3</code>. Activated when <code>auditDimensions</code> contains 10.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-era</strong> — Historical era accuracy, period-appropriate vocabulary, artifact/location fact-checking. Activated when <code>eraResearch</code> or <code>eraConstraints</code> is true in genre-config.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-fanfic</strong> — Character fidelity, world rule consistency, relationship dynamics, canon event consistency. Support 4 fanfic modes (canon/au/ooc/cp). Activated when <code>novel.json.mode</code> is "fanfic".</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-review-spinoff</strong> — Main-story event conflict check, future info leakage, world rule consistency, hook isolation. Activated when <code>truth/parent_canon.md</code> exists.</p>
+</li>
+</ul>
+<p><strong>Batch commit messages:</strong>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4b audit skills batch 1-4 (12 conditional audit skills)&quot;</span>
+</code></pre></div></p>
+<p><strong>Batch 1-4 completion checklist:</strong>
+- [ ] Each skill has valid frontmatter, DOT flowchart, iron laws, anti-rationalization table
+- [ ] Each skill reads the correct truth files and <code>genre-config.json</code>
+- [ ] Each skill outputs structured report with severity levels
+- [ ] Conditional activation documented in each skill (which dimensions trigger it)
+- [ ] <code>shenbi-review-pacing</code>, <code>shenbi-review-continuity</code>, <code>shenbi-review-character</code>, <code>shenbi-review-foreshadowing</code> are referenced (already created in Phase 2 and do not need re-creating)</p>
+<hr />
+<h3 id="phase-4c-worldbuilding-extensions-4-skills">Phase 4c: Worldbuilding Extensions (4 skills)</h3>
+<h4 id="task-4c-1-batch-genesis-layer-extensions">Task 4c-1: Batch — Genesis Layer Extensions</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-location-builder</strong> — Location design: spatial layout, atmosphere description, functional positioning, cross-location spatial consistency. Manages <code>world/locations.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-relationship-map</strong> — Character relationship network: interest chains, faction affiliations, information boundaries, relationship evolution trajectories. Manages <code>characters/relationships.md</code> and contributes to <code>truth/character_matrix.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-faction-builder</strong> — Faction design: hierarchy structure, internal conflicts, cross-faction dynamics, interest-driven behavior. Manages <code>world/factions.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-power-system</strong> — Power system design: level classification, advancement rules, power ceiling, ability boundaries. Manages <code>world/power_system.md</code>.</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4c genesis extension skills (4 skills)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4d-planning-extensions-3-skills">Phase 4d: Planning Extensions (3 skills)</h3>
+<h4 id="task-4d-1-batch-planning-layer-extensions">Task 4d-1: Batch — Planning Layer Extensions</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-volume-outlining</strong> — Volume outline planning: per-volume goals + rhythm principles, intra-volume tension curve, cross-volume bridging. Creates <code>outline/volume_map.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-pacing-design</strong> — Pacing design: buildup → escalation → explosion → aftermath cycle, scene type sequence to avoid monotony, three-line ratio (QUEST/FIRE/CONSTELLATION). Creates <code>outline/rhythm_principles.md</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-plot-thread-weaver</strong> — Thread weaving: A/B/C plot line management, thread priority, max consecutive/max gap control, thread cross-dependencies. <strong>Also resolves Phase 1 deferral</strong>: manages <code>truth/subplot_board.md</code> updates — each chapter's state-settling extracts plot thread changes as 9-class fact type 6 (剧情线索); plot-thread-weaver processes these into subplot_board.md with thread lifecycle tracking (active/stalled/resolved/abandoned).</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4d planning extension skills (3 skills)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4e-drafting-extension-1-skill">Phase 4e: Drafting Extension (1 skill)</h3>
+<h4 id="task-4e-1-shenbi-length-normalizing">Task 4e-1: shenbi-length-normalizing</h4>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-length-normalizing/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong> — Word count governance: compress/expand to target range, soft/hard range control, truncation protection. Reads <code>novel.json.chapter_word_count</code>, checks current chapter length, applies compression or expansion strategies without changing plot/character content.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-length-normalizing
+<span class="gu">description: Use when a chapter&#39;s word count falls outside the target range defined in novel.json</span>
+<span class="gu">---</span>
+
+<span class="gh"># 字数治理</span>
+
+HARD-GATE: 如果归一化后正文长度 &lt; 原始长度的 25%，拒绝归一化（原章节结构无法支撑目标字数）。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph length_normalizing {
+    &quot;Read chapter content + novel.json (chapter_word_count)&quot; -&gt; &quot;Calculate current word count&quot;;
+    &quot;Calculate current word count&quot; -&gt; &quot;Within target range?&quot;;
+    &quot;Within target range?&quot; -&gt; &quot;Done&quot; [label=&quot;yes&quot;];
+    &quot;Within target range?&quot; -&gt; &quot;Expand or compress?&quot; [label=&quot;no&quot;];
+    &quot;Expand or compress?&quot; -&gt; &quot;Compress: trim redundant prose&quot; [label=&quot;over&quot;];
+    &quot;Expand or compress?&quot; -&gt; &quot;Expand: enrich existing descriptions&quot; [label=&quot;under&quot;];
+    &quot;Compress: trim redundant prose&quot; -&gt; &quot;Post-normalization &gt; 25% original?&quot;;
+    &quot;Expand: enrich existing descriptions&quot; -&gt; &quot;Post-normalization &gt; 25% original?&quot;;
+    &quot;Post-normalization &gt; 25% original?&quot; -&gt; &quot;Output normalized chapter&quot; [label=&quot;yes&quot;];
+    &quot;Post-normalization &gt; 25% original?&quot; -&gt; &quot;REJECT: chapter structure cannot support target length&quot; [label=&quot;no&quot;];
+}
+</code></pre></div>
+<h2 id="_74">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, <code>novel.json</code> (target_word_count), <code>genre-config.json</code></li>
+<li><strong>Writes:</strong> none (edits chapter in-place)</li>
+<li><strong>Updates:</strong> <code>chapters/chapter-N.md</code></li>
+</ul>
+<h2 id="_75">铁律</h2>
+<ol>
+<li><strong>不改变叙事内容</strong> — 压缩/扩写不能增删事件、改变角色行为、影响伏笔</li>
+<li><strong>软区间优先</strong> — target_word_count ± 15% 是软区间，± 30% 是硬上限</li>
+<li><strong>25% 底线</strong> — 压缩后 &lt; 25% 原始长度 → 章节需要重写，不做表面压缩</li>
+<li><strong>保持声音指纹</strong> — 扩写不能引入 AI 味句式</li>
+</ol>
+<h2 id="_76">压缩策略</h2>
+<ul>
+<li>合并功能重复的描写</li>
+<li>剪除冗余修饰（删形容词不删信息）</li>
+<li>压缩过渡段落</li>
+</ul>
+<h2 id="_77">扩写策略</h2>
+<ul>
+<li>展开角色内心活动</li>
+<li>丰富环境描写</li>
+<li>深化对话潜台词</li>
+<li>增加感官细节</li>
+</ul>
+<h2 id="_78">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gh"># 归一化后的第N章</span>
+
+[完整的归一化后章节正文]
+
+---
+
+<span class="gu">## 归一化报告</span>
+
+<span class="gs">**原始字数**</span>: N
+<span class="gs">**目标区间**</span>: [X, Y] (soft: ±15%, hard: ±30%)
+<span class="gs">**归一化后字数**</span>: M (变化: +N/-N, X%)
+<span class="gs">**策略**</span>: 压缩 / 扩写
+<span class="k">-</span><span class="w"> </span>段落处理: N处
+<span class="k">-</span><span class="w"> </span>用词调整: N处
+<span class="k">-</span><span class="w"> </span>总字数变化: +N/-N (X%)
+</code></pre></div>
+<h2 id="anti-rationalization_15">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"字数差一点没关系"</td>
+<td>目标平台对字数有明确区间，不符合 = 章节不被推荐</td>
+</tr>
+<tr>
+<td>"直接删掉一段就行"</td>
+<td>删段落 = 丢失信息 = 叙事断裂</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-length-normalizing/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add shenbi-length-normalizing skill (Phase 4e)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4f-revision-extension-1-skill">Phase 4f: Revision Extension (1 skill)</h3>
+<h4 id="task-4f-1-shenbi-anti-detect">Task 4f-1: shenbi-anti-detect</h4>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-anti-detect/SKILL.md</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write SKILL.md</strong> — Anti-detection rewriting: 9 rewriting techniques (break sentence pattern regularity, colloquialization, 了 frequency reduction, transition word reduction, emotion externalization, etc.). Operates on existing chapter text, applies targeted transformations to reduce AI detectability markers.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-anti-detect
+<span class="gu">description: Use when a chapter has been flagged by anti-AI audit for detectability markers that polishing alone cannot resolve</span>
+<span class="gu">---</span>
+
+<span class="gh"># 反检测改写</span>
+
+应用 9 种改写手法降低 AI 可检测性标记。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph anti_detect {
+    &quot;Read chapter content&quot; -&gt; &quot;Identify AI markers (anti-ai checklist)&quot;;
+    &quot;Identify AI markers&quot; -&gt; &quot;Apply rewriting techniques by marker type&quot;;
+    &quot;Apply rewriting techniques&quot; -&gt; &quot;Verify: no content/plot/character changes&quot;;
+    &quot;Verify&quot; -&gt; &quot;Re-run anti-AI audit&quot;;
+    &quot;Re-run anti-AI audit&quot; -&gt; &quot;Passed?&quot;;
+    &quot;Passed?&quot; -&gt; &quot;Output revised chapter&quot; [label=&quot;yes&quot;];
+    &quot;Passed?&quot; -&gt; &quot;Apply additional techniques&quot; [label=&quot;no&quot;];
+    &quot;Apply additional techniques&quot; -&gt; &quot;Re-run anti-AI audit&quot;;
+}
+</code></pre></div>
+<h2 id="_79">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>chapters/chapter-N.md</code>, anti-AI audit report</li>
+<li><strong>Writes:</strong> none (edits chapter in-place)</li>
+<li><strong>Updates:</strong> <code>chapters/chapter-N.md</code></li>
+</ul>
+<h2 id="_80">铁律</h2>
+<ol>
+<li><strong>不改叙事内容</strong> — anti-detect 是表达层变换，不碰情节/角色/伏笔</li>
+<li><strong>每种标记有对应手法</strong> — 不是笼统重写，是靶向替换</li>
+<li><strong>改写后重新审计</strong> — anti-ai + sensitivity 两个审计必须重新通过</li>
+<li><strong>不错杀好文</strong> — 如果某句话的表述已经是优选，不要为改而改</li>
+</ol>
+<h2 id="9_1">9 种改写手法</h2>
+<ol>
+<li><strong>打破句式规律</strong> — 连续相同句式 → 变换句子结构</li>
+<li><strong>口语化</strong> — 书面语痕迹 → 口头语表达</li>
+<li><strong>了字降频</strong> — 连续"了"字句 → 用动作替代完成态</li>
+<li><strong>转折词降频</strong> — 然而/不过/突然 → 用场景转换自然过渡</li>
+<li><strong>情绪外化</strong> — "感到愤怒" → 身体反应/动作描写</li>
+<li><strong>感官锚定</strong> — 抽象描述 → 具体感官细节</li>
+<li><strong>对话差异化</strong> — 扁平对话 → 注入角色声音指纹</li>
+<li><strong>打破段落等长</strong> — 均匀段落 → 长短交错</li>
+<li><strong>替换分析术语</strong> — "由此可见"等 → 自然叙述过渡</li>
+</ol>
+<h2 id="anti-rationalization_16">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"改过的文字不如原文好"</td>
+<td>优先自然表达，"为掩藏而损害文字"是本末倒置</td>
+</tr>
+<tr>
+<td>"每句话都改写一遍"</td>
+<td>只改写检测标记点，不过度改写</td>
+</tr>
+<tr>
+<td>"AI检测不重要"</td>
+<td>平台AIGC检测直接关联推荐权重和收入</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>## 输出格式
+
+```markdown
+# 反检测改写后的第N章
+
+[完整的改写后章节正文]
+
+---
+
+## 改写报告
+
+**应用手法**:
+| 手法 | 改写位置 | 原文标记 |
+|------|---------|---------|
+| 打破句式规律 | 第3段 | 连续3句相同结构 |
+| 了字降频 | 第5段 | 4个&quot;了&quot; → 2个 |
+
+**审计对比**: 改写前 N 个 error/warning → 改写后 M 个 error/warning
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-anti-detect/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add shenbi-anti-detect skill (Phase 4f)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4g-import-layer-5-skills">Phase 4g: Import Layer (5 skills)</h3>
+<h4 id="task-4g-1-shenbi-import-analysis">Task 4g-1: shenbi-import-analysis</h4>
+<ul>
+<li>[ ] <strong>Write SKILL.md</strong> — 8-pass analysis pipeline: parse → character → world → plot → foreshadowing → style → highlights → state reconstruction. Middle 6 passes can run in parallel. Reads existing novel chapters, outputs structured analysis files under <code>import/analysis/</code>.</li>
+</ul>
+<h4 id="task-4g-2-shenbi-style-learning">Task 4g-2: shenbi-style-learning</h4>
+<ul>
+<li>[ ] <strong>Write SKILL.md</strong> — Style fingerprint extraction: sentence/paragraph length statistics, TTR (type-token ratio), high-frequency sentence patterns, rhetorical features. Pure statistical, no LLM. Outputs <code>style/style_profile.md</code>.</li>
+</ul>
+<h4 id="task-4g-3-shenbi-character-extraction">Task 4g-3: shenbi-character-extraction</h4>
+<ul>
+<li>[ ] <strong>Write SKILL.md</strong> — Reverse character analysis: extracts character profiles, speech styles, relationship networks, behavior patterns from existing chapters. Outputs <code>characters/</code> files.</li>
+</ul>
+<h4 id="task-4g-4-shenbi-world-extraction">Task 4g-4: shenbi-world-extraction</h4>
+<ul>
+<li>[ ] <strong>Write SKILL.md</strong> — Reverse worldbuilding extraction: extracts world rules, locations, items, power systems from existing chapters. Outputs <code>world/</code> files.</li>
+</ul>
+<h4 id="task-4g-5-shenbi-canon-import">Task 4g-5: shenbi-canon-import</h4>
+<ul>
+<li>[ ] <strong>Write SKILL.md</strong> — Canon import for fanfic: extracts 5 SECTIONS from source material, supports 4 fanfic modes (canon/au/ooc/cp). Outputs <code>import/</code> files and canonical reference files.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-import-analysis/<span class="w"> </span>skills/shenbi-style-learning/<span class="w"> </span>skills/shenbi-character-extraction/<span class="w"> </span>skills/shenbi-world-extraction/<span class="w"> </span>skills/shenbi-canon-import/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4g import layer skills (5 skills)&quot;</span>
+</code></pre></div>
+<p><strong>Import layer checklist:</strong>
+- [ ] <code>shenbi-import-analysis</code> defines the 8-pass pipeline and parallel execution strategy
+- [ ] <code>shenbi-style-learning</code> is pure statistical (zero LLM cost)
+- [ ] All import skills write to the <code>import/</code> directory structure defined in the design spec
+- [ ] <code>shenbi-canon-import</code> supports all 4 fanfic modes</p>
+<hr />
+<h3 id="phase-4h-short-story-layer-3-skills">Phase 4h: Short Story Layer (3 skills)</h3>
+<h4 id="task-4h-1-batch-short-story-skills">Task 4h-1: Batch — Short Story Skills</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-short-outline</strong> — Short story outline generate → review → revise (3-step). Creates a condensed outline for stories &lt; 30 chapters.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-short-drafting</strong> — Batch chapter generation → review → revise (3-step). Generates all chapters at once rather than the per-chapter loop.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-short-packaging</strong> — Sales packaging: title, blurb, selling points, cover prompt generation. For short story publication/marketing.</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4h short story layer skills (3 skills)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4i-management-extensions-3-skills">Phase 4i: Management Extensions (3 skills)</h3>
+<blockquote>
+<p><strong>Note:</strong> <code>shenbi-market-radar</code> is described in this section but its SKILL.md is finalized in Phase 5 Task 5-5 (requires web search integration). Counted as Phase 5 for commit purposes.</p>
+</blockquote>
+<h4 id="task-4i-1-batch-management-layer">Task 4i-1: Batch — Management Layer</h4>
+<ul>
+<li>
+<p>[ ] <strong>shenbi-genre-config</strong> — Genre configuration management: fatigue word lists, pacing rules, chapter type definitions, audit dimension activation, custom rules. Manages <code>genre-config.json</code>.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-chapter-pattern</strong> — 13 chapter pattern detection and classification. Detects pattern monotony across the book. Reads chapter history, classifies each chapter, reports if patterns become too repetitive.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-sequel-writing</strong> — Sequel writing service: finds breakpoint snapshot from existing content, reconstructs context, continues writing subsequent chapters. Uses <code>snapshots/</code> and <code>truth/</code> to rebuild state.</p>
+</li>
+<li>
+<p>[ ] <strong>shenbi-market-radar</strong> — Platform trend scanning: leaderboard data, genre analysis, opening book advice, competitive work benchmarking. (Note: this skill requires web search capabilities and is marked as partially Phase 5 due to integration needs.)</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add Phase 4i management extension skills (3 skills; market-radar finalized in Phase 5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="phase-4-completion-checklist">Phase 4 Completion Checklist</h3>
+<ul>
+<li>[ ] All 33 Phase 4 skills created and committed (1 + 12 + 4 + 3 + 1 + 1 + 5 + 3 + 3)</li>
+<li>[ ] Audit activation rules fully implemented across all conditional audit skills</li>
+<li>[ ] Import pipeline (8-pass analysis) can reconstruct a novel project from existing chapters</li>
+<li>[ ] Short story skills provide a simplified alternative to the full pipeline</li>
+<li>[ ] <code>shenbi-chapter-pattern</code> integrates with <code>shenbi-review-pacing</code> for pattern monotony detection</li>
+<li>[ ] <code>shenbi-sequel-writing</code> integrates with <code>shenbi-snapshot-manage</code> for state reconstruction</li>
+<li>[ ] (shenbi-market-radar may need web search tooling — defer full integration to Phase 5)</li>
+</ul>
+<hr />
+<h1 id="phase-5-5-categories">Phase 5: 平台适配与国际化 (5 categories)</h1>
+<p><strong>Goal:</strong> Package Shenbi for all 7 target platforms, add English skill descriptions, build the hooks system, expand pressure tests, and integrate market-radar.</p>
+<p><strong>Architecture:</strong> Phase 5 creates platform adapter files (plugin manifests, hooks), verifies English <code>description</code> fields, builds test infrastructure, and finalizes <code>shenbi-market-radar</code> (partially created in Phase 4i).</p>
+<p><strong>Dependencies:</strong> All Phase 1-4 skills exist (descriptions need to exist before verification).</p>
+<hr />
+<h3 id="task-5-1-hooks-system">Task 5-1: Hooks System</h3>
+<p><strong>Files:</strong>
+- Create: <code>hooks/hooks.json</code>
+- Create: <code>hooks/hooks-cursor.json</code>
+- Create: <code>hooks/session-start</code>
+- Create: <code>hooks/run-hook.cmd</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Write hooks.json</strong> — Claude Code SessionStart hook configuration. References <code>session-start</code> as entry point.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;hooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;SessionStart&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">      </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;matcher&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="nt">&quot;hooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">          </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;command&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bash \&quot;${CLAUDE_PLUGIN_ROOT}/hooks/session-start\&quot;&quot;</span>
+<span class="w">          </span><span class="p">}</span>
+<span class="w">        </span><span class="p">]</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">]</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write hooks-cursor.json</strong> — Cursor hook configuration (camelCase format).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;hooks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;event&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;SessionStart&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;matcher&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;command&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;bash \&quot;${CURSOR_PLUGIN_ROOT}/hooks/session-start\&quot;&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Write session-start</strong> — Unix entry script (bash) that detects platform via environment variables and outputs the <code>using-shenbi</code> skill injection instruction.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env bash</span>
+<span class="c1"># session-start: Platform-agnostic hook entry point</span>
+<span class="c1"># Detects host platform and outputs using-shenbi skill injection</span>
+
+<span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;unknown&quot;</span>
+
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CLAUDE_PLUGIN_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;claude-code&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CURSOR_PLUGIN_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;cursor&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$CODEX_PLUGIN_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;codex&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$OPENCODE_PLUGIN_ROOT</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;opencode&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$GEMINI_CLI</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;gemini-cli&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$COPILOT_CLI</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;copilot-cli&quot;</span>
+<span class="k">elif</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$FACTORY_DROID</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">PLATFORM</span><span class="o">=</span><span class="s2">&quot;factory-droid&quot;</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;{\&quot;platform\&quot;: \&quot;</span><span class="nv">$PLATFORM</span><span class="s2">\&quot;, \&quot;action\&quot;: \&quot;inject-skill\&quot;, \&quot;skill\&quot;: \&quot;using-shenbi\&quot;}&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Write run-hook.cmd</strong> — Windows polyglot wrapper (batch + bash).</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">@</span><span class="k">echo</span> off
+<span class="c1">REM Windows polyglot wrapper for shenbi hooks</span>
+<span class="c1">REM Auto-detects bash (Git for Windows / WSL) and delegates</span>
+where bash <span class="p">&gt;</span>nul <span class="mi">2</span><span class="p">&gt;</span>nul
+<span class="k">if</span> <span class="nv">%ERRORLEVEL%</span> <span class="ow">EQU</span> 0 <span class="p">(</span>
+    bash <span class="s2">&quot;</span><span class="nv">%~dp0</span><span class="s2">session-start&quot;</span> <span class="nv">%*</span>
+<span class="p">)</span> <span class="k">else</span> <span class="p">(</span>
+    <span class="k">echo</span> Shenbi hooks require bash (install Git for Windows or WSL<span class="p">)</span>
+    <span class="k">exit</span> /b 1
+<span class="c1">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>hooks/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add hooks system for 7-platform SessionStart injection (Phase 5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-2-platform-plugin-manifests-7-platforms">Task 5-2: Platform Plugin Manifests (7 platforms)</h3>
+<p><strong>Files:</strong>
+- Create: <code>.claude-plugin/plugin.json</code>
+- Create: <code>.cursor-plugin/plugin.json</code>
+- Create: <code>.codex-plugin/plugin.json</code>
+- Create: <code>.opencode/plugins/shenbi.js</code>
+- Create: <code>GEMINI.md</code>
+- (Copilot CLI: reuses hooks.json with <code>COPILOT_CLI</code> env detection)
+- (Factory Droid: reuses <code>.claude-plugin/</code>)</p>
+<ul>
+<li>[ ] <strong>Step 1: Write .claude-plugin/plugin.json</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.2.0&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;AI skill framework for novel writing&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;author&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;shenbi&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;skills&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;skills/using-shenbi/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-writing-skills/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-worldbuilding/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-location-builder/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-character-design/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-relationship-map/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-faction-builder/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-power-system/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-story-architecture/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-volume-outlining/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-chapter-planning/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-pacing-design/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-plot-thread-weaver/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-foreshadowing-plant/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-foreshadowing-track/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-foreshadowing-resolve/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-context-composing/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-chapter-drafting/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-state-settling/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-length-normalizing/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-continuity/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-character/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-world-rules/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-pacing/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-foreshadowing/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-anti-ai/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-sensitivity/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-reader-pull/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-memo-compliance/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-dialogue/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-motivation/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-pov/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-texture/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-highpoint/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-long-span/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-era/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-fanfic/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-review-spinoff/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-chapter-revision/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-style-polishing/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-anti-detect/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-import-analysis/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-style-learning/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-character-extraction/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-world-extraction/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-canon-import/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-short-outline/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-short-drafting/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-short-packaging/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-truth-sync/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-snapshot-manage/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-market-radar/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-foundation-review/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-genre-config/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-volume-consolidation/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-drift-guidance/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-intent-management/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-chapter-pattern/SKILL.md&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;skills/shenbi-sequel-writing/SKILL.md&quot;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: Write .cursor-plugin/plugin.json</strong> — camelCase format version of the same skill listing.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Write .codex-plugin/plugin.json</strong> — Codex plugin market format.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Write .opencode/plugins/shenbi.js</strong> — ES module plugin entry for OpenCode.</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">export</span><span class="w"> </span><span class="k">default</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="nx">name</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;shenbi&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">version</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;0.2.0&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">description</span><span class="o">:</span><span class="w"> </span><span class="s1">&#39;AI skill framework for novel writing&#39;</span><span class="p">,</span>
+<span class="w">  </span><span class="nx">skills</span><span class="o">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s1">&#39;skills/using-shenbi/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-writing-skills/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-worldbuilding/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-location-builder/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-character-design/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-relationship-map/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-faction-builder/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-power-system/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-story-architecture/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-volume-outlining/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-chapter-planning/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-pacing-design/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-plot-thread-weaver/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-foreshadowing-plant/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-foreshadowing-track/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-foreshadowing-resolve/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-context-composing/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-chapter-drafting/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-state-settling/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-length-normalizing/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-continuity/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-character/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-world-rules/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-pacing/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-foreshadowing/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-anti-ai/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-sensitivity/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-reader-pull/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-memo-compliance/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-dialogue/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-motivation/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-pov/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-texture/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-highpoint/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-long-span/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-era/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-fanfic/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-review-spinoff/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-chapter-revision/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-style-polishing/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-anti-detect/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-import-analysis/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-style-learning/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-character-extraction/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-world-extraction/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-canon-import/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-short-outline/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-short-drafting/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-short-packaging/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-truth-sync/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-snapshot-manage/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-market-radar/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-foundation-review/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-genre-config/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-volume-consolidation/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-drift-guidance/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-intent-management/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-chapter-pattern/SKILL.md&#39;</span><span class="p">,</span>
+<span class="w">    </span><span class="s1">&#39;skills/shenbi-sequel-writing/SKILL.md&#39;</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 5: Write GEMINI.md</strong> — Gemini CLI entry point that maps <code>using-shenbi</code> skill injection for Gemini's tool system.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.claude-plugin/<span class="w"> </span>.cursor-plugin/<span class="w"> </span>.codex-plugin/<span class="w"> </span>.opencode/<span class="w"> </span>GEMINI.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add 7-platform plugin manifests (Phase 5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-3-english-description-verification">Task 5-3: English Description Verification</h3>
+<p><strong>Files:</strong> Verify all 48 new <code>skills/shenbi-*/SKILL.md</code> frontmatter (Phase 1 skills already have English descriptions)</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Verify all 48 new skills have English <code>description</code> fields</strong> — Each skill's description follows the pattern "Use when [trigger condition]". Most Phase 2-4 skills already have English descriptions in their SKILL.md content; verify they preserve the "only describe when to use, not what it does" rule.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Verify descriptions adhere to the description trap rule</strong> — description must NOT summarize the skill's workflow, only state trigger conditions. Flag any that drift into "what it does" territory.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: verify English descriptions across all 59 skills (Phase 5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-4-pressure-tests-expansion">Task 5-4: Pressure Tests Expansion</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/skill-triggering/prompts/phase2-*.md</code>
+- Create: <code>tests/skill-behavior/review-catches-bug/phase4-*.md</code>
+- Create: <code>tests/pressure-tests/prompts/audit-skipping-pressure.md</code>
+- Create: <code>tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md</code>
+- Create: <code>tests/pressure-tests/prompts/import-shortcut-pressure.md</code></p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: Write Phase 2 trigger tests</strong> — Natural language prompts that test whether <code>using-shenbi</code> correctly routes to Phase 2 audit skills (e.g., "Check if my chapter has timeline problems" → activates review-continuity).</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Write Phase 4 audit behavior tests</strong> — Chapters with injected bugs for the new conditional audit skills to catch.</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: Write combined pressure tests</strong> — Multi-factor pressure scenarios:</p>
+</li>
+<li><code>audit-skipping-pressure.md</code>: Time pressure + fatigue → test that audits are not skipped</li>
+<li><code>foreshadowing-fatigue-pressure.md</code>: 50 chapters of backlog → test that tracking doesn't degrade</li>
+<li>
+<p><code>import-shortcut-pressure.md</code>: Large import → test that the pipeline doesn't cut corners</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: expand pressure tests for Phases 2-5 (Phase 5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-5-shenbi-market-radar-integration">Task 5-5: shenbi-market-radar (integration)</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-market-radar/SKILL.md</code> (if not already created in Phase 4i)</p>
+<ul>
+<li>[ ] <strong>Step 1: Write or finalize SKILL.md</strong> — Market radar for platform trend scanning: leaderboard data analysis, genre trend identification, opening book strategy advice, competitive work benchmarking. Requires web search tooling.</li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-market-radar
+<span class="gu">description: Use when researching current platform trends, analyzing leaderboard data, evaluating genre opportunities, or seeking competitive positioning advice for a new novel</span>
+<span class="gu">---</span>
+
+<span class="gh"># 市场雷达</span>
+
+平台趋势扫描：排行榜数据、题材分析、开书建议、对标作品。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph market_radar {
+    &quot;Ask: target platform + genre interest&quot; -&gt; &quot;Search platform leaderboards (web search)&quot;;
+    &quot;Search platform leaderboards&quot; -&gt; &quot;Analyze top-20 titles in target genre&quot;;
+    &quot;Analyze top-20 titles&quot; -&gt; &quot;Identify trending elements + fatigue patterns&quot;;
+    &quot;Identify trending elements&quot; -&gt; &quot;Generate opening book strategy&quot;;
+    &quot;Generate opening book strategy&quot; -&gt; &quot;Identify competitive works for benchmarking&quot;;
+    &quot;Identify competitive works&quot; -&gt; &quot;Present report to human&quot;;
+}
+</code></pre></div>
+<h2 id="_81">数据契约</h2>
+<ul>
+<li><strong>Reads:</strong> <code>novel.json</code> (platform, genre), <code>genre-config.json</code></li>
+<li><strong>Writes:</strong> market analysis report (presented to human, not stored in truth/)</li>
+<li><strong>Updates:</strong> none</li>
+</ul>
+<h2 id="_82">铁律</h2>
+<ol>
+<li><strong>基于数据，不是直觉</strong> — 所有建议必须有排行榜数据支撑</li>
+<li><strong>识别趋势不是模仿</strong> — 告诉作者什么在起势，不是教作者抄</li>
+<li><strong>回避疲劳元素</strong> — 如果某元素在 top-20 中出现 &gt; 60%，标记为"饱和"</li>
+<li><strong>尊重作者创意</strong> — 建议是参考，作者决定是否采纳</li>
+</ol>
+<h2 id="_83">输出格式</h2>
+<div class="highlight"><pre><span></span><code><span class="gu">## 市场雷达报告</span>
+
+<span class="gs">**平台**</span>: 起点中文网
+<span class="gs">**题材**</span>: 玄幻
+<span class="gs">**日期**</span>: YYYY-MM-DD
+
+<span class="gu">### 排行榜快照 (Top 10)</span>
+[简要摘要]
+
+<span class="gu">### 趋势信号</span>
+<span class="k">-</span><span class="w"> </span>上升: [元素1], [元素2]
+<span class="k">-</span><span class="w"> </span>饱和: [元素3]
+<span class="k">-</span><span class="w"> </span>衰退: [元素4]
+
+<span class="gu">### 开书建议</span>
+[差异化切入角度建议]
+
+<span class="gu">### 对标作品</span>
+[2-3部可参考的作品及分析]
+</code></pre></div>
+<h2 id="anti-rationalization_17">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"追热点写最火的题材"</td>
+<td>热点 = 一年后你的书上架时已是红海</td>
+</tr>
+<tr>
+<td>"不用看市场，好故事自然有人看"</td>
+<td>好故事 + 正确平台策略 = 双倍效果</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-market-radar/SKILL.md
+git commit -m &quot;feat: add shenbi-market-radar with web search integration (Phase 5)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="phase-5-completion-checklist">Phase 5 Completion Checklist</h3>
+<ul>
+<li>[ ] Hooks system operational on all 7 platforms</li>
+<li>[ ] All 59 skills registered in 7 platform manifests</li>
+<li>[ ] All 48 new skills verified to have English <code>description</code> fields (correct trigger-condition-only style; Phase 1 skills already verified)</li>
+<li>[ ] GEMINI.md provides Gemini CLI entry point with tool mapping</li>
+<li>[ ] Pressure tests cover audit resistance, foreshadowing fatigue, and import shortcuts</li>
+<li>[ ] market-radar provides actionable competitive intelligence</li>
+</ul>
+<hr />
+<h2 id="final-integration-tasks-post-phase-5">Final Integration Tasks (Post Phase 5)</h2>
+<ul>
+<li>[ ] <strong>Update <code>using-shenbi</code> dispatcher</strong> — Add all 48 new skills to the discovery table so the dispatcher can route to them</li>
+<li>[ ] <strong>Update <code>shenbi-chapter-revision</code> revision-modes.md</strong> — The auto-routing table's Phase 1 gaps (OOC → rewrite, continuity → rewrite, foreshadowing → rewrite) can now route to existing skills</li>
+<li>[ ] <strong>Verify <code>shenbi-context-composing</code></strong> — Phase 1 already wired P3 (active hooks from <code>pending_hooks.md</code>) and P4 (drift guidance from <code>audit_drift.md</code>). Verify that Phase 2's drift-guidance output and Phase 3's foreshadowing-track output are correctly consumed.</li>
+<li>[ ] <strong>Verify <code>shenbi-chapter-planning</code></strong> — Confirm that Phase 1's chapter-planning reads <code>truth/author_intent.md</code> (from intent-management) and <code>truth/current_focus.md</code> (from intent-management), as implied by the intent-management iron law 2.</li>
+<li>[ ] <strong>Verify end-to-end flow</strong> — Run a complete chapter cycle with all audit skills activated and verify the full plant→track→resolve pipeline</li>
+<li>[ ] <strong>Verify import pipeline</strong> — Test import-analysis on existing novel content and verify all 8 passes produce valid output</li>
+<li>[ ] <strong>Verify platform hooks</strong> — Test session-start on at least 3 platforms (Claude Code, Cursor, OpenCode)</li>
+</ul>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<h3 id="1-phase-1-gap-resolution">1. Phase 1 Gap Resolution</h3>
+<table>
+<thead>
+<tr>
+<th>Phase 1 Gap</th>
+<th>Resolved By</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No foreshadowing lifecycle</td>
+<td>Phase 3 (plant → track → resolve)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>Missing default audit: continuity</td>
+<td>Phase 2 Task 2-1</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>Missing default audit: character</td>
+<td>Phase 2 Task 2-2</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>Missing default audit: sensitivity</td>
+<td>Phase 4a Task 4a-1</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No conditional audit activation</td>
+<td>Phase 4b (12 conditional audits)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No style learning</td>
+<td>Phase 4g (style-learning)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No import pipeline</td>
+<td>Phase 4g (5 import skills)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No length normalizing</td>
+<td>Phase 4e (length-normalizing)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No volume management</td>
+<td>Phase 3 (volume-consolidation) + Phase 4d (volume-outlining)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No subplot_board.md updates</td>
+<td>Phase 4d (plot-thread-weaver)</td>
+<td>Resolved</td>
+</tr>
+<tr>
+<td>No truth/ bootstrapping for existing projects</td>
+<td>Phase 4g (import pipeline) + Phase 3 (truth-sync)</td>
+<td>Resolved</td>
+</tr>
+</tbody>
+</table>
+<h3 id="2-content-completeness-scan">2. Content Completeness Scan</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Skills</th>
+<th>Full Inline Content</th>
+<th>Stub Spec</th>
+<th>Coverage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2</td>
+<td>7</td>
+<td>7</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>7</td>
+<td>7</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Phase 4a</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Phase 4b</td>
+<td>12</td>
+<td>0</td>
+<td>12</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 4c</td>
+<td>4</td>
+<td>0</td>
+<td>4</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 4d</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 4e</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Phase 4f</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td>Phase 4g</td>
+<td>5</td>
+<td>0</td>
+<td>5</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 4h</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 4i</td>
+<td>3 (+1 Phase 5)</td>
+<td>0 (+1 Phase 5)</td>
+<td>3</td>
+<td>0% (template provided)</td>
+</tr>
+<tr>
+<td>Phase 5</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>48</strong></td>
+<td><strong>19</strong></td>
+<td><strong>29</strong></td>
+<td><strong>40% inline, 60% with template</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Phase 4b-4i stub skills (29 skills) each have a one-line specification describing their purpose, activation conditions, and file outputs. The stub expansion template (see Phase 4 header) provides step-by-step guidance for implementers to produce full SKILL.md content matching Phase 2-3 quality standards. A reference example (<code>shenbi-review-world-rules</code>) demonstrates the expansion from stub to full content — all 29 stubs follow this same pattern.</p>
+</blockquote>
+<h3 id="3-cross-plan-consistency">3. Cross-Plan Consistency</h3>
+<ul>
+<li>[ ] Phase 1 Plan "Phase 1 Limitations" section lists 7 gaps → all 7 have explicit resolution targets in this plan</li>
+<li>[ ] Phase 1 Plan <code>using-shenbi</code> trigger map includes Phase 2-5 skills → this plan creates them</li>
+<li>[ ] Phase 1 Plan revision-modes.md auto-routing table lists Phase 2+ gaps → this plan's Output section updates them</li>
+<li>[ ] Phase 1 Plan context-composing P3 references <code>[Phase 3]</code> → Phase 3 foreshadowing-track populates <code>pending_hooks.md</code></li>
+<li>[ ] Phase 1 Plan state-settling deferral (<code>subplot_board.md</code> → Phase 4) → Phase 4d plot-thread-weaver takes ownership</li>
+<li>[ ] File structure in this plan's preamble matches the combined file tree of all phases</li>
+<li>[ ] DOT graph syntax consistent: all use <code>```dot</code> fences (verified, fixed lifecycle-states.md from <code>~~~dot</code>)</li>
+</ul>
+<h3 id="4-dependency-order-verification">4. Dependency Order Verification</h3>
+<div class="highlight"><pre><span></span><code>Phase 1 (core pipeline)
+    ↓
+Phase 2 (quality audits + drift guidance) ← depends on Phase 1 truth files existing
+    ↓
+Phase 3 (foreshadowing + management) ← depends on Phase 2 audit infrastructure
+    ↓
+Phase 4 (extensions) ← depends on Phase 2-3 for audit patterns and foreshadowing lifecycle
+    ↓
+Phase 5 (platform packaging) ← depends on all skills existing
+</code></pre></div>
+<p>Each phase is independently testable after completion. Phase 2 audits can be tested against Phase 1 chapter output. Phase 3 foreshadowing can be tested with a multi-chapter sequence. Phase 4 import can be tested with external novel content.</p>
+<h3 id="5-placeholder-scan">5. Placeholder Scan</h3>
+<p>No ambiguous TBD, TODO, or "implement later" markers found in Phase 2-3 full-content skills.</p>
+<p>Intentional phase-gating markers exist in:
+- Phase 2 review-foreshadowing: "Before Phase 3's foreshadowing-track is implemented, truth/pending_hooks.md may be empty" (explicit deferral note)
+- Phase 2 review-foreshadowing hook-lifecycle.md: "DEFER 操作不在 Phase 2 审计模型中" (explicit scope boundary)
+- Phase 4b-4i skills: Marked as ⚠️ stub specs with expansion template (intentional — these are specifications, not implementations)</p>
+<h3 id="6-post-implementation-verification-full-system">6. Post-Implementation Verification (Full System)</h3>
+<p>After all 5 phases are implemented:</p>
+<ul>
+<li>[ ] <strong>Skill count</strong>: 59 total skills exist (11 Phase 1 + 48 Phase 2-5), each with valid SKILL.md</li>
+<li>[ ] <strong>Description trap</strong>: All 59 skills have English <code>description</code> fields that describe trigger conditions only (no workflow summaries)</li>
+<li>[ ] <strong>DOT consistency</strong>: All 59 skills' DOT flowcharts use consistent fence syntax, no orphaned nodes</li>
+<li>[ ] <strong>Iron laws</strong>: All 59 skills have ≥2 iron laws using absolute language</li>
+<li>[ ] <strong>Anti-rationalization</strong>: All discipline skills have anti-rationalization tables with ≥3 excuse/reality pairs</li>
+<li>[ ] <strong>using-shenbi discovery</strong>: All 59 skills appear in the dispatcher's trigger map</li>
+<li>[ ] <strong>7-platform manifests</strong>: All 7 platform plugin files register all 59 skills</li>
+<li>[ ] <strong>End-to-end test</strong>: Run a 5-chapter cycle: worldbuilding → character-design → story-architecture → foundation-review → chapter-planning × 5 → context-composing × 5 → chapter-drafting × 5 → state-settling × 5 → all 4 default audits × 5 → chapter-revision × 5 → snapshot-manage × 5. Verify all gates are enforced and all audits produce valid reports.</li>
+<li>[ ] <strong>Foreshadowing test</strong>: Plant 3 hooks, track through 5 chapters, resolve 2, verify Chase Power tracking is accurate</li>
+<li>[ ] <strong>Import test</strong>: Feed 10 chapters of external novel content through import-analysis, verify all 8 passes produce structured output</li>
+<li>[ ] <strong>Pressure tests</strong>: Run all 3 combined pressure tests (audit-skipping, foreshadowing-fatigue, import-shortcut) and verify agent behavior matches expectations</li>
+</ul>
+<hr />
+<h2 id="implementation-order-recommendation">Implementation Order Recommendation</h2>
+<ol>
+<li><strong>Phase 2 first</strong> — Adds quality audits that immediately benefit Phase 1's pipeline</li>
+<li><strong>Phase 3 next</strong> — Foreshadowing lifecycle completes the core writing loop</li>
+<li><strong>Phase 4 in sub-batches</strong> — Start with default audit (4a), then conditional audits (4b), then import/short/extensions (4c-4i)</li>
+<li><strong>Phase 5 last</strong> — Platform packaging depends on all skills existing</li>
+</ol>
+<p>Each phase is independently testable. Phase 2 can be verified by running audits against chapters produced by the Phase 1 pipeline. Phase 3 can be verified end-to-end by writing a multi-chapter sequence. Phase 4 import can be tested with existing novel content. Phase 5 platform tests verify hooks and manifests.</p>
+<h2 id="implementation-effort-guide">Implementation Effort Guide</h2>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Skills</th>
+<th>Full Inline</th>
+<th>Stub to Expand</th>
+<th>Est. Effort</th>
+<th>Critical Path?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 2</td>
+<td>7</td>
+<td>7</td>
+<td>0</td>
+<td>Low (implement inline content)</td>
+<td>Yes — enables all quality gates</td>
+</tr>
+<tr>
+<td>Phase 3</td>
+<td>7</td>
+<td>7</td>
+<td>0</td>
+<td>Low (implement inline content)</td>
+<td>Yes — completes writing loop</td>
+</tr>
+<tr>
+<td>Phase 4a</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>Low (implement inline content)</td>
+<td>Yes — final default audit</td>
+</tr>
+<tr>
+<td>Phase 4b</td>
+<td>12</td>
+<td>0</td>
+<td>12</td>
+<td><strong>High</strong> (expand 12 stubs)</td>
+<td>Partial — pacing/foreshadowing audits feed Phase 2 drift-guidance</td>
+</tr>
+<tr>
+<td>Phase 4c</td>
+<td>4</td>
+<td>0</td>
+<td>4</td>
+<td>Medium (expand 4 stubs)</td>
+<td>No — enriches worldbuilding layer</td>
+</tr>
+<tr>
+<td>Phase 4d</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>Medium (expand 3 stubs)</td>
+<td>No — enriches planning layer</td>
+</tr>
+<tr>
+<td>Phase 4e</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>Low (implement inline content)</td>
+<td>No — post-draft optimization</td>
+</tr>
+<tr>
+<td>Phase 4f</td>
+<td>1</td>
+<td>1</td>
+<td>0</td>
+<td>Low (implement inline content)</td>
+<td>No — revision optimization</td>
+</tr>
+<tr>
+<td>Phase 4g</td>
+<td>5</td>
+<td>0</td>
+<td>5</td>
+<td><strong>High</strong> (complex pipeline design)</td>
+<td>Partial — enables existing-novel bootstrap</td>
+</tr>
+<tr>
+<td>Phase 4h</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>Medium (simplified pipeline)</td>
+<td>No — alternative workflow</td>
+</tr>
+<tr>
+<td>Phase 4i</td>
+<td>3</td>
+<td>0</td>
+<td>3</td>
+<td>Medium (management tools)</td>
+<td>No — utility skills</td>
+</tr>
+<tr>
+<td>Phase 5</td>
+<td>1 skill + infra</td>
+<td>1 + most infra</td>
+<td>0</td>
+<td>Medium (platform config)</td>
+<td>Yes — enables skill discovery on all platforms</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>48</strong></td>
+<td><strong>19</strong></td>
+<td><strong>29</strong></td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>High-effort sub-phases</strong>: 4b (12 conditional audits — each following the same pattern but with domain-specific checks) and 4g (5 import skills forming an 8-pass pipeline — requires careful pipeline design). Tackle 4b in batches of 2-3 similar skills. Tackle 4g sequentially (import-analysis → then parallel extraction passes → then canon-import).</p>
+</blockquote>
+<h2 id="risk-register">Risk Register</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Phase 4b-4i stub expansion inconsistent with Phase 2-3 patterns</td>
+<td>Medium</td>
+<td>High</td>
+<td>Follow reference example (<code>review-world-rules</code>); run <code>shenbi-writing-skills</code> pressure test on each expanded skill</td>
+</tr>
+<tr>
+<td>Import pipeline (Phase 4g) produces invalid truth files for existing novels</td>
+<td>Medium</td>
+<td>High</td>
+<td>Test import-analysis → foundation-review → chapter-drafting end-to-end with sample novel content before declaring import complete</td>
+</tr>
+<tr>
+<td>Chase Power formula produces unrealistic debt values at scale (&gt;200 chapters)</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Calibrate formula parameters with multi-volume test; add configurable <code>cp_scale_factor</code> to <code>genre-config.json</code></td>
+</tr>
+<tr>
+<td>Platform hook system fails on some of 7 target platforms</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Test session-start on Claude Code, Cursor, and OpenCode as minimum viable coverage; defer rare platforms</td>
+</tr>
+<tr>
+<td>59-skill discovery table in <code>using-shenbi</code> becomes unmaintainable</td>
+<td>Low</td>
+<td>Medium</td>
+<td>Group skills by layer; auto-discover from manifest files (Phase 5 plugin manifests are the single source of truth)</td>
+</tr>
+<tr>
+<td>Phase 4 conditional audit explosion (too many audits per chapter = performance degradation)</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Default to only 4 audits (anti-ai, continuity, character, sensitivity); conditional audits activate only when genre-config demands them; cap at 6 total audits per chapter</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

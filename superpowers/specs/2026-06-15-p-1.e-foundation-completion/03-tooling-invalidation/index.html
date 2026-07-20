@@ -1,0 +1,1850 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Cluster 03: Tooling Configuration Invalidation - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Cluster 03: Tooling Configuration Invalidation - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Cluster 03: Tooling Configuration Invalidation - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cluster-03-tooling-configuration-invalidation" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Cluster 03: Tooling Configuration Invalidation
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#problem-statement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Problem Statement
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Problem Statement">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#evidence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Evidence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Evidence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#f10-structlog-integration-is-decorative" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F10: structlog integration is decorative
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f11-mypy-strict-true-is-overridden-into-nothing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F11: mypy strict = true is overridden into nothing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f12-basedpyright-strict-mode-excludes-the-same-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F12: basedpyright strict mode excludes the same files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f13-coverage-threshold-05" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F13: coverage threshold = 0.5%
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#f14-skillspy-excluded-from-all-tooling" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        F14: skills/*.py excluded from all tooling
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-1-tools-were-added-before-the-code-was-ready" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 1: Tools were added before the code was ready
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-2-staged-ramp-up-became-permanently-low" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 2: "Staged ramp-up" became "permanently low"
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-3-ignore_errors-was-used-instead-of-untyped_def_behavior" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 3: ignore_errors was used instead of untyped_def_behavior
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#root-cause-4-extend-exclude-skills-was-over-broad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Root cause 4: extend-exclude = ["skills"] was over-broad
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#target-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Target State
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#components-prs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Components (PRs)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Components (PRs)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pr-24-structlog-true-integration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-24: structlog true integration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-25-mypy-basedpyright-de-ignore" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-25: mypy / basedpyright de-ignore
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-26-coverage-threshold-enforcement-test-density-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-26: coverage threshold enforcement + test density enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pr-27-skill-python-scripts-linttype-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-27: skill Python scripts lint/type scope
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-cluster-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-cluster Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#risks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risks
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#open-questions-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Open Questions → Decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cluster-03-tooling-configuration-invalidation">Cluster 03: Tooling Configuration Invalidation</h1>
+<ul>
+<li>Status: <strong>accepted</strong> (per parent <a href="../">README.md</a>, 2026-06-15)</li>
+<li>Date: 2026-06-15</li>
+<li>Parent: <a href="../">README.md</a></li>
+<li>Audit findings covered: F10–F14</li>
+</ul>
+<h2 id="problem-statement">Problem Statement</h2>
+<p>P-1 added four quality tools (structlog, mypy strict, basedpyright strict,
+coverage threshold). Audit found that <strong>all four are configured but
+ineffective</strong>: each has a systematic escape hatch that lets non-compliant
+code pass.</p>
+<h3 id="evidence">Evidence</h3>
+<h4 id="f10-structlog-integration-is-decorative">F10: structlog integration is decorative</h4>
+<div class="highlight"><pre><span></span><code>tests/logging.py                    : 43 lines (config only)
+structlog uses in framework code    : 4
+print() calls in tests/*.py         : 92
+validate-gate.py                    : 30 print, 0 structlog
+scoring.py                          : 23 print, 0 structlog
+phase-runner.py                     : 20 print
+summarize-round.py                  : 7 print
+update-progress.py                  : 12 print
+</code></pre></div>
+<p>PR-9 promised: <em>"替换所有 print() in framework code with structlog calls"</em>.
+Reality: only <code>tests/logging.py</code> and a few tests reference structlog. All
+production code uses <code>print()</code>.</p>
+<h4 id="f11-mypy-strict-true-is-overridden-into-nothing">F11: mypy <code>strict = true</code> is overridden into nothing</h4>
+<p><code>pyproject.toml:118-145</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.mypy]</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="n">warn_return_any</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+<span class="p">...</span><span class="w"> </span><span class="err">(</span><span class="n">10</span><span class="err">+</span><span class="w"> </span><span class="n">strict</span><span class="w"> </span><span class="n">flags</span><span class="err">)</span>
+
+<span class="c1"># P-1.A temporary overrides: legacy untyped code in tests/*.py</span>
+<span class="c1"># PR-12 (P-1.E) will add type hints and remove these overrides.</span>
+<span class="k">[[tool.mypy.overrides]]</span>
+<span class="n">module</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests.validate-gate&quot;</span><span class="p">,</span><span class="w">          </span><span class="c1"># 4318 lines — exempt</span>
+<span class="w">    </span><span class="s2">&quot;tests.scoring&quot;</span><span class="p">,</span><span class="w">                </span><span class="c1"># 384 lines — exempt</span>
+<span class="w">    </span><span class="s2">&quot;tests.phase-runner&quot;</span><span class="p">,</span><span class="w">           </span><span class="c1"># 314 lines — exempt</span>
+<span class="w">    </span><span class="s2">&quot;tests.summarize-round&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># 182 lines — exempt</span>
+<span class="w">    </span><span class="s2">&quot;tests.update-progress&quot;</span><span class="p">,</span><span class="w">        </span><span class="c1"># 324 lines — exempt</span>
+<span class="w">    </span><span class="s2">&quot;tests.unit.test_gates_integrity&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="n">ignore_errors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span><span class="w">                </span><span class="c1"># &lt;- all errors suppressed</span>
+</code></pre></div>
+<p><strong>5 of 7 framework modules are exempt from type checking.</strong> Plus
+<code>tests.unit.test_gates_integrity</code>. Effective coverage: <code>exceptions.py</code>,
+<code>logging.py</code>, and 4 stub modules. The "strict" claim is a façade.</p>
+<h4 id="f12-basedpyright-strict-mode-excludes-the-same-files">F12: basedpyright <code>strict</code> mode excludes the same files</h4>
+<p><code>pyproject.toml:157-170</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.basedpyright]</span>
+<span class="n">include</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="err">...</span>
+<span class="w">    </span><span class="s2">&quot;tests/validate-gate.py&quot;</span><span class="err">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/scoring.py&quot;</span><span class="err">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/phase-runner.py&quot;</span><span class="err">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/summarize-round.py&quot;</span><span class="err">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/update-progress.py&quot;</span><span class="err">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/unit/test_gates_integrity.py&quot;</span><span class="err">,</span>
+<span class="err">]</span>
+<span class="n">typeCheckingMode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;strict&quot;</span>
+</code></pre></div>
+<p>Same 6 files exempt. Same façade.</p>
+<h4 id="f13-coverage-threshold-05">F13: coverage threshold = 0.5%</h4>
+<p><code>pyproject.toml:209</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.coverage.report]</span>
+<span class="c1"># Staged ramp-up. Current line coverage ~10% ...</span>
+<span class="c1"># Target: 30% after P-1.E, 60% after P-2, 90% after P-3.</span>
+<span class="n">fail_under</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">8</span>
+</code></pre></div>
+<p>Plus <code>tests/unit/test_coverage_thresholds.py:25</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="n">BRANCH_THRESHOLD_PCT</span> <span class="o">=</span> <span class="mf">0.5</span>
+</code></pre></div>
+<p>Two thresholds, both near zero. Branch coverage 0.5% means a single
+<code>if/else</code> passing tests satisfies the gate. <strong>The threshold is decorative.</strong></p>
+<p>The comment claims ramp-up targets but <strong>the threshold itself was never
+bumped</strong>. Without enforcement, the ramp-up is aspirational.</p>
+<h4 id="f14-skillspy-excluded-from-all-tooling">F14: <code>skills/*.py</code> excluded from all tooling</h4>
+<p><code>pyproject.toml:70-76</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff]</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="c1"># Skill-level Python utility scripts are governed by skill conventions, not</span>
+<span class="w">    </span><span class="c1"># the framework&#39;s tooling contract. Refactoring them is out of P-1 scope.</span>
+<span class="w">    </span><span class="s2">&quot;skills&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+<p>But <code>skills/shenbi-chapter-pattern/compute_pattern.py</code> (176 lines) and
+<code>skills/shenbi-style-learning/compute_stats.py</code> (392 lines) are <strong>real
+framework Python code</strong> that ships in the repo. They compute chapter
+patterns and style statistics — substantive logic.</p>
+<p><strong>568 lines of production code are silently exempt from ruff, mypy,
+basedpyright, and pytest.</strong> The comment justifies this as "skill
+conventions", but these aren't skills — they're Python helpers bundled
+inside skill directories.</p>
+<h2 id="root-cause-analysis">Root Cause Analysis</h2>
+<h3 id="root-cause-1-tools-were-added-before-the-code-was-ready">Root cause 1: Tools were added before the code was ready</h3>
+<p>P-1.B added ruff/mypy/basedpyright configs. P-1.C added structlog +
+exceptions. P-1.D was supposed to integrate these tools into the legacy
+code (PR-9 said "替换所有 print", PR-12 was supposed to remove the mypy
+overrides). But P-1.D delivered stubs (Cluster 01). So the configs exist,
+the integration didn't happen, and the configs have escape hatches to
+avoid failing.</p>
+<p><strong>Fix</strong>: Remove all escape hatches in P-1.E. Either the code passes
+strict, or it's not in the codebase.</p>
+<h3 id="root-cause-2-staged-ramp-up-became-permanently-low">Root cause 2: "Staged ramp-up" became "permanently low"</h3>
+<p>The coverage threshold comment says "staged ramp-up. Target: 30% after
+P-1.E, 60% after P-2, 90% after P-3." But P-1.E never came. So the
+threshold stayed at 0.5% (test) / 8% (pyproject) forever.</p>
+<p><strong>Fix</strong>: P-1.E sets thresholds at canonical values (branch 80%, line 90%)
+per <a href="../#threshold-justification">README Threshold Justification</a>.
+No weekly ramp — Cluster 04 PR-28 ~ PR-32 are scoped to deliver ~600 tests
+achieving these thresholds directly. The "30% then ramp" framing from earlier
+drafts was a cost compromise inconsistent with the user's directive; it has
+been removed.</p>
+<h3 id="root-cause-3-ignore_errors-was-used-instead-of-untyped_def_behavior">Root cause 3: <code>ignore_errors</code> was used instead of <code>untyped_def_behavior</code></h3>
+<p>mypy offers graduated strictness levels for partial migrations:
+- <code>disallow_untyped_defs = false</code> (allows untyped functions)
+- <code>disallow_incomplete_defs = false</code> (allows partially typed)
+- <code>ignore_errors = true</code> (suppresses everything)</p>
+<p>P-1.A used <code>ignore_errors = true</code> — the most aggressive suppression. A
+more honest config would have been per-file <code>disallow_untyped_defs = false</code>,
+which still catches type errors in already-typed code.</p>
+<p><strong>Fix</strong>: All overrides use the minimum-necessary suppression. Document
+each suppression's exit criteria.</p>
+<h3 id="root-cause-4-extend-exclude-skills-was-over-broad">Root cause 4: <code>extend-exclude = ["skills"]</code> was over-broad</h3>
+<p>The intent was "don't lint the prose content of SKILL.md files". But
+<code>extend-exclude</code> operates on directories, not file types. Excluding
+<code>skills/</code> also excludes any <code>.py</code> files inside skill directories.</p>
+<p><strong>Fix</strong>: Use <code>[tool.ruff.lint.per-file-ignores]</code> with explicit patterns
+to exclude only <code>*.md</code> files in skills, not all files.</p>
+<h2 id="target-state">Target State</h2>
+<p>After P-1.E Cluster 03 completes:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Pre-P-1.E</th>
+<th>Post-P-1.E</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>structlog</td>
+<td>4 calls / 92 print</td>
+<td>0 print in framework code</td>
+</tr>
+<tr>
+<td>mypy strict</td>
+<td>6 modules exempt</td>
+<td>0 modules exempt</td>
+</tr>
+<tr>
+<td>basedpyright strict</td>
+<td>6 modules excluded</td>
+<td>0 modules excluded</td>
+</tr>
+<tr>
+<td>Coverage (branch)</td>
+<td>0.5% threshold</td>
+<td><strong>80%</strong> threshold immediately post-P-1.E merge (SonarSource new-code standard)</td>
+</tr>
+<tr>
+<td>Coverage (line)</td>
+<td>8% threshold</td>
+<td><strong>90%</strong> threshold immediately post-P-1.E merge (industry rigorous-tested standard)</td>
+</tr>
+<tr>
+<td>Test density</td>
+<td>0.007 tests/LOC (43 tests / 5921 LOC)</td>
+<td><strong>0.10 tests/LOC</strong> (≥ 1 test function per 10 framework LOC; ~600 tests delivered by Cluster 04 expanded scope)</td>
+</tr>
+<tr>
+<td>ruff scope</td>
+<td>skills/ excluded</td>
+<td>only <code>skills/**/*.md</code> excluded</td>
+</tr>
+<tr>
+<td>mypy scope</td>
+<td>skills/ excluded</td>
+<td>only <code>skills/**/*.md</code> excluded</td>
+</tr>
+<tr>
+<td>skills Python scripts</td>
+<td>untyped, untested</td>
+<td>typed, tested, linted</td>
+</tr>
+</tbody>
+</table>
+<p><strong>All thresholds above are the canonical values per <a href="../#threshold-justification">README Threshold Justification</a>. Cluster files must not introduce conflicting numbers. No weekly ramp — P-1.E delivers final thresholds directly.</strong></p>
+<h2 id="components-prs">Components (PRs)</h2>
+<h3 id="pr-24-structlog-true-integration">PR-24: structlog true integration</h3>
+<p><strong>Approach</strong>: Mechanical replacement of <code>print()</code> calls with structured
+logging. Each <code>print()</code> is categorized:</p>
+<table>
+<thead>
+<tr>
+<th>print() pattern</th>
+<th>Replacement</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>print("=== G1: Input Validation ===")</code> (section header)</td>
+<td><code>log.info("gate_section", gate="G1", phase="input_validation")</code></td>
+</tr>
+<tr>
+<td><code>print(f"G1 FAILED: {msg}")</code> (error)</td>
+<td><code>log.error("gate_failed", gate="G1", reason=msg)</code></td>
+</tr>
+<tr>
+<td><code>print(f"G1 PASSED")</code> (success)</td>
+<td><code>log.info("gate_passed", gate="G1")</code></td>
+</tr>
+<tr>
+<td><code>print(f"Agent ID: {id}")</code> (info)</td>
+<td><code>log.info("dispatch_start", agent_id=id)</code></td>
+</tr>
+<tr>
+<td><code>print(json.dumps(result))</code> (data to stdout)</td>
+<td><strong>KEEP</strong> — this is stdout-as-data, not logging. Move to explicit <code>_emit_data()</code> function with comment.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rule</strong>: any <code>print()</code> that goes to stdout AND is parsed by downstream
+consumers (e.g., dispatcher's JSON parsing) is <strong>data emission</strong>, not
+logging. These stay as <code>print()</code> or move to a dedicated <code>emit_json()</code>
+function. They are explicitly marked with a comment.</p>
+<p>Any <code>print()</code> to stderr or for human-readable status messages becomes
+<code>log.info/error/warning</code>.</p>
+<p><strong>Files modified</strong>:</p>
+<ul>
+<li><code>src/shenbi/gates/cli.py</code> — <code>configure_logging()</code> called at start of <code>main()</code></li>
+<li><code>src/shenbi/gates/{g0..g7}.py</code> — each gate function logs entry, exit, failures</li>
+<li><code>src/shenbi/gates/shared.py</code> — <code>passed()</code> and <code>fail()</code> emit logs (in addition
+  to returning JSON; logs go to stderr, JSON to stdout)</li>
+<li><code>src/shenbi/dispatcher/executor.py</code> — same</li>
+<li><code>src/shenbi/scoring.py</code> — same</li>
+<li><code>src/shenbi/phase_runner.py</code> — same</li>
+<li><code>src/shenbi/summarize_round.py</code> — same</li>
+<li><code>src/shenbi/update_progress.py</code> — same</li>
+</ul>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>grep -rn "print(" src/shenbi/ --include='*.py' | grep -v "emit_data\|emit_json"</code> returns 0 matches</li>
+<li>[ ] <code>grep -rn "structlog\|get_logger" src/shenbi/ --include='*.py'</code> returns ≥ 50 matches</li>
+<li>[ ] Each framework CLI tool's <code>main()</code> calls <code>configure_logging()</code> first</li>
+<li>[ ] <code>SHENBI_LOG_FORMAT=json uv run shenbi-validate G0 ...</code> produces JSON log lines on stderr</li>
+<li>[ ] Tests in <code>tests/unit/test_logging.py</code> cover at least 5 framework module's logging output</li>
+</ul>
+<h3 id="pr-25-mypy-basedpyright-de-ignore">PR-25: mypy / basedpyright de-ignore</h3>
+<p><strong>Approach</strong>: Remove all <code>ignore_errors = true</code> and <code>exclude</code> overrides.
+Add type annotations to legacy code module-by-module. Run mypy and
+basedpyright after each module; commit when green.</p>
+<p><strong>Order of de-ignoring</strong> (easiest first):</p>
+<ol>
+<li><code>tests/scoring.py</code> → <code>src/shenbi/scoring.py</code> (PR-18 must merge first)</li>
+<li><code>tests/summarize-round.py</code> → <code>src/shenbi/summarize_round.py</code></li>
+<li><code>tests/update-progress.py</code> → <code>src/shenbi/update_progress.py</code></li>
+<li><code>tests/phase-runner.py</code> → <code>src/shenbi/phase_runner.py</code></li>
+<li><code>tests/validate-gate.py</code> → <code>src/shenbi/gates/*</code> (after PR-18)</li>
+<li><code>tests/unit/test_gates_integrity.py</code> (last — tests can have looser typing)</li>
+</ol>
+<p>For each module:</p>
+<ol>
+<li>Add type annotations to all function signatures.</li>
+<li>Run <code>uv run mypy src/shenbi/&lt;module&gt;.py</code> — fix errors.</li>
+<li>Run <code>uv run basedpyright src/shenbi/&lt;module&gt;.py</code> — fix errors.</li>
+<li>Remove the override line from <code>pyproject.toml</code>.</li>
+<li>Commit.</li>
+</ol>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] Zero <code>ignore_errors</code> lines in <code>pyproject.toml</code> mypy section</li>
+<li>[ ] Zero <code>exclude</code> lines in <code>pyproject.toml</code> basedpyright section (beyond <code>__pycache__</code>, archived rounds)</li>
+<li>[ ] <code>uv run mypy src/shenbi/</code> exits 0</li>
+<li>[ ] <code>uv run basedpyright</code> exits 0</li>
+<li>[ ] All public functions in <code>src/shenbi/</code> have complete type annotations</li>
+</ul>
+<h3 id="pr-26-coverage-threshold-enforcement-test-density-enforcement">PR-26: coverage threshold enforcement + test density enforcement</h3>
+<p><strong>Approach</strong>: Set thresholds at canonical values (no ramp), enforce via CI.
+Cluster 04 PR-28 ~ PR-32 deliver the test volume needed to meet these targets.</p>
+<p><strong>Step 1</strong>: After PR-25, measure actual coverage to confirm Cluster 04 scope:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--cov<span class="o">=</span>src/shenbi<span class="w"> </span>--cov-report<span class="o">=</span>term-missing<span class="w"> </span>--cov-branch
+<span class="c1"># Expected starting point: line ~10%, branch ~1% (per current pyproject comment)</span>
+<span class="c1"># After Cluster 04 PR-28 ~ PR-32 (expanded scope): line ~90%, branch ~80%</span>
+</code></pre></div>
+<p><strong>Step 2</strong>: Set thresholds at canonical values (no ramp):</p>
+<table>
+<thead>
+<tr>
+<th>Threshold</th>
+<th>Value (post-P-1.E)</th>
+<th>Where configured</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Branch coverage floor</td>
+<td><strong>80%</strong></td>
+<td><code>tests/unit/test_coverage_thresholds.py:BRANCH_THRESHOLD_PCT = 80</code></td>
+</tr>
+<tr>
+<td>Line coverage floor</td>
+<td><strong>90%</strong></td>
+<td><code>pyproject.toml:[tool.coverage.report].fail_under = 90</code></td>
+</tr>
+</tbody>
+</table>
+<p>These are the targets Cluster 04 PR-28 ~ PR-32 must deliver. If post-PR-32
+measurement falls short, <strong>add tests to Cluster 04 scope</strong> rather than lowering
+thresholds.</p>
+<p><strong>Step 3</strong>: Test density enforcement using the canonical metric definition
+(see README Threshold Justification "Metric definitions"):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_test_density.py</span>
+<span class="sd">&quot;&quot;&quot;Enforce test density floor per README Threshold Justification.</span>
+
+<span class="sd">Metric: test_function_count / framework_loc</span>
+<span class="sd">Target: ≥ 0.10 (i.e., ≥ 1 test function per 10 LOC of framework code)</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">ast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+<span class="n">FRAMEWORK_DIR</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span>
+<span class="n">TEST_DIRS</span> <span class="o">=</span> <span class="p">[</span><span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="n">sub</span> <span class="k">for</span> <span class="n">sub</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;unit&quot;</span><span class="p">,</span> <span class="s2">&quot;integration&quot;</span><span class="p">,</span> <span class="s2">&quot;property&quot;</span><span class="p">,</span> <span class="s2">&quot;benchmark&quot;</span><span class="p">)]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">count_framework_loc</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count non-blank, non-comment Python LOC in src/shenbi/.&quot;&quot;&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">py_file</span> <span class="ow">in</span> <span class="n">FRAMEWORK_DIR</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.py&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">py_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">stripped</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;#&quot;</span><span class="p">):</span>
+                <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">count_test_functions</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Count `def test_*` functions across all test directories.&quot;&quot;&quot;</span>
+    <span class="n">total</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">test_dir</span> <span class="ow">in</span> <span class="n">TEST_DIRS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">test_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>
+        <span class="k">for</span> <span class="n">py_file</span> <span class="ow">in</span> <span class="n">test_dir</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.py&quot;</span><span class="p">):</span>
+            <span class="n">tree</span> <span class="o">=</span> <span class="n">ast</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">py_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+            <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">ast</span><span class="o">.</span><span class="n">walk</span><span class="p">(</span><span class="n">tree</span><span class="p">):</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">ast</span><span class="o">.</span><span class="n">FunctionDef</span><span class="p">)</span> <span class="ow">and</span> <span class="n">node</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;test_&quot;</span><span class="p">):</span>
+                    <span class="n">total</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="n">total</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_density_meets_minimum</span><span class="p">():</span>
+    <span class="n">framework_loc</span> <span class="o">=</span> <span class="n">count_framework_loc</span><span class="p">()</span>
+    <span class="n">test_count</span> <span class="o">=</span> <span class="n">count_test_functions</span><span class="p">()</span>
+    <span class="n">density</span> <span class="o">=</span> <span class="n">test_count</span> <span class="o">/</span> <span class="n">framework_loc</span> <span class="k">if</span> <span class="n">framework_loc</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">density</span> <span class="o">&gt;=</span> <span class="mf">0.10</span><span class="p">,</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;Test density </span><span class="si">{</span><span class="n">density</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2"> below 0.10 floor &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">test_count</span><span class="si">}</span><span class="s2"> tests / </span><span class="si">{</span><span class="n">framework_loc</span><span class="si">}</span><span class="s2"> framework LOC). &quot;</span>
+        <span class="sa">f</span><span class="s2">&quot;Add ~</span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="mf">0.10</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">framework_loc</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">test_count</span><span class="p">)</span><span class="si">}</span><span class="s2"> more tests.&quot;</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p><strong>Files modified</strong>:</p>
+<ul>
+<li><code>pyproject.toml</code>: <code>fail_under = 90</code> (was 8)</li>
+<li><code>tests/unit/test_coverage_thresholds.py</code>: <code>BRANCH_THRESHOLD_PCT = 80</code> (was 0.5)</li>
+<li><code>tests/unit/test_test_density.py</code>: NEW (above implementation)</li>
+</ul>
+<p><strong>Note</strong>: The earlier "coverage-bump.yml" weekly ramp workflow has been removed
+from this spec. Per the user's "no cost compromise" directive, P-1.E delivers
+the final thresholds directly via expanded Cluster 04 test scope. If post-merge
+measurement reveals a gap, the gap is fixed by adding tests in a follow-up PR,
+not by lowering thresholds via automation.</p>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] <code>pyproject.toml</code> <code>fail_under == 90</code> (exactly)</li>
+<li>[ ] <code>BRANCH_THRESHOLD_PCT == 80</code> in <code>test_coverage_thresholds.py</code></li>
+<li>[ ] <code>test_test_density.py</code> exists, uses the canonical metric definition (≥ 0.10), passes</li>
+<li>[ ] Coverage badge in README points to actual coverage</li>
+<li>[ ] If post-PR-32 measurement falls below these targets, <strong>add tests in Cluster 04 PR-32</strong> to meet them (do NOT lower thresholds, do NOT introduce a ramp)</li>
+</ul>
+<h3 id="pr-27-skill-python-scripts-linttype-scope">PR-27: skill Python scripts lint/type scope</h3>
+<p><strong>Approach</strong>: Move skill Python scripts under tooling scope. Two options:</p>
+<p><strong>Option A</strong> (preferred): Move skill Python scripts to <code>src/shenbi/skill_utils/&lt;skill&gt;/</code>.</p>
+<div class="highlight"><pre><span></span><code>src/shenbi/skill_utils/
+├── __init__.py
+├── chapter_pattern/
+│   └── compute_pattern.py    # MOVED from skills/shenbi-chapter-pattern/
+└── style_learning/
+    └── compute_stats.py      # MOVED from skills/shenbi-style-learning/
+</code></pre></div>
+<p>Skill SKILL.md files reference the script path:
+<div class="highlight"><pre><span></span><code><span class="gh"># skills/shenbi-chapter-pattern/SKILL.md</span>
+...
+Run: <span class="sb">`python -m shenbi.skill_utils.chapter_pattern.compute_pattern ...`</span>
+</code></pre></div></p>
+<p><strong>Option B</strong> (fallback): Keep scripts in skill directories but remove
+<code>extend-exclude = ["skills"]</code> and use per-file ignore patterns:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.ruff]</span>
+<span class="c1"># Don&#39;t exclude skills/ entirely — only the markdown files</span>
+<span class="n">extend-exclude</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/archived&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds/round-[0-9][0-9][0-9]-*&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[tool.ruff.lint.per-file-ignores]</span>
+<span class="c1"># Skill markdown files aren&#39;t Python — ruff shouldn&#39;t try to lint them</span>
+<span class="s2">&quot;skills/**/*.md&quot;</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;*&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p><strong>Recommendation</strong>: Option A. Skill Python scripts are framework code
+distributed with the wheel; they should be in <code>src/shenbi/</code>. The skill
+directory contains prose and data references; code lives with code.</p>
+<p><strong>Files modified</strong>:</p>
+<ul>
+<li>Move <code>skills/shenbi-chapter-pattern/compute_pattern.py</code> → <code>src/shenbi/skill_utils/chapter_pattern/compute_pattern.py</code></li>
+<li>Move <code>skills/shenbi-style-learning/compute_stats.py</code> → <code>src/shenbi/skill_utils/style_learning/compute_stats.py</code></li>
+<li>Update SKILL.md files to reference new paths</li>
+<li>Add <code>__init__.py</code> files</li>
+<li>Add type annotations to both scripts (in scope of PR-25)</li>
+<li>Add unit tests for both scripts</li>
+</ul>
+<p><strong>Acceptance</strong>:</p>
+<ul>
+<li>[ ] Both scripts have type annotations and pass mypy strict</li>
+<li>[ ] Both scripts have unit tests with ≥ 90% line AND ≥ 80% branch coverage (per canonical thresholds)</li>
+<li>[ ] <code>extend-exclude</code> in <code>pyproject.toml</code> no longer contains <code>"skills"</code></li>
+<li>[ ] <code>[tool.ruff.lint.per-file-ignores]</code> has explicit <code>skills/**/*.md</code> ignore</li>
+<li>[ ] Skill SKILL.md files updated to reference new Python module paths</li>
+</ul>
+<h2 id="cross-cluster-dependencies">Cross-cluster Dependencies</h2>
+<ul>
+<li><strong>PR-24 depends on PR-18 + PR-19 + PR-20</strong>: structlog integration requires
+  modular gates + dispatcher in their final src/ locations.</li>
+<li><strong>PR-25 depends on PR-18 + PR-19</strong>: type annotation requires final file
+  locations.</li>
+<li><strong>PR-26 depends on PR-25</strong>: thresholds can only be enforced after baseline
+  measurement on the typed codebase confirms starting point.</li>
+<li><strong>PR-27 depends on PR-18</strong>: skill_utils/ lives under src/shenbi/.</li>
+</ul>
+<h2 id="risks">Risks</h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Structlog integration surfaces hidden bugs (e.g., a <code>print()</code> was actually being parsed by downstream)</td>
+<td>Categorize each print() before replacing; keep data-emitting prints</td>
+</tr>
+<tr>
+<td>Removing mypy overrides reveals hundreds of type errors</td>
+<td>Triage by file; fix incrementally; document any intentional <code># type: ignore</code> with reason</td>
+</tr>
+<tr>
+<td>Coverage threshold (80%/90%) requires substantial test additions; if PR-32 cannot deliver enough tests in one PR, split into PR-32a / PR-32b</td>
+<td>Track per-module coverage in CI artifacts; if a module falls short, the PR adds more tests for that module (no threshold lowering)</td>
+</tr>
+<tr>
+<td>Moving skill scripts breaks agent prompts that hardcode the path</td>
+<td>Update SKILL.md in same PR; document in CHANGELOG</td>
+</tr>
+</tbody>
+</table>
+<h2 id="open-questions-decisions">Open Questions → Decisions</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Question</th>
+<th>Decision</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>structlog + OpenTelemetry integration?</td>
+<td><strong>Defer OTLP exporter to P3; P-1.E defines metrics schema only.</strong></td>
+<td>structlog is the local sink (JSON to stderr). OTLP exporter requires running a collector (Jaeger/Tempo/Honeycomb), which is post-MVP infrastructure. Defining the metrics schema now (Pydantic models in <code>src/shenbi/observability/metrics.py</code>) locks the contract without operational cost.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Different coverage thresholds for <code>src/shenbi/</code> vs <code>tests/</code>?</td>
+<td><strong>Enforce on <code>src/shenbi/</code> only.</strong></td>
+<td>Test code is exercised by running; measuring test coverage of tests is meta and not actionable. <code>[tool.coverage.run].source = ["src/shenbi"]</code> already excludes tests.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Skill Python scripts standalone (<code>python compute_pattern.py</code>)?</td>
+<td><strong>Yes — provide <code>__main__.py</code> per skill_utils subdir.</strong></td>
+<td>Skill authors may want to iterate on a script without <code>uv sync</code> overhead. <code>python -m shenbi.skill_utils.chapter_pattern</code> works after the module is on <code>sys.path</code> (e.g., editable install via <code>uv sync</code>). For pure-standalone use, document a one-line <code>python -m</code> invocation in each skill's SKILL.md.</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

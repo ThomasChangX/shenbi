@@ -1,0 +1,1934 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>State-Counter Integrity and Telemetry Wiring Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="State-Counter Integrity and Telemetry Wiring Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="State-Counter Integrity and Telemetry Wiring Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#state-counter-integrity-and-telemetry-wiring-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              State-Counter Integrity and Telemetry Wiring Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-add-retry_budget_consumed-durable-counter-retryexhaustederror" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Add retry_budget_consumed durable counter + RetryExhaustedError
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-wire-revision_count-to-revision-routing" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Wire revision_count to revision routing
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-wire-last_snapshot-pointer-in-_snapshot_chapter_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Wire last_snapshot pointer in _snapshot_chapter_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-self-heal-state-counters-on-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Self-heal state counters on resume
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-regression-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Regression verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="state-counter-integrity-and-telemetry-wiring-implementation-plan">State-Counter Integrity and Telemetry Wiring Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Wire three orphaned pipeline-state fields so telemetry is trustworthy: a durable <code>retry_budget_consumed</code> counter that survives the retry cycle, an incrementing <code>revision_count</code>, and a populated <code>last_snapshot</code> pointer — plus a self-heal pass on resume.</p>
+<p><strong>Architecture:</strong> Four targeted wiring fixes plus a new exception. The existing <code>retry_counts</code> IS incremented (<code>chapter_loop.py:398-399</code>, <code>1327-1328</code>) but <code>_reset_retries</code> (line 456) clears it on success — so a SEPARATE durable counter <code>retry_budget_consumed</code> is added and never cleared, enabling crash-resume to enforce the retry limit. <code>revision_count</code> gets <code>+= 1</code> in <code>_route_revision_after_resonance</code>; <code>last_snapshot</code> gets set in <code>_snapshot_chapter_files</code> (which must gain a <code>state</code> parameter to receive it). On resume (<code>cmd_resume</code> → after <code>load_state</code>), <code>_heal_state_counters</code> cross-checks all three against disk. State-schema changes are additive: <code>retry_budget_consumed</code> is a new field on <code>ChapterLoopStateData</code>, serialized in <code>to_dict</code>/<code>from_dict</code>.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, pytest, structlog</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><code>retry_counts</code> is NOT the fix target — it is correctly incremented and intentionally cleared by <code>_reset_retries</code> on step success (<code>chapter_loop.py:456</code>). The fix is a SEPARATE durable counter <code>retry_budget_consumed</code> that is NEVER cleared by <code>_reset_retries</code> (spec §2.1, §3.1). Do not change <code>_reset_retries</code> to preserve <code>retry_counts</code>.</li>
+<li>The retry limit is enforced via <code>state.config.max_audit_retries</code> (the G4 hard-fail budget). <code>handle_dispatch_failure</code> uses <code>max_revision_retries</code> for the dispatch/gate failure path — keep that path intact; the durable counter guards the G4 HARD-fail retry budget for crash-resume (spec §3.1).</li>
+<li><code>_snapshot_chapter_files</code> currently has signature <code>(project_dir, chapter)</code> and takes NO <code>state</code>. To set <code>last_snapshot</code>, add a <code>state: PipelineState | None = None</code> parameter (default None preserves existing callers that don't have state handy) (spec §3.3).</li>
+<li><code>RetryExhaustedError</code> does NOT exist yet — create it in <code>src/shenbi/exceptions.py</code> (subclass of <code>ShenbiError</code>), mirroring the existing <code>ScoringRejectError</code> pattern (spec §3.1).</li>
+<li>New state field <code>retry_budget_consumed</code> is additive: <code>to_dict</code> gains the key; <code>from_dict</code> reads it with a default of <code>{}</code> so old state files load cleanly. All counters/pointers are healed from disk on resume, so an old state file self-corrects.</li>
+<li><code>just check</code> must pass fully after each task.</li>
+</ul>
+<hr />
+<h3 id="task-1-add-retry_budget_consumed-durable-counter-retryexhaustederror">Task 1: Add retry_budget_consumed durable counter + RetryExhaustedError</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/exceptions.py</code> (add <code>RetryExhaustedError</code>)
+- Modify: <code>src/shenbi/pipeline/state.py:133-143</code> (<code>ChapterLoopStateData</code> — add <code>retry_budget_consumed</code> field), <code>state.py:179-201</code> (<code>to_dict</code>), <code>state.py:269-279</code> (<code>from_dict</code>)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:383-440</code> (<code>_handle_failure</code> — increment durable counter + enforce limit), <code>chapter_loop.py:1321-1339</code> (G4 hard-fail path — increment durable counter)
+- Test: <code>tests/unit/pipeline/test_retry_budget.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>PipelineState</code>, <code>ChapterLoopStateData</code>, <code>state.config.max_audit_retries</code>, <code>_retry_key(chapter, skill)</code>
+- Produces: <code>RetryExhaustedError</code> exception; <code>ChapterLoopStateData.retry_budget_consumed: dict[str,int]</code> (durable, never cleared); <code>_handle_failure</code> and the G4 hard-fail path increment it. <code>_reset_retries</code> is left unchanged (still clears <code>retry_counts</code>).</p>
+<p><strong>Context:</strong> Spec §2.1 / §3.1. The retry counter is cleared on success, so crash-resume cannot enforce the budget. The durable counter is the missing trail. The G4 hard-fail path at lines 1321-1339 currently increments <code>retry_counts</code> directly (1327-1328) and pops it (1339); wire <code>retry_budget_consumed</code> there too. <code>_handle_failure</code> is the dispatch/gate failure path; it already computes <code>count</code> from <code>retry_counts</code>. Add the durable increment at both increment sites.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_retry_budget.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for the durable retry_budget_consumed counter (spec §3.1).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryExhaustedError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">_handle_failure</span><span class="p">,</span> <span class="n">_reset_retries</span><span class="p">,</span> <span class="n">_retry_key</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_state</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PipelineState</span><span class="p">:</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/test&quot;</span><span class="p">)</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_revision_retries</span> <span class="o">=</span> <span class="mi">2</span>
+    <span class="k">return</span> <span class="n">s</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_step</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ChapterStep</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">ChapterStep</span><span class="p">(</span><span class="n">step_num</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDurableCounter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_reset_retries_clears_retry_counts_not_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;_reset_retries clears retry_counts but MUST leave retry_budget_consumed.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_state</span><span class="p">()</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">3</span>
+
+        <span class="n">_reset_retries</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">_step</span><span class="p">(),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">,</span> <span class="s2">&quot;retry_counts should be cleared&quot;</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span> <span class="o">==</span> <span class="mi">3</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;retry_budget_consumed must NOT be cleared on success (spec §3.1)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handle_failure_increments_durable_budget</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A G4/dispatch failure increments the durable budget (and retry_counts).&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_state</span><span class="p">()</span>
+        <span class="c1"># keep handle_dispatch_failure returning True so _handle_failure retries</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.error_handler.handle_dispatch_failure&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">state</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">escalated</span> <span class="o">=</span> <span class="n">_handle_failure</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">_step</span><span class="p">(),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failure</span><span class="o">=</span><span class="s2">&quot;gate&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">escalated</span> <span class="ow">is</span> <span class="kc">False</span>  <span class="c1"># retries, does not escalate yet</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestBudgetEnforcement</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_exceeding_max_audit_retries_raises</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;When durable budget exceeds max_audit_retries, RetryExhaustedError is raised.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_state</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span>
+        <span class="c1"># Pre-seed budget at the limit so the next failure trips it.</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">2</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+            <span class="s2">&quot;shenbi.pipeline.error_handler.handle_dispatch_failure&quot;</span><span class="p">,</span>
+            <span class="k">lambda</span> <span class="n">state</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">count</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">RetryExhaustedError</span><span class="p">):</span>
+            <span class="n">_handle_failure</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">_step</span><span class="p">(),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">failure</span><span class="o">=</span><span class="s2">&quot;gate&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestStateRoundTrip</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_retry_budget_consumed_serializes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_state</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;chapter_loop&quot;</span><span class="p">][</span><span class="s2">&quot;retry_budget_consumed&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_retry_budget_consumed_loads_with_default</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Old state file without the key loads to {} (additive field).</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">from_json</span><span class="p">(</span>
+            <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;project_dir&quot;</span><span class="p">:</span> <span class="s2">&quot;/x&quot;</span><span class="p">,</span> <span class="s2">&quot;phase&quot;</span><span class="p">:</span> <span class="s2">&quot;genesis&quot;</span><span class="p">})</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span> <span class="o">==</span> <span class="p">{}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_budget.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'RetryExhaustedError'</code> and <code>AttributeError: retry_budget_consumed</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>First, add the exception in <code>src/shenbi/exceptions.py</code> (near the other <code>ShenbiError</code> subclasses, e.g. after <code>ScoringRejectError</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">RetryExhaustedError</span><span class="p">(</span><span class="n">ShenbiError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The durable retry budget for a chapter step has been exceeded.</span>
+
+<span class="sd">    Raised when retry_budget_consumed exceeds state.config.max_audit_retries,</span>
+<span class="sd">    so crash-resume still enforces the limit even though the ephemeral</span>
+<span class="sd">    retry_counts is cleared on success (spec §3.1).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+</code></pre></div>
+<p>Next, add the field to <code>ChapterLoopStateData</code> in <code>src/shenbi/pipeline/state.py</code> (after <code>retry_counts</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ChapterLoopStateData</span><span class="p">:</span>
+    <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">current_step</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">step_index</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">chapter_states</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ChapterState</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">per_chapter_review_enabled</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span>
+    <span class="n">retry_counts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="c1"># Durable retry budget (spec §3.1): NOT cleared by _reset_retries, so</span>
+    <span class="c1"># crash-resume can enforce max_audit_retries. Contrast retry_counts above,</span>
+    <span class="c1"># which is intentionally cleared on step success.</span>
+    <span class="n">retry_budget_consumed</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">modify_feedback</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">retry_feedback</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">soft_fail_trackers</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">SoftFailTracker</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+</code></pre></div>
+<p>In <code>PipelineState.to_dict</code>, inside the <code>"chapter_loop": {...}</code> dict, add after <code>"retry_counts":</code>:</p>
+<div class="highlight"><pre><span></span><code>                <span class="s2">&quot;retry_counts&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">,</span>
+                <span class="s2">&quot;retry_budget_consumed&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">,</span>
+</code></pre></div>
+<p>In <code>PipelineState.from_dict</code>, in the <code>ChapterLoopStateData(...)</code> construction, add after <code>retry_counts=</code>:</p>
+<div class="highlight"><pre><span></span><code>                <span class="n">retry_counts</span><span class="o">=</span><span class="n">cl_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;retry_counts&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="n">retry_budget_consumed</span><span class="o">=</span><span class="n">cl_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;retry_budget_consumed&quot;</span><span class="p">,</span> <span class="p">{}),</span>
+</code></pre></div>
+<p>Then wire the increment + enforcement in <code>chapter_loop.py</code>. Add the import at the top of the file (with the other shenbi imports):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">RetryExhaustedError</span>
+</code></pre></div>
+<p>Modify <code>_handle_failure</code> to increment the durable counter and enforce the limit. Change the body that currently reads:</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="n">key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.error_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_dispatch_failure</span>
+</code></pre></div>
+to:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">key</span> <span class="o">=</span> <span class="n">_retry_key</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>
+    <span class="n">count</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+
+    <span class="c1"># Durable budget (spec §3.1): NOT cleared by _reset_retries, so crash-resume</span>
+    <span class="c1"># can enforce max_audit_retries even after a successful retry.</span>
+    <span class="n">consumed</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">consumed</span>
+    <span class="k">if</span> <span class="n">consumed</span> <span class="o">&gt;</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;retry_budget_exhausted&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">,</span>
+            <span class="n">consumed</span><span class="o">=</span><span class="n">consumed</span><span class="p">,</span>
+            <span class="nb">max</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">raise</span> <span class="n">RetryExhaustedError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Retry budget (</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="si">}</span><span class="s2">) exhausted for </span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(consumed </span><span class="si">{</span><span class="n">consumed</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.error_handler</span><span class="w"> </span><span class="kn">import</span> <span class="n">handle_dispatch_failure</span>
+</code></pre></div>
+<p>For the G4 hard-fail direct-increment path (lines 1321-1339), change:</p>
+<p><div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">hard_fails</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4 HARD check failed: </span><span class="si">{</span><span class="n">hard_fails</span><span class="si">}</span><span class="se">\n</span><span class="s2">Full result: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">g4</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">per_chapter_review_enabled</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_handle_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="s2">&quot;gate&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">retry_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+</code></pre></div>
+to (add the durable increment before the existing logic):</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">hard_fails</span><span class="p">:</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4 HARD check failed: </span><span class="si">{</span><span class="n">hard_fails</span><span class="si">}</span><span class="se">\n</span><span class="s2">Full result: </span><span class="si">{</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">g4</span><span class="p">,</span><span class="w"> </span><span class="n">default</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="c1"># Durable budget trail for both paths (spec §3.1).</span>
+            <span class="n">consumed</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">retry_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">consumed</span>
+            <span class="k">if</span> <span class="n">consumed</span> <span class="o">&gt;</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">RetryExhaustedError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;Retry budget (</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_audit_retries</span><span class="si">}</span><span class="s2">) exhausted for </span><span class="si">{</span><span class="n">retry_key</span><span class="si">}</span><span class="s2"> &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;(consumed </span><span class="si">{</span><span class="n">consumed</span><span class="si">}</span><span class="s2">)&quot;</span>
+                <span class="p">)</span>
+            <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">per_chapter_review_enabled</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">_handle_failure</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="s2">&quot;gate&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">retry_key</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="p">:</span>
+</code></pre></div>
+<p>Note: <code>_reset_retries</code> is intentionally left unchanged — it still clears <code>retry_counts</code> only.</p>
+<p>Add caller-level handling around the dispatch that may raise <code>RetryExhaustedError</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">_dispatch_with_retry</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">RetryExhaustedError</span><span class="p">:</span>
+    <span class="c1"># Translate to escalation checkpoint</span>
+    <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">context</span><span class="o">=</span><span class="s2">&quot;retry_exhausted&quot;</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">checkpoint</span> <span class="o">=</span> <span class="s2">&quot;escalation&quot;</span>
+    <span class="k">raise</span>  <span class="c1"># Re-raise to abort the current chapter step</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_budget.py tests/unit/pipeline/test_chapter_loop_full.py tests/unit/pipeline/test_state.py -v</code>
+Expected: PASS (new tests + existing state/chapter-loop tests unchanged).</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/exceptions.py<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_retry_budget.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(state): add durable retry_budget_consumed counter + RetryExhaustedError</span>
+
+<span class="s2">Spec 17 §3.1. retry_counts IS incremented but cleared by _reset_retries on</span>
+<span class="s2">success, so crash-resume couldn&#39;t enforce the budget. New durable counter is</span>
+<span class="s2">never cleared. Budget enforcement raises RetryExhaustedError. State field is</span>
+<span class="s2">additive (loads with default {} from old files).&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-wire-revision_count-to-revision-routing">Task 2: Wire revision_count to revision routing</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:1021-1051</code> (<code>_route_revision_after_resonance</code> — add <code>cs.revision_count += 1</code>)
+- Test: <code>tests/unit/pipeline/test_revision_count.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_get_chapter_state</code>, <code>route_chapter_revision</code>, <code>RevisionRoute</code>
+- Produces: every non-no-op revision route increments <code>cs.revision_count</code> and logs <code>revision_count</code>.</p>
+<p><strong>Context:</strong> Spec §2.2 / §3.2. All 56 chapters report <code>revision_count: 0</code> despite 34 revision-decisions files on disk — the increment is simply missing. <code>_route_revision_after_resonance</code> already obtains <code>cs</code> via <code>_get_chapter_state</code> and stores the route; add the increment after the route is decided, only when <code>route != NO_REVISION</code>. <code>RevisionRoute.NO_REVISION</code> is imported from <code>revision_router</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_revision_count.py</span>
+<span class="sd">&quot;&quot;&quot;Tests that revision_count is incremented on revision routing (spec §3.2).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_route_revision_after_resonance</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">RevisionRoute</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_count_increments_on_non_noop_route</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="c1"># Force the router to return a revision route.</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.route_chapter_revision&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">SPOT_FIX</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.collect_audit_issues&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">pd</span><span class="p">,</span> <span class="n">ch</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;some issue&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">_route_revision_after_resonance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;revision_count should be 1, got </span><span class="si">{</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_count_unchanged_on_no_revision</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.route_chapter_revision&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">NO_REVISION</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.collect_audit_issues&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">pd</span><span class="p">,</span> <span class="n">ch</span><span class="p">:</span> <span class="p">([],</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+
+    <span class="n">_route_revision_after_resonance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;NO_REVISION must not increment revision_count&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_count_accumulates_across_routes</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.route_chapter_revision&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">:</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">SPOT_FIX</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="s2">&quot;shenbi.pipeline.chapter_loop.collect_audit_issues&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">pd</span><span class="p">,</span> <span class="n">ch</span><span class="p">:</span> <span class="p">([</span><span class="s2">&quot;issue&quot;</span><span class="p">],</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="n">_route_revision_after_resonance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="n">_route_revision_after_resonance</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">==</span> <span class="mi">2</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_revision_count.py -v</code>
+Expected: FAIL (<code>revision_count == 0</code> instead of 1 — increment missing).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/chapter_loop.py</code>, in <code>_route_revision_after_resonance</code>, after <code>cs = _get_chapter_state(state, chapter)</code> and the <code>cs.audit_results[_REVISION_ROUTE_KEY] = route.value</code> line, add the increment guarded by the route. The current block:</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span> <span class="o">=</span> <span class="n">collect_audit_issues</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">route</span> <span class="o">=</span> <span class="n">route_chapter_revision</span><span class="p">(</span><span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">)</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">_get_chapter_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="n">_REVISION_ROUTE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">value</span>
+</code></pre></div>
+becomes:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span> <span class="o">=</span> <span class="n">collect_audit_issues</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">route</span> <span class="o">=</span> <span class="n">route_chapter_revision</span><span class="p">(</span><span class="n">issues</span><span class="p">,</span> <span class="n">blocking</span><span class="p">)</span>
+    <span class="n">cs</span> <span class="o">=</span> <span class="n">_get_chapter_state</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="n">_REVISION_ROUTE_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">route</span><span class="o">.</span><span class="n">value</span>
+
+    <span class="c1"># Wire revision_count (spec §3.2): increment only on an actual revision</span>
+    <span class="c1"># route, not on NO_REVISION. Previously this was missing entirely, leaving</span>
+    <span class="c1"># revision_count at 0 for all chapters.</span>
+    <span class="k">if</span> <span class="n">route</span> <span class="o">!=</span> <span class="n">RevisionRoute</span><span class="o">.</span><span class="n">NO_REVISION</span><span class="p">:</span>
+        <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;revision_count_incremented&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">route</span><span class="o">=</span><span class="n">route</span><span class="o">.</span><span class="n">value</span><span class="p">,</span>
+            <span class="n">revision_count</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Add the import for <code>RevisionRoute</code> near the existing <code>revision_router</code> import in <code>chapter_loop.py</code>:</p>
+<p><div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">RevisionRoute</span><span class="p">,</span> <span class="n">route_chapter_revision</span>
+</code></pre></div>
+(If <code>route_chapter_revision</code> is already imported, only add <code>RevisionRoute</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_revision_count.py tests/unit/pipeline/test_chapter_loop_full.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_revision_count.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(state): increment revision_count on revision routing</span>
+
+<span class="s2">Spec 17 §3.2. _route_revision_after_resonance now does cs.revision_count += 1</span>
+<span class="s2">when route != NO_REVISION. Previously revision_count was always 0 despite 34</span>
+<span class="s2">revision-decisions files on disk.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-wire-last_snapshot-pointer-in-_snapshot_chapter_files">Task 3: Wire last_snapshot pointer in _snapshot_chapter_files</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:903-960</code> (<code>_snapshot_chapter_files</code> — add <code>state</code> param, set <code>state.last_snapshot</code>), <code>chapter_loop.py:997</code> and <code>:1215</code> (callers — pass <code>state</code>)
+- Test: <code>tests/unit/pipeline/test_last_snapshot.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>safe_write</code>, <code>_load_manifest</code>/<code>_save_manifest</code>, <code>PipelineState</code>
+- Produces: <code>_snapshot_chapter_files(project_dir, chapter, state=None)</code> sets <code>state.last_snapshot = {"chapter", "path", "timestamp"}</code> when <code>state</code> is passed. Existing callers that omit <code>state</code> behave unchanged.</p>
+<p><strong>Context:</strong> Spec §2.3 / §3.3. The function takes no <code>state</code> today, so <code>last_snapshot</code> is always <code>{}</code>. Two callers pass nothing useful: line 997 (<code>_should_run_step</code>, no state in scope there but it can be threaded) and line 1215 (the inline snapshot path has <code>state</code> in scope). The signature change is backward-compatible via a default <code>None</code>. The pointer uses the snapshot's filename timestamp for the <code>timestamp</code> field.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_last_snapshot.py</span>
+<span class="sd">&quot;&quot;&quot;Tests that last_snapshot is set after snapshot creation (spec §3.3).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_snapshot_chapter_files</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_last_snapshot_set_with_chapter_path_timestamp</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="c1"># Seed a chapter file so the snapshot has content.</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-5.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# Ch5</span><span class="se">\n</span><span class="s2">body&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">,</span> <span class="s2">&quot;last_snapshot must be populated&quot;</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;snapshots/&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;chapter-005-&quot;</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_state_none_keeps_old_behavior</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Caller may omit state; snapshot still created, no pointer to set.&quot;&quot;&quot;</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# Ch1</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># Must not raise.</span>
+    <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+    <span class="n">snaps</span> <span class="o">=</span> <span class="nb">list</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-001-*.md&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">snaps</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_path_is_relative_to_project_dir</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-3.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
+    <span class="c1"># path should be relative, not absolute.</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">])</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_last_snapshot.py -v</code>
+Expected: FAIL (<code>last_snapshot</code> stays <code>{}</code> / <code>TypeError: unexpected keyword argument 'state'</code>).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/chapter_loop.py</code>, change the signature and add the pointer update. The current function start:</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a timestamped file-based snapshot of chapter outputs.</span>
+<span class="sd">    ...</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+</code></pre></div>
+becomes:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_snapshot_chapter_files</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a timestamped file-based snapshot of chapter outputs.</span>
+
+<span class="sd">    When *state* is provided, updates ``state.last_snapshot`` to point at the</span>
+<span class="sd">    newly written snapshot (spec §3.3) so resume/rollback can find the recovery</span>
+<span class="sd">    point from state without scanning the snapshots directory.</span>
+
+<span class="sd">    Copies chapter files, audit reports, and truth files into a single</span>
+<span class="sd">    timestamped markdown file under ``snapshots/``. Updates the manifest</span>
+<span class="sd">    and prunes old snapshots.</span>
+
+<span class="sd">    This replaces the ``shenbi-snapshot-manage`` LLM dispatch with pure</span>
+<span class="sd">    file operations — no git dependency.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span>
+
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+</code></pre></div>
+<p>Then, after the <code>safe_write(snap_path, content.encode("utf-8"))</code> line and before the manifest update, add the pointer update:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="k">if</span> <span class="n">parts</span> <span class="k">else</span> <span class="sa">f</span><span class="s2">&quot;# Snapshot Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">(no files)&quot;</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">snap_path</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+    <span class="c1"># Wire last_snapshot (spec §3.3): point state at the newest snapshot so</span>
+    <span class="c1"># resume/rollback can find the recovery point without a directory scan.</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+            <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">snap_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)),</span>
+            <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+        <span class="p">}</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;last_snapshot_updated&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">],</span>
+        <span class="p">)</span>
+
+    <span class="c1"># Update manifest</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">_load_manifest</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div>
+<p>Now update the two callers to pass <code>state</code> where it is in scope. At line ~1215 (the inline snapshot path inside the step runner, where <code>state</code> IS in scope — the function signature there includes <code>state</code>), change:</p>
+<div class="highlight"><pre><span></span><code>            <span class="k">pass</span>  <span class="c1"># snapshot already taken + manifest updated in _snapshot_chapter_files</span>
+</code></pre></div>
+<p>Find the actual <code>_snapshot_chapter_files(project_dir, chapter)</code> call that precedes it and change it to <code>_snapshot_chapter_files(project_dir, chapter, state=state)</code>.</p>
+<p>For the <code>_should_run_step</code> caller at line 997:</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-snapshot-manage&quot;</span><span class="p">:</span>
+        <span class="c1"># Replace LLM dispatch with deterministic file-based snapshot.</span>
+        <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<code>_should_run_step</code> has <code>state</code> in its signature (<code>def _should_run_step(step, state, project_dir)</code>), so change to:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-snapshot-manage&quot;</span><span class="p">:</span>
+        <span class="c1"># Replace LLM dispatch with deterministic file-based snapshot.</span>
+        <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_last_snapshot.py tests/unit/pipeline/test_chapter_loop_full.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_last_snapshot.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(state): wire last_snapshot pointer in _snapshot_chapter_files</span>
+
+<span class="s2">Spec 17 §3.3. _snapshot_chapter_files gains state= param and sets</span>
+<span class="s2">state.last_snapshot = {chapter, path, timestamp}. Both in-scope callers pass</span>
+<span class="s2">state. Previously last_snapshot was always {} despite 51 snapshots on disk.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-self-heal-state-counters-on-resume">Task 4: Self-heal state counters on resume</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/state_heal.py</code>
+- Modify: <code>src/shenbi/pipeline/cli.py:672-690</code> (<code>cmd_resume</code> — call <code>_heal_state_counters</code> after <code>load_state</code>)
+- Test: <code>tests/unit/pipeline/test_state_heal.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>PipelineState</code>, <code>_retry_key</code>, project dir layout (<code>snapshots/</code>, <code>chapters/chapter-N-revision-decisions.json</code>)
+- Produces: <code>_heal_state_counters(state, project_dir) -&gt; list[str]</code> (list of heal-action descriptions; empty = nothing healed). <code>cmd_resume</code> calls it right after <code>load_state</code>, before <code>_verify_truth_integrity</code>.</p>
+<p><strong>Context:</strong> Spec §3.4. After a crash, state counters may be stale. The healer cross-checks: <code>retry_budget_consumed</code> is seeded (min 1) for any <code>retry_feedback</code> key missing from the budget; <code>revision_count</code> is reconciled against the presence of a <code>chapters/chapter-N-revision-decisions.json</code> file (note: that file is overwritten per round, so disk presence is a floor, not exact history — log the caveat); <code>last_snapshot</code> is set to the newest on-disk snapshot if empty. Healing is conservative (never undercount consumed budget) and logged so it is auditable.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_state_heal.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for _heal_state_counters on resume (spec §3.4).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state_heal</span><span class="w"> </span><span class="kn">import</span> <span class="n">_heal_state_counters</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_heals_retry_budget_from_retry_feedback</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ch1-shenbi-x&quot;</span><span class="p">:</span> <span class="s2">&quot;G4 failed&quot;</span><span class="p">}</span>
+    <span class="c1"># retry_budget_consumed missing for that key.</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ch1-shenbi-x&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;retry_budget_consumed_healed&quot;</span> <span class="ow">in</span> <span class="n">a</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">actions</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_does_not_overwrite_existing_budget</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">:</span> <span class="s2">&quot;fail&quot;</span><span class="p">}</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">}</span>
+    <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span><span class="p">[</span><span class="s2">&quot;ch1-x&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">5</span>  <span class="c1"># untouched</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_heals_revision_count_from_disk</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChapterState</span>
+
+    <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="n">ChapterState</span><span class="p">(</span><span class="n">revision_count</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="s2">&quot;pending&quot;</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="c1"># Put a revision-decisions file on disk.</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-3-revision-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;3&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_heals_last_snapshot_from_disk</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span> <span class="o">==</span> <span class="p">{}</span>
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+    <span class="n">snap_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">snap_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-007-20260101T000000.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# snap&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">,</span> <span class="s2">&quot;last_snapshot should be healed from disk&quot;</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">7</span>
+    <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s2">&quot;path&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;snapshots/&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_changes_returns_empty_actions</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">s</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="c1"># Nothing on disk, no feedback, last_snapshot already empty is left empty.</span>
+    <span class="n">actions</span> <span class="o">=</span> <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">s</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="c1"># No snapshots/revision files/feedback -&gt; nothing to heal.</span>
+    <span class="k">assert</span> <span class="n">actions</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_state_heal.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'shenbi.pipeline.state_heal'</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/state_heal.py</span>
+<span class="sd">&quot;&quot;&quot;Self-heal orphaned state counters on resume (spec §3.4).</span>
+
+<span class="sd">After a crash, retry_budget_consumed / revision_count / last_snapshot may be</span>
+<span class="sd">stale or empty. _heal_state_counters cross-checks each against disk reality</span>
+<span class="sd">and repairs conservatively (never undercount consumed retry budget). Every</span>
+<span class="sd">heal action is logged and returned as a description string for auditability.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">_SNAPSHOT_CHAPTER_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapter-(\d+)-&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_chapter_from_snapshot_name</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_SNAPSHOT_CHAPTER_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_heal_retry_budget</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Seed retry_budget_consumed (min 1) for retry_feedback keys missing it.&quot;&quot;&quot;</span>
+    <span class="n">actions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">budget</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_budget_consumed</span>
+    <span class="k">for</span> <span class="n">step_key</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">step_key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">budget</span><span class="p">:</span>
+            <span class="n">budget</span><span class="p">[</span><span class="n">step_key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;retry_budget_consumed_healed&quot;</span><span class="p">,</span>
+                <span class="n">step_key</span><span class="o">=</span><span class="n">step_key</span><span class="p">,</span>
+                <span class="n">seeded_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="s2">&quot;durable budget missing for key with retry_feedback&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;retry_budget_consumed_healed:</span><span class="si">{</span><span class="n">step_key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">actions</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_heal_revision_counts</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Reconcile revision_count with the presence of a revision-decisions file.</span>
+
+<span class="sd">    Note (spec §3.4): the revision-decisions file is overwritten per round, so</span>
+<span class="sd">    disk presence is a floor (0 or 1), not an exact revision history. Logged so</span>
+<span class="sd">    the undercount is visible.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">actions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">cs</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">chapter_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">rev_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">-revision-decisions.json&quot;</span>
+        <span class="n">disk_count</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="n">rev_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="mi">0</span>
+        <span class="k">if</span> <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">!=</span> <span class="n">disk_count</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;revision_count_healed&quot;</span><span class="p">,</span>
+                <span class="n">chapter</span><span class="o">=</span><span class="n">chapter_num</span><span class="p">,</span>
+                <span class="n">state_value</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">,</span>
+                <span class="n">disk_value</span><span class="o">=</span><span class="n">disk_count</span><span class="p">,</span>
+                <span class="n">note</span><span class="o">=</span><span class="s2">&quot;disk_count undercounts: revision-decisions file is overwritten per round&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="n">actions</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;revision_count_healed:ch</span><span class="si">{</span><span class="n">chapter_num</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="si">}</span><span class="s2">-&gt;</span><span class="si">{</span><span class="n">disk_count</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="c1"># Use max() so we don&#39;t lose the in-memory count if it&#39;s higher than the disk floor.</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">,</span> <span class="n">disk_count</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">actions</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_heal_last_snapshot</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Point last_snapshot at the newest on-disk snapshot if it is empty.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">snap_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">snaps</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">snap_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-*.md&quot;</span><span class="p">),</span> <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="n">p</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">snaps</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">latest</span> <span class="o">=</span> <span class="n">snaps</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">_extract_chapter_from_snapshot_name</span><span class="p">(</span><span class="n">latest</span><span class="o">.</span><span class="n">name</span><span class="p">),</span>
+        <span class="s2">&quot;path&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">latest</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)),</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">fromtimestamp</span><span class="p">(</span><span class="n">latest</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">,</span> <span class="n">tz</span><span class="o">=</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S&quot;</span><span class="p">),</span>
+    <span class="p">}</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;last_snapshot_healed&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">latest</span><span class="p">))</span>
+    <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;last_snapshot_healed:</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">last_snapshot</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_heal_state_counters</span><span class="p">(</span><span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Self-heal orphaned state counters by cross-checking against disk.</span>
+
+<span class="sd">    Returns a list of heal-action description strings (empty == nothing healed).</span>
+<span class="sd">    Safe to call on every resume; idempotent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">actions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">actions</span> <span class="o">+=</span> <span class="n">_heal_retry_budget</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">actions</span> <span class="o">+=</span> <span class="n">_heal_revision_counts</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">actions</span> <span class="o">+=</span> <span class="n">_heal_last_snapshot</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">actions</span>
+</code></pre></div>
+<p>Then wire it into <code>cmd_resume</code> in <code>src/shenbi/pipeline/cli.py</code>. Right after <code>state = load_state(project_dir)</code> (the line inside <code>with WriteLock(project_dir):</code>), and before <code>_verify_truth_integrity(state, project_dir)</code>, add:</p>
+<div class="highlight"><pre><span></span><code>            <span class="n">state</span> <span class="o">=</span> <span class="n">load_state</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+            <span class="c1"># Self-heal orphaned counters/pointers from disk (spec §3.4):</span>
+            <span class="c1"># retry_budget_consumed, revision_count, last_snapshot.</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state_heal</span><span class="w"> </span><span class="kn">import</span> <span class="n">_heal_state_counters</span>
+
+            <span class="n">_heal_state_counters</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+
+            <span class="c1"># Persist healed values immediately so crash-resume sees them.</span>
+            <span class="n">save_state</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+
+            <span class="c1"># Truth-integrity check (spec §3.4): verify truth files exist</span>
+            <span class="c1"># before resuming, so missing files surface immediately rather than</span>
+            <span class="c1"># on the first step dispatch.</span>
+            <span class="n">_verify_truth_integrity</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_state_heal.py tests/unit/pipeline/test_retry_budget.py tests/unit/pipeline/test_revision_count.py tests/unit/pipeline/test_last_snapshot.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/state_heal.py<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/unit/pipeline/test_state_heal.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(state): self-heal retry_budget/revision_count/last_snapshot on resume</span>
+
+<span class="s2">Spec 17 §3.4. _heal_state_counters runs after load_state in cmd_resume.</span>
+<span class="s2">Seeds durable retry budget from retry_feedback, reconciles revision_count</span>
+<span class="s2">with revision-decisions file presence, points last_snapshot at newest on-disk</span>
+<span class="s2">snapshot. Conservative + idempotent + logged.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-regression-verification">Task 5: Regression verification</h3>
+<p><strong>Files:</strong>
+- No new files.</p>
+<p><strong>Interfaces:</strong>
+- Consumes: all four prior tasks.</p>
+<p><strong>Context:</strong> Spec §5 verification: (1) <code>retry_budget_consumed</code> persists across success/reset; (2) retry limit enforced via <code>RetryExhaustedError</code>; (3) <code>revision_count</code> &gt;= 1 after a revision route; (4) <code>last_snapshot</code> non-empty after snapshot; (5) self-heal on resume; (6) <code>just check</code> passes.</p>
+<ul>
+<li>[ ] <strong>Step 1: Run the spec-17 suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_budget.py tests/unit/pipeline/test_revision_count.py tests/unit/pipeline/test_last_snapshot.py tests/unit/pipeline/test_state_heal.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the full pipeline test set + check suite</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/ -v</code>
+Expected: PASS.</p>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit (only if fixes were needed)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(state-counters): full regression green for spec 17&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

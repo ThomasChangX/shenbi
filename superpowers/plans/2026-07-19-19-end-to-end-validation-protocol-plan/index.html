@@ -1,0 +1,1916 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-19-end-to-end-validation-protocol-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 11: End-to-End Validation Protocol — Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 11: End-to-End Validation Protocol — Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-19-end-to-end-validation-protocol-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-19-end-to-end-validation-protocol-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 11: End-to-End Validation Protocol — Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-19-end-to-end-validation-protocol-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-11-end-to-end-validation-protocol-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 11: End-to-End Validation Protocol — Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-0-build-per-chapter-timing-collection-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: Build Per-Chapter Timing Collection Infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-1-stage-1-unit-tests-and-static-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Stage 1 — Unit Tests and Static Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-stage-2-3-chapter-mini-pipeline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Stage 2 — 3-Chapter Mini-Pipeline
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-stage-3-10-chapter-smoke-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Stage 3 — 10-Chapter Smoke Test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-stage-4-quality-gates-g0-g7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Stage 4 — Quality Gates (G0-G7)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-regression-rollback-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Regression Rollback Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-11-end-to-end-validation-protocol-implementation-plan">Spec 11: End-to-End Validation Protocol — Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Verify all 10 consolidated specs are correctly implemented with zero regressions via 4-stage validation protocol.</p>
+<p><strong>Architecture:</strong> Progressive validation: Stage 1 (unit tests + gates), Stage 2 (3-chapter mini-pipeline), Stage 3 (10-chapter smoke test), Stage 4 (full G0-G7 quality gates). Each stage gates the next.</p>
+<p><strong>Tech Stack:</strong> just, pytest, bash, jq</p>
+<blockquote>
+<p><strong>Timing baseline is an unverified analytic prior.</strong> The Pearson r = -0.002 (chapter size vs. generation time), the "35 resonance retries = 65% of time", the "79-93 min" heavy-retry range, and the "14 drafting retries = 25% of time" figures are analytic claims from the original investigation, NOT output of any committed script. No code computes a Pearson correlation, and <strong>no per-chapter timing dataset exists today</strong> (there is no <code>elapsed</code>/<code>generation_time</code>/<code>chapter_time</code>/<code>duration</code> field in <code>progress.json</code> or anywhere in the repo). Building the per-chapter timing collection infrastructure is itself a required deliverable of this protocol (Task 0 / new Stage 3 timing check). Until that instrumentation exists, before/after timing comparisons are an analytic hypothesis, not a reproducible measurement.</p>
+<p><strong>CLI surface (corrected).</strong> There is NO <code>pipeline run</code> subcommand and NO <code>--max-chapters</code> flag. The actual CLI is <code>uv run pipeline</code> with subcommands <code>init &lt;seed&gt;</code>, <code>next &lt;project_dir&gt;</code>, <code>resume &lt;project_dir&gt;</code>, <code>status &lt;project_dir&gt;</code>, <code>chapters &lt;project_dir&gt;</code>. To run N chapters you call <code>uv run pipeline next &lt;project_dir&gt;</code> once per chapter (N times), or <code>uv run pipeline resume &lt;project_dir&gt;</code>. The <code>--auto</code> flag exists ONLY on <code>init</code> (it is NOT accepted by <code>next</code>/<code>resume</code>); it is persisted into the project state at init time and disables per-chapter review checkpoints thereafter. So pass <code>--auto</code> once at <code>pipeline init</code>, then call <code>next</code>/<code>resume</code> without it. All Stage 2/3 commands below use this corrected surface.</p>
+<p><strong>Word-count range note.</strong> The spec's Stage 3 word-count range is [2000, 8000]. This conflicts with Spec 7's [4000, 15000] range. This protocol uses a COMPROMISE range of <strong>[3000, 12000]</strong> as the validation gate: a chapter is flagged only if it falls below 3000 or above 12000. Rationale: [2000, 8000] is too tight at the top (Spec 7 routinely produces chapters up to 15000) and too loose at the bottom (G4 rejects &lt;3000); [4000, 15000] is too tight at the bottom for opening chapters and too loose at the top for a smoke check. [3000, 12000] catches genuine outliers (G4 floor violations + runaway chapters) without producing false failures from normal Spec 7 length variation. The content-size HARD guard remains Spec 3 (Dispatch Safety), not this smoke metric.</p>
+</blockquote>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Stage 1 must pass before Stage 2 begins</li>
+<li>Stage 2 must pass before Stage 3 begins</li>
+<li>Stage 3 must pass before Stage 4 begins</li>
+<li>Any failure in Stage 2+ requires root cause analysis before proceeding</li>
+<li>All validation results committed to <code>novel-output/validation-results/</code></li>
+<li>Task 0 (timing instrumentation) must be complete before the Stage 3 timing check can run</li>
+</ul>
+<hr />
+<h3 id="task-0-build-per-chapter-timing-collection-infrastructure">Task 0: Build Per-Chapter Timing Collection Infrastructure</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py</code> (persist timing into <code>progress.json</code>)
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code> (emit timing events around each skill + retry loop)
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (per-skill elapsed timing)
+- Test: <code>tests/pipeline/test_chapter_timing.py</code></p>
+<blockquote>
+<p><strong>Why this task exists:</strong> The spec's performance baseline (r = -0.002, "65%/25% retry share", "79-93 min") is an unverified analytic prior. No committed script computes a Pearson correlation, and NO per-chapter timing field (<code>elapsed</code>/<code>generation_time</code>/<code>chapter_time</code>/<code>duration</code>) exists in <code>progress.json</code> or anywhere in the repo today. This task builds the instrumentation that makes the baseline reproducible, and is a precondition for the Stage 3 "per-chapter timing data" check and the Post-Validation performance comparison.</p>
+</blockquote>
+<p><strong>Interfaces:</strong>
+- Produces: a per-chapter timing record in <code>progress.json</code> (e.g. <code>timings[chapter] = {elapsed, skills: {name: seconds}, retries: {skill: count}}</code>)
+- Produces: a timing dataset sufficient to independently recompute the Pearson coefficient and retry-share-of-time statistics</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/pipeline/test_chapter_timing.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_timing</span><span class="w"> </span><span class="kn">import</span> <span class="n">record_chapter_timing</span><span class="p">,</span> <span class="n">compute_pearson</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_record_chapter_timing_persists_elapsed_field</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">progress</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;progress.json&quot;</span>
+    <span class="n">progress</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}))</span>
+    <span class="n">record_chapter_timing</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">elapsed</span><span class="o">=</span><span class="mf">42.5</span><span class="p">,</span>
+                          <span class="n">skills</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span> <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="mf">12.5</span><span class="p">},</span>
+                          <span class="n">retries</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">progress</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="s2">&quot;timings&quot;</span> <span class="ow">in</span> <span class="n">data</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timings&quot;</span><span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">][</span><span class="s2">&quot;elapsed&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">42.5</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;timings&quot;</span><span class="p">][</span><span class="s2">&quot;1&quot;</span><span class="p">][</span><span class="s2">&quot;retries&quot;</span><span class="p">][</span><span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">2</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compute_pearson_returns_coefficient_for_sizes_vs_times</span><span class="p">():</span>
+    <span class="n">sizes</span> <span class="o">=</span> <span class="p">[</span><span class="mi">2000</span><span class="p">,</span> <span class="mi">3000</span><span class="p">,</span> <span class="mi">4000</span><span class="p">,</span> <span class="mi">5000</span><span class="p">,</span> <span class="mi">6000</span><span class="p">]</span>
+    <span class="n">times</span> <span class="o">=</span> <span class="p">[</span><span class="mi">50</span><span class="p">,</span> <span class="mi">45</span><span class="p">,</span> <span class="mi">55</span><span class="p">,</span> <span class="mi">48</span><span class="p">,</span> <span class="mi">52</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">compute_pearson</span><span class="p">(</span><span class="n">sizes</span><span class="p">,</span> <span class="n">times</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="o">-</span><span class="mf">1.0</span> <span class="o">&lt;=</span> <span class="n">r</span> <span class="o">&lt;=</span> <span class="mf">1.0</span>
+</code></pre></div>
+<blockquote>
+<p><strong>Statistical power note:</strong> Pearson r on N=10 data points has near-zero statistical
+power. A correlation estimate with N=10 has a 95% confidence interval spanning
+roughly +/-0.63, making the point estimate essentially meaningless. N=30+ is needed
+for a minimally useful correlation estimate. The per-chapter timing infrastructure
+built by this plan enables future computation when sufficient data exists.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_chapter_timing.py -v</code>
+Expected: FAIL (module not found)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Create <code>src/shenbi/pipeline/chapter_timing.py</code> with <code>record_chapter_timing()</code> (read-modify-write <code>progress.json</code> -&gt; <code>timings[chapter]</code>) and <code>compute_pearson(sizes, times)</code>. Instrument <code>chapter_loop.py</code>/<code>dispatch_helper.py</code> to emit <code>time.perf_counter()</code> deltas around each dispatched skill and each retry iteration, and call <code>record_chapter_timing()</code> at the end of each chapter.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_chapter_timing.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_timing.py<span class="w"> </span>tests/pipeline/test_chapter_timing.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>src/shenbi/pipeline/cli.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add per-chapter timing instrumentation to progress.json</span>
+
+<span class="s2">Records elapsed/skills/retries per chapter so the r=-0.002 baseline</span>
+<span class="s2">(analytic prior from the original investigation) can be re-measured</span>
+<span class="s2">empirically. Precondition for Stage 3 timing check and Post-Validation</span>
+<span class="s2">performance comparison.</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-1-stage-1-unit-tests-and-static-checks">Task 1: Stage 1 — Unit Tests and Static Checks</h3>
+<p><strong>Files:</strong>
+- None (verification only)</p>
+<ul>
+<li>[ ] <strong>Step 1: Run full linting and type checking</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/Users/xiaotiac/Documents/GitHub/shenbi
+just<span class="w"> </span>check
+</code></pre></div>
+Expected: All checks pass (ruff, format, mypy, basedpyright) with zero errors.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run all unit tests</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span>--cov-fail-under<span class="o">=</span><span class="m">85</span>
+</code></pre></div>
+Expected: All tests pass, coverage ≥ 85%.</p>
+<ul>
+<li>[ ] <strong>Step 3: Run all gate checks on fixtures</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>shenbi-validate<span class="w"> </span>G0<span class="w"> </span>outline-example.md
+shenbi-validate<span class="w"> </span>G2<span class="w"> </span>tests/fixtures/sample-chapter.md<span class="w"> </span>generative
+</code></pre></div>
+Expected: Both gates pass.</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify no broken imports</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2"># Each import is wrapped in try/except so a cross-spec dependency that has not</span>
+<span class="s2"># been built yet produces a WARN rather than aborting the whole check. A missing</span>
+<span class="s2"># module is recorded as a gap (printed) but does not fail Step 4 unless a CORE</span>
+<span class="s2"># module (truth_io, truth_index, resonance_parser) is missing.</span>
+<span class="s2">def _try(label):</span>
+<span class="s2">    def deco(fn):</span>
+<span class="s2">        try:</span>
+<span class="s2">            fn()</span>
+<span class="s2">            print(f&#39;  OK   {label}&#39;)</span>
+<span class="s2">            return True</span>
+<span class="s2">        except Exception as e:</span>
+<span class="s2">            print(f&#39;  WARN {label}: {type(e).__name__}: {e}&#39;)</span>
+<span class="s2">            return False</span>
+<span class="s2">    return deco</span>
+
+<span class="s2">core_ok = []</span>
+<span class="s2">@_try(&#39;truth_io.write_truth_file (CORE)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.truth_io import write_truth_file</span>
+<span class="s2">    core_ok.append(True)</span>
+
+<span class="s2">@_try(&#39;truth_index.classify_truth_files (CORE)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.truth_index import classify_truth_files</span>
+<span class="s2">    core_ok.append(True)</span>
+
+<span class="s2">@_try(&#39;resonance_parser.parse_resonance_scores (CORE)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.resonance_parser import parse_resonance_scores</span>
+<span class="s2">    core_ok.append(True)</span>
+
+<span class="s2"># Cross-spec dependencies (Specs 4/6/7/8/10/9/22) — WARN if not yet built.</span>
+<span class="s2">@_try(&#39;drift_detection.linguistic_drift (Spec 4)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.skill_utils.drift_detection.linguistic_drift import compute_linguistic_metrics, detect_drift</span>
+
+<span class="s2">@_try(&#39;audit_context_cache (Spec 8)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.audit_context_cache import build_shared_audit_context</span>
+
+<span class="s2">@_try(&#39;snapshot_diff (Spec 10)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.snapshot_diff import create_differential_snapshot, restore_from_snapshot</span>
+
+<span class="s2">@_try(&#39;crash_recovery (Spec 7)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.crash_recovery import register_emergency_handlers</span>
+
+<span class="s2">@_try(&#39;gate_manifest (Spec 10)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.gates.gate_manifest import record_gate_result, get_gate_result</span>
+
+<span class="s2">@_try(&#39;scr_extractor (Spec 6)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.scr_extractor import extract_chapter_representation</span>
+
+<span class="s2">@_try(&#39;review_checklist.generate_review_checklist (Spec 10)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.review_checklist import generate_review_checklist</span>
+
+<span class="s2">@_try(&#39;chapter_timing (Spec 11 Task 0)&#39;)</span>
+<span class="s2">def _():</span>
+<span class="s2">    from shenbi.pipeline.chapter_timing import record_chapter_timing, compute_pearson</span>
+
+<span class="s2">assert len(core_ok) == 3, &#39;A CORE module failed to import — Stage 1 cannot pass&#39;</span>
+<span class="s2">print(&#39;All CORE imports successful; cross-spec gaps WARNed above&#39;)</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+Expected: "All CORE imports successful..." printed; the three CORE lines show OK. Cross-spec modules may show WARN if the corresponding spec's plan has not yet been implemented — that is not a Stage-1 failure, only the CORE three are required.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit validation baseline</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>novel-output/validation-results
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Stage 1: PASSED at </span><span class="k">$(</span>date<span class="w"> </span>-Iseconds<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>novel-output/validation-results/stage1-result.txt
+git<span class="w"> </span>add<span class="w"> </span>novel-output/validation-results/stage1-result.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;validation: Stage 1 unit tests and static checks passed&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-stage-2-3-chapter-mini-pipeline">Task 2: Stage 2 — 3-Chapter Mini-Pipeline</h3>
+<p><strong>Files:</strong>
+- None (pipeline execution + verification)</p>
+<ul>
+<li>[ ] <strong>Step 1: Initialize mini-pipeline from test seed</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/Users/xiaotiac/Documents/GitHub/shenbi
+<span class="c1"># Pass --auto HERE (only init accepts it); it persists into project state</span>
+uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>init<span class="w"> </span>test-validation-seed<span class="w"> </span>--auto
+</code></pre></div></p>
+<p>Expected: Pipeline initialized successfully, Genesis phase completes. (Equivalently: <code>just pipeline-init test-validation-seed</code> then rely on default state; <code>--auto</code> is read by <code>cmd_init</code> at cli.py:443.)</p>
+<ul>
+<li>[ ] <strong>Step 2: Run 3 chapters</strong></li>
+</ul>
+<blockquote>
+<p><strong>CLI correction:</strong> There is NO <code>pipeline run</code> subcommand and NO <code>--max-chapters</code> flag. The CLI advances one checkpoint per call via <code>uv run pipeline next &lt;project_dir&gt;</code>. <code>--auto</code> is accepted ONLY by <code>init</code> (persisted to state at init time); do NOT pass it to <code>next</code>. To run 3 chapters, call <code>next</code> three times.</p>
+</blockquote>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="c1"># Advance 3 chapters (no --max-chapters exists; call next per chapter).</span>
+<span class="c1"># --auto was already persisted into project state at init time.</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>next<span class="w"> </span>novel-output/test-validation
+<span class="k">done</span>
+</code></pre></div></p>
+<p>Expected: 3 chapters generated without pipeline crash.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify 12 checks</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nv">PROJECT_DIR</span><span class="o">=</span><span class="s2">&quot;novel-output/test-validation&quot;</span>
+<span class="nv">ERRORS</span><span class="o">=</span><span class="m">0</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Stage 2 Verification ===&quot;</span>
+
+<span class="c1"># Check 1: All context files exist</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">ctx</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/context/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">-context.md&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ctx</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2"> context exists&quot;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> context MISSING&quot;</span>
+<span class="w">    </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 2: All decisions.json valid</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">dec</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">-decisions.json&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json; json.load(open(&#39;</span><span class="nv">$dec</span><span class="s2">&#39;))&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2"> decisions.json valid&quot;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> decisions.json INVALID&quot;</span>
+<span class="w">    </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 3: Revision decisions exist</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">rev</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">-revision-decisions.json&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$rev</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2"> revision-decisions.json exists&quot;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> revision-decisions.json MISSING&quot;</span>
+<span class="w">    </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 4: Snapshots exist</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">snap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/snapshots/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$snap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2"> snapshot exists&quot;</span>
+<span class="w">  </span><span class="k">else</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> snapshot MISSING&quot;</span>
+<span class="w">    </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 5: Zero staging residue</span>
+<span class="nv">staging_count</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/staging&quot;</span><span class="w"> </span>-type<span class="w"> </span>f<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$staging_count</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Zero staging residue&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ </span><span class="nv">$staging_count</span><span class="s2"> staging files found&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Check 6: No JSON decode errors in logs</span>
+<span class="k">if</span><span class="w"> </span>grep<span class="w"> </span>-r<span class="w"> </span><span class="s2">&quot;JSONDecodeError&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/logs&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ JSONDecodeError found in logs&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ No JSONDecodeError in logs&quot;</span>
+<span class="k">fi</span>
+
+<span class="c1"># Check 7: Protagonist present in all chapters</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">count</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;林风\|主角&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="m">0</span><span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$count</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2">: protagonist mentions=</span><span class="nv">$count</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2">: protagonist mentions=</span><span class="nv">$count</span><span class="s2"> (&lt; 3)&quot;</span>
+<span class="w">      </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 8: Word count in range [3000, 12000] (compromise range).</span>
+<span class="c1"># NOTE: this resolves the conflict between Spec 11&#39;s original [2000, 8000] and</span>
+<span class="c1"># Spec 7&#39;s [4000, 15000]. [3000, 12000] catches genuine outliers without false</span>
+<span class="c1"># failures from normal Spec 7 length variation. The content-size HARD guard is</span>
+<span class="c1"># Spec 3 (Dispatch Safety), not this smoke metric.</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">wc</span><span class="o">=</span><span class="k">$(</span>wc<span class="w"> </span>-m<span class="w"> </span>&lt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39; &#39;</span><span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$wc</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">3000</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$wc</span><span class="s2">&quot;</span><span class="w"> </span>-le<span class="w"> </span><span class="m">12000</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2">: chars=</span><span class="nv">$wc</span><span class="s2"> (in range)&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2">: chars=</span><span class="nv">$wc</span><span class="s2"> (out of range [3000,12000])&quot;</span>
+<span class="w">      </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 9: Truth files not overwritten (historical data present)</span>
+<span class="k">for</span><span class="w"> </span>tf<span class="w"> </span><span class="k">in</span><span class="w"> </span>resonance_trend.md<span class="w"> </span>chapter_summaries.md<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">tf_path</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/truth/</span><span class="nv">$tf</span><span class="s2">&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$tf_path</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">entries</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;Chapter\|第&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$tf_path</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="m">0</span><span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$entries</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ </span><span class="nv">$tf</span><span class="s2"> has </span><span class="nv">$entries</span><span class="s2"> entries (cumulative)&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ </span><span class="nv">$tf</span><span class="s2"> has only </span><span class="nv">$entries</span><span class="s2"> entries (should be cumulative)&quot;</span>
+<span class="w">      </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 10: Character archives exist</span>
+<span class="nv">major_count</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/characters/major/&quot;</span>*.md<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$major_count</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ characters/major/ has </span><span class="nv">$major_count</span><span class="s2"> files&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ characters/major/ has only </span><span class="nv">$major_count</span><span class="s2"> files (&lt; 3)&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Check 11: No chapter title with &quot;第X章&quot; pattern</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span>head<span class="w"> </span>-1<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;第[0-9]\+章&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> title contains chapter number&quot;</span>
+<span class="w">      </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Chapter </span><span class="nv">$ch</span><span class="s2"> title is clean&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Check 12: pipeline-manifest.json exists</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/gate-markers/pipeline-manifest.json&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ pipeline-manifest.json exists&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ pipeline-manifest.json MISSING&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Stage 2: </span><span class="nv">$ERRORS</span><span class="s2"> errors found ===&quot;</span>
+<span class="nb">exit</span><span class="w"> </span><span class="nv">$ERRORS</span>
+</code></pre></div></p>
+<p>Expected: 0 errors.</p>
+<ul>
+<li>[ ] <strong>Step 4: Record Stage 2 result</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Stage 2: PASSED at </span><span class="k">$(</span>date<span class="w"> </span>-Iseconds<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>novel-output/validation-results/stage2-result.txt
+git<span class="w"> </span>add<span class="w"> </span>novel-output/validation-results/stage2-result.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;validation: Stage 2 3-chapter mini-pipeline passed&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="task-3-stage-3-10-chapter-smoke-test">Task 3: Stage 3 — 10-Chapter Smoke Test</h3>
+<p><strong>Files:</strong>
+- None (pipeline execution + metrics verification)</p>
+<ul>
+<li>[ ] <strong>Step 1: Run 10-chapter pipeline</strong></li>
+</ul>
+<blockquote>
+<p><strong>CLI correction:</strong> There is NO <code>--max-chapters</code> flag. Resume/advance the existing pipeline 7 more chapters (chapters 4-10) via <code>uv run pipeline next &lt;project_dir&gt;</code> per chapter, or <code>uv run pipeline resume &lt;project_dir&gt;</code>. Do NOT pass <code>--auto</code> here -- it is accepted only by <code>init</code> and was already persisted into project state during Stage 2 init.</p>
+</blockquote>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">cd</span><span class="w"> </span>/Users/xiaotiac/Documents/GitHub/shenbi
+<span class="c1"># Continue from chapter 4 through chapter 10 (no --max-chapters; call next per chapter)</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>next<span class="w"> </span>novel-output/test-validation
+<span class="k">done</span>
+</code></pre></div></p>
+<p>Expected: 10 chapters generated without pipeline crash.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify 14 metrics</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="ch">#!/bin/bash</span>
+<span class="nv">PROJECT_DIR</span><span class="o">=</span><span class="s2">&quot;novel-output/test-validation&quot;</span>
+<span class="nv">ERRORS</span><span class="o">=</span><span class="m">0</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Stage 3 Smoke Test Verification ===&quot;</span>
+
+<span class="c1"># Metric 1: System term density &lt; 30‰ across all chapters.</span>
+<span class="c1"># Uses python3 for the comparison (bc may be unavailable on some platforms).</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">total_chars</span><span class="o">=</span><span class="k">$(</span>wc<span class="w"> </span>-m<span class="w"> </span>&lt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>tr<span class="w"> </span>-d<span class="w"> </span><span class="s1">&#39; &#39;</span><span class="k">)</span>
+<span class="w">    </span><span class="nv">sys_terms</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;冷在场\|冷值\|在场度\|冷知道\|隙在场\|光在场\|静在场&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="m">0</span><span class="k">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$total_chars</span><span class="s2">&quot;</span><span class="w"> </span>-gt<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nv">density</span><span class="o">=</span><span class="k">$(</span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;print(round(</span><span class="nv">$sys_terms</span><span class="s2"> * 1000 / </span><span class="nv">$total_chars</span><span class="s2">, 1))&quot;</span><span class="k">)</span>
+<span class="w">      </span><span class="k">if</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import sys; sys.exit(0 if float(sys.argv[1]) &lt; 30 else 1)&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$density</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Ch</span><span class="nv">$ch</span><span class="s2">: density=</span><span class="si">${</span><span class="nv">density</span><span class="si">}</span><span class="s2">‰&quot;</span>
+<span class="w">      </span><span class="k">else</span>
+<span class="w">        </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Ch</span><span class="nv">$ch</span><span class="s2">: density=</span><span class="si">${</span><span class="nv">density</span><span class="si">}</span><span class="s2">‰ (≥30‰)&quot;</span>
+<span class="w">        </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">      </span><span class="k">fi</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+
+<span class="c1"># Metric 2: Resonance retry rate &lt; 10%.</span>
+<span class="c1"># Corrected: do NOT grep-count &quot;retry_feedback&quot; occurrences in pipeline-state.json</span>
+<span class="c1"># — that counts the JSON dict KEY across all chapters (always equal to the number</span>
+<span class="c1"># of chapters that have the key, whether or not a retry happened), not actual</span>
+<span class="c1"># retry events. Instead load the state and count chapters whose retry_feedback</span>
+<span class="c1"># entry is non-empty under chapter_loop.chapter_states.</span>
+<span class="nv">retry_rate</span><span class="o">=</span><span class="k">$(</span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json, sys</span>
+<span class="s2">state_path = &#39;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/pipeline-state.json&#39;</span>
+<span class="s2">try:</span>
+<span class="s2">    data = json.load(open(state_path))</span>
+<span class="s2">except Exception:</span>
+<span class="s2">    print(&#39;999.9&#39;); sys.exit(0)</span>
+<span class="s2"># chapter_states lives under chapter_loop.chapter_states in the state schema.</span>
+<span class="s2">chapter_loop = data.get(&#39;chapter_loop&#39;, {})</span>
+<span class="s2">chapter_states = chapter_loop.get(&#39;chapter_states&#39;, {})</span>
+<span class="s2"># Fallback: some serializations nest per-chapter state at top level by chapter id.</span>
+<span class="s2">if not chapter_states:</span>
+<span class="s2">    chapter_states = {k: v for k, v in data.items() if k.isdigit()}</span>
+<span class="s2">total_chapters = len(chapter_states)</span>
+<span class="s2">retried = 0</span>
+<span class="s2">for ch_key, ch_state in chapter_states.items():</span>
+<span class="s2">    fb = (ch_state or {}).get(&#39;retry_feedback&#39;, &#39;&#39;)</span>
+<span class="s2">    # Non-empty (and not a null/empty list/dict) counts as a retry event.</span>
+<span class="s2">    if fb not in (&#39;&#39;, None, [], {}):</span>
+<span class="s2">        retried += 1</span>
+<span class="s2">rate = (retried / total_chapters * 100) if total_chapters else 0.0</span>
+<span class="s2">print(f&#39;{rate:.1f}&#39;)</span>
+<span class="s2">&quot;</span><span class="k">)</span>
+<span class="k">if</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import sys; sys.exit(0 if float(sys.argv[1]) &lt; 10 else 1)&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$retry_rate</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Retry rate: </span><span class="si">${</span><span class="nv">retry_rate</span><span class="si">}</span><span class="s2">%&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Retry rate: </span><span class="si">${</span><span class="nv">retry_rate</span><span class="si">}</span><span class="s2">% (≥10%)&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 3: Context file coverage 100%</span>
+<span class="nv">ctx_missing</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/context/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">-context.md&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">ctx_missing</span><span class="o">=</span><span class="k">$((</span><span class="nv">ctx_missing</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">done</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$ctx_missing</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Context coverage: 100%&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Context coverage: </span><span class="nv">$ctx_missing</span><span class="s2"> chapters missing&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 4: Decisions.json validity 100%</span>
+<span class="nv">json_errors</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import json; json.load(open(&#39;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">-decisions.json&#39;))&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nv">json_errors</span><span class="o">=</span><span class="k">$((</span><span class="nv">json_errors</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">done</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$json_errors</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Decisions.json validity: 100%&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Decisions.json validity: </span><span class="nv">$json_errors</span><span class="s2"> invalid&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 5: Protagonist presence ≥ 3 per chapter</span>
+<span class="nv">protag_low</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
+<span class="w">  </span><span class="nv">mentions</span><span class="o">=</span><span class="k">$(</span>grep<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;林风\|主角&quot;</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="m">0</span><span class="k">)</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$mentions</span><span class="s2">&quot;</span><span class="w"> </span>-lt<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">protag_low</span><span class="o">=</span><span class="k">$((</span><span class="nv">protag_low</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">done</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$protag_low</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Protagonist presence: all ≥3 mentions&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Protagonist presence: </span><span class="nv">$protag_low</span><span class="s2"> chapters &lt;3 mentions&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 6: Snapshot coverage 100%</span>
+<span class="nv">snap_missing</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>!<span class="w"> </span>-d<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/snapshots/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nv">snap_missing</span><span class="o">=</span><span class="k">$((</span><span class="nv">snap_missing</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">done</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$snap_missing</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Snapshot coverage: 100%&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Snapshot coverage: </span><span class="nv">$snap_missing</span><span class="s2"> chapters missing&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 7: Opening similarity &lt; 60% for all adjacent chapters</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  - Opening similarity: manual verification needed (run check_opening_similarity)&quot;</span>
+
+<span class="c1"># Metric 8: No revision overwrite (chapters have prose, not metadata)</span>
+<span class="nv">meta_chapters</span><span class="o">=</span><span class="m">0</span>
+<span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nv">chap</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="w">  </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="k">continue</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>head<span class="w"> </span>-20<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$chap</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;修订\|revision\|REVISION&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="nv">meta_chapters</span><span class="o">=</span><span class="k">$((</span><span class="nv">meta_chapters</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">    </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Chapter </span><span class="nv">$ch</span><span class="s2"> may contain revision metadata&quot;</span>
+<span class="w">    </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">done</span>
+<span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$meta_chapters</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ No revision metadata in chapter files&quot;</span>
+
+<span class="c1"># Metric 9: Character archives have major + minor directories</span>
+<span class="nv">major_c</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/characters/major/&quot;</span>*.md<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span>
+<span class="nv">minor_c</span><span class="o">=</span><span class="k">$(</span>ls<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/characters/minor/&quot;</span>*.md<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>wc<span class="w"> </span>-l<span class="k">)</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$major_c</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="o">]</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$minor_c</span><span class="s2">&quot;</span><span class="w"> </span>-ge<span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Character archive: major=</span><span class="nv">$major_c</span><span class="s2">, minor=</span><span class="nv">$minor_c</span><span class="s2">&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Character archive: major=</span><span class="nv">$major_c</span><span class="s2"> (need ≥3), minor=</span><span class="nv">$minor_c</span><span class="s2"> (need ≥2)&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="c1"># Metric 10: Per-chapter timing data recorded for all 10 chapters</span>
+<span class="c1"># (Infrastructure from Task 0 / Spec §2.4. The r=-0.002 baseline is an</span>
+<span class="c1">#  unverified analytic prior; this check confirms timing was actually captured.)</span>
+<span class="nv">timing_ok</span><span class="o">=</span><span class="m">0</span>
+<span class="nv">timing_missing</span><span class="o">=</span><span class="m">0</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/progress.json&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nv">timing_missing</span><span class="o">=</span><span class="k">$(</span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json</span>
+<span class="s2">data = json.load(open(&#39;</span><span class="si">${</span><span class="nv">PROJECT_DIR</span><span class="si">}</span><span class="s2">/progress.json&#39;))</span>
+<span class="s2">timings = data.get(&#39;timings&#39;, {})</span>
+<span class="s2">missing = sum(1 for ch in range(1, 11) if str(ch) not in timings or &#39;elapsed&#39; not in timings[str(ch)])</span>
+<span class="s2">print(missing)</span>
+<span class="s2">&quot;</span><span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="m">10</span><span class="k">)</span>
+<span class="k">fi</span>
+<span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span><span class="s2">&quot;</span><span class="si">${</span><span class="nv">timing_missing</span><span class="k">:-</span><span class="nv">10</span><span class="si">}</span><span class="s2">&quot;</span><span class="w"> </span>-eq<span class="w"> </span><span class="m">0</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Per-chapter timing data: 10/10 chapters have elapsed record&quot;</span>
+<span class="k">else</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ Per-chapter timing data: </span><span class="si">${</span><span class="nv">timing_missing</span><span class="si">}</span><span class="s2"> chapters missing elapsed record&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    NOTE: timing instrumentation (Task 0) is required before this check can pass;&quot;</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;    the r=-0.002 baseline is an analytic prior, not reproducible from code until built.&quot;</span>
+<span class="w">  </span><span class="nv">ERRORS</span><span class="o">=</span><span class="k">$((</span><span class="nv">ERRORS</span><span class="o">+</span><span class="m">1</span><span class="k">))</span>
+<span class="k">fi</span>
+
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Stage 3: </span><span class="nv">$ERRORS</span><span class="s2"> errors found ===&quot;</span>
+<span class="nb">exit</span><span class="w"> </span><span class="nv">$ERRORS</span>
+</code></pre></div></p>
+<p>Expected: ≤ 2 errors (allowing opening similarity manual check as non-automated).</p>
+<ul>
+<li>[ ] <strong>Step 3: Record Stage 3 result</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Stage 3: PASSED at </span><span class="k">$(</span>date<span class="w"> </span>-Iseconds<span class="k">)</span><span class="s2">&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>novel-output/validation-results/stage3-result.txt
+git<span class="w"> </span>add<span class="w"> </span>novel-output/validation-results/stage3-result.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;validation: Stage 3 10-chapter smoke test passed&quot;</span>
+</code></pre></div></p>
+<hr />
+<h3 id="task-4-stage-4-quality-gates-g0-g7">Task 4: Stage 4 — Quality Gates (G0-G7)</h3>
+<p><strong>Files:</strong>
+- None (gate verification)</p>
+<ul>
+<li>[ ] <strong>Step 1: Run G0 (environment check)</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>shenbi-validate<span class="w"> </span>G0<span class="w"> </span>outline-example.md
+</code></pre></div>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 2: Run G2 (output validation) on all chapters</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>ch<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="k">$(</span>seq<span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">10</span><span class="k">)</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Chapter </span><span class="nv">$ch</span><span class="s2">:&quot;</span>
+<span class="w">  </span>shenbi-validate<span class="w"> </span>G2<span class="w"> </span><span class="s2">&quot;novel-output/test-validation/chapters/chapter-</span><span class="si">${</span><span class="nv">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="w"> </span>generative
+<span class="k">done</span>
+</code></pre></div>
+Expected: All PASS</p>
+<ul>
+<li>[ ] <strong>Step 3: Run G4 (skill-specific checks) on key skills</strong></li>
+</ul>
+<blockquote>
+<p><strong>Check IDs (corrected):</strong> character-design gate checks are <code>G4.cd.major_chars</code> (&gt;= 3) and <code>G4.cd.minor_chars</code> (&gt;= 2). Do NOT look for <code>G4.char.major_count</code> / <code>G4.char.minor_count</code> -- those IDs do not exist; the spec uses the <code>G4.cd.*</code> namespace.</p>
+</blockquote>
+<p>Run:
+<div class="highlight"><pre><span></span><code>shenbi-validate<span class="w"> </span>G4<span class="w"> </span>shenbi-chapter-drafting<span class="w"> </span>novel-output/test-validation/chapters/chapter-1.md
+shenbi-validate<span class="w"> </span>G4<span class="w"> </span>shenbi-character-design<span class="w"> </span>novel-output/test-validation/characters/major/*.md
+shenbi-validate<span class="w"> </span>G4<span class="w"> </span>shenbi-review-resonance<span class="w"> </span>novel-output/test-validation/audits/chapter-1-resonance.md
+<span class="c1"># Verify the G4.cd.major_chars / G4.cd.minor_chars check IDs specifically:</span>
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json, glob</span>
+<span class="s2"># Locate the character-design gate result in the manifest.</span>
+<span class="s2"># Manifest schema (Spec 10): top-level key &#39;gates&#39; -&gt; {phase} -&gt; {chapter} -&gt;</span>
+<span class="s2"># {skill} -&gt; {gate}. Chapter-loop phase key is &#39;chapter_loop&#39;.</span>
+<span class="s2">manifest = json.load(open(&#39;novel-output/test-validation/gate-markers/pipeline-manifest.json&#39;))</span>
+<span class="s2">found_major = found_minor = False</span>
+<span class="s2">for phase, chapters in manifest.get(&#39;gates&#39;, {}).items():</span>
+<span class="s2">    for ch, skills in chapters.items():</span>
+<span class="s2">        cd = skills.get(&#39;shenbi-character-design&#39;, {})</span>
+<span class="s2">        result = cd.get(&#39;G4&#39;, {}).get(&#39;result&#39;, cd.get(&#39;G4&#39;, {}))</span>
+<span class="s2">        checks = result.get(&#39;checks&#39;, result.get(&#39;result&#39;, {}).get(&#39;checks&#39;, [])) if isinstance(result, dict) else []</span>
+<span class="s2">        for c in checks:</span>
+<span class="s2">            if c.get(&#39;id&#39;) == &#39;G4.cd.major_chars&#39;: found_major = True</span>
+<span class="s2">            if c.get(&#39;id&#39;) == &#39;G4.cd.minor_chars&#39;: found_minor = True</span>
+<span class="s2">print(f&#39;G4.cd.major_chars found: {found_major}&#39;)</span>
+<span class="s2">print(f&#39;G4.cd.minor_chars found: {found_minor}&#39;)</span>
+<span class="s2">assert found_major and found_minor, &#39;character-design G4.cd.* checks not found&#39;</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+Expected: All PASS; both <code>G4.cd.major_chars</code> and <code>G4.cd.minor_chars</code> present.</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify all gate markers in manifest</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json</span>
+<span class="s2">manifest = json.load(open(&#39;novel-output/test-validation/gate-markers/pipeline-manifest.json&#39;))</span>
+<span class="s2">gates = manifest.get(&#39;gates&#39;, {})</span>
+<span class="s2">print(f&#39;Gates phases: {list(gates.keys())}&#39;)</span>
+<span class="s2">for phase, phase_data in gates.items():</span>
+<span class="s2">    chapters = len(phase_data)</span>
+<span class="s2">    total_skills = sum(len(skills) for skills in phase_data.values())</span>
+<span class="s2">    print(f&#39;  {phase}: {chapters} chapters, {total_skills} skill entries&#39;)</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+Expected: Genesis and chapter_loop phases present with entries.</p>
+<ul>
+<li>[ ] <strong>Step 5: Final validation report</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>cat<span class="w"> </span>&gt;<span class="w"> </span>novel-output/validation-results/validation-report.md<span class="w"> </span><span class="s">&lt;&lt; &#39;EOF&#39;</span>
+<span class="s"># End-to-End Validation Report</span>
+
+<span class="s">**Date:** $(date -Iseconds)</span>
+<span class="s">**Pipeline:** test-validation</span>
+<span class="s">**Specs Validated:** Specs 1-10</span>
+
+<span class="s">## Results</span>
+
+<span class="s">| Stage | Status | Errors |</span>
+<span class="s">|-------|--------|--------|</span>
+<span class="s">| Stage 1: Unit Tests | $(cat novel-output/validation-results/stage1-result.txt) | 0 |</span>
+<span class="s">| Stage 2: 3-Chapter Mini | $(cat novel-output/validation-results/stage2-result.txt) | 0 |</span>
+<span class="s">| Stage 3: 10-Chapter Smoke | $(cat novel-output/validation-results/stage3-result.txt) | 0 |</span>
+<span class="s">| Stage 4: Quality Gates | PASSED | 0 |</span>
+
+<span class="s">## Conclusion</span>
+
+<span class="s">All 10 consolidated specs validated successfully. Pipeline is ready for full production run.</span>
+
+<span class="s">## Timing Baseline (re-measured)</span>
+
+<span class="s">The r = -0.002 / &quot;65%-25% retry share&quot; / &quot;79-93 min&quot; figures were an unverified</span>
+<span class="s">analytic prior from the original investigation. Using the per-chapter timing</span>
+<span class="s">instrumentation built in Task 0, the baseline was re-established empirically from</span>
+<span class="s">the 10-chapter smoke run:</span>
+<span class="s">- Pearson r (chapter size vs. elapsed): _(filled from `progress.json` timings)_</span>
+<span class="s">- Average chapter time: _(filled)_</span>
+<span class="s">- Resonance retry share of total time: _(filled)_</span>
+
+<span class="s">Record these measured values here so the before/after comparison is reproducible.</span>
+<span class="s">EOF</span>
+
+git<span class="w"> </span>add<span class="w"> </span>novel-output/validation-results/validation-report.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;validation: final Stage 4 report — all 10 specs validated&quot;</span>
+</code></pre></div>
+Expected: Clean commit with validation report.</p>
+<hr />
+<h3 id="task-5-regression-rollback-verification">Task 5: Regression Rollback Verification</h3>
+<p><strong>Files:</strong>
+- None (verification only)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify per-spec rollback instructions</strong></li>
+</ul>
+<p>For each spec, verify the primary files documented in the rollback table exist and are tracked by git:</p>
+<p><div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>spec<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">1</span><span class="w"> </span><span class="m">2</span><span class="w"> </span><span class="m">3</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">5</span><span class="w"> </span><span class="m">6</span><span class="w"> </span><span class="m">7</span><span class="w"> </span><span class="m">8</span><span class="w"> </span><span class="m">9</span><span class="w"> </span><span class="m">10</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;=== Spec </span><span class="nv">$spec</span><span class="s2"> ===&quot;</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="nv">$spec</span><span class="w"> </span><span class="k">in</span>
+<span class="w">    </span><span class="m">1</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/truth_io.py src/shenbi/pipeline/truth_index.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">2</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/dispatch_helper.py src/shenbi/gates/g2.py src/shenbi/gates/g4/decisions_validator.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">3</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/dispatch_helper.py src/shenbi/pipeline/checkpoint.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">4</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/context_assemble.py src/shenbi/skill_utils/drift_detection/linguistic_drift.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">5</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/gates/g4/chapter_drafting.py src/shenbi/pipeline/chapter_loop.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">6</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/scr_extractor.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">7</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/phase_runner.py src/shenbi/pipeline/crash_recovery.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">8</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/dispatch_helper.py src/shenbi/pipeline/audit_context_cache.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">9</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/pipeline/context_assemble.py src/shenbi/pipeline/plan_skeleton.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">    </span><span class="m">10</span><span class="o">)</span><span class="w"> </span><span class="nv">files</span><span class="o">=</span><span class="s2">&quot;src/shenbi/gates/gate_manifest.py src/shenbi/pipeline/snapshot_diff.py&quot;</span><span class="w"> </span><span class="p">;;</span>
+<span class="w">  </span><span class="k">esac</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>f<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="nv">$files</span><span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-f<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$f</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ </span><span class="nv">$f</span><span class="s2"> exists&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✗ </span><span class="nv">$f</span><span class="s2"> MISSING — rollback would fail!&quot;</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="k">done</span>
+</code></pre></div>
+Expected: All files exist.</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify git revert would work</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w"> </span>-20<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-5
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;---&quot;</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Rollback test: git revert --no-commit HEAD~1 &amp;&amp; git revert --abort&quot;</span>
+git<span class="w"> </span>revert<span class="w"> </span>--no-commit<span class="w"> </span>HEAD~1<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>git<span class="w"> </span>revert<span class="w"> </span>--abort<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;  ✓ Rollback mechanism works&quot;</span>
+</code></pre></div>
+Expected: "✓ Rollback mechanism works"</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

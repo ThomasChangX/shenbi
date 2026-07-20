@@ -1,0 +1,2172 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-04-testing/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P-1.E Plan 4: Testing Foundation (PR-28 ~ PR-34) - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P-1.E Plan 4: Testing Foundation (PR-28 ~ PR-34) - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-04-testing.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-15-p-1.e-04-testing/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P-1.E Plan 4: Testing Foundation (PR-28 ~ PR-34) - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-15-p-1.e-04-testing.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p-1e-plan-4-testing-foundation-pr-28-pr-34" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P-1.E Plan 4: Testing Foundation (PR-28 ~ PR-34)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tasks
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tasks">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-0-pre-flight" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: Pre-flight
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-28-unit-tests-for-scoringpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-28: Unit Tests for scoring.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-28: Unit Tests for scoring.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-write-scoring-test-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Write scoring test file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-29-unit-tests-for-phase_runnerpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-29: Unit Tests for phase_runner.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-29: Unit Tests for phase_runner.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-2-write-phase_runner-test-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Write phase_runner test file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-30-unit-tests-for-update_progresspy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-30: Unit Tests for update_progress.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-30: Unit Tests for update_progress.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-3-write-update_progress-test-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Write update_progress test file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-31-unit-tests-for-summarize_roundpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-31: Unit Tests for summarize_round.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-31: Unit Tests for summarize_round.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-4-write-summarize_round-test-file" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Write summarize_round test file
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-32-direct-import-tests-for-gates-replace-subprocess-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-32: Direct-Import Tests for Gates (Replace Subprocess Tests)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-32: Direct-Import Tests for Gates (Replace Subprocess Tests)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-5-move-existing-tests-write-new-direct-import-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Move existing tests + write new direct-import tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-33-hypothesis-failure-case-persistence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-33: Hypothesis Failure Case Persistence
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-33: Hypothesis Failure Case Persistence">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-6-configure-hypothesisexamples-to-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Configure .hypothesis/examples/ to commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-34-explicit-pytest-collection-rules" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-34: Explicit pytest Collection Rules
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-34: Explicit pytest Collection Rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-7-change-testpaths-to-explicit-norecursedirs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Change testpaths to explicit norecursedirs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-final-verification-density-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Final verification — density + coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Self-Review">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-coverage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec coverage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#estimated-test-counts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Estimated test counts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#risk-highlights" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Risk highlights
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#execution-handoff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Execution Handoff
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p-1e-plan-4-testing-foundation-pr-28-pr-34">P-1.E Plan 4: Testing Foundation (PR-28 ~ PR-34)</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans.</p>
+</blockquote>
+<p><strong>Goal:</strong> Deliver ~600 tests across framework modules to meet 0.10 test density target, 80% branch coverage, 90% line coverage. Replace subprocess-based tests with direct-import unit tests.</p>
+<p><strong>Architecture:</strong> Seven PRs, one per test category. PR-28~31 add tests for individual modules (scoring, phase_runner, update_progress, summarize_round). PR-32 adds gates tests replacing subprocess stubs. PR-33 commits Hypothesis counterexamples. PR-34 changes pytest config to explicit <code>--ignore</code>.</p>
+<p><strong>Tech Stack:</strong> pytest 8+, pytest-cov, pytest-xdist, hypothesis 6.97+, pytest-randomly.</p>
+<p><strong>Spec reference:</strong> <a href="../../specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation/"><code>docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/04-testing-foundation.md</code></a></p>
+<p><strong>Depends on:</strong> Plans 1 + 2 (src layout + modular code).</p>
+<p><strong>Blocks:</strong> PR-26 density test passes only after this plan delivers test count.</p>
+<p><strong>Estimated effort:</strong> XL (2-3 weeks; mostly test-writing).</p>
+<hr />
+<h2 id="tasks">Tasks</h2>
+<h3 id="task-0-pre-flight">Task 0: Pre-flight</h3>
+<ul>
+<li>[ ] Verify Plans 1 + 2 merged.</li>
+<li>[ ] Verify clean tree.</li>
+<li>[ ] Baseline test count: <code>uv run pytest --collect-only -q | tail -1</code> (expect 43).</li>
+<li>[ ] Verify the actual function names in target modules before writing tests. <strong>Critical</strong>: the test scaffolding below imports specific names (e.g., <code>load_rubric</code>, <code>compute_score</code>, <code>classify</code>, <code>check_gate_markers</code> in <code>scoring.py</code>). Run <code>grep -n "^def " src/shenbi/scoring.py</code> and each other target module to confirm names; adjust the test imports to match the codebase, not the plan.</li>
+<li>[ ] Add <code>pytest-randomly</code> to dev deps: edit <code>pyproject.toml</code> <code>[project.optional-dependencies].dev</code>, add <code>"pytest-randomly&gt;=3.15.0"</code>, run <code>uv sync --extra dev</code>. (Plan 6 PR-41 migrates this to <code>[dependency-groups].dev</code> — addition carries through.)</li>
+<li>[ ] Verify the <code>shenbi-validate</code> CLI entry point is installed (declared by Plan 1 PR-18 <code>[project.scripts]</code>; the current <code>pyproject.toml</code> has none). Smoke check: <code>uv run shenbi-validate G0 outline-example.md</code> must exit 0. If it fails with <code>command not found</code>, Plan 1 has not merged -- stop and merge Plan 1 first. PR-32 Step 2 relies on this entry point; a <code>python -m shenbi.gates.cli</code> fallback is noted there.</li>
+<li>[ ] Note: spec Open Question #3 fixes the CI seed at <code>--randomly-seed=42</code>. The CI wiring (default <code>pytest --randomly-seed=42</code> in CI) lands in Plan 5 (CI supply chain); this plan only adds the dependency. Local dev keeps random seeds.</li>
+</ul>
+<hr />
+<h2 id="pr-28-unit-tests-for-scoringpy">PR-28: Unit Tests for <code>scoring.py</code></h2>
+<h3 id="task-1-write-scoring-test-file">Task 1: Write scoring test file</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/unit/test_scoring.py</code> (~60 tests)
+- Create: <code>tests/unit/test_scoring_property.py</code> (~10 property tests)</p>
+<ul>
+<li>[ ] <strong>Step 1: Write test file skeleton</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unit tests for shenbi.scoring.</span>
+
+<span class="sd">Coverage target: 90% line, 80% branch.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">main</span><span class="p">,</span>
+    <span class="n">load_rubric</span><span class="p">,</span>
+    <span class="n">load_applicability</span><span class="p">,</span>
+    <span class="n">filter_dimensions_by_test_type</span><span class="p">,</span>
+    <span class="n">validate_scores</span><span class="p">,</span>
+    <span class="n">compute_score</span><span class="p">,</span>
+    <span class="n">classify</span><span class="p">,</span>
+    <span class="n">check_gate_markers</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_rubric</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a minimal rubric.md matching load_rubric&#39;s real table format.</span>
+
+<span class="sd">    load_rubric parses a markdown table whose header row starts with &#39;| #&#39; and</span>
+<span class="sd">    returns a tuple (dimensions, kill_switches). Each dimension dict uses keys</span>
+<span class="sd">    num/name/weight with weights parsed as integer percentages that should sum</span>
+<span class="sd">    to 100. See src/shenbi/scoring.py. Do NOT use YAML frontmatter here:</span>
+<span class="sd">    load_rubric ignores it and would return an empty dimensions list.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rubric</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;rubric.md&quot;</span>
+    <span class="n">rubric</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;# Sample rubric</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| # | name | weight |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;|---|------|--------|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 1 | creativity | 60 |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 2 | consistency | 40 |</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## Kill Switches</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;- total score = 0 on plagiarism</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">rubric</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">fixture</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">sample_scores</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a scores.json fixture (string keys on disk; main() casts to int).&quot;&quot;&quot;</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;scores.json&quot;</span>
+    <span class="c1"># main() loads this with {int(k): v ...}. For direct compute_score unit</span>
+    <span class="c1"># tests, build an int-keyed dict instead, e.g. {1: 90, 2: 80}.</span>
+    <span class="n">scores</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">}))</span>
+    <span class="k">return</span> <span class="n">scores</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Write rubric loading tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestLoadRubric</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_loads_valid_rubric</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rubric</span><span class="p">):</span>
+        <span class="c1"># load_rubric returns a tuple (dimensions, kill_switches); dims use</span>
+        <span class="c1"># num/name/weight. This doubles as a fail-fast shape smoke test.</span>
+        <span class="n">dimensions</span><span class="p">,</span> <span class="n">kill_switches</span> <span class="o">=</span> <span class="n">load_rubric</span><span class="p">(</span><span class="n">sample_rubric</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">dimensions</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">dimensions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+        <span class="k">assert</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;num&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;creativity&quot;</span>
+        <span class="k">assert</span> <span class="n">dimensions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">60</span>
+        <span class="k">assert</span> <span class="nb">sum</span><span class="p">(</span><span class="n">d</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">d</span> <span class="ow">in</span> <span class="n">dimensions</span><span class="p">)</span> <span class="o">==</span> <span class="mi">100</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">kill_switches</span><span class="p">,</span> <span class="nb">list</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_handles_missing_dimensions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">rubric</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;empty.md&quot;</span>
+        <span class="n">rubric</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># empty&quot;</span><span class="p">)</span>
+        <span class="c1"># No markdown table -&gt; load_rubric returns ([], []).</span>
+        <span class="n">dimensions</span><span class="p">,</span> <span class="n">kill_switches</span> <span class="o">=</span> <span class="n">load_rubric</span><span class="p">(</span><span class="n">rubric</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">dimensions</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="c1"># ... 8 more rubric loading tests</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Write score computation tests</strong> (~10 tests covering <code>compute_score</code>, <code>classify</code>, weight handling, kill_switch behavior)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: Write test-type filtering tests</strong> (~5 tests for <code>filter_dimensions_by_test_type</code> covering generative/bug-hunt/clean)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: Write gate marker enforcement tests</strong> (~8 tests for <code>check_gate_markers</code>)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Write REJECT behavior tests</strong> (~5 tests covering the REJECT/ACCEPT gating in <code>validate_scores</code>)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 7: Write subagent flag tests</strong> (~5 tests covering <code>main()</code>'s <code>--subagent</code> argument handling)</p>
+</li>
+<li>
+<p>[ ] <strong>Step 8: Write <code>main()</code> integration tests</strong> (~10 tests)</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestMain</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_main_returns_zero_on_pass</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sample_rubric</span><span class="p">,</span> <span class="n">sample_scores</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+        <span class="n">round_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round&quot;</span>
+        <span class="n">round_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="c1"># ... set up markers</span>
+        <span class="c1"># main() reads sys.argv; patch it. Do NOT refactor main()&#39;s signature</span>
+        <span class="c1"># in this PR -- that is a source change outside a test PR&#39;s scope and</span>
+        <span class="c1"># needs its own commit + coverage. Keep all main() tests on monkeypatch.</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;sys.argv&quot;</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s2">&quot;shenbi-score&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_rubric</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">sample_scores</span><span class="p">),</span>
+            <span class="s2">&quot;--test-type&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="s2">&quot;--round-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_dir</span><span class="p">),</span>
+        <span class="p">])</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">main</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 9: Write property-based tests</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_scoring_property.py</span>
+<span class="sd">&quot;&quot;&quot;Property-based tests for shenbi.scoring using Hypothesis.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">hypothesis</span><span class="w"> </span><span class="kn">import</span> <span class="n">given</span><span class="p">,</span> <span class="n">strategies</span> <span class="k">as</span> <span class="n">st</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">classify</span><span class="p">,</span> <span class="n">compute_score</span>
+
+
+<span class="nd">@given</span><span class="p">(</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">100</span><span class="p">))</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_classify_returns_known_label</span><span class="p">(</span><span class="n">score</span><span class="p">):</span>
+    <span class="n">label</span> <span class="o">=</span> <span class="n">classify</span><span class="p">(</span><span class="n">score</span><span class="p">)</span>
+    <span class="c1"># Real labels from classify() in src/shenbi/scoring.py:</span>
+    <span class="c1">#   &gt;= 90 -&gt; &quot;PASS (excellent)&quot;, &gt;= 75 -&gt; &quot;PASS (acceptable)&quot;,</span>
+    <span class="c1">#   &gt;= 60 -&gt; &quot;CONDITIONAL&quot;, else -&gt; &quot;FAIL&quot;.</span>
+    <span class="k">assert</span> <span class="n">label</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;PASS (excellent)&quot;</span><span class="p">,</span> <span class="s2">&quot;PASS (acceptable)&quot;</span><span class="p">,</span> <span class="s2">&quot;CONDITIONAL&quot;</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@given</span><span class="p">(</span>
+    <span class="n">st</span><span class="o">.</span><span class="n">dictionaries</span><span class="p">(</span>
+        <span class="n">keys</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">10</span><span class="p">),</span>
+        <span class="n">values</span><span class="o">=</span><span class="n">st</span><span class="o">.</span><span class="n">integers</span><span class="p">(</span><span class="n">min_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="mi">100</span><span class="p">),</span>
+        <span class="n">min_size</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compute_score_in_range</span><span class="p">(</span><span class="n">scores</span><span class="p">):</span>
+    <span class="c1"># Build dimensions whose num keys cover `scores`, weights summing to 100,</span>
+    <span class="c1"># then assert 0 &lt;= compute_score(dimensions, scores) &lt;= 100. Use the</span>
+    <span class="c1"># sample_rubric markdown-table format (num/name/weight); generate dimensions</span>
+    <span class="c1"># to match the strategy&#39;s key range (equal weights, remainder on last).</span>
+    <span class="o">...</span>
+</code></pre></div>
+<p><strong>Note:</strong> <code>test_compute_score_in_range</code> must be fully implemented (strategy +
+assertion) before commit -- the <code>...</code> above is scaffolding. A committed no-op
+property test asserts nothing and inflates the count without value.</p>
+<ul>
+<li>[ ] <strong>Step 10: Run + verify coverage</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/test_scoring.py<span class="w"> </span>tests/unit/test_scoring_property.py<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>shenbi.scoring<span class="w"> </span>--cov-report<span class="o">=</span>term-missing
+</code></pre></div>
+<p>Expected: ≥ 60 tests pass, coverage ≥ 90% line, ≥ 80% branch on <code>shenbi.scoring</code>.</p>
+<ul>
+<li>[ ] <strong>Step 11: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/test_scoring*.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-28): add ~70 unit tests for shenbi.scoring&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-29-unit-tests-for-phase_runnerpy">PR-29: Unit Tests for <code>phase_runner.py</code></h2>
+<h3 id="task-2-write-phase_runner-test-file">Task 2: Write phase_runner test file</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/unit/test_phase_runner.py</code> (~50 tests)
+- Create: <code>tests/unit/test_phase_runner_property.py</code> (~8 property tests)</p>
+<p>Follow same pattern as Task 1. Test categories:</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> State machine transitions (15 tests)</li>
+<li>Valid transitions succeed</li>
+<li>Invalid transitions raise GateError</li>
+<li>Terminal states reject further transitions</li>
+<li>[ ] <strong>Step 2:</strong> Pre-skill / post-skill / finalize marker sequence (10 tests)</li>
+<li>[ ] <strong>Step 3:</strong> Phase close (G7.16 logic) (8 tests)</li>
+<li>[ ] <strong>Step 4:</strong> Round-dir persistence (5 tests)</li>
+<li>[ ] <strong>Step 5:</strong> main() integration (10 tests)</li>
+<li>[ ] <strong>Step 6:</strong> Property tests (state machine acyclicity, etc.) (8 tests)</li>
+<li>[ ] <strong>Step 7:</strong> Verify ≥ 90% line / 80% branch on <code>shenbi.phase_runner</code></li>
+<li>[ ] <strong>Step 8:</strong> Commit</li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-29): add ~58 unit tests for shenbi.phase_runner&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-30-unit-tests-for-update_progresspy">PR-30: Unit Tests for <code>update_progress.py</code></h2>
+<h3 id="task-3-write-update_progress-test-file">Task 3: Write update_progress test file</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/unit/test_update_progress.py</code> (~50 tests)</p>
+<p>Test categories:</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> <code>init</code> command (8 tests)</li>
+<li>[ ] <strong>Step 2:</strong> <code>mark-done</code> command (10 tests)</li>
+<li>[ ] <strong>Step 3:</strong> <code>mark-failed</code> command (5 tests)</li>
+<li>[ ] <strong>Step 4:</strong> <code>validate</code> command (8 tests)</li>
+<li>[ ] <strong>Step 5:</strong> <code>rebuild-queues</code> command (5 tests)</li>
+<li>[ ] <strong>Step 6:</strong> Concurrent writes (file locking) (8 tests)</li>
+<li>[ ] <strong>Step 7:</strong> Idempotency (6 tests)</li>
+<li>[ ] <strong>Step 8:</strong> Verify ≥ 90% line / 80% branch on <code>shenbi.update_progress</code></li>
+<li>[ ] <strong>Step 9:</strong> Commit</li>
+</ul>
+<hr />
+<h2 id="pr-31-unit-tests-for-summarize_roundpy">PR-31: Unit Tests for <code>summarize_round.py</code></h2>
+<h3 id="task-4-write-summarize_round-test-file">Task 4: Write summarize_round test file</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/unit/test_summarize_round.py</code> (~40 tests)</p>
+<p>Test categories:</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> Aggregation (mean/median/p90) (10 tests)</li>
+<li>[ ] <strong>Step 2:</strong> G7 close validation (10 tests)</li>
+<li>[ ] <strong>Step 3:</strong> Report generation (markdown format) (8 tests)</li>
+<li>[ ] <strong>Step 4:</strong> Error recovery from partial round data (7 tests)</li>
+<li>[ ] <strong>Step 5:</strong> main() integration (5 tests)</li>
+<li>[ ] <strong>Step 6:</strong> Verify coverage</li>
+<li>[ ] <strong>Step 7:</strong> Commit</li>
+</ul>
+<hr />
+<h2 id="pr-32-direct-import-tests-for-gates-replace-subprocess-tests">PR-32: Direct-Import Tests for Gates (Replace Subprocess Tests)</h2>
+<h3 id="task-5-move-existing-tests-write-new-direct-import-tests">Task 5: Move existing tests + write new direct-import tests</h3>
+<p><strong>Files:</strong>
+- Move: <code>tests/unit/test_gates_integrity.py</code> → <code>tests/integration/test_gate_cli.py</code> (rename + reclassify)
+- Create: <code>tests/unit/gates/test_shared.py</code>
+- Create: <code>tests/unit/gates/test_g0.py</code> ... <code>test_g7.py</code>
+- Create: <code>tests/unit/gates/g4/test_generic.py</code>
+- Create: <code>tests/unit/gates/g4/test_&lt;skill&gt;.py</code> for each of 20 skill checkers
+- Create: <code>tests/unit/gates/__init__.py</code>
+- Create: <code>tests/unit/gates/g4/__init__.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Create directory structure</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/unit/gates/g4
+touch<span class="w"> </span>tests/unit/gates/__init__.py<span class="w"> </span>tests/unit/gates/g4/__init__.py
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Move existing subprocess tests to integration/</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>mv<span class="w"> </span>tests/unit/test_gates_integrity.py<span class="w"> </span>tests/integration/test_gate_cli.py
+</code></pre></div>
+<p>After the move, migrate subprocess calls in <code>tests/integration/test_gate_cli.py</code> from the legacy script path to the <code>shenbi-validate</code> entry point. Note: PR-19 (Plan 2) uses strangler-fig, so <code>tests/validate-gate.py</code> is NOT deleted -- it is reduced to a thin CLI dispatcher that imports from <code>src/shenbi/gates/</code>. The old subprocess invocations still work; switch them to <code>shenbi-validate</code> to exercise the real modular CLI:</p>
+<p><strong>Exact substitution:</strong> the moved file defines a path constant <code>VG</code> (line 11) and a <code>_run_vg</code> helper (line 18) that calls <code>subprocess.run([os.environ.get("PYTHON", "python3"), str(VG)] + list(args), ...)</code>. There is also a standalone <code>subprocess.run</code> at line 183 with the same <code>[os.environ.get("PYTHON", "python3"), str(script)]</code> shape. Rewrite both call sites:</p>
+<ul>
+<li><code>_run_vg</code> helper: replace <code>[os.environ.get("PYTHON", "python3"), str(VG)]</code> with <code>["shenbi-validate"]</code> (or <code>["uv", "run", "shenbi-validate"]</code> when not inside an activated env). The <code>PYTHON</code> env lookup and the <code>VG</code> path constant become dead code -- remove them once no call site references them.</li>
+<li>Standalone <code>subprocess.run</code> (line ~183): same substitution for its argv.</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># Before (legacy script path; still works post-PR-19 but bypasses the modular CLI):</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">[</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;PYTHON&quot;</span><span class="p">,</span> <span class="s2">&quot;python3&quot;</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">VG</span><span class="p">),</span> <span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)],</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># After:</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+    <span class="p">[</span><span class="s2">&quot;uv&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-validate&quot;</span><span class="p">,</span> <span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">)],</span>
+    <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Or, if tests run inside an already-activated uv environment, drop the <code>uv run</code> prefix and call <code>shenbi-validate</code> directly (it's on <code>PATH</code> after <code>uv sync</code>). If the entry point is not registered (Plan 1 PR-18 not merged), fall back to <code>["uv", "run", "python", "-m", "shenbi.gates.cli", ...]</code> -- but the pre-flight smoke check should have caught that case first.</p>
+<p><strong>Verify no legacy-path references remain</strong> after the rewrite:</p>
+<p><div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-nE<span class="w"> </span><span class="s2">&quot;str\(VG\)|os\.environ\.get\(\&quot;PYTHON\&quot;|validate-gate\.py&quot;</span><span class="w"> </span>tests/integration/test_gate_cli.py
+</code></pre></div>
+Expected: no matches. Any remaining match is a call site that still bypasses the modular CLI; rewrite it before commit.</p>
+<p>Verify with: <code>uv run pytest tests/integration/test_gate_cli.py -v</code> — all subprocess tests must pass.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write <code>tests/unit/gates/test_shared.py</code></strong> (~15 tests)</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unit tests for shenbi.gates.shared.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">jload</span><span class="p">,</span> <span class="n">yload</span><span class="p">,</span> <span class="n">word_count_md</span><span class="p">,</span> <span class="n">passed</span><span class="p">,</span> <span class="n">fail</span><span class="p">,</span>
+    <span class="n">write_gate_marker</span><span class="p">,</span> <span class="n">_normalize_file_paths</span><span class="p">,</span> <span class="n">count_transition_words</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestJload</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_loads_valid_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;test.json&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;a&quot;: 1}&#39;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">jload</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;a&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_raises_on_invalid_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;bad.json&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;not json&quot;</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">):</span>
+            <span class="n">jload</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+    <span class="c1"># ... 5 more</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestYload</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_loads_yaml_with_frontmatter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;test.md&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">key: value</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">content&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">yload</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="s2">&quot;value&quot;</span><span class="p">}</span>
+
+    <span class="c1"># ... 5 more</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestWordCountMd</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_counts_cjk_excluding_code_blocks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="c1"># word_count_md counts CJK characters only (re.findall(r&quot;[一-鿿]&quot;, c));</span>
+        <span class="c1"># ASCII text returns 0.</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;test.md&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;世界你好</span><span class="se">\n\n</span><span class="s2">```python</span><span class="se">\n</span><span class="s2">print(&#39;ignored&#39;)</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n\n</span><span class="s2">更多文字&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">word_count_md</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span>  <span class="c1"># 8 CJK chars; code block excluded</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_ascii_only_returns_zero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;test.md&quot;</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;hello world</span><span class="se">\n\n</span><span class="s2">more text&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">word_count_md</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPassedFailFormat</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passed_returns_valid_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">passed</span><span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="p">[{</span><span class="s2">&quot;check&quot;</span><span class="p">:</span> <span class="s2">&quot;exists&quot;</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;pass&quot;</span><span class="p">}])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;gate&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;G0&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fail_returns_must_fix_list</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="p">[],</span> <span class="s2">&quot;scoring&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;fix the seed&quot;</span><span class="p">])</span>
+        <span class="n">parsed</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;fix the seed&quot;</span> <span class="ow">in</span> <span class="n">parsed</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Write <code>tests/unit/gates/test_g0.py</code></strong> (~10 tests)</li>
+</ul>
+<p><strong>Before writing tests</strong>: read the actual G0 implementation in <code>src/shenbi/gates/g0.py</code> (PR-19 extracted gate_G0 here from the former <code>tests/validate-gate.py</code> lines 277-814; this plan runs after PR-19, so read <code>g0.py</code>, not the legacy file). Note the real validation criteria (seed format requirements, structure expectations, file size limits, etc.). Tests must reflect actual G0 behavior — generic "PASS with valid seed" tests are insufficient if G0 requires specific structural elements (e.g., heading levels, frontmatter, minimum length).</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unit tests for G0 gate.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G0</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestGateG0</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_with_valid_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Seed file meeting G0&#39;s actual criteria (see g0.py) returns PASS.&quot;&quot;&quot;</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;outline.md&quot;</span>
+        <span class="c1"># G0 is not a generic &quot;file exists&quot; check. Verified against the legacy</span>
+        <span class="c1"># tests/validate-gate.py gate_G0 (the source PR-19 extracts): G0.2</span>
+        <span class="c1"># requires a `目标字数：&lt;N&gt;` line (regex `目标字数[：:]\s*(\d+)`), and</span>
+        <span class="c1"># later checks reference chapter-word floor / novel-output dir. The</span>
+        <span class="c1"># minimal &quot;# My Novel&quot; string FAILS G0.2. For a guaranteed-PASS positive</span>
+        <span class="c1"># fixture, copy the real seed that G0 is known to pass:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;outline-example.md&quot;</span><span class="p">,</span> <span class="n">seed</span><span class="p">)</span>
+        <span class="c1"># (adjust the parents[] depth to the repo root from this test&#39;s location)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">gate_G0</span><span class="p">(</span><span class="n">seed_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="s1">&#39;&quot;status&quot;: &quot;PASS&quot;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fails_without_seed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Missing seed file returns FAIL.&quot;&quot;&quot;</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">gate_G0</span><span class="p">(</span><span class="n">seed_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;nonexistent.md&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="s1">&#39;&quot;status&quot;: &quot;FAIL&quot;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="c1"># ... 8 more tests covering actual G0 rules (criterion by criterion)</span>
+</code></pre></div>
+<p><strong>Test naming convention</strong>: each test name should describe the <em>business rule</em> being verified (e.g., <code>test_rejects_seed_without_setup_heading</code>, <code>test_rejects_seed_under_500_words</code>), not just the function call. Tests that don't encode business value (per global rule 八 in CLAUDE.md) should be rewritten before commit.</p>
+<ul>
+<li>[ ] <strong>Step 5: Write <code>tests/unit/gates/test_g1.py</code>, <code>test_g2.py</code>, ..., <code>test_g7.py</code></strong></li>
+</ul>
+<p>Same pattern, ~10 tests per gate. Each test verifies a specific G{n} business rule, not just "function returns PASS/FAIL". Read the gate implementation in <code>src/shenbi/gates/g{n}.py</code> before writing tests.</p>
+<ul>
+<li>[ ] <strong>Step 6: Write <code>tests/unit/gates/g4/test_generic.py</code></strong> (~15 tests)</li>
+</ul>
+<p>Tests for <code>g4_generic_generative</code>, <code>g4_generic_bughunt</code>, <code>g4_generic_clean</code>.</p>
+<ul>
+<li>[ ] <strong>Step 7: Write per-skill G4 tests</strong></li>
+</ul>
+<p>For each of 20 skills with a <code>g4_&lt;skill&gt;</code> function, create <code>tests/unit/gates/g4/test_&lt;skill&gt;.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unit tests for shenbi.gates.g4.worldbuilding.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.worldbuilding</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_worldbuilding</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestG4Worldbuilding</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passes_with_valid_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="c1"># Set up minimal valid worldbuilding output</span>
+        <span class="o">...</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_worldbuilding</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">world_bible</span><span class="p">)],</span> <span class="n">rd</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s1">&#39;&quot;status&quot;: &quot;PASS&quot;&#39;</span> <span class="ow">in</span> <span class="n">result</span>
+
+    <span class="c1"># ... 10+ tests per skill</span>
+</code></pre></div>
+<p>Verified: <code>grep -c "^def g4_" tests/validate-gate.py</code> = 23 (20 per-skill + 3 generic), not 28. Target <strong>12 tests per skill</strong> (240 total for 20 skills) to clear the 0.10 density floor. <strong>Do not reduce below 12 per skill</strong> -- at 8/skill the budget only reaches ~531 tests (density 0.090 &lt; 0.10), failing PR-26's density gate.</p>
+<ul>
+<li>[ ] <strong>Step 8: Run + verify total test count</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/gates/<span class="w"> </span>-v<span class="w"> </span>--cov<span class="o">=</span>shenbi.gates<span class="w"> </span>--cov-report<span class="o">=</span>term-missing
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>-q<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1
+</code></pre></div>
+<p>Expected: ≥ 400 tests collected; coverage ≥ 90% line on <code>shenbi.gates</code>.</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-32): replace subprocess tests with direct-import unit tests</span>
+
+<span class="s2">- Moved 18 subprocess tests to tests/integration/test_gate_cli.py</span>
+<span class="s2">- Added tests/unit/gates/ with shared, g0-g7, g4/* (20 skills)</span>
+<span class="s2">- ~400 new direct-import unit tests</span>
+<span class="s2">- Coverage on shenbi.gates ≥ 90% line, 80% branch</span>
+
+<span class="s2">Closes PR-32. test_gates_integrity.py subprocess tests retained as</span>
+<span class="s2">integration smoke tests.&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-33-hypothesis-failure-case-persistence">PR-33: Hypothesis Failure Case Persistence</h2>
+<h3 id="task-6-configure-hypothesisexamples-to-commit">Task 6: Configure <code>.hypothesis/examples/</code> to commit</h3>
+<p><strong>Files:</strong>
+- Modify: <code>.hypothesis/.gitignore</code>
+- Create: <code>.hypothesis/examples/.gitkeep</code> (tracks the dir even with no counterexamples yet)</p>
+<ul>
+<li>[ ] <strong>Step 1: Replace <code>.hypothesis/.gitignore</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>.hypothesis/examples
+cat<span class="w"> </span>&gt;<span class="w"> </span>.hypothesis/.gitignore<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s"># Hypothesis caches are machine-specific</span>
+<span class="s">cache/</span>
+
+<span class="s"># Examples ARE committed — they capture discovered counterexamples</span>
+<span class="s"># and replay them on every run, ensuring regression detection.</span>
+<span class="s">!examples/</span>
+<span class="s">!examples/**</span>
+<span class="s">EOF</span>
+touch<span class="w"> </span>.hypothesis/examples/.gitkeep
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests with property-based tests to populate examples</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/test_scoring_property.py<span class="w"> </span>tests/unit/test_phase_runner_property.py<span class="w"> </span>-v
+</code></pre></div>
+<p>This generates <code>.hypothesis/examples/</code> with any counterexamples found.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify examples directory populated</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>ls<span class="w"> </span>-la<span class="w"> </span>.hypothesis/examples/
+git<span class="w"> </span>status<span class="w"> </span>--short<span class="w"> </span>.hypothesis/examples/
+</code></pre></div>
+<p>Expected: <code>.gitkeep</code> is present and tracked. Counterexample binaries appear only if property tests found bugs (additive, not a gating criterion -- the dir is tracked regardless).</p>
+<p><strong>Spec divergence (documented):</strong> the spec PR-33 Acceptance requires "<code>.hypothesis/examples/</code>
+exists with <strong>at least 1 committed counterexample</strong>" and "CI verifies that committed examples
+still reproduce." This plan relaxes that to a conditional: the <code>.gitignore</code> reconfiguration and
+dir tracking land unconditionally; an actual counterexample is committed <strong>only if</strong> the PR-28/PR-29
+property tests genuinely surface a failing case during this run. Forcing a counterexample would
+require manufacturing a bug that does not exist. If property tests find a real counterexample,
+commit it and the spec acceptance is met in full. If none is found, this plan satisfies the
+<em>persistence mechanism</em> (tracked dir + replayable examples) but defers the CI-replay assertion to
+Plan 5 (CI supply chain), which owns the CI job that replays committed examples. Record which case
+applied in the PR description so the spec gap is explicit, not silent.</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.hypothesis/.gitignore<span class="w"> </span>.hypothesis/examples/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-33): persist Hypothesis counterexamples in git</span>
+
+<span class="s2">.hypothesis/examples/ tracked via .gitkeep. Discovered counterexamples</span>
+<span class="s2">replay on every run, catching regressions even if random seed differs.</span>
+<span class="s2">Lands unconditionally; counterexamples are additive, not gating.&quot;</span>
+</code></pre></div>
+<p>If a real counterexample was produced in Step 2, note it in the commit body
+(<code>Found counterexample: &lt;test&gt;::&lt;case&gt;</code>). The spec's "&gt;= 1 committed
+counterexample" acceptance is met only when one is present; otherwise this PR
+delivers the mechanism and defers replay assertion to Plan 5.</p>
+<hr />
+<h2 id="pr-34-explicit-pytest-collection-rules">PR-34: Explicit pytest Collection Rules</h2>
+<h3 id="task-7-change-testpaths-to-explicit-norecursedirs">Task 7: Change <code>testpaths</code> to explicit <code>norecursedirs</code></h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code></p>
+<ul>
+<li>[ ] <strong>Step 1: Update pytest config</strong></li>
+</ul>
+<p>Find:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests/unit&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/integration&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/property&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;tests/benchmark&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">norecursedirs</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;tests/rounds&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/fixtures&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/baselines&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/coverage&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/tiers&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/dispatcher&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/benchmarks&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/pressure-tests&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/skill-behavior&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;tests/skill-triggering&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+<span class="c1"># This list deliberately exceeds the spec&#39;s 4 entries (rounds, fixtures,</span>
+<span class="c1"># baselines, coverage): tests/tiers, tests/dispatcher, tests/benchmarks,</span>
+<span class="c1"># tests/pressure-tests, tests/skill-behavior, tests/skill-triggering hold</span>
+<span class="c1"># non-test Python/data (round configs, dispatch wrappers, etc.) that would be</span>
+<span class="c1"># swept into collection under testpaths=[&quot;tests&quot;]. Keep the superset; do not</span>
+<span class="c1"># trim back to 4. Note the singular/plural footgun: tests/benchmark (singular,</span>
+<span class="c1"># collected) vs tests/benchmarks (plural, excluded) are different dirs.</span>
+<span class="c1"># Spec Open Question #2: real skill dispatches live in tests/e2e/ behind</span>
+<span class="c1"># @pytest.mark.e2e, skipped in CI (pytest -m &quot;not e2e&quot;). Plan 5 wires the</span>
+<span class="c1"># marker + CI skip; create tests/e2e/ when the first e2e test lands.</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 1b: Enforce the advertised 90% line / 80% branch thresholds</strong></li>
+</ul>
+<p>Plan 1 (PR-18) already moved <code>[tool.coverage.run].source</code> to <code>["src/shenbi"]</code>
+and pytest <code>addopts</code> <code>--cov</code> from <code>tests</code> to <code>shenbi</code>. But the gate thresholds
+were never raised: <code>fail_under</code> is still <code>8</code> and
+<code>tests/unit/test_coverage_thresholds.py</code> still has <code>BRANCH_THRESHOLD_PCT = 0.5</code>.
+This plan delivers the tests that reach 90/80, so enforce them here.</p>
+<p><strong>Ownership note (resolves double-edit with Plan 3 PR-26):</strong> Plan 3 PR-26 also
+edits <code>fail_under</code> and <code>BRANCH_THRESHOLD_PCT</code> (its Step 1 + the commit at
+<code>03-tooling.md:447</code>). This step (PR-34 Step 1b) is the authoritative owner of
+the threshold raise because it is the plan that delivers the tests meeting
+90/80. PR-26 must NOT also set these two values; PR-26 keeps only the density
+test file and its sequencing rule. Whichever PR lands second would otherwise
+no-op or conflict on the same two lines (<code>pyproject.toml</code> <code>fail_under</code>,
+<code>test_coverage_thresholds.py</code> <code>BRANCH_THRESHOLD_PCT</code>). If PR-26 has already
+landed its threshold edits, treat this step as a no-op verification (confirm
+the values are already <code>90</code>/<code>80</code>); otherwise apply them here.</p>
+<p>In <code>pyproject.toml</code> <code>[tool.coverage.report]</code>: change <code>fail_under = 8</code> to
+<code>fail_under = 90</code> (update the staging comment -- this cluster reaches the full
+90/80 target, superseding the earlier "30% after P-1.E" staging).
+In <code>tests/unit/test_coverage_thresholds.py</code>: change <code>BRANCH_THRESHOLD_PCT = 0.5</code>
+to <code>BRANCH_THRESHOLD_PCT = 80</code>.</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>--cov-branch<span class="w"> </span>--cov-report<span class="o">=</span>term
+</code></pre></div>
+<p>Expected: line &gt;= 90%, branch &gt;= 80%, exit 0. If a module falls short, add
+tests for it -- do not lower the threshold (that is a cost compromise).</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify pytest collects expected tests (no count regression)</strong></li>
+</ul>
+<p>Capture the pre-switch count first (before editing testpaths), then after:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>-q<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-3
+</code></pre></div>
+<p>Expected: <code>~654 tests collected</code> (43 existing + 611 new = 654), and the count
+must equal the pre-switch count. (The &gt;= 600 floor is the spec target; ~654 is
+the concrete grand total this plan delivers.) A change means a <code>norecursedirs</code>
+entry is missing (e.g. <code>tests/dispatcher/</code> would otherwise import <code>cli.py</code> at
+collection time).</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify exclusions work</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>tests/rounds/<span class="w"> </span>-q
+</code></pre></div>
+<p>Expected: <code>no tests ran</code> (rounds excluded).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>pyproject.toml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(P-1.E PR-34): switch pytest testpaths to norecursedirs</span>
+
+<span class="s2">Old: testpaths=[&#39;tests/unit&#39;, &#39;tests/integration&#39;, ...] (implicit exclusion)</span>
+<span class="s2">New: testpaths=[&#39;tests&#39;] + explicit norecursedirs for rounds, fixtures,</span>
+<span class="s2">baselines, coverage. New test dirs auto-collect.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-final-verification-density-coverage">Task 8: Final verification — density + coverage</h3>
+<ul>
+<li>[ ] <strong>Step 1: Test density meets the 0.10 floor</strong></li>
+</ul>
+<p>The dedicated density test (<code>tests/unit/test_test_density.py</code>) is delivered by
+downstream Plan 3 PR-26, so do not invoke it here. Compute density directly:</p>
+<div class="highlight"><pre><span></span><code><span class="nv">tests</span><span class="o">=</span><span class="k">$(</span>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>--collect-only<span class="w"> </span>-q<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+<span class="nv">loc</span><span class="o">=</span><span class="k">$(</span>find<span class="w"> </span>src/shenbi<span class="w"> </span>-name<span class="w"> </span><span class="s1">&#39;*.py&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>xargs<span class="w"> </span>wc<span class="w"> </span>-l<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-1<span class="w"> </span><span class="p">|</span><span class="w"> </span>awk<span class="w"> </span><span class="s1">&#39;{print $1}&#39;</span><span class="k">)</span>
+python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;d=</span><span class="nv">$tests</span><span class="s2">/</span><span class="nv">$loc</span><span class="s2">; print(f&#39;density={d:.4f}&#39;); assert d &gt;= 0.10, &#39;below 0.10&#39;&quot;</span>
+</code></pre></div>
+<p>Expected: density &gt;= 0.10. Use <code>awk '{print $1}'</code> to take only the test-count
+token from pytest's summary line (e.g. <code>611 tests collected in 0.98s</code>);
+<code>grep -oE '[0-9]+'</code> would capture <code>611</code>, <code>0</code>, and <code>98</code> and silently parse the
+shell as <code>density=611.0000</code>, exiting 0 on a false positive.</p>
+<p><strong>Denominator reconciliation with Plan 3 PR-27:</strong> PR-27 moves ~568 LOC of
+<code>skills/*/compute_*.py</code> (chapter_pattern 176 + style_learning 392) into
+<code>src/shenbi/skill_utils/</code> -- inside this <code>find src/shenbi</code> scope. So the
+denominator depends on PR-27's landing state:</p>
+<ul>
+<li>PR-27 NOT landed: ~5921 LOC -&gt; needs &gt;= 593 tests.</li>
+<li>PR-27 landed: ~6489 LOC -&gt; needs &gt;= 649 tests.</li>
+</ul>
+<p>This plan's 611-test budget only clears 0.10 if PR-27 has NOT landed yet
+(611/5921 = 0.103; but 611/6489 = 0.094 &lt; 0.10). PR-27 Step 6 (Plan 3) adds its
+own skill_utils unit tests, which raise the numerator when PR-27 lands.
+<strong>Ordering rule:</strong> <code>$loc</code> is recomputed against the live tree here (it shells
+out to <code>find</code>), so the command self-corrects to whichever denominator exists.
+If <code>density &lt; 0.10</code> prints, add tests (raise the per-skill G4 floor or add
+property tests) until the live denominator clears 0.10 -- do not lower the
+floor. PR-26 (Plan 3, the density gate) must merge only after this
+recomputation passes.</p>
+<ul>
+<li>[ ] <strong>Step 2: Coverage thresholds met</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-q<span class="w"> </span>--cov-branch<span class="w"> </span>--cov-report<span class="o">=</span>term
+</code></pre></div>
+<p>(addopts already sets <code>--cov=shenbi</code> from Plan 1; adding <code>--cov=src/shenbi</code>
+here would double-specify and mismatch the coverage source.)
+<div class="highlight"><pre><span></span><code>Expected: line ≥ 90%, branch ≥ 80%.
+
+- [ ] **Step 3: Run full test suite**
+
+```bash
+uv run pytest -q
+</code></pre></div></p>
+<p>Expected: ≥ 600 tests pass.</p>
+<ul>
+<li>[ ] <strong>Step 4: Push + open PRs</strong></li>
+</ul>
+<p>7 PRs total (PR-28 ~ PR-34). Each can be independent PR.</p>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<h3 id="spec-coverage">Spec coverage</h3>
+<table>
+<thead>
+<tr>
+<th>Spec PR</th>
+<th>Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PR-28 scoring tests</td>
+<td>Task 1</td>
+</tr>
+<tr>
+<td>PR-29 phase_runner tests</td>
+<td>Task 2</td>
+</tr>
+<tr>
+<td>PR-30 update_progress tests</td>
+<td>Task 3</td>
+</tr>
+<tr>
+<td>PR-31 summarize_round tests</td>
+<td>Task 4</td>
+</tr>
+<tr>
+<td>PR-32 gates direct-import tests</td>
+<td>Task 5</td>
+</tr>
+<tr>
+<td>PR-33 hypothesis persistence</td>
+<td>Task 6</td>
+</tr>
+<tr>
+<td>PR-34 pytest config</td>
+<td>Task 7</td>
+</tr>
+</tbody>
+</table>
+<h3 id="estimated-test-counts">Estimated test counts</h3>
+<table>
+<thead>
+<tr>
+<th>Module</th>
+<th>Tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>scoring</td>
+<td>~60 + 10 property = 70</td>
+</tr>
+<tr>
+<td>phase_runner</td>
+<td>~50 + 8 property = 58</td>
+</tr>
+<tr>
+<td>update_progress</td>
+<td>~50</td>
+</tr>
+<tr>
+<td>summarize_round</td>
+<td>~40</td>
+</tr>
+<tr>
+<td>gates/shared</td>
+<td>~15</td>
+</tr>
+<tr>
+<td>gates/g0-g7</td>
+<td>~80 (10 per gate × 8 gates)</td>
+</tr>
+<tr>
+<td>gates/g4/generic</td>
+<td>~15</td>
+</tr>
+<tr>
+<td>gates/g4/&lt;20 skills&gt;</td>
+<td>~240 (12 per skill)</td>
+</tr>
+<tr>
+<td>Total NEW</td>
+<td><strong>568</strong></td>
+</tr>
+<tr>
+<td>Plus existing</td>
+<td>43</td>
+</tr>
+<tr>
+<td><strong>Grand total</strong></td>
+<td><strong>611</strong></td>
+</tr>
+</tbody>
+</table>
+<p>Arithmetic (20 per-skill G4 checkers, verified via <code>grep -c "^def g4_"</code>):
+70 + 58 + 50 + 40 + 15 + 80 + 15 + 240 = 568 new, + 43 existing = 611.
+Density: 611 / 5921 framework LOC = 0.103 &gt;= 0.10; meets the &gt;= 600 test target.
+At 8 tests/skill the total is only ~531 (density 0.090 &lt; 0.10), so the floor is
+12 tests/skill. <strong>Do not lower the density floor to 0.08</strong> -- that violates the
+"no cost compromise" directive from the spec README (the prior "30% then ramp"
+framing was removed for the same reason).</p>
+<p><strong>Property-test gap (spec Target State vs this plan):</strong> the spec Target State
+requires <strong>&gt;= 60 property-based tests</strong> (&gt;= 1 per pure function). This plan
+lands property tests for two modules only -- scoring (~10) and phase_runner
+(~8) = ~18 -- and adds none for update_progress, summarize_round, or the gates'
+pure functions (<code>word_count_md</code>, <code>count_transition_words</code>,
+<code>_normalize_file_paths</code>, <code>jload</code>, <code>yload</code>). ~18 is ~30% of the spec target.
+This is an acknowledged, deliberate initial landing: the priority is reaching
+the density floor and coverage with direct-import unit tests. The remaining
+~42 property tests are a <strong>follow-up</strong>: add <code>tests/unit/*_property.py</code> for
+update_progress, summarize_round, and <code>shenbi.gates.shared</code> (&gt;= 1 per pure
+function) to reach &gt;= 60. Track this as a gap -- do not mark the spec Target
+State "property-based tests &gt;= 60" row as met until the follow-up lands.</p>
+<p><strong>Density denominator vs Plan 3 PR-27:</strong> see Task 8 Step 1. If PR-27 has
+landed, the denominator is ~6489 (not 5921) and 611/6489 = 0.094 &lt; 0.10; add
+tests (or count PR-27 Step 6's skill_utils tests) until the live <code>$loc</code> clears
+0.10.</p>
+<h3 id="risk-highlights">Risk highlights</h3>
+<ul>
+<li><strong>Test-writing is repetitive</strong>. Use code generation or agent subagents per module.</li>
+<li><strong>Property tests may find bugs</strong>. Fix bugs as found, commit counterexamples.</li>
+<li><strong>PR-32 is the biggest PR</strong> (~400 tests). Split per-skill if reviewer complains.</li>
+</ul>
+<hr />
+<h2 id="execution-handoff">Execution Handoff</h2>
+<p>Plan saved. Two execution options:</p>
+<p><strong>1. Subagent-Driven (recommended)</strong> — one subagent per module's tests.
+<strong>2. Inline Execution</strong> — batch in this session.</p>
+<p>After this plan completes, Plan 3 PR-26 (density test) passes and PR-26 can merge.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

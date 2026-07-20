@@ -1,0 +1,2440 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-29-contract-single-source-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>契约单源架构设计（Contract Single Source of Truth）v5 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="契约单源架构设计（Contract Single Source of Truth）v5 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-29-contract-single-source-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-29-contract-single-source-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="契约单源架构设计（Contract Single Source of Truth）v5 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-29-contract-single-source-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contract-single-source-of-truthv5" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              契约单源架构设计（Contract Single Source of Truth）v5
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#v5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v5 修订摘要
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        背景与目标
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="背景与目标">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        起因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        非目标
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#contractpyc1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        取代现有 contract.py（C1 修复）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="取代现有 contract.py（C1 修复）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#writesupdates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        概念迁移映射（恢复 writes/updates 区分）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        迁移顺序（C1 残留修正）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        总体架构：契约单源
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="总体架构：契约单源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#i4v5-read-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        强制强度诚实分层（I4，全表一致；v5 新增 read-provenance 盲点层）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构总图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        六支柱 ↔ 五根因
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已定承重决策（不变）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#srcshenbicontracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱一：契约层（src/shenbi/contracts/）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱一：契约层（src/shenbi/contracts/）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#i2m1n7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        核心设计原则（I2/M1/N7）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#foreshadowing_resolve-cp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        foreshadowing_resolve CP 算术错误根治
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v5-genre-config-fixturec1-new-ab-pending_hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        写所有权矩阵（v5 亲手核对 genre-config fixture，C1 修复；New-A/B 修复 pending_hooks）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#pending_hooksmd-new-f-v5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        pending_hooks.md 双重表示（New-F 修复，v5 选定单一模型）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#archived" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        生命周期状态机（收 ARCHIVED 未定义、所有权混乱）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        自动注册表（收三表漂移）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i3v4-new-iv5-join" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱二：门的阈值派生与抽取（I3；v4 New-I，v5 补 join 规则）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱二：门的阈值派生与抽取（I3；v4 New-I，v5 补 join 规则）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#v5-derive_file_type-join-new-i" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        其他门改造（v5 补 derive_file_type join 规则，New-I 修复）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cjk-srcshenbitextcjkpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱三：CJK 工具包（src/shenbi/text/cjk.py）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱三：CJK 工具包（src/shenbi/text/cjk.py）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#m2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        分词引擎（M2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#c2-n1n3new-cdefv5-c2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱四：事件溯源与两层所有权强制（C2 + N1/N3/New-C/D/E/F，v5 C2 诚实分层）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱四：事件溯源与两层所有权强制（C2 + N1/N3/New-C/D/E/F，v5 C2 诚实分层）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tier-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier A — 框架状态：物理预防
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tier-b-skill-v5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tier B — skill 产出：每轮检测（v5 诚实分层读写两侧）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tier B — skill 产出：每轮检测（v5 诚实分层读写两侧）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#dispatch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        写所有权审计（可行，所有 dispatch 模式）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#provenancev5-c2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        读 provenance（v5 诚实分层，C2 修复）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#record-parser-new-ev5-round-trip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        record parser 验证（New-E，v5 定义语义 round-trip）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#staging-subprocess-read-provenancefuture-work" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        通往真预防的路线图（staging + subprocess read-provenance，future work，不支撑强度声明）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        事件模型（溯源一等公民）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tracejsonl-i6-n4n5-new-g" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        trace.jsonl 完整性（I6 + N4/N5 + New-G）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#progressjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        progress.json 降级为派生视图
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g7-trace" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G7 篡改审计（只读 trace）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#i1n8-hypothesis-jsonschema-v5-capabilityfs-i1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱五：属性测试网（I1；N8 hypothesis-jsonschema 可选；v5 CapabilityFS 命名分离 I1）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱五：属性测试网（I1；N8 hypothesis-jsonschema 可选；v5 CapabilityFS 命名分离 I1）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        纠正：跨字段不变量需手写 strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        算术 bug 全覆盖（手写 strategy）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#v5-i1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        纯度运行时兜底（v5 命名分离 I1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        支柱六：文档派生
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="支柱六：文档派生">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#vs-m3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        严重性词 vs 评分标尺（M3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        审核发现 → 根因 → 支柱 追溯矩阵（v5 强度对齐）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        实现顺序（高杠杆优先）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        风险与缓解
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v5-new-egi-c2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        成功判据（v5，含 New-E/G/I + C2 诚实分层）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#v4v5-round-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        v4→v5 变更日志（round-4 审核逐条闭环）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="contract-single-source-of-truthv5">契约单源架构设计（Contract Single Source of Truth）v5</h1>
+<p><strong>状态</strong>：草案待审阅（v5；评分轨迹 7→7.5→8.0→8.0→目标 9+）
+<strong>日期</strong>：2026-06-29
+<strong>关联</strong>：全项目批判性审核（13 路并行，整体 74/100）；spec 第 1-4 轮独立审核</p>
+<h2 id="v5">v5 修订摘要</h2>
+<p><strong>第 4 轮 8.0/10（持平）。两个 critical：v4 在回退 status→state 时机械替换到了 genre-config.json 行（该文件根本没有此字段），并加了伪造的「fixture 核对」注释——正是本 spec 要消灭的信任转述错误；v4 的 read-provenance capability FS shim 对 codex subprocess 不可行。v5 亲手核对 fixture 修正两者：</strong></p>
+<ul>
+<li><strong>C1（Critical， blocker）</strong>：genre-config.json 的 OWNERSHIP 行 ~70% 虚构。v4 亲手核对 fixture 确认：真实顶层键 = <code>{approval, auditDimensions, chapterTypes, customRules, fatigueWords, pacing, tropeInventory, updated, version}</code>（9 个，非 genre-config SKILL.md 声称的「恰好 8」——这是 inherited drift，记入风险表）。v4 的 title/genre/language/target_words 是 <strong>novel.json 字段</strong>误抄；state/target_word_count/chapter_word 不存在；伪造注释删除。<strong>v5 用真实 9 键。</strong></li>
+<li><strong>C2（Critical， blocker）</strong>：read-provenance capability FS shim 对 codex subprocess 不可行。v5.2 亲手核对 codex.py:28 确认 <code>subprocess.run(["codex","exec",...])</code> 是子进程，Python 无法拦截其 syscall。<strong>v5 诚实分层</strong>：capability FS shim 仅用于 in-process（gates 纯度，支柱五，可行）；codex subprocess 的 read-provenance 是 <strong>future work</strong>（需 FUSE/ptrace/seccomp）。tropeInventory under-declaration 在生产路径<strong>不是真闭口</strong>——诚实降级为：迁移时人工补全 reads + lint 维护 frontmatter 完整性，已知盲点是 body prose 引用未声明文件（lint 抓不到，subprocess 无法 runtime 校验）。</li>
+<li><strong>I1（Important）</strong>：「capability FS shim」术语过载。<strong>v5 拆分命名</strong>：in-process 用 <code>CapabilityFS</code>（gates 纯度）；subprocess read-provenance 明确标 future work，不与前者混名。</li>
+<li><strong>New-F（Important，解决矛盾）</strong>：v4 自相矛盾（表既「派生生成」又「检测 drift」）。<strong>v5 选定单一模型</strong>：skills 继续写两份；YAML block 为权威；record parser 检测 drift（派生表必须与 YAML 一致，不一致即 fail）；YAML 在冲突时胜出。这是「检测」模型，非「生成」。</li>
+<li><strong>New-E（Important，定义 round-trip）</strong>：YAML 字节级 round-trip 不成立（引号/顺序/空白差异）。<strong>v5 定义语义 round-trip</strong>：<code>parse(serialize(parse(x))) == parse(x)</code>（parse 幂等），加 golden-parse 回归固定格式。</li>
+<li><strong>New-I（Important，补 join 规则；v5.1 修正 OutputKind 转录错误）</strong>：derive_file_type 从 REGISTRY 派生 truth skill 需要未指定的 join。<strong>v5.1 亲手核对 contract.py:34-37</strong>：<code>OutputKind = {ARTIFACT, REPORT, EPHEMERAL}</code>（3 成员，非 v5 误写的 2）。truth 与 chapter <strong>都是 ARTIFACT</strong>（durable project file），REPORT 是 audit 报告，EPHEMERAL 是瞬态。truth/chapter 区分不在 OutputKind，在 truth-files.yaml。<strong>derive join</strong>：skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 列表；REPORT 走 report-type 门，EPHEMERAL 跳过输出门。当前 executor.py:31 <code>derive_file_type</code> 硬编码漏 resolve（truth_skills 块 39-45 只列 3），需修复为从 REGISTRY + truth-files.yaml 派生。这是新增 join 逻辑（非现成）。</li>
+</ul>
+<p><strong>第 1-3 轮已修且第 4 轮复核为 FIXED 的，v5 保留</strong>：C1 contract.py 取代、I4 强度表、I5 AST lint、I7 收窄、I6/N4 compaction 链、I6/N5 前向不兼容、N1 记录级、N3/New-C 真实拓扑、New-A pending_hooks state、New-B track/state-settling 分工、New-G LEGACY 锚、New-H 边界措辞、N6 staging future work、N7 extra=ignore、N8 可选、N9 allowlist、M1-M5。</p>
+<h2 id="_1">背景与目标</h2>
+<h3 id="_2">起因</h3>
+<p>2026-06-29 全项目审核（69 skills + G0-G7 gates + dispatcher + 10 skill_utils + 测试/CI/文档）13 路并行，整体 74/100。<strong>元根因：凡框架需要确定性的地方，它都在信任散文而非强制类型化契约。</strong> 五条结构性根因：1.散文是真理之源 2.溯源非一等公民 3.测输出不测不变量 4.CJK 无一等工具 5.纯度/原子是散文。</p>
+<h3 id="_3">目标</h3>
+<ol>
+<li>彻底修复五条根因。</li>
+<li><strong>每个结构性审核发现闭环</strong>且可追溯；内容/伦理发现（anti-detect）单独追踪不阻塞。</li>
+<li>workflow 级独立 agent 自评 ≥ 9/10。</li>
+<li>漂移对<strong>框架可触及状态物理预防</strong>；对 <strong>skill 产出每轮检测无法 ship</strong>（写所有权）；<strong>read 完整性在 subprocess 路径是已知盲点</strong>（诚实声明）。</li>
+</ol>
+<h3 id="_4">非目标</h3>
+<ul>
+<li>不改领域范围；不替换 Python 类型化栈；不引入非 Python 运行时；不做 skill 内容领域性改写。</li>
+<li><strong>anti-detect 的 scope/disclosure 不在本 spec</strong>。</li>
+<li><strong>staging 真预防路线图是 future work</strong>。</li>
+<li><strong>subprocess read-provenance（FUSE/ptrace/seccomp）是 future work</strong>——本 spec 只承诺 in-process CapabilityFS + 写所有权审计。</li>
+</ul>
+<h2 id="contractpyc1">取代现有 contract.py（C1 修复）</h2>
+<p><code>src/shenbi/contract.py</code> 已存在：<code>Contract</code> TypedDict（kind/reads/writes/updates/read_fields）、<code>OutputKind</code>、REGISTRY（<code>docs/framework/truth-files.yaml</code>）、schema+registry 校验、<code>load_contract</code>、loader-uniqueness lint，以及 4 个 contract 工具。</p>
+<h3 id="writesupdates">概念迁移映射（恢复 writes/updates 区分）</h3>
+<table>
+<thead>
+<tr>
+<th>现有</th>
+<th>新</th>
+<th>动作</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Contract</code> TypedDict</td>
+<td><code>contracts/skills/&lt;name&gt;.py</code> Pydantic 模型</td>
+<td>TypedDict→Pydantic</td>
+</tr>
+<tr>
+<td><code>writes</code>(创建)/<code>updates</code>(就地改)</td>
+<td>保留，映射 OWNERSHIP <code>write</code>(新)/<code>update</code>(改已有)</td>
+<td>v2 丢，v3+ 恢复</td>
+</tr>
+<tr>
+<td><code>read_fields</code>(读侧)</td>
+<td>与新 OWNERSHIP 合并双向矩阵</td>
+<td>单一矩阵</td>
+</tr>
+<tr>
+<td><code>OutputKind</code></td>
+<td><code>contracts/enums.py</code></td>
+<td>合并</td>
+</tr>
+<tr>
+<td>REGISTRY(truth-files.yaml)</td>
+<td><code>contracts/REGISTRY</code>；过渡期从 truth-files.yaml bootstrap</td>
+<td>单一源</td>
+</tr>
+<tr>
+<td><code>load_contract</code> + lint</td>
+<td>保留扩展为 <code>load_skill_contract</code></td>
+<td>lint 强化</td>
+</tr>
+<tr>
+<td>4 个 contract 工具</td>
+<td>重定向到 contracts/</td>
+<td>顺序见下</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c1">迁移顺序（C1 残留修正）</h3>
+<ol>
+<li>立 contracts/ + enums + REGISTRY；迁移 1 技能验证全管线。</li>
+<li>contracts/REGISTRY 过渡期从 truth-files.yaml bootstrap。</li>
+<li>合并 read_fields + 新 OWNERSHIP（含 write/update 区分）。</li>
+<li>重定向 4 工具到 contracts/REGISTRY（此时含全词汇）。</li>
+<li>contract.py 的 REGISTRY 改从 contracts/REGISTRY 派生。</li>
+<li>全部迁移后删 contract.py。</li>
+</ol>
+<p><strong>命名</strong>：包 <code>contracts/</code>（复数）；单数 <code>contract.py</code> 迁移完成时删除。</p>
+<h2 id="_5">总体架构：契约单源</h2>
+<h3 id="i4v5-read-provenance">强制强度诚实分层（I4，全表一致；v5 新增 read-provenance 盲点层）</h3>
+<table>
+<thead>
+<tr>
+<th>强度</th>
+<th>适用</th>
+<th>机制</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>物理预防</strong></td>
+<td>生成文档；computed_field 派生；类型化枚举；自动 REGISTRY</td>
+<td>派生只读/生成/全栈唯一/自动发现</td>
+</tr>
+<tr>
+<td><strong>无法 CI 落地</strong></td>
+<td>魔法数阈值；门纯度；未声明写入；不变量违反</td>
+<td>ruff AST lint + 属性测试 CI 门</td>
+</tr>
+<tr>
+<td><strong>每轮检测无法 ship（写）</strong></td>
+<td>skill 产出<strong>写</strong>所有权越权；生命周期非法转移</td>
+<td>dispatcher 后置写所有权审计（Tier B 写侧）</td>
+</tr>
+<tr>
+<td><strong>每轮检测无法 ship（读）</strong></td>
+<td>skill 产出<strong>读</strong>未声明（in-process only）</td>
+<td>CapabilityFS（仅 internal mode；codex subprocess 不可行）</td>
+</tr>
+<tr>
+<td><strong>已知盲点（诚实）</strong></td>
+<td>codex subprocess 的 read-provenance</td>
+<td>future work（FUSE/ptrace/seccomp）；lint frontmatter 完整性兜底（body prose 盲点）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">架构总图</h3>
+<pre class="mermaid"><code>flowchart TB
+    CT["contracts/ Pydantic 契约层"]
+    CT --&gt;|"阈值/枚举派生"| GATES["Gates"]
+    CT --&gt;|"手写 strategy"| PROP["属性测试网"]
+    CT --&gt;|"computed_field → doc"| SKILL["SKILL.md 检查表=派生物"]
+    TRACE["trace.jsonl append-only"]
+    subgraph TierA["Tier A 框架状态: 物理预防"]
+      SW["safe_write: temp+replace+dir-fsync+fsync+trace"]
+    end
+    subgraph TierB["Tier B skill产出"]
+      WA["写所有权审计: 共享树 pre/post diff&lt;br/&gt;JSON=字段 / md=记录 / chapter=文件"]
+      RA["读 provenance: 仅 internal mode CapabilityFS&lt;br/&gt;codex subprocess = 已知盲点"]
+    end
+    TRACE -.-&gt;|"重算"| PROG["progress.json 派生视图"]
+    SW --&gt; TRACE
+    WA --&gt; TRACE
+    CJK["text/cjk.py jieba+领域词典"] --&gt; GATES</code></pre>
+<h3 id="_7">六支柱 ↔ 五根因</h3>
+<table>
+<thead>
+<tr>
+<th>根因</th>
+<th>支柱</th>
+<th>强度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>一 散文是真理之源</td>
+<td>契约层 + 文档派生</td>
+<td>物理预防（文档）+ 无法 CI 落地（阈值 lint）</td>
+</tr>
+<tr>
+<td>二 溯源非一等公民</td>
+<td>trace + 两层所有权</td>
+<td>Tier A 预防 / Tier B 每轮检测（写）；读 provenance 分模式</td>
+</tr>
+<tr>
+<td>三 测输出不测不变量</td>
+<td>属性测试网</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>四 CJK 无一等工具</td>
+<td>集中 cjk.py</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>五 纯度/原子是散文</td>
+<td>PureInput + safe_write + CapabilityFS + lint</td>
+<td>Tier A 物理预防（框架状态）/ 无法 CI 落地（门纯度）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">已定承重决策（不变）</h3>
+<ol>
+<li>契约形态：Pydantic 模型。</li>
+<li>契约边界：输出 schema + 算法不变量 + 协议契约（状态机 + 双向所有权 + 产消依赖图）。</li>
+<li>门与契约：阈值派生；抽取逐技能 parser；语义逻辑手写但 import 契约 + 属性测试。</li>
+<li>溯源：append-only trace.jsonl；progress 降级派生视图。</li>
+<li>CJK：集中模块 + jieba（固定版本）+ 领域词典 + word_count 双语义。</li>
+<li>纯度/原子：类型层 PureInput + safe_write + AST lint + in-process CapabilityFS。</li>
+</ol>
+<h2 id="srcshenbicontracts">支柱一：契约层（src/shenbi/contracts/）</h2>
+<h3 id="i2m1n7">核心设计原则（I2/M1/N7）</h3>
+<ol>
+<li>派生量用 <code>@computed_field</code>（非 @property）：保证 model_dump() 不丢（M1）。</li>
+<li>单字段约束编译期拒收（类型层）：Field(ge=0)、Literal。</li>
+<li>跨字段不变量运行时校验（<code>@model_validator</code>）：CI 门，非编译期（I2）。</li>
+<li>数值阈值是具名模块常量，门 import，ruff 禁裸魔法数。</li>
+<li><code>extra="ignore"</code> 前提显式声明（N7）：含 computed_field 的模型显式设；lint 禁 forbid。</li>
+</ol>
+<h3 id="foreshadowing_resolve-cp">foreshadowing_resolve CP 算术错误根治</h3>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">model_validator</span><span class="p">,</span> <span class="n">computed_field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Literal</span>
+<span class="n">CPZone</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;GREEN&quot;</span><span class="p">,</span><span class="s2">&quot;ORANGE&quot;</span><span class="p">,</span><span class="s2">&quot;RED&quot;</span><span class="p">]</span>
+<span class="n">CP_THRESHOLDS</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;GREEN_MAX&quot;</span><span class="p">:</span><span class="mi">50</span><span class="p">,</span><span class="s2">&quot;RED_NOW&quot;</span><span class="p">:</span><span class="mi">100</span><span class="p">,</span><span class="s2">&quot;FORCE_NEXT_CHAPTER&quot;</span><span class="p">:</span><span class="mi">200</span><span class="p">}</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HookCP</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;ignore&quot;</span><span class="p">}</span>
+    <span class="n">hook_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">cp</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">ge</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="nd">@computed_field</span>
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">zone</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">CPZone</span><span class="p">:</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ResolveReport</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;ignore&quot;</span><span class="p">}</span>
+    <span class="n">hooks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">HookCP</span><span class="p">]</span>
+    <span class="n">debt_level</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;GREEN&quot;</span><span class="p">,</span><span class="s2">&quot;ORANGE&quot;</span><span class="p">,</span><span class="s2">&quot;RED&quot;</span><span class="p">]</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_debt_consistent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_hook_cp_single_value</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+</code></pre></div>
+<h3 id="v5-genre-config-fixturec1-new-ab-pending_hooks">写所有权矩阵（v5 亲手核对 genre-config fixture，C1 修复；New-A/B 修复 pending_hooks）</h3>
+<p><strong>v5 关键修正（亲手核对每个文件的 fixture 顶层键，不再信任何转述）</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># contracts/ownership.py</span>
+<span class="c1"># 粒度由文件格式决定：JSON→field；markdown truth→record；chapter/report→file</span>
+<span class="c1"># 每行的字段集均经 fixture / SKILL.md 输出 schema 亲手核对（v5）</span>
+<span class="n">OWNERSHIP</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># genre-config.json：v5 亲手核对 fixture 顶层键（非 novel.json，非转述）</span>
+    <span class="c1"># 真实 9 键：approval, auditDimensions, chapterTypes, customRules,</span>
+    <span class="c1"># fatigueWords, pacing, tropeInventory, updated, version</span>
+    <span class="c1"># 注意：genre-config SKILL.md 声称「恰好 8 字段」但 fixture 有 9——inherited drift，记风险表</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-genre-config&quot;</span><span class="p">,</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;field&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;write&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;approval&quot;</span><span class="p">,</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">,</span><span class="s2">&quot;chapterTypes&quot;</span><span class="p">,</span><span class="s2">&quot;customRules&quot;</span><span class="p">,</span>
+                  <span class="s2">&quot;fatigueWords&quot;</span><span class="p">,</span><span class="s2">&quot;pacing&quot;</span><span class="p">,</span><span class="s2">&quot;tropeInventory&quot;</span><span class="p">,</span><span class="s2">&quot;updated&quot;</span><span class="p">,</span><span class="s2">&quot;version&quot;</span><span class="p">},</span>
+    <span class="p">},</span>
+    <span class="c1"># foundation-review 读 tropeInventory（body L204 + match_tropes.py:59）</span>
+    <span class="c1"># 但 frontmatter reads 未声明 → under-declaration</span>
+    <span class="c1"># 闭口见 N2-fact（迁移补全 + lint frontmatter 完整性；subprocess runtime 是已知盲点）</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-foundation-review&quot;</span><span class="p">,</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">):</span>
+        <span class="p">{</span><span class="s2">&quot;level&quot;</span><span class="p">:</span><span class="s2">&quot;field&quot;</span><span class="p">,</span> <span class="s2">&quot;read&quot;</span><span class="p">:{</span><span class="s2">&quot;tropeInventory&quot;</span><span class="p">},</span> <span class="s2">&quot;write&quot;</span><span class="p">:</span> <span class="nb">set</span><span class="p">()},</span>
+    <span class="c1"># pending_hooks.md：字段名 state（fixture L24 `state: PLANTED`，亲手核对）</span>
+    <span class="c1"># 分工以 state-settling SKILL.md:110-116 权威声明（track:21 服从）为准</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-foreshadowing-plant&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;record_create&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;write_keys_new_record&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">,</span><span class="s2">&quot;state&quot;</span><span class="p">,</span><span class="s2">&quot;operation&quot;</span><span class="p">,</span><span class="s2">&quot;type&quot;</span><span class="p">,</span><span class="s2">&quot;dimension&quot;</span><span class="p">,</span><span class="s2">&quot;content&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;subtlety&quot;</span><span class="p">,</span><span class="s2">&quot;plant_chapter&quot;</span><span class="p">,</span><span class="s2">&quot;cultivation_interval&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;last_reinforced&quot;</span><span class="p">,</span><span class="s2">&quot;max_distance&quot;</span><span class="p">,</span><span class="s2">&quot;escalation_curve&quot;</span><span class="p">,</span>
+                                  <span class="s2">&quot;depends_on&quot;</span><span class="p">,</span><span class="s2">&quot;core_hook&quot;</span><span class="p">,</span><span class="s2">&quot;promoted&quot;</span><span class="p">,</span><span class="s2">&quot;notes&quot;</span><span class="p">},</span>
+        <span class="c1"># 字段集以 plant 输出 schema（SKILL.md:75-91）为准 + fixture 的 notes（M4 修复）</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;record_field&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;write_keys_existing_record&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;state&quot;</span><span class="p">},</span>  <span class="c1"># 仅生命周期 state（权威声明）</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-foreshadowing-resolve&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;record_field&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;write_keys_existing_record&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;state&quot;</span><span class="p">},</span>  <span class="c1"># 仅推进 state→RESOLVED</span>
+    <span class="p">},</span>
+    <span class="p">(</span><span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">):</span> <span class="p">{</span>
+        <span class="s2">&quot;level&quot;</span><span class="p">:</span> <span class="s2">&quot;record_field&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;write_keys_existing_record&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;last_reinforced&quot;</span><span class="p">,</span> <span class="s2">&quot;subtlety&quot;</span><span class="p">},</span>  <span class="c1"># 权威声明</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>N2-fact：tropeInventory 产消真相 + 诚实分层闭口（v5 C2 修复）</strong>：
+- 生产者：<code>shenbi-genre-config</code> 写 genre-config.json.tropeInventory。
+- 消费者：foundation-review body（L204）+ match_tropes.py:59 + fixture。
+- <strong>冲突</strong>：foundation-review frontmatter reads 未声明 genre-config.json。
+- <strong>v5 诚实闭口（分层）</strong>：
+  - <strong>迁移时</strong>：foundation-review 的契约 reads 人工补全 genre-config.json（tropeInventory 字段）。这是确定性修复。
+  - <strong>维护</strong>：lint 检查 frontmatter reads 完整性（声明字段 vs OWNERSHIP read 集）。
+  - <strong>已知盲点（诚实）</strong>：body prose 引用未声明文件，lint 抓不到；codex subprocess 路径无法 runtime 校验 read-provenance（需 FUSE/ptrace，future work）。internal mode 可用 CapabilityFS runtime 校验。
+  - <strong>不再声称「真闭口」</strong>：subprocess 生产路径上，tropeInventory under-declaration 是「迁移修复 + lint 维护 + 已知盲点」，不是物理预防。</p>
+<h3 id="pending_hooksmd-new-f-v5">pending_hooks.md 双重表示（New-F 修复，v5 选定单一模型）</h3>
+<p>真实 fixture 同时有 <code>## 活跃伏笔</code> markdown 表 + <code>## hooks</code> YAML block，均按 id。<strong>v5 选定「检测」模型（非「生成」）</strong>：
+- skills 继续写两份（当前行为，不重写）。
+- <strong>YAML block 为权威</strong>。
+- record parser 检测 drift：派生表必须与 YAML 一致；不一致 → Tier B fail。
+- YAML 在冲突时胜出（parser 报 drift，ship 失败，人工修）。
+- 这是「检测」，非「框架生成派生表」——v4 的矛盾消除。</p>
+<h3 id="archived">生命周期状态机（收 ARCHIVED 未定义、所有权混乱）</h3>
+<div class="highlight"><pre><span></span><code><span class="n">FORESHADOWING_TRANSITIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">PLANTED</span><span class="p">:</span>   <span class="p">({</span><span class="n">RELEVANT</span><span class="p">},</span>  <span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">),</span>
+    <span class="n">RELEVANT</span><span class="p">:</span>  <span class="p">({</span><span class="n">TRIGGERED</span><span class="p">},</span> <span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">),</span>
+    <span class="n">TRIGGERED</span><span class="p">:</span> <span class="p">({</span><span class="n">RESOLVED</span><span class="p">},</span>  <span class="s2">&quot;shenbi-foreshadowing-resolve&quot;</span><span class="p">),</span>
+    <span class="n">RESOLVED</span><span class="p">:</span>  <span class="p">({</span><span class="n">ARCHIVED</span><span class="p">},</span>  <span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">),</span>
+<span class="p">}</span>
+</code></pre></div>
+<h3 id="_9">自动注册表（收三表漂移）</h3>
+<p>contracts/REGISTRY 自动发现（过渡期 truth-files.yaml bootstrap）。</p>
+<h2 id="i3v4-new-iv5-join">支柱二：门的阈值派生与抽取（I3；v4 New-I，v5 补 join 规则）</h2>
+<p>门阈值从契约派生；抽取逐技能自定义 parser 注册在契约旁。</p>
+<h3 id="v5-derive_file_type-join-new-i">其他门改造（v5 补 derive_file_type join 规则，New-I 修复）</h3>
+<ul>
+<li>G3.4 fail-closed + 读 trace。</li>
+<li>G5/G6 顶层 jload 加守卫，G6.12 用 cjk.find_terms。</li>
+<li>G1/G7 删写副作用。</li>
+<li>G0 覆盖率从 REGISTRY 派生。</li>
+<li><strong><code>derive_file_type</code>（executor.py:31，truth_skills 硬编码块 39-45）修复（New-I，v5.1 修正）</strong>：当前硬编码 3 truth skills 漏 resolve，G2 把 resolve 的 truth 输出当 chapter。改从 REGISTRY 派生。<strong>join 规则（v5.1 亲手核对）</strong>：<code>OutputKind = {ARTIFACT, REPORT, EPHEMERAL}</code>（contract.py:34-37，3 成员）。truth 与 chapter 都是 ARTIFACT，故 OutputKind 无法区分；truth/chapter 区分在 truth-files.yaml。derive = skill 契约 writes/updates → 文件路径 → 查 truth-files.yaml 是否在 truth 文件列表；REPORT 走 report-type 门，EPHEMERAL 跳过。这是新增 join 逻辑（非现成）。</li>
+</ul>
+<h2 id="cjk-srcshenbitextcjkpy">支柱三：CJK 工具包（src/shenbi/text/cjk.py）</h2>
+<p>全框架唯一文本操作真理之源（ruff SHB003 禁自实现）。
+- <code>find_terms</code>：CJK 边界词项查找（治 G6.12 + 过渡词误判）。
+- <code>count_punctuation</code>：多字符标点整体计数（治破折号双重计数）。
+- <code>count_words(mode)</code>：双语义字数（治 length-normalizing 偏差）。
+- <code>tokenize</code>：分词 + 词性标注。</p>
+<h3 id="m2">分词引擎（M2）</h3>
+<p>jieba + 领域词典（从契约层 tropeInventory/worldbuilding 自动派生）。版本固定；冻结分词属性测试；纯 Python wheel。</p>
+<h2 id="c2-n1n3new-cdefv5-c2">支柱四：事件溯源与两层所有权强制（C2 + N1/N3/New-C/D/E/F，v5 C2 诚实分层）</h2>
+<h3 id="tier-a">Tier A — 框架状态：物理预防</h3>
+<p>适用：progress.json、trace.jsonl、gate markers、summary.json（只被框架代码写）。
+- safe_write 唯一入口：temp + os.replace + 目录 fsync + 文件 fsync（I6a）+ fcntl.flock（+ 回退锁文件 M5）+ trace 追加。
+- ruff AST lint 禁 <code>src/shenbi/</code>（除 safe_write.py）用任何 FS 变更原语。</p>
+<h3 id="tier-b-skill-v5">Tier B — skill 产出：每轮检测（v5 诚实分层读写两侧）</h3>
+<p>适用：genre-config.json、truth/<em>、chapters/</em>、reports/*。由 LLM agent 在 dispatch 期间直接写。</p>
+<h4 id="dispatch">写所有权审计（可行，所有 dispatch 模式）</h4>
+<p>基于真实顺序执行拓扑（New-C，dispatcher 顺序）：
+1. dispatch 前：dispatcher 对共享工作树（cwd）做快照（pre）。
+2. dispatch skill。
+3. dispatch 后：对共享树做快照（post）。
+4. 审计 diff post − pre，按粒度表判定写越权。
+5. 任一违反 → 记 trace GATE_FAIL → tier advance 前 G6/G7 复检拦截 → 无法 ship。</p>
+<p><strong>审计粒度按文件格式分（N1）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>文件格式</th>
+<th>审计粒度</th>
+<th>能检出</th>
+<th>已知边界</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>JSON（genre-config.json）</td>
+<td>字段级</td>
+<td>哪个 key 被改</td>
+<td>—</td>
+</tr>
+<tr>
+<td>markdown truth（pending_hooks.md，YAML 权威）</td>
+<td>记录级</td>
+<td>新增/删除/修改记录（按 id）；越权记录；cross-section drift</td>
+<td>per-skill-per-file（非 per-record），值正确性不在范围（New-H）</td>
+</tr>
+<tr>
+<td>chapters/reports</td>
+<td>文件级</td>
+<td>文件是否在声明 writes 内</td>
+<td>不审内容字段</td>
+</tr>
+</tbody>
+</table>
+<h4 id="provenancev5-c2">读 provenance（v5 诚实分层，C2 修复）</h4>
+<ul>
+<li><strong>internal mode</strong>：dispatcher 在进程内执行 skill 逻辑，注入 CapabilityFS 记录实际 open 的文件，比对声明 reads。未声明实际读 → ship 失败。<strong>可行。</strong></li>
+<li><strong>codex subprocess mode</strong>：skill 是 <code>codex exec</code> 子进程（codex.py:28，v5.2 修正行号）。Python 无法拦截子进程 syscall。<strong>read-provenance 不可行</strong>（需 FUSE/ptrace/seccomp，future work）。</li>
+<li><strong>诚实结论</strong>：codex 生产路径上，read 未声明只能靠「迁移补全 reads + lint frontmatter 完整性」；body prose 引用未声明文件是已知盲点。<strong>不声称真闭口。</strong></li>
+</ul>
+<p><strong>为何写侧可行而读侧不可行</strong>：写侧用文件系统快照 diff（pre/post），不依赖拦截 skill 行为，对子进程同样有效。读侧要记录 skill 实际 open 了什么，必须拦截 syscall——子进程做不到。</p>
+<h3 id="record-parser-new-ev5-round-trip">record parser 验证（New-E，v5 定义语义 round-trip）</h3>
+<p>每个注册 parser 必须有：
+- <strong>语义 round-trip</strong>（非字节级）：<code>parse(serialize(parse(x))) == parse(x)</code>（parse 幂等）。字节级 round-trip 对 YAML 不成立（引号/顺序/空白），故用语义等价。
+- <strong>golden-parse 回归</strong>：固定 fixture 的 parse 输出做基线，防 parser 改动静默漂移。
+- <strong>cross-section drift 检测</strong>（pending_hooks.md）：parse YAML block + 校验 markdown 表与 YAML 一致。</p>
+<h3 id="staging-subprocess-read-provenancefuture-work">通往真预防的路线图（staging + subprocess read-provenance，future work，不支撑强度声明）</h3>
+<p>明确 future work。本 spec 不设计其调度/进度门/FUSE 层。</p>
+<h3 id="_10">事件模型（溯源一等公民）</h3>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TraceEvent</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">seq</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">ts</span><span class="p">:</span> <span class="n">datetime</span>
+    <span class="n">actor</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">actor_role</span><span class="p">:</span> <span class="n">ActorRole</span>
+    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">gate</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">payload</span><span class="p">:</span> <span class="nb">dict</span>
+    <span class="n">schema_version</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;frozen&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</code></pre></div>
+<h3 id="tracejsonl-i6-n4n5-new-g">trace.jsonl 完整性（I6 + N4/N5 + New-G）</h3>
+<ul>
+<li><strong>目录 fsync（I6a）</strong>：首次创建对父目录 fsync。</li>
+<li><strong>torn-line 恢复（I6b）</strong>：replay 逐行校验，首条失败截断。</li>
+<li><strong>compaction（I6b + N4 + New-G）</strong>：COMPACTION 事件链式 <code>prev_compaction_seq</code>（LEGACY_MIGRATION 作合法锚）+ 快照 + <code>truncated_at_seq</code>。G7 三重校验（签名 ∩ 链单调 ∩ 截断连续）。</li>
+<li><strong>事件版本化（I6c + N5）</strong>：未知更高版本→fail；单调非递减；旧→新迁移函数；CI 历史版本重放矩阵。</li>
+<li><strong>在飞 round 迁移（I6d）</strong>：LEGACY_MIGRATION 事件（从 progress.json 反推）+ 文件签名快照。</li>
+</ul>
+<h3 id="progressjson">progress.json 降级为派生视图</h3>
+<p><code>materialize_progress</code> 从 trace 重算 + safe_write（Tier A）。</p>
+<h3 id="g7-trace">G7 篡改审计（只读 trace）</h3>
+<p>G7 回归纯函数：读 trace 签名 + 重算文件哈希 + 读 compaction 快照 + 验证 COMPACTION 链（含 LEGACY 锚）。</p>
+<h2 id="i1n8-hypothesis-jsonschema-v5-capabilityfs-i1">支柱五：属性测试网（I1；N8 hypothesis-jsonschema 可选；v5 CapabilityFS 命名分离 I1）</h2>
+<h3 id="strategy">纠正：跨字段不变量需手写 strategy</h3>
+<p><code>@model_validator(mode="after")</code> 跨字段约束不在 JSON Schema。
+- 单字段：默认 plain hypothesis strategy（<code>st.integers(min_value=0)</code>），无依赖。hypothesis-jsonschema 仅可选（N8）。
+- 跨字段：手写 strategy。</p>
+<h3 id="bug-strategy">算术 bug 全覆盖（手写 strategy）</h3>
+<p>P50==median / 标点 count==text.count(token) / drift 排除不泄漏 / 熵 sum==1 / volume_decline 持续下降必触发 / G6.12 CJK 内嵌必检出 / G3.4 无 SCORE 必 fail / 门纯度 / 三表一致 / jieba 冻结分词。</p>
+<h3 id="v5-i1">纯度运行时兜底（v5 命名分离 I1）</h3>
+<ul>
+<li><strong>CapabilityFS</strong>（in-process，可行）：测试时给门注入只读 FS 句柄，任意写抛 PermissionError。也用于 internal mode 的 read-provenance。</li>
+<li><strong>不再用「capability FS shim」指代 subprocess read-provenance</strong>（那是 future work）。</li>
+</ul>
+<h2 id="_11">支柱六：文档派生</h2>
+<p>SKILL.md「可自动检查」表从契约模型自动生成。computed_field 保证派生量进入文档。改契约→文档自动变；手改被 CI 拒绝。<strong>物理预防</strong>。</p>
+<h3 id="vs-m3">严重性词 vs 评分标尺（M3）</h3>
+<ul>
+<li>严重性词分裂→enums.py。</li>
+<li>评分标尺未定义→score-arc/stratum/volume Report 显式声明聚合公式 + PASS_THRESHOLD。</li>
+</ul>
+<h2 id="v5_1">审核发现 → 根因 → 支柱 追溯矩阵（v5 强度对齐）</h2>
+<table>
+<thead>
+<tr>
+<th>审核 Top 缺陷</th>
+<th>根因</th>
+<th>支柱</th>
+<th>强度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G3.4 空转</td>
+<td>二</td>
+<td>四</td>
+<td>每轮检测无法 ship</td>
+</tr>
+<tr>
+<td>G6.12 中文敏感词失效</td>
+<td>四</td>
+<td>三</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>progress.json 非原子写</td>
+<td>三/五</td>
+<td>四 Tier A</td>
+<td>物理预防</td>
+</tr>
+<tr>
+<td>SKILL↔gate 契约漂移</td>
+<td>一</td>
+<td>一/二</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>compute_stats/drift 算术错误</td>
+<td>三</td>
+<td>五</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>score_* 三连复制</td>
+<td>一</td>
+<td>二</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>三表登记漂移</td>
+<td>一</td>
+<td>一</td>
+<td>物理预防（自动 REGISTRY）</td>
+</tr>
+<tr>
+<td>tropeInventory 产消冲突</td>
+<td>一</td>
+<td>一 + 四 Tier B（写审计可行；读 provenance 仅 internal）</td>
+<td>无法 CI 落地（声明）+ 每轮检测（写）+ 已知盲点（subprocess 读）</td>
+</tr>
+<tr>
+<td>伏笔 CP 算术/示例错误</td>
+<td>一</td>
+<td>一</td>
+<td>物理预防（computed_field）</td>
+</tr>
+<tr>
+<td>严重性词汇分裂</td>
+<td>一</td>
+<td>一</td>
+<td>物理预防（enums）</td>
+</tr>
+<tr>
+<td>评分 X/10 未定义</td>
+<td>一</td>
+<td>一/六</td>
+<td>无法 CI 落地（另案）</td>
+</tr>
+<tr>
+<td>G1 写 .bak / G7 改 summary</td>
+<td>五</td>
+<td>二/四</td>
+<td>无法 CI 落地（AST lint）</td>
+</tr>
+<tr>
+<td>gate 顶层 jload crash</td>
+<td>三/五</td>
+<td>二</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>derive_file_type 漏 resolve</td>
+<td>一</td>
+<td>二</td>
+<td>无法 CI 落地（REGISTRY join）</td>
+</tr>
+<tr>
+<td>破折号双重计数</td>
+<td>四</td>
+<td>三</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>word_count CJK-only 偏差</td>
+<td>四</td>
+<td>三</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>drift 排除泄漏 / 熵不归一 / P50≠median</td>
+<td>三</td>
+<td>五</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>review 大量无专用 gate</td>
+<td>一</td>
+<td>二</td>
+<td>无法 CI 落地</td>
+</tr>
+<tr>
+<td>contract.py 已存在被忽略</td>
+<td>（方法论）</td>
+<td>取代节</td>
+<td>迁移映射</td>
+</tr>
+<tr>
+<td>anti-detect 伦理缺口</td>
+<td>内容层</td>
+<td>不在本 spec</td>
+<td>单独追踪</td>
+</tr>
+</tbody>
+</table>
+<h2 id="_12">实现顺序（高杠杆优先）</h2>
+<ol>
+<li><strong>契约层骨架 + 取代 contract.py</strong>：contracts/REGISTRY 过渡期 truth-files.yaml bootstrap；恢复 writes/updates；迁移 4 工具；删 contract.py。</li>
+<li><strong>CJK 工具包 + 固定 jieba + 属性测试</strong>：独立、可并行。</li>
+<li><strong>Tier A：trace.jsonl + safe_write + progress 降级</strong>。</li>
+<li><strong>Tier B 写侧：dispatcher 后置写所有权审计</strong>：依赖 OWNERSHIP + trace + record parser（含语义 round-trip + golden-parse）+ cross-section drift 检测。基于真实顺序执行拓扑。</li>
+<li><strong>门阈值派生化 + 逐技能 parser + derive_file_type join + G3.4/G5/G6/G7 改造</strong>。</li>
+<li><strong>文档派生 + ruff AST lint + in-process CapabilityFS</strong>。</li>
+<li><strong>属性测试网全面铺开</strong>。</li>
+<li><strong>（future work，不阻塞）subprocess read-provenance（FUSE/ptrace）+ staging 真预防</strong>。</li>
+</ol>
+<p><strong>部分强制窗口（M4）</strong>：「完全迁移」= 69/69 技能有 Pydantic 模型 + OWNERSHIP + parser；CI「未迁移清单为空」断言锁定。</p>
+<h2 id="_13">风险与缓解</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>69 契约迁移工作量大</td>
+<td>不考虑成本；逐技能可并行</td>
+</tr>
+<tr>
+<td>jieba 运行时依赖 + 分词漂移</td>
+<td>固定版本 + 冻结分词属性测试（M2）</td>
+</tr>
+<tr>
+<td>trace.jsonl 体积</td>
+<td>compaction 保历史 + 篡改边界链 + LEGACY 锚</td>
+</tr>
+<tr>
+<td>大改引入回归</td>
+<td>属性测试网 + 现有 1231 单测兜底；分步迁移每步独立审核</td>
+</tr>
+<tr>
+<td>fcntl Windows/网络 FS</td>
+<td>CI 已 ubuntu/macos；加回退锁文件（M5）</td>
+</tr>
+<tr>
+<td>Tier B 记录级 per-skill-per-file 边界</td>
+<td>诚实声明（New-H）；staging 是真预防（future work）</td>
+</tr>
+<tr>
+<td>contract.py 双源</td>
+<td>取代节明确迁移顺序 + bootstrap，最终删除</td>
+</tr>
+<tr>
+<td>跨字段不变量测试生成难</td>
+<td>手写 strategy（I1），hypothesis-jsonschema 仅可选（N8）</td>
+</tr>
+<tr>
+<td>computed_field round-trip</td>
+<td>显式 extra="ignore" + lint 禁 forbid（N7）</td>
+</tr>
+<tr>
+<td>record parser 信任面</td>
+<td>语义 round-trip + golden-parse 回归（判据 12，New-E）</td>
+</tr>
+<tr>
+<td><strong>subprocess read-provenance 不可行</strong></td>
+<td>诚实声明已知盲点；迁移补全 reads + lint frontmatter 完整性兜底；FUSE/ptrace 是 future work（v5 C2）</td>
+</tr>
+<tr>
+<td><strong>genre-config 「恰好 8 字段」inherited drift</strong></td>
+<td>OWNERSHIP 用真实 9 键；记风险表；契约迁移时 genre-config SKILL.md 字段声明对齐 fixture</td>
+</tr>
+<tr>
+<td><strong>plant SKILL.md 输出 schema 漏 notes（inherited drift）</strong></td>
+<td>OWNERSHIP write_keys_new_record 以 fixture 为准（含 notes）；风险表登记；迁移时 SKILL.md 对齐 fixture</td>
+</tr>
+<tr>
+<td><strong>detect 模型要求 skills 双写 YAML+表保持一致</strong></td>
+<td>当前 skills 未审计双写，迁移期 drift 检测可能噪音失败；由判据 8 全迁移门吸收；双写义务作为强制 authoring 规则</td>
+</tr>
+<tr>
+<td>body prose 引用未声明 read</td>
+<td>lint frontmatter 完整性（盲点）；internal mode CapabilityFS runtime（可行）；subprocess 是盲点</td>
+</tr>
+<tr>
+<td>顺序执行→并发 dispatch 升级</td>
+<td>当前顺序够用；并发需 staging 隔离（future work）</td>
+</tr>
+</tbody>
+</table>
+<h2 id="v5-new-egi-c2">成功判据（v5，含 New-E/G/I + C2 诚实分层）</h2>
+<ol>
+<li><strong>结构性发现闭环</strong>：13 审核片每个<em>结构性</em>发现都有根因→支柱映射且可追溯；独立 agent 重审结构性维度均分 ≥ 9.0/10。内容/伦理发现单独追踪不阻塞。</li>
+<li>workflow 级独立 agent 自评 ≥ 9.0/10。</li>
+<li><code>contract.py</code> 已删除，单一 <code>contracts/</code> 源；4 工具重定向完成。</li>
+<li><strong>纯度强制</strong>：AST-based lint 禁 <code>src/shenbi/</code>（除 safe_write.py）用任何 FS 变更原语；allowlist 仅 safe_write.py。in-process CapabilityFS 兜底。</li>
+<li>三份门登记表从单一源派生，diff 为空。</li>
+<li>属性测试 CI 必过，覆盖全部算术 bug 性质 + jieba 冻结分词。</li>
+<li>trace.jsonl 完整性：目录 fsync、torn-line 恢复、compaction 保历史 + 篡改边界链 + LEGACY 锚、事件版本化 + 前向不兼容、在飞 round 迁移——各有对应测试。</li>
+<li><strong>完全迁移</strong>断言：69/69 技能有 Pydantic 模型 + OWNERSHIP + parser。</li>
+<li><strong>computed_field round-trip 前提</strong>：契约模型显式 extra="ignore"；lint 禁 forbid。</li>
+<li><strong>markdown 记录级审计边界已知</strong>：per-skill-per-file（非 per-record），记入风险表，不假装物理预防。</li>
+<li><strong>事件版本前向不兼容 + compaction 链</strong>：CI 跑「未知更高版本→fail」「COMPACTION 链单调无缺口（含 LEGACY 锚）」「截断点连续」回归。</li>
+<li><strong>record parser 正确性</strong>：每个注册 parser 有语义 round-trip（<code>parse(serialize(parse(x)))==parse(x)</code>）+ golden-parse 回归 + cross-section drift 检测。</li>
+<li><strong>OWNERSHIP 字段集 fixture 核对</strong>：每个 (skill, file) 的字段集以对应 fixture / SKILL.md 输出 schema 为准。<strong>「顶层键」按文件类型定义（v5.1 修正）</strong>：JSON 文件 = JSON 顶层键；markdown truth 文件 = <strong>从权威 YAML block（判据 12 的 record parser）解析出的记录键</strong>。CI 跑「OWNERSHIP 字段 ⊆ 对应类型的键集」断言——<strong>同时覆盖 JSON 与 markdown truth（后者正是 v3/v4 被咬的场景）</strong>。<strong>参考 fixture 为 <code>tests/fixtures/</code>（非 round 输出，v5.2 N6-3）；判据 13 依赖判据 12 的 parser，二者必须同时落地（实现顺序 step 4 已排序，v5.2 N6-2）。</strong></li>
+<li><strong>读 provenance 诚实分层</strong>：internal mode CapabilityFS runtime 校验（判据）；codex subprocess 是已知盲点（记风险表），不声称真闭口。</li>
+</ol>
+<h2 id="v4v5-round-4">v4→v5 变更日志（round-4 审核逐条闭环）</h2>
+<table>
+<thead>
+<tr>
+<th>round-4 发现</th>
+<th>状态</th>
+<th>v5 处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1（genre-config 字段虚构）</td>
+<td>FIXED</td>
+<td>亲手核对 fixture 真实 9 键；删伪造注释；加判据 13 防复现</td>
+</tr>
+<tr>
+<td>C2（read-provenance 不可行）</td>
+<td>FIXED</td>
+<td>诚实分层：internal CapabilityFS 可行 / codex subprocess 是已知盲点 + future work；不再声称真闭口</td>
+</tr>
+<tr>
+<td>I1（capability FS shim 过载）</td>
+<td>FIXED</td>
+<td>命名分离：in-process=CapabilityFS；subprocess read-provenance 明确 future work</td>
+</tr>
+<tr>
+<td>New-E（round-trip 未定义）</td>
+<td>FIXED</td>
+<td>语义 round-trip <code>parse(serialize(parse(x)))==parse(x)</code> + golden-parse</td>
+</tr>
+<tr>
+<td>New-F（生成 vs 检测矛盾）</td>
+<td>FIXED</td>
+<td>选定「检测」模型：skills 写两份，YAML 权威，parser 检测 drift</td>
+</tr>
+<tr>
+<td>New-I（join 规则未指定）</td>
+<td>FIXED</td>
+<td>明确 join：skill writes/updates → 文件路径 → truth-files.yaml truth 列表</td>
+</tr>
+<tr>
+<td>M3（genre-config 8 vs 9 inherited drift）</td>
+<td>ACKNOWLEDGED</td>
+<td>OWNERSHIP 用真实 9 键；记风险表；迁移时对齐 SKILL.md</td>
+</tr>
+<tr>
+<td>M4（plant 漏 notes）</td>
+<td>FIXED</td>
+<td>write_keys_new_record 加 notes</td>
+</tr>
+<tr>
+<td>## v5.1 修订（round-5 审核三处闭环，8.5→目标 9+）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>round-5 发现</th>
+<th>状态</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New-Issue-1（OutputKind 2 vs 3 转录错误，出现 2 次）</td>
+<td>FIXED</td>
+<td>亲手核对 contract.py:34-37：<code>{ARTIFACT, REPORT, EPHEMERAL}</code>；两处修正；补 REPORT 作 derive_file_type 第三类</td>
+</tr>
+<tr>
+<td>New-Issue-2（判据 13「顶层键」仅 JSON，未覆盖 markdown 记录）</td>
+<td>FIXED</td>
+<td>「顶层键」按文件类型定义：JSON=JSON 顶层键；markdown=parser 解析的记录键（用判据 12 的 record parser）</td>
+</tr>
+<tr>
+<td>New-Issue-3（行号引文漂移）</td>
+<td>FIXED</td>
+<td>codex.py subprocess 实际 28/53/73（非 34）；executor.py derive_file_type def 31、truth_skills 块 39-45（非 39-43）</td>
+</tr>
+<tr>
+<td>New-Issue-4（双写义务未声明）</td>
+<td>FIXED</td>
+<td>风险表加「detect 模型要求 skills 双写 YAML+表保持一致；迁移期可能噪音失败，由判据 8 全迁移门吸收」</td>
+</tr>
+<tr>
+<td>New-Issue-5（plant schema 漏 notes 的 inherited drift 未记风险表）</td>
+<td>FIXED</td>
+<td>风险表加「plant SKILL.md 输出 schema 漏 notes（fixture 有）；OWNERSHIP 以 fixture 为准」</td>
+</tr>
+<tr>
+<td>## v5.2 修订（round-6 审核闭环，8.5→目标 9+）</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<table>
+<thead>
+<tr>
+<th>round-6 发现</th>
+<th>状态</th>
+<th>处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>N6-1（codex.py:34 引文错误，v5.1 changelog 误标 FIXED）</td>
+<td>FIXED</td>
+<td>body 两处 codex.py:34 → codex.py:28（修订摘要 C2 + Tier B 读 provenance）</td>
+</tr>
+<tr>
+<td>N6-2（判据 13↔12 bootstrap 耦合未声明）</td>
+<td>FIXED</td>
+<td>判据 13 加注「依赖判据 12 的 record parser，二者必须同时落地（实现顺序 step 4 已排序）」</td>
+</tr>
+<tr>
+<td>N6-3（tropeInventory 仅在 canonical fixture，真实 round 输出缺）</td>
+<td>FIXED</td>
+<td>判据 13 + OWNERSHIP 注明「参考 fixture 为 tests/fixtures/，非 round 输出；CI 断言对 fixture 跑，非 round 输出」</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

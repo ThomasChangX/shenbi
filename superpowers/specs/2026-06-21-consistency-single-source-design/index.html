@@ -1,0 +1,1931 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-21-consistency-single-source-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Shenbi Consistency: Single Source of Truth — Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Shenbi Consistency: Single Source of Truth — Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-21-consistency-single-source-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-06-21-consistency-single-source-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Shenbi Consistency: Single Source of Truth — Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-06-21-consistency-single-source-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#shenbi-consistency-single-source-of-truth-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Shenbi Consistency: Single Source of Truth — Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#tldr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TL;DR
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1-problem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Problem
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. Problem">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-hard-constraints-non-negotiable" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 Hard constraints (non-negotiable)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-what-is-already-consistent-out-of-scope-do-not-touch" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 What is already consistent (out of scope — do not touch)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-audit-findings-ad" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 Audit findings (A–D)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-goals-non-goals" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Goals &amp; Non-Goals
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-design-frontmatter-single-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Design: Frontmatter Single Source of Truth
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Design: Frontmatter Single Source of Truth">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-architecture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Architecture
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-the-contract-schema-formal" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 The contract schema (formal)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-the-body-prose-ban-closes-the-human-restatement-loophole" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 The body-prose ban (closes the human-restatement loophole)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-the-prevention-model-root-cause-the-specs-grading-criterion" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. The Prevention Model (root-cause; the spec's grading criterion)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. The Prevention Model (root-cause; the spec&#39;s grading criterion)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-principle" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 Principle
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-honesty-table-what-reaches-impossible-vs-detected" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Honesty table — what reaches "impossible" vs "detected"
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-components" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Components
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Components">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-srcshenbicontractpy-the-single-loader-fixes-d2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 src/shenbi/contract.py — the single loader (fixes D2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-srcshenbistatuspy-typed-status-vocabulary-typed-results-fixes-d3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 src/shenbi/status.py — typed status vocabulary + typed results (fixes D3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-the-canonical-file-registry-fixes-d1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 The canonical file registry (fixes D1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-the-generator-just-generate-entry-point-shenbi-sync-contracts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 The generator (just generate / entry point shenbi-sync-contracts)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-the-lints-pre-commit-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 The lints (pre-commit + CI)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-audit-solution-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Audit → Solution mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-migration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Migration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-testing-business-value-encoded" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Testing (business-value encoded)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-out-of-scope-future" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Out of scope / future
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-resolved-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. Resolved decisions
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-changelog-rev-2-post-review-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. Changelog (rev 2 — post-review fixes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="shenbi-consistency-single-source-of-truth-design">Shenbi Consistency: Single Source of Truth — Design</h1>
+<ul>
+<li>Status: <strong>accepted, rev 2</strong> (2026-06-21; post-review fixes applied — see §11 changelog)</li>
+<li>Date: 2026-06-21</li>
+<li>Deciders: ThomasChangX (sole maintainer)</li>
+<li>Supersedes: nothing; addresses audit findings A–D (see §1.3)</li>
+</ul>
+<h2 id="tldr">TL;DR</h2>
+<p>A consistency audit on 2026-06-21 found that Shenbi's framework frontmatter and
+section taxonomy are clean, but the <strong>machine-consumed I/O contract has drifted</strong>:
+the <code>数据契约</code> (Data Contract) block lives in Markdown prose, is parsed by regex in
+<strong>two duplicated</strong> modules (<code>executor.py</code>, <code>phase_runner.py</code>), and accepts three
+incompatible value shapes (path / prose / glob) that the parser silently collapses —
+and, for review skills, the contracts are <strong>incomplete</strong>, hiding the real persisted
+output behind the prose <code>"report only"</code>. There is no canonical truth-file registry,
+<code>deps.json</code>'s <code>expected_outputs</code> hand-duplicates the skill contracts and drifts, and
+three different concepts all overload the key <code>"status"</code>.</p>
+<p>This spec makes the contract the <strong>single source of truth</strong>, expressed as a
+<strong>schema-validated structured block in skill frontmatter</strong>, with <code>expected_outputs</code>,
+the truth-file registry, and the skill→file dependency DAG <strong>generated</strong> from it. The
+hard constraint — <em>multi-fact-source is non-negotiable</em> — drives every decision.</p>
+<p>The mandate this spec is graded against is <strong>prevention, not detection</strong>: the
+design must make each inconsistency class <strong>structurally impossible to land</strong>, not
+merely "currently absent." §4 maps every audit finding to the mechanism that makes
+its recurrence impossible (or, for free-form prose terminology, honestly states
+the ceiling is <em>detected-at-CI</em>, with the reason).</p>
+<h2 id="1-problem">1. Problem</h2>
+<h3 id="11-hard-constraints-non-negotiable">1.1 Hard constraints (non-negotiable)</h3>
+<ul>
+<li><strong>C-HARD-1 — Single source of truth.</strong> No dependency/contract fact may exist in
+  more than one editable location. Anything derivable must be <strong>generated</strong>, and
+  generated artifacts must be <strong>uneditable-by-construction</strong> (CI rejects hand-edits).</li>
+<li><strong>C-HARD-2 — Prevention over detection.</strong> For every inconsistency class the spec
+  fixes, it must also make the <em>recurrence</em> impossible (unexpressible in the
+  schema) or auto-rejected at the cheapest possible checkpoint. "Lint catches it"
+  is acceptable <strong>only</strong> where the inconsistent form is free-form prose (see §4.2).</li>
+<li><strong>Objective function.</strong> Maximize <strong>system output quality</strong> and minimize
+  <strong>maintenance cost</strong>. <strong>Development/migration cost is explicitly out of scope</strong>
+  for choosing between structurally-valid options — root-cause correctness wins.</li>
+</ul>
+<h3 id="12-what-is-already-consistent-out-of-scope-do-not-touch">1.2 What is already consistent (out of scope — do not touch)</h3>
+<ul>
+<li><strong>Frontmatter</strong>: every skill is <code>name: shenbi-*</code> + <code>description: Use when ...</code> (59/59).</li>
+<li><strong>Section taxonomy core</strong>: <code>流程</code> / <code>铁律</code> / <code>数据契约</code> / <code>Anti-Rationalization</code>
+  present in all 57 novel-writing skills (<code>using-shenbi</code>, <code>shenbi-writing-skills</code>
+  are meta-skills, legitimately exempt).</li>
+<li><strong>Gate output envelope</strong>: <code>{gate, status, timestamp, checks, ...}</code> produced only
+  through <code>shared.py</code> <code>passed()</code>/<code>fail()</code>/<code>unimplemented()</code> — uniform.</li>
+</ul>
+<h3 id="13-audit-findings-ad">1.3 Audit findings (A–D)</h3>
+<p><strong>Layer A — Output-format section header (surface, presentation-only).</strong> 52/57 use
+<code>## 输出格式</code>; 7 generative skills deviate (chapter-drafting, chapter-revision,
+character-design, intent-management, story-architecture, worldbuilding → 0;
+foundation-review → 2); worldbuilding uniquely uses <code>输出契约</code>; plus ad-hoc
+<code>### Key Results</code>, <code>输出</code>, <code>输出文件</code>. <strong>Note:</strong> <code>输出格式</code> is human-facing only —
+nothing machine-parses it (the machine contract is <code>数据契约</code>), so its drift has
+~zero impact on system output quality; the fix is presentational hygiene.</p>
+<p><strong>Layer B — Terminology (surface, prose).</strong> <code>hook ledger</code> (4×) vs <code>hook pool</code> (2×)
+— same concept, two names (<code>hook pool</code> confined to <code>shenbi-review-foreshadowing</code>,
+which itself also uses <code>hook ledger</code>); <code>truth files</code> (23×) vs <code>truth-files</code> (1×);
+<code>your human partner</code> (3×) vs <code>the author</code> (1×).</p>
+<p><strong>Layer C — Contract value semantics + report-skill incompleteness (root cause).</strong>
+The <code>数据契约</code> <code>Reads</code>/<code>Writes</code>/<code>Updates</code> block is parsed by regex
+(<code>src/shenbi/dispatcher/executor.py:51-75</code>, <code>src/shenbi/phase_runner.py:111-122</code>)
+but its values take <strong>three incompatible shapes</strong> the parser cannot distinguish:
+1. backtick path (<code>truth/pending_hooks.md</code>) — intended, machine-resolvable;
+2. <strong>prose</strong> — ~17 review skills write <code>report only</code>; others write Chinese summary
+   phrases (<code>种植汇总</code>, <code>传导汇总</code>, <code>市场分析报告</code>) → parsed to an <strong>empty file list</strong>;
+3. <strong>glob</strong> (<code>characters/major/*.md</code>, <code>chapters/*.md</code>) → passed as literal strings.</p>
+<p>The prose form is not merely ambiguous — it masks <strong>incomplete contracts</strong>. Review
+skills declare <code>Writes: report only</code>, but their reports are <strong>persisted</strong> as
+<code>audits/chapter-N-&lt;dim&gt;.md</code> files and consumed downstream. Verified:
+<code>tests/tiers/deps.json:107-124</code> lists 18 <code>audits/chapter-*-&lt;dim&gt;.md</code> as expected
+outputs; <code>src/shenbi/gates/g3.py:116</code> classifies <code>audits/</code> paths as report-type
+outputs; <code>shenbi-drift-guidance</code>'s scenario consumes <code>audits/</code> files as input.
+So <code>"report only"</code> is a <strong>wrong/incomplete contract</strong> omitting the real output path —
+the actual root cause, not just an ambiguous value shape. (Corollary test gap:
+<code>tests/fixtures/audits/</code> is currently empty though drift-guidance reads from it.)</p>
+<p><strong>Layer D — Structural / framework (root cause).</strong>
+- <strong>D1 — No canonical truth-file registry.</strong> Paths accrete across skills; no
+  single authority names them (synonym risk: unprefixed <code>era-reference.md</code> vs the
+  <code>world/*.md</code> convention; glob-vs-explicit variants).
+- <strong>D2 — Duplicated parser.</strong> <code>executor.py</code> <code>derive_input_files</code>/<code>derive_output_files</code>
+  and <code>phase_runner.py</code> <code>cmd_pre_skill</code> independently regex-parse the same
+  <code>**Reads:**</code>/<code>**Writes:**</code>/<code>**Updates:**</code> format. Edit one, not the other → silent divergence.
+- <strong>D3 — Fragmented status vocabulary.</strong> Three concepts overload <code>"status"</code>:
+  gate result (<code>PASS/FAIL/SKIP/WARN</code>), phase state-machine
+  (<code>created/started/skills_done/scored/finalized</code> + <code>ok/blocked/error</code> + <code>UNKNOWN</code>),
+  and score classification (<code>PASS (excellent)</code>/<code>PASS (acceptable)</code>/<code>CONDITIONAL</code>/<code>FAIL</code>
+  + <code>REJECT</code>/<code>MARKER_MISSING</code>/<code>UNIMPLEMENTED</code>). Because results are emitted as
+  <code>json.dumps(...)</code> strings, type checkers cannot catch a typo like <code>"PASSED"</code>
+  unless emit sites use typed enum members and typed result structures.
+- <strong>D4 — Duplicated output inventory in deps.json.</strong> <code>tests/tiers/deps.json</code> is the
+  legitimate curated source for phase/pipeline <em>organization</em> (<code>t2-phases[].prerequisites</code>
+  is phase <strong>membership</strong>, <code>t3-pipelines[].prerequisites</code> is pipeline <strong>ordering</strong>,
+  plus <code>g4_checker</code> and <code>_out_of_pipeline</code> — none duplicate contract facts). But its
+  <strong><code>expected_outputs</code></strong> field hand-duplicates each skill's <code>writes</code> already declared
+  in the contract — the real drift surface (consumed by <code>phase_runner.py</code>, <code>scoring.py</code>).
+  The producer/consumer file dependencies are not captured anywhere today.</p>
+<h2 id="2-goals-non-goals">2. Goals &amp; Non-Goals</h2>
+<p><strong>Goals</strong>
+- G1. One editable location for each skill's I/O contract; everything else derived.
+- G2. Every inconsistency class in §1.3 is either impossible to land or
+  auto-rejected at commit/runtime — see §4.2 honesty table.
+- G3. Contract correctness propagates to gate correctness → output quality (§5.4).
+- G4. A contributor changing a skill's I/O edits exactly one thing
+  (frontmatter) and runs <code>just generate</code>; nothing else is hand-synced.</p>
+<p><strong>Non-Goals</strong>
+- N1. Not redesigning the skill taxonomy, gate semantics, or scoring rubric.
+- N2. Not migrating skill <em>behavioral</em> prose (流程/铁律/Anti-Rationalization).
+- N3. Not building a UI/DAG-visualizer now (the DAG is generated as data; a viewer
+  is a future capability, see §9).</p>
+<h2 id="3-design-frontmatter-single-source-of-truth">3. Design: Frontmatter Single Source of Truth</h2>
+<h3 id="31-architecture">3.1 Architecture</h3>
+<div class="highlight"><pre><span></span><code>                     ┌─────────────────────────────────────────────┐
+   EDITABLE (1)      │  skills/&lt;s&gt;/SKILL.md  frontmatter            │
+   single source     │   name, description, contract{...}           │
+                     └────────────────────┬────────────────────────┘
+                                          │  contract.load_contract (schema-validated)
+                     ┌────────────────────┼──────────────────────────────┐
+                     ▼                    ▼                              ▼
+   GENERATED      contract.py         just generate              body render
+   (uneditable       loader        ┌──────┴────────┐       (auto `## 数据契约`
+   by construction;                 ▼     ▼         ▼        block, re-derived)
+   CI rejects edits)     deps.json   registry  DAG
+                         expected_   index     (skill→file producer/
+                         outputs     (paths    consumer graph — NEW
+                         (gen); org  usage)    artifact, not in
+                         fields cur.)          deps.json today)
+                     └── runtime: gates / dispatcher / phase_runner / scoring
+                         all import contract.py + status.py (single definitions)
+</code></pre></div>
+<p><strong>Editable surface = exactly one thing per skill</strong>: the frontmatter <code>contract</code>.
+deps.json's <strong>organizational</strong> fields (membership/ordering/checker) are also a
+legitimate curated source (they are not contract facts); only its <code>expected_outputs</code>
+becomes generated. Everything below the line that <em>is</em> derivable is a generated
+artifact; hand-editing any of it fails CI (idempotency check, §5.5).</p>
+<h3 id="32-the-contract-schema-formal">3.2 The contract schema (formal)</h3>
+<p>Contract data moves <strong>into frontmatter</strong> (currently frontmatter carries only
+<code>name</code>/<code>description</code>). Canonical shape, validated by a TypedDict + runtime checker:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contract.py</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">OutputKind</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">ARTIFACT</span>  <span class="o">=</span> <span class="s2">&quot;artifact&quot;</span>   <span class="c1"># writes a durable project file → G2 file-validation (chapter/truth type)</span>
+    <span class="n">REPORT</span>    <span class="o">=</span> <span class="s2">&quot;report&quot;</span>     <span class="c1"># emits a report; if persisted, the path is in writes → G2 validates as report-type</span>
+    <span class="n">EPHEMERAL</span> <span class="o">=</span> <span class="s2">&quot;ephemeral&quot;</span>  <span class="c1"># transient guidance, no persisted artifact → output gates skip</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Contract</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">OutputKind</span>
+    <span class="n">reads</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>    <span class="c1"># canonical paths / registered patterns only; MUST resolve in registry</span>
+    <span class="n">writes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+    <span class="n">updates</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>  <span class="c1"># files mutated in place (subset semantics: also an artifact write)</span>
+</code></pre></div>
+<p>Skill frontmatter becomes:</p>
+<div class="highlight"><pre><span></span><code><span class="nn">---</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">shenbi-chapter-drafting</span>
+<span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Use when writing chapter content, generating chapter text, or drafting a new chapter after planning is complete</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">artifact</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">style/style_profile.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+<span class="nn">---</span>
+</code></pre></div>
+<p>A report skill (e.g. <code>shenbi-review-anti-ai</code>) — the report is <strong>persisted</strong> and
+consumed downstream, so the path is declared (this is the fix for Layer C's
+incomplete-contract bug):</p>
+<div class="highlight"><pre><span></span><code><span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">report</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">genre-config.json</span>
+<span class="w">  </span><span class="nt">writes</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/chapter-N-anti-ai.md</span><span class="w">   </span><span class="c1"># persisted report (was hidden behind &quot;report only&quot;)</span>
+<span class="w">  </span><span class="nt">updates</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[]</span>
+</code></pre></div>
+<p><code>kind</code> selects the <strong>output-validation strategy</strong>, not whether <code>writes</code> is
+populated. <code>REPORT</code> skills whose output is consumed downstream (per the DAG) MUST
+declare the persisted path in <code>writes</code> (validated by G2 as report-type; <code>g3.py</code>
+already routes <code>audits/</code> to report-type validation). A genuinely transient report
+uses <code>writes: []</code>. An <code>ephemeral</code> skill has empty <code>writes</code>/<code>updates</code> and skips
+output gates. <strong>A downstream consumer (per DAG) of a report whose producer declares
+no persisted path is a CI failure</strong> — the contract-completeness rule that kills the
+<code>"report only"</code> drift at the root.</p>
+<p><strong>The three incompatible value shapes (Layer C) are eliminated by the schema itself</strong>:
+<code>writes</code> is a typed <code>list[str]</code>; <code>report only</code> is not a list → rejected at load.
+Globs are not free strings either (see §5.3 patterns).</p>
+<h3 id="33-the-body-prose-ban-closes-the-human-restatement-loophole">3.3 The body-prose ban (closes the human-restatement loophole)</h3>
+<p>Single-source is broken the moment a contributor re-describes reads/writes in the
+SKILL.md body. Therefore:
+- The old hand-written <code>## 数据契约</code> block is <strong>removed</strong> from the body.
+- An <strong>auto-generated</strong> view <strong>is</strong> rendered into the body (confirmed OD-1), so the
+  agent/human still sees I/O at a glance — produced by <code>just generate</code>, under a
+  banner <code>&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;</code>. The generator's
+  idempotency check (§5.5) guarantees it always equals frontmatter.
+- A lint (§5.5) <strong>rejects</strong> any SKILL.md whose body contains hand-written
+  <code>**Reads:**</code> / <code>**Writes:**</code> / <code>**Updates:**</code> or a non-auto-generated contract
+  block. This is what makes a second source <em>unlandable</em>.</p>
+<h2 id="4-the-prevention-model-root-cause-the-specs-grading-criterion">4. The Prevention Model (root-cause; the spec's grading criterion)</h2>
+<h3 id="41-principle">4.1 Principle</h3>
+<blockquote>
+<p>Make the inconsistent form <strong>unexpressible</strong> (the schema cannot hold it) or
+<strong>auto-rejected at the cheapest checkpoint</strong> (load for authors, pre-commit/CI for
+the repo, runtime for consumers). "Detected by a linter" is the floor, not the
+goal — used only where the form is free-form prose and thus cannot be typed.</p>
+</blockquote>
+<p>Mechanisms are layered so each inconsistency is blocked at the earliest, lowest-cost point:</p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>What runs</th>
+<th>Blocks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Write time</strong> (author's machine)</td>
+<td>frontmatter schema + registry resolution + contract-completeness on load</td>
+<td>untyped/prose/glob values; unregistered paths; missing persisted report writes</td>
+</tr>
+<tr>
+<td><strong>Commit time</strong> (pre-commit + CI)</td>
+<td>lints: body-ban, loader-uniqueness, generator-idempotency, registry, schema, status-typing, completeness</td>
+<td>body restatement; re-implemented parsers; hand-edited generated artifacts; synonym files; bare status strings</td>
+</tr>
+<tr>
+<td><strong>Runtime</strong> (gates/dispatcher/scoring)</td>
+<td>single <code>contract.py</code> loader + typed <code>status.py</code> enums + typed result structures</td>
+<td>parsing divergence; status typos / cross-domain mixing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-honesty-table-what-reaches-impossible-vs-detected">4.2 Honesty table — what reaches "impossible" vs "detected"</h3>
+<table>
+<thead>
+<tr>
+<th>Audit class</th>
+<th>Recurrence outcome</th>
+<th>How</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C (prose/glob/path ambiguity + incomplete report contracts)</td>
+<td><strong>IMPOSSIBLE to land</strong></td>
+<td>frontmatter schema: <code>reads/writes/updates</code> are typed path-lists; <code>OutputKind</code> enum; loader rejects non-path. Completeness rule: a report consumed downstream (per DAG) with no declared persisted path → <code>ContractError</code>.</td>
+</tr>
+<tr>
+<td>C/body duplication</td>
+<td><strong>IMPOSSIBLE to land</strong></td>
+<td>body-prose ban + generator idempotency (§3.3, §5.5).</td>
+</tr>
+<tr>
+<td>D2 (parser duplication)</td>
+<td><strong>IMPOSSIBLE to land (going forward)</strong></td>
+<td>single <code>contract.py</code>; loader-uniqueness lint rejects any module that reads the frontmatter <code>contract:</code> key outside <code>contract.py</code> (§5.5).</td>
+</tr>
+<tr>
+<td>D4 (<code>expected_outputs</code> duplicates contracts)</td>
+<td><strong>IMPOSSIBLE to land</strong></td>
+<td><code>expected_outputs</code> is <strong>generated</strong> from member writes (parametric→glob, §5.4) with a completeness validation (orphan entries fail); idempotency CI rejects hand-edits.</td>
+</tr>
+<tr>
+<td>D3 (status overload)</td>
+<td><strong>IMPOSSIBLE to land</strong></td>
+<td>typed <code>StrEnum</code> per domain in <code>status.py</code>; <strong>typed result structures</strong> (<code>GateResult</code> etc., §5.2) + lint forbidding bare status string-literals outside <code>status.py</code>; enforced by <strong>both</strong> mypy and basedpyright (basedpyright is the pre-commit gate).</td>
+</tr>
+<tr>
+<td>D1/A (file-name synonyms; section-header drift)</td>
+<td><strong>DETECTED at CI</strong> (near-impossible)</td>
+<td>registry: every frontmatter path must resolve to a canonical name or registered pattern; introducing a new name requires a one-line registry edit → <strong>visible in PR</strong>. Section headers lint-flagged.</td>
+</tr>
+<tr>
+<td>B (prose terminology)</td>
+<td><strong>DETECTED at CI</strong></td>
+<td>glossary + banned-synonym lint. <strong>Honest ceiling:</strong> free-form prose cannot be made <em>impossible</em> to hold a synonym; the achievable guarantee is <em>known</em> drift is rejected at CI and <em>new</em> drift is caught the moment it's added to the banned list.</td>
+</tr>
+</tbody>
+</table>
+<p>§4.2's two "detected" rows are the <strong>explicit ceiling</strong>, stated because C-HARD-2
+demands honesty about which classes cannot be made structurally impossible and why.
+Both are "detected at the cheapest checkpoint (CI/PR)", not silently tolerated.</p>
+<h2 id="5-components">5. Components</h2>
+<h3 id="51-srcshenbicontractpy-the-single-loader-fixes-d2">5.1 <code>src/shenbi/contract.py</code> — the single loader (fixes D2)</h3>
+<ul>
+<li>One function <code>load_contract(skill: str) -&gt; Contract</code> reading frontmatter via the
+  existing <code>shared.yload</code>, then validating against the <code>Contract</code> schema and the
+  registry (§5.3) and the completeness rule (§3.2).</li>
+<li><strong>Deletes</strong> the regex parsing in <code>executor.py</code> (<code>derive_input_files</code>/<code>derive_output_files</code>)
+  and <code>phase_runner.py</code> (<code>cmd_pre_skill</code> inline parse); both import <code>load_contract</code>.</li>
+<li>On any malformed/incomplete contract: raise a typed <code>ContractError</code> (loud), never
+  silently return an empty list (that was the original bug).</li>
+</ul>
+<h3 id="52-srcshenbistatuspy-typed-status-vocabulary-typed-results-fixes-d3">5.2 <code>src/shenbi/status.py</code> — typed status vocabulary + typed results (fixes D3)</h3>
+<p>Defines and exports the canonical enums; all emit sites use them <strong>via members, never
+bare strings</strong>, and emit through <strong>typed result structures</strong> so the enum is enforced:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">GateStatus</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>    <span class="n">PASS</span><span class="p">,</span> <span class="n">FAIL</span><span class="p">,</span> <span class="n">SKIP</span><span class="p">,</span> <span class="n">WARN</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhaseState</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>    <span class="n">CREATED</span><span class="p">,</span> <span class="n">STARTED</span><span class="p">,</span> <span class="n">SKILLS_DONE</span><span class="p">,</span> <span class="n">SCORED</span><span class="p">,</span> <span class="n">FINALIZED</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">CommandStatus</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span> <span class="n">OK</span><span class="p">,</span> <span class="n">BLOCKED</span><span class="p">,</span> <span class="n">ERROR</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScoringStatus</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span> <span class="n">OK</span><span class="p">,</span> <span class="n">REJECT</span><span class="p">,</span> <span class="n">MARKER_MISSING</span><span class="p">,</span> <span class="n">UNIMPLEMENTED</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScoreClassification</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span> <span class="n">PASS_EXCELLENT</span><span class="p">,</span> <span class="n">PASS_ACCEPTABLE</span><span class="p">,</span> <span class="n">CONDITIONAL</span><span class="p">,</span> <span class="n">FAIL</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GateResult</span><span class="p">(</span><span class="n">TypedDict</span><span class="p">):</span>
+    <span class="n">gate</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="n">GateStatus</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span>
+    <span class="c1"># blocked_action / must_fix present only on FAIL — modeled via total=False supplements</span>
+</code></pre></div>
+<p><code>shared.py</code>'s <code>passed()</code>/<code>fail()</code> build <code>GateResult</code> from enum members. The <code>UNKNOWN</code>
+fallback in <code>phase_runner.py:155</code> becomes a proper <code>CommandStatus</code> member or an
+explicit error path. Because the result dicts are typed with the enum, <code>"status":
+"PASSED"</code> is a type error (not merely a runtime risk) under both checkers.</p>
+<h3 id="53-the-canonical-file-registry-fixes-d1">5.3 The canonical file registry (fixes D1)</h3>
+<p>A curated <strong>definition source</strong> of the project's file vocabulary — <em>not</em> a duplicate
+of per-skill facts (it is "schema", frontmatter is "data"):</p>
+<ul>
+<li><code>docs/framework/truth-files.yaml</code> — the authoritative list of canonical file
+  concepts (e.g. <code>truth/pending_hooks.md</code>, <code>world/story_bible.md</code>, <code>audits/chapter-N-&lt;dim&gt;.md</code>,
+  <code>genre-config.json</code>) plus <strong>parametric patterns</strong> (<code>chapters/chapter-N.md</code>,
+  <code>characters/major/*.md</code>) and <strong>declared globs</strong> (<code>truth/*.md</code>). One concept = one
+  canonical name → synonyms impossible by construction.</li>
+<li>Every <code>reads/writes/updates</code> entry must resolve to a registry concept, parametric
+  pattern, or declared glob. An unresolved path → <code>ContractError</code> at load + CI.
+  <strong>Each parametric pattern declares its glob equivalent</strong> (e.g. <code>chapters/chapter-N.md</code>
+  → <code>chapters/chapter-*.md</code>), so the generator's parametric→glob normalization
+  (§5.4) is a <strong>lookup, not inference</strong> — no ambiguity.</li>
+<li>Adding a genuinely new file = <strong>one edit</strong> to this registry; that single edit is
+  the PR-visible decision point that prevents silent synonym creation.</li>
+</ul>
+<h3 id="54-the-generator-just-generate-entry-point-shenbi-sync-contracts">5.4 The generator (<code>just generate</code> / entry point <code>shenbi-sync-contracts</code>)</h3>
+<p>Reads every skill's frontmatter contract <strong>via <code>contract.load_contract(skill)</code> per
+skill — it does not parse frontmatter independently</strong> (this keeps loader-uniqueness,
+§5.5 #4, intact — no third parser) — and <strong>derives</strong>:
+- <code>tests/tiers/deps.json</code> <strong><code>expected_outputs</code> — fully generated</strong> from each phase's
+  member skills' declared <code>writes</code>/<code>updates</code>:
+  - <strong>parametric→glob normalization</strong> — a registered parametric pattern
+    (<code>chapters/chapter-N.md</code>) → glob (<code>chapters/chapter-*.md</code>); declared globs
+    (<code>truth/*.md</code>) pass through; concrete paths stay concrete.
+  - <strong>generator round-trip self-check</strong> — every member skill <code>write</code>/<code>update</code> is
+    emitted as an expected_output and every emitted entry traces to a member write
+    (bijection within the phase). This catches generator bugs and any future curated
+    leak; it is a correctness check on the generator, not drift, since expected_outputs
+    is fully derived.
+  - (deps.json's organizational fields — membership, t3 ordering, <code>g4_checker</code>,
+    <code>_out_of_pipeline</code> — stay curated; only <code>expected_outputs</code> was the contract
+    duplicate. Per OD-2: <strong>keep</strong> deps.json, generate <code>expected_outputs</code> in place.)
+- <code>docs/framework/dependency-dag.json</code> — the <strong>NEW</strong> skill→file producer/consumer
+  graph (skill B <code>reads</code> file X that skill A <code>writes</code> ⇒ A→B). Not in deps.json today;
+  enables impact analysis, dead-input and cycle detection, and drives the
+  contract-completeness rule (a report consumed with no persisted producer write fails).
+- <code>docs/framework/truth-files.index.json</code> — generated usage index (which skills
+  read/write each file).
+- the <strong>auto-generated body <code>## 数据契约</code> view</strong> (§3.3, OD-1).</p>
+<p><strong>Output-quality linkage (G3):</strong> because the contract is now correct and validated,
+G1 (inputs exist) / G2 (outputs well-formed) / G4 (generative check) operate on the
+<em>right</em> file sets; <code>context-composing</code> assembles the <em>complete</em> truth-file context.
+Correct contract → correct gates → higher-fidelity output and fewer false PASS/FAIL.</p>
+<h3 id="55-the-lints-pre-commit-ci">5.5 The lints (pre-commit + CI)</h3>
+<ol>
+<li><strong>contract-schema</strong> — frontmatter <code>contract</code> validates against <code>Contract</code>; <code>kind</code>
+   ∈ enum; lists are path-strings resolving in the registry. Applies to the <strong>57
+   in-pipeline skills</strong>; the 2 meta skills (<code>using-shenbi</code>, <code>shenbi-writing-skills</code>)
+   are exempt (not in any phase/DAG — see <code>deps.json</code> <code>_out_of_pipeline</code>).</li>
+<li><strong>contract-completeness</strong> — a <code>REPORT</code> skill whose output is consumed downstream
+   (per DAG) declares a persisted <code>writes</code> path (kills the <code>"report only"</code> drift).</li>
+<li><strong>body-ban</strong> — <strong>scoped to <code>skills/*/SKILL.md</code> only</strong> (excludes
+   <code>tests/rounds/archived/**</code>, which legitimately retain legacy <code>**Reads:**</code> blocks);
+   rejects hand-written contract blocks or a non-auto-generated <code>## 数据契约</code>.</li>
+<li><strong>loader-uniqueness</strong> — <strong>only <code>contract.py</code> may read the frontmatter <code>contract:</code>
+   key</strong>; scan for <code>yload</code>/<code>contract</code>-key access outside <code>contract.py</code> and reject.
+   (Anchored to the <em>new</em> frontmatter format, not the legacy <code>**Reads:**</code> regex.)</li>
+<li><strong>generator-idempotency</strong> — <code>just generate</code> produces zero diff vs. committed
+   <code>deps.json</code> <code>expected_outputs</code> / registry index / DAG / body renders
+   (<code>git diff --exit-code</code>). Hand-edits to generated artifacts are rejected.</li>
+<li><strong>status-typing</strong> — result structures typed (<code>GateResult</code> etc.); <strong>no bare status
+   string-literals outside <code>status.py</code></strong>; enforced by <strong>both</strong> mypy and basedpyright
+   (basedpyright is the pre-commit gate).</li>
+<li><strong>terminology/section-header</strong> — glossary banned-synonym check (<code>hook pool</code>,
+   <code>truth-files</code>, <code>the author</code>) + canonical section-header set
+   (<code>流程</code>/<code>铁律</code>/数据契约<code>(auto)</code>/<code>Anti-Rationalization</code>/<code>输出格式</code>).</li>
+</ol>
+<h2 id="6-audit-solution-mapping">6. Audit → Solution mapping</h2>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>Root-cause fix</th>
+<th>Prevention mechanism (§4.2)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A — section-header drift (presentation-only)</td>
+<td>normalize the ~7 deviants to <code>输出格式</code>; lint the canonical set</td>
+<td>CI lint (detected); low impact noted</td>
+</tr>
+<tr>
+<td>B — terminology</td>
+<td>canonical: <code>hook ledger</code> (matches existing <code>truth/particle_ledger.md</code>); normalize <code>hook pool</code>→<code>hook ledger</code> (review-foreshadowing); also <code>truth-files</code>→<code>truth files</code> and <code>the author</code>→<code>your human partner</code></td>
+<td>glossary + banned-synonym lint (detected — prose ceiling)</td>
+</tr>
+<tr>
+<td>C — value-shape ambiguity + incomplete report contracts</td>
+<td>frontmatter <code>Contract</code> schema + <code>OutputKind</code> enum + <strong>completeness rule</strong> (report consumed downstream ⇒ persisted <code>writes</code>)</td>
+<td>schema + completeness: unexpressible (impossible)</td>
+</tr>
+<tr>
+<td>D1 — no registry</td>
+<td><code>truth-files.yaml</code> + resolution</td>
+<td>registry: unresolved path rejected (impossible); synonym → PR-visible (detected)</td>
+</tr>
+<tr>
+<td>D2 — duplicated parser</td>
+<td>single <code>contract.py</code></td>
+<td>loader-uniqueness lint on the frontmatter <code>contract:</code> key (impossible going forward)</td>
+</tr>
+<tr>
+<td>D3 — status overload</td>
+<td><code>status.py</code> enums + typed <code>GateResult</code> etc. + bare-string lint</td>
+<td>typed enums/structs + mypy <strong>and</strong> basedpyright (impossible)</td>
+</tr>
+<tr>
+<td>D4 — <code>expected_outputs</code> duplicates contracts</td>
+<td><strong>generate</strong> <code>expected_outputs</code> from member writes (parametric→glob) + completeness validation</td>
+<td>idempotency CI + orphan-validation (impossible)</td>
+</tr>
+</tbody>
+</table>
+<h2 id="7-migration">7. Migration</h2>
+<ol>
+<li><strong>Registry first.</strong> Author <code>docs/framework/truth-files.yaml</code> from the paths
+   observed in current contracts + <code>deps.json</code> expected_outputs (the audit's
+   extracted set). Decide canonical names for the synonym cases.</li>
+<li><strong>Migrator script (one-time).</strong> <code>tools/migrate_contract_to_frontmatter.py</code>
+   parses each skill's existing body <code>## 数据契约</code> block → emits frontmatter
+   <code>contract:</code>. Classification rules:</li>
+<li>review skills → <code>kind: report, writes: [audits/chapter-N-&lt;dim&gt;.md]</code> (verified
+     intent: deps.json expects it, <code>g3.py</code> routes <code>audits/</code> to report-type,
+     drift-guidance consumes it);</li>
+<li>other prose <code>writes</code> (<code>种植汇总</code>, <code>传导汇总</code>, …) → <code>kind: report</code>/<code>ephemeral</code>
+     with the persisted path if one exists, else <code>writes: []</code>;</li>
+<li>globs map to registered patterns; each skill's <code>kind</code> classified by inspection.</li>
+<li><strong>Rewire consumers.</strong> <code>executor.py</code>, <code>phase_runner.py</code> → <code>contract.load_contract</code>.
+   Introduce <code>status.py</code> + typed result structures. Generate <code>expected_outputs</code> in
+   deps.json from member writes (delete the hand-written copy).</li>
+<li><strong>Rewrite contract-format unit tests.</strong> <code>tests/unit/test_dispatcher_executor.py</code>
+   (tests the deleted <code>derive_input_files</code>/<code>derive_output_files</code>) and
+   <code>tests/unit/test_phase_runner.py:275-322</code> (hardcode the <code>**Reads:**</code>/<code>**Writes:**</code>
+   body format) encode the old contract shape; rewrite them against
+   <code>contract.load_contract</code> + frontmatter fixtures.</li>
+<li><strong>Remove body blocks.</strong> Strip hand-written <code>## 数据契约</code>; render auto-generated view.</li>
+<li><strong>Fix the test-input gap.</strong> Populate <code>tests/fixtures/audits/</code> so <code>shenbi-drift-guidance</code>
+   tests have the inputs its scenario references (currently empty).</li>
+<li><strong>Rollout.</strong> Skill-family by skill-family (worldbuilding/outline → characters →
+   foreshadowing → chapter pipeline → reviews), each behind the new lints green.
+   Migration tooling + a frozen snapshot of pre-migration contracts guard against
+   silent semantic change (diff the parsed contract pre/post).</li>
+</ol>
+<h2 id="8-testing-business-value-encoded">8. Testing (business-value encoded)</h2>
+<p>Each test asserts a <em>behavior</em>, and the prevention tests assert the inconsistent
+form is <strong>rejected</strong> (encoding "inconsistency is impossible"):</p>
+<ul>
+<li><code>contract/loader</code>: valid contract parses; missing/malformed → <code>ContractError</code>
+  (value: "a skill without a valid contract cannot load").</li>
+<li><code>contract/schema</code>: <code>writes: report only</code> (prose) → rejected; invalid <code>kind</code> →
+  rejected; non-list → rejected (value: "ambiguous value shapes cannot exist").</li>
+<li><code>contract/completeness</code>: a <code>REPORT</code> skill consumed downstream (per DAG) with
+  <code>writes: []</code> → <code>ContractError</code> (value: "a report needed by a later skill cannot be
+  silently ephemeral — the <code>report only</code> bug is impossible").</li>
+<li><code>contract/registry</code>: unresolved path → <code>ContractError</code>; parametric pattern + glob
+  resolve (value: "unregistered files cannot enter the system silently").</li>
+<li><code>generator/expected_outputs</code>: regenerated <code>expected_outputs</code> equals committed
+  (idempotency); an orphan expected_output (no producer) → fail; parametric→glob
+  normalization correct (value: "hand-edits and missing producers are caught").</li>
+<li><code>generator/dag</code>: producer/consumer edges correct; dead-input + cycle detection
+  fire (value: "missing producers and cycles surface").</li>
+<li><code>lint/loader-uniqueness</code>: reading the frontmatter <code>contract:</code> key in a module
+  other than <code>contract.py</code> → lint fails (value: "single loader is enforced").</li>
+<li><code>status</code>: each domain enum exhaustive; cross-domain assignment is a type error;
+  bare <code>"PASS"</code> literal outside <code>status.py</code> → lint/type error (value: "status typos
+  cannot land").</li>
+<li><code>lint/body-ban</code>: a hand-written body contract block in <code>skills/</code> → rejected;
+  archived fixtures under <code>tests/rounds/archived/**</code> are not flagged (value: "the
+  body cannot become a second source; legacy fixtures are exempt").</li>
+</ul>
+<h2 id="9-out-of-scope-future">9. Out of scope / future</h2>
+<ul>
+<li><strong>DAG viewer</strong> — the generated <code>dependency-dag.json</code> enables a UI / impact-analysis
+  CLI; deferred (N3).</li>
+<li><strong>Report schemas</strong> — for <code>kind: report</code> skills, an optional <code>report_schema</code> field
+  could define the report's internal shape for stronger validation; deferred until a
+  report skill needs it (YAGNI now).</li>
+<li><strong>Sidecar contract (Approach 3)</strong> — explicitly rejected for single-source
+  reasons (two files); frontmatter supersedes it.</li>
+</ul>
+<h2 id="10-resolved-decisions">10. Resolved decisions</h2>
+<ul>
+<li><strong>OD-1 (auto-rendered body block) — RESOLVED 2026-06-21: yes.</strong> Render the
+  auto-generated <code>## 数据契约</code> view into the body (idempotency-protected).</li>
+<li><strong>OD-2 (deps.json: keep vs split) — RESOLVED 2026-06-21: keep.</strong> deps.json stays
+  the curated organizational source; <code>expected_outputs</code> is generated in place. No
+  <code>phases.yaml</code> split (it would add a file without eliminating any drift surface).</li>
+<li><strong>OD-3 (canonical foreshadowing term) — RESOLVED 2026-06-21: <code>hook ledger</code>.</strong>
+  Chosen for semantic fit (stateful append-log), consistency with the existing
+  <code>truth/particle_ledger.md</code> convention, and file-name alignment
+  (<code>pending_hooks.md</code>). Normalize the 2 <code>hook pool</code> instances in
+  <code>shenbi-review-foreshadowing</code>; record in the glossary.</li>
+</ul>
+<h2 id="11-changelog-rev-2-post-review-fixes">11. Changelog (rev 2 — post-review fixes)</h2>
+<ul>
+<li><strong>[Critical] C↔D4 co-design.</strong> Resolved the contradiction where the C-fix
+  (<code>report only</code>→<code>writes: []</code>) made the D4-fix (<code>expected_outputs</code> from <code>writes</code>)
+  produce empty audit output. Verified review reports ARE persisted
+  (<code>deps.json:107-124</code>, <code>g3.py:116</code>, drift-guidance consumes <code>audits/</code>): review
+  contracts now declare <code>writes: [audits/chapter-N-&lt;dim&gt;.md]</code> + a completeness rule.</li>
+<li><strong>[Important] <code>expected_outputs</code> fully generated</strong> via parametric→glob
+  normalization + completeness validation (orphan entries fail). No curated
+  existential-glob category needed (every current entry traces to a producer once
+  contracts are complete).</li>
+<li><strong>[Important] D3 enforcement specified</strong> — typed <code>GateResult</code>/etc. result
+  structures + bare-status-string lint; both mypy <strong>and</strong> basedpyright named
+  (basedpyright = pre-commit gate).</li>
+<li><strong>[Important] D2 lint reframed</strong> to guard the <em>frontmatter <code>contract:</code> key</em>
+  (was anchored to the legacy <code>**Reads:**</code> regex, useless post-migration).</li>
+<li><strong>[Important] Test migration added</strong> (§7.4) — <code>test_dispatcher_executor.py</code> +
+  <code>test_phase_runner.py:275-322</code> rewritten; empty <code>tests/fixtures/audits/</code> populated.</li>
+<li><strong>[Minor]</strong> A flagged presentation-only (low impact); B enumerates <code>truth-files</code> +
+  <code>the author</code> stragglers; body-ban lint scoped to <code>skills/</code> (excludes archived rounds).</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

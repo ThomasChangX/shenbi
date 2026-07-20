@@ -1,0 +1,1980 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-19-end-to-end-validation-protocol-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 11: End-to-End Validation Protocol - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 11: End-to-End Validation Protocol - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-19-end-to-end-validation-protocol-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-19-end-to-end-validation-protocol-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 11: End-to-End Validation Protocol - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-19-end-to-end-validation-protocol-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-11-end-to-end-validation-protocol" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 11: End-to-End Validation Protocol
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-performance-baseline-chapter-size-and-time-are-uncorrelated-analytic-prior-to-be-validated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Performance Baseline: Chapter Size and Time Are Uncorrelated (Analytic Prior, To Be Validated)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Performance Baseline: Chapter Size and Time Are Uncorrelated (Analytic Prior, To Be Validated)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-empirical-findings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Empirical Findings
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-optimization-opportunity" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Optimization Opportunity
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-this-specs-role" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 This Spec's Role
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-required-per-chapter-timing-collection-infrastructure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Required: Per-Chapter Timing Collection Infrastructure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-four-stage-verification-protocol" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Four-Stage Verification Protocol
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Four-Stage Verification Protocol">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#stage-1-unit-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 1: Unit Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-2-mini-pipeline-3-chapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 2: Mini-Pipeline (3 Chapters)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-3-smoke-test-10-chapters" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 3: Smoke Test (10 Chapters)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-4-quality-gates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 4: Quality Gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-timeline-budget" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Timeline Budget
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-regression-risk-mitigations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Regression Risk Mitigations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Regression Risk Mitigations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-rollback-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Rollback Strategy
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-known-risk-areas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Known Risk Areas
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-validation-checklist-comprehensive" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Validation Checklist (Comprehensive)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Validation Checklist (Comprehensive)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#pre-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Pre-Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-1-unit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 1: Unit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-2-mini-pipeline-3-chapters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 2: Mini-Pipeline (3 Chapters)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-3-smoke-test-10-chapters_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 3: Smoke Test (10 Chapters)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#stage-4-quality-gates_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Stage 4: Quality Gates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#post-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Post-Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-reference-source-specs-absorbed" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Reference: Source Specs Absorbed
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-original-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Original Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-11-end-to-end-validation-protocol">Spec 11: End-to-End Validation Protocol</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Validation Plan (non-repair)
+<strong>Merged from:</strong> <code>2026-07-17-end-to-end-validation-after-fixes-design.md</code>, <code>2026-07-17-fix-chapter-size-time-uncorrelated-design.md</code> (absorbed as performance baseline)
+<strong>Purpose:</strong> Define a complete verification protocol to validate all 10 consolidated specs after implementation, establish a performance baseline from chapter timing analysis, and provide regression risk mitigations with per-spec rollback instructions.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>After all 10 consolidated specs are implemented across the Shenbi pipeline, no defined verification protocol exists to confirm effectiveness and rule out regressions. This spec provides that protocol. It also establishes a performance baseline from chapter timing analysis.</p>
+<blockquote>
+<p><strong>IMPORTANT — Provenance of the timing figures in this spec:</strong> The Pearson r = -0.002 (chapter size vs. generation time), the "35 resonance retries = 65% of time," the "79-93 min" heavy-retry range, and the "14 drafting retries = 25% of time" figures are <strong>analytic claims carried over from the original investigation's source spec (<code>2026-07-17-fix-chapter-size-time-uncorrelated-design.md</code>), not output of any committed script.</strong> No code in the codebase computes a Pearson correlation, and <strong>no per-chapter timing dataset currently exists</strong> (there is no <code>elapsed</code>/<code>generation_time</code>/<code>chapter_time</code>/<code>duration</code> field in <code>progress.json</code> or anywhere else in the repo) that would let these numbers be recomputed today. These figures are reproduced here as a <em>prior</em> to be validated; <strong>building the per-chapter timing collection infrastructure is itself a required deliverable of this validation protocol</strong> (see Section 2.4 and the new Stage 3 timing-instrumentation check). Until that instrumentation exists, the before/after comparison below is an analytic hypothesis, not a reproducible measurement.</p>
+</blockquote>
+<p>With that caveat, the baseline hypothesis is: chapter size and generation time are uncorrelated (Pearson r = -0.002). The hypothesized bottleneck is retry loops -- 35 resonance retries accounting for 65% of time on the slowest chapters. Fixing root-cause G4 format conflicts (Spec 2: Output Validation) is projected to reduce heavy-retry chapters from 79-93 minutes to approximately 15 minutes.</p>
+<hr />
+<h2 id="2-performance-baseline-chapter-size-and-time-are-uncorrelated-analytic-prior-to-be-validated">2. Performance Baseline: Chapter Size and Time Are Uncorrelated (Analytic Prior, To Be Validated)</h2>
+<blockquote>
+<p><strong>Reproducibility note:</strong> The findings below are <strong>analytic claims from the original investigation, not reproducible from code today.</strong> No committed script computes the Pearson coefficient, and no per-chapter timing field (<code>elapsed</code>/<code>generation_time</code>/<code>chapter_time</code>/<code>duration</code>) exists in <code>progress.json</code> or elsewhere in the repository, so these numbers cannot currently be recomputed. Section 2.3 makes timing-instrumentation a required part of this protocol so the baseline can be re-established empirically.</p>
+</blockquote>
+<h3 id="21-empirical-findings">2.1 Empirical Findings</h3>
+<p>Analysis of 56 generated chapters revealed (per the original investigation's source spec):</p>
+<ul>
+<li>
+<p><strong>Pearson correlation coefficient r = -0.002</strong> between chapter size (word count) and generation time. Chapter size has zero predictive power for generation time.</p>
+</li>
+<li>
+<p><strong>Top 5 slowest chapters (79-93 minutes):</strong> All driven by retry loops, not text length.</p>
+</li>
+<li><code>shenbi-review-resonance</code>: 35 retries (65% of total time)</li>
+<li>
+<p><code>shenbi-chapter-drafting</code>: 14 retries (25% of total time)</p>
+</li>
+<li>
+<p><strong>Fastest chapters (10-13 minutes):</strong> Zero retry chapters.</p>
+</li>
+<li>
+<p><strong>Single-point bottleneck:</strong> <code>shenbi-review-resonance</code> retries due to G4 format conflicts between the resonance scorer's expected output format and the LLM's actual output.</p>
+</li>
+</ul>
+<h3 id="22-optimization-opportunity">2.2 Optimization Opportunity</h3>
+<p>Fixing the root cause of G4 format conflicts (Spec 2: Output Validation) directly eliminates the primary reason for resonance retries. Expected impact (projected against the analytic baseline above):</p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Before Fix</th>
+<th>After Fix (Projected)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Heavy-retry chapter time</td>
+<td>79-93 min</td>
+<td>~15 min</td>
+</tr>
+<tr>
+<td>Resonance retry rate</td>
+<td>~35 retries on worst chapters</td>
+<td>&lt; 10%</td>
+</tr>
+<tr>
+<td>Average chapter time (zero-retry baseline)</td>
+<td>10-13 min</td>
+<td>10-13 min (unchanged)</td>
+</tr>
+<tr>
+<td>Average chapter time (overall)</td>
+<td>~25-30 min</td>
+<td>~15-18 min</td>
+</tr>
+<tr>
+<td>Total time savings for 100 chapters</td>
+<td>—</td>
+<td>~16-20 hours</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-this-specs-role">2.3 This Spec's Role</h3>
+<p>This spec does not contain independent fixes -- it provides the verification protocol to confirm that all other specs' fixes work as intended. The performance baseline serves as a before/after reference point for timing validation.</p>
+<h3 id="24-required-per-chapter-timing-collection-infrastructure">2.4 Required: Per-Chapter Timing Collection Infrastructure</h3>
+<p>Because the analytic baseline in 2.1 cannot currently be reproduced, this protocol REQUIRES building timing-collection instrumentation as a precondition for validating Section 2.2's projections. Specifically:</p>
+<ul>
+<li>Add a per-chapter timing record to <code>progress.json</code> (e.g. an <code>elapsed</code>/<code>generation_time</code> field keyed by chapter, plus per-skill and per-retry breakdown). No such field exists in the codebase today.</li>
+<li>Emit timing events during the chapter loop (<code>chapter_loop.py</code> / <code>dispatch_helper.py</code>) and retry loops so resonance/drafting retry counts and durations are captured.</li>
+<li>Persist a timing dataset sufficient to recompute the Pearson coefficient and the retry-share-of-time statistics independently of the original investigation.</li>
+</ul>
+<p>Until this instrumentation exists, the r = -0.002 figure and the 65% / 25% / "79-93 min" statistics must be treated as unverified analytic claims rather than measured results. The Stage 3 smoke test includes a check that timing data has actually been recorded (see Stage 3 checklist).</p>
+<hr />
+<h2 id="3-four-stage-verification-protocol">3. Four-Stage Verification Protocol</h2>
+<h3 id="stage-1-unit-verification">Stage 1: Unit Verification</h3>
+<p><strong>Goal:</strong> Confirm all code-level changes compile and pass static analysis without regression.</p>
+<p><strong>Command:</strong>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check
+</code></pre></div></p>
+<p>This runs: ruff (linting) + mypy (type checking) + basedpyright (type checking) + pytest (unit tests).</p>
+<p><strong>Pass criteria:</strong>
+- Zero failures across all four tools
+- All existing unit tests pass (244+ tests across <code>tests/unit/gates/</code> and <code>tests/unit/pipeline/</code>)
+- No new type errors or lint violations introduced</p>
+<p><strong>Key verification areas:</strong>
+- Gate modules: <code>g0.py</code>, <code>g1.py</code>, <code>g2.py</code>, <code>g3.py</code>, <code>g4/*.py</code>, <code>g5.py</code>, <code>g6.py</code>, <code>g7.py</code>
+- Pipeline modules: <code>chapter_loop.py</code>, <code>context_assemble.py</code>, <code>dispatch_helper.py</code>, <code>review_checklist.py</code>, <code>audit_layer.py</code>
+- New modules: <code>plan_skeleton.py</code> (if created), updated <code>snapshot.py</code> functions</p>
+<h3 id="stage-2-mini-pipeline-3-chapters">Stage 2: Mini-Pipeline (3 Chapters)</h3>
+<p><strong>Goal:</strong> Verify end-to-end pipeline execution on a small scale, catching integration issues that unit tests cannot detect.</p>
+<p><strong>Setup:</strong>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>init<span class="w"> </span>mini-test<span class="w"> </span>--seed<span class="w"> </span>test-seed.md
+uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>run<span class="w"> </span>mini-test<span class="w"> </span>--auto<span class="w"> </span>--max-chapters<span class="w"> </span><span class="m">3</span>
+</code></pre></div></p>
+<p><strong>Verification checklist (per chapter):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Check</th>
+<th>Method</th>
+<th>Pass Criteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Staging residue</td>
+<td><code>ls staging/</code></td>
+<td>Directory empty after each chapter</td>
+</tr>
+<tr>
+<td>Context file generation</td>
+<td><code>ls context/chapter-*-context.md</code></td>
+<td>N context files for N chapters</td>
+</tr>
+<tr>
+<td>Review checklist files</td>
+<td><code>ls context/review-checklist-*.json</code></td>
+<td>Delta files exist for each chapter; template exists once</td>
+</tr>
+<tr>
+<td>decisions.json validity</td>
+<td><code>python -c "import json; json.load(open('decisions.json'))"</code> per chapter round</td>
+<td><code>json.loads()</code> succeeds; <code>model_validate()</code> passes</td>
+</tr>
+<tr>
+<td>Revision decisions</td>
+<td>Check <code>decisions.json</code> for each chapter</td>
+<td>Revision decisions present for all applicable routes</td>
+</tr>
+<tr>
+<td>Gate markers</td>
+<td>Check <code>gate-markers/pipeline-manifest.json</code></td>
+<td>Manifest exists; all expected skills have G4 entries</td>
+</tr>
+<tr>
+<td>Snapshot coverage</td>
+<td><code>ls snapshots/chapter-00[1-3]-*.json</code></td>
+<td>Snapshot exists for each chapter</td>
+</tr>
+<tr>
+<td>Character archives</td>
+<td><code>ls characters/major/</code>, <code>ls characters/minor/</code></td>
+<td>Directories non-empty after Genesis</td>
+</tr>
+<tr>
+<td>Volume map context</td>
+<td>Check chapter plan content</td>
+<td>Plan references volume_map structure</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pass criteria:</strong> All checks pass for all 3 chapters. Zero staging residue. Zero JSONDecodeError in any decisions.json.</p>
+<h3 id="stage-3-smoke-test-10-chapters">Stage 3: Smoke Test (10 Chapters)</h3>
+<p><strong>Goal:</strong> Verify quality metrics hold over a sustained run, detecting drift and cumulative issues.</p>
+<p><strong>Setup:</strong>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pipeline<span class="w"> </span>run<span class="w"> </span>mini-test<span class="w"> </span>--auto<span class="w"> </span>--max-chapters<span class="w"> </span><span class="m">10</span><span class="w"> </span>--resume
+</code></pre></div></p>
+<p><strong>Verification checklist:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Metric</th>
+<th>Threshold</th>
+<th>Method</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>System term density</td>
+<td>&lt; 30 per mille (‰) throughout all 10 chapters</td>
+<td>Audit drift analysis on <code>audit_drift.md</code></td>
+</tr>
+<tr>
+<td>Density monotonicity</td>
+<td>Density does not monotonically increase across chapters</td>
+<td>Compare density trend across chapters 1-10</td>
+</tr>
+<tr>
+<td>Resonance retry rate</td>
+<td>&lt; 10% of chapters trigger resonance retries</td>
+<td>Parse pipeline logs for retry events (requires timing instrumentation from Section 2.4 to also record retry counts/durations)</td>
+</tr>
+<tr>
+<td>Context file coverage</td>
+<td>100% (10 context files for 10 chapters)</td>
+<td><code>ls context/chapter-*-context.md \| wc -l</code></td>
+</tr>
+<tr>
+<td>decisions.json validity</td>
+<td>100% (all 10 chapters have valid decisions.json)</td>
+<td>Batch validate all decisions files</td>
+</tr>
+<tr>
+<td>Protagonist presence</td>
+<td>&gt;= 3 mentions per chapter</td>
+<td>grep protagonist name in each chapter</td>
+</tr>
+<tr>
+<td>Word count range</td>
+<td>[2000, 8000] per chapter</td>
+<td><code>word_count_md()</code> on each chapter file</td>
+</tr>
+<tr>
+<td>Plan-to-content alignment</td>
+<td>Key term match rate &gt;= 80% with volume_map (from baseline 0%)</td>
+<td>Compare plan terms vs chapter content terms</td>
+</tr>
+<tr>
+<td>Snapshot coverage</td>
+<td>100% (10 snapshots for 10 chapters)</td>
+<td><code>ls snapshots/chapter-*.json \| wc -l</code></td>
+</tr>
+<tr>
+<td>Major character archives</td>
+<td>&gt;= 3 major character files created</td>
+<td><code>ls characters/major/*.md \| wc -l</code></td>
+</tr>
+<tr>
+<td>Per-chapter timing data</td>
+<td>100% (10/10 chapters have an elapsed/duration record)</td>
+<td>Verify <code>progress.json</code> contains timing field per chapter (infrastructure from Section 2.4)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Additional Stage 3 checks:</strong>
+- <code>review-checklist-template.json</code> exists and is referenced by all delta files
+- <code>bridge_tracker.md</code> shows updated states for bridges whose activation chapters fall within the 10-chapter range
+- <code>character_matrix.md</code> has slug-based cross-references updated per chapter
+- No <code>json.JSONDecodeError</code> in any pipeline log
+- <code>pipeline-manifest.json</code> contains hierarchical entries for all 10 chapters</p>
+<h3 id="stage-4-quality-gates">Stage 4: Quality Gates</h3>
+<p><strong>Goal:</strong> Final quality gate sweep to confirm production readiness.</p>
+<p><strong>Checklist:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Gate</th>
+<th>Check</th>
+<th>Pass Criteria</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>G0</td>
+<td>Contract calibration</td>
+<td>All contracts valid, hashes match</td>
+</tr>
+<tr>
+<td>G1</td>
+<td>Input readiness</td>
+<td>All declared reads exist on disk</td>
+</tr>
+<tr>
+<td>G2</td>
+<td>Output structure</td>
+<td>All outputs parse correctly; <code>G2.meta_ratio</code> &lt; 50% for all chapters</td>
+</tr>
+<tr>
+<td>G3</td>
+<td>Scoring independence</td>
+<td>No scoring function reads its own output</td>
+</tr>
+<tr>
+<td>G4</td>
+<td>Skill-specific structure</td>
+<td>No HARD G4 failures (legitimate triggers excepted); <code>G4.cd.major_chars</code> &gt;= 3; <code>G4.cd.minor_chars</code> &gt;= 2</td>
+</tr>
+<tr>
+<td>G5</td>
+<td>Coverage completeness</td>
+<td>Audit reports cover all review skills</td>
+</tr>
+<tr>
+<td>G6</td>
+<td>Phase transitions</td>
+<td>All phase state transitions valid</td>
+</tr>
+<tr>
+<td>G7</td>
+<td>Pipeline integrity</td>
+<td>Phase state + gate markers verified end-to-end</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pass criteria for Stage 4:</strong>
+- No HARD G4 failures (triggered escalations are acceptable; format-driven failures are not)
+- No <code>json.JSONDecodeError</code> in any pipeline log across all 10 chapters
+- No staging residue at any checkpoint
+- All chapter word counts within [2000, 8000] range
+- Snapshot coverage: 100% (all chapters have differential snapshots)
+- <code>just check</code> passes with zero failures</p>
+<hr />
+<h2 id="4-timeline-budget">4. Timeline Budget</h2>
+<table>
+<thead>
+<tr>
+<th>Stage</th>
+<th>Estimated Time</th>
+<th>Cumulative</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Stage 1 (unit)</td>
+<td>~2 minutes</td>
+<td>2 minutes</td>
+</tr>
+<tr>
+<td>Stage 2 (3-chapter mini-pipeline)</td>
+<td>~45-60 minutes (3 chapters * 15-20 min)</td>
+<td>~1 hour</td>
+</tr>
+<tr>
+<td>Stage 3 (10-chapter smoke test)</td>
+<td>~2.5-3 hours (10 chapters * 15-18 min)</td>
+<td>~3.5-4 hours</td>
+</tr>
+<tr>
+<td>Stage 4 (quality gates)</td>
+<td>~10 minutes</td>
+<td>~4 hours</td>
+</tr>
+<tr>
+<td><strong>Total</strong></td>
+<td><strong>~4 hours</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-regression-risk-mitigations">5. Regression Risk Mitigations</h2>
+<h3 id="51-rollback-strategy">5.1 Rollback Strategy</h3>
+<p>Each consolidated spec's changes are concentrated in a small set of files. Rollback uses <code>git revert</code> on the implementing commit(s):</p>
+<table>
+<thead>
+<tr>
+<th>Spec</th>
+<th>Primary Files Changed</th>
+<th>Rollback Command</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Spec 1 (Truth File)</td>
+<td><code>truth_index.py</code>, <code>truth_io.py</code>, <code>state-settling</code> SKILL.md, <code>chapter_loop.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 2 (Output Validation)</td>
+<td><code>dispatch_helper.py</code>, <code>g2.py</code>, <code>g4/decisions_validator.py</code>, <code>g4/chapter_revision.py</code>, <code>g4/review_resonance.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 3 (Dispatch Safety)</td>
+<td><code>chapter_loop.py</code>, <code>dispatch_helper.py</code>, <code>checkpoint.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 4 (Context Persistence)</td>
+<td><code>context_assemble.py</code>, <code>context_curation.py</code>, <code>chapter_loop.py</code>, <code>drift_detection/linguistic_drift.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 5 (Content Quality)</td>
+<td><code>g4/chapter_drafting.py</code>, <code>chapter_loop.py</code>, <code>context-composing</code> SKILL.md</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 6 (Pipeline Architecture)</td>
+<td><code>chapter_loop.py</code>, <code>dispatch_helper.py</code>, SCR extractor, <code>context_assemble.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 7 (Infrastructure)</td>
+<td><code>phase_runner.py</code>, <code>crash_recovery.py</code>, <code>dispatch_helper.py</code>, <code>executor.py</code>, <code>state.py</code></td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 8 (LLM Context)</td>
+<td><code>dispatch_helper.py</code>, <code>context_assemble.py</code>, various SKILL.md files</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 9 (Content Planning)</td>
+<td><code>context_assemble.py</code>, <code>plan_skeleton.py</code>, <code>character-design</code> SKILL.md, <code>chapter-drafting</code> SKILL.md</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+<tr>
+<td>Spec 10 (Data Storage)</td>
+<td><code>dispatch_helper.py</code>, <code>chapter_loop.py</code>, <code>context-composing</code> SKILL.md, snapshot logic</td>
+<td><code>git revert &lt;commit&gt;</code></td>
+</tr>
+</tbody>
+</table>
+<p>After any rollback, re-run Stage 1-2 verification to confirm restoration.</p>
+<h3 id="52-known-risk-areas">5.2 Known Risk Areas</h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Likelihood</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Old pipeline state format incompatible with new code</td>
+<td>Medium</td>
+<td>Stage 1 unit tests cover state loading (<code>test_state.py</code>, <code>test_machine.py</code>)</td>
+</tr>
+<tr>
+<td>Content size guard (Spec 3: Dispatch Safety and File Integrity) falsely triggers on legitimate concise rewrites</td>
+<td>Low</td>
+<td>Threshold is conservative (20%), WARN only</td>
+</tr>
+<tr>
+<td>Linguistic drift detection (Spec 4: Context Persistence) false-positives on experimental style</td>
+<td>Low</td>
+<td>WARN/HARD/ESCALATE three-tier; requires consecutive triggering</td>
+</tr>
+<tr>
+<td>G4 feedback format examples not effective on certain LLM models</td>
+<td>Medium</td>
+<td>Preserve original check IDs; examples are additive, not replacement</td>
+</tr>
+<tr>
+<td>Plan skeleton (Spec 9) too rigid, stifles LLM creativity</td>
+<td>Low</td>
+<td>Section 5 (Key Decisions) is fully LLM-generated; skeleton provides guidance only</td>
+</tr>
+<tr>
+<td>Differential snapshot (Spec 10) hash mismatch on legitimate file updates</td>
+<td>Low</td>
+<td>Hash verification is WARN-level only; truth file content is fully backed up</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-validation-checklist-comprehensive">6. Validation Checklist (Comprehensive)</h2>
+<h3 id="pre-validation">Pre-Validation</h3>
+<ul>
+<li>[ ] All 10 consolidated specs have implementation complete</li>
+<li>[ ] <code>just check</code> passes with zero failures on implementation branch</li>
+<li>[ ] Test seed document (<code>test-seed.md</code>) is ready and representative</li>
+<li>[ ] Pipeline init succeeds: <code>uv run pipeline init validation-run --seed test-seed.md</code></li>
+</ul>
+<h3 id="stage-1-unit">Stage 1: Unit</h3>
+<ul>
+<li>[ ] <code>ruff check</code> -- zero errors</li>
+<li>[ ] <code>mypy</code> -- zero errors</li>
+<li>[ ] <code>basedpyright</code> -- zero errors</li>
+<li>[ ] <code>pytest</code> -- zero failures</li>
+</ul>
+<h3 id="stage-2-mini-pipeline-3-chapters_1">Stage 2: Mini-Pipeline (3 Chapters)</h3>
+<ul>
+<li>[ ] Chapter 1 completes with all audits + revision</li>
+<li>[ ] Chapter 2 completes with all audits + revision</li>
+<li>[ ] Chapter 3 completes with all audits + revision</li>
+<li>[ ] Zero staging residue after each chapter</li>
+<li>[ ] <code>progress.json</code> updated after each chapter</li>
+<li>[ ] <code>context/</code> has 3 context files</li>
+<li>[ ] <code>context/review-checklist-template.json</code> exists</li>
+<li>[ ] <code>context/review-checklist-chapter-[1-3].json</code> exist</li>
+<li>[ ] <code>decisions.json</code> valid for all 3 chapters</li>
+<li>[ ] <code>gate-markers/pipeline-manifest.json</code> contains hierarchical entries</li>
+<li>[ ] <code>snapshots/</code> has 3 differential snapshots (<code>.json</code> format, not <code>.md</code>)</li>
+<li>[ ] <code>characters/major/</code> non-empty after Genesis</li>
+<li>[ ] <code>characters/minor/</code> non-empty after Genesis</li>
+<li>[ ] Chapter plans reference volume_map structure</li>
+</ul>
+<h3 id="stage-3-smoke-test-10-chapters_1">Stage 3: Smoke Test (10 Chapters)</h3>
+<ul>
+<li>[ ] All 10 chapters complete</li>
+<li>[ ] System term density &lt; 30 per mille in all chapters</li>
+<li>[ ] Density does not monotonically increase</li>
+<li>[ ] Resonance retry rate &lt; 10%</li>
+<li>[ ] Per-chapter timing data recorded for all 10 chapters (<code>progress.json</code> timing field exists; Section 2.4 instrumentation built)</li>
+<li>[ ] Context file coverage: 100% (10/10)</li>
+<li>[ ] decisions.json validity: 100% (10/10)</li>
+<li>[ ] Protagonist presence: &gt;= 3 mentions per chapter</li>
+<li>[ ] Word count: [2000, 8000] for all chapters</li>
+<li>[ ] Plan-to-content key term match &gt;= 80%</li>
+<li>[ ] Snapshot coverage: 100% (10/10)</li>
+<li>[ ] Major character archives: &gt;= 3</li>
+<li>[ ] <code>bridge_tracker.md</code> updates for bridges in activation range</li>
+<li>[ ] <code>character_matrix.md</code> slug references updated</li>
+<li>[ ] No <code>json.JSONDecodeError</code> in pipeline logs</li>
+</ul>
+<h3 id="stage-4-quality-gates_1">Stage 4: Quality Gates</h3>
+<ul>
+<li>[ ] G0: all contract hashes match</li>
+<li>[ ] G1: all declared reads exist on disk</li>
+<li>[ ] G2: all outputs parse; <code>G2.meta_ratio</code> &lt; 50% for all chapters</li>
+<li>[ ] G3: no scoring function reads its own output</li>
+<li>[ ] G4: no HARD failures (legitimate triggers excepted); <code>G4.cd.major_chars</code> &gt;= 3; <code>G4.cd.minor_chars</code> &gt;= 2</li>
+<li>[ ] G5: audit report coverage complete</li>
+<li>[ ] G6: all phase state transitions valid</li>
+<li>[ ] G7: phase state + gate markers verified</li>
+</ul>
+<h3 id="post-validation">Post-Validation</h3>
+<ul>
+<li>[ ] Performance: average chapter time &lt; 18 minutes (measured from timing instrumentation built in Section 2.4; the "~25-30 min" baseline is an analytic prior from the original investigation, not a reproducible measurement, and must be re-established empirically before comparison)</li>
+<li>[ ] No regressions detected vs pre-fix baseline (baseline re-measured using the new timing instrumentation)</li>
+<li>[ ] All verification criteria from merged source specs satisfied</li>
+</ul>
+<hr />
+<h2 id="7-dependencies">7. Dependencies</h2>
+<p>This spec depends on all 10 other consolidated specs being fully implemented. It is the final verification gate before declaring the fix cycle complete.</p>
+<div class="highlight"><pre><span></span><code>Spec 1  (Truth File and State Accumulation)
+Spec 2  (Output Validation and Format Enforcement) ← directly enables performance improvement
+Spec 3  (Dispatch Safety and File Integrity)
+Spec 4  (Context Persistence and Linguistic Drift Prevention)
+Spec 5  (Content Quality Gates and Review Optimization)
+Spec 6  (Pipeline Architecture Optimization)
+Spec 7  (Pipeline Infrastructure and Resilience)
+Spec 8  (LLM Context Engineering)
+Spec 9  (Content Planning and Deliverable Design)
+Spec 10 (Data Storage Optimization)
+  └── This Spec (End-to-End Validation Protocol)
+</code></pre></div>
+<p>The performance improvement projected in Section 2.2 is primarily dependent on Spec 2 (Output Validation and Format Enforcement) eliminating the retry bottleneck that the original investigation attributed to ~65% of time on the slowest chapters (an analytic claim -- see Section 2.1/2.4 reproducibility note -- to be re-measured via the timing instrumentation built under this protocol). Without Spec 2, the ~15-minute target for heavy-retry chapters is not achievable.</p>
+<hr />
+<h2 id="8-reference-source-specs-absorbed">8. Reference: Source Specs Absorbed</h2>
+<table>
+<thead>
+<tr>
+<th>Source Spec</th>
+<th>Absorbed Into</th>
+<th>Role in This Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>2026-07-17-end-to-end-validation-after-fixes-design.md</code></td>
+<td>This Spec</td>
+<td>Stage definitions, verification checklist, rollback plan</td>
+</tr>
+<tr>
+<td><code>2026-07-17-fix-chapter-size-time-uncorrelated-design.md</code></td>
+<td>This Spec</td>
+<td>Performance baseline (Section 2), timing targets -- NOTE: its findings (r=-0.002, 65%/25% retry share, 79-93 min) are analytic claims, not reproducible from code; Section 2.4 requires building timing instrumentation to re-verify them</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-original-code-mapping">9. Original Code Mapping</h2>
+<p>This consolidated spec merges the following original issue codes:</p>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Section in This Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validation</code></td>
+<td>End-to-end validation protocol after all fixes</td>
+<td>3, 4, 5, 6</td>
+</tr>
+<tr>
+<td><code>chapter-size-time</code></td>
+<td>Chapter size and generation time are uncorrelated (performance baseline; analytic prior to be re-verified via Section 2.4 timing instrumentation)</td>
+<td>2</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

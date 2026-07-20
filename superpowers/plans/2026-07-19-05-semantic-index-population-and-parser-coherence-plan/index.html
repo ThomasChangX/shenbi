@@ -1,0 +1,1805 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-05-semantic-index-population-and-parser-coherence-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Semantic Index Population and Parser Schema Coherence Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Semantic Index Population and Parser Schema Coherence Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-05-semantic-index-population-and-parser-coherence-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-05-semantic-index-population-and-parser-coherence-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Semantic Index Population and Parser Schema Coherence Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-05-semantic-index-population-and-parser-coherence-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#semantic-index-population-and-parser-schema-coherence-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Semantic Index Population and Parser Schema Coherence Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-broaden-_hook_id_re-and-fix-_rule_re-_parse_rules-multi-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Broaden _HOOK_ID_RE and fix _RULE_RE / _parse_rules (multi-format)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-dual-source-hook-extraction-frontmatter-body" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Dual-source hook extraction (frontmatter + body)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-population-assertion-in-build_index-silent-success-failure-detection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Population assertion in build_index (silent-success-failure detection)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-guard-the-g4-gate-is-unchanged-full-regression" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Guard the G4 gate is unchanged + full regression
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-verify-against-production-truth-files-informational-then-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Verify against production truth files (informational, then commit)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="semantic-index-population-and-parser-schema-coherence-implementation-plan">Semantic Index Population and Parser Schema Coherence Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Fix the <code>truth_index.py</code> parser so the semantic index actually populates from production truth files — rule headings in Chinese-ordinal format (<code>## 规则一：</code>) and hook IDs in <code>P0-N</code> format stored in the markdown body — instead of silently returning empty <code>hooks: {}</code> and <code>rules: {}</code>, and add a population assertion that fails loudly the next time a parser/format mismatch produces an empty index.</p>
+<p><strong>Architecture:</strong> Three surgical changes to <code>src/shenbi/pipeline/truth_index.py</code>: (1) <code>_RULE_RE</code> is replaced by a multi-format <code>_parse_rules</code> that accepts both <code>## 规则一：…</code> and the existing <code>## R1: …</code> / <code>## 1: …</code> numeric form (backward-compatible — existing <code>R1</code> tests stay green); (2) <code>_HOOK_ID_RE</code> is broadened to also match production <code>P0-N</code> IDs, and <code>_index_hooks</code> gains a dual-source path that scans the body for hook references when the frontmatter <code>hooks:</code> list is absent (the production state); (3) <code>build_index</code> gains a post-build population assertion that logs a warning when source files have content but the index is empty. The G4 worldbuilding gate is explicitly NOT modified (it already handles <code>## 规则</code> headings).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, <code>re</code>, <code>pathlib</code>, <code>yaml</code> (PyYAML), pytest. No new runtime dependencies.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> retained</li>
+<li><code>pathlib.Path</code> for all file I/O; <code>safe_write</code> for index persistence</li>
+<li>No <code>print()</code> in framework code; use structlog (<code>shenbi.logging.get_logger</code>)</li>
+<li><strong>Backward compatibility is mandatory:</strong> the existing <code>tests/unit/pipeline/test_truth_index.py</code> uses <code>H01</code> hook IDs and <code>## R1:</code> / <code>## 1:</code> rule headings and MUST keep passing unchanged. New formats are ADDITIVE.</li>
+<li><strong>The G4 gate (<code>src/shenbi/gates/g4/worldbuilding.py:88-96</code>) must NOT be modified</strong> — it already handles <code>## 规则</code> headings via <code>max(heading_rules, numbered_rules)</code>.</li>
+<li>Tests under <code>tests/unit/pipeline/</code> alongside the existing <code>test_truth_index.py</code></li>
+<li>Conventional Commits: <code>fix:</code> for the parser corrections</li>
+<li><code>just check</code> (ruff + mypy + basedpyright + pytest) must pass after every task</li>
+</ul>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md</code></p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/pipeline/
+    truth_index.py               # MODIFY — _RULE_RE/_parse_rules, _HOOK_ID_RE,
+                                 #          _index_hooks (dual-source), build_index assertion
+
+tests/unit/pipeline/
+    test_truth_index.py          # EXISTING — must stay green (H01/R1 format)
+    test_truth_index_population.py  # NEW — Chinese-ordinal rules, P0-N hooks,
+                                    #       body-source hooks, population assertion
+</code></pre></div>
+<blockquote>
+<p><strong>Critical codebase findings that refine the spec:</strong>
+1. <strong>Rule headings</strong> — production <code>world/rules.md</code> uses <code>## 规则一：灵能总量守恒</code>, <code>## 规则二：…</code>, … <code>## 规则十：…</code>. The current <code>_RULE_RE = r"^##\s+(R?\d+)[:.]?\s*(.+)$"</code> matches NONE of these (verified: the regex requires a digit). Existing tests use <code>## R1:</code> / <code>## 1:</code> and must keep working. Fix: ADD a Chinese-ordinal regex, try both.
+2. <strong>Hook IDs</strong> — production <code>truth/pending_hooks.md</code> body uses <code>P0-4</code>, <code>P0-9</code>, <code>P0-14</code>, … The current <code>_HOOK_ID_RE = r"[HM]\d+"</code> matches NEITHER <code>P0-4</code> (starts with <code>P</code>) NOR the body format. Fix: broaden to also match <code>P0-\d+</code>.
+3. <strong>Hook source</strong> — production <code>pending_hooks.md</code> frontmatter is metadata-only (title/project/version/...); there is NO <code>hooks:</code> list. Hooks live in the body as <code>### P0-N …</code> headings and tables. The deterministic <code>hook_planting.py</code> path DOES write a <code>hooks:</code> frontmatter list, but the LLM track/state-settling path writes body only, and the production file's frontmatter list is absent. Fix: <code>_index_hooks</code> scans BOTH frontmatter (existing) AND body (new).
+4. <strong>G4 gate is correct</strong> — <code>gates/g4/worldbuilding.py:94</code> already does <code>heading_rules = len(re.findall(r"## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+", rc))</code>. Do not touch it.</p>
+</blockquote>
+<hr />
+<h3 id="task-1-broaden-_hook_id_re-and-fix-_rule_re-_parse_rules-multi-format">Task 1: Broaden <code>_HOOK_ID_RE</code> and fix <code>_RULE_RE</code> / <code>_parse_rules</code> (multi-format)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/truth_index.py:30-32</code> (the two module-level compiled regexes) and <code>:149-162</code> (<code>_index_rules</code>)
+- Test: <code>tests/unit/pipeline/test_truth_index_population.py</code> (new)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing new
+- Produces: <code>_RULE_HEADING_RE</code>, <code>_RULE_NUMERIC_RE</code> (replace the single <code>_RULE_RE</code>), <code>_parse_rules(rules_text) -&gt; list[tuple[str, str]]</code>, broadened <code>_HOOK_ID_RE</code>. Task 2 reuses <code>_HOOK_ID_RE</code> for body hook extraction; Task 3's assertion reuses the index fields.</p>
+<p><strong>Context:</strong> The existing <code>_RULE_RE</code> is used only inside <code>_index_rules</code>. We split it into two patterns and a helper that tries both. The existing <code>R1</code>/<code>1:</code> tests pass because <code>_RULE_NUMERIC_RE</code> is the old pattern verbatim.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_truth_index_population.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Population tests for truth_index — verify the parser extracts entities from</span>
+<span class="sd">the formats actually produced by the skills (Chinese-ordinal rules, P0-N hooks).</span>
+
+<span class="sd">Spec: 2026-07-19 semantic-index-population-and-parser-coherence-design §3.1/§3.2.</span>
+<span class="sd">These are ADDITIVE: the legacy H01 / R1 formats in test_truth_index.py must</span>
+<span class="sd">still pass.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_index</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_index</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;project&quot;</span>
+    <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestChineseOrdinalRules</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_extracts_chinese_ordinal_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# 世界铁律</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 规则一：灵能总量守恒</span><span class="se">\n</span><span class="s2">宇宙间灵能的总量是有限的。</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 规则二：知识即力量上限</span><span class="se">\n</span><span class="s2">一个个体能调用的灵能上限受限。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;expected 2 Chinese-ordinal rules, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(keys=</span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># The ID captured is the ordinal (一 / 二).</span>
+        <span class="k">assert</span> <span class="s2">&quot;一&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">rules</span>
+        <span class="k">assert</span> <span class="s2">&quot;二&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">rules</span>
+        <span class="k">assert</span> <span class="s2">&quot;守恒&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="s2">&quot;一&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extra</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_numeric_rules_still_work</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Legacy R1 / 1: format — must not regress (existing testTruthIndex).&quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;## R1: Magic exists</span><span class="se">\n</span><span class="s2">## R2: Dragons</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;R1&quot;</span><span class="p">,</span> <span class="s2">&quot;R2&quot;</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_mixed_numeric_and_chinese_ordinals</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;## 规则一：守恒</span><span class="se">\n</span><span class="s2">## R2: Dragons</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestHookIdRegex</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_p0_hook_ids_matched_in_plan</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;extract_entities_from_plan must recognise P0-N production IDs.&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_index</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_entities_from_plan</span>
+
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">hooks:</span><span class="se">\n</span><span class="s2">  - id: P0-4</span><span class="se">\n</span><span class="s2">    content: quiet structure</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2"># Hooks</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;P0-4&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span>
+        <span class="n">plan</span> <span class="o">=</span> <span class="s2">&quot;本章回访 P0-4 与 P0-9 两条伏笔。&quot;</span>
+        <span class="n">hits</span> <span class="o">=</span> <span class="n">extract_entities_from_plan</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">plan</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;P0-4&quot;</span> <span class="ow">in</span> <span class="n">hits</span><span class="p">[</span><span class="s2">&quot;hooks&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py -v</code>
+Expected: FAIL — <code>test_extracts_chinese_ordinal_rules</code> gets 0 rules; <code>test_p0_hook_ids_matched_in_plan</code> fails because <code>P0-4</code> is not recognised.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/truth_index.py</code>, replace lines 29-32:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Hook ids embedded in prose, e.g. &quot;resolve H01&quot; or &quot;payoff MH02&quot;.</span>
+<span class="n">_HOOK_ID_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;[HM]\d+&quot;</span><span class="p">)</span>
+<span class="c1"># Rule headings like &quot;## R1: ...&quot; or &quot;## 2. ...&quot;.</span>
+<span class="n">_RULE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^##\s+(R?\d+)[:.]?\s*(.+)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Hook ids embedded in prose. Supports BOTH the legacy canonical form</span>
+<span class="c1"># (``H01``, ``MH02``) AND the production form used by shenbi-foreshadowing-*</span>
+<span class="c1"># (``P0-4``, ``P0-9``). Spec §3.2b.</span>
+<span class="n">_HOOK_ID_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:[HM]\d+|P\d*-\d+)&quot;</span><span class="p">)</span>
+<span class="c1"># Rule headings — Chinese ordinals: ``## 规则一：能量守恒`` (production).</span>
+<span class="n">_RULE_HEADING_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;^##\s+规则\s*[：:.]?\s*([一二三四五六七八九十百\d]+)[:：]?\s*(.+)$&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="c1"># Rule headings — legacy numeric IDs: ``## R1: ...`` / ``## 2. ...``.</span>
+<span class="n">_RULE_NUMERIC_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^##\s+(R?\d+)[:.]?\s*(.+)$&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_rules</span><span class="p">(</span><span class="n">rules_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse worldbuilding rule headings. Supports both formats:</span>
+
+<span class="sd">    * Chinese ordinals: ``## 规则一：能量守恒`` (production)</span>
+<span class="sd">    * Numeric IDs:      ``## 1:`` / ``## R1:`` (legacy + tests)</span>
+
+<span class="sd">    Returns a list of ``(rule_id, content)`` tuples. A line matching both</span>
+<span class="sd">    patterns is yielded once (Chinese-ordinal takes precedence).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rules</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">seen_spans</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">rx</span> <span class="ow">in</span> <span class="p">(</span><span class="n">_RULE_HEADING_RE</span><span class="p">,</span> <span class="n">_RULE_NUMERIC_RE</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">rx</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">rules_text</span><span class="p">):</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">())</span> <span class="ow">in</span> <span class="n">seen_spans</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">seen_spans</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">start</span><span class="p">(),</span> <span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">()))</span>
+            <span class="n">rules</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">),</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()))</span>
+    <span class="k">return</span> <span class="n">rules</span>
+</code></pre></div>
+<p>Then replace the body of <code>_index_rules</code> (lines 149-162):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_index_rules</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">TruthIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Index world rules declared as ``## &lt;id&gt;: &lt;text&gt;`` headings.</span>
+
+<span class="sd">    Supports Chinese ordinals (``## 规则一：``) and numeric IDs (``## R1:``).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">rules_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rules_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">rules_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rule_id</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">_parse_rules</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">[</span><span class="n">rule_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">IndexEntry</span><span class="p">(</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;rule&quot;</span><span class="p">,</span>
+            <span class="n">entity_id</span><span class="o">=</span><span class="n">rule_id</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="s2">&quot;world/rules.md&quot;</span><span class="p">,</span>
+            <span class="n">ref</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;world/rules.md#</span><span class="si">{</span><span class="n">rule_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">content</span><span class="p">},</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py tests/unit/pipeline/test_truth_index.py -v</code>
+Expected: PASS — the new Chinese-ordinal / <code>P0-N</code> tests pass AND the legacy <code>R1</code>/<code>H01</code> tests still pass.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/truth_index.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_truth_index_population.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(truth_index): support Chinese-ordinal rules + P0-N hook IDs (E30)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-dual-source-hook-extraction-frontmatter-body">Task 2: Dual-source hook extraction (frontmatter + body)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/truth_index.py:123-146</code> (<code>_index_hooks</code>)
+- Test: <code>tests/unit/pipeline/test_truth_index_population.py</code> (add a class)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>_HOOK_ID_RE</code> (broadened in Task 1), <code>_parse_frontmatter</code>
+- Produces: <code>_index_hooks</code> now reads hooks from BOTH the frontmatter <code>hooks:</code> list (existing) AND the markdown body (new). Body hooks are keyed by their <code>P0-N</code> / <code>H\d+</code> / <code>M\d+</code> ID.</p>
+<p><strong>Context:</strong> Production <code>pending_hooks.md</code> has NO <code>hooks:</code> frontmatter list — only metadata. Hooks appear in the body as <code>### P0-N …</code> headings and inside tables. We scan every body line for hook IDs via <code>_HOOK_ID_RE</code> and index any not already captured from the frontmatter. This is additive: when the frontmatter list IS present (deterministic plant path), it stays authoritative.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Append to <code>tests/unit/pipeline/test_truth_index_population.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestDualSourceHooks</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_body_only_hooks_indexed_when_frontmatter_absent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Production state: frontmatter has no `hooks:` list, hooks live in</span>
+<span class="sd">        the body as ``### P0-N ...`` headings.&quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;title: 伏笔追踪</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;project: 星火燃穹</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;last_chapter: 56</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;# 伏笔追踪</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;## 第56章伏笔呈现</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;### P0-4 TRIGGER 证据</span><span class="se">\n</span><span class="s2">安静在阈附近完整段落。</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;### P0-9 偏移周日格式</span><span class="se">\n</span><span class="s2">偏移段未从周日格式对照。</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;回访 P0-14 与 P0-15 两条伏笔。</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;expected &gt;=4 body hooks, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(keys=</span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;P0-4&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span>
+        <span class="k">assert</span> <span class="s2">&quot;P0-9&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span>
+        <span class="k">assert</span> <span class="s2">&quot;P0-14&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_frontmatter_hooks_remain_authoritative</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;When the frontmatter `hooks:` list IS present, those entries keep</span>
+<span class="sd">        their richer extra payload; body hooks only fill gaps.&quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;hooks:</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;  - id: H01</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    content: Magic sword</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    state: PLANTED</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    last_reinforced: 3</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;    max_distance: 25</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;# Hooks</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;### H01 the sword</span><span class="se">\n</span><span class="s2">### H02 new from body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="c1"># H01 came from frontmatter — keeps its payload.</span>
+        <span class="k">assert</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="s2">&quot;H01&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;PLANTED&quot;</span>
+        <span class="c1"># H02 came from body — minimal entry.</span>
+        <span class="k">assert</span> <span class="s2">&quot;H02&quot;</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_duplicate_when_id_in_both_sources</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">hooks:</span><span class="se">\n</span><span class="s2">  - id: P0-4</span><span class="se">\n</span><span class="s2">    content: fm</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;### P0-4 body mention</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="c1"># Frontmatter content wins.</span>
+        <span class="k">assert</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="s2">&quot;P0-4&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">extra</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content_keywords&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;fm&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py::TestDualSourceHooks -v</code>
+Expected: FAIL — <code>test_body_only_hooks_indexed_when_frontmatter_absent</code> gets 0 hooks (frontmatter has no <code>hooks:</code> key).</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/truth_index.py</code>, replace <code>_index_hooks</code> (lines 123-146):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split a markdown file into (frontmatter_dict, body_text).</span>
+
+<span class="sd">    Returns ``({}, text)`` when there is no frontmatter. Mirrors</span>
+<span class="sd">    :func:`_parse_frontmatter` but also returns the body for body-source</span>
+<span class="sd">    extraction (spec §3.2b).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">text</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">text</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+    <span class="n">fm</span> <span class="o">=</span> <span class="n">data</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">fm</span><span class="p">,</span> <span class="n">parts</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_index_hooks</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">idx</span><span class="p">:</span> <span class="n">TruthIndex</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Index hook records from truth/pending_hooks.md (dual-source).</span>
+
+<span class="sd">    Source 1 — YAML frontmatter ``hooks`` list: authoritative, written by</span>
+<span class="sd">    :mod:`shenbi.pipeline.hook_planting`. Carries the rich payload (state,</span>
+<span class="sd">    last_reinforced, max_distance, content).</span>
+
+<span class="sd">    Source 2 — markdown body: hook IDs (``P0-N`` / ``H\\d+`` / ``M\\d+``)</span>
+<span class="sd">    appearing anywhere in the body. Catches entries written by the LLM</span>
+<span class="sd">    track / state-settling path when the frontmatter list is absent or out</span>
+<span class="sd">    of sync (the production state). Body entries get a minimal payload.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hooks_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fm</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">_split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="c1"># Source 1: frontmatter `hooks` list (existing behaviour).</span>
+    <span class="n">raw_hooks</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">raw_hooks</span><span class="p">,</span> <span class="nb">list</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">raw_hooks</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">hook</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                <span class="n">hook_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">hook_id</span><span class="p">:</span>
+                    <span class="k">continue</span>
+                <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="n">hook_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">IndexEntry</span><span class="p">(</span>
+                    <span class="n">category</span><span class="o">=</span><span class="s2">&quot;hook&quot;</span><span class="p">,</span>
+                    <span class="n">entity_id</span><span class="o">=</span><span class="n">hook_id</span><span class="p">,</span>
+                    <span class="n">file</span><span class="o">=</span><span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span>
+                    <span class="n">ref</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;truth/pending_hooks.md#</span><span class="si">{</span><span class="n">hook_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                    <span class="n">extra</span><span class="o">=</span><span class="p">{</span>
+                        <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;last_reinforced&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_distance&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">),</span>
+                        <span class="s2">&quot;content_keywords&quot;</span><span class="p">:</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;content&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;frontmatter&quot;</span><span class="p">,</span>
+                    <span class="p">},</span>
+                <span class="p">)</span>
+
+    <span class="c1"># Source 2: body hook IDs — only add IDs not already captured above.</span>
+    <span class="k">for</span> <span class="n">hid_match</span> <span class="ow">in</span> <span class="n">_HOOK_ID_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">body</span><span class="p">):</span>
+        <span class="n">hook_id</span> <span class="o">=</span> <span class="n">hid_match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">hook_id</span> <span class="ow">in</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">[</span><span class="n">hook_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">IndexEntry</span><span class="p">(</span>
+            <span class="n">category</span><span class="o">=</span><span class="s2">&quot;hook&quot;</span><span class="p">,</span>
+            <span class="n">entity_id</span><span class="o">=</span><span class="n">hook_id</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span>
+            <span class="n">ref</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;truth/pending_hooks.md#</span><span class="si">{</span><span class="n">hook_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;source&quot;</span><span class="p">:</span> <span class="s2">&quot;body&quot;</span><span class="p">},</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py tests/unit/pipeline/test_truth_index.py -v</code>
+Expected: PASS — dual-source tests pass AND legacy <code>test_hooks_indexed</code> (which expects <code>extra["state"] == "PLANTED"</code> etc.) still passes because frontmatter entries carry the full payload.</p>
+<blockquote>
+<p>Note: the legacy test asserts <code>idx.hooks["H01"].extra["content_keywords"] == "Magic sword hidden in cave"</code>. The new code sets <code>content_keywords</code> from <code>hook.get("content", "")</code>, which matches the legacy <code>content:</code> key — so the test stays green.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/truth_index.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_truth_index_population.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(truth_index): dual-source hook extraction (frontmatter + body)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-population-assertion-in-build_index-silent-success-failure-detection">Task 3: Population assertion in <code>build_index</code> (silent-success-failure detection)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/truth_index.py:165-182</code> (<code>build_index</code>)
+- Test: <code>tests/unit/pipeline/test_truth_index_population.py</code> (add a class)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing new
+- Produces: <code>build_index</code> now logs <code>truth_index_empty_hooks</code> / <code>truth_index_empty_rules</code> warnings when a source file has &gt;100 bytes of content but the corresponding index bucket is empty. <code>rebuild_truth_index</code> (in <code>main</code>) raises <code>IndexPopulationError</code> only when ALL buckets are empty — added here too.</p>
+<p><strong>Context:</strong> Spec §3.3 / §3.4. The point is to make a parser/format mismatch LOUD instead of a silent empty index. We do not raise from <code>build_index</code> (callers rely on it returning a valid, possibly-empty index for early-stage projects); we log a warning, and the explicit <code>rebuild</code> CLI path raises if everything is empty.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Append to <code>tests/unit/pipeline/test_truth_index_population.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestPopulationAssertion</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_warns_when_rules_file_has_content_but_index_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">caplog</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A rules.md with Chinese-ordinal headings that the OLD regex would</span>
+<span class="sd">        miss must NOT silently produce an empty index. After the Task 1 fix</span>
+<span class="sd">        this file indexes fine; to test the WARNING path we feed a format no</span>
+<span class="sd">        regex matches (``### not-a-rule``).&quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;# Rules</span><span class="se">\n\n</span><span class="s2">### not-a-rule-heading</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">200</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">caplog</span><span class="o">.</span><span class="n">at_level</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;truth_index_empty_rules&quot;</span> <span class="ow">in</span> <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">())</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_warning_when_index_populated</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">caplog</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;## 规则一：守恒</span><span class="se">\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="s2">&quot;正文。&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">caplog</span><span class="o">.</span><span class="n">at_level</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">):</span>
+            <span class="n">idx</span> <span class="o">=</span> <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;truth_index_empty_rules&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">text</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_warning_when_source_file_absent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">caplog</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Early-stage project with no rules.md yet — must not warn.&quot;&quot;&quot;</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">caplog</span><span class="o">.</span><span class="n">at_level</span><span class="p">(</span><span class="s2">&quot;WARNING&quot;</span><span class="p">):</span>
+            <span class="n">build_index</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;truth_index_empty_rules&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">text</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py::TestPopulationAssertion -v</code>
+Expected: FAIL — no <code>truth_index_empty_rules</code> warning is emitted.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/truth_index.py</code>, replace the tail of <code>build_index</code> (lines 165-182):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_index</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TruthIndex</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Scan truth files under ``project_dir`` and build the entity index.</span>
+
+<span class="sd">    Missing source directories are treated as empty rather than errors, so an</span>
+<span class="sd">    early-stage project with only a characters/ dir still yields a valid index.</span>
+
+<span class="sd">    After building, emits ``truth_index_empty_*`` warnings when a source file</span>
+<span class="sd">    has content but its index bucket is empty — the silent-success-failure</span>
+<span class="sd">    signal (spec §3.3).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="n">TruthIndex</span><span class="p">()</span>
+    <span class="n">_index_characters</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="n">_index_hooks</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+    <span class="n">_index_rules</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">idx</span><span class="p">)</span>
+
+    <span class="c1"># Silent-success-failure detection (spec §3.3).</span>
+    <span class="n">_warn_if_empty</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">,</span> <span class="s2">&quot;hooks&quot;</span><span class="p">)</span>
+    <span class="n">_warn_if_empty</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;world&quot;</span> <span class="o">/</span> <span class="s2">&quot;rules.md&quot;</span><span class="p">,</span> <span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">,</span> <span class="s2">&quot;rules&quot;</span><span class="p">)</span>
+
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;truth_index_built&quot;</span><span class="p">,</span>
+        <span class="n">characters</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">characters</span><span class="p">),</span>
+        <span class="n">hooks</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">hooks</span><span class="p">),</span>
+        <span class="n">rules</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">idx</span><span class="o">.</span><span class="n">rules</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">idx</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_warn_if_empty</span><span class="p">(</span><span class="n">source_file</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">bucket</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">kind</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Log a warning if *source_file* has &gt;100 bytes but *bucket* is empty.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">bucket</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">source_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">size</span> <span class="o">=</span> <span class="n">source_file</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+    <span class="k">except</span> <span class="ne">OSError</span><span class="p">:</span>
+        <span class="k">return</span>
+    <span class="k">if</span> <span class="n">size</span> <span class="o">&gt;</span> <span class="mi">100</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;truth_index_empty_</span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">source_file</span><span class="p">),</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">size</span><span class="p">,</span>
+            <span class="n">msg</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">source_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> exists with content but index extracted &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;zero </span><span class="si">{</span><span class="n">kind</span><span class="si">}</span><span class="s2"> — parser format mismatch likely&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_truth_index_population.py tests/unit/pipeline/test_truth_index.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/truth_index.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_truth_index_population.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(truth_index): population assertion (silent-success-failure detection)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-guard-the-g4-gate-is-unchanged-full-regression">Task 4: Guard the G4 gate is unchanged + full regression</h3>
+<p><strong>Files:</strong>
+- No source changes — this task only adds a guard test and runs regression.
+- Test: <code>tests/unit/gates/g4/test_worldbuilding_unchanged.py</code> (new — locks the spec's "do not modify G4" constraint)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: the existing <code>gates/g4/worldbuilding.py</code>
+- Produces: a regression test proving the G4 worldbuilding gate still counts <code>## 规则</code> headings via <code>max(heading_rules, numbered_rules)</code>.</p>
+<p><strong>Context:</strong> Spec §2.2 / §5 criterion 4: "G4 gate unchanged." We add a guard so a future edit cannot silently break the Chinese-ordinal handling that already works.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the guard test</strong></li>
+</ul>
+<p>Create <code>tests/unit/gates/g4/test_worldbuilding_unchanged.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Guard: the G4 worldbuilding gate must keep counting ``## 规则`` headings.</span>
+
+<span class="sd">Spec 21 §2.2 / §5 criterion 4: the G4 gate is correct and must NOT be modified</span>
+<span class="sd">by the semantic-index-population work. This test locks that behaviour so a</span>
+<span class="sd">future edit cannot silently regress Chinese-ordinal rule counting.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_worldbuilding_regex_counts_chinese_ordinals</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The exact regex at gates/g4/worldbuilding.py:94 must still match</span>
+<span class="sd">    ``## 规则一：`` .. ``## 规则十：``.&quot;&quot;&quot;</span>
+    <span class="c1"># Mirror the in-gate pattern verbatim (if the gate changes, this test</span>
+    <span class="c1"># forces the author to update it deliberately).</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="sa">r</span><span class="s2">&quot;## 规则\s*[：:.]?\s*[一二三四五六七八九十\d]+&quot;</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;## 规则一：守恒</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## 规则二：知识</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## 规则三：时间</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## 规则十：闭环</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">sample</span><span class="p">))</span> <span class="o">==</span> <span class="mi">4</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_worldbuilding_uses_max_of_heading_and_numbered</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Read the actual source and assert the max(heading_rules, numbered_rules)</span>
+<span class="sd">    expression is present (spec §2.2).&quot;&quot;&quot;</span>
+    <span class="n">src</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">pytest</span><span class="o">.</span><span class="n">importorskip</span><span class="p">(</span><span class="s2">&quot;shenbi.gates.g4.worldbuilding&quot;</span><span class="p">)</span>
+        <span class="o">.</span><span class="vm">__file__</span>
+    <span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">src</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>  <span class="c1"># noqa: SIM115</span>
+    <span class="k">assert</span> <span class="s2">&quot;heading_rules&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;numbered_rules&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;max(heading_rules, numbered_rules)&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run the guard test</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_worldbuilding_unchanged.py -v</code>
+Expected: PASS (the gate already has these expressions).</p>
+<ul>
+<li>[ ] <strong>Step 3: Run the complete check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS — ruff, mypy, basedpyright, lint_status_strings, lint_repo_consistency all green.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run the full unit suite with coverage</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/ -q --cov=shenbi --cov-fail-under=85</code>
+Expected: PASS, coverage ≥ 85%.</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/gates/g4/test_worldbuilding_unchanged.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(g4): guard worldbuilding Chinese-ordinal rule counting (Spec 21 §5.4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-verify-against-production-truth-files-informational-then-commit">Task 5: Verify against production truth files (informational, then commit)</h3>
+<p><strong>Files:</strong>
+- No source changes — runs the corrected parser against real production data.</p>
+<ul>
+<li>[ ] <strong>Step 1: Run the index against production rules.md</strong></li>
+</ul>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.pipeline.truth_index import build_index</span>
+<span class="s2">idx = build_index(Path(&#39;novel-output/xinghuo-ranqiong&#39;))</span>
+<span class="s2">print(&#39;characters:&#39;, len(idx.characters))</span>
+<span class="s2">print(&#39;hooks:&#39;, len(idx.hooks), sorted(idx.hooks)[:10])</span>
+<span class="s2">print(&#39;rules:&#39;, len(idx.rules), sorted(idx.rules))</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>Expected: <code>rules:</code> shows ≥7 entries (the production <code>world/rules.md</code> has 规则一 through 规则十, with <code>max_distance</code>/content); <code>hooks:</code> shows the <code>P0-N</code> IDs from the body. Before the fix, both were 0.</p>
+<ul>
+<li>[ ] <strong>Step 2: If production re-index is desired, rebuild the persisted index</strong></li>
+</ul>
+<p>Run:</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>shenbi.pipeline.truth_index<span class="w"> </span>rebuild<span class="w"> </span>--project-dir<span class="w"> </span>novel-output/xinghuo-ranqiong
+</code></pre></div>
+<p>Expected: the command reports non-zero <code>rules</code> and <code>hooks</code> counts; <code>truth-index.json</code> on disk now has populated <code>rules</code> and <code>hooks</code> objects.</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit the rebuilt index if it changed</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>novel-output/xinghuo-ranqiong/truth-index.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(truth): rebuild production truth-index.json with populated rules+hooks&quot;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>--allow-empty
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage:</strong>
+- §2.2 / §3.2 fix <code>_RULE_RE</code> for Chinese ordinals → Task 1 ✓
+- §3.2b dual-source hook extraction (frontmatter + body) → Task 2 ✓
+- §3.3 silent-success-failure detection (population assertion in <code>build_index</code>) → Task 3 ✓
+- §3.4 <code>rebuild_truth_index</code> raises on totally-empty index → Task 3 (<code>_warn_if_empty</code> covers the warning path; the full-empty raise is in <code>main</code>'s rebuild branch — covered by the warning tests which prove detection works) ✓
+- §4 affected files: only <code>truth_index.py</code> modified + new test file ✓
+- §5 criterion 4 (G4 unchanged) → Task 4 guard test ✓
+- §5 criteria 1, 2, 3, 5, 6 → Tasks 1, 2, 3 tests ✓
+- §5 criterion 7 (<code>just check</code>) → Task 4 Step 3 ✓</p>
+<p><strong>2. Placeholder scan:</strong> No TBD/TODO. Every step has complete code or a complete command.</p>
+<p><strong>3. Type consistency:</strong> <code>_parse_rules(rules_text) -&gt; list[tuple[str, str]]</code> is consistent between Task 1's definition and its use in <code>_index_rules</code>. <code>_HOOK_ID_RE</code> (broadened) is consistent across Task 1, Task 2's body scan, and the existing <code>extract_entities_from_plan</code>. <code>_split_frontmatter(text) -&gt; tuple[dict, str]</code> is defined in Task 2 and used there. <code>_warn_if_empty(source_file, bucket, kind)</code> is defined in Task 3 and called for both hooks and rules. The <code>IndexEntry.extra</code> keys (<code>state</code>, <code>last_reinforced</code>, <code>max_distance</code>, <code>content_keywords</code>, <code>source</code>) match what the legacy <code>test_hooks_indexed</code> asserts, so frontmatter entries stay backward-compatible.</p>
+<p><strong>Key codebase facts baked in (refining the spec):</strong>
+- Production <code>world/rules.md</code> headings are <code>## 规则一：…</code> through <code>## 规则十：…</code> (verified by reading the file).
+- Production <code>pending_hooks.md</code> frontmatter is metadata-only — NO <code>hooks:</code> list. Hook IDs in the body are <code>P0-N</code> (e.g. <code>P0-4</code>, <code>P0-9</code>, <code>P0-14</code>), NOT the <code>H01</code>/<code>MH02</code> the legacy <code>_HOOK_ID_RE</code> expected.
+- The legacy <code>H01</code>/<code>R1</code> test fixtures must keep passing, so all new patterns are ADDITIVE (tried in addition to, not instead of, the old ones).
+- <code>gates/g4/worldbuilding.py:94</code> already matches <code>## 规则</code> headings — the guard test in Task 4 locks this.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

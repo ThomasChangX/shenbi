@@ -1,0 +1,1836 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-08-concurrent-dispatch-and-state-safety-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Concurrent Dispatch and State Safety Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Concurrent Dispatch and State Safety Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-08-concurrent-dispatch-and-state-safety-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-08-concurrent-dispatch-and-state-safety-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Concurrent Dispatch and State Safety Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-08-concurrent-dispatch-and-state-safety-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#concurrent-dispatch-and-state-safety-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Concurrent Dispatch and State Safety Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-path-keyed-lock-registry-for-truth-file-writes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Path-keyed lock registry for truth file writes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-thread-safe-pipelinestate-instance-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Thread-safe PipelineState instance lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-write_safety-classification-and-parallel-dispatch-boundary-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: WRITE_SAFETY classification and parallel dispatch boundary enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-regression-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Regression verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="concurrent-dispatch-and-state-safety-implementation-plan">Concurrent Dispatch and State Safety Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add in-process thread-safety primitives (path-keyed <code>threading.Lock</code>, instance-level state lock, write-safety classification) so that any future concurrent dispatch of write-capable skills cannot corrupt truth files or pipeline state.</p>
+<p><strong>Architecture:</strong> Three independent, testable layers. (1) A module-level path-keyed lock registry in a new <code>src/shenbi/pipeline/truth_io.py</code> that <code>write_truth_file</code> will wrap — in-process only, no <code>.lock</code> files on disk. (2) An instance-level <code>threading.Lock</code> on <code>PipelineState</code> plus thread-safe accessor methods, guarding mutable list/dict fields. (3) A <code>WRITE_SAFETY</code> classification in <code>parallel_dispatch.py</code> that refuses to parallelize any skill not classified read-only. Uses <code>threading.Lock</code> (not <code>fcntl.flock</code>) because the concurrency model is <code>ThreadPoolExecutor</code> (threads, in-process).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, pytest, structlog, threading</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Synchronization primitive is <code>threading.Lock</code> — NOT <code>fcntl.flock</code>. The concurrent dispatch path is <code>ThreadPoolExecutor</code> (in-process threads). <code>fcntl.flock</code> is for inter-process locking and leaves <code>.lock</code> files on disk; do not use it here (spec §3.2).</li>
+<li>The path-keyed lock registry is module-level; access to the registry dict itself is guarded by a separate <code>_REGISTRY_LOCK</code> to avoid races when lazily creating per-path locks (spec §3.2).</li>
+<li>The <code>PipelineState</code> lock MUST be an instance attribute, NOT a class attribute. A class-level lock is shared across all instances, which is incorrect if multiple <code>PipelineState</code> objects exist (spec §3.3).</li>
+<li>This spec is a PREREQUISITE/CONSTRAINT on Spec 6's proposed parallelization, not a fix for a current defect. Today <code>parallel_dispatch.py</code> only parallelizes read-only <code>shenbi-review-*</code> skills and is safe; this plan enforces that boundary against future expansion (spec §1 scope clarification).</li>
+<li>No <code>.lock</code> files may be written to disk by any code in this plan (spec §3.2).</li>
+<li><code>just check</code> must pass fully after each task.</li>
+</ul>
+<hr />
+<h3 id="task-1-path-keyed-lock-registry-for-truth-file-writes">Task 1: Path-keyed lock registry for truth file writes</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/truth_io.py</code>
+- Test: <code>tests/unit/pipeline/test_truth_io.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing (standalone primitive; <code>safe_write</code> from <code>shenbi.safe_write</code> for the actual atomic write)
+- Produces: <code>_path_lock(path: Path) -&gt; threading.Lock</code>, <code>write_truth_file(project_dir, filename, new_data, *, mode, key_field)</code>. Later tasks (and Spec 1) import <code>write_truth_file</code> and <code>_path_lock</code> from this module.</p>
+<p><strong>Context:</strong> Spec 1's <code>write_truth_file(mode="upsert_markdown_row")</code> does a read-merge-write that is NOT atomic across threads. Two threads can read Ch1-5, each append one row, and the second write loses the first's row (spec §2.2). This task creates the locking primitive and the write function it wraps. The module is created here even though full Spec 1 (all modes) is out of scope — the lock wrapping is the concurrency deliverable.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_truth_io.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for thread-safe truth file writes (spec §3.2).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span><span class="p">,</span> <span class="n">as_completed</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_path_lock</span><span class="p">,</span> <span class="n">write_truth_file</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestPathLockRegistry</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_same_path_returns_same_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">a</span> <span class="ow">is</span> <span class="n">b</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_different_paths_return_different_locks</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">a</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">b</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_registry_lock_is_not_a_path_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+        <span class="c1"># The registry guard lock must not collide with a path named like it.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">_REGISTRY_LOCK</span>
+
+        <span class="k">assert</span> <span class="n">_REGISTRY_LOCK</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;_REGISTRY_LOCK&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestConcurrentUpsertNoLostRows</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_eight_concurrent_writes_no_lost_rows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;8 threads each upsert a distinct-key row to the same truth file.</span>
+
+<span class="sd">        Without the path-keyed lock this is a classic lost-update race:</span>
+<span class="sd">        threads read the same prior content and the last writer wins. With</span>
+<span class="sd">        the lock, all 8 rows survive. Uses a barrier so all threads start</span>
+<span class="sd">        in the same read-merge-write window to maximize contention.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;test_concurrent.md&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">upsert</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">write_truth_file</span><span class="p">(</span>
+                <span class="n">tmp_path</span><span class="p">,</span>
+                <span class="n">filename</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;row-</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">},</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;upsert_markdown_row&quot;</span><span class="p">,</span>
+                <span class="n">key_field</span><span class="o">=</span><span class="s2">&quot;chapter&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">runner</span><span class="p">(</span><span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+            <span class="n">barrier</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>  <span class="c1"># release all threads into the race window together</span>
+            <span class="n">upsert</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">key</span>
+
+        <span class="n">keys</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;ch</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">futures</span> <span class="o">=</span> <span class="p">{</span><span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">}</span>
+            <span class="k">for</span> <span class="n">fut</span> <span class="ow">in</span> <span class="n">as_completed</span><span class="p">(</span><span class="n">futures</span><span class="p">):</span>
+                <span class="n">fut</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="c1"># Verify all 8 rows present (no lost updates).</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;row-</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">&quot;</span> <span class="ow">in</span> <span class="n">content</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;row for </span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2"> was lost&quot;</span>
+        <span class="c1"># Exactly 8 data rows (discount heading/blank lines).</span>
+        <span class="n">data_lines</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ln</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;- &quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">ln</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;| &quot;</span><span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">data_lines</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;expected 8 rows, got </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">data_lines</span><span class="p">)</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">data_lines</span><span class="si">}</span><span class="s2">&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_upsert_dedups_same_key</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Two concurrent writes with the SAME key produce one row, not two.&quot;&quot;&quot;</span>
+        <span class="n">filename</span> <span class="o">=</span> <span class="s2">&quot;dedup.md&quot;</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">runner</span><span class="p">():</span>
+            <span class="n">barrier</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">write_truth_file</span><span class="p">(</span>
+                <span class="n">tmp_path</span><span class="p">,</span>
+                <span class="n">filename</span><span class="p">,</span>
+                <span class="p">{</span><span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="s2">&quot;ch1&quot;</span><span class="p">,</span> <span class="s2">&quot;note&quot;</span><span class="p">:</span> <span class="s2">&quot;same-key&quot;</span><span class="p">},</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;upsert_markdown_row&quot;</span><span class="p">,</span>
+                <span class="n">key_field</span><span class="o">=</span><span class="s2">&quot;chapter&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">futs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">2</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">futs</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">filename</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">content</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;same-key&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;duplicate key not deduplicated&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_truth_io.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'shenbi.pipeline.truth_io'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/truth_io.py</span>
+<span class="sd">&quot;&quot;&quot;Thread-safe truth file I/O (spec §3.2).</span>
+
+<span class="sd">The concurrency model for skill dispatch is in-process ``ThreadPoolExecutor``</span>
+<span class="sd">(threads). The correct synchronization primitive is therefore ``threading.Lock``</span>
+<span class="sd">— NOT ``fcntl.flock``, which targets inter-process locking and leaves</span>
+<span class="sd">``.lock`` files on disk. This module provides a path-keyed lock registry so</span>
+<span class="sd">that writes to different truth files do not block each other, while</span>
+<span class="sd">concurrent writes to the SAME file serialize.</span>
+
+<span class="sd">A read-merge-write (e.g. upsert-markdown-row) is NOT atomic across threads</span>
+<span class="sd">even though the final ``safe_write`` is atomic (temp + ``os.replace``): two</span>
+<span class="sd">threads can each read the prior content and the second writer&#39;s merge loses</span>
+<span class="sd">the first writer&#39;s row (spec §2.2 lost-update race). The per-path lock</span>
+<span class="sd">serializes the whole read-merge-write transaction.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1"># Module-level registry of per-path locks. Access to the registry dict itself</span>
+<span class="c1"># is guarded by _REGISTRY_LOCK to avoid a race where two threads lazily create</span>
+<span class="c1"># a lock for the same path and each stores its own (losing one). No lock files</span>
+<span class="c1"># are written to disk — this is purely in-process.</span>
+<span class="n">_REGISTRY_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+<span class="n">_PATH_LOCKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_path_lock</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the singleton lock for *path*, creating it lazily.</span>
+
+<span class="sd">    Different paths get different locks (no cross-file blocking); the same</span>
+<span class="sd">    path always returns the same lock object (serializes same-file writers).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">_REGISTRY_LOCK</span><span class="p">:</span>
+        <span class="n">lock</span> <span class="o">=</span> <span class="n">_PATH_LOCKS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">lock</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">lock</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+            <span class="n">_PATH_LOCKS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">lock</span>
+        <span class="k">return</span> <span class="n">lock</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_read_truth_rows</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse existing markdown rows into list of {column: value} dicts.</span>
+
+<span class="sd">    Reads lines starting with ``- `` (bullet rows) or ``| ... |`` (table</span>
+<span class="sd">    rows) and splits on ``:`` (bullet) or ``|`` (table). Tolerates an empty</span>
+<span class="sd">    or heading-only file by returning [].</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">rows</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;- &quot;</span><span class="p">):</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="n">s</span><span class="p">[</span><span class="mi">2</span><span class="p">:]</span>
+            <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">body</span><span class="p">:</span>
+                <span class="n">k</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">v</span> <span class="o">=</span> <span class="n">body</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">k</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()})</span>
+        <span class="k">elif</span> <span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">s</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">set</span><span class="p">(</span><span class="n">s</span><span class="p">)</span> <span class="o">!=</span> <span class="p">{</span><span class="s2">&quot;|&quot;</span><span class="p">}:</span>
+            <span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;|&quot;</span><span class="p">)]</span>
+            <span class="k">if</span> <span class="n">cells</span> <span class="ow">and</span> <span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="ow">and</span> <span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span>
+                <span class="c1"># treat first cell as key column for table form</span>
+                <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">cells</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cells</span><span class="p">[</span><span class="mi">1</span><span class="p">:])})</span>
+    <span class="k">return</span> <span class="n">rows</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_truth_file</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">new_data</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">mode</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;replace&quot;</span><span class="p">,</span>
+    <span class="n">key_field</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Write *new_data* to ``project_dir/truth/&lt;filename&gt;`` thread-safely.</span>
+
+<span class="sd">    Modes:</span>
+<span class="sd">      - ``replace``: overwrite the file with a single rendered row.</span>
+<span class="sd">      - ``upsert_markdown_row``: read existing rows, dedup by *key_field*,</span>
+<span class="sd">        merge the new row, write back. Serialized per-path so concurrent</span>
+<span class="sd">        upserts to the same file cannot lose updates (spec §2.2).</span>
+
+<span class="sd">    The per-path lock wraps the WHOLE read-merge-write transaction, not just</span>
+<span class="sd">    the final ``safe_write`` (which is already atomic). This is what makes</span>
+<span class="sd">    upsert safe under concurrency.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="n">filename</span>
+    <span class="n">lock</span> <span class="o">=</span> <span class="n">_path_lock</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">lock</span><span class="p">:</span>
+        <span class="n">path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;replace&quot;</span><span class="p">:</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s1">&#39;.md&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">- </span><span class="si">{</span><span class="n">new_data</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">body</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;truth_file_written&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span> <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;upsert_markdown_row&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key_field</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;upsert_markdown_row requires key_field&quot;</span><span class="p">)</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="n">_read_truth_rows</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+            <span class="c1"># Dedup: drop any existing row with the same key value, then append.</span>
+            <span class="n">key_val</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">new_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key_field</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span> <span class="k">if</span> <span class="nb">list</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">values</span><span class="p">())[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">key_val</span><span class="p">]</span>
+            <span class="n">rows</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="n">key_field</span><span class="p">:</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">k</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">new_data</span><span class="o">.</span><span class="n">items</span><span class="p">())})</span>
+            <span class="n">body</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;# </span><span class="si">{</span><span class="n">filename</span><span class="o">.</span><span class="n">removesuffix</span><span class="p">(</span><span class="s1">&#39;.md&#39;</span><span class="p">)</span><span class="si">}</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+            <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">list</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">items</span><span class="p">())[</span><span class="mi">0</span><span class="p">][</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+            <span class="n">body</span> <span class="o">+=</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="n">safe_write</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">body</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                <span class="s2">&quot;truth_file_written&quot;</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+                <span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">,</span>
+                <span class="n">rows</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rows</span><span class="p">),</span>
+            <span class="p">)</span>
+            <span class="k">return</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown write mode: </span><span class="si">{</span><span class="n">mode</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_truth_io.py -v</code>
+Expected: PASS (all 5 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/truth_io.py<span class="w"> </span>tests/unit/pipeline/test_truth_io.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(truth_io): add path-keyed threading.Lock registry and thread-safe write_truth_file</span>
+
+<span class="s2">Spec 12 §3.2. In-process only (no .lock files). Wraps the read-merge-write</span>
+<span class="s2">transaction for upsert_markdown_row so concurrent same-file writes cannot</span>
+<span class="s2">lose updates. 8-thread contention test verifies no lost rows.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-thread-safe-pipelinestate-instance-lock">Task 2: Thread-safe PipelineState instance lock</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py:146-166</code> (add <code>_lock</code> field and accessor methods)
+- Test: <code>tests/unit/pipeline/test_state_concurrency.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>PipelineState</code> dataclass from <code>state.py</code>, <code>threading</code>
+- Produces: <code>PipelineState._lock</code> (instance attribute), <code>PipelineState.add_step_done(chapter, step)</code>, <code>PipelineState.add_audit_result(chapter, key, value)</code>, <code>PipelineState.increment_retry(chapter, skill) -&gt; int</code>, <code>PipelineState.reset_retry(chapter, skill)</code>. Later tasks and Spec 6 import these methods instead of mutating fields directly under concurrency.</p>
+<p><strong>Context:</strong> <code>PipelineState</code> is a <code>@dataclass</code>. The spec shows an <code>__init__</code> with <code>self._lock</code>; a dataclass cannot have a hand-written <code>__init__</code>, so the lock is a <code>field(default_factory=threading.Lock)</code> instance attribute. The spec is explicit: instance attribute, NOT class attribute (spec §3.3). Mutable fields that need guarding: <code>chapter_states[k].steps_done</code> (list append), <code>audit_results</code> (dict update), <code>retry_counts</code> (dict update) — see spec §2.3. The serialization methods below are the concurrency-safe surface; direct field mutation remains available for single-threaded code.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_state_concurrency.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for thread-safe PipelineState mutations (spec §3.3).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">concurrent.futures</span><span class="w"> </span><span class="kn">import</span> <span class="n">ThreadPoolExecutor</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.state</span><span class="w"> </span><span class="kn">import</span> <span class="n">PipelineState</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fresh_state</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">PipelineState</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/test&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestInstanceLock</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_lock_is_instance_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The lock must be per-instance, not shared across instances.&quot;&quot;&quot;</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="n">a</span><span class="o">.</span><span class="n">_lock</span> <span class="ow">is</span> <span class="ow">not</span> <span class="n">b</span><span class="o">.</span><span class="n">_lock</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;PipelineState._lock must be an instance attribute (spec §3.3), &quot;</span>
+            <span class="s2">&quot;not a class attribute shared across all instances&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_lock_is_not_class_attribute</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Lock lives on the instance, not on the class.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s2">&quot;_lock&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="nb">type</span><span class="p">(</span><span class="n">s</span><span class="p">)</span><span class="o">.</span><span class="vm">__dict__</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;_lock must not be defined on the class&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_lock_is_a_threading_lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">_lock</span><span class="p">,</span> <span class="nb">type</span><span class="p">(</span><span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()))</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestConcurrentAddStepDone</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_eight_concurrent_appends_all_recorded</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;8 threads each append a distinct step — no entries lost.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+        <span class="n">steps</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;skill-</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">runner</span><span class="p">(</span><span class="n">step</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">barrier</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">add_step_done</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="n">step</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">futs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">runner</span><span class="p">,</span> <span class="n">st</span><span class="p">)</span> <span class="k">for</span> <span class="n">st</span> <span class="ow">in</span> <span class="n">steps</span><span class="p">]</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">futs</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="n">cs</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">steps_done</span><span class="p">)</span> <span class="o">==</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">steps</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;lost entries: got </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">cs</span><span class="o">.</span><span class="n">steps_done</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_add_step_done_is_idempotent</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add_step_done</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">add_step_done</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="s2">&quot;1&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">steps_done</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">]</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestConcurrentRetryCounter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_eight_concurrent_increments</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;8 threads each increment retry — durable count reaches 8.&quot;&quot;&quot;</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="n">barrier</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Barrier</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">runner</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">barrier</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+            <span class="n">s</span><span class="o">.</span><span class="n">increment_retry</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">ThreadPoolExecutor</span><span class="p">(</span><span class="n">max_workers</span><span class="o">=</span><span class="mi">8</span><span class="p">)</span> <span class="k">as</span> <span class="n">ex</span><span class="p">:</span>
+            <span class="n">futs</span> <span class="o">=</span> <span class="p">[</span><span class="n">ex</span><span class="o">.</span><span class="n">submit</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)]</span>
+            <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">futs</span><span class="p">:</span>
+                <span class="n">f</span><span class="o">.</span><span class="n">result</span><span class="p">()</span>
+
+        <span class="k">assert</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;ch1-shenbi-chapter-drafting&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_reset_retry_clears_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="n">_fresh_state</span><span class="p">()</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">increment_retry</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="n">s</span><span class="o">.</span><span class="n">reset_retry</span><span class="p">(</span><span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;s&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;ch1-s&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">s</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_state_concurrency.py -v</code>
+Expected: FAIL with <code>AttributeError: 'PipelineState' object has no attribute '_lock'</code> (and <code>add_step_done</code> / <code>increment_retry</code> / <code>reset_retry</code> missing)</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Add the import and the lock field to the dataclass, plus the thread-safe methods. The edits below are applied to <code>src/shenbi/pipeline/state.py</code>.</p>
+<p>First, add <code>threading</code> to imports (after the existing <code>import json</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+</code></pre></div>
+<p>Then add <code>_lock</code> as the LAST field on <code>PipelineState</code> (after <code>config</code>), so existing field order / positional construction is unaffected. Insert before <code>@classmethod def default</code>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">config</span><span class="p">:</span> <span class="n">PipelineConfig</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">PipelineConfig</span><span class="p">)</span>
+    <span class="c1"># Instance-level lock guarding concurrent mutations to mutable fields</span>
+    <span class="c1"># (steps_done append, audit_results/retry_counts dict update). MUST be an</span>
+    <span class="c1"># instance attribute (spec §3.3): a class-level lock would serialize</span>
+    <span class="c1"># across unrelated PipelineState objects. Excluded from to_dict via the</span>
+    <span class="c1"># explicit field list there (not a data field).</span>
+    <span class="n">_lock</span><span class="p">:</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">,</span> <span class="nb">repr</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">compare</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_step_done</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thread-safe append to chapter_states[chapter].steps_done (idempotent).</span>
+
+<span class="sd">        Replaces the non-thread-safe _record_step_done() in chapter_loop.py.</span>
+<span class="sd">        After this lands, remove the old _record_step_done and update all call sites.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cs</span> <span class="o">=</span> <span class="n">ChapterState</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cs</span>
+            <span class="k">if</span> <span class="n">step</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">cs</span><span class="o">.</span><span class="n">steps_done</span><span class="p">:</span>
+                <span class="n">cs</span><span class="o">.</span><span class="n">steps_done</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">step</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_audit_result</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">result_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thread-safe update to chapter_states[chapter].audit_results.&quot;&quot;&quot;</span>
+        <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">cs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">cs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">cs</span> <span class="o">=</span> <span class="n">ChapterState</span><span class="p">()</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">chapter_states</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">cs</span>
+            <span class="n">cs</span><span class="o">.</span><span class="n">audit_results</span><span class="p">[</span><span class="n">result_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">increment_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thread-safe increment of retry_counts; returns the new count.&quot;&quot;&quot;</span>
+        <span class="n">rk</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rk</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="p">[</span><span class="n">rk</span><span class="p">]</span> <span class="o">=</span> <span class="n">count</span>
+            <span class="k">return</span> <span class="n">count</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">reset_retry</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Thread-safe clear of retry_counts[chN-skill].&quot;&quot;&quot;</span>
+        <span class="n">rk</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">with</span> <span class="bp">self</span><span class="o">.</span><span class="n">_lock</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_counts</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="n">rk</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+</code></pre></div>
+<p>Note: <code>to_dict</code> already enumerates fields explicitly (it does not dump <code>_lock</code>), and <code>from_dict</code>/<code>from_json</code> ignore unknown keys, so adding <code>_lock</code> does not break state-file round-trips. <code>compare=False</code> keeps equality checks (used in tests) from comparing lock identity.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_state_concurrency.py -v</code>
+Expected: PASS (all 7 tests)</p>
+<p>Then run the existing state tests to confirm no round-trip regression:
+Run: <code>uv run pytest tests/unit/pipeline/test_state.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>tests/unit/pipeline/test_state_concurrency.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(state): add instance-level threading.Lock and thread-safe state accessors</span>
+
+<span class="s2">Spec 12 §3.3. Lock is an instance attribute (default_factory), not class</span>
+<span class="s2">attribute, so each PipelineState guards its own state. add_step_done /</span>
+<span class="s2">add_audit_result / increment_retry / reset_retry serialize mutations.</span>
+<span class="s2">compare=False keeps equality checks lock-identity-independent.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-write_safety-classification-and-parallel-dispatch-boundary-enforcement">Task 3: WRITE_SAFETY classification and parallel dispatch boundary enforcement</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/parallel_dispatch.py:1-30,123-180</code> (add classification + gate in <code>dispatch_reviews_parallel</code>)
+- Test: <code>tests/unit/pipeline/test_parallel_dispatch_safety.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>dispatch_reviews_parallel</code>, <code>ReviewTask</code> from <code>parallel_dispatch.py</code>
+- Produces: <code>WRITE_SAFETY</code> enum, <code>classify_skill_write_safety(skill: str) -&gt; WRITE_SAFETY</code>, <code>assert_parallelizable(tasks)</code>. <code>parallel_dispatch.dispatch_reviews_parallel</code> now raises on any non-read-only task.</p>
+<p><strong>Context:</strong> <code>dispatch_reviews_parallel</code> today only receives <code>shenbi-review-*</code> tasks and is safe (spec §1). This task makes that boundary explicit and enforced: any task whose skill is not classified READ_ONLY_AUDIT raises a <code>ValueError</code> before threads are spawned, so a future Spec 6 expansion cannot silently put a write-capable skill on the concurrent path. Per spec §3.1: read-only audit = <code>shenbi-review-*</code> producing <code>audits/</code>; write-shared (e.g. <code>shenbi-state-settling</code>, <code>shenbi-foreshadowing-track</code>) must serialize. The classification is a small explicit function rather than a scan of every contract, so it is cheap and deterministic.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/pipeline/test_parallel_dispatch_safety.py</span>
+<span class="sd">&quot;&quot;&quot;Tests for WRITE_SAFETY classification in parallel dispatch (spec §3.1, §3.4).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ReviewTask</span><span class="p">,</span>
+    <span class="n">dispatch_reviews_parallel</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.write_safety</span><span class="w"> </span><span class="kn">import</span> <span class="n">WRITE_SAFETY</span><span class="p">,</span> <span class="n">classify_skill_write_safety</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestClassification</span><span class="p">:</span>
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;shenbi-review-anti-ai&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-review-resonance&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-review-arc-payoff&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_review_skills_are_read_only</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">classify_skill_write_safety</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span> <span class="o">==</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">READ_ONLY_AUDIT</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">,</span>
+        <span class="p">[</span>
+            <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">,</span>
+        <span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_shared_writers_must_serialize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">classify_skill_write_safety</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span> <span class="o">==</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">WRITE_SHARED</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_skill_defaults_to_write_shared</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Conservative: unknown skills must NOT be parallelized.</span>
+        <span class="k">assert</span> <span class="p">(</span>
+            <span class="n">classify_skill_write_safety</span><span class="p">(</span><span class="s2">&quot;shenbi-something-new&quot;</span><span class="p">)</span>
+            <span class="o">==</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">WRITE_SHARED</span>
+        <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestParallelDispatchBoundary</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_read_only_reviews_dispatch_in_parallel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Read-only review tasks dispatch without error (boundary allows them).&quot;&quot;&quot;</span>
+        <span class="c1"># dispatch_reviews_parallel calls the real API; verify the boundary</span>
+        <span class="c1"># check passes by giving it an empty task list (no API calls made)</span>
+        <span class="c1"># after asserting classify accepts review skills. A non-empty list</span>
+        <span class="c1"># is covered by the existing parallel_dispatch integration tests.</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ReviewTask</span><span class="p">(</span>
+                <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-review-anti-ai&quot;</span><span class="p">,</span>
+                <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+                <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;audits/c-1-anti-ai.md&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="c1"># assert_parallelizable must not raise for review skills.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.parallel_dispatch</span><span class="w"> </span><span class="kn">import</span> <span class="n">assert_parallelizable</span>
+
+        <span class="n">assert_parallelizable</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>  <span class="c1"># no exception</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_write_shared_skill_rejected_from_parallel_path</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A write-shared skill on the parallel path raises immediately.&quot;&quot;&quot;</span>
+        <span class="n">tasks</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">ReviewTask</span><span class="p">(</span>
+                <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>  <span class="c1"># WRITE_SHARED</span>
+                <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+                <span class="n">prompt</span><span class="o">=</span><span class="s2">&quot;x&quot;</span><span class="p">,</span>
+                <span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">]</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;WRITE_SHARED&quot;</span><span class="p">):</span>
+            <span class="n">dispatch_reviews_parallel</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_parallel_dispatch_safety.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'shenbi.pipeline.write_safety'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>First, create the classification module:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/pipeline/write_safety.py</span>
+<span class="sd">&quot;&quot;&quot;Write-safety classification for concurrent dispatch (spec §3.1, §3.4).</span>
+
+<span class="sd">The parallel dispatch path (ThreadPoolExecutor) is safe ONLY for read-only</span>
+<span class="sd">audit skills today. This module makes that boundary explicit and enforced:</span>
+<span class="sd">any skill not classified READ_ONLY_AUDIT must run serially, so a future</span>
+<span class="sd">expansion (e.g. Spec 6) cannot silently place a write-capable skill on the</span>
+<span class="sd">concurrent path and race on truth files / shared state (spec §2.1-2.3).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">WRITE_SAFETY</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">READ_ONLY_AUDIT</span> <span class="o">=</span> <span class="s2">&quot;read_only_audit&quot;</span>
+    <span class="n">WRITE_ISOLATED</span> <span class="o">=</span> <span class="s2">&quot;write_isolated&quot;</span>  <span class="c1"># disjoint files — safe with file locking</span>
+    <span class="n">WRITE_SHARED</span> <span class="o">=</span> <span class="s2">&quot;write_shared&quot;</span>  <span class="c1"># shared truth/hooks — must serialize</span>
+
+
+<span class="c1"># Skills known to write to SHARED mutable files (truth/*.md, pending_hooks.md).</span>
+<span class="c1"># These MUST NOT be parallelized (spec §3.1 &quot;Write-shared&quot;).</span>
+<span class="c1"># These are write-capable skills from CHAPTER_STEPS. Only shenbi-state-settling</span>
+<span class="c1"># and shenbi-foreshadowing-track are currently on the concurrent path; the others</span>
+<span class="c1"># are listed for completeness as they may be parallelized in future.</span>
+<span class="n">_WRITE_SHARED_SKILLS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-foreshadowing-track&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-foreshadowing-plant&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;shenbi-intent-management&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">classify_skill_write_safety</span><span class="p">(</span><span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">WRITE_SAFETY</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify a skill&#39;s write safety for concurrent dispatch.</span>
+
+<span class="sd">    Conservative default: an unknown skill is WRITE_SHARED (must serialize),</span>
+<span class="sd">    so new skills cannot accidentally land on the parallel path until they</span>
+<span class="sd">    are explicitly classified READ_ONLY_AUDIT.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">skill</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;shenbi-review-&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">READ_ONLY_AUDIT</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">_WRITE_SHARED_SKILLS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">WRITE_SHARED</span>
+    <span class="c1"># Everything else (including unknown skills) is treated conservatively.</span>
+    <span class="k">return</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">WRITE_SHARED</span>
+</code></pre></div>
+<p>Then enforce the boundary in <code>parallel_dispatch.py</code>. Add the import near the top imports:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.write_safety</span><span class="w"> </span><span class="kn">import</span> <span class="n">WRITE_SAFETY</span><span class="p">,</span> <span class="n">classify_skill_write_safety</span>
+</code></pre></div>
+<p>Add <code>assert_parallelizable</code> and call it at the top of <code>dispatch_reviews_parallel</code>. Insert the function before <code>dispatch_reviews_parallel</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">assert_parallelizable</span><span class="p">(</span><span class="n">tasks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ReviewTask</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify every task&#39;s skill is safe to run concurrently (spec §3.4).</span>
+
+<span class="sd">    Raises ValueError listing any task whose skill is not READ_ONLY_AUDIT.</span>
+<span class="sd">    Called before threads are spawned so a write-shared skill can never</span>
+<span class="sd">    reach the concurrent path.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">unsafe</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">t</span><span class="o">.</span><span class="n">skill</span><span class="si">}</span><span class="s2">=</span><span class="si">{</span><span class="n">classify_skill_write_safety</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span><span class="o">.</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">tasks</span>
+        <span class="k">if</span> <span class="n">classify_skill_write_safety</span><span class="p">(</span><span class="n">t</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span> <span class="o">!=</span> <span class="n">WRITE_SAFETY</span><span class="o">.</span><span class="n">READ_ONLY_AUDIT</span>
+    <span class="p">]</span>
+    <span class="k">if</span> <span class="n">unsafe</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;refusing to parallelize non-read-only skills (WRITE_SHARED/&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;WRITE_ISOLATED must run serially per spec §3.4): </span><span class="si">{</span><span class="n">unsafe</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Then change the first lines of <code>dispatch_reviews_parallel</code> from:</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+to:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="ow">not</span> <span class="n">tasks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+    <span class="n">assert_parallelizable</span><span class="p">(</span><span class="n">tasks</span><span class="p">)</span>  <span class="c1"># spec §3.4 — never parallelize write-capable skills</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_parallel_dispatch_safety.py tests/unit/pipeline/test_parallel_dispatch.py -v</code>
+Expected: PASS (all new classification/boundary tests + existing parallel_dispatch tests unchanged)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/write_safety.py<span class="w"> </span>src/shenbi/pipeline/parallel_dispatch.py<span class="w"> </span>tests/unit/pipeline/test_parallel_dispatch_safety.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(parallel_dispatch): enforce WRITE_SAFETY boundary before concurrent dispatch</span>
+
+<span class="s2">Spec 12 §3.1, §3.4. classify_skill_write_safety tags skills read_only_audit /</span>
+<span class="s2">write_isolated / write_shared (conservative default = write_shared).</span>
+<span class="s2">dispatch_reviews_parallel now calls assert_parallelizable and raises on any</span>
+<span class="s2">non-read-only task, so Spec 6&#39;s proposed expansion cannot race on truth</span>
+<span class="s2">files or shared state.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-regression-verification">Task 4: Regression verification</h3>
+<p><strong>Files:</strong>
+- No new files; runs the full suite.</p>
+<p><strong>Interfaces:</strong>
+- Consumes: all three prior tasks
+- Produces: confirmation that <code>just check</code> passes and the spec's four verification criteria hold.</p>
+<p><strong>Context:</strong> Spec §5 verification criteria: (1) race condition test — covered by Task 1's 8-thread test; (2) state mutation test — covered by Task 2's 8-thread test; (3) classification test — covered by Task 3; (4) <code>just check</code> passes. This task is the explicit gate.</p>
+<ul>
+<li>[ ] <strong>Step 1: Run the targeted concurrency tests once more</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_truth_io.py tests/unit/pipeline/test_state_concurrency.py tests/unit/pipeline/test_parallel_dispatch_safety.py -v</code>
+Expected: PASS (all tests green)</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the full check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS (all gates + tests). If <code>just</code> is unavailable, run <code>uv run pytest -n auto -m "not last" --hypothesis-profile=ci &amp;&amp; uv run pytest -p no:xdist -m "last" --no-cov --hypothesis-profile=ci</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit (if any formatting/import fixes were needed)</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-A
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test(concurrent-state-safety): full regression green for spec 12&quot;</span>
+</code></pre></div>
+<p>If nothing changed, skip the commit.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

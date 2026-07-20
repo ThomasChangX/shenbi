@@ -1,0 +1,2290 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-28-hierarchical-system-wave1-helpers/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>分层系统 Wave 1：基础 Helpers 实施计划 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="分层系统 Wave 1：基础 Helpers 实施计划 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-28-hierarchical-system-wave1-helpers.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-28-hierarchical-system-wave1-helpers/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="分层系统 Wave 1：基础 Helpers 实施计划 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-28-hierarchical-system-wave1-helpers.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wave-1-helpers" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              分层系统 Wave 1：基础 Helpers 实施计划
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-revision_routing-route_revision" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: revision_routing — route_revision
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-revision_routing-verify_preservation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: revision_routing — verify_preservation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-scoringpy-check_scorer_agreement-flag_score_collapse" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: scoring.py — check_scorer_agreement + flag_score_collapse
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-escalation-check_escalation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: escalation — check_escalation + 线性回归斜率
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-foreshadowing_recall-recall_overdue_hooks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: foreshadowing_recall — recall_overdue_hooks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-lock-tool-hashessh" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: lock-tool-hashes.sh — 全树扫描
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 全量验证 + 覆盖率
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#wave-2-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Wave 2-4 预告（后续计划）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wave-1-helpers">分层系统 Wave 1：基础 Helpers 实施计划</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 实现 4 个确定性 helper + 1 个测试基建修复，为 Wave 2-4（记忆/评分/闭环）提供无外部依赖的确定性基座。</p>
+<p><strong>Architecture:</strong> 遵循现有 skill_utils 模式（<code>src/shenbi/skill_utils/&lt;name&gt;/</code> 下 logic.py + <strong>main</strong>.py + <strong>init</strong>.py）。纯函数，dataclass 输入，CLI 输出 JSON。scoring.py 直接扩展。lock-tool-hashes.sh 改为全树扫描。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，pathlib.Path，pytest，dataclasses，无外部依赖。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md</code> v1.4.0
+- §5.2 诊断 schema + route_revision
+- §5.3 verify_preservation
+- §5.5 scoring.py 扩展（双评员一致性 + 塍缩检测）
+- §6.2-6.3 escalation_check
+- §3.6 foreshadowing_recall
+- §9.4 lock-tool-hashes.sh 全树扫描
+- §11.4-11.5 接缝契约（revision 读评分诊断 + preserve 组装）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+，<code>from __future__ import annotations</code>，dataclass(frozen=True)，pathlib.Path</li>
+<li>无 <code>print()</code> 在 framework 代码；helper 用 CLI argparse + JSON stdout</li>
+<li>测试标记：<code>@pytest.mark.unit</code></li>
+<li>Conventional Commits：<code>feat:</code>, <code>test:</code>, <code>fix:</code>, <code>chore:</code></li>
+<li>helper 纯函数：同输入同输出（确定性），无副作用</li>
+<li>修改 src/shenbi/ 任何代码后必须运行 <code>bash tests/lock-tool-hashes.sh</code></li>
+<li>G0.10 的硬编码 <code>59</code> 不在本波（波2），本波不动 g0.py</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/skill_utils/revision_routing/__init__.py</code></td>
+<td>包标记</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/revision_routing/route.py</code></td>
+<td>route_revision：诊断→路由分类</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/revision_routing/preserve_check.py</code></td>
+<td>verify_preservation：重生保留核验</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/revision_routing/__main__.py</code></td>
+<td>CLI runner</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/escalation/__init__.py</code></td>
+<td>包标记</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/escalation/check.py</code></td>
+<td>escalation_check + 线性回归斜率</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/escalation/__main__.py</code></td>
+<td>CLI runner</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/foreshadowing_recall/__init__.py</code></td>
+<td>包标记</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/foreshadowing_recall/recall.py</code></td>
+<td>recall_overdue_hooks：确定性阈值过滤</td>
+</tr>
+<tr>
+<td><code>src/shenbi/skill_utils/foreshadowing_recall/__main__.py</code></td>
+<td>CLI runner</td>
+</tr>
+<tr>
+<td><code>src/shenbi/scoring.py</code></td>
+<td>扩展 check_scorer_agreement + flag_score_collapse</td>
+</tr>
+<tr>
+<td><code>tests/lock-tool-hashes.sh</code></td>
+<td>改为全树扫描</td>
+</tr>
+<tr>
+<td><code>tests/unit/skill_utils/test_revision_routing.py</code></td>
+<td>route + preserve 测试</td>
+</tr>
+<tr>
+<td><code>tests/unit/skill_utils/test_escalation.py</code></td>
+<td>升级触发测试</td>
+</tr>
+<tr>
+<td><code>tests/unit/skill_utils/test_foreshadowing_recall.py</code></td>
+<td>召回测试</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_scoring_anti_collapse.py</code></td>
+<td>双评员 + 塍缩测试</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-revision_routing-route_revision">Task 1: revision_routing — route_revision</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/skill_utils/revision_routing/__init__.py</code>
+- Create: <code>src/shenbi/skill_utils/revision_routing/route.py</code>
+- Create: <code>src/shenbi/skill_utils/revision_routing/__main__.py</code>
+- Test: <code>tests/unit/skill_utils/test_revision_routing.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: 评分诊断 dict（spec §5.2 schema: <code>{"issues": [{"category", "id", "evidence", "severity"}]}</code>）
+- Produces: <code>route_revision(diagnosis: dict) -&gt; str</code> 返回 <code>"spot-fix" | "regenerate" | "constrained-regenerate"</code>（Wave 4 的 chapter-revision 消费此返回值）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/test_revision_routing.py</span>
+<span class="sd">&quot;&quot;&quot;Unit tests for skill_utils/revision_routing/route.py (spec §5.2).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.revision_routing.route</span><span class="w"> </span><span class="kn">import</span> <span class="n">route_revision</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_pure_craft_issues_route_to_spot_fix</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">diagnosis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;craft&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;craft-ai-tell-L23&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;ch5.md L23&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">},</span>
+    <span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;spot-fix&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unmet_blocking_goal_routes_to_regenerate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">diagnosis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;unmet_goal&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;goal-H01-advance&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;ch5.md&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;BLOCKING&quot;</span><span class="p">},</span>
+    <span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;regenerate&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unmet_blocking_plus_craft_routes_to_constrained_regenerate</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">diagnosis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;unmet_goal&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;goal-H01-advance&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;ch5.md&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;BLOCKING&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;craft&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;craft-fatigue-L40&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;ch5.md L40&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;MINOR&quot;</span><span class="p">},</span>
+    <span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;constrained-regenerate&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unmet_non_blocking_goal_routes_to_spot_fix</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">diagnosis</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="s2">&quot;unmet_goal&quot;</span><span class="p">,</span> <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;goal-soft&quot;</span><span class="p">,</span> <span class="s2">&quot;evidence&quot;</span><span class="p">:</span> <span class="s2">&quot;ch5.md&quot;</span><span class="p">,</span> <span class="s2">&quot;severity&quot;</span><span class="p">:</span> <span class="s2">&quot;MINOR&quot;</span><span class="p">},</span>
+    <span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;spot-fix&quot;</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_empty_diagnosis_routes_to_spot_fix</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">route_revision</span><span class="p">({</span><span class="s2">&quot;issues&quot;</span><span class="p">:</span> <span class="p">[]})</span> <span class="o">==</span> <span class="s2">&quot;spot-fix&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_revision_routing.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError: No module named 'shenbi.skill_utils.revision_routing'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/revision_routing/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;revision_routing package.&quot;&quot;&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/revision_routing/route.py</span>
+<span class="sd">&quot;&quot;&quot;route.py — diagnosis routing for revision mode selection (spec §5.2).</span>
+
+<span class="sd">Classifies a structured diagnosis from the scoring subagent into one of</span>
+<span class="sd">three revision modes. The routing is deterministic: BLOCKING unmet-goal</span>
+<span class="sd">issues demand regeneration (the chapter failed its stated goals); craft-</span>
+<span class="sd">only issues can be spot-fixed. When both are present, regeneration runs</span>
+<span class="sd">under craft constraints so the rewrite does not reintroduce AI tells.</span>
+
+<span class="sd">Diagnosis schema (spec §5.1):</span>
+<span class="sd">    {&quot;issues&quot;: [</span>
+<span class="sd">        {&quot;category&quot;: &quot;unmet_goal&quot; | &quot;craft&quot;,</span>
+<span class="sd">         &quot;id&quot;: str,</span>
+<span class="sd">         &quot;evidence&quot;: str,</span>
+<span class="sd">         &quot;severity&quot;: &quot;BLOCKING&quot; | &quot;CRITICAL&quot; | &quot;MINOR&quot;}</span>
+<span class="sd">    ]}</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">StrEnum</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RevisionMode</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+    <span class="n">SPOT_FIX</span> <span class="o">=</span> <span class="s2">&quot;spot-fix&quot;</span>
+    <span class="n">REGENERATE</span> <span class="o">=</span> <span class="s2">&quot;regenerate&quot;</span>
+    <span class="n">CONSTRAINED_REGENERATE</span> <span class="o">=</span> <span class="s2">&quot;constrained-regenerate&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Classify diagnosis into revision mode (spec §5.2).</span>
+
+<span class="sd">    Returns one of RevisionMode values as a plain string.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">diagnosis</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;issues&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">has_unmet_blocking</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;unmet_goal&quot;</span> <span class="ow">and</span> <span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;severity&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;BLOCKING&quot;</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span>
+    <span class="p">)</span>
+    <span class="n">has_craft</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">i</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;category&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;craft&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_unmet_blocking</span> <span class="ow">and</span> <span class="n">has_craft</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RevisionMode</span><span class="o">.</span><span class="n">CONSTRAINED_REGENERATE</span>
+    <span class="k">if</span> <span class="n">has_unmet_blocking</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">RevisionMode</span><span class="o">.</span><span class="n">REGENERATE</span>
+    <span class="k">return</span> <span class="n">RevisionMode</span><span class="o">.</span><span class="n">SPOT_FIX</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/revision_routing/__main__.py</span>
+<span class="sd">&quot;&quot;&quot;Standalone runner: python -m shenbi.skill_utils.revision_routing&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.revision_routing.route</span><span class="w"> </span><span class="kn">import</span> <span class="n">route_revision</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;revision_routing&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Route a diagnosis to revision mode (spec §5.2).&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--diagnosis&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;JSON diagnosis string.&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">diagnosis</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">diagnosis</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="n">route_revision</span><span class="p">(</span><span class="n">diagnosis</span><span class="p">)}))</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_revision_routing.py -v</code>
+Expected: 5 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/revision_routing/<span class="w"> </span>tests/unit/skill_utils/test_revision_routing.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add revision_routing route_revision helper (spec §5.2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-revision_routing-verify_preservation">Task 2: revision_routing — verify_preservation</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/skill_utils/revision_routing/preserve_check.py</code>
+- Modify: <code>tests/unit/skill_utils/test_revision_routing.py</code> (append tests)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>original</code> dict（重生前组装，spec §11.5）+ <code>regenerated</code> dict（重生后 state-settling 重跑输出）
+  - schema: <code>{"chapter": int, "hooks_advanced": [str], "changes_realized": [str], "state_changes": [str]}</code>
+- Produces: <code>verify_preservation(original: dict, regenerated: dict) -&gt; tuple[bool, list[str]]</code>（Wave 4 chapter-revision 调用）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Append to <code>tests/unit/skill_utils/test_revision_routing.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.revision_routing.preserve_check</span><span class="w"> </span><span class="kn">import</span> <span class="n">verify_preservation</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_preservation_pass_when_all_items_retained</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;H03&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;信息: 得知反派寻找玉佩&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;林轩: 紧张→自信&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">regenerated</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;H03&quot;</span><span class="p">,</span> <span class="s2">&quot;H04&quot;</span><span class="p">],</span>  <span class="c1"># superset OK</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;信息: 得知反派寻找玉佩&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;林轩: 紧张→自信&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">verify_preservation</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">regenerated</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">ok</span>
+    <span class="k">assert</span> <span class="n">violations</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_preservation_fails_when_hook_lost</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;H03&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">regenerated</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;H01&quot;</span><span class="p">],</span>  <span class="c1"># H03 lost</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">verify_preservation</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">regenerated</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">ok</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;H03&quot;</span> <span class="ow">in</span> <span class="n">v</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">violations</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_preservation_fails_when_change_lost</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;权力: 升入内门&quot;</span><span class="p">],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">regenerated</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># change lost</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[],</span>
+    <span class="p">}</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">verify_preservation</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">regenerated</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">ok</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">violations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_preservation_fails_when_state_change_reverted</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">original</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;苏晴: 观望→认可&quot;</span><span class="p">],</span>
+    <span class="p">}</span>
+    <span class="n">regenerated</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;hooks_advanced&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;changes_realized&quot;</span><span class="p">:</span> <span class="p">[],</span>
+        <span class="s2">&quot;state_changes&quot;</span><span class="p">:</span> <span class="p">[],</span>  <span class="c1"># reverted</span>
+    <span class="p">}</span>
+    <span class="n">ok</span><span class="p">,</span> <span class="n">violations</span> <span class="o">=</span> <span class="n">verify_preservation</span><span class="p">(</span><span class="n">original</span><span class="p">,</span> <span class="n">regenerated</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">ok</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">violations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_revision_routing.py::test_preservation_pass_when_all_items_retained -v</code>
+Expected: FAIL with <code>ModuleNotFoundError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/revision_routing/preserve_check.py</span>
+<span class="sd">&quot;&quot;&quot;preserve_check.py — regeneration preservation verification (spec §5.3, §11.5).</span>
+
+<span class="sd">After a chapter is regenerated (not spot-fixed), the regenerated version</span>
+<span class="sd">must retain every key outcome the original already achieved: advanced/</span>
+<span class="sd">resolved hooks, realized §6 changes, and character state changes. This</span>
+<span class="sd">function compares the original-item dict (assembled before regeneration)</span>
+<span class="sd">against the regenerated dict (from rerun state-settling) and reports</span>
+<span class="sd">violations.</span>
+
+<span class="sd">Dict schema (spec §11.5):</span>
+<span class="sd">    {&quot;chapter&quot;: int,</span>
+<span class="sd">     &quot;hooks_advanced&quot;: [str],       # hook_ids advanced/resolved in original</span>
+<span class="sd">     &quot;changes_realized&quot;: [str],     # §6 changes that occurred in original</span>
+<span class="sd">     &quot;state_changes&quot;: [str]}        # character matrix deltas in original</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">verify_preservation</span><span class="p">(</span><span class="n">original</span><span class="p">:</span> <span class="nb">dict</span><span class="p">,</span> <span class="n">regenerated</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify regenerated chapter retains all original key outcomes.</span>
+
+<span class="sd">    Returns (all_preserved, violations). A violation is a human-readable</span>
+<span class="sd">    string naming what was lost.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">violations</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="n">original_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">original</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks_advanced&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="n">regen_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">regenerated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks_advanced&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">for</span> <span class="n">hook_id</span> <span class="ow">in</span> <span class="n">original_hooks</span> <span class="o">-</span> <span class="n">regen_hooks</span><span class="p">:</span>
+        <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;hook </span><span class="si">{</span><span class="n">hook_id</span><span class="si">}</span><span class="s2"> advanced in original but lost in regeneration&quot;</span><span class="p">)</span>
+
+    <span class="n">original_changes</span> <span class="o">=</span> <span class="n">original</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;changes_realized&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">regen_changes</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">regenerated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;changes_realized&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">for</span> <span class="n">change</span> <span class="ow">in</span> <span class="n">original_changes</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">change</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">regen_changes</span><span class="p">:</span>
+            <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;§6 change lost: </span><span class="si">{</span><span class="n">change</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="n">original_states</span> <span class="o">=</span> <span class="n">original</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state_changes&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="n">regen_states</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">regenerated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state_changes&quot;</span><span class="p">,</span> <span class="p">[]))</span>
+    <span class="k">for</span> <span class="n">state</span> <span class="ow">in</span> <span class="n">original_states</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">regen_states</span><span class="p">:</span>
+            <span class="n">violations</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;state change reverted: </span><span class="si">{</span><span class="n">state</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">violations</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">violations</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_revision_routing.py -v</code>
+Expected: 9 passed (5 from Task 1 + 4 new)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/revision_routing/preserve_check.py<span class="w"> </span>tests/unit/skill_utils/test_revision_routing.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add verify_preservation for regeneration retention check (spec §5.3, §11.5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-scoringpy-check_scorer_agreement-flag_score_collapse">Task 3: scoring.py — check_scorer_agreement + flag_score_collapse</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/scoring.py</code> (append two functions before <code>main()</code>)
+- Create: <code>tests/unit/test_scoring_anti_collapse.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: 两个评分员的 dimension scores（<code>dict[int, float]</code>）+ 单评员 scores
+- Produces: <code>check_scorer_agreement(scores_a, scores_b, threshold) -&gt; dict</code> + <code>flag_score_collapse(scores) -&gt; dict</code>（Wave 3 评分 skill dispatch 后调用）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_scoring_anti_collapse.py</span>
+<span class="sd">&quot;&quot;&quot;Unit tests for scoring.py anti-collapse extensions (spec §5.5).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_scorer_agreement</span><span class="p">,</span> <span class="n">flag_score_collapse</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_agreement_pass_when_within_threshold</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">92</span><span class="p">}</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">check_scorer_agreement</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;agreed&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;max_diff&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_agreement_fails_when_diff_exceeds_threshold</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">70</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">92</span><span class="p">}</span>  <span class="c1"># dim 2 diff = 25</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">check_scorer_agreement</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;agreed&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;max_diff&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">25</span>
+    <span class="k">assert</span> <span class="mi">2</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;disputed_dimensions&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collapse_flagged_when_all_exactly_95</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">95</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="s2">&quot;all_identical&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collapse_not_flagged_when_scores_vary</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">90</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collapse_flagged_when_majority_95</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">4</span><span class="p">:</span> <span class="mi">88</span><span class="p">}</span>  <span class="c1"># 3/4 = 75% at 95</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;majority_at_single_value&quot;</span> <span class="ow">in</span> <span class="n">s</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring_anti_collapse.py -v</code>
+Expected: FAIL with <code>ImportError: cannot import name 'check_scorer_agreement'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Append to <code>src/shenbi/scoring.py</code> before <code>def main()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">check_scorer_agreement</span><span class="p">(</span>
+    <span class="n">scores_a</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">scores_b</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">5.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compare two scorers&#39; per-dimension scores (spec §5.5 补丁2).</span>
+
+<span class="sd">    Returns dict with:</span>
+<span class="sd">      - agreed: bool (all dimensions within threshold)</span>
+<span class="sd">      - max_diff: float (largest per-dimension difference)</span>
+<span class="sd">      - disputed_dimensions: list[int] (dimensions exceeding threshold)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">disputed</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">max_diff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>
+    <span class="n">all_dims</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">scores_a</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span> <span class="o">|</span> <span class="nb">set</span><span class="p">(</span><span class="n">scores_b</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">dim</span> <span class="ow">in</span> <span class="n">all_dims</span><span class="p">:</span>
+        <span class="n">a</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scores_a</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">b</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="n">scores_b</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="nb">abs</span><span class="p">(</span><span class="n">a</span> <span class="o">-</span> <span class="n">b</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="n">max_diff</span><span class="p">:</span>
+            <span class="n">max_diff</span> <span class="o">=</span> <span class="n">diff</span>
+        <span class="k">if</span> <span class="n">diff</span> <span class="o">&gt;</span> <span class="n">threshold</span><span class="p">:</span>
+            <span class="n">disputed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;agreed&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">disputed</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;max_diff&quot;</span><span class="p">:</span> <span class="nb">round</span><span class="p">(</span><span class="n">max_diff</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span>
+        <span class="s2">&quot;disputed_dimensions&quot;</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">disputed</span><span class="p">),</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">flag_score_collapse</span><span class="p">(</span><span class="n">scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect score-collapse signals like all-95 (spec §5.5 补丁3).</span>
+
+<span class="sd">    Returns dict with:</span>
+<span class="sd">      - collapse_suspected: bool</span>
+<span class="sd">      - signals: list[str] (which collapse pattern was detected)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">v</span><span class="p">)</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">scores</span><span class="o">.</span><span class="n">values</span><span class="p">()</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">))]</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;signals&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">values</span><span class="p">))</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;all_identical&quot;</span><span class="p">)</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">Counter</span>
+    <span class="n">counts</span> <span class="o">=</span> <span class="n">Counter</span><span class="p">(</span><span class="n">values</span><span class="p">)</span>
+    <span class="n">most_common_val</span><span class="p">,</span> <span class="n">most_common_n</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">most_common</span><span class="p">(</span><span class="mi">1</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">most_common_n</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.6</span> <span class="ow">and</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">3</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;majority_at_single_value(</span><span class="si">{</span><span class="n">most_common_val</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;collapse_suspected&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">signals</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="s2">&quot;signals&quot;</span><span class="p">:</span> <span class="n">signals</span><span class="p">,</span>
+    <span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring_anti_collapse.py -v</code>
+Expected: 5 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>tests/unit/test_scoring_anti_collapse.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add check_scorer_agreement + flag_score_collapse to scoring.py (spec §5.5)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-escalation-check_escalation">Task 4: escalation — check_escalation + 线性回归斜率</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/skill_utils/escalation/__init__.py</code>
+- Create: <code>src/shenbi/skill_utils/escalation/check.py</code>
+- Create: <code>src/shenbi/skill_utils/escalation/__main__.py</code>
+- Create: <code>tests/unit/skill_utils/test_escalation.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: resonance_trend overall 分数序列 + audit 报告（通过函数参数，非文件 I/O，保持纯函数）
+- Produces: <code>detect_score_decline(scores, window, slope_threshold) -&gt; bool</code> + <code>check_escalation(signals_input) -&gt; list[EscalationSignal]</code>（Wave 4 escalation-review 消费）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/test_escalation.py</span>
+<span class="sd">&quot;&quot;&quot;Unit tests for skill_utils/escalation/check.py (spec §6.2-6.3).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">EscalationSignal</span><span class="p">,</span>
+    <span class="n">detect_score_decline</span><span class="p">,</span>
+    <span class="n">check_escalation</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_decline_detected_with_clear_downward_trend</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 90, 88, 86, 84, 82 — slope ≈ -2.0 per chapter</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">87.0</span><span class="p">,</span> <span class="mf">84.0</span><span class="p">,</span> <span class="mf">81.0</span><span class="p">,</span> <span class="mf">78.0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">detect_score_decline</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">slope_threshold</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_decline_when_scores_stable</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">88.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">89.0</span><span class="p">,</span> <span class="mf">91.0</span><span class="p">,</span> <span class="mf">88.0</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">detect_score_decline</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">slope_threshold</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_decline_when_insufficient_samples</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">80.0</span><span class="p">]</span>  <span class="c1"># only 2 samples, need 5</span>
+    <span class="k">assert</span> <span class="n">detect_score_decline</span><span class="p">(</span><span class="n">scores</span><span class="p">,</span> <span class="n">window</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">slope_threshold</span><span class="o">=-</span><span class="mf">2.0</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_decline</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">87.0</span><span class="p">,</span> <span class="mf">84.0</span><span class="p">,</span> <span class="mf">81.0</span><span class="p">,</span> <span class="mf">78.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;score_decline&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_sensitivity_blocking</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;sensitivity_blocking&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_volume_objective_missed</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;volume_objective_missed&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_regeneration_loop</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;regeneration_loop_exhausted&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_arc_score_below_70</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">arc_score</span><span class="o">=</span><span class="mf">65.0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;arc_score_below_threshold&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_returns_signal_for_stratum_axis_drift</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="n">stratum_axis_drift</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">trigger</span> <span class="o">==</span> <span class="s2">&quot;stratum_axis_drift&quot;</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">)</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_escalation_no_signals_when_all_healthy</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="p">[</span><span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">,</span> <span class="mf">90.0</span><span class="p">],</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">signals</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_escalation.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/escalation/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;escalation package.&quot;&quot;&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/escalation/check.py</span>
+<span class="sd">&quot;&quot;&quot;check.py — human-escalation trigger detection (spec §6.2-6.3).</span>
+
+<span class="sd">Deterministic helper that evaluates escalation conditions for the</span>
+<span class="sd">auto-approve system. When any condition fires, the orchestrator must</span>
+<span class="sd">summon human review instead of continuing auto-batch. All triggers are</span>
+<span class="sd">deterministic: linear-regression slope on raw scores, boolean audit</span>
+<span class="sd">flags, integer loop counters.</span>
+
+<span class="sd">Usage (CLI):</span>
+<span class="sd">  python -m shenbi.skill_utils.escalation \\</span>
+<span class="sd">      --resonance-scores 90,88,86,84,82 \\</span>
+<span class="sd">      --sensitivity-blocking false \\</span>
+<span class="sd">      --volume-objective-met true \\</span>
+<span class="sd">      --regeneration-attempts 1</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EscalationSignal</span><span class="p">:</span>
+    <span class="n">trigger</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">detail</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_score_decline</span><span class="p">(</span>
+    <span class="n">scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span> <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span> <span class="n">slope_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.0</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Linear regression slope on last `window` overall scores.</span>
+
+<span class="sd">    Returns True if the slope (points per chapter) is steeper downward</span>
+<span class="sd">    than slope_threshold (i.e. slope &lt; slope_threshold, both negative).</span>
+<span class="sd">    Requires at least `window` samples; fewer → no trigger.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">recent</span> <span class="o">=</span> <span class="n">scores</span><span class="p">[</span><span class="o">-</span><span class="n">window</span><span class="p">:]</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">recent</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">window</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">recent</span><span class="p">)</span>
+    <span class="n">x_mean</span> <span class="o">=</span> <span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">)</span> <span class="o">/</span> <span class="mi">2</span>  <span class="c1"># x = 0,1,...,n-1</span>
+    <span class="n">y_mean</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">recent</span><span class="p">)</span> <span class="o">/</span> <span class="n">n</span>
+    <span class="n">numerator</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="n">x_mean</span><span class="p">)</span> <span class="o">*</span> <span class="p">(</span><span class="n">y</span> <span class="o">-</span> <span class="n">y_mean</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">y</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">recent</span><span class="p">))</span>
+    <span class="n">denominator</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">((</span><span class="n">i</span> <span class="o">-</span> <span class="n">x_mean</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">denominator</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">slope</span> <span class="o">=</span> <span class="n">numerator</span> <span class="o">/</span> <span class="n">denominator</span>
+    <span class="k">return</span> <span class="n">slope</span> <span class="o">&lt;</span> <span class="n">slope_threshold</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_escalation</span><span class="p">(</span>
+    <span class="n">resonance_scores</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
+    <span class="n">sensitivity_blocking</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">volume_objective_met</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">regeneration_attempts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">arc_score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">stratum_axis_drift</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">window</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">slope_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="o">-</span><span class="mf">2.0</span><span class="p">,</span>
+    <span class="n">regen_loop_limit</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span><span class="p">,</span>
+    <span class="n">arc_threshold</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">70.0</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">EscalationSignal</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Evaluate all escalation conditions (spec §6.2).</span>
+
+<span class="sd">    Returns a list of fired EscalationSignals. Empty list = no escalation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">signals</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">EscalationSignal</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="n">detect_score_decline</span><span class="p">(</span><span class="n">resonance_scores</span><span class="p">,</span> <span class="n">window</span><span class="p">,</span> <span class="n">slope_threshold</span><span class="p">):</span>
+        <span class="n">recent</span> <span class="o">=</span> <span class="n">resonance_scores</span><span class="p">[</span><span class="o">-</span><span class="n">window</span><span class="p">:]</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;score_decline&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;linear regression slope on last </span><span class="si">{</span><span class="n">window</span><span class="si">}</span><span class="s2"> scores &lt; </span><span class="si">{</span><span class="n">slope_threshold</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">recent</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">sensitivity_blocking</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;sensitivity_blocking&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;sensitivity audit reported BLOCKING severity&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">volume_objective_met</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;volume_objective_missed&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;volume Objective not achieved (score-volume binary check)&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">regeneration_attempts</span> <span class="o">&gt;=</span> <span class="n">regen_loop_limit</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;regeneration_loop_exhausted&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;same goal unmet after </span><span class="si">{</span><span class="n">regeneration_attempts</span><span class="si">}</span><span class="s2"> regeneration attempts (limit </span><span class="si">{</span><span class="n">regen_loop_limit</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">arc_score</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">arc_score</span> <span class="o">&lt;</span> <span class="n">arc_threshold</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;arc_score_below_threshold&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;arc score </span><span class="si">{</span><span class="n">arc_score</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">arc_threshold</span><span class="si">}</span><span class="s2"> (spec §6.2)&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">stratum_axis_drift</span><span class="p">:</span>
+        <span class="n">signals</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">EscalationSignal</span><span class="p">(</span>
+            <span class="n">trigger</span><span class="o">=</span><span class="s2">&quot;stratum_axis_drift&quot;</span><span class="p">,</span>
+            <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;protagonist arc drifted from declared ending (score-stratum detected, spec §6.2)&quot;</span><span class="p">,</span>
+        <span class="p">))</span>
+
+    <span class="k">return</span> <span class="n">signals</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI: print escalation signals as JSON.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;escalation&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Detect human-escalation triggers (spec §6.2).&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--resonance-scores&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Comma-separated overall scores.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sensitivity-blocking&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;true/false.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--volume-objective-met&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;true&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;true/false.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--regeneration-attempts&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--arc-score&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">float</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Latest arc score (spec §6.2 trigger)&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--stratum-axis-drift&quot;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;true/false (spec §6.2 trigger)&quot;</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="n">x</span><span class="p">)</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">args</span><span class="o">.</span><span class="n">resonance_scores</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;,&quot;</span><span class="p">)]</span>
+    <span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+        <span class="n">resonance_scores</span><span class="o">=</span><span class="n">scores</span><span class="p">,</span>
+        <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sensitivity_blocking</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">volume_objective_met</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">volume_objective_met</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+        <span class="n">regeneration_attempts</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">regeneration_attempts</span><span class="p">,</span>
+        <span class="n">arc_score</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">arc_score</span><span class="p">,</span>
+        <span class="n">stratum_axis_drift</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">stratum_axis_drift</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">([{</span><span class="s2">&quot;trigger&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">trigger</span><span class="p">,</span> <span class="s2">&quot;detail&quot;</span><span class="p">:</span> <span class="n">s</span><span class="o">.</span><span class="n">detail</span><span class="p">}</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">signals</span><span class="p">],</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/escalation/__main__.py</span>
+<span class="sd">&quot;&quot;&quot;Standalone runner: python -m shenbi.skill_utils.escalation&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+
+<span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_escalation.py -v</code>
+Expected: 10 passed (8 original + 2 new escalation triggers)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/escalation/<span class="w"> </span>tests/unit/skill_utils/test_escalation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add escalation_check with linear-regression decline detection (spec §6.2-6.3)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-foreshadowing_recall-recall_overdue_hooks">Task 5: foreshadowing_recall — recall_overdue_hooks</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/skill_utils/foreshadowing_recall/__init__.py</code>
+- Create: <code>src/shenbi/skill_utils/foreshadowing_recall/recall.py</code>
+- Create: <code>src/shenbi/skill_utils/foreshadowing_recall/__main__.py</code>
+- Create: <code>tests/unit/skill_utils/test_foreshadowing_recall.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: hook 列表（<code>list[dict]</code>，每个含 id/last_reinforced/max_distance）
+- Produces: <code>recall_overdue_hooks(hooks, current_chapter) -&gt; list[str]</code>（Wave 2 foreshadowing-recall skill + review-foreshadowing 改造调用）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/skill_utils/test_foreshadowing_recall.py</span>
+<span class="sd">&quot;&quot;&quot;Unit tests for skill_utils/foreshadowing_recall/recall.py (spec §3.6).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.foreshadowing_recall.recall</span><span class="w"> </span><span class="kn">import</span> <span class="n">recall_overdue_hooks</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_overdue_hook_returned</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>  <span class="c1"># silence=6 &lt; 20, NOT overdue</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H02&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>  <span class="c1"># silence=16 &gt; 15, overdue</span>
+    <span class="p">]</span>
+    <span class="n">overdue</span> <span class="o">=</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">66</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;H02&quot;</span> <span class="ow">in</span> <span class="n">overdue</span>
+    <span class="k">assert</span> <span class="s2">&quot;H01&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">overdue</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_non_overdue_hooks_excluded</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>  <span class="c1"># 66-60=6 &lt; 20</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H02&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">55</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>  <span class="c1"># 66-55=11 &lt; 20</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">66</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resolved_hooks_excluded</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;state&quot;</span><span class="p">:</span> <span class="s2">&quot;RESOLVED&quot;</span><span class="p">},</span>
+    <span class="p">]</span>
+    <span class="k">assert</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">66</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_multiple_overdue_returned</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H02&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H03&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">60</span><span class="p">,</span> <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+    <span class="p">]</span>
+    <span class="n">overdue</span> <span class="o">=</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">66</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">overdue</span><span class="p">)</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;H02&quot;</span><span class="p">}</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_empty_hooks_returns_empty</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">assert</span> <span class="n">recall_overdue_hooks</span><span class="p">([],</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_hook_without_max_distance_skipped</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;H01&quot;</span><span class="p">,</span> <span class="s2">&quot;last_reinforced&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">}]</span>  <span class="c1"># no max_distance</span>
+    <span class="k">assert</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">current_chapter</span><span class="o">=</span><span class="mi">100</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_foreshadowing_recall.py -v</code>
+Expected: FAIL with <code>ModuleNotFoundError</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/foreshadowing_recall/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;foreshadowing_recall package.&quot;&quot;&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/foreshadowing_recall/recall.py</span>
+<span class="sd">&quot;&quot;&quot;recall.py — deterministic overdue-hook filtering (spec §3.6).</span>
+
+<span class="sd">This helper wraps the RAG recall layer&#39;s final deterministic filter.</span>
+<span class="sd">The RAG layer (benchmarks/index/) retrieves candidate hooks by semantic</span>
+<span class="sd">similarity; this function applies the deterministic max_distance</span>
+<span class="sd">threshold to decide which are genuinely overdue. The threshold check</span>
+<span class="sd">is pure arithmetic: (current_chapter - last_reinforced) &gt; max_distance.</span>
+<span class="sd">This keeps the final judgment deterministic regardless of embedding</span>
+<span class="sd">fluctuations.</span>
+
+<span class="sd">Hook dict schema:</span>
+<span class="sd">    {&quot;id&quot;: str,</span>
+<span class="sd">     &quot;last_reinforced&quot;: int,</span>
+<span class="sd">     &quot;max_distance&quot;: int,</span>
+<span class="sd">     &quot;state&quot;: str (optional, e.g. &quot;PLANTED&quot;/&quot;RELEVANT&quot;/&quot;RESOLVED&quot;)}</span>
+
+<span class="sd">Usage (CLI):</span>
+<span class="sd">  python -m shenbi.skill_utils.foreshadowing_recall \\</span>
+<span class="sd">      --hooks-json &#39;[{&quot;id&quot;:&quot;H01&quot;,&quot;last_reinforced&quot;:3,&quot;max_distance&quot;:20}]&#39; \\</span>
+<span class="sd">      --current-chapter 66</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">],</span> <span class="n">current_chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return hook_ids whose silence exceeds max_distance (spec §3.6).</span>
+
+<span class="sd">    Excludes RESOLVED hooks and hooks without max_distance.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">overdue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">hook</span> <span class="ow">in</span> <span class="n">hooks</span><span class="p">:</span>
+        <span class="n">state</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">,</span> <span class="s2">&quot;PLANTED&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">state</span> <span class="o">==</span> <span class="s2">&quot;RESOLVED&quot;</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">last_reinforced</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;last_reinforced&quot;</span><span class="p">)</span>
+        <span class="n">max_distance</span> <span class="o">=</span> <span class="n">hook</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;max_distance&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">last_reinforced</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">max_distance</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">silence</span> <span class="o">=</span> <span class="n">current_chapter</span> <span class="o">-</span> <span class="n">last_reinforced</span>
+        <span class="k">if</span> <span class="n">silence</span> <span class="o">&gt;</span> <span class="n">max_distance</span><span class="p">:</span>
+            <span class="n">overdue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">hook</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">overdue</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;CLI: print overdue hook IDs as JSON.&quot;&quot;&quot;</span>
+    <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span><span class="n">prog</span><span class="o">=</span><span class="s2">&quot;foreshadowing_recall&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Filter overdue hooks (spec §3.6).&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--hooks-json&quot;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;JSON array of hook dicts.&quot;</span><span class="p">)</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--current-chapter&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+    <span class="n">hooks</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">hooks_json</span><span class="p">)</span>
+    <span class="n">overdue</span> <span class="o">=</span> <span class="n">recall_overdue_hooks</span><span class="p">(</span><span class="n">hooks</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">overdue</span><span class="p">))</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/skill_utils/foreshadowing_recall/__main__.py</span>
+<span class="sd">&quot;&quot;&quot;Standalone runner: python -m shenbi.skill_utils.foreshadowing_recall&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.foreshadowing_recall.recall</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+
+<span class="n">main</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_foreshadowing_recall.py -v</code>
+Expected: 6 passed</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/foreshadowing_recall/<span class="w"> </span>tests/unit/skill_utils/test_foreshadowing_recall.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add recall_overdue_hooks deterministic filter (spec §3.6)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-lock-tool-hashessh">Task 6: lock-tool-hashes.sh — 全树扫描</h3>
+<p><strong>Files:</strong>
+- Modify: <code>tests/lock-tool-hashes.sh</code> (替换 tool_paths 列举为全树扫描)</p>
+<ul>
+<li>[ ] <strong>Step 1: Run current lock script to capture baseline</strong></li>
+</ul>
+<p>Run: <code>bash tests/lock-tool-hashes.sh</code>
+Expected: prints 5 hashes, "Done."</p>
+<ul>
+<li>[ ] <strong>Step 2: Modify script to scan full tree</strong></li>
+</ul>
+<p>Replace the <code>tool_paths = [...]</code> block in <code>tests/lock-tool-hashes.sh</code> with a full-tree scan:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In the first python -c block, replace:</span>
+<span class="c1">#   tool_paths = [&#39;src/shenbi/gates/cli.py&#39;, ...]</span>
+<span class="c1"># with:</span>
+<span class="nv">tool_paths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="o">[</span>
+<span class="w">    </span>str<span class="o">(</span>p.relative_to<span class="o">(</span>project<span class="o">))</span>
+<span class="w">    </span><span class="k">for</span><span class="w"> </span>p<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="o">(</span>project<span class="w"> </span>/<span class="w"> </span><span class="s1">&#39;src&#39;</span><span class="w"> </span>/<span class="w"> </span><span class="s1">&#39;shenbi&#39;</span><span class="o">)</span>.rglob<span class="o">(</span><span class="s1">&#39;*.py&#39;</span><span class="o">)</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="s1">&#39;__pycache__&#39;</span><span class="w"> </span>not<span class="w"> </span><span class="k">in</span><span class="w"> </span>str<span class="o">(</span>p<span class="o">)</span>
+<span class="o">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run modified script</strong></li>
+</ul>
+<p>Run: <code>bash tests/lock-tool-hashes.sh</code>
+Expected: prints hashes for ALL .py files under src/shenbi/ (including new skill_utils/* helpers), "Done."</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify deps.json updated correctly</strong></li>
+</ul>
+<p>Run: <code>python3 -c "import json; d=json.load(open('tests/tiers/deps.json')); print(len(d['_tool_hashes']), 'files locked'); print('revision_routing' in str(d['_tool_hashes']))"</code>
+Expected: count &gt; 5 (includes new helpers), True</p>
+<ul>
+<li>[ ] <strong>Step 5: Verify deps.json updated correctly</strong></li>
+</ul>
+<p><code>_tool_hashes</code> is a committed-state lock with <strong>no runtime gate</strong> (G0.13 is the independence-marker check, G0.14 is calibration hashes — neither verifies tool hashes). The lock's enforcement is <code>just check</code> (which runs tests that read deps.json) and <code>git diff</code> inspection. Verify the file is valid JSON:</p>
+<p>Run: <code>python3 -c "import json; d=json.load(open('tests/tiers/deps.json')); print(len(d['_tool_hashes']), 'files locked')"</code>
+Expected: count includes new helper files (revision_routing, escalation, foreshadowing_recall, scoring.py)</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/lock-tool-hashes.sh<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: lock-tool-hashes.sh scans full src/shenbi tree (spec §9.4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7">Task 7: 全量验证 + 覆盖率</h3>
+<ul>
+<li>[ ] <strong>Step 1: Run all new unit tests</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_revision_routing.py tests/unit/skill_utils/test_escalation.py tests/unit/skill_utils/test_foreshadowing_recall.py tests/unit/test_scoring_anti_collapse.py -v</code>
+Expected: all passed (5+4+8+6+5 = 28 tests)</p>
+<ul>
+<li>[ ] <strong>Step 2: Run fast test suite</strong></li>
+</ul>
+<p>Run: <code>just test</code>
+Expected: all passed, no regressions</p>
+<ul>
+<li>[ ] <strong>Step 3: Run full check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: all passed (lint, type-check, coverage ≥90%)</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify CLI runners work</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code><span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;{&quot;issues&quot;:[]}&#39;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import sys,json; from shenbi.skill_utils.revision_routing.route import route_revision; print(route_revision(json.load(sys.stdin)))&quot;</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>shenbi.skill_utils.escalation<span class="w"> </span>--resonance-scores<span class="w"> </span><span class="m">90</span>,85,80,75,70<span class="w"> </span>--sensitivity-blocking<span class="w"> </span><span class="nb">false</span><span class="w"> </span>--volume-objective-met<span class="w"> </span><span class="nb">true</span><span class="w"> </span>--regeneration-attempts<span class="w"> </span><span class="m">0</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>shenbi.skill_utils.foreshadowing_recall<span class="w"> </span>--hooks-json<span class="w"> </span><span class="s1">&#39;[{&quot;id&quot;:&quot;H01&quot;,&quot;last_reinforced&quot;:1,&quot;max_distance&quot;:10}]&#39;</span><span class="w"> </span>--current-chapter<span class="w"> </span><span class="m">50</span>
+</code></pre></div>
+Expected: <code>spot-fix</code>; JSON array with score_decline signal; <code>["H01"]</code></p>
+<ul>
+<li>[ ] <strong>Step 5: Re-lock hashes after all changes</strong></li>
+</ul>
+<p>Run: <code>bash tests/lock-tool-hashes.sh</code>
+Expected: Done, all src/shenbi/*.py files locked</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit lock update</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: re-lock tool hashes after Wave 1 helper additions&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="wave-2-4">Wave 2-4 预告（后续计划）</h2>
+<p>本计划仅覆盖 Wave 1（基础 helpers）。后续波次的计划文件：</p>
+<ul>
+<li><code>2026-06-28-hierarchical-system-wave2-memory.md</code>：book-spine-init, memory-distill, context-composing 改造, foreshadowing-recall skill, G0.10 动态化</li>
+<li><code>2026-06-28-hierarchical-system-wave3-scoring.md</code>：anchor-curate, review-resonance 改造, score-arc, score-volume, score-stratum</li>
+<li><code>2026-06-28-hierarchical-system-wave4-loop-approval.md</code>：chapter-revision 改造（重生路由 + preserve_check）, 审批节点改造, escalation-review skill</li>
+</ul>
+<p>每个后续波次依赖前一波的产出（接口在本计划的 Task "Interfaces" 块中声明）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

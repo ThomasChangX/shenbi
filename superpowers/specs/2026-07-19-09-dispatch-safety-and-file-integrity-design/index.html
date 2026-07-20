@@ -1,0 +1,1983 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-09-dispatch-safety-and-file-integrity-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 3: Dispatch Safety and File Integrity Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 3: Dispatch Safety and File Integrity Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-09-dispatch-safety-and-file-integrity-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-09-dispatch-safety-and-file-integrity-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 3: Dispatch Safety and File Integrity Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-09-dispatch-safety-and-file-integrity-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-3-dispatch-safety-and-file-integrity-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 3: Dispatch Safety and File Integrity Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis-per-source-spec-breakdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis (Per-Source-Spec Breakdown)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis (Per-Source-Spec Breakdown)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-revision-overwrite-of-chapter-content-c1-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Revision Overwrite of Chapter Content (C1, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-seven-chapters-with-zero-or-degraded-prose-extension-of-c1-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Seven Chapters with Zero or Degraded Prose (Extension of C1, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-staging-residue-cleanup-h4-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Staging Residue Cleanup (H4, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-snapshot-coverage-gaps-m3-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 Snapshot Coverage Gaps (M3, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-snapshot-bloat-lockfile-permissions-and-budget-copying-ln1-ln3-consumed-into-this-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 Snapshot Bloat, Lockfile Permissions, and Budget Copying (LN1-LN3, consumed into this spec)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-pre-revision-backup-of-chapter-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Pre-Revision Backup of Chapter Files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-content-size-guard-in-_write_parsed_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Content-Size Guard in _write_parsed_outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-clear-staging-after-auto-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Clear Staging After Auto-Commit
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-defensive-residual-cleanup-at-pipeline-resume" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Defensive Residual Cleanup at Pipeline Resume
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-generate-starting-snapshot-at-chapter-loop-initialization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Generate Starting Snapshot at Chapter Loop Initialization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-register-atexit-emergency-snapshot-handler" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Register atexit Emergency Snapshot Handler
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-content-guard-in-_snapshot_chapter_files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Content Guard in _snapshot_chapter_files
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-filter-snapshots-to-core-files-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 Filter Snapshots to Core Files Only
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-fix-lockfile-permissions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 Fix Lockfile Permissions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#310-add-adjacent-chapter-budget-comparison-in-g4-decisions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10 Add Adjacent-Chapter Budget Comparison in G4 Decisions
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Dependencies">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-original-issue-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 Original Issue Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-3-dispatch-safety-and-file-integrity-design">Spec 3: Dispatch Safety and File Integrity Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical
+<strong>Consolidated from:</strong>
+- <code>2026-07-17-fix-revision-overwrite-chapter-content-design.md</code> (C1)
+- <code>2026-07-17-fix-seven-chapters-zero-prose-design.md</code>
+- <code>2026-07-17-fix-staging-residue-cleanup-design.md</code> (H4)
+- <code>2026-07-17-fix-snapshot-coverage-gaps-design.md</code> (M3)
+- <code>2026-07-17-fix-snapshot-bloat-lockfile-budget-design.md</code></p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The dispatch system's output writing path (<code>dispatch_helper.py:_write_parsed_outputs</code>) unconditionally overwrites target files with no content-size guard, no pre-write backup, and no staging cleanup in auto mode. This has caused 5 chapters (8.9%) to have their novel prose permanently replaced by revision metadata summaries. An additional 2 chapters contain severely degraded prose. The snapshot system -- intended as a safety net -- has coverage gaps (Ch1-4 and Ch56 have no snapshots) and stores bloated full-file copies (18x chapter size) including audit reports. Staging residue accumulates to 119 files (1.2MB) because <code>clear_staging()</code> is never called in auto-commit code paths. Lockfile permissions are wrong (0755 instead of 0644), and adjacent-chapter decision budgets are copied without recalculation.</p>
+<p><strong>Shared root cause:</strong> <code>_write_parsed_outputs</code> at <code>dispatch_helper.py:294-323</code> calls <code>safe_write(path, content)</code> at line 316 with zero guards. The method treats all output paths equally -- chapter body prose, revision metadata, audit reports -- and has no awareness of what constitutes a valid content size for each file type. The auto-commit path in <code>chapter_loop.py</code> (around lines 516-545) calls <code>commit_staging()</code> but never follows up with <code>clear_staging()</code>. Snapshot generation starts at step 19 and has no initialization hook for early chapters.</p>
+<hr />
+<h2 id="2-root-cause-analysis-per-source-spec-breakdown">2. Root Cause Analysis (Per-Source-Spec Breakdown)</h2>
+<h3 id="21-revision-overwrite-of-chapter-content-c1-consumed-into-this-spec">2.1 Revision Overwrite of Chapter Content (C1, consumed into this spec)</h3>
+<p><strong>Discovery:</strong> 5/56 chapters (8.9%) have their <code>chapters/chapter-N.md</code> containing revision metadata instead of novel prose:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>File Size</th>
+<th>Content Type</th>
+<th>Snapshot Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch2</td>
+<td>916 bytes</td>
+<td>"All three files have been output. Here's a summary of the revision..."</td>
+<td>No snapshot</td>
+</tr>
+<tr>
+<td>Ch9</td>
+<td>367 bytes</td>
+<td>"第9章修订结论: Auto-skip（无修订）"</td>
+<td>Snapshot also corrupted</td>
+</tr>
+<tr>
+<td>Ch12</td>
+<td>1,340 bytes</td>
+<td>"The revision is complete. Here's a summary..."</td>
+<td>Snapshot also corrupted</td>
+</tr>
+<tr>
+<td>Ch44</td>
+<td>1,199 bytes</td>
+<td>"All three output files have been produced..."</td>
+<td>Snapshot also corrupted</td>
+</tr>
+<tr>
+<td>Ch55</td>
+<td>101 bytes</td>
+<td>"Chapter content unchanged -- no revision needed."</td>
+<td>Snapshot also corrupted</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Critical fact: Ch2 has no snapshot -&gt; prose is permanently lost.</strong></p>
+<p><strong>Root cause chain:</strong></p>
+<div class="highlight"><pre><span></span><code>shenbi-chapter-revision no-op route
+  -&gt; LLM outputs summary to ### FILE: chapters/chapter-N.md
+    -&gt; _write_parsed_outputs unconditionally overwrites via safe_write
+      -&gt; Original prose permanently lost
+</code></pre></div>
+<p>Three systemic failures converged:</p>
+<ol>
+<li>
+<p><strong>Revision skill's write contract</strong> includes <code>chapters/chapter-N.md</code> as an output path (<code>dispatch_helper.py:195-203</code>), but no-op scenarios should not write to this file.</p>
+</li>
+<li>
+<p><strong>No pre-revision backup.</strong> <code>state_snapshot-pre-rev.md</code> is written to <code>truth/</code> during revision (SKILL.md line 63) but does not back up <code>chapters/chapter-N.md</code>. The chapter loop's snapshot timing: snapshot is step 19, but revision is step 18 -- snapshot occurs after revision, not before.</p>
+</li>
+<li>
+<p><strong>No content-size guard in <code>_write_parsed_outputs</code>.</strong> Line 316 unconditionally writes whatever the LLM outputs without comparing against the original file size.</p>
+</li>
+</ol>
+<h3 id="22-seven-chapters-with-zero-or-degraded-prose-extension-of-c1-consumed-into-this-spec">2.2 Seven Chapters with Zero or Degraded Prose (Extension of C1, consumed into this spec)</h3>
+<p><strong>Discovery (Agent 2 + D24):</strong> Extended audit reveals 7 total chapters with prose issues:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>File Size</th>
+<th>CJK Chars</th>
+<th>Snapshot</th>
+<th>Problem</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch2</td>
+<td>1,035B</td>
+<td>38</td>
+<td>None</td>
+<td>Revision metadata overwrite</td>
+</tr>
+<tr>
+<td>Ch9</td>
+<td>641B</td>
+<td>121</td>
+<td>Corrupted</td>
+<td>Revision metadata overwrite</td>
+</tr>
+<tr>
+<td>Ch12</td>
+<td>1,506B</td>
+<td>68</td>
+<td>Corrupted</td>
+<td>Revision metadata overwrite</td>
+</tr>
+<tr>
+<td><strong>Ch40</strong></td>
+<td>3,546B</td>
+<td><strong>2,173</strong></td>
+<td>Present (317KB)</td>
+<td><strong>New: prose exists but severely degraded (system term density 33.6 per mille)</strong></td>
+</tr>
+<tr>
+<td>Ch44</td>
+<td>1,229B</td>
+<td>9</td>
+<td>Corrupted</td>
+<td>Revision metadata overwrite</td>
+</tr>
+<tr>
+<td><strong>Ch46</strong></td>
+<td>15,822B</td>
+<td><strong>7,382</strong></td>
+<td>Present (288KB)</td>
+<td><strong>New: parameter density 114.7 per mille</strong></td>
+</tr>
+<tr>
+<td>Ch55</td>
+<td>103B</td>
+<td>0</td>
+<td>Corrupted</td>
+<td>Revision metadata overwrite</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Classification:</strong>
+- <strong>Complete loss</strong> (revision metadata overwrite): Ch2, Ch9, Ch12, Ch44, Ch55 (5 chapters)
+- <strong>Severe degradation</strong> (unreadable parameter prose): Ch40, Ch46 (2 chapters)</p>
+<p>The severe degradation chapters are technically "not empty" but are undeliverable as literature. They are addressed by the linguistic drift detection in the consolidated Context Persistence spec, while the content-size guard in this spec prevents the complete-loss pattern.</p>
+<h3 id="23-staging-residue-cleanup-h4-consumed-into-this-spec">2.3 Staging Residue Cleanup (H4, consumed into this spec)</h3>
+<p><strong>Discovery:</strong> <code>novel-output/xinghuo-ranqiong/staging/</code> contains 119 leftover files:</p>
+<table>
+<thead>
+<tr>
+<th>Directory</th>
+<th>File Count</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>staging/plans/</code></td>
+<td>111 (56 .md + 55 .json)</td>
+<td>~1.2MB</td>
+</tr>
+<tr>
+<td><code>staging/truth/</code></td>
+<td>8 (state-settling intermediates)</td>
+<td>~45KB</td>
+</tr>
+</tbody>
+</table>
+<p>All 56 chapters have corresponding final plans files -- staging contains duplicate copies.</p>
+<p><strong>Design expectation vs reality:</strong></p>
+<p><code>checkpoint.py</code> defines a complete staging lifecycle:
+- <code>commit_staging()</code> (line 32-56): Copy staging files to final paths via <code>safe_write</code>
+- <code>clear_staging()</code> (line 59-73): <code>shutil.rmtree</code> the entire staging directory</p>
+<p>Expected flow:
+<div class="highlight"><pre><span></span><code>dispatch skill -&gt; write to staging/ -&gt; G4 validate -&gt; commit_staging -&gt; clear_staging
+</code></pre></div></p>
+<p><strong>Root cause:</strong> Auto mode in <code>chapter_loop.py</code> (around lines 516-545, <code>_advance</code> function) calls <code>commit_staging()</code> but never follows with <code>clear_staging()</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py:516-545 -- auto mode path</span>
+<span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">uses_staging</span><span class="p">:</span>
+    <span class="n">commit_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="p">[</span><span class="n">target</span><span class="p">])</span>
+    <span class="c1"># MISSING: clear_staging(project_dir)</span>
+</code></pre></div>
+<p>The human-approval path in <code>cli.py:317-351</code> correctly calls both <code>commit_staging()</code> and <code>clear_staging()</code>. Only auto mode is affected. Additionally, state-settling's auto-commit at <code>chapter_loop.py:537</code> has the same missing <code>clear_staging()</code>.</p>
+<h3 id="24-snapshot-coverage-gaps-m3-consumed-into-this-spec">2.4 Snapshot Coverage Gaps (M3, consumed into this spec)</h3>
+<p><strong>Discovery:</strong>
+- <strong>Snapshots present:</strong> Ch5-55 (51 chapters)
+- <strong>Snapshots missing:</strong> Ch1-4, Ch56 (5 chapters)
+- <strong>Snapshots corrupted:</strong> Ch9/12/44/55 contain revision metadata instead of prose</p>
+<p><strong>Root cause:</strong> Snapshot generation is step 19 in the chapter loop (<code>chapter_loop.py:242-247</code>). Ch1-4 were generated in an earlier pipeline version or during debugging where the snapshot step wasn't included. Ch56 (final chapter) has no snapshot because the pipeline terminated before step 19 ran. There is no initialization snapshot at chapter loop start, and no emergency snapshot on abnormal termination.</p>
+<h3 id="25-snapshot-bloat-lockfile-permissions-and-budget-copying-ln1-ln3-consumed-into-this-spec">2.5 Snapshot Bloat, Lockfile Permissions, and Budget Copying (LN1-LN3, consumed into this spec)</h3>
+<p><strong>LN1 -- Snapshot bloat (verified, worse than initially reported):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Snapshot Size</th>
+<th>Chapter Size</th>
+<th>Ratio</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch38</td>
+<td>344,529 chars</td>
+<td>~21,000 chars</td>
+<td><strong>~16x</strong></td>
+</tr>
+<tr>
+<td>Ch37</td>
+<td>335,678 chars</td>
+<td>~20,000 chars</td>
+<td><strong>~16x</strong></td>
+</tr>
+<tr>
+<td>Ch41</td>
+<td>328,494 chars</td>
+<td>21,901 chars</td>
+<td><strong>~15x</strong></td>
+</tr>
+</tbody>
+</table>
+<p>All snapshots are ~300KB+ while chapter files are ~20-40KB. Snapshots include complete audit reports (<code>audits/chapter-N-*.md</code>), all truth files (<code>truth/*.md</code> — global, not chapter-scoped), and revision tables. They should only contain chapter state.</p>
+<p><strong>Root cause (verified):</strong> <code>_snapshot_chapter_files</code> (<code>chapter_loop.py:903-960</code>) at lines 924-939 copies the chapter file PLUS all <code>audits/chapter-N-*.md</code> PLUS <strong>all</strong> <code>truth/*.md</code> (global truth files, not chapter-scoped). No differential snapshot support exists (grep for <code>differential</code>/<code>delta</code> returned zero).</p>
+<p><strong>LN2 -- Lockfile permissions:</strong> <code>pipeline-state.json.lockfile</code>: 0 bytes, permissions 0755 (should be 0644). The lockfile creation in <code>safe_write.py</code>'s <code>_acquire_lock</code> does not set explicit permissions.</p>
+<p><strong>LN3 -- Decision budget copying (verified):</strong> 2 pairs of adjacent chapter decision JSONs have identical <code>budget</code> fields (Ch14-Ch15, Ch19-Ch20) — budgets are copied without per-chapter recalculation. (Earlier analysis reported 6 pairs; filesystem verification with <code>raw_decode</code>-tolerant parsing found only 2 adjacent pairs with byte-identical budget objects across 55 readable chapters.)</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-pre-revision-backup-of-chapter-files">3.1 Pre-Revision Backup of Chapter Files</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py</code> (before step 18 revision dispatch, around line 1427, in <code>_route_revision_after_resonance</code>)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Before dispatching revision, back up the current chapter prose</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="n">chapter_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">current_chapter</span><span class="si">}</span><span class="s2">.md&quot;</span>
+<span class="n">backup_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">state</span><span class="o">.</span><span class="n">current_chapter</span><span class="si">}</span><span class="s2">-pre-rev.md&quot;</span>
+<span class="k">if</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy2</span><span class="p">(</span><span class="n">chapter_path</span><span class="p">,</span> <span class="n">backup_path</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;pre_revision_backup&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">state</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">,</span>
+                <span class="n">size</span><span class="o">=</span><span class="n">chapter_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span><span class="p">)</span>
+</code></pre></div>
+<p>This ensures that even if the revision skill overwrites the chapter body, the original prose is recoverable from the <code>-pre-rev.md</code> backup.</p>
+<h3 id="32-content-size-guard-in-_write_parsed_outputs">3.2 Content-Size Guard in <code>_write_parsed_outputs</code></h3>
+<blockquote>
+<p><strong>Priority clarification:</strong> This size guard is a DEFENSE-IN-DEPTH secondary safety net, NOT the primary root-cause fix. The primary fix is the write-contract change (§3.9 / Spec 2: revision skill must NOT emit the chapter body in no-op mode) + §3.1 (pre-revision backup). The 20% threshold is deliberately conservative — it catches the catastrophic cases (101-byte summary replacing 10KB prose) without blocking legitimate aggressive rewrites. Legitimate rewrites that compress by &gt;80% are rare and would trigger only a WARN, not a block.</p>
+</blockquote>
+<p><strong>Location:</strong> <code>dispatch_helper.py:_write_parsed_outputs</code> (around line 316, before <code>safe_write</code> call)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Content-size guard for chapter body files</span>
+<span class="c1"># NOTE: PurePath.match does not handle multi-segment patterns reliably;</span>
+<span class="c1"># use parent.name + name checks instead.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="n">full_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+<span class="k">if</span> <span class="p">(</span><span class="n">full_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;chapters&quot;</span>
+        <span class="ow">and</span> <span class="n">full_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;chapter-&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">full_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.md&quot;</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="ow">not</span> <span class="n">full_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-pre-rev.md&quot;</span><span class="p">)):</span>
+    <span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">original_size</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">original_size</span> <span class="o">*</span> <span class="mf">0.2</span><span class="p">:</span>
+            <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;revision_content_too_small&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">path</span><span class="p">),</span>
+                           <span class="n">original</span><span class="o">=</span><span class="n">original_size</span><span class="p">,</span> <span class="n">new</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+            <span class="k">continue</span>  <span class="c1"># Skip overwrite, preserve original</span>
+</code></pre></div>
+<p><strong>Key design decisions:</strong>
+- Threshold: &lt;20% of original file size triggers refusal. This catches the 101-byte "no revision needed" summaries while allowing legitimate heavy rewrites.
+- The guard is a WARN + skip, not a HARD pipeline abort -- the original file is preserved.
+- Only applies to chapter body files (<code>chapters/chapter-N.md</code>), not to metadata or audit files.
+- Pre-revision backup (<code>-pre-rev.md</code> files) are excluded from the guard.</p>
+<h3 id="33-clear-staging-after-auto-commit">3.3 Clear Staging After Auto-Commit</h3>
+<p><strong>Location(s):</strong> <code>chapter_loop.py</code> -- two fix points</p>
+<p><strong>Fix point 1</strong> -- auto mode for chapter-planning (around line 516-545, in <code>_advance</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">uses_staging</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">requires_checkpoint</span><span class="p">:</span>
+    <span class="n">commit_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="p">[</span><span class="n">target</span><span class="p">])</span>
+    <span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># ADD THIS LINE</span>
+</code></pre></div>
+<p><strong>Fix point 2</strong> -- auto-commit for state-settling (around line 537):</p>
+<div class="highlight"><pre><span></span><code><span class="n">commit_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="p">[</span><span class="n">target</span><span class="p">])</span>
+<span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># ADD THIS LINE</span>
+</code></pre></div>
+<h3 id="34-defensive-residual-cleanup-at-pipeline-resume">3.4 Defensive Residual Cleanup at Pipeline Resume</h3>
+<p><strong>Location:</strong> <code>cli.py</code> or <code>chapter_loop.py</code> resume entry point</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># At pipeline resume initialization</span>
+<span class="n">staging_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span>
+<span class="k">if</span> <span class="n">staging_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="c1"># If no pending staging steps exist in state, safe to clean</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">_has_pending_staging_step</span><span class="p">(</span><span class="n">state</span><span class="p">):</span>
+        <span class="n">clear_staging</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;cleaned_staging_residue&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span>
+</code></pre></div>
+<p>Additionally, <code>clear_staging()</code> in <code>checkpoint.py:59-73</code> already has a <code>staging.exists()</code> guard (verified at line 68: <code>if staging_dir.exists(): shutil.rmtree(...) else: log.debug(...)</code>), so no hardening is needed there — the function is already safe against missing directories.</p>
+<h3 id="35-generate-starting-snapshot-at-chapter-loop-initialization">3.5 Generate Starting Snapshot at Chapter Loop Initialization</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py</code> (chapter loop initialization, when <code>current_chapter == 1</code> and <code>step_index == 0</code>)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># At chapter loop initialization, generate Ch1 starting snapshot</span>
+<span class="k">if</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">==</span> <span class="mi">1</span> <span class="ow">and</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+    <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="36-register-atexit-emergency-snapshot-handler">3.6 Register <code>atexit</code> Emergency Snapshot Handler</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py</code> or pipeline entry point</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">atexit</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_emergency_snapshot</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">PipelineState</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Save current chapter state on abnormal termination.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span><span class="p">,</span>
+                                <span class="n">label</span><span class="o">=</span><span class="s2">&quot;emergency&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># Best-effort, never crash the crash handler</span>
+
+<span class="n">atexit</span><span class="o">.</span><span class="n">register</span><span class="p">(</span><span class="n">_emergency_snapshot</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="37-content-guard-in-_snapshot_chapter_files">3.7 Content Guard in <code>_snapshot_chapter_files</code></h3>
+<p><strong>Location:</strong> <code>chapter_loop.py:_snapshot_chapter_files</code> (around line 903-942)</p>
+<p>Add a minimum content check for chapter body files before including them in snapshots:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In _snapshot_chapter_files, before writing snapshot</span>
+<span class="n">text</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+<span class="n">chinese_chars</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="s1">&#39;</span><span class="se">\u4e00</span><span class="s1">&#39;</span> <span class="o">&lt;=</span> <span class="n">c</span> <span class="o">&lt;=</span> <span class="s1">&#39;</span><span class="se">\u9fff</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">chinese_chars</span> <span class="o">&lt;</span> <span class="mi">500</span><span class="p">:</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;snapshot_suspect_content&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+                   <span class="n">chinese_chars</span><span class="o">=</span><span class="n">chinese_chars</span><span class="p">)</span>
+    <span class="c1"># Still save snapshot, but mark metadata as suspect</span>
+</code></pre></div>
+<p>The threshold of 500 Chinese characters ensures that a snapshot containing only revision metadata (like the 101-byte Ch55 "no revision needed" text) is flagged but still saved -- preserving whatever data exists.</p>
+<p><strong>Note:</strong> Spec 10 (Data Storage Optimization) proposes a full rewrite of <code>_snapshot_chapter_files</code> with differential JSON-manifest format. The content guard and core-files filtering in this section should be integrated INTO Spec 10's rewrite, not applied as a separate in-place edit.</p>
+<h3 id="38-filter-snapshots-to-core-files-only">3.8 Filter Snapshots to Core Files Only</h3>
+<p><strong>Location:</strong> <code>chapter_loop.py:_snapshot_chapter_files</code> (around line 903-942)</p>
+<p>Restrict snapshot content to core chapter-state files, excluding:
+- Audit reports (<code>audits/chapter-N-*.md</code>)
+- Truth files (<code>truth/*.md</code>) that are already tracked separately
+- Staging files</p>
+<p>Only include:
+- <code>chapters/chapter-N.md</code> (chapter prose)
+- <code>chapters/chapter-N-meta.md</code> (chapter metadata)
+- <code>chapters/chapter-N-decisions.json</code> (chapter decisions)
+- <code>chapters/chapter-N-revision-decisions.json</code> (if exists)</p>
+<p><strong>Note:</strong> Spec 10 (Data Storage Optimization) proposes a full rewrite of <code>_snapshot_chapter_files</code> with differential JSON-manifest format. The content guard and core-files filtering in this section should be integrated INTO Spec 10's rewrite, not applied as a separate in-place edit.</p>
+<h3 id="39-fix-lockfile-permissions">3.9 Fix Lockfile Permissions</h3>
+<p><strong>Location:</strong> <code>safe_write.py</code> (<code>_acquire_lock</code> function)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># In _acquire_lock, after creating lockfile</span>
+<span class="n">os</span><span class="o">.</span><span class="n">chmod</span><span class="p">(</span><span class="n">lockfile</span><span class="p">,</span> <span class="mo">0o644</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="310-add-adjacent-chapter-budget-comparison-in-g4-decisions">3.10 Add Adjacent-Chapter Budget Comparison in G4 Decisions</h3>
+<p><strong>Location:</strong> <code>gates/g4/decisions_validator.py</code> (or <code>gates/g4/generic.py</code>)</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Compare budget field with previous chapter&#39;s decisions</span>
+<span class="n">prev_decisions</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="o">-</span><span class="mi">1</span><span class="si">}</span><span class="s2">-decisions.json&quot;</span>
+<span class="n">curr_decisions</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-decisions.json&quot;</span>
+<span class="k">if</span> <span class="n">prev_decisions</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">curr_decisions</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+    <span class="n">prev_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">prev_decisions</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="n">curr_data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">curr_decisions</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+    <span class="k">if</span> <span class="n">prev_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;budget&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="n">curr_data</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;budget&#39;</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.dec.budget_unchanged: adjacent chapter budgets are identical&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>This is a WARN-level check, not HARD -- budgets could legitimately be the same for adjacent chapters, but it flags potential copy-paste errors.</p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py:316</code></td>
+<td>Add content-size guard before <code>safe_write</code></td>
+<td>Prevent revision metadata from overwriting chapter prose</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:1021</code> (<code>_route_revision_after_resonance</code>)</td>
+<td>Add pre-revision backup via <code>shutil.copy2</code></td>
+<td>Always preserve original prose before revision dispatch</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:516-545</code> (<code>_advance</code> auto mode)</td>
+<td>Add <code>clear_staging()</code> after <code>commit_staging()</code></td>
+<td>Fix staging residue leak in auto mode</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:537</code> (state-settling auto-commit)</td>
+<td>Add <code>clear_staging()</code> after <code>commit_staging()</code></td>
+<td>Fix staging residue leak in state-settling auto-commit</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (chapter loop init)</td>
+<td>Add Ch1 starting snapshot generation</td>
+<td>Close Ch1-4 snapshot coverage gap</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (or pipeline entry)</td>
+<td>Add <code>atexit</code> emergency snapshot handler</td>
+<td>Close Ch56 and crash-scenario coverage gaps</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:903-942</code> (<code>_snapshot_chapter_files</code>)</td>
+<td>Add 500 Chinese char minimum content guard</td>
+<td>Flag suspect snapshot content</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py:903-942</code> (<code>_snapshot_chapter_files</code>)</td>
+<td>Filter to core chapter files only</td>
+<td>Fix 18x snapshot bloat</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py</code> (resume entry)</td>
+<td>Add defensive residual staging cleanup</td>
+<td>Cleanup on pipeline resume</td>
+</tr>
+<tr>
+<td>~~<code>src/shenbi/pipeline/checkpoint.py:59-73</code>~~</td>
+<td>~~Add <code>staging.exists()</code> guard~~</td>
+<td><strong>Already implemented</strong> at line 68 — no change needed</td>
+</tr>
+<tr>
+<td><code>src/shenbi/safe_write.py</code> (<code>_acquire_lock</code>)</td>
+<td>Add <code>os.chmod(lockfile, 0o644)</code></td>
+<td>Fix lockfile permissions</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/decisions_validator.py</code></td>
+<td>Add adjacent-chapter budget comparison</td>
+<td>Detect copied budgets</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-revision/SKILL.md:105-108</code></td>
+<td>Add no-op output instruction: do NOT write chapter body</td>
+<td>Prevent LLM from writing summaries to chapter files</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-snapshot-manage/SKILL.md</code></td>
+<td>Document core-files-only filtering</td>
+<td>Align skill prompt with code behavior</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<ol>
+<li><strong>Pre-revision backup test</strong> (<code>tests/unit/pipeline/test_revision_safety.py</code>):</li>
+<li>Simulate revision dispatch outputting 200-char summary to <code>chapters/chapter-N.md</code> with original file at 8,000 chars -&gt; assert original file is NOT overwritten</li>
+<li>
+<p>Assert <code>chapter-N-pre-rev.md</code> exists with original content</p>
+</li>
+<li>
+<p><strong>Content-size guard test:</strong></p>
+</li>
+<li>Original chapter 8,000 bytes, LLM outputs 100 bytes -&gt; guard triggers, original preserved</li>
+<li>
+<p>Original chapter 8,000 bytes, LLM outputs 6,000 bytes (legitimate rewrite) -&gt; guard passes</p>
+</li>
+<li>
+<p><strong>Staging cleanup test:</strong></p>
+</li>
+<li>Auto-commit dispatch -&gt; assert <code>staging/</code> directory does not exist after step completion</li>
+<li>
+<p>Reject path -&gt; assert staging is cleaned and files not written to final</p>
+</li>
+<li>
+<p><strong>Snapshot coverage:</strong></p>
+</li>
+<li>Chapter 1 completion -&gt; <code>snapshots/</code> has file immediately</li>
+<li>Simulate SIGTERM -&gt; emergency snapshot generated</li>
+<li>
+<p>Snapshot content &gt;= 500 Chinese characters (suspect warning only on genuine anomalies)</p>
+</li>
+<li>
+<p><strong>Snapshot size:</strong></p>
+</li>
+<li>
+<p>Snapshot size &lt;= 5x chapter file size (down from 18x)</p>
+</li>
+<li>
+<p><strong>Lockfile permissions:</strong> <code>ls -l pipeline-state.json.lockfile</code> shows <code>-rw-r--r--</code> (0644)</p>
+</li>
+<li>
+<p><strong>Adjacent chapter budgets differ</strong> (WARN-only, not blocking)</p>
+</li>
+<li>
+<p><strong>Canary verification:</strong> Re-run with previously corrupted Ch2/9/12/44/55 scenarios -&gt; no overwrite occurs</p>
+</li>
+<li>
+<p><strong>Regression:</strong> <code>just check</code> passes fully</p>
+</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 3 (this spec, Dispatch Safety and File Integrity)
+    |
+    +---&gt; Supports Spec 2 (Output Validation and Format Enforcement) -- revision safety benefits from valid JSON decisions
+    +---&gt; Supports Spec 4 (Context Persistence and Linguistic Drift Prevention) -- snapshot integrity enables recovery
+
+Prerequisites: None (standalone fix, though coordinated with revision skill changes in Spec 2)
+</code></pre></div>
+<h3 id="61-original-issue-code-mapping">6.1 Original Issue Code Mapping</h3>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Consolidated To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>C1</td>
+<td>Revision Overwrite Chapter Content</td>
+<td>Spec 3 (this spec)</td>
+</tr>
+<tr>
+<td>H4</td>
+<td>Staging Residue Leak</td>
+<td>Spec 3 (this spec)</td>
+</tr>
+<tr>
+<td>M3</td>
+<td>Snapshot Coverage Gaps</td>
+<td>Spec 3 (this spec)</td>
+</tr>
+<tr>
+<td>LN1-LN3</td>
+<td>Snapshot Bloat / Lockfile / Budget Copy</td>
+<td>Spec 3 (this spec)</td>
+</tr>
+<tr>
+<td>CN1</td>
+<td>主角消失 (Protagonist Disappearance)</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN2</td>
+<td>Hook System Bifurcation</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN3</td>
+<td>Truth File Overwrite</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN4</td>
+<td>Resonance Score Null</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN5</td>
+<td>Style Learning Never Updated</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>CN6</td>
+<td>Pipeline State Stale Data</td>
+<td>Spec 1</td>
+</tr>
+<tr>
+<td>H1</td>
+<td>JSON Corruption</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>H2</td>
+<td>Revision System Failure</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>M5</td>
+<td>G4 Format Mismatch</td>
+<td>Spec 2</td>
+</tr>
+<tr>
+<td>C2</td>
+<td>Progressive Prose Collapse</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>H3</td>
+<td>Context Assembly Persistence Gap</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>HN1</td>
+<td>Template Duplication</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>content-looping</td>
+<td>Chapter Content Looping</td>
+<td>Spec 4</td>
+</tr>
+<tr>
+<td>title-degradation, plan-content-mismatch, RS1, static-review-checklist</td>
+<td>Review Quality Issues</td>
+<td>Spec 5</td>
+</tr>
+<tr>
+<td>step-reorganization, parallelize, SCR, M1</td>
+<td>Pipeline Architecture</td>
+<td>Spec 6</td>
+</tr>
+<tr>
+<td>maturity-bp-fixes, crash-recovery, runtime-optimizations, L1-L3, M2, H5, M4</td>
+<td>Pipeline Infrastructure</td>
+<td>Spec 7</td>
+</tr>
+<tr>
+<td>llm-context-optimization</td>
+<td>LLM Context Engineering</td>
+<td>Spec 8</td>
+</tr>
+<tr>
+<td>volume-map, character-archive, C3</td>
+<td>Content Planning and Deliverable Design</td>
+<td>Spec 9</td>
+</tr>
+<tr>
+<td>gate-markers, review-checklist-static, snapshot-differential</td>
+<td>Data Storage Optimization</td>
+<td>Spec 10</td>
+</tr>
+<tr>
+<td>validation, chapter-size-time</td>
+<td>End-to-End Validation Protocol</td>
+<td>Spec 11</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

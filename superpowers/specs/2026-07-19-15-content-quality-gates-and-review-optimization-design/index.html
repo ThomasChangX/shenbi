@@ -1,0 +1,2001 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-15-content-quality-gates-and-review-optimization-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 5: Content Quality Gates and Review Optimization Design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 5: Content Quality Gates and Review Optimization Design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-15-content-quality-gates-and-review-optimization-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-15-content-quality-gates-and-review-optimization-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 5: Content Quality Gates and Review Optimization Design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-15-content-quality-gates-and-review-optimization-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-5-content-quality-gates-and-review-optimization-design" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 5: Content Quality Gates and Review Optimization Design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-per-source-spec-root-causes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Per-Source-Spec Root Causes
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 Per-Source-Spec Root Causes">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#spec-1-chapter-title-degradation-fix-chapter-title-degradation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 1: Chapter Title Degradation (fix-chapter-title-degradation)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-2-plan-content-mismatch-and-factual-errors-fix-plan-content-mismatch-and-factual-errors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 2: Plan-Content Mismatch and Factual Errors (fix-plan-content-mismatch-and-factual-errors)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-3-review-summary-all-identical-fix-review-summary-all-identical-rs1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 3: Review Summary All Identical (fix-review-summary-all-identical, RS1)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#spec-4-static-review-checklist-fix-static-review-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Spec 4: Static Review Checklist (fix-static-review-checklist)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-g4cdtitle-checks-chapter-title-quality-enforcement" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 G4.cd.title Checks: Chapter Title Quality Enforcement
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-g4cdhook_fulfillment-plan-content-cross-validation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 G4.cd.hook_fulfillment: Plan-Content Cross-Validation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-arithmetic-consistency-verification" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Arithmetic Consistency Verification
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-make-escalation-review-conditional" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 Make Escalation-Review Conditional
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-split-review-checklist-static-template-dynamic-deltas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 Split Review Checklist: Static Template + Dynamic Deltas
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-auto-populate-hook_deliverables-exists-diagnose-empty-output-instead" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 Auto-Populate hook_deliverables (EXISTS -- diagnose empty output instead)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-ensure-context-composing-checklist-regeneration-uses-current-sources" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 Ensure Context-Composing Checklist Regeneration Uses Current Sources
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Affected Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-g4-quality-checks" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 G4 Quality Checks
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-escalation-review-conditionalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 Escalation-Review Conditionalization
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-review-checklist-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 Review Checklist Split
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-title-quality" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Title Quality
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-plan-content-alignment" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 Plan-Content Alignment
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-review-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 Review Summary
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-review-checklist" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 Review Checklist
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-global" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 Global
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-a-title-degradation-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix A: Title Degradation Data
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#appendix-b-review-summary-similarity-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Appendix B: Review Summary Similarity Analysis
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-5-content-quality-gates-and-review-optimization-design">Spec 5: Content Quality Gates and Review Optimization Design</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> Critical / High
+<strong>Consolidates:</strong> 4 source specs into unified quality enforcement and review optimization strategy
+<strong>Source Specs:</strong>
+- 2026-07-17-fix-chapter-title-degradation-design.md
+- 2026-07-17-fix-plan-content-mismatch-and-factual-errors-design.md
+- 2026-07-17-fix-review-summary-all-identical-design.md (RS1)
+- 2026-07-17-fix-static-review-checklist-design.md</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>The Shenbi novel pipeline produces 56 chapters across a 40-hour continuous run, yet four systemic quality failures undermine the output:</p>
+<ol>
+<li>
+<p><strong>Chapter titles degrade</strong> from poetic single/double-character names (Ch1-16: "废料场", "痕迹", "沉") to date-label placeholders (Ch36-56: "Saturday", "第四周Saturday", "第五周周五"), including duplicate titles ("又一天" x2, "Saturday" x2) and a rule violation at Ch40 ("第40章" -- forbidden by SKILL.md).</p>
+</li>
+<li>
+<p><strong>Plan-content mismatches go undetected</strong>: Ch20's plan Section 7 Hook Ledger explicitly requires MH-003 advancement, but the chapter body contains zero MH-003 references. The continuity auditor observed this but flagged it only as a "suggestion" rather than a defect.</p>
+</li>
+<li>
+<p><strong>Review summaries are 99.4% identical</strong> across all 55 chapters: the <code>escalation-review</code> skill is dispatched reactively (only on retry exhaustion from <code>revision_router.dispatch_escalation</code> at <code>chapter_loop.py:414-420</code>, or on closure failure at <code>cli.py:284</code>), yet produces a static template ("Reviews executed: 11, Successful: 11, Failed: 0") with zero chapter-specific information when it does run. <em>Verified: <code>escalation-review</code> is NOT a <code>CHAPTER_STEPS</code> entry -- it is not dispatched 55 times unconditionally per chapter. Each dispatch that does occur still produces templated output.</em> (See Appendix B for the similarity analysis basis.)</p>
+</li>
+<li>
+<p><strong>Review checklists appear static in output</strong>: <code>context/review-checklist-N.json</code> shows <code>ai_blacklist</code> stuck at 14 items and <code>hook_deliverables</code> at 0 across observed chapters -- even though the story evolves and chapter plans declare hooks. <em>Verified against <code>src/shenbi/pipeline/review_checklist.py</code> (477 lines): the checklist is NOT frozen at Genesis. It uses mtime-based cache invalidation (<code>_get_max_source_mtime</code>, lines 195-224) comparing genre-config, chapter file, and <code>truth/</code> mtimes against the cache mtime, and <code>hook_deliverables</code> IS populated via <code>_extract_hook_deliverables</code> (lines 314-374) reading <code>truth/pending_hooks.md</code>. The static-output symptom persists despite regeneration logic existing -- see §2.4 for the real root cause.</em></p>
+</li>
+</ol>
+<p><strong>Shared Root Cause:</strong> Missing G4 quality enforcement for chapter titles, hook fulfillment, arithmetic consistency, and factual accuracy. <em>Verified: G4 is a package at <code>src/shenbi/gates/g4/</code> (one module per skill, e.g. <code>g4/chapter_drafting.py</code>, <code>g4/escalation_review.py</code>) -- there is no <code>g4.py</code>.</em> The <code>escalation-review</code> dispatch, while already reactive (not unconditional), produces templated output when it does run, and the deterministic escalation helper at <code>src/shenbi/skill_utils/escalation/check.py</code> exists but is never wired into dispatch decisions.</p>
+<p><strong>Fix Strategy:</strong> Introduce G4 sub-checks for titles, hook fulfillment, and arithmetic consistency (verified: both <code>G4.cd.title</code> and <code>G4.cd.hook_fulfillment</code> are genuine gaps -- neither exists yet in <code>g4/chapter_drafting.py</code>). Wire the EXISTING-but-unwired <code>check_escalation()</code> helper (<code>src/shenbi/skill_utils/escalation/check.py</code>) into the reactive escalation-review dispatch path so templated LLM reports are only produced when signals are non-empty. Diagnose why the EXISTING <code>_extract_hook_deliverables</code> (<code>review_checklist.py:314-374</code>, reads <code>truth/pending_hooks.md</code>) and mtime-based invalidation (<code>_get_max_source_mtime</code>, lines 195-224) yield static output despite already being implemented -- the fix targets the data/trigger path, not re-adding extraction.</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-per-source-spec-root-causes">2.1 Per-Source-Spec Root Causes</h3>
+<h4 id="spec-1-chapter-title-degradation-fix-chapter-title-degradation">Spec 1: Chapter Title Degradation (fix-chapter-title-degradation)</h4>
+<p><strong>Symptom:</strong> Titles evolve from poetic names to date labels. Duplicate titles appear. Ch40 uses "第40章" in violation of SKILL.md line 125.</p>
+<p><strong>Root Cause:</strong> No automated enforcement of chapter title rules. The planning prompt lacks title quality constraints. No G4 gate checks title conformance.</p>
+<p><strong>Data Evidence:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Title Examples</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch1-16</td>
+<td>废料场, 痕迹, 沉, 见, 持, 晨</td>
+<td>Poetic single/double character</td>
+</tr>
+<tr>
+<td>Ch25-35</td>
+<td>秋, 又一天, 冷, 三天</td>
+<td>Transitional</td>
+</tr>
+<tr>
+<td>Ch36-56</td>
+<td>Saturday, 第四周Saturday, 第五周周五, 周三</td>
+<td>Date labels</td>
+</tr>
+</tbody>
+</table>
+<h4 id="spec-2-plan-content-mismatch-and-factual-errors-fix-plan-content-mismatch-and-factual-errors">Spec 2: Plan-Content Mismatch and Factual Errors (fix-plan-content-mismatch-and-factual-errors)</h4>
+<p><strong>Symptom:</strong> Ch20 plan declares MH-003 advancement but chapter body has zero MH-003 presence. Three factual arithmetic errors across Ch10 (copper coin miscount: "四十六枚半" vs correct ~40.5), Ch35 (beam count: "十六张" vs correct 15), Ch50 (date discrepancy: "五日" vs "四日").</p>
+<p><strong>Root Cause:</strong> No cross-validation between chapter plan hook ledger and chapter body. Continuity audit prompt lacks explicit arithmetic verification instructions.</p>
+<h4 id="spec-3-review-summary-all-identical-fix-review-summary-all-identical-rs1">Spec 3: Review Summary All Identical (fix-review-summary-all-identical, RS1)</h4>
+<p><strong>Symptom:</strong> All 55 <code>audits/chapter-N-review-summary.md</code> files share 99.4% pairwise similarity. The only variation is the chapter number. Content is a static template:</p>
+<div class="highlight"><pre><span></span><code># Chapter N -- Consolidated Review Results
+- **Reviews executed**: 11
+- **Successful**: 11
+- **Failed**: 0
+</code></pre></div>
+<p><strong>Root Cause:</strong> <code>shenbi-escalation-review</code> is dispatched reactively (on retry exhaustion via <code>revision_router.dispatch_escalation</code> at <code>chapter_loop.py:414-420</code>, and on closure failure at <code>cli.py:284</code>) -- NOT as a regular per-chapter <code>CHAPTER_STEPS</code> entry. <em>Verified: <code>escalation-review</code> does not appear in the <code>CHAPTER_STEPS</code> list (steps 1-20); the "55 unconditional dispatches" framing is inaccurate.</em> However, when escalation-review does dispatch, the LLM produces a fixed template regardless of actual audit results, and a deterministic helper <code>check_escalation()</code> exists at <code>src/shenbi/skill_utils/escalation/check.py</code> (returns <code>list[EscalationSignal]</code>) that was intended to gate execution -- but it is never imported or called by <code>chapter_loop.py</code> or <code>_should_run_step</code>. <em>Verified: the conditional gate logic exists in isolation but is not wired into the dispatch path.</em></p>
+<h4 id="spec-4-static-review-checklist-fix-static-review-checklist">Spec 4: Static Review Checklist (fix-static-review-checklist)</h4>
+<p><strong>Symptom:</strong> <code>context/review-checklist-N.json</code> <em>appears</em> static across Ch1, Ch20, Ch40, Ch55 in the frozen fields (<code>ai_blacklist</code>, <code>hook_deliverables</code>), though note <code>transition_budget</code> already varies (5/8/5/10) in the data below -- so the checklist is not wholly frozen:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Ch1</th>
+<th>Ch20</th>
+<th>Ch40</th>
+<th>Ch55</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>transition_budget</td>
+<td>5</td>
+<td>8</td>
+<td>5</td>
+<td>10</td>
+</tr>
+<tr>
+<td>ai_blacklist</td>
+<td>14 items</td>
+<td>14 items</td>
+<td>14 items</td>
+<td>14 items</td>
+</tr>
+<tr>
+<td>hook_deliverables</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+<td>0</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Root Cause:</strong> <em>Verified against <code>src/shenbi/pipeline/review_checklist.py</code>: the checklist is NOT generated once and frozen. It already has mtime-based cache invalidation (<code>_get_max_source_mtime</code>, lines 195-224) comparing genre-config, chapter file, and <code>truth/</code> mtimes against the cache mtime, and <code>hook_deliverables</code> IS populated via <code>_extract_hook_deliverables</code> (lines 314-374) which reads <code>truth/pending_hooks.md</code> (PLANTED/ACTIVE/PENDING hooks with urgency classification). The regeneration and extraction logic exists and runs when sources change.</em> The observed static output (blacklist stuck at 14, hook_deliverables at 0) therefore reflects a different failure: either the source <code>truth/pending_hooks.md</code> is not being updated with the right state, or the extraction's filter (PLANTED/ACTIVE/PENDING) excludes the hooks that should appear, or the observed samples coincided with cache hits. The fix is to diagnose why the existing extraction yields empty results in practice, not to add extraction that already exists.</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-g4cdtitle-checks-chapter-title-quality-enforcement">3.1 G4.cd.title Checks: Chapter Title Quality Enforcement</h3>
+<p>Introduce a new G4 sub-gate <code>G4.cd.title</code> that runs post-planning (when the title is assigned in the chapter plan) and post-drafting (to catch title drift in the final chapter output).</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># g4/chapter_drafting.py -- new check</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_chapter_title</span><span class="p">(</span><span class="n">title</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">previous_titles</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.cd.title: Validate chapter title quality.</span>
+
+<span class="sd">    Checks:</span>
+<span class="sd">    - No chapter numbers in title</span>
+<span class="sd">    - No duplicate titles</span>
+<span class="sd">    - No day-of-week labels (WARN, not HARD)</span>
+<span class="sd">    - Thematic naming encouraged (1-4 Chinese characters)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># HARD FAIL: Chapter number in title</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;第\d+章&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.cd.title:contains_chapter_number -- &quot;</span>
+                       <span class="s2">&quot;title must not include chapter number (SKILL.md:125)&quot;</span><span class="p">)</span>
+
+    <span class="c1"># HARD FAIL: Duplicate title</span>
+    <span class="k">if</span> <span class="n">title</span> <span class="ow">in</span> <span class="n">previous_titles</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.cd.title:duplicate_of_ch</span><span class="si">{</span><span class="n">previous_titles</span><span class="p">[</span><span class="n">title</span><span class="p">]</span><span class="si">}</span><span class="s2"> -- &quot;</span>
+                       <span class="sa">f</span><span class="s2">&quot;title &#39;</span><span class="si">{</span><span class="n">title</span><span class="si">}</span><span class="s2">&#39; already used&quot;</span><span class="p">)</span>
+
+    <span class="c1"># WARN: Day-of-week or date label</span>
+    <span class="k">if</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|&#39;</span>
+                  <span class="sa">r</span><span class="s1">&#39;周[一二三四五六日])&#39;</span><span class="p">,</span> <span class="n">title</span><span class="p">):</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.cd.title:day_label_instead_of_thematic_name -- &quot;</span>
+                       <span class="s2">&quot;prefer thematic 1-4 character name over date label&quot;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<p><strong>Planning Prompt Enhancement:</strong> Add title quality requirements to the chapter planning prompt:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Chapter Title Requirements</span>
+<span class="k">-</span><span class="w"> </span>Title must be a 1-4 Chinese character thematic phrase
+<span class="k">-</span><span class="w"> </span>Prohibited: day-of-week labels (Monday, 周一, etc.)
+<span class="k">-</span><span class="w"> </span>Prohibited: chapter numbers (第N章)
+<span class="k">-</span><span class="w"> </span>Prohibited: duplicate of any previous chapter title
+</code></pre></div>
+<h3 id="32-g4cdhook_fulfillment-plan-content-cross-validation">3.2 G4.cd.hook_fulfillment: Plan-Content Cross-Validation</h3>
+<p>Introduce <code>G4.cd.hook_fulfillment</code> that validates the chapter plan's hook ledger against the actual chapter body:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># g4/chapter_drafting.py -- new check</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_hook_fulfillment</span><span class="p">(</span><span class="n">plan_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.</span>
+
+<span class="sd">    Extracts hook IDs from plan Section 7 (Hook Ledger) and searches</span>
+<span class="sd">    for their presence in the chapter prose.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plan_text</span> <span class="o">=</span> <span class="n">plan_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="c1"># Extract hook IDs from plan Section 7</span>
+    <span class="n">plan_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;MH-\d+&#39;</span><span class="p">,</span> <span class="n">plan_text</span><span class="p">))</span>
+    <span class="c1"># Extract hook IDs from chapter body</span>
+    <span class="n">chapter_hooks</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;MH-\d+&#39;</span><span class="p">,</span> <span class="n">chapter_text</span><span class="p">))</span>
+
+    <span class="n">missing</span> <span class="o">=</span> <span class="n">plan_hooks</span> <span class="o">-</span> <span class="n">chapter_hooks</span>
+    <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;G4.cd.hook_unfulfilled: plan requires hooks </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">missing</span><span class="p">)</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but none found in chapter body&quot;</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<h3 id="33-arithmetic-consistency-verification">3.3 Arithmetic Consistency Verification</h3>
+<p>Augment the continuity audit prompt with explicit arithmetic verification instructions:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## Arithmetic Consistency Verification (Continuity Audit)</span>
+
+For each chapter, verify:
+<span class="k">1.</span> <span class="gs">**Currency accumulation**</span>: Copper/silver coin totals must be arithmetically
+   consistent with previous chapters. Recompute from known baselines.
+<span class="k">2.</span> <span class="gs">**Date and count patterns**</span>: Verify daily-increment patterns
+   (e.g., &quot;每日+1&quot; sequences). Flag discrepancies &gt; 0.
+<span class="k">3.</span> <span class="gs">**Inventory tracking**</span>: If a character acquires or expends items,
+   verify the running totals.
+
+Report any arithmetic discrepancy with:
+<span class="k">-</span><span class="w"> </span>The incorrect value found in the chapter
+<span class="k">-</span><span class="w"> </span>The correct computed value
+<span class="k">-</span><span class="w"> </span>The line reference
+</code></pre></div>
+<p>This is injected into the existing continuity audit prompt template, not a separate LLM call.</p>
+<h3 id="34-make-escalation-review-conditional">3.4 Make Escalation-Review Conditional</h3>
+<p>The core fix: <code>escalation-review</code> is already dispatched reactively (on retry exhaustion at <code>chapter_loop.py:414-420</code> via <code>revision_router.dispatch_escalation</code>, and on closure failure at <code>cli.py:284</code>) -- NOT as a per-chapter <code>CHAPTER_STEPS</code> entry. The fix is to wire the EXISTING deterministic <code>check_escalation()</code> helper (<code>src/shenbi/skill_utils/escalation/check.py</code>, returns <code>list[EscalationSignal]</code>) into those reactive dispatch points so a templated LLM report is only produced when signals are non-empty; otherwise a deterministic summary is generated instead.</p>
+<p><em>Verified: <code>check_escalation()</code> currently exists but is never imported or called by <code>chapter_loop.py</code> or <code>_should_run_step</code>. There is no <code>shenbi-escalation-review</code> branch in <code>_should_run_step</code> to add because the skill is not a <code>CHAPTER_STEPS</code> entry.</em></p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py: reactive dispatch path (chapter_loop.py:414-420)</span>
+<span class="c1"># Wire the EXISTING check_escalation() helper before dispatch_escalation</span>
+
+<span class="c1"># check_escalation signature (skill_utils/escalation/check.py:53):</span>
+<span class="c1"># check_escalation(resonance_scores, sensitivity_blocking, volume_objective_met,</span>
+<span class="c1">#                  regeneration_attempts, arc_score=None, stratum_axis_drift=False)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.escalation.check</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_escalation</span>
+
+<span class="c1"># Gather arguments from pipeline state</span>
+<span class="n">resonance_scores</span> <span class="o">=</span> <span class="n">_get_recent_resonance_scores</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>  <span class="c1"># list[float]</span>
+<span class="n">signals</span> <span class="o">=</span> <span class="n">check_escalation</span><span class="p">(</span>
+    <span class="n">resonance_scores</span><span class="o">=</span><span class="n">resonance_scores</span><span class="p">,</span>
+    <span class="n">sensitivity_blocking</span><span class="o">=</span><span class="n">_has_sensitivity_blocking</span><span class="p">(</span><span class="n">cs</span><span class="p">),</span>
+    <span class="n">volume_objective_met</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">regeneration_attempts</span><span class="o">=</span><span class="n">cs</span><span class="o">.</span><span class="n">revision_count</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="k">if</span> <span class="ow">not</span> <span class="n">signals</span><span class="p">:</span>
+    <span class="c1"># Generate deterministic summary instead of templated LLM report</span>
+    <span class="n">_generate_deterministic_review_summary</span><span class="p">(</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span>
+    <span class="p">)</span>
+    <span class="c1"># Skip the escalation-review LLM dispatch</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="n">dispatch_escalation</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">context</span><span class="o">=...</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Deterministic Review Summary Generation:</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_generate_deterministic_review_summary</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Generate review summary by scanning audit files on disk. No LLM call.</span>
+
+<span class="sd">    Only creates the summary file when escalation signals are absent.</span>
+<span class="sd">    When escalation IS triggered, the LLM-based escalation-review handles it.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span>
+    <span class="n">results</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">audit_type</span> <span class="ow">in</span> <span class="n">ALL_AUDIT_TYPES</span><span class="p">:</span>
+        <span class="n">audit_file</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">audit_type</span><span class="si">}</span><span class="s1">.md&#39;</span>
+        <span class="k">if</span> <span class="n">audit_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Parse the audit verdict from the file</span>
+            <span class="n">verdict</span> <span class="o">=</span> <span class="n">_parse_audit_verdict</span><span class="p">(</span><span class="n">audit_file</span><span class="p">)</span>
+            <span class="n">results</span><span class="p">[</span><span class="n">audit_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">verdict</span>
+
+    <span class="c1"># Only generate if we have results</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">results</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Render summary from parsed results</span>
+    <span class="n">summary_path</span> <span class="o">=</span> <span class="n">audit_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-review-summary.md&#39;</span>
+    <span class="n">summary</span> <span class="o">=</span> <span class="n">_render_summary_template</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="n">results</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">summary_path</span><span class="p">,</span> <span class="n">summary</span><span class="p">)</span>
+</code></pre></div>
+<h3 id="35-split-review-checklist-static-template-dynamic-deltas">3.5 Split Review Checklist: Static Template + Dynamic Deltas</h3>
+<p>Split the review checklist into two layers:</p>
+<ol>
+<li><strong>Static Template (Genesis):</strong> <code>context/review-checklist-template.json</code> -- generated once during Genesis, contains invariant fields (genre rules, formatting constraints, base ai_blacklist).</li>
+<li><strong>Dynamic Deltas (per-chapter):</strong> <code>context/review-checklist-chapter-N.json</code> -- generated each chapter by <code>context-composing</code>, contains evolving fields (hook_deliverables, chapter-specific ai_blacklist additions, transition_budget adjustments).</li>
+</ol>
+<blockquote>
+<p><strong>Filename convention:</strong> aligned with Spec 10 (Data Storage Optimization) §3.2 and Spec 11 validation protocol.</p>
+</blockquote>
+<div class="highlight"><pre><span></span><code><span class="c1"># review_checklist.py -- refactored generation</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">build_review_checklist</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the full review checklist by merging static template with</span>
+<span class="sd">    per-chapter dynamic deltas.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Load static template (Genesis, once)</span>
+    <span class="n">static</span> <span class="o">=</span> <span class="n">_load_static_template</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="c1"># Build dynamic deltas from current chapter state</span>
+    <span class="n">dynamic</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;hook_deliverables&#39;</span><span class="p">:</span> <span class="n">_extract_hook_deliverables</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;ai_blacklist_additions&#39;</span><span class="p">:</span> <span class="n">_scan_recent_fatigue_patterns</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span>
+        <span class="p">),</span>
+        <span class="s1">&#39;transition_budget&#39;</span><span class="p">:</span> <span class="n">_compute_transition_budget</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span>
+        <span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="c1"># Merge: dynamic overrides/extend static</span>
+    <span class="n">merged</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">static</span><span class="p">)</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;hook_deliverables&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;hook_deliverables&#39;</span><span class="p">]</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">static</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;ai_blacklist&#39;</span><span class="p">,</span> <span class="p">[])</span> <span class="o">+</span>
+        <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;ai_blacklist_additions&#39;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="n">merged</span><span class="p">[</span><span class="s1">&#39;transition_budget&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">dynamic</span><span class="p">[</span><span class="s1">&#39;transition_budget&#39;</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">merged</span>
+</code></pre></div>
+<h3 id="36-auto-populate-hook_deliverables-exists-diagnose-empty-output-instead">3.6 Auto-Populate hook_deliverables (EXISTS -- diagnose empty output instead)</h3>
+<p><em>Verified: <code>_extract_hook_deliverables</code> already EXISTS at <code>src/shenbi/pipeline/review_checklist.py:314-374</code>. It does NOT read from the chapter plan Section 7 as originally proposed -- it reads from <code>truth/pending_hooks.md</code> (YAML frontmatter <code>hooks</code> list) and filters to PLANTED/ACTIVE/PENDING states with urgency classification (normal/attention/URGENT based on silence vs max_distance). The original design below (plan Section 7 extraction) is preserved as an ALTERNATIVE approach; the real task is to diagnose why the existing <code>pending_hooks.md</code>-based extraction yields empty results in practice.</em></p>
+<p>Original proposed approach (chapter plan Section 7 extraction -- alternative to the existing <code>pending_hooks.md</code> reader):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_extract_hook_deliverables</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract hook deliverables from chapter plan Section 7 Hook Ledger.</span>
+
+<span class="sd">    Parses the plan&#39;s hook ledger table to identify hooks that this</span>
+<span class="sd">    chapter must advance, resolve, or reference.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">plan_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;plans&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-plan.md&#39;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">plan_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="n">plan_text</span> <span class="o">=</span> <span class="n">plan_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="n">deliverables</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Parse the hook ledger table (typically a markdown table in Section 7)</span>
+    <span class="c1"># Format: | Hook ID | Operation | Description |</span>
+    <span class="k">for</span> <span class="n">match</span> <span class="ow">in</span> <span class="n">re</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span>
+        <span class="sa">r</span><span class="s1">&#39;\|\s*(MH-\d+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|&#39;</span><span class="p">,</span>
+        <span class="n">plan_text</span>
+    <span class="p">):</span>
+        <span class="n">hook_id</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">operation</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">description</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="n">deliverables</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;hook_id&#39;</span><span class="p">:</span> <span class="n">hook_id</span><span class="p">,</span>
+            <span class="s1">&#39;operation&#39;</span><span class="p">:</span> <span class="n">operation</span><span class="p">,</span>
+            <span class="s1">&#39;description&#39;</span><span class="p">:</span> <span class="n">description</span><span class="p">,</span>
+        <span class="p">})</span>
+
+    <span class="k">return</span> <span class="n">deliverables</span>
+</code></pre></div>
+<h3 id="37-ensure-context-composing-checklist-regeneration-uses-current-sources">3.7 Ensure Context-Composing Checklist Regeneration Uses Current Sources</h3>
+<p>*Verified: <code>review_checklist.py</code> already implements mtime-based cache invalidation (<code>_get_max_source_mtime</code>, lines 195-224) comparing genre-config, chapter file, and <code>truth/</code> mtimes against the cache mtime. The checklist is NOT "frozen at Genesis" -- it regenerates when its source files change. The remaining risk is that <code>truth/</code> files are not being touched when they should be (e.g., <code>pending_hooks.md</code> not updated with hook state changes), causing the mtime check to register no change and yield a cache hit. The fix is to ensure the upstream truth files are updated each chapter so the existing invalidation fires:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py: context-composing step configuration</span>
+
+<span class="c1"># Invalidate any cached checklist before composing</span>
+<span class="n">_checklist_cache</span><span class="o">.</span><span class="n">clear</span><span class="p">()</span>
+
+<span class="c1"># Force regeneration based on current truth file state</span>
+<span class="n">context_composing_step</span> <span class="o">=</span> <span class="n">StepDef</span><span class="p">(</span>
+    <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-context-composing&quot;</span><span class="p">,</span>
+    <span class="n">force_regenerate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>  <span class="c1"># Never use cached output</span>
+    <span class="n">reads</span><span class="o">=</span><span class="p">[</span>
+        <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/chapter_summaries.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;plans/chapter-N-plan.md&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+</code></pre></div>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<h3 id="41-g4-quality-checks">4.1 G4 Quality Checks</h3>
+<p><em>Verified: G4 is a package at <code>src/shenbi/gates/g4/</code> (not <code>g4.py</code>). <code>G4.cd.title</code> and <code>G4.cd.hook_fulfillment</code> do NOT currently exist -- confirmed genuine gaps to add. The existing <code>g4/chapter_drafting.py</code> module is the correct home for both new checks.</em></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/gates/g4/chapter_drafting.py</code></td>
+<td>Add <code>G4.cd.title</code> check function (verified: does not exist)</td>
+<td>New check in chapter_drafting module</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/chapter_drafting.py</code></td>
+<td>Add <code>G4.cd.hook_fulfillment</code> check function (verified: does not exist)</td>
+<td>New check in chapter_drafting module</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Call new G4 checks post-drafting</td>
+<td><code>_run_g4_checks()</code> after step 6</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-planning/SKILL.md</code></td>
+<td>Add title quality constraints to prompt template</td>
+<td>System prompt section</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-review-continuity/SKILL.md</code></td>
+<td>Add arithmetic verification instructions</td>
+<td>Audit instructions section</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-escalation-review-conditionalization">4.2 Escalation-Review Conditionalization</h3>
+<p><em>Verified facts: (a) <code>escalation-review</code> is NOT a <code>CHAPTER_STEPS</code> entry -- it is dispatched reactively from <code>revision_router.dispatch_escalation</code> (<code>chapter_loop.py:414-420</code>) on retry exhaustion and from <code>cli.py:284</code> on closure failure. (b) A deterministic <code>check_escalation()</code> helper already EXISTS at <code>src/shenbi/skill_utils/escalation/check.py</code> (returns <code>list[EscalationSignal]</code>) but is never imported or called by <code>chapter_loop.py</code> or <code>_should_run_step</code> -- the gate logic exists in isolation, unwired. (c) The G4 checker <code>src/shenbi/gates/g4/escalation_review.py</code> (35 lines) EXISTS and validates the report has three sections (触发信号, 升级上下文, 决策选项); it only checks section presence and does NOT detect templated/identical summaries.</em></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/skill_utils/escalation/check.py</code></td>
+<td><strong>EXISTS (verified)</strong> -- wire <code>check_escalation()</code> into dispatch decision; currently never imported by <code>chapter_loop.py</code> or <code>_should_run_step</code></td>
+<td><code>check_escalation()</code> (line 53)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Wire existing <code>check_escalation()</code> into the reactive dispatch path (import + call before <code>dispatch_escalation</code>)</td>
+<td>Around <code>chapter_loop.py:414-420</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Add <code>_generate_deterministic_review_summary()</code></td>
+<td>New function</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Add <code>_parse_audit_verdict()</code> helper</td>
+<td>New function</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/escalation_review.py</code></td>
+<td><strong>EXISTS (verified)</strong> -- optionally extend to detect templated summaries beyond the existing section-presence check</td>
+<td><code>g4_escalation_review()</code> (line 11)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-review-checklist-split">4.3 Review Checklist Split</h3>
+<p><em>Verified against <code>src/shenbi/pipeline/review_checklist.py</code> (477 lines): mtime-based cache invalidation already EXISTS (<code>_get_max_source_mtime</code>, lines 195-224) and <code>_extract_hook_deliverables</code> already EXISTS (lines 314-374, reads <code>truth/pending_hooks.md</code>). The static-output symptom persists despite this logic -- the fix must target why the existing extraction yields empty/blacklist-frozen results in practice, not re-add logic that already exists.</em></p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+<th>Location</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td>Split into static + dynamic layers</td>
+<td><code>build_review_checklist()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td><code>_extract_hook_deliverables()</code> <strong>EXISTS (verified, lines 314-374)</strong> -- diagnose why it yields empty results instead of re-adding</td>
+<td><code>_extract_hook_deliverables()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td>Add <code>_scan_recent_fatigue_patterns()</code> (verified: does not exist)</td>
+<td>New function</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code></td>
+<td><code>_get_max_source_mtime()</code> <strong>EXISTS (verified, lines 195-224)</strong> -- mtime invalidation already present</td>
+<td><code>_get_max_source_mtime()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code></td>
+<td>Remove caching of context-composing output</td>
+<td><code>_run_context_curation()</code></td>
+</tr>
+<tr>
+<td><code>skills/shenbi-context-composing/SKILL.md</code></td>
+<td>Update to generate dynamic deltas</td>
+<td>Contract section</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<h3 id="51-title-quality">5.1 Title Quality</h3>
+<ol>
+<li>Run 10 consecutive chapters -- zero date-label titles</li>
+<li>Zero duplicate titles across all chapters</li>
+<li>Zero titles containing chapter numbers</li>
+<li><code>G4.cd.title</code> check catches all three violation categories in regression tests</li>
+</ol>
+<h3 id="52-plan-content-alignment">5.2 Plan-Content Alignment</h3>
+<ol>
+<li>Ch20 simulation regression: <code>G4.cd.hook_fulfillment</code> catches MH-003 absence</li>
+<li>All plan-declared hooks with <code>advance</code> or <code>resolve</code> operations appear in chapter body (or are flagged)</li>
+<li>Continuity audit catches Ch10 copper coin arithmetic error</li>
+</ol>
+<h3 id="53-review-summary">5.3 Review Summary</h3>
+<p><em>Note: <code>escalation-review</code> is dispatched reactively (retry exhaustion / closure failure), not 55 times unconditionally per chapter. Verification targets the dispatches that DO occur.</em></p>
+<ol>
+<li>Zero templated <code>review-summary.md</code> files generated when no escalation signals present (deterministic summary used instead)</li>
+<li>When escalation IS triggered, <code>review-summary.md</code> contains chapter-specific information (not generic template)</li>
+<li>Deterministic summary correctly reflects each audit type's presence/verdict</li>
+<li>All reactive escalation-review dispatches that occur with empty signals are replaced by deterministic generation</li>
+</ol>
+<h3 id="54-review-checklist">5.4 Review Checklist</h3>
+<ol>
+<li><code>ai_blacklist</code> shows variation across 3 consecutive chapters (reflecting different AI fatigue patterns)</li>
+<li><code>hook_deliverables</code> count &gt;= number of active hooks declared in chapter plan</li>
+<li>Checklist regenerates each chapter -- the mtime-based invalidation (<code>_get_max_source_mtime</code>, verified existing at lines 195-224) fires correctly when upstream <code>truth/</code> files are updated (diagnose why it currently yields cache hits)</li>
+</ol>
+<h3 id="55-global">5.5 Global</h3>
+<ol>
+<li><code>just check</code> full pass</li>
+<li>No regression in chapter generation quality</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 6 (Pipeline Architecture Optimization)
+  └─ DELETE-1 (escalation-review conditional) ← this spec&#39;s §3.4 is the
+     detailed implementation of that architectural decision. Note:
+     escalation-review is already reactive (not a CHAPTER_STEPS entry);
+     §3.4 wires the existing unwired check_escalation() helper.
+
+Spec 8 (LLM Context Engineering)
+  └─ Shared audit context cache ← complements review checklist extraction
+
+No hard prerequisites. All fixes are independently implementable.
+The title and hook fulfillment checks are additive (new G4 sub-checks).
+The escalation-review and checklist fixes are standalone changes to
+dispatch logic and generation code.
+
+### Original Code Mapping
+
+| Original Issue Code | Consolidated Spec |
+|---|---|
+| title-degradation | Spec 5 (this spec) |
+| plan-content-mismatch | Spec 5 (this spec) |
+| RS1 | Spec 5 (this spec) |
+| static-review-checklist | Spec 5 (this spec) |
+</code></pre></div>
+<hr />
+<h2 id="appendix-a-title-degradation-data">Appendix A: Title Degradation Data</h2>
+<p>Full title evolution across 56 chapters:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter Range</th>
+<th>Representative Titles</th>
+<th>Pattern</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Ch1-16</td>
+<td>废料场, 痕迹, 沉, 见, 持, 晨, 醒, 夜, 雨, 雾, 石, 火, 风, 尘, 光, 影</td>
+<td>Poetic single/double character</td>
+</tr>
+<tr>
+<td>Ch17-24</td>
+<td>路, 渡, 桥, 门, 窗, 镜, 锁, 钥</td>
+<td>Object/metaphor names</td>
+</tr>
+<tr>
+<td>Ch25-35</td>
+<td>秋, 又一天, 冷, 三天, 归, 行, 等, 望, 听, 说, 记</td>
+<td>Transitional; first "又一天" appears</td>
+</tr>
+<tr>
+<td>Ch36-56</td>
+<td>Saturday, 第四周Saturday, 第五周周五, 周三, 周末, 周一, 周二...</td>
+<td>Date labels dominant</td>
+</tr>
+</tbody>
+</table>
+<h2 id="appendix-b-review-summary-similarity-analysis">Appendix B: Review Summary Similarity Analysis</h2>
+<p>Agent 2 Audit 2a methodology:
+- Compared all 55 <code>review-summary.md</code> files pairwise
+- Computed normalized Levenshtein similarity
+- Mean pairwise similarity: 99.4%
+- Only variance: chapter number in file header
+- Zero chapter-specific audit findings, scores, or recommendations</p>
+<p><em>Correction note: the original analysis assumed these 55 files came from 55 unconditional per-chapter <code>escalation-review</code> dispatches. Verified against code: <code>escalation-review</code> is NOT a <code>CHAPTER_STEPS</code> entry and is dispatched only reactively (<code>chapter_loop.py:414-420</code> on retry exhaustion; <code>cli.py:284</code> on closure failure). The presence of 55 near-identical summary files therefore indicates either (a) the summaries are generated by a different step, or (b) retry exhaustion occurred pervasively across chapters. The templated-output problem and the §3.4 fix (wire <code>check_escalation()</code> so empty signals produce deterministic summaries instead of LLM reports) remain valid regardless of how the files were produced.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

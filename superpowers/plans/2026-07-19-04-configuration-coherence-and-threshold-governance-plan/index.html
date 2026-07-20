@@ -1,0 +1,2179 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-04-configuration-coherence-and-threshold-governance-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Configuration Coherence and Threshold Governance Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Configuration Coherence and Threshold Governance Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-04-configuration-coherence-and-threshold-governance-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-04-configuration-coherence-and-threshold-governance-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Configuration Coherence and Threshold Governance Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-04-configuration-coherence-and-threshold-governance-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration-coherence-and-threshold-governance-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuration Coherence and Threshold Governance Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-create-thresholdspy-single-source-of-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Create thresholds.py — single source of truth
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-raise-the-pipelineconfigresonance_global_floor-default-to-65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Raise the PipelineConfig.resonance_global_floor default to 65
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-create-the-config-change-audit-trail-update_genre_config" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Create the config-change audit trail + update_genre_config
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-create-the-g0-config-coherence-checker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Create the G0 config-coherence checker
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-wire-check_config_coherence-into-gate_g0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Wire check_config_coherence into gate_G0
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-correct-the-production-genre-configjson-and-pipeline-statejson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Correct the production genre-config.json and pipeline-state.json
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-full-regression-just-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Full regression — just check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="configuration-coherence-and-threshold-governance-implementation-plan">Configuration Coherence and Threshold Governance Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Eliminate configuration-level blind spots by adding a G0 coherence checker that detects threshold contradictions and disabled critical audits, centralizing thresholds into a single source-of-truth module, and enforcing mandatory rationale when disabling safety-net audit dimensions.</p>
+<p><strong>Architecture:</strong> A new <code>thresholds.py</code> module becomes the single source of truth for numeric quality thresholds. A new <code>g0_config_coherence.py</code> G0 sub-check compares the in-effect state config floor and genre-config audit dimensions against the <code>AUDIT_SAFETY_MATRIX</code> and <code>DEFAULT_THRESHOLDS</code>, returning issue strings. A new <code>update_genre_config</code> helper blocks disabling critical audit dimensions without a ≥50-char rationale and logs every change to an audit-trail file. The production <code>genre-config.json</code> is corrected (<code>texture: false → true</code>) and the state default floor is raised (<code>50 → 65</code>).</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, <code>dataclasses</code>, <code>pathlib</code>, <code>json</code>, <code>re</code>, <code>yaml</code> (PyYAML), pytest. No new runtime dependencies.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> at the top of every new file</li>
+<li><code>pathlib.Path</code> for all file I/O; <code>json.loads</code>/<code>safe_write</code> for state-file reads/writes</li>
+<li>No <code>print()</code> in framework code; use structlog (<code>shenbi.logging.get_logger</code>)</li>
+<li>Typed dataclass thresholds (<code>@dataclass(frozen=True)</code>), default enum/StrEnum conventions matching <code>status.py</code></li>
+<li>Tests under <code>tests/unit/gates/</code> and <code>tests/unit/config/</code>, mirroring the existing layout</li>
+<li>Conventional Commits: <code>feat:</code> for new modules, <code>fix:</code> for the production config corrections</li>
+<li><code>just check</code> (ruff + mypy + basedpyright + pytest) must pass after every task</li>
+</ul>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-19-04-configuration-coherence-and-threshold-governance-design.md</code></p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/
+    config/                           # NEW package (does not yet exist)
+        __init__.py                   # NEW — re-export public symbols
+        thresholds.py                 # NEW — single-source-of-truth thresholds + AUDIT_SAFETY_MATRIX
+        config_coherence.py           # NEW — update_genre_config + ConfigError
+    gates/
+        g0_config_coherence.py        # NEW — check_config_coherence G0 sub-check (issue strings)
+        g0.py                         # MODIFY — call check_config_coherence and append issues
+    pipeline/
+        state.py                      # MODIFY — PipelineConfig.resonance_global_floor default 50 → 65
+        review_checklist.py           # MODIFY — import floor from thresholds.py (optional, see Task 6)
+
+novel-output/xinghuo-ranqiong/
+    genre-config.json                 # MODIFY — auditDimensions.texture: false → true
+    pipeline-state.json               # MODIFY — resonance_global_floor: 50 → 65 (if present)
+    config-change-log.jsonl           # GENERATED by update_genre_config (audit trail)
+
+tests/unit/
+    config/                           # NEW dir
+        __init__.py
+        test_thresholds.py            # NEW
+        test_config_coherence.py      # NEW
+    gates/
+        test_g0_config_coherence.py   # NEW
+        test_state.py                 # MODIFY — assert default floor == 65 (already asserts 50 today)
+</code></pre></div>
+<blockquote>
+<p><strong>Key finding from the codebase:</strong> <code>resonance_global_floor</code> is NOT a <code>genre-config.json</code> key — it is a field of <code>PipelineConfig</code> (<code>src/shenbi/pipeline/state.py:65</code>, default <code>50</code>) and is serialized into <code>pipeline-state.json</code> (verified at <code>pipeline-state.json:2656</code>). The production <code>genre-config.json</code> has no such key. The spec's prose says "genre-config.json sets resonance_global_floor: 50"; the real in-effect value lives in the state config. The checker therefore reads BOTH: the genre-config auditDimensions (for the disabled-safety-net check) AND the state config floor (for the threshold-mismatch + floor-reasonableness checks). This is the only deviation from the spec's literal file references, and it is necessary for the check to actually fire on the real defect.</p>
+</blockquote>
+<hr />
+<h3 id="task-1-create-thresholdspy-single-source-of-truth">Task 1: Create <code>thresholds.py</code> — single source of truth</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/config/__init__.py</code>
+- Create: <code>src/shenbi/config/thresholds.py</code>
+- Test: <code>tests/unit/config/__init__.py</code>, <code>tests/unit/config/test_thresholds.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing (leaf module)
+- Produces: <code>QualityThresholds</code> (frozen dataclass), <code>DEFAULT_THRESHOLDS</code> instance, <code>AUDIT_SAFETY_MATRIX</code> dict. Later tasks consume <code>DEFAULT_THRESHOLDS.resonance_global_floor</code> and <code>AUDIT_SAFETY_MATRIX[dim]["critical"]</code>.</p>
+<p><strong>Context:</strong> Today thresholds are hardcoded in <code>state.py:65</code> (<code>resonance_global_floor: int = 50</code>), the resonance skill prompt, and gate code — three places that drift. This module is the canonical home.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/config/__init__.py</code> (empty) and <code>tests/unit/config/test_thresholds.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the single-source-of-truth quality thresholds module.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">,</span>
+    <span class="n">DEFAULT_THRESHOLDS</span><span class="p">,</span>
+    <span class="n">QualityThresholds</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestQualityThresholds</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_default_resonance_floor_is_65</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span> <span class="o">==</span> <span class="mi">65</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_quality_thresholds_is_frozen</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+            <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span> <span class="o">=</span> <span class="mi">50</span>  <span class="c1"># type: ignore[misc]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_can_construct_custom_thresholds</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">custom</span> <span class="o">=</span> <span class="n">QualityThresholds</span><span class="p">(</span><span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">70</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">custom</span><span class="o">.</span><span class="n">resonance_global_floor</span> <span class="o">==</span> <span class="mi">70</span>
+        <span class="c1"># Other fields keep their defaults.</span>
+        <span class="k">assert</span> <span class="n">custom</span><span class="o">.</span><span class="n">word_count_floor</span> <span class="o">==</span> <span class="mi">3000</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestAuditSafetyMatrix</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_texture_is_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="s2">&quot;texture&quot;</span><span class="p">][</span><span class="s2">&quot;critical&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_antiAi_is_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="s2">&quot;antiAi&quot;</span><span class="p">][</span><span class="s2">&quot;critical&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_continuity_is_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="s2">&quot;continuity&quot;</span><span class="p">][</span><span class="s2">&quot;critical&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dialogue_is_not_critical</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="s2">&quot;dialogue&quot;</span><span class="p">][</span><span class="s2">&quot;critical&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+
+    <span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span><span class="s2">&quot;dim&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;texture&quot;</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">])</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_critical_dimensions_declare_detection_target</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">dim</span><span class="p">):</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="s2">&quot;detects&quot;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;detects&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="s2">&quot;cannot_disable_without&quot;</span> <span class="ow">in</span> <span class="n">entry</span> <span class="ow">and</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;cannot_disable_without&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_thresholds.py -v</code>
+Expected: FAIL — <code>ModuleNotFoundError: No module named 'shenbi.config'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Create <code>src/shenbi/config/__init__.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Configuration governance: single-source-of-truth thresholds + coherence rules.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">,</span>
+    <span class="n">DEFAULT_THRESHOLDS</span><span class="p">,</span>
+    <span class="n">QualityThresholds</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;AUDIT_SAFETY_MATRIX&quot;</span><span class="p">,</span> <span class="s2">&quot;DEFAULT_THRESHOLDS&quot;</span><span class="p">,</span> <span class="s2">&quot;QualityThresholds&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>Create <code>src/shenbi/config/thresholds.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Single source of truth for all quality thresholds and audit-dimension safety rules.</span>
+
+<span class="sd">Spec: 2026-07-19 configuration-coherence-and-threshold-governance-design §3.2 / §3.3.</span>
+
+<span class="sd">Why this module exists: numeric thresholds were previously duplicated across</span>
+<span class="sd">``pipeline/state.py`` (PipelineConfig.resonance_global_floor), skill prompts, and</span>
+<span class="sd">gate code, and they drifted — e.g. state default 50 vs. the audit skill&#39;s</span>
+<span class="sd">internal 65 floor (E11). Importing thresholds from here is the canonical path;</span>
+<span class="sd">every consumer (state defaults, G0 coherence check, gate checkers) reads the</span>
+<span class="sd">same value.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">QualityThresholds</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Single source of truth for all quality thresholds.</span>
+
+<span class="sd">    Attributes mirror the fields previously scattered across config / skills /</span>
+<span class="sd">    gate code. Override per-project by constructing a custom instance; the</span>
+<span class="sd">    ``DEFAULT_THRESHOLDS`` singleton below is what framework code imports.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Resonance (overall prose resonance) — used by BOTH state routing AND audit</span>
+    <span class="c1"># skill pass/fail. The state-config override is validated against this</span>
+    <span class="c1"># default by the G0 coherence checker.</span>
+    <span class="n">resonance_global_floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">65</span>
+    <span class="c1"># Below this → force revision even if the floor is otherwise met.</span>
+    <span class="n">resonance_revision_trigger</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span>
+    <span class="c1"># Minimum CJK characters per chapter (matches G4 chapter-word checks).</span>
+    <span class="n">word_count_floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3000</span>
+    <span class="c1"># Minimum protagonist name mentions per chapter.</span>
+    <span class="n">protagonist_mention_floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">3</span>
+    <span class="c1"># System-term density, per mille. warn → G4 WARN, hard → G4 FAIL.</span>
+    <span class="n">system_term_density_warn</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">30</span>
+    <span class="n">system_term_density_hard</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">50</span>
+
+
+<span class="c1">#: Canonical default thresholds. Import this rather than re-hardcoding numbers.</span>
+<span class="n">DEFAULT_THRESHOLDS</span> <span class="o">=</span> <span class="n">QualityThresholds</span><span class="p">()</span>
+
+
+<span class="c1">#: Which audit dimensions are quality safety nets that cannot be disabled</span>
+<span class="c1">#: without an explicit rationale. Keys mirror ``genre-config.json -&gt;</span>
+<span class="c1">#: auditDimensions``. A dimension absent from this matrix is treated as</span>
+<span class="c1">#: non-critical (can be freely disabled).</span>
+<span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">object</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;prose degradation, sensory detail loss, scene concreteness collapse&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cannot_disable_without&quot;</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">&quot;explicit human approval + an alternative detection mechanism for &quot;</span>
+            <span class="s2">&quot;sensory/scene texture loss&quot;</span>
+        <span class="p">),</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;AI-generated text patterns, system-term leakage&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cannot_disable_without&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit human approval&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;narrative continuity tracking (character/object/plot consistency)&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;cannot_disable_without&quot;</span><span class="p">:</span> <span class="s2">&quot;explicit human approval + manual continuity review&quot;</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;dialogue quality and naturalness&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;can_disable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;character&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;character voice and behaviour consistency&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;can_disable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+    <span class="s2">&quot;pacing&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;critical&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span>
+        <span class="s2">&quot;detects&quot;</span><span class="p">:</span> <span class="s2">&quot;chapter pacing rhythm&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;can_disable&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span>
+    <span class="p">},</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">is_critical_audit_dimension</span><span class="p">(</span><span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True iff *dim* is a critical safety-net audit dimension.&quot;&quot;&quot;</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dim</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">bool</span><span class="p">(</span><span class="n">entry</span> <span class="ow">and</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;critical&quot;</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_thresholds.py -v</code>
+Expected: PASS (all 9 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/config/__init__.py<span class="w"> </span>src/shenbi/config/thresholds.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/config/__init__.py<span class="w"> </span>tests/unit/config/test_thresholds.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(config): add thresholds.py single source of truth + AUDIT_SAFETY_MATRIX&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-raise-the-pipelineconfigresonance_global_floor-default-to-65">Task 2: Raise the <code>PipelineConfig.resonance_global_floor</code> default to 65</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py:63-66</code> (the <code>PipelineConfig</code> dataclass field)
+- Modify: <code>tests/unit/pipeline/test_state.py:46</code> (existing assertion <code>== 50</code>)
+- Modify: <code>tests/unit/pipeline/test_revision_router.py:126,132,138,144,154,160,169</code> (existing <code>resonance_floor=50</code> literals)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>DEFAULT_THRESHOLDS</code> from Task 1
+- Produces: <code>PipelineConfig.resonance_global_floor</code> now defaults to 65 — consumers (<code>chapter_loop.py:1036</code>, <code>revision_router.py:138</code>) see the higher floor automatically.</p>
+<p><strong>Context:</strong> <code>state.py:65</code> sets <code>resonance_global_floor: int = 50</code>. This is the config too lenient relative to the audit skill's own 65 floor (E11). Two existing tests hardcode the old value and must be updated to reflect the corrected default.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test (update the existing assertion)</strong></li>
+</ul>
+<p>In <code>tests/unit/pipeline/test_state.py</code>, change line 46:</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">max_revision_retries</span> <span class="o">==</span> <span class="mi">3</span>
+        <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">resonance_global_floor</span> <span class="o">==</span> <span class="mi">65</span>
+</code></pre></div>
+<p>Add a new test at the end of <code>TestPipelineStateSerialization</code> to lock the cross-reference:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">test_default_floor_matches_single_source_of_truth</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_THRESHOLDS</span>
+
+        <span class="n">state</span> <span class="o">=</span> <span class="n">PipelineState</span><span class="o">.</span><span class="n">default</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="s2">&quot;/tmp/novel&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">resonance_global_floor</span> <span class="o">==</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span>
+</code></pre></div>
+<p>In <code>tests/unit/pipeline/test_revision_router.py</code>, replace every <code>resonance_floor=50</code> literal with <code>resonance_floor=65</code> and <code>resonance_score=50</code> (line 138) with <code>resonance_score=64</code> (still below the new floor, so the "below floor" branch is still exercised) and <code>resonance_score=40</code> → <code>40</code> (already below 65, unchanged). Also update the comment at line 6 if it cites 50.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_state.py::TestPipelineStateSerialization tests/unit/pipeline/test_revision_router.py -v</code>
+Expected: FAIL — <code>AssertionError: assert 50 == 65</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/state.py</code>, locate the <code>PipelineConfig</code> dataclass (around line 60-66) and change the field:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_THRESHOLDS</span>
+</code></pre></div>
+<p>(at the top of the file, with the other imports), and:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1">#: Resonance global floor (spec §6.3). Imported from the single source of</span>
+    <span class="c1">#: truth in ``shenbi.config.thresholds`` so config / skills / gates can</span>
+    <span class="c1">#: never drift apart again (root cause of E11).</span>
+    <span class="n">resonance_global_floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span>
+</code></pre></div>
+<blockquote>
+<p>If a circular-import error arises (state.py imported very early), fall back to the literal <code>65</code> and add a G0 coherence test (Task 4) that asserts equality. Prefer the import; only fall back if import fails at module-load time.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_state.py tests/unit/pipeline/test_revision_router.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_state.py<span class="w"> </span>tests/unit/pipeline/test_revision_router.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(state): raise resonance_global_floor default 50 -&gt; 65 (E11 threshold drift)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-create-the-config-change-audit-trail-update_genre_config">Task 3: Create the config-change audit trail + <code>update_genre_config</code></h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/config/config_coherence.py</code>
+- Test: <code>tests/unit/config/test_config_coherence.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>AUDIT_SAFETY_MATRIX</code>, <code>is_critical_audit_dimension</code> (Task 1)
+- Produces: <code>ConfigError</code>, <code>update_genre_config(project_dir, changes, rationale)</code>. Task 4's G0 checker does NOT consume this — it reads genre-config directly — but the production fix in Task 7 uses <code>update_genre_config</code> so the re-enable of <code>texture</code> lands in the audit trail.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/config/test_config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the genre-config update helper with mandatory rationale.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.config_coherence</span><span class="w"> </span><span class="kn">import</span> <span class="n">ConfigError</span><span class="p">,</span> <span class="n">update_genre_config</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">:</span> <span class="mi">65</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">p</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestUpdateGenreConfig</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_non_critical_dim_can_be_disabled_without_rationale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="n">update_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;auditDimensions.dialogue&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;none needed&quot;</span>
+        <span class="p">)</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">][</span><span class="s2">&quot;dialogue&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_critical_dim_requires_long_rationale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ConfigError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">update_genre_config</span><span class="p">(</span>
+                <span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;auditDimensions.texture&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;too short&quot;</span>
+            <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;texture&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;&gt;= 50 char&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_critical_dim_accepts_long_rationale</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="n">long_rationale</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Disabled because we switched to the shenbi-review-sensory skill which &quot;</span>
+            <span class="s2">&quot;covers the same sensory-detail detection surface (E34 mitigation).&quot;</span>
+        <span class="p">)</span>
+        <span class="n">update_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;auditDimensions.texture&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">},</span> <span class="n">rationale</span><span class="o">=</span><span class="n">long_rationale</span>
+        <span class="p">)</span>
+        <span class="n">cfg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">][</span><span class="s2">&quot;texture&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_audit_trail_entry_appended</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="n">update_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">:</span> <span class="mi">70</span><span class="p">},</span> <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;raising the bar&quot;</span>
+        <span class="p">)</span>
+        <span class="n">trail</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;config-change-log.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">entry</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">trail</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+        <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;key&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;resonance_global_floor&quot;</span>
+        <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;old&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">65</span>
+        <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;new&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">70</span>
+        <span class="k">assert</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;rationale&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;raising the bar&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;timestamp&quot;</span> <span class="ow">in</span> <span class="n">entry</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_floor_too_low_blocks_update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_seed_genre_config</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">ConfigError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">update_genre_config</span><span class="p">(</span>
+                <span class="n">tmp_path</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">:</span> <span class="mi">40</span><span class="p">},</span> <span class="n">rationale</span><span class="o">=</span><span class="s2">&quot;lowering the bar&quot;</span>
+            <span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;floor_too_low&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="o">.</span><span class="n">value</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_config_coherence.py -v</code>
+Expected: FAIL — <code>ModuleNotFoundError: No module named 'shenbi.config.config_coherence'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Create <code>src/shenbi/config/config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Genre-config update helper with mandatory rationale for safety-critical changes.</span>
+
+<span class="sd">Spec: 2026-07-19 configuration-coherence-and-threshold-governance-design §3.4.</span>
+
+<span class="sd">Every change to ``genre-config.json`` (or the in-state resonance floor) flows</span>
+<span class="sd">through :func:`update_genre_config`, which:</span>
+
+<span class="sd">  1. Blocks disabling a critical audit dimension unless *rationale* is at least</span>
+<span class="sd">     50 characters explaining the alternative detection mechanism.</span>
+<span class="sd">  2. Blocks lowering ``resonance_global_floor`` below the single-source-of-truth</span>
+<span class="sd">     revision trigger (60).</span>
+<span class="sd">  3. Appends a JSONL audit-trail entry to ``config-change-log.jsonl`` recording</span>
+<span class="sd">     key / old / new / rationale / timestamp for every accepted change.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">UTC</span><span class="p">,</span> <span class="n">datetime</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">,</span>
+    <span class="n">DEFAULT_THRESHOLDS</span><span class="p">,</span>
+    <span class="n">is_critical_audit_dimension</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Minimum rationale length for disabling a critical audit dimension.</span>
+<span class="n">RATIONALE_MIN_CHARS</span> <span class="o">=</span> <span class="mi">50</span>
+
+<span class="c1">#: Audit-trail filename (one JSON object per line).</span>
+<span class="n">AUDIT_TRAIL_NAME</span> <span class="o">=</span> <span class="s2">&quot;config-change-log.jsonl&quot;</span>
+
+<span class="c1">#: In-process lock for the audit-trail file (append safety).</span>
+<span class="n">_AUDIT_TRAIL_LOCK</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ConfigError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when a config change violates a governance rule.&quot;&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_nested</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">dotted_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+    <span class="n">cur</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="n">config</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">dotted_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">None</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">part</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">cur</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_set_nested</span><span class="p">(</span><span class="n">config</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">dotted_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cur</span> <span class="o">=</span> <span class="n">config</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">dotted_key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">parts</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="n">cur</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">part</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">cur</span><span class="p">[</span><span class="n">parts</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]]</span> <span class="o">=</span> <span class="n">value</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_append_audit_trail</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">old</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">new</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span>
+    <span class="n">rationale</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">trail_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">AUDIT_TRAIL_NAME</span>
+    <span class="n">entry</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">&quot;seconds&quot;</span><span class="p">),</span>
+        <span class="s2">&quot;key&quot;</span><span class="p">:</span> <span class="n">key</span><span class="p">,</span>
+        <span class="s2">&quot;old&quot;</span><span class="p">:</span> <span class="n">old</span><span class="p">,</span>
+        <span class="s2">&quot;new&quot;</span><span class="p">:</span> <span class="n">new</span><span class="p">,</span>
+        <span class="s2">&quot;rationale&quot;</span><span class="p">:</span> <span class="n">rationale</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="c1"># Append-only: do not use safe_write (which replaces); open in &#39;a&#39; mode.</span>
+    <span class="k">with</span> <span class="n">_AUDIT_TRAIL_LOCK</span><span class="p">:</span>
+        <span class="k">with</span> <span class="n">trail_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">update_genre_config</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">changes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">rationale</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Apply *changes* (dotted keys) to genre-config.json with governance.</span>
+
+<span class="sd">    Raises :class:`ConfigError` if a critical audit dimension is being disabled</span>
+<span class="sd">    without a &gt;=50-char rationale, or if ``resonance_global_floor`` is being</span>
+<span class="sd">    lowered below the revision trigger. Otherwise writes the updated config and</span>
+<span class="sd">    appends one JSONL audit-trail entry per change.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">_load_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_value</span> <span class="ow">in</span> <span class="n">changes</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">old_value</span> <span class="o">=</span> <span class="n">_get_nested</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">)</span>
+
+        <span class="c1"># Rule 1: critical audit dimension being disabled.</span>
+        <span class="k">if</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;auditDimensions.&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">new_value</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+            <span class="n">dim</span> <span class="o">=</span> <span class="n">key</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">if</span> <span class="n">is_critical_audit_dimension</span><span class="p">(</span><span class="n">dim</span><span class="p">):</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">rationale</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">rationale</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">RATIONALE_MIN_CHARS</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span>
+                        <span class="sa">f</span><span class="s2">&quot;Cannot disable critical audit &#39;</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2">&#39; without &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;&gt;= </span><span class="si">{</span><span class="n">RATIONALE_MIN_CHARS</span><span class="si">}</span><span class="s2"> char rationale explaining the &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;alternative detection mechanism. detects: &quot;</span>
+                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="n">dim</span><span class="p">][</span><span class="s1">&#39;detects&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+                    <span class="p">)</span>
+
+        <span class="c1"># Rule 2: floor cannot drop below the revision trigger.</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">new_value</span><span class="p">,</span> <span class="nb">int</span><span class="p">)</span> <span class="ow">and</span> <span class="n">new_value</span> <span class="o">&lt;</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_revision_trigger</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;floor_too_low:resonance_global_floor=</span><span class="si">{</span><span class="n">new_value</span><span class="si">}</span><span class="s2"> &lt; revision trigger &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_revision_trigger</span><span class="si">}</span><span class="s2">. Floors below the &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;trigger allow degraded chapters to pass without revision.&quot;</span>
+                <span class="p">)</span>
+
+        <span class="n">_set_nested</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">new_value</span><span class="p">)</span>
+        <span class="n">_append_audit_trail</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">old_value</span><span class="p">,</span> <span class="n">new_value</span><span class="p">,</span> <span class="n">rationale</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+            <span class="s2">&quot;config_changed&quot;</span><span class="p">,</span>
+            <span class="n">key</span><span class="o">=</span><span class="n">key</span><span class="p">,</span>
+            <span class="n">old</span><span class="o">=</span><span class="n">old_value</span><span class="p">,</span>
+            <span class="n">new</span><span class="o">=</span><span class="n">new_value</span><span class="p">,</span>
+            <span class="n">rationale</span><span class="o">=</span><span class="n">rationale</span><span class="p">,</span>
+        <span class="p">)</span>
+
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_config_coherence.py -v</code>
+Expected: PASS (all 5 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/config/config_coherence.py<span class="w"> </span>tests/unit/config/test_config_coherence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(config): add update_genre_config with mandatory rationale audit trail&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-create-the-g0-config-coherence-checker">Task 4: Create the G0 config-coherence checker</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/gates/g0_config_coherence.py</code>
+- Test: <code>tests/unit/gates/test_g0_config_coherence.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>DEFAULT_THRESHOLDS</code>, <code>AUDIT_SAFETY_MATRIX</code>, <code>is_critical_audit_dimension</code> (Task 1)
+- Produces: <code>check_config_coherence(project_dir, state_config) -&gt; list[str]</code>. Each returned string is a <code>G0.cc.&lt;rule&gt;</code> issue in the same format as other G0 issue strings (<code>g0.py:check_independence_markers</code> returns <code>list[str]</code>). Task 5 wires this into <code>gate_G0</code>.</p>
+<p><strong>Context:</strong> The checker reads (a) <code>genre-config.json</code> → <code>auditDimensions</code> for the disabled-safety-net check, and (b) the in-effect <code>resonance_global_floor</code> (passed in by the caller from <code>PipelineState</code>) for the threshold-mismatch + floor-reasonableness checks. It compares both against <code>DEFAULT_THRESHOLDS</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/gates/test_g0_config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the G0 configuration-coherence sub-check.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_config_coherence</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_config_coherence</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_genre_config</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">audit_dims</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">:</span> <span class="n">audit_dims</span><span class="p">}</span>
+    <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">cfg</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckConfigCoherence</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_config_returns_no_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;dialogue&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">65</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_disabled_critical_dimension_flags_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">65</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;G0.cc.critical_audit_disabled:texture&quot;</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_threshold_mismatch_flags_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="c1"># state floor 50 &lt; default 65</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="n">kinds</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">+</span> <span class="s2">&quot;:&quot;</span> <span class="o">+</span> <span class="n">i</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="s2">&quot;G0.cc:threshold_mismatch&quot;</span> <span class="ow">in</span> <span class="n">kinds</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_floor_too_low_flags_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">50</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G0.cc.floor_too_low&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_genre_config_is_silent</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="c1"># No genre-config.json — checker must not crash, returns [] for the</span>
+        <span class="c1"># audit-dim check (the floor checks still run if a floor is passed).</span>
+        <span class="k">assert</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">65</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_floor_at_default_no_mismatch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="mi">65</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;threshold_mismatch&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g0_config_coherence.py -v</code>
+Expected: FAIL — <code>ModuleNotFoundError: No module named 'shenbi.gates.g0_config_coherence'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Create <code>src/shenbi/gates/g0_config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;G0 sub-check: genre-config / state-config internal coherence.</span>
+
+<span class="sd">Spec: 2026-07-19 configuration-coherence-and-threshold-governance-design §3.1.</span>
+
+<span class="sd">Detects three classes of configuration defect that previously allowed quality</span>
+<span class="sd">degradation to pass undetected:</span>
+
+<span class="sd">  * ``G0.cc.threshold_mismatch`` — the in-effect resonance floor (read from</span>
+<span class="sd">    PipelineState, where it actually lives) differs from the single-source-of-</span>
+<span class="sd">    truth default in :mod:`shenbi.config.thresholds`. E11.</span>
+<span class="sd">  * ``G0.cc.critical_audit_disabled`` — a critical safety-net audit dimension</span>
+<span class="sd">    (texture / antiAi / continuity) is disabled in genre-config.json. E34.</span>
+<span class="sd">  * ``G0.cc.floor_too_low`` — the floor is below 60, allowing degraded</span>
+<span class="sd">    chapters to pass without revision.</span>
+
+<span class="sd">The function returns a list of issue strings (empty = coherent). It composes</span>
+<span class="sd">with the other G0 sub-checks that return ``list[str]``.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">,</span>
+    <span class="n">DEFAULT_THRESHOLDS</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="c1">#: Audit dimensions that, if disabled, remove a quality safety net. The values</span>
+<span class="c1">#: are the human-readable explanations emitted in the issue string.</span>
+<span class="n">_CRITICAL_DIMENSIONS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="n">dim</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;detects&quot;</span><span class="p">,</span> <span class="s2">&quot;an unknown quality dimension&quot;</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;critical&quot;</span><span class="p">)</span>
+<span class="p">}</span>
+
+<span class="c1">#: Floor below which the &quot;floor too low&quot; rule fires.</span>
+<span class="n">_FLOOR_TOO_LOW</span> <span class="o">=</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_revision_trigger</span>  <span class="c1"># 60</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_config_coherence</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">resonance_global_floor</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate genre-config + state-config coherence.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        project_dir: Project root containing ``genre-config.json``.</span>
+<span class="sd">        resonance_global_floor: The in-effect resonance floor (read from</span>
+<span class="sd">            ``PipelineState.config`` by the caller). ``None`` skips the</span>
+<span class="sd">            threshold-mismatch / floor-reasonableness checks (e.g. when G0</span>
+<span class="sd">            runs before any state exists).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        List of ``G0.cc.*`` issue strings; empty means coherent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># --- Check 1 &amp; 2: floor coherence (only when a floor was supplied). ---</span>
+    <span class="k">if</span> <span class="n">resonance_global_floor</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">resonance_global_floor</span> <span class="o">!=</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span><span class="p">:</span>
+            <span class="n">lo</span><span class="p">,</span> <span class="n">hi</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">resonance_global_floor</span><span class="p">,</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span><span class="p">)</span>
+            <span class="p">)</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G0.cc.threshold_mismatch:resonance_floor &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;state=</span><span class="si">{</span><span class="n">resonance_global_floor</span><span class="si">}</span><span class="s2"> vs &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;default=</span><span class="si">{</span><span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span><span class="si">}</span><span class="s2"> — chapters &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;scoring </span><span class="si">{</span><span class="n">lo</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">hi</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2"> will pass one gate but fail the other &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;silently&quot;</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">resonance_global_floor</span> <span class="o">&lt;</span> <span class="n">_FLOOR_TOO_LOW</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G0.cc.floor_too_low:resonance_global_floor=&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">resonance_global_floor</span><span class="si">}</span><span class="s2"> — floors below </span><span class="si">{</span><span class="n">_FLOOR_TOO_LOW</span><span class="si">}</span><span class="s2"> allow &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;degraded chapters to pass without revision&quot;</span>
+            <span class="p">)</span>
+
+    <span class="c1"># --- Check 3: critical audit dimensions enabled. ---</span>
+    <span class="n">cfg_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span>
+    <span class="k">if</span> <span class="n">cfg_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">cfg_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">):</span>
+            <span class="n">config</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">audit_dims</span> <span class="o">=</span> <span class="n">config</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">,</span> <span class="p">{})</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">config</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">dim</span><span class="p">,</span> <span class="n">detects</span> <span class="ow">in</span> <span class="n">_CRITICAL_DIMENSIONS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="c1"># Default True if the key is absent (only flag explicit disabling).</span>
+            <span class="k">if</span> <span class="n">audit_dims</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">dim</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span><span class="p">:</span>
+                <span class="n">cannot_disable</span> <span class="o">=</span> <span class="n">AUDIT_SAFETY_MATRIX</span><span class="p">[</span><span class="n">dim</span><span class="p">]</span><span class="o">.</span><span class="n">get</span><span class="p">(</span>
+                    <span class="s2">&quot;cannot_disable_without&quot;</span><span class="p">,</span> <span class="s2">&quot;explicit human approval&quot;</span>
+                <span class="p">)</span>
+                <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;G0.cc.critical_audit_disabled:</span><span class="si">{</span><span class="n">dim</span><span class="si">}</span><span class="s2"> — disabling this &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;removes: </span><span class="si">{</span><span class="n">detects</span><span class="si">}</span><span class="s2">. This is a quality safety net. &quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;Cannot disable without </span><span class="si">{</span><span class="n">cannot_disable</span><span class="si">}</span><span class="s2">.&quot;</span>
+                <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g0_config_coherence.py -v</code>
+Expected: PASS (all 6 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g0_config_coherence.py<span class="w"> </span>tests/unit/gates/test_g0_config_coherence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(gates): add G0 config-coherence checker (threshold mismatch + critical audit)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-wire-check_config_coherence-into-gate_g0">Task 5: Wire <code>check_config_coherence</code> into <code>gate_G0</code></h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g0.py</code> (the body of <code>gate_G0</code>, just before the final <code>passed(...)</code> return)
+- Test: <code>tests/unit/gates/test_g0_config_coherence.py</code> (add an integration-style test)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>check_config_coherence</code> (Task 4)
+- Produces: G0 now surfaces <code>G0.cc.*</code> issues. The integration is non-fatal (issues are logged as checks with status <code>"FAIL"</code> only when the project dir is known); G0 keeps its existing fail/pass semantics.</p>
+<p><strong>Context:</strong> <code>gate_G0</code> currently returns <code>passed("G0", checks)</code> at the end. We insert the coherence check there, but only when a project dir is resolvable (G0 may run during <code>round_creation</code> with no project yet). The simplest non-breaking integration: if issues exist, append them as <code>{"id": "G0.cc.&lt;n&gt;", "s": "FAIL", "r": issue}</code> to <code>checks</code> and route through <code>fail(...)</code> with <code>must_fix</code> listing the issue ids. Because G0 is also invoked standalone on the repo (not a project), wrap in a <code>try/except</code> and silently skip if no project dir.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test (integration)</strong></li>
+</ul>
+<p>Append to <code>tests/unit/gates/test_g0_config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestG0Integration</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_g0_surfaces_disabled_texture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;End-to-end: gate_G0 scans PROJECT / &quot;novel-output&quot; / &quot;*&quot; for</span>
+<span class="sd">        genre-config.json and surfaces a G0.cc.critical_audit_disabled check</span>
+<span class="sd">        when a production project has texture disabled.&quot;&quot;&quot;</span>
+        <span class="c1"># Production layout: genre-config.json lives under</span>
+        <span class="c1"># novel-output/&lt;project&gt;/, NOT at the repo root. Mirror that here.</span>
+        <span class="n">project_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;novel-output&quot;</span> <span class="o">/</span> <span class="s2">&quot;xinghuo-ranqiong&quot;</span>
+        <span class="n">project_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">_write_genre_config</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;texture&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;antiAi&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">,</span> <span class="s2">&quot;continuity&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="c1"># Force gate_G0 to treat tmp_path as the repo root (PROJECT).</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates</span><span class="w"> </span><span class="kn">import</span> <span class="n">g0</span> <span class="k">as</span> <span class="n">g0mod</span>
+
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">modules</span><span class="p">[</span><span class="s2">&quot;shenbi.gates.shared&quot;</span><span class="p">],</span> <span class="s2">&quot;PROJECT&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+        <span class="c1"># Run with a seed file so gate_G0 does not short-circuit at G0.1.</span>
+        <span class="n">seed</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;seed.md&quot;</span>
+        <span class="n">seed</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;目标字数：300000</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g0mod</span><span class="o">.</span><span class="n">gate_G0</span><span class="p">(</span><span class="n">seed_file</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">seed</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="s2">&quot;G0.cc.critical_audit_disabled:texture&quot;</span> <span class="ow">in</span> <span class="n">result</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g0_config_coherence.py::TestG0Integration -v</code>
+Expected: FAIL — the issue string is absent from the gate result.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g0.py</code>, add the import near the top (after the existing <code>from shenbi.gates.shared import ...</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_config_coherence</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_config_coherence</span>
+</code></pre></div>
+<p>Then locate the final success path of <code>gate_G0</code> (the <code>return passed("G0", checks)</code> near the end of the function). Replace it with:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># G0.cc — configuration coherence (threshold mismatch + critical audit</span>
+    <span class="c1"># disabled). Production genre-config.json does NOT live at the repo root</span>
+    <span class="c1"># (PROJECT); it lives one level down under novel-output/&lt;project&gt;/. So scan</span>
+    <span class="c1"># PROJECT / &quot;novel-output&quot; / &quot;*&quot; for any subdir containing a genre-config.json</span>
+    <span class="c1"># and run the coherence check against each. G0 is also invoked standalone on</span>
+    <span class="c1"># the repo itself, where there may be no novel-output/ at all — in that case</span>
+    <span class="c1"># the loop finds nothing and the check is a silent no-op.</span>
+    <span class="n">cc_must_fix</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">novel_output</span> <span class="o">=</span> <span class="n">PROJECT</span> <span class="o">/</span> <span class="s2">&quot;novel-output&quot;</span>
+        <span class="n">project_dirs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">novel_output</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">project_dirs</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">novel_output</span><span class="o">.</span><span class="n">iterdir</span><span class="p">()</span>
+                <span class="k">if</span> <span class="n">p</span><span class="o">.</span><span class="n">is_dir</span><span class="p">()</span> <span class="ow">and</span> <span class="p">(</span><span class="n">p</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="k">for</span> <span class="n">project_dir</span> <span class="ow">in</span> <span class="n">project_dirs</span><span class="p">:</span>
+            <span class="n">cc_issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">idx</span><span class="p">,</span> <span class="n">issue</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cc_issues</span><span class="p">):</span>
+                <span class="n">check_id</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;G0.cc.</span><span class="si">{</span><span class="n">idx</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="si">}</span><span class="s2">&quot;</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">check_id</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">issue</span><span class="p">})</span>
+                <span class="n">cc_must_fix</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">check_id</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">FileNotFoundError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;g0_config_coherence_skipped&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">cc_must_fix</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="n">checks</span><span class="p">,</span> <span class="s2">&quot;config_coherence&quot;</span><span class="p">,</span> <span class="n">cc_must_fix</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">passed</span><span class="p">(</span><span class="s2">&quot;G0&quot;</span><span class="p">,</span> <span class="n">checks</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>The <code>state.config.resonance_global_floor</code> value is not available inside <code>gate_G0</code> (G0 runs before state load); we therefore omit the floor checks here and rely on the production fix in Task 7 to correct the default. The floor-mismatch rule still fires in unit tests of <code>check_config_coherence</code> and in any future caller that passes the floor. This keeps G0 self-contained.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: Run tests to verify they pass</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/test_g0_config_coherence.py tests/unit/gates/test_g0.py -v</code>
+Expected: PASS</p>
+<p>Run the full gate suite to confirm no regression:
+Run: <code>pytest tests/unit/gates/ -q</code>
+Expected: PASS (no new failures)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/gates/test_g0_config_coherence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(gates): wire G0 config-coherence check into gate_G0&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-correct-the-production-genre-configjson-and-pipeline-statejson">Task 6: Correct the production <code>genre-config.json</code> and <code>pipeline-state.json</code></h3>
+<p><strong>Files:</strong>
+- Modify: <code>novel-output/xinghuo-ranqiong/genre-config.json</code> (<code>auditDimensions.texture: false → true</code>)
+- Modify: <code>novel-output/xinghuo-ranqiong/pipeline-state.json</code> (<code>resonance_global_floor: 50 → 65</code>)
+- Test: <code>tests/unit/config/test_production_config_coherence.py</code> (new — guards against regression)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>update_genre_config</code> (Task 3), <code>check_config_coherence</code> (Task 4)
+- Produces: A coherent production config that passes the G0 checker.</p>
+<p><strong>Context:</strong> The spec requires <code>resonance_global_floor: 50 → 65</code> and <code>texture: false → true</code> in production. Because the floor lives in <code>pipeline-state.json</code> (not genre-config), we edit both files. We also retire the <code>rule-001</code> custom rule that justified disabling texture — its rationale no longer applies.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/config/test_production_config_coherence.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Guard the production novel-output config against coherence regressions.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.config.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_THRESHOLDS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0_config_coherence</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_config_coherence</span>
+
+<span class="n">PRODUCTION_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;novel-output/xinghuo-ranqiong&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_production_texture_is_enabled</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">PRODUCTION_DIR</span> <span class="o">/</span> <span class="s2">&quot;genre-config.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;auditDimensions&quot;</span><span class="p">][</span><span class="s2">&quot;texture&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span><span class="p">,</span> <span class="p">(</span>
+        <span class="s2">&quot;production texture audit must stay enabled (E34 root cause)&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_production_resonance_floor_matches_default</span><span class="p">():</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">PRODUCTION_DIR</span> <span class="o">/</span> <span class="s2">&quot;pipeline-state.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="c1"># The floor is serialized at top-level of the config sub-object.</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">DEFAULT_THRESHOLDS</span><span class="o">.</span><span class="n">resonance_global_floor</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_production_passes_coherence_check</span><span class="p">():</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">PRODUCTION_DIR</span> <span class="o">/</span> <span class="s2">&quot;pipeline-state.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="n">state</span><span class="p">)</span>
+    <span class="n">issues</span> <span class="o">=</span> <span class="n">check_config_coherence</span><span class="p">(</span>
+        <span class="n">PRODUCTION_DIR</span><span class="p">,</span> <span class="n">resonance_global_floor</span><span class="o">=</span><span class="n">config</span><span class="p">[</span><span class="s2">&quot;resonance_global_floor&quot;</span><span class="p">]</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">issues</span> <span class="o">==</span> <span class="p">[],</span> <span class="s2">&quot;production config has coherence issues: &quot;</span> <span class="o">+</span> <span class="s2">&quot;; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_production_config_coherence.py -v</code>
+Expected: FAIL — <code>texture</code> is <code>False</code> and floor is <code>50</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Apply the production fixes</strong></li>
+</ul>
+<p>Edit <code>novel-output/xinghuo-ranqiong/genre-config.json</code>:</p>
+<ul>
+<li>Change <code>"texture": false</code> → <code>"texture": true</code></li>
+</ul>
+<p>In <code>customRules</code>, update <code>rule-001</code> to reflect that texture is now active (or remove it). Minimal edit — change its description:</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;id&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;rule-001&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;文字质感(texture)维度已启用——前期写作阶段同样执行质感审计，捕捉感官细节与场景临场感的退化（E34 修复）&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;enforcement&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;example&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+</code></pre></div>
+<p>Edit <code>novel-output/xinghuo-ranqiong/pipeline-state.json</code> at line 2656: change <code>"resonance_global_floor": 50,</code> → <code>"resonance_global_floor": 65,</code>.</p>
+<p>Then append the audit-trail entry by running a one-off (do NOT add this to the committed source — it is data):</p>
+<div class="highlight"><pre><span></span><code>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.config.config_coherence import update_genre_config</span>
+<span class="s2">update_genre_config(</span>
+<span class="s2">    Path(&#39;novel-output/xinghuo-ranqiong&#39;),</span>
+<span class="s2">    {&#39;auditDimensions.texture&#39;: True},</span>
+<span class="s2">    rationale=&#39;Re-enabled texture audit — it is the primary detector of prose &#39;</span>
+<span class="s2">              &#39;degradation (E34). Disabled state let 26 chapters of system-term &#39;</span>
+<span class="s2">              &#39;density explosion go undetected.&#39;,</span>
+<span class="s2">)</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<blockquote>
+<p>The <code>update_genre_config</code> call both sets the value AND writes the audit-trail entry, so the production change is self-documenting. The state-floor edit is a direct JSON edit (state files are not governed by <code>update_genre_config</code>).</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/config/test_production_config_coherence.py -v</code>
+Expected: PASS (all 3 tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>novel-output/xinghuo-ranqiong/genre-config.json<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>novel-output/xinghuo-ranqiong/pipeline-state.json<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>novel-output/xinghuo-ranqiong/config-change-log.jsonl<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/config/test_production_config_coherence.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(production): enable texture audit + raise resonance floor 50-&gt;65 (E11/E34)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-full-regression-just-check">Task 7: Full regression — <code>just check</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Run the complete check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS — ruff, mypy, basedpyright, lint_status_strings, lint_repo_consistency all green.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the full unit suite with coverage</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/ -q --cov=shenbi --cov-fail-under=85</code>
+Expected: PASS, coverage ≥ 85%.</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit any formatting/ruff fixes</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-u
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: ruff/mypy cleanup after configuration-coherence plan&quot;</span><span class="w"> </span>--allow-empty
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage:</strong>
+- §3.1 G0 coherence checker (threshold mismatch + critical audit disabled + floor reasonableness) → Task 4 + Task 5 ✓
+- §3.2 single-source-of-truth <code>thresholds.py</code> → Task 1 ✓
+- §3.3 <code>AUDIT_SAFETY_MATRIX</code> → Task 1 (inside <code>thresholds.py</code>) ✓
+- §3.4 config-change audit trail with mandatory rationale → Task 3 ✓
+- §4 production genre-config fix (<code>texture: true</code>) → Task 6 ✓
+- §4 <code>resonance_global_floor</code> correction → Task 2 (default) + Task 6 (production state file) ✓
+- §5 verification criteria 1-6 all covered by tests ✓</p>
+<p><strong>2. Placeholder scan:</strong> No TBD/TODO/"add error handling". Every step has complete code.</p>
+<p><strong>3. Type consistency:</strong> <code>check_config_coherence(project_dir, *, resonance_global_floor=None)</code> is consistent across Tasks 4, 5, 6, and the production test. <code>update_genre_config(project_dir, changes, rationale)</code> is consistent across Tasks 3 and 6. <code>DEFAULT_THRESHOLDS.resonance_global_floor</code> is the canonical symbol everywhere.</p>
+<p><strong>Key deviation from spec prose (necessary):</strong> The spec repeatedly says "genre-config.json sets resonance_global_floor: 50". In the actual codebase, that field lives on <code>PipelineConfig</code> (<code>state.py:65</code>) and is serialized to <code>pipeline-state.json</code>, not <code>genre-config.json</code>. The plan edits the real location (state default + production state file) and the G0 checker accepts the floor as a parameter. This is the only way the fix actually takes effect.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

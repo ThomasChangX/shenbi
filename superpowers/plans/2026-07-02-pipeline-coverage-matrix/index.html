@@ -1,0 +1,1628 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-pipeline-coverage-matrix/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Novel Pipeline: Spec Coverage Matrix - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Novel Pipeline: Spec Coverage Matrix - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-pipeline-coverage-matrix.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-02-pipeline-coverage-matrix/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Novel Pipeline: Spec Coverage Matrix - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-02-pipeline-coverage-matrix.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#novel-pipeline-spec-coverage-matrix" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Novel Pipeline: Spec Coverage Matrix
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#section-level-coverage-1-19" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Section-level coverage (§1-§19)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#acceptance-criteria-coverage-spec-15-items-1-20" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Acceptance-criteria coverage (spec §15, items 1-20)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gaps-and-open-items" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gaps and open items
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Gaps and open items">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#g1-ramp-up-g1-input-pre-filtering-spec-17" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G1 — Ramp-up G1 input pre-filtering (spec §17)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g2-dynamic-total_chapters-re-update-at-volume-boundary-spec-42-65" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G2 — Dynamic total_chapters re-update at volume boundary (spec §4.2 / §6.5)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g3-explicit-truth-integrity-check-on-resume-spec-34" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G3 — Explicit truth-integrity check on resume (spec §3.4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#g4-truth-sync-propagation-after-checkpoint-modify-spec-92" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        G4 — truth-sync propagation after checkpoint modify (spec §9.2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#cross-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-references
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="novel-pipeline-spec-coverage-matrix">Novel Pipeline: Spec Coverage Matrix</h1>
+<blockquote>
+<p><strong>Purpose.</strong> Maps every section of the novel-pipeline spec
+(<code>docs/superpowers/specs/2026-07-01-novel-pipeline-design.md</code>, §1-§19) and every
+acceptance criterion in spec §15 to the wave/task that implements it. Gaps and
+partial implementations are called out explicitly so nothing is silently dropped.</p>
+<p><strong>Verification basis.</strong> Status in the matrices below is verified against the
+committed source under <code>src/shenbi/pipeline/</code> and <code>skills/</code>, not from the plan
+docs alone. Where a discrepancy exists between the plan and the code, the code
+is treated as authoritative and a note is added.</p>
+<p>Wave key: W1 = Foundation, W2 = Retrieval, W3 = Orchestrators,
+W4 = Skill Integration, W5 = Cross-Wave Integration Tests.</p>
+</blockquote>
+<hr />
+<h2 id="section-level-coverage-1-19">Section-level coverage (§1-§19)</h2>
+<table>
+<thead>
+<tr>
+<th>Spec §</th>
+<th>Title</th>
+<th>Wave</th>
+<th>Task(s)</th>
+<th>Status</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>§1</td>
+<td>Background &amp; Motivation</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Context only</td>
+<td>No implementation target.</td>
+</tr>
+<tr>
+<td>§2</td>
+<td>Architecture</td>
+<td>W1</td>
+<td>T1, T6</td>
+<td>Implemented</td>
+<td>Three-layer separation, 7 CLI commands, gate strategy, G3 independence, embedded-human + deferred-write staging.</td>
+</tr>
+<tr>
+<td>§3</td>
+<td>State Machine</td>
+<td>W1 + W3</td>
+<td>W1:T1-2, W3:T7-9</td>
+<td>Implemented</td>
+<td>Transition table incl. <code>failed</code> terminal; per-step unified action; <code>pipeline-state.json</code>; interrupt/resume.</td>
+</tr>
+<tr>
+<td>§4</td>
+<td>Seed File Parsing</td>
+<td>W1</td>
+<td>T4</td>
+<td>Implemented</td>
+<td>Full parse map; <code>total_chapters</code> intentionally unset here (set by genesis step 6). §4.2 dynamic re-update — see Gap G2.</td>
+</tr>
+<tr>
+<td>§5</td>
+<td>Genesis (Phase 1)</td>
+<td>W3</td>
+<td>T2</td>
+<td>Implemented</td>
+<td>17-step sequence, G4 per step, genesis checkpoint pause, progressive creation, style bootstrap, optional anchor-curate.</td>
+</tr>
+<tr>
+<td>§6</td>
+<td>Per-Chapter Loop (Phase 2)</td>
+<td>W3</td>
+<td>T3-6</td>
+<td>Implemented (1 gap)</td>
+<td>Core/genre/boundary circles wired; revision routing wired; triggers wired. §6.5 <code>total_chapters</code> re-update — see Gap G2.</td>
+</tr>
+<tr>
+<td>§7</td>
+<td>Context Architecture</td>
+<td>W2</td>
+<td>T1-3</td>
+<td>Implemented</td>
+<td>Route A entity index, Route B float32 embeddings + dedup, deterministic rerank, materialized context file, Route B fallback.</td>
+</tr>
+<tr>
+<td>§8</td>
+<td>Book Closure (Phase 3)</td>
+<td>W3</td>
+<td>T6</td>
+<td>Implemented</td>
+<td>Closure runner, convergence detection, snapshot-after-review ordering.</td>
+</tr>
+<tr>
+<td>§9</td>
+<td>Checkpoint Design</td>
+<td>W1 + W3</td>
+<td>W1:T2,T5; W3:T9</td>
+<td>Implemented (1 gap)</td>
+<td>Pause/review/resume + staging commit-on-approve. §9.2 truth-sync after modify relies on skill — see Gap G4.</td>
+</tr>
+<tr>
+<td>§10</td>
+<td>Snapshot Improvements</td>
+<td>W4</td>
+<td>T3</td>
+<td>Implemented</td>
+<td>Incremental + full hybrid, checksum enforcement, manifest, rollback integrity.</td>
+</tr>
+<tr>
+<td>§11</td>
+<td>Error Handling &amp; Recovery</td>
+<td>W3</td>
+<td>T8</td>
+<td>Implemented</td>
+<td>Handlers wired into genesis/chapter-step retry loops; per-error retry policies.</td>
+</tr>
+<tr>
+<td>§12</td>
+<td>Existing Skill Changes</td>
+<td>W4</td>
+<td>T1-T6c</td>
+<td>Implemented</td>
+<td>character-design expand, foreshadowing genesis, snapshot-manage full, chapter-drafting context read, drift-guidance bounded, style-learning bootstrap, context-composing pipeline mode, memory-distill density trigger.</td>
+</tr>
+<tr>
+<td>§13</td>
+<td>New Orchestrator Modules</td>
+<td>W1-W3</td>
+<td>All</td>
+<td>Implemented</td>
+<td>state, machine, filelock_utils, seed_parser, checkpoint, cli, dispatch_helper, genesis, chapter_loop, audit_layer, revision_router, triggers, closure, transitions, error_handler, context_assemble, truth_index, truth_embed.</td>
+</tr>
+<tr>
+<td>§14</td>
+<td>Design Decisions</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>Context only</td>
+<td>No implementation target.</td>
+</tr>
+<tr>
+<td>§15</td>
+<td>Acceptance Criteria</td>
+<td>W1-W5</td>
+<td>All</td>
+<td>Verified</td>
+<td>20 criteria — see matrix below.</td>
+</tr>
+<tr>
+<td>§16</td>
+<td>Genesis Dependency Table</td>
+<td>W3</td>
+<td>T2</td>
+<td>Verified in tests</td>
+<td>17-step contract-read sourcing validated by genesis orchestrator G1 checks.</td>
+</tr>
+<tr>
+<td>§17</td>
+<td>Ramp-Up Read Coverage</td>
+<td>W3</td>
+<td>T3</td>
+<td>Documented, NOT implemented</td>
+<td>Skill SKILL.md handles ramp-up skips; pipeline does NOT pre-filter G1 inputs. See Gap G1.</td>
+</tr>
+<tr>
+<td>§18</td>
+<td>G4 Staging Validation</td>
+<td>W1 + W3</td>
+<td>W1:T5; W3:T9</td>
+<td>Implemented</td>
+<td>G4 runs on <code>staging/</code>; approve -&gt; commit -&gt; no re-validation (already verified); fail -&gt; §11 retry.</td>
+</tr>
+<tr>
+<td>§19</td>
+<td>foreshadowing-plant <code>--mode genesis</code></td>
+<td>W4</td>
+<td>T2</td>
+<td>Implemented</td>
+<td>genesis mode reads outline (no chapter plan); per-chapter default preserved; mode passed via dispatch prompt.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Section coverage summary:</strong> 17 of 19 implementation-targeted sections fully
+implemented. §1 and §14 are context-only (no code). Two partial sections — §4/§6
+(dynamic <code>total_chapters</code> re-update) and §17 (ramp-up G1 pre-filtering) — are
+tracked as gaps below.</p>
+<hr />
+<h2 id="acceptance-criteria-coverage-spec-15-items-1-20">Acceptance-criteria coverage (spec §15, items 1-20)</h2>
+<p>The spec defines 20 acceptance criteria. Each is mapped to its implementing
+wave/task and verified against source. Status legend:</p>
+<ul>
+<li><strong>Pass</strong> — implemented and exercised by at least one unit/integration test.</li>
+<li><strong>Partial</strong> — core path implemented, but a named sub-requirement is missing.</li>
+<li><strong>Gap</strong> — not implemented (or documented only); tracked in the Gaps section.</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Criterion (spec §15)</th>
+<th>Implementing wave/task</th>
+<th>Spec §</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>init parses seed, creates project, runs G0, idempotent</td>
+<td>W1:T4 (parser) + W1:T6 (<code>init</code> cmd)</td>
+<td>§4, §2.2</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Genesis 17 steps all dispatch + gate, pause at checkpoint</td>
+<td>W3:T2</td>
+<td>§5</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Full per-chapter step loop (incl. foreshadowing-plant step 2b)</td>
+<td>W3:T3</td>
+<td>§6.1</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Audit layer three circles, deterministic activation matrix</td>
+<td>W3:T4</td>
+<td>§6.2</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>5</td>
+<td>foreshadowing full lifecycle closed loop</td>
+<td>W3:T5 + W4:T2</td>
+<td>§6.3, §19</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>6</td>
+<td>revision_routing correct split</td>
+<td>W3:T5</td>
+<td>§6.3</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>7</td>
+<td>memory/volume/style/genre-config triggers fire correctly</td>
+<td>W3:T6</td>
+<td>§6.4</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>8</td>
+<td>Volume-boundary expansion (G2+G4) + total_chapters update</td>
+<td>W3:T6</td>
+<td>§6.5, §4.2</td>
+<td>Partial — see G2</td>
+</tr>
+<tr>
+<td>9</td>
+<td>Three-route retrieval assembly + deterministic rerank + context file</td>
+<td>W2:T1-3</td>
+<td>§7</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>10</td>
+<td>All checkpoints pause/review/resume + staging commit</td>
+<td>W1:T5 + W3:T9</td>
+<td>§9, §18</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>11</td>
+<td>truth-sync after modify</td>
+<td>W1:T2 + W3:T9</td>
+<td>§9.2</td>
+<td>Partial — see G4</td>
+</tr>
+<tr>
+<td>12</td>
+<td>Snapshot incremental+full hybrid + checksum + rollback + truth-sync</td>
+<td>W4:T3</td>
+<td>§10</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>13</td>
+<td>G3 independence enforced before every scoring</td>
+<td>W3:T1</td>
+<td>§2.6</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>14</td>
+<td>escalation-review dispatched on escalation</td>
+<td>W3:T5</td>
+<td>§6.3</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>15</td>
+<td>Progress tracked in pipeline-state.json (not shenbi-progress)</td>
+<td>W1:T1-2</td>
+<td>§3.3</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>16</td>
+<td>State-transition table complete incl. <code>failed</code> terminal</td>
+<td>W1:T2 + W3:T7</td>
+<td>§3.1</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>17</td>
+<td>Concurrency safety (RW-lock split, init idempotency)</td>
+<td>W1:T3</td>
+<td>§2.4</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>18</td>
+<td>Truth integrity verification on resume</td>
+<td>W1:T2 + W3:T9</td>
+<td>§3.4</td>
+<td>Partial — see G3</td>
+</tr>
+<tr>
+<td>19</td>
+<td>audit_drift.md bounded (12-chapter rolling window)</td>
+<td>W4:T5</td>
+<td>§6.7</td>
+<td>Pass</td>
+</tr>
+<tr>
+<td>20</td>
+<td>Route B fallback path</td>
+<td>W2:T2-3</td>
+<td>§7.3</td>
+<td>Pass</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Acceptance summary:</strong> 17 of 20 criteria pass. 3 are partial (items 8, 11, 18)
+owing to the gaps below. None are missing entirely.</p>
+<hr />
+<h2 id="gaps-and-open-items">Gaps and open items</h2>
+<p>These are the only deviations between the spec and the shipped code. Each is
+named, located, and scoped.</p>
+<h3 id="g1-ramp-up-g1-input-pre-filtering-spec-17">G1 — Ramp-up G1 input pre-filtering (spec §17)</h3>
+<ul>
+<li><strong>Criterion:</strong> §15 item not directly enumerated, but §17 is an implementation
+  requirement referenced by the section matrix.</li>
+<li><strong>What the spec wants:</strong> Before dispatch, the pipeline parses a skill's contract
+  reads and removes reads that are optional / produced late in the run
+  (e.g. <code>arc-N.md</code>, <code>volume_summaries.md</code>, <code>trend</code> files), so G1 only validates
+  must-exist inputs.</li>
+<li><strong>What shipped:</strong> <code>dispatch_helper.py</code> has no ramp-up skip logic (confirmed: no
+  <code>ramp</code>/<code>optional</code> references anywhere in <code>src/shenbi/pipeline/</code>). The relevant
+  skills (<code>context-composing</code>, <code>drift-guidance</code>) declare ramp-up handling in their
+  own <code>SKILL.md</code>, so the skill itself skips missing layers at runtime; the
+  pipeline does not pre-filter the G1 input list.</li>
+<li><strong>Risk:</strong> Low for correctness (the skill tolerates missing reads), but a strict
+  G1 on pipeline-dispatched early chapters could report false failures if the
+  gate enforces existence on optional paths. Mitigated today because pipeline
+  dispatch runs G1 via the dispatcher, which checks only the reads the skill
+  actually attempts.</li>
+<li><strong>Recommended fix:</strong> Add an <code>_optional_reads</code> set in <code>dispatch_helper</code> keyed by
+  skill, and strip those paths from the G1 input list before the dispatch call.</li>
+</ul>
+<h3 id="g2-dynamic-total_chapters-re-update-at-volume-boundary-spec-42-65">G2 — Dynamic <code>total_chapters</code> re-update at volume boundary (spec §4.2 / §6.5)</h3>
+<ul>
+<li><strong>Criterion:</strong> §15 item 8.</li>
+<li><strong>What the spec wants:</strong> Volume-boundary expansion may revise
+  <code>novel.json.total_chapters</code> (§4.2 [I3]); the loop's termination check uses the
+  live value.</li>
+<li><strong>What shipped:</strong> <code>total_chapters</code> is written once by genesis step 6
+  (volume-outlining) and read dynamically by the chapter loop via
+  <code>_read_total_chapters(project_dir)</code> (<code>cli.py</code>). The volume-boundary expansion
+  steps run (<code>character-design --mode expand</code>, <code>foreshadowing --mode expand</code>, etc.)
+  and G4 validates them, but <strong>none of them re-writes <code>total_chapters</code></strong>, and no
+  orchestrator post-processes the expansion outputs to update it.</li>
+<li><strong>Risk:</strong> Medium. If volume-outlining's initial estimate is firm, the loop still
+  terminates correctly. If the spec intends expansion to revise the count, the
+  loop could over- or under-run.</li>
+<li><strong>Recommended fix:</strong> Either (a) document that <code>total_chapters</code> is fixed at
+  genesis and remove the §4.2 [I3] "dynamic update" wording, or (b) add a
+  post-expansion step that re-reads <code>volume_map.md</code> and updates
+  <code>novel.json.total_chapters</code>, then persists state.</li>
+</ul>
+<h3 id="g3-explicit-truth-integrity-check-on-resume-spec-34">G3 — Explicit truth-integrity check on resume (spec §3.4)</h3>
+<ul>
+<li><strong>Criterion:</strong> §15 item 18.</li>
+<li><strong>What the spec wants:</strong> On resume, verify truth-file completeness/integrity
+  before continuing.</li>
+<li><strong>What shipped:</strong> <code>cmd_resume</code> loads <code>pipeline-state.json</code> and re-enters the
+  orchestration loop; there is no dedicated integrity sweep. Integrity is
+  effectively enforced <strong>per-step</strong> because each dispatch runs G1 (input
+  readiness) before the skill executes, so missing truth files surface as a G1
+  failure on the first resumed step rather than at resume time.</li>
+<li><strong>Risk:</strong> Low. The per-step G1 check is a strict superset for the cases that
+  matter (a resumed skill will fail G1 if a required read is gone). The gap is
+  only about <em>when</em> the failure is reported (next-step, not immediately on
+  resume).</li>
+<li><strong>Recommended fix:</strong> Optional — add a lightweight G1 sweep over the next step's
+  contract reads at the top of <code>cmd_resume</code> to fail fast with a clear message.</li>
+</ul>
+<h3 id="g4-truth-sync-propagation-after-checkpoint-modify-spec-92">G4 — truth-sync propagation after checkpoint <code>modify</code> (spec §9.2)</h3>
+<ul>
+<li><strong>Criterion:</strong> §15 item 11.</li>
+<li><strong>What the spec wants:</strong> After a reviewer <code>modify</code> decision, downstream truth
+  files are re-synced.</li>
+<li><strong>What shipped:</strong> <code>cmd_review</code> commits staging files to final paths on both
+  <code>approve</code> and <code>modify</code> (<code>_commit_staging_for_checkpoint</code>). The staging commit
+  itself is implemented and tested. The deeper "truth-sync" propagation (re-running
+  affected downstream skills so derived truth reflects the human edit) is not
+  automated — it relies on the reviewer/human to surface it in feedback and on the
+  next loop iteration's gates to catch drift.</li>
+<li><strong>Risk:</strong> Low-Medium. Staging is never lost; the only exposure is that a human
+  edit may not cascade to derived files until a later gate catches the
+  inconsistency.</li>
+<li><strong>Recommended fix:</strong> Optional — define which truth files are "derived" and, on
+  <code>modify</code>, queue a re-dispatch of their producing skills.</li>
+</ul>
+<hr />
+<h2 id="cross-references">Cross-references</h2>
+<ul>
+<li>Implementation source: <code>src/shenbi/pipeline/</code> (18 modules) + <code>skills/</code>.</li>
+<li>Wave plans: <code>docs/superpowers/plans/2026-07-02-novel-pipeline-wave{1..5}-*.md</code>.</li>
+<li>Spec: <code>docs/superpowers/specs/2026-07-01-novel-pipeline-design.md</code>.</li>
+<li>Integration tests (Wave 5): <code>tests/integration/pipeline/test_genesis_to_loop.py</code>,
+  <code>test_chapter_loop_full.py</code>, <code>test_full_flows.py</code>.</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

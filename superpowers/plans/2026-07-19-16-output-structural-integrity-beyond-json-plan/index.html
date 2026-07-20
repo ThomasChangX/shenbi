@@ -1,0 +1,2181 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-16-output-structural-integrity-beyond-json-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-16-output-structural-integrity-beyond-json-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-19-16-output-structural-integrity-beyond-json-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-19-16-output-structural-integrity-beyond-json-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-output-integrity-structural-write-failure-and-content-anomaly-detection-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-create-llm_output_integritypy-pattern-catalog-pure-check-functions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Create llm_output_integrity.py — pattern catalog + pure check functions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-add-dispatchwritefailureerror-exception" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Add DispatchWriteFailureError exception
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-integrate-all-checks-into-_write_parsed_outputs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Integrate all checks into _write_parsed_outputs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-add-write-capability-confirmation-to-the-retry-path" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Add write-capability confirmation to the retry path
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-register-post-write-findings-as-g4-composite-checkers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Register post-write findings as G4 composite checkers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-full-regression-just-check" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Full regression — just check
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-output-integrity-structural-write-failure-and-content-anomaly-detection-implementation-plan">LLM Output Integrity — Structural, Write-Failure, and Content-Anomaly Detection Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Add a unified <code>llm_output_integrity.py</code> module plus a single integration choke point in <code>_write_parsed_outputs</code> that detects five classes of corrupt LLM output the pipeline currently persists as valid content: write-path failure diagnostics (with false-positive-safe dominance triggering), prose meta-commentary leakage, Markdown fence imbalance, aborted audit stubs, and audit line-reference version skew.</p>
+<p><strong>Architecture:</strong> A new pure-function module <code>llm_output_integrity.py</code> exposes four check functions (<code>detect_write_failure</code>, <code>check_prose_leakage</code>, <code>check_markdown_fence_balance</code>, <code>check_audit_completeness</code>, <code>check_audit_line_refs</code>) and the shared pattern catalog. <code>_write_parsed_outputs</code> in <code>dispatch_helper.py</code> is the single choke point: write-failure detection runs first (pre-write, blocks the write, raises a new <code>DispatchWriteFailureError</code> to trigger retry with write-capability confirmation), then the file is written, then the post-write checks run in fixed order against the persisted file and their findings are logged + surfaced to G4 via the existing composite-checker registry. Two small helpers (<code>_is_audit_file</code>, <code>_resolve_chapter_for_audit</code>) are added to classify filenames using the real <code>chapter-NN.md</code> / <code>chapter-NN-&lt;dim&gt;.md</code> / <code>audits/chapter-NN-&lt;dim&gt;.md</code> conventions.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, <code>re</code>, <code>pathlib</code>, <code>dataclasses</code>, pytest. No new runtime dependencies.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> at the top of every new file</li>
+<li><code>pathlib.Path</code> for all file I/O; <code>safe_write</code> for writes</li>
+<li>No <code>print()</code> in framework code; use structlog (<code>shenbi.logging.get_logger</code>)</li>
+<li>Write-failure patterns trigger ONLY when the match is at content START or the matched region covers &gt;50% of the output (false-positive safety — spec §3.2)</li>
+<li>The post-write findings must NOT raise; they log warnings and surface to G4 (the gate decides FAIL/WARN per §3.6 severity rules)</li>
+<li>Tests under <code>tests/unit/pipeline/</code> alongside the existing <code>test_dispatch_helper.py</code></li>
+<li>Conventional Commits: <code>feat:</code> for the new module, <code>feat:</code> for the integration</li>
+<li><code>just check</code> (ruff + mypy + basedpyright + pytest) must pass after every task</li>
+</ul>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-19-16-output-structural-integrity-beyond-json-design.md</code> (the merged Spec 19 + former Spec 20)</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/
+    pipeline/
+        llm_output_integrity.py     # NEW — pattern catalog + 5 check functions
+        dispatch_helper.py          # MODIFY — _write_parsed_outputs choke point
+                                     #        + _is_audit_file / _resolve_chapter_for_audit
+                                     #        + retry write-confirmation prompt
+    exceptions.py                   # MODIFY — add DispatchWriteFailureError
+    gates/g4/generic.py             # MODIFY — register post-write integrity checkers
+
+tests/unit/pipeline/
+    test_llm_output_integrity.py    # NEW — pattern + check-function unit tests
+    test_dispatch_helper.py         # MODIFY — _write_parsed_outputs integration tests
+</code></pre></div>
+<blockquote>
+<p><strong>Filename conventions discovered in the codebase</strong> (the helpers must match these exactly):
+- Chapter prose: <code>chapters/chapter-NN.md</code>
+- Audit reports: <code>audits/chapter-NN-&lt;dimension&gt;.md</code> (e.g. <code>chapter-8-foreshadowing.md</code>, <code>chapter-51-anti-ai.md</code>, <code>chapter-19-resonance.md</code>)
+- Plans: <code>staging/plans/chapter-NN-plan.md</code>
+- An "audit file" is therefore any path whose stem matches <code>chapter-NN-&lt;something&gt;</code> and lives anywhere (the gate does not assume the <code>audits/</code> dir).
+- The "chapter file" paired with an audit at <code>.../chapter-NN-&lt;dim&gt;.md</code> is <code>chapters/chapter-NN.md</code>.</p>
+</blockquote>
+<hr />
+<h3 id="task-1-create-llm_output_integritypy-pattern-catalog-pure-check-functions">Task 1: Create <code>llm_output_integrity.py</code> — pattern catalog + pure check functions</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/llm_output_integrity.py</code>
+- Test: <code>tests/unit/pipeline/test_llm_output_integrity.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing (leaf module)
+- Produces:
+  - <code>WRITE_FAILURE_PATTERNS: list[str]</code>, <code>LEAKAGE_PATTERNS: list[str]</code>, <code>VERDICT_MARKERS: list[str]</code>, <code>PREAMBLE_MARKERS: list[str]</code>, <code>RETRY_WRITE_CONFIRMATION: str</code>
+  - <code>detect_write_failure(content: str) -&gt; tuple[bool, str | None]</code>
+  - <code>check_prose_leakage(path: Path) -&gt; list[str]</code>
+  - <code>check_markdown_fence_balance(path: Path) -&gt; list[str]</code>
+  - <code>check_audit_completeness(path: Path) -&gt; list[str]</code>
+  - <code>check_audit_line_refs(path: Path, chapter_path: Path) -&gt; list[str]</code></p>
+<p>Task 2 imports all of these into <code>dispatch_helper.py</code>.</p>
+<p><strong>Context:</strong> The patterns are de-duplicated from the former Specs 19 and 20 — write-failure signatures live ONLY in <code>WRITE_FAILURE_PATTERNS</code>, leakage signatures ONLY in <code>LEAKAGE_PATTERNS</code>. The <code>detect_write_failure</code> dominance rule (§3.2) is the critical false-positive guard: a chapter that merely mentions "sandbox" in passing must NOT trip.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_llm_output_integrity.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the unified LLM-output integrity module.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LEAKAGE_PATTERNS</span><span class="p">,</span>
+    <span class="n">WRITE_FAILURE_PATTERNS</span><span class="p">,</span>
+    <span class="n">check_audit_completeness</span><span class="p">,</span>
+    <span class="n">check_audit_line_refs</span><span class="p">,</span>
+    <span class="n">check_markdown_fence_balance</span><span class="p">,</span>
+    <span class="n">check_prose_leakage</span><span class="p">,</span>
+    <span class="n">detect_write_failure</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="c1"># --- detect_write_failure (dominance rule) ---</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestDetectWriteFailure</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_chinese_sandbox_at_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;由于沙箱限制，我无法直接写文件。请使用现有内容。&quot;</span>
+        <span class="n">is_fail</span><span class="p">,</span> <span class="n">sig</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_fail</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="s2">&quot;沙箱&quot;</span> <span class="ow">in</span> <span class="n">sig</span> <span class="ow">or</span> <span class="s2">&quot;sandbox&quot;</span> <span class="ow">in</span> <span class="n">sig</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_english_readonly_at_start</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;I cannot write the file in this read-only sandbox. &quot;</span>
+            <span class="s2">&quot;Use the existing content from input.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">is_fail</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_fail</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_dominant_region_over_half</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Match is not at start (there&#39;s a title line) but the diagnostic</span>
+        <span class="c1"># region spans &gt;50% of the output.</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Title</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;The file on disk can&#39;t be updated (read-only sandbox). &quot;</span>
+            <span class="s2">&quot;Use the existing content from input markers was already provided.&quot;</span>
+        <span class="p">)</span>
+        <span class="n">is_fail</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_fail</span> <span class="ow">is</span> <span class="kc">True</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_passing_mention_is_not_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># Legitimate prose that mentions &quot;sandbox&quot; / &quot;cannot write&quot; in passing.</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;林烽穿过沙箱般的废墟，心中暗道：&#39;我不能写下这段历史。&#39; &quot;</span>
+            <span class="s2">&quot;他继续前行，脚步声回荡在空旷的走廊里。&quot;</span> <span class="o">*</span> <span class="mi">20</span>
+        <span class="p">)</span>
+        <span class="n">is_fail</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_fail</span> <span class="ow">is</span> <span class="kc">False</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_prose_is_not_failure</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;林烽推开门，映入眼帘的是一间陈旧的教室。&quot;</span> <span class="o">*</span> <span class="mi">50</span>
+        <span class="n">is_fail</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">is_fail</span> <span class="ow">is</span> <span class="kc">False</span>
+
+
+<span class="c1"># --- check_prose_leakage ---</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckProseLeakage</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_model_leakage_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-56.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;正文内容……</span><span class="se">\n</span><span class="s2">Now the decisions JSON:</span><span class="se">\n</span><span class="s2">```json&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_prose_leakage</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G4.pi.model_leakage&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_unfinished_ending_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-56.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;他走到门前，准备：&quot;</span> <span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_prose_leakage</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;G4.pi.unfinished_ending&quot;</span> <span class="ow">in</span> <span class="n">i</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_prose_no_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;林烽推开门，走进教室。&quot;</span> <span class="o">*</span> <span class="mi">200</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_prose_leakage</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="c1"># --- check_markdown_fence_balance ---</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckFenceBalance</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_odd_fences_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;text</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">code</span><span class="se">\n</span><span class="s2">more text&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_markdown_fence_balance</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;G4.pi.fence_imbalance&quot;</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_even_fences_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;text</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">code</span><span class="se">\n</span><span class="s2">```</span><span class="se">\n</span><span class="s2">more&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_markdown_fence_balance</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="c1"># --- check_audit_completeness ---</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckAuditCompleteness</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_aborted_stub_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-32-foreshadowing.md&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;所有输入文件已确认。现在执行完整的伏笔审计……&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_audit_completeness</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+        <span class="c1"># Short AND no verdict AND has preamble — at least one of these fires.</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span>
+            <span class="p">(</span><span class="s2">&quot;too_short&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;aborted_stub&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="s2">&quot;no_verdict&quot;</span> <span class="ow">in</span> <span class="n">i</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">issues</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_complete_audit_no_issues</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-32-foreshadowing.md&quot;</span>
+        <span class="n">body</span> <span class="o">=</span> <span class="s2">&quot;# 伏笔审计</span><span class="se">\n\n</span><span class="s2">&quot;</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;详尽分析内容。&quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">判定：通过 (PASS)&quot;</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">body</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_audit_completeness</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="c1"># --- check_audit_line_refs ---</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCheckAuditLineRefs</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_stale_ref_flagged</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-55-foreshadowing.md&quot;</span>
+        <span class="n">audit</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;参见 chapter-55.md L41-45 的细节。&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-55.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;line1</span><span class="se">\n</span><span class="s2">line2</span><span class="se">\n</span><span class="s2">line3</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">issues</span> <span class="o">=</span> <span class="n">check_audit_line_refs</span><span class="p">(</span><span class="n">audit</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">issues</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;G4.av.stale_line_ref&quot;</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="s2">&quot;L41-45&quot;</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_valid_ref_ok</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-continuity.md&quot;</span>
+        <span class="n">audit</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;参见 chapter-1.md L2-3。&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">chapter</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span>
+        <span class="n">chapter</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;line</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">20</span><span class="p">))</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_audit_line_refs</span><span class="p">(</span><span class="n">audit</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_missing_chapter_no_issue</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">audit</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-continuity.md&quot;</span>
+        <span class="n">audit</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;参见 chapter-1.md L2-3。&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">check_audit_line_refs</span><span class="p">(</span><span class="n">audit</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_llm_output_integrity.py -v</code>
+Expected: FAIL — <code>ModuleNotFoundError: No module named 'shenbi.pipeline.llm_output_integrity'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Create <code>src/shenbi/pipeline/llm_output_integrity.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Unified LLM-output integrity checks for the dispatch write path.</span>
+
+<span class="sd">Spec: 2026-07-19 output-structural-integrity-beyond-json-design (merged Spec 19</span>
+<span class="sd">+ former Spec 20).</span>
+
+<span class="sd">This module is the single source of truth for the pattern catalog and the five</span>
+<span class="sd">check functions invoked from ``dispatch_helper._write_parsed_outputs``. The</span>
+<span class="sd">former Specs 19/20 maintained overlapping pattern lists; they are de-duplicated</span>
+<span class="sd">here, split by detection mode:</span>
+
+<span class="sd">  * ``WRITE_FAILURE_PATTERNS`` — the LLM reports it cannot write. These trip</span>
+<span class="sd">    only under the dominance rule (start-of-content OR matched region &gt;50% of</span>
+<span class="sd">    output) so a chapter that merely *mentions* a sandbox in dialogue does not.</span>
+<span class="sd">  * ``LEAKAGE_PATTERNS`` — model meta-commentary in prose (NOT a write failure).</span>
+<span class="sd">  * ``VERDICT_MARKERS`` / ``PREAMBLE_MARKERS`` — audit-completeness signals.</span>
+
+<span class="sd">All check functions return ``list[str]`` issue strings tagged</span>
+<span class="sd">``G4.&lt;group&gt;.&lt;rule&gt;`` so the G4 composite-checker registry can route severity.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1"># --- Write-failure signatures: the LLM reports it cannot write. ---</span>
+<span class="c1"># These supersede the broader standalone patterns from the former specs</span>
+<span class="c1"># (e.g. bare `由于沙箱限制`, `can&#39;t be updated.*sandbox`) which are now covered</span>
+<span class="c1"># by the more specific entries below.</span>
+<span class="n">WRITE_FAILURE_PATTERNS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">&quot;由于沙箱限制.*?(?:无法|不能).*?(?:写|写入)&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:can&#39;t|cannot|unable to).*?(?:write|update|create).*?(?:file|sandbox|read-only)&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;read-only sandbox&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Use the existing.*?from input&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;was already provided via.*?markers&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;I (?:cannot|can&#39;t|could not) (?:write|create|update) (?:the )?(?:file|output)&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># --- Model meta-commentary leakage in prose (NOT a write failure). ---</span>
+<span class="n">LEAKAGE_PATTERNS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="sa">r</span><span class="s2">&quot;Now the .* JSON&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Let me write&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;schema:&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Here&#39;s a summary of the revision&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;修订执行摘要&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;Revision complete&quot;</span><span class="p">,</span>
+    <span class="sa">r</span><span class="s2">&quot;All \d+ files have been&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="c1"># --- Audit completeness markers ---</span>
+<span class="n">VERDICT_MARKERS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;判定&quot;</span><span class="p">,</span> <span class="s2">&quot;结论&quot;</span><span class="p">,</span> <span class="s2">&quot;verdict&quot;</span><span class="p">,</span> <span class="s2">&quot;通过&quot;</span><span class="p">,</span> <span class="s2">&quot;阻断&quot;</span><span class="p">,</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;BLOCK&quot;</span><span class="p">]</span>
+<span class="n">PREAMBLE_MARKERS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;现在执行&quot;</span><span class="p">,</span> <span class="s2">&quot;inputs confirmed&quot;</span><span class="p">,</span> <span class="s2">&quot;now executing&quot;</span><span class="p">,</span> <span class="s2">&quot;开始审计&quot;</span><span class="p">]</span>
+
+<span class="c1">#: Minimum audit size in bytes — real audits are &gt; 500 bytes.</span>
+<span class="n">_AUDIT_MIN_BYTES</span> <span class="o">=</span> <span class="mi">200</span>
+
+<span class="c1">#: Retry-prompt suffix confirming write capability.</span>
+<span class="n">RETRY_WRITE_CONFIRMATION</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;CRITICAL: You have filesystem write access in this environment. &quot;</span>
+    <span class="s2">&quot;Output the complete file content directly — do not explain, apologize, &quot;</span>
+    <span class="s2">&quot;or reference sandbox limitations. Previous attempt failed with: &#39;</span><span class="si">{signature}</span><span class="s2">&#39;.&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Pre-compile for performance.</span>
+<span class="n">_WRITE_FAILURE_RES</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">WRITE_FAILURE_PATTERNS</span><span class="p">]</span>
+<span class="n">_LEAKAGE_RES</span> <span class="o">=</span> <span class="p">[</span><span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">LEAKAGE_PATTERNS</span><span class="p">]</span>
+<span class="n">_LINE_REF_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;L(\d+)(?:-(\d+))?&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">bool</span><span class="p">,</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Check if content is a write-failure diagnostic instead of file content.</span>
+
+<span class="sd">    False-positive mitigation (spec §3.2): a pattern only counts as a failure</span>
+<span class="sd">    when it appears at the START of the content OR the matched span sits within</span>
+<span class="sd">    a region that comprises &gt;50% of the total output. A chapter that merely</span>
+<span class="sd">    *mentions* a sandbox in passing is NOT a failure.</span>
+
+<span class="sd">    Returns ``(is_failure, matched_pattern_or_None)``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">total_len</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rx</span> <span class="ow">in</span> <span class="n">_WRITE_FAILURE_RES</span><span class="p">:</span>
+        <span class="n">match</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">match</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">match</span><span class="o">.</span><span class="n">span</span><span class="p">()</span>
+        <span class="c1"># Case 1: pattern at the very start (ignoring leading whitespace).</span>
+        <span class="n">at_start</span> <span class="o">=</span> <span class="n">content</span><span class="p">[:</span><span class="n">start</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+        <span class="c1"># Case 2: the region from first non-empty char to end of match covers</span>
+        <span class="c1"># more than half the output — i.e. the diagnostic dominates rather</span>
+        <span class="c1"># than being embedded in real content.</span>
+        <span class="n">dominant</span> <span class="o">=</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">total_len</span> <span class="o">*</span> <span class="mf">0.5</span>
+        <span class="k">if</span> <span class="n">at_start</span> <span class="ow">or</span> <span class="n">dominant</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span><span class="p">,</span> <span class="n">match</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">False</span><span class="p">,</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_prose_leakage</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect model meta-commentary leakage in prose files.</span>
+
+<span class="sd">    Returns ``G4.pi.model_leakage`` issues (one per distinct pattern) and a</span>
+<span class="sd">    single ``G4.pi.unfinished_ending`` issue if the file ends with a trailing</span>
+<span class="sd">    punctuation character indicating mid-thought truncation.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">rx</span> <span class="ow">in</span> <span class="n">_LEAKAGE_RES</span><span class="p">:</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="n">rx</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4.pi.model_leakage:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — found &#39;</span><span class="si">{</span><span class="n">matches</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">&#39; pattern &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">matches</span><span class="p">)</span><span class="si">}</span><span class="s2"> occurrences). Chapter file contains model &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;meta-commentary, not prose.&quot;</span>
+            <span class="p">)</span>
+
+    <span class="n">last_500</span> <span class="o">=</span> <span class="n">text</span><span class="p">[</span><span class="o">-</span><span class="mi">500</span><span class="p">:]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">last_500</span> <span class="ow">and</span> <span class="n">last_500</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="s2">&quot;:,；：，&quot;</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.pi.unfinished_ending:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — file ends with &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&#39;</span><span class="si">{</span><span class="n">last_500</span><span class="p">[</span><span class="o">-</span><span class="mi">20</span><span class="p">:]</span><span class="si">}</span><span class="s2">&#39; — truncated mid-thought&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_markdown_fence_balance</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify Markdown code fences are balanced in prose files.&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">fence_count</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">count</span><span class="p">(</span><span class="s2">&quot;```&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">fence_count</span> <span class="o">%</span> <span class="mi">2</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.pi.fence_imbalance:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — odd number of ``` markers &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(</span><span class="si">{</span><span class="n">fence_count</span><span class="si">}</span><span class="s2">). Orphan code fence — file was likely extracted &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;incorrectly.&quot;</span>
+        <span class="p">]</span>
+    <span class="k">return</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_audit_completeness</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify audit files contain an actual verdict, not just a preamble.&quot;&quot;&quot;</span>
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;</span> <span class="n">_AUDIT_MIN_BYTES</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.too_short:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — audit file is </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span><span class="si">}</span><span class="s2"> bytes, &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;likely aborted stub&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">has_verdict</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">marker</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">VERDICT_MARKERS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">has_verdict</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.no_verdict:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — audit file contains no &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;verdict/conclusion marker&quot;</span>
+        <span class="p">)</span>
+
+    <span class="n">has_only_preamble</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="nb">any</span><span class="p">(</span><span class="n">marker</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">for</span> <span class="n">marker</span> <span class="ow">in</span> <span class="n">PREAMBLE_MARKERS</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_verdict</span>
+    <span class="p">)</span>
+    <span class="k">if</span> <span class="n">has_only_preamble</span><span class="p">:</span>
+        <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;G4.ac.aborted_stub:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — audit file contains only &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;execution preamble, no results&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">issues</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">check_audit_line_refs</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Verify audit line references point to valid lines in the chapter.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># Chapter missing is handled elsewhere.</span>
+
+    <span class="n">audit_text</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">chapter_lines</span> <span class="o">=</span> <span class="n">chapter_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">max_line</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">chapter_lines</span><span class="p">)</span>
+
+    <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">start_str</span><span class="p">,</span> <span class="n">end_str</span> <span class="ow">in</span> <span class="n">_LINE_REF_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">audit_text</span><span class="p">):</span>
+        <span class="n">start</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">start_str</span><span class="p">)</span>
+        <span class="n">end</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">end_str</span><span class="p">)</span> <span class="k">if</span> <span class="n">end_str</span> <span class="k">else</span> <span class="n">start</span>
+        <span class="k">if</span> <span class="n">end</span> <span class="o">&gt;</span> <span class="n">max_line</span><span class="p">:</span>
+            <span class="n">issues</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;G4.av.stale_line_ref:</span><span class="si">{</span><span class="n">path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> — references L</span><span class="si">{</span><span class="n">start</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">end</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;but chapter has only </span><span class="si">{</span><span class="n">max_line</span><span class="si">}</span><span class="s2"> lines. Audit ran against a &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;different version of the chapter.&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issues</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_llm_output_integrity.py -v</code>
+Expected: PASS (all tests across the 5 classes)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/llm_output_integrity.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/pipeline/test_llm_output_integrity.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(pipeline): add llm_output_integrity module (write-failure + leakage + fence + audit checks)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-add-dispatchwritefailureerror-exception">Task 2: Add <code>DispatchWriteFailureError</code> exception</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/exceptions.py</code> (add one class)
+- Test: <code>tests/unit/test_exceptions.py</code> (add one test) — if this file does not exist, create it.</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>DispatcherError</code> (existing base in <code>exceptions.py</code>)
+- Produces: <code>DispatchWriteFailureError</code>. Task 3 raises it; the dispatch retry path catches it.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Append to (or create) <code>tests/unit/test_exceptions.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for framework exception hierarchy.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DispatchWriteFailureError</span><span class="p">,</span> <span class="n">DispatcherError</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dispatch_write_failure_is_dispatcher_error</span><span class="p">():</span>
+    <span class="n">err</span> <span class="o">=</span> <span class="n">DispatchWriteFailureError</span><span class="p">(</span><span class="s2">&quot;sandbox diagnostic&quot;</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="s2">&quot;由于沙箱限制&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">err</span><span class="p">,</span> <span class="n">DispatcherError</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;sandbox diagnostic&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">err</span><span class="o">.</span><span class="n">signature</span> <span class="o">==</span> <span class="s2">&quot;由于沙箱限制&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/test_exceptions.py -v</code>
+Expected: FAIL — <code>ImportError: cannot import name 'DispatchWriteFailureError'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/exceptions.py</code>, after the existing <code>class DispatcherError(FrameworkError):</code> block (line 86+), add:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">DispatchWriteFailureError</span><span class="p">(</span><span class="n">DispatcherError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;The LLM emitted a write-failure diagnostic instead of file content.</span>
+
+<span class="sd">    Raised by ``_write_parsed_outputs`` when :func:`detect_write_failure`</span>
+<span class="sd">    matches. Carries the matched ``signature`` so the retry prompt can quote</span>
+<span class="sd">    it back to the model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">signature</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">signature</span> <span class="o">=</span> <span class="n">signature</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/test_exceptions.py -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/exceptions.py<span class="w"> </span>tests/unit/test_exceptions.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(exceptions): add DispatchWriteFailureError carrying matched signature&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-integrate-all-checks-into-_write_parsed_outputs">Task 3: Integrate all checks into <code>_write_parsed_outputs</code></h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:294-323</code> (the <code>_write_parsed_outputs</code> body) and the module imports
+- Test: <code>tests/unit/pipeline/test_dispatch_helper.py</code> (add an integration test class)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>detect_write_failure</code>, <code>check_prose_leakage</code>, <code>check_markdown_fence_balance</code>, <code>check_audit_completeness</code>, <code>check_audit_line_refs</code>, <code>RETRY_WRITE_CONFIRMATION</code> (Task 1); <code>DispatchWriteFailureError</code> (Task 2)
+- Produces: <code>_write_parsed_outputs</code> now (a) raises <code>DispatchWriteFailureError</code> on write-failure content pre-write, (b) runs the post-write checks, (c) logs findings via <code>log.warning("llm_output_integrity_issue", ...)</code>. New module-level helpers <code>_is_audit_file(name: str) -&gt; bool</code> and <code>_resolve_chapter_for_audit(full_path: Path, project_dir: Path) -&gt; Path</code> classify filenames.</p>
+<p><strong>Context:</strong> The existing <code>_write_parsed_outputs</code> writes content for each <code>rel_path</code> in <code>output_paths</code> and returns the list of written paths. We insert the write-failure check before <code>safe_write</code>, and the post-write checks after it. The post-write findings are logged but do NOT change the return value (the write succeeded; G4 decides severity). The helpers use the real filename conventions discovered in the codebase.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Append to <code>tests/unit/pipeline/test_dispatch_helper.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestWriteParsedOutputsIntegrity</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Integration tests for the LLM-output integrity choke point.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_write_failure_raises_before_write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DispatchWriteFailureError</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_write_parsed_outputs</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;### FILE: chapters/chapter-1.md</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="s2">&quot;由于沙箱限制，我无法直接写文件。请使用现有内容。</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">DispatchWriteFailureError</span><span class="p">):</span>
+            <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+                <span class="n">response</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">],</span> <span class="n">tmp_path</span>
+            <span class="p">)</span>
+        <span class="c1"># The file must NOT have been written.</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_prose_leakage_logged_not_raised</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">caplog</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_write_parsed_outputs</span>
+
+        <span class="n">response</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;### FILE: chapters/chapter-56.md</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;正文……</span><span class="se">\n</span><span class="s2">Now the decisions JSON:</span><span class="se">\n</span><span class="si">{</span><span class="s1">&#39;段落&#39;</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">200</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-56.md&quot;</span><span class="p">],</span> <span class="n">tmp_path</span>
+        <span class="p">)</span>
+        <span class="c1"># The write succeeds; leakage is a post-write warning.</span>
+        <span class="k">assert</span> <span class="n">written</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-56.md&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-56.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_audit_completeness_check_runs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_write_parsed_outputs</span>
+
+        <span class="n">aborted</span> <span class="o">=</span> <span class="s2">&quot;所有输入文件已确认。现在执行完整的伏笔审计……&quot;</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;### FILE: audits/chapter-32-foreshadowing.md</span><span class="se">\n</span><span class="si">{</span><span class="n">aborted</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="c1"># Aborted stub writes (it is not a write-failure) but is flagged.</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-32-foreshadowing.md&quot;</span><span class="p">],</span> <span class="n">tmp_path</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">written</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;audits/chapter-32-foreshadowing.md&quot;</span><span class="p">]</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_clean_output_passes_through</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_write_parsed_outputs</span>
+
+        <span class="n">clean_prose</span> <span class="o">=</span> <span class="s2">&quot;林烽推开门，走进教室。&quot;</span> <span class="o">*</span> <span class="mi">200</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;### FILE: chapters/chapter-1.md</span><span class="se">\n</span><span class="si">{</span><span class="n">clean_prose</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="n">written</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">],</span> <span class="n">tmp_path</span>
+        <span class="p">)</span>
+        <span class="k">assert</span> <span class="n">written</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py::TestWriteParsedOutputsIntegrity -v</code>
+Expected: FAIL — <code>_write_parsed_outputs</code> does not raise on write-failure content.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, add imports near the top (after <code>from shenbi.safe_write import safe_write</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DispatchWriteFailureError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.llm_output_integrity</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RETRY_WRITE_CONFIRMATION</span><span class="p">,</span>
+    <span class="n">check_audit_completeness</span><span class="p">,</span>
+    <span class="n">check_audit_line_refs</span><span class="p">,</span>
+    <span class="n">check_markdown_fence_balance</span><span class="p">,</span>
+    <span class="n">check_prose_leakage</span><span class="p">,</span>
+    <span class="n">detect_write_failure</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+<p>Add two module-level helpers (place them just above <code>_write_parsed_outputs</code>, around line 290):</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#: Regex for the chapter-number in an audit filename like</span>
+<span class="c1">#: ``chapter-32-foreshadowing.md`` or a prose file ``chapter-32.md``.</span>
+<span class="n">_CHAPTER_NUM_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;chapter-(\d+)&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_audit_file</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;True iff *name* looks like an audit report (``chapter-NN-&lt;dim&gt;.md``).</span>
+
+<span class="sd">    Matches the production layout: audit reports are ``chapter-NN-&lt;dimension&gt;.md``</span>
+<span class="sd">    (e.g. ``chapter-8-foreshadowing.md``, ``chapter-51-anti-ai.md``). A bare</span>
+<span class="sd">    ``chapter-NN.md`` (the prose file) is NOT an audit.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_CHAPTER_NUM_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">stem</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="c1"># stem must have a suffix after the number to be an audit.</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">stem</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_chapter_for_audit</span><span class="p">(</span><span class="n">full_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the prose chapter file paired with an audit at *full_path*.</span>
+
+<span class="sd">    ``audits/chapter-NN-&lt;dim&gt;.md`` -&gt; ``chapters/chapter-NN.md``. Falls back to</span>
+<span class="sd">    a sibling ``chapter-NN.md`` if the canonical chapters/ dir is absent.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_CHAPTER_NUM_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">full_path</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">m</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">full_path</span>  <span class="c1"># caller treats missing file as a no-op</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">canonical</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="k">if</span> <span class="n">canonical</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">canonical</span>
+    <span class="k">return</span> <span class="n">full_path</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">.md&quot;</span>
+</code></pre></div>
+<p>Now replace the body of <code>_write_parsed_outputs</code> (lines 294-323). The new body keeps the same signature and return type, but inserts the checks:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_write_parsed_outputs</span><span class="p">(</span>
+    <span class="n">response</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">output_paths</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">create_truth_templates</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse agent response, run integrity checks, and write per-file content.</span>
+
+<span class="sd">    Order (spec §3.4):</span>
+<span class="sd">      1. WRITE-FAILURE DETECTION — pre-write, blocks the write, raises</span>
+<span class="sd">         :class:`DispatchWriteFailureError` to trigger retry.</span>
+<span class="sd">      2. write the file.</span>
+<span class="sd">      3-6. POST-WRITE INTEGRITY — prose leakage / fence balance (chapter files),</span>
+<span class="sd">           audit completeness / line-ref skew (audit files). Findings are logged</span>
+<span class="sd">           as ``llm_output_integrity_issue`` and surfaced to G4 via the</span>
+<span class="sd">           composite-checker registry; they do NOT block the write.</span>
+
+<span class="sd">    Returns list of successfully written paths.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parsed</span> <span class="o">=</span> <span class="n">_parse_file_outputs</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    <span class="n">written</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">rel_path</span> <span class="ow">in</span> <span class="n">output_paths</span><span class="p">:</span>
+        <span class="k">if</span> <span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">rel_path</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">parsed</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;__stdout__&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">content</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;output_empty&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">rel_path</span>
+
+        <span class="c1"># 1. WRITE-FAILURE DETECTION (pre-write, blocks the write).</span>
+        <span class="n">is_failure</span><span class="p">,</span> <span class="n">signature</span> <span class="o">=</span> <span class="n">detect_write_failure</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_failure</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;dispatch_write_failure_detected&quot;</span><span class="p">,</span>
+                <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span>
+                <span class="n">signature</span><span class="o">=</span><span class="n">signature</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">raise</span> <span class="n">DispatchWriteFailureError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;LLM reported write failure for </span><span class="si">{</span><span class="n">full_path</span><span class="si">}</span><span class="s2">: &#39;</span><span class="si">{</span><span class="n">signature</span><span class="si">}</span><span class="s2">&#39;. &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;The output is a diagnostic message, not file content. Retry &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;with explicit write-capability confirmation.&quot;</span><span class="p">,</span>
+                <span class="n">signature</span><span class="o">=</span><span class="n">signature</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="c1"># 2. WRITE.</span>
+        <span class="n">full_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+        <span class="n">written</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rel_path</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;output_written&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="n">rel_path</span><span class="p">,</span> <span class="n">size</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">))</span>
+
+        <span class="c1"># 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).</span>
+        <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">name</span> <span class="o">=</span> <span class="n">full_path</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">is_chapter</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">_CHAPTER_NUM_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="ow">and</span> <span class="ow">not</span> <span class="n">_is_audit_file</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">is_audit</span> <span class="o">=</span> <span class="n">_is_audit_file</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_chapter</span><span class="p">:</span>
+            <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_prose_leakage</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+            <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_markdown_fence_balance</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">is_audit</span><span class="p">:</span>
+            <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_audit_completeness</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+            <span class="n">chapter_path</span> <span class="o">=</span> <span class="n">_resolve_chapter_for_audit</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+            <span class="n">issues</span> <span class="o">+=</span> <span class="n">check_audit_line_refs</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">chapter_path</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;llm_output_integrity_issue&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">finding</span><span class="o">=</span><span class="n">issue</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">create_truth_templates</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;*&quot;</span> <span class="ow">in</span> <span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">output_paths</span><span class="p">):</span>
+        <span class="n">_init_truth_templates</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">written</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py -v</code>
+Expected: PASS (the new integration tests + all pre-existing dispatch tests)</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(dispatch): integrate write-failure + post-write integrity checks into _write_parsed_outputs&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-add-write-capability-confirmation-to-the-retry-path">Task 4: Add write-capability confirmation to the retry path</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> — locate the retry-feedback construction (where <code>DispatchWriteFailureError</code> would be caught) and append <code>RETRY_WRITE_CONFIRMATION</code>.
+- Test: <code>tests/unit/pipeline/test_dispatch_helper.py</code> — add a test for the retry prompt construction.</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>RETRY_WRITE_CONFIRMATION</code> (Task 1), <code>DispatchWriteFailureError</code> (Task 2)
+- Produces: when a dispatch attempt fails with <code>DispatchWriteFailureError</code>, the retry prompt includes the write-capability confirmation quoting the matched signature.</p>
+<p><strong>Context:</strong> The dispatch loop in <code>dispatch_helper.py</code> retries failed skill calls. We add a branch: if the caught exception is <code>DispatchWriteFailureError</code>, the retry feedback is <code>RETRY_WRITE_CONFIRMATION.format(signature=err.signature)</code>. Let me find the exact retry site.</p>
+<ul>
+<li>[ ] <strong>Step 1: Locate the retry site and write the failing test</strong></li>
+</ul>
+<p>First find where retries are constructed:</p>
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;retry\|feedback\|attempts\|max_retries&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span><span class="p">|</span><span class="w"> </span>head<span class="w"> </span>-20
+</code></pre></div>
+<p>The retry-feedback string is built where a failed dispatch is about to be retried. Add to <code>tests/unit/pipeline/test_dispatch_helper.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestRetryWriteConfirmation</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_retry_prompt_includes_signature</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="n">DispatchWriteFailureError</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">build_retry_feedback</span>
+
+        <span class="n">err</span> <span class="o">=</span> <span class="n">DispatchWriteFailureError</span><span class="p">(</span>
+            <span class="s2">&quot;write failed&quot;</span><span class="p">,</span> <span class="n">signature</span><span class="o">=</span><span class="s2">&quot;由于沙箱限制，我无法直接写文件&quot;</span>
+        <span class="p">)</span>
+        <span class="n">feedback</span> <span class="o">=</span> <span class="n">build_retry_feedback</span><span class="p">(</span><span class="n">err</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="s2">&quot;CRITICAL&quot;</span> <span class="ow">in</span> <span class="n">feedback</span>
+        <span class="k">assert</span> <span class="s2">&quot;write access&quot;</span> <span class="ow">in</span> <span class="n">feedback</span>
+        <span class="k">assert</span> <span class="s2">&quot;由于沙箱限制，我无法直接写文件&quot;</span> <span class="ow">in</span> <span class="n">feedback</span>
+</code></pre></div>
+<blockquote>
+<p>If the dispatch loop does not currently have a <code>build_retry_feedback</code> helper, this task creates it as a thin pure function and the dispatch loop calls it. This keeps the retry-prompt construction testable without standing up the full dispatch loop.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py::TestRetryWriteConfirmation -v</code>
+Expected: FAIL — <code>ImportError: cannot import name 'build_retry_feedback'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, add (near the other module-level helpers):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">build_retry_feedback</span><span class="p">(</span><span class="n">exc</span><span class="p">:</span> <span class="ne">BaseException</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the retry-prompt feedback for a failed dispatch.</span>
+
+<span class="sd">    For :class:`DispatchWriteFailureError` the feedback is the write-capability</span>
+<span class="sd">    confirmation quoting the matched signature, so the model stops emitting</span>
+<span class="sd">    sandbox diagnostics. For any other exception, a generic message is used.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">exc</span><span class="p">,</span> <span class="n">DispatchWriteFailureError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">RETRY_WRITE_CONFIRMATION</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">signature</span><span class="o">=</span><span class="n">exc</span><span class="o">.</span><span class="n">signature</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Previous attempt failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">. Retry, producing the complete output.&quot;</span>
+</code></pre></div>
+<p>Then wire it into the existing dispatch retry path. Locate the retry-feedback assignment (search for the variable that holds the feedback string passed into the next dispatch attempt — typically <code>retry_feedback</code> or <code>feedback</code>). Replace the generic construction with <code>build_retry_feedback(exc)</code>. If the existing code does not catch exceptions per-attempt, wrap the dispatch call:</p>
+<div class="highlight"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="n">written</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="k">except</span> <span class="n">DispatchWriteFailureError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">retry_feedback</span><span class="p">[</span><span class="n">retry_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">build_retry_feedback</span><span class="p">(</span><span class="n">exc</span><span class="p">)</span>
+    <span class="c1"># ... existing retry-count / escalation logic ...</span>
+    <span class="k">continue</span>
+</code></pre></div>
+<blockquote>
+<p>The exact line depends on the surrounding retry loop; the test only locks <code>build_retry_feedback</code>, so even a minimal wiring satisfies the spec's "retry prompt explicitly confirms write capability" requirement.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/pipeline/test_dispatch_helper.py::TestRetryWriteConfirmation -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(dispatch): add write-capability confirmation to retry prompt&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-register-post-write-findings-as-g4-composite-checkers">Task 5: Register post-write findings as G4 composite checkers</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/generic.py</code> — add a checker that reads the logged <code>llm_output_integrity_issue</code> findings for the chapter's files and emits G4 results with the §3.6 severities.
+- Test: <code>tests/unit/gates/g4/test_post_write_integrity.py</code> (new)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: the <code>llm_output_integrity_issue</code> log records (or a side-channel file the dispatcher writes). Simplest durable approach: <code>_write_parsed_outputs</code> also appends findings to a per-chapter file <code>audits/.integrity-findings.jsonl</code> that the G4 checker reads.
+- Produces: G4 results: <code>G4.pi.model_leakage</code> / <code>G4.pi.unfinished_ending</code> / <code>G4.ac.*</code> / <code>G4.av.stale_line_ref</code> → FAIL; <code>G4.pi.fence_imbalance</code> → WARN.</p>
+<p><strong>Context:</strong> The spec §3.4 says post-write findings are "surfaced to G4 via the composite-checker registry." The cleanest durable channel is a side-file: <code>_write_parsed_outputs</code> writes each finding as a JSONL line to <code>audits/.integrity-findings-NN.jsonl</code> (one per chapter), and the G4 checker reads it. This avoids coupling G4 to structlog internals.</p>
+<ul>
+<li>[ ] <strong>Step 1: Update <code>_write_parsed_outputs</code> to persist findings, and write the failing test</strong></li>
+</ul>
+<p>First, modify the post-write loop in <code>_write_parsed_outputs</code> (Task 3) to also persist findings. Replace the <code>for issue in issues:</code> block with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;llm_output_integrity_issue&quot;</span><span class="p">,</span> <span class="n">path</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">),</span> <span class="n">finding</span><span class="o">=</span><span class="n">issue</span>
+            <span class="p">)</span>
+        <span class="k">if</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">_append_integrity_findings</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">full_path</span><span class="p">,</span> <span class="n">issues</span><span class="p">)</span>
+</code></pre></div>
+<p>And add the helper near <code>_resolve_chapter_for_audit</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_append_integrity_findings</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">file_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">issues</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist post-write integrity findings for the G4 checker to read.&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_CHAPTER_NUM_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">stem</span><span class="p">)</span>
+    <span class="n">num</span> <span class="o">=</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="s2">&quot;unknown&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.integrity-findings-</span><span class="si">{</span><span class="n">num</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">out</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">fh</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">issue</span> <span class="ow">in</span> <span class="n">issues</span><span class="p">:</span>
+            <span class="n">fh</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
+                <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span>
+                    <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">file_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)),</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="n">issue</span><span class="p">},</span>
+                    <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+</code></pre></div>
+<p>(Add <code>import json</code> at the top of <code>dispatch_helper.py</code> if not already present — it is likely already imported.)</p>
+<p>Now write the failing G4 test. Create <code>tests/unit/gates/g4/test_post_write_integrity.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for the G4 checker that consumes post-write integrity findings.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_post_write_integrity</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_findings</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">findings</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">p</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.integrity-findings-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">findings</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+        <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+    <span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestG4PostWriteIntegrity</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_no_findings_passes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_post_write_integrity</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_model_leakage_fails</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_findings</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="mi">56</span><span class="p">,</span>
+            <span class="p">[{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-56.md&quot;</span><span class="p">,</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.pi.model_leakage:chapter-56.md — leak&quot;</span><span class="p">}],</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_post_write_integrity</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">56</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;model_leakage&quot;</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_fence_imbalance_warns</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+        <span class="n">_write_findings</span><span class="p">(</span>
+            <span class="n">tmp_path</span><span class="p">,</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="p">[{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">,</span> <span class="s2">&quot;finding&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.pi.fence_imbalance:chapter-1.md — odd&quot;</span><span class="p">}],</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">g4_post_write_integrity</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;WARN&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_post_write_integrity.py -v</code>
+Expected: FAIL — <code>ImportError: cannot import name 'g4_post_write_integrity'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g4/generic.py</code>, add:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="c1">#: Findings that FAIL the gate vs WARN. Everything else defaults to WARN.</span>
+<span class="n">_POST_WRITE_FAIL_PREFIXES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;G4.pi.model_leakage&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.pi.unfinished_ending&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.ac.&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;G4.av.&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">g4_post_write_integrity</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;G4 checker: consume persisted post-write integrity findings.</span>
+
+<span class="sd">    Reads ``audits/.integrity-findings-&lt;chapter&gt;.jsonl`` (written by</span>
+<span class="sd">    ``_write_parsed_outputs``) and maps each finding to a G4 check with the</span>
+<span class="sd">    severity from spec §3.6. Returns a dict ``{&quot;status&quot;, &quot;checks&quot;}``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">findings_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;.integrity-findings-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.jsonl&quot;</span>
+    <span class="n">checks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">has_fail</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">has_warn</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">findings_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">findings_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">():</span>
+                <span class="k">continue</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">entry</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+            <span class="k">except</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">finding</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;finding&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span>
+            <span class="n">is_fail</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">finding</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">_POST_WRITE_FAIL_PREFIXES</span><span class="p">)</span>
+            <span class="c1"># fence_imbalance is the only WARN.</span>
+            <span class="k">if</span> <span class="n">finding</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;G4.pi.fence_imbalance&quot;</span><span class="p">):</span>
+                <span class="n">is_fail</span> <span class="o">=</span> <span class="kc">False</span>
+            <span class="n">check_id</span> <span class="o">=</span> <span class="n">finding</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;:&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="k">if</span> <span class="s2">&quot;:&quot;</span> <span class="ow">in</span> <span class="n">finding</span> <span class="k">else</span> <span class="n">finding</span>
+            <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">check_id</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;FAIL&quot;</span> <span class="k">if</span> <span class="n">is_fail</span> <span class="k">else</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="n">finding</span><span class="p">})</span>
+            <span class="n">has_fail</span> <span class="o">=</span> <span class="n">has_fail</span> <span class="ow">or</span> <span class="n">is_fail</span>
+            <span class="n">has_warn</span> <span class="o">=</span> <span class="n">has_warn</span> <span class="ow">or</span> <span class="p">(</span><span class="ow">not</span> <span class="n">is_fail</span><span class="p">)</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="s2">&quot;FAIL&quot;</span> <span class="k">if</span> <span class="n">has_fail</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;WARN&quot;</span> <span class="k">if</span> <span class="n">has_warn</span> <span class="k">else</span> <span class="s2">&quot;PASS&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">status</span><span class="p">,</span> <span class="s2">&quot;checks&quot;</span><span class="p">:</span> <span class="n">checks</span><span class="p">}</span>
+</code></pre></div>
+<p>Then register it in the G4 router. In <code>gate_G4</code> (around line 160-245), add a call after the per-skill checker runs:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Post-write integrity findings (spec 19 §3.6) — apply to every chapter.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.generic</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_post_write_integrity</span>
+    <span class="n">chapter_num</span> <span class="o">=</span> <span class="n">_chapter_number_from_paths</span><span class="p">(</span><span class="n">file_paths</span><span class="p">)</span>  <span class="c1"># existing helper, if any</span>
+    <span class="k">if</span> <span class="n">chapter_num</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">pwi</span> <span class="o">=</span> <span class="n">g4_post_write_integrity</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter_num</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">pwi</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]:</span>
+            <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+<blockquote>
+<p>If <code>_chapter_number_from_paths</code> does not exist, extract the chapter number from any <code>chapter-NN</code> path in <code>file_paths</code> with <code>re.search(r"chapter-(\d+)", ...)</code>.</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/gates/g4/test_post_write_integrity.py tests/unit/gates/g4/ -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>src/shenbi/gates/g4/generic.py<span class="w"> </span><span class="se">\</span>
+<span class="w">        </span>tests/unit/gates/g4/test_post_write_integrity.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(g4): consume post-write integrity findings with severity routing&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-full-regression-just-check">Task 6: Full regression — <code>just check</code></h3>
+<ul>
+<li>[ ] <strong>Step 1: Run the complete check suite</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 2: Run the full unit suite with coverage</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/ -q --cov=shenbi --cov-fail-under=85</code>
+Expected: PASS, coverage ≥ 85%.</p>
+<ul>
+<li>[ ] <strong>Step 3: Verify the spec's verification criteria with a one-off scan</strong></li>
+</ul>
+<p>Run a quick scan of the production novel-output for the affected chapters to confirm the checks would flag them (informational — does not block):</p>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">from shenbi.pipeline.llm_output_integrity import (</span>
+<span class="s2">    check_markdown_fence_balance, check_audit_completeness, check_prose_leakage</span>
+<span class="s2">)</span>
+<span class="s2">root = Path(&#39;novel-output/xinghuo-ranqiong&#39;)</span>
+<span class="s2">for ch in [1, 11, 14, 19, 22, 29, 33, 42, 56]:</span>
+<span class="s2">    p = root / &#39;chapters&#39; / f&#39;chapter-{ch}.md&#39;</span>
+<span class="s2">    if p.exists():</span>
+<span class="s2">        print(ch, check_markdown_fence_balance(p))</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<p>Expected: the affected chapters show <code>G4.pi.fence_imbalance</code> findings (confirming the detector works against real data).</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit any cleanup</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>-u
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: ruff/mypy cleanup after llm-output-integrity plan&quot;</span><span class="w"> </span>--allow-empty
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage:</strong>
+- §3.1 unified pattern catalog → Task 1 (<code>WRITE_FAILURE_PATTERNS</code>, <code>LEAKAGE_PATTERNS</code>, <code>VERDICT_MARKERS</code>, <code>PREAMBLE_MARKERS</code>) ✓
+- §3.2 write-failure dominance rule (start OR &gt;50%) → Task 1 <code>detect_write_failure</code> + dedicated tests ✓
+- §3.3 prose leakage / fence balance / audit completeness / line-ref checks → Task 1 ✓
+- §3.4 single integration point in <code>_write_parsed_outputs</code> with ordered checks → Task 3 ✓
+- §3.5 retry write-capability confirmation → Task 4 ✓
+- §3.6 severity routing to G4 → Task 5 ✓
+- §4 affected files all covered ✓
+- §5 verification criteria 1-10 — criteria 1-2 (write failure start/dominant), 3 (no false positive), 4 (leakage), 5 (aborted stub), 6 (version skew), 7 (fence), 9 (clean output) are unit-tested; criterion 8 (the 9 specific chapters) is verified informationally in Task 6 Step 3; criterion 10 (<code>just check</code>) is Task 6 Step 1 ✓</p>
+<p><strong>2. Placeholder scan:</strong> No TBD/TODO. The Task 4 wiring note ("the exact line depends on the surrounding retry loop") is a real property of the codebase — <code>build_retry_feedback</code> is fully specified and tested, and the wiring instruction is concrete. The Task 5 G4-router registration note about <code>_chapter_number_from_paths</code> gives a concrete fallback regex.</p>
+<p><strong>3. Type consistency:</strong> <code>detect_write_failure(content) -&gt; tuple[bool, str | None]</code> is used identically in Tasks 1 and 3. <code>DispatchWriteFailureError(message, *, signature="")</code> is consistent across Tasks 2, 3, 4. <code>_is_audit_file(name: str)</code> and <code>_resolve_chapter_for_audit(full_path, project_dir)</code> are consistent across Task 3's body and the G4 router in Task 5. <code>g4_post_write_integrity(project_dir, *, chapter)</code> is consistent across Task 5's definition, test, and router call.</p>
+<p><strong>Key codebase facts baked in:</strong>
+- Chapter prose is at <code>chapters/chapter-NN.md</code> (not project root).
+- Audit reports are <code>chapter-NN-&lt;dimension&gt;.md</code> under <code>audits/</code>.
+- <code>_write_parsed_outputs(response, output_paths, project_dir, create_truth_templates=False)</code> is the real signature.
+- <code>_resolve_chapter_for_audit</code> and <code>_is_audit_file</code> do not exist today and are created here.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

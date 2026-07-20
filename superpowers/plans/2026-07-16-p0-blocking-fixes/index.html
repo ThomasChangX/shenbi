@@ -1,0 +1,1958 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-16-p0-blocking-fixes/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>P0 阻断性缺陷修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="P0 阻断性缺陷修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-16-p0-blocking-fixes.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-07-16-p0-blocking-fixes/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="P0 阻断性缺陷修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-07-16-p0-blocking-fixes.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p0-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              P0 阻断性缺陷修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-fix-phase_runnerrun_gate-dead-path-p01-primary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Fix phase_runner.run_gate() dead path (P0.1 — primary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-fix-scoringpy-dead-gate-paths-p01-secondary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Fix scoring.py dead gate paths (P0.1 — secondary)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-replace-dead-shenbi-progress-subprocess-with-direct-progressjson-update-p02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Replace dead shenbi-progress subprocess with direct progress.json update (P0.2)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-remove-dead-codex-api-branch-from-executorpy-p04" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Remove dead codex-api branch from executor.py (P0.4)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-remove-misleading-rollback-cli-registration-p03" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Remove misleading rollback CLI registration (P0.3)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="p0-implementation-plan">P0 阻断性缺陷修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Fix the 4 blocking dead-code/stub defects that prevent the T1/T2/T3 test harness and pipeline CLI from running, then remove the misleading rollback CLI registration — making the codebase runnable and honest.</p>
+<p><strong>Architecture:</strong> All 4 fixes are surgical edits to existing functions/modules. No new modules, no architectural changes. The fixes redirect dead subprocess paths (<code>tests/validate-gate.py</code>) to the live gate CLI (<code>python -m shenbi.gates.cli</code>), replace a call to a non-existent entry point (<code>shenbi-progress</code>) with a direct <code>progress.json</code> update, remove an unreachable code branch (<code>codex-api</code>), and delete a CLI subparser that advertises an unimplemented command (<code>rollback</code>). Each fix is independently testable.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, subprocess (stdlib), pathlib, json, pytest, existing <code>shenbi.gates.cli</code> / <code>safe_write</code> / <code>emit_json</code></p>
+<p><strong>Spec reference:</strong> <code>docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md</code> §4 (Steps P0.1–P0.4)</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+, <code>from __future__ import annotations</code> in any modified file that lacks it</li>
+<li><code>pathlib.Path</code> for all file I/O, <code>json</code> for structured output</li>
+<li>No <code>print()</code> in framework code; use structlog (stderr) + <code>cli_utils.emit_json</code> (stdout)</li>
+<li><code>safe_write</code> for all state-file writes (atomic, fsync, lock)</li>
+<li>Typed enums via <code>StrEnum</code> (matching <code>status.py</code> pattern)</li>
+<li>Tests in <code>tests/unit/</code> alongside existing test files</li>
+<li>Conventional Commits: <code>fix:</code> for these defect repairs</li>
+<li><code>just check</code> must pass after every task (ruff + mypy + basedpyright + pytest --cov-fail-under=85)</li>
+</ul>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<div class="highlight"><pre><span></span><code>src/shenbi/
+    phase_runner.py          # MODIFY run_gate(): dead path → live gate CLI (Task 1)
+    scoring.py               # MODIFY --gate-only + tier-gate blocks: same dead path (Task 2)
+    dispatcher/modes/
+        codex.py             # MODIFY: replace shenbi-progress subprocess → direct progress.json (Task 3)
+        executor.py          # MODIFY: remove dead codex-api branch (Task 4)
+        codex_api.py         # MODIFY: docstring → DEPRECATED marker (Task 4)
+    pipeline/cli.py          # MODIFY: remove rollback subparser + docstring line (Task 5)
+
+tests/unit/
+    phase_runner/            # existing dir — add test_run_gate_uses_cli_module.py (Task 1)
+    test_scoring.py          # existing file — add gate-path tests (Task 2)
+    dispatcher/              # existing dir — add test_codex_mark_done.py (Task 3)
+    pipeline/                # existing dir — add test_cli_rollback_removed.py (Task 5)
+</code></pre></div>
+<p>No new files under <code>src/shenbi/</code>. All changes are modifications to existing modules.</p>
+<hr />
+<h3 id="task-1-fix-phase_runnerrun_gate-dead-path-p01-primary">Task 1: Fix <code>phase_runner.run_gate()</code> dead path (P0.1 — primary)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/phase_runner.py:54-66</code> (the <code>run_gate</code> function)
+- Test: <code>tests/unit/phase_runner/test_run_gate_uses_cli_module.py</code> (new file)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.gates.cli</code> (the live gate CLI, entry point <code>shenbi-validate</code>)
+- Produces: <code>run_gate(gate, args)</code> returns <code>dict[str, Any]</code> with a <code>"status"</code> key — <strong>signature unchanged</strong>, only the internal subprocess target changes. Callers (<code>cmd_start</code>, <code>cmd_post_skill</code>, <code>cmd_pre_score</code>, <code>cmd_finalize</code>) are unaffected.</p>
+<p><strong>Context:</strong> <code>run_gate()</code> subprocess-calls <code>tests/validate-gate.py</code> (<code>:56</code>), but that file was deleted in PR-19 (gate logic extracted to <code>src/shenbi/gates/</code>). The newer pipeline code (<code>dispatch_helper.run_gate_g3/g4</code>) already targets <code>shenbi.gates.cli</code> correctly — we mirror that.</p>
+<p><strong>Important nuance on the failure mode (verified empirically):</strong> <code>subprocess.run([sys.executable, "/nonexistent.py", ...])</code> does <strong>not</strong> raise — it returns <code>returncode=2</code>, <code>stdout=""</code>, <code>stderr="can't open file..."</code>. So the current <code>except (json.JSONDecodeError, ValueError)</code> at <code>:65</code> already catches <code>json.loads("")</code> and returns a FAIL dict. The bug is therefore <strong>not a crash</strong> but a <em>misleading</em> result: every gate returns <code>FAIL</code> with a stale <code>raw_stderr</code> about a missing file, regardless of the actual gate logic. This blocks the T2/T3 harness because <code>cmd_start</code>/<code>cmd_finalize</code> treat the FAIL as a real gate failure.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/phase_runner/test_run_gate_uses_cli_module.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify run_gate() targets the live shenbi.gates.cli module, not the deleted</span>
+<span class="sd">tests/validate-gate.py file.</span>
+
+<span class="sd">Regression guard for the PR-19 migration that extracted gate logic into</span>
+<span class="sd">src/shenbi/gates/ but left phase_runner.py calling the old path.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.phase_runner</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_gate</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRunGateTarget</span><span class="p">:</span>
+    <span class="nd">@patch</span><span class="p">(</span><span class="s2">&quot;shenbi.phase_runner.subprocess.run&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_calls_gates_cli_module_not_validate_gate_py</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_run</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;run_gate must invoke `python -m shenbi.gates.cli`, never tests/validate-gate.py.&quot;&quot;&quot;</span>
+        <span class="n">mock_run</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s1">&#39;{&quot;status&quot;: &quot;PASS&quot;}&#39;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">run_gate</span><span class="p">(</span><span class="s2">&quot;G5&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;some-phase&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)])</span>
+        <span class="n">called_cmd</span> <span class="o">=</span> <span class="n">mock_run</span><span class="o">.</span><span class="n">call_args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+        <span class="c1"># The command list must contain &quot;-m&quot; and &quot;shenbi.gates.cli&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;-m&quot;</span> <span class="ow">in</span> <span class="n">called_cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;expected -m flag, got </span><span class="si">{</span><span class="n">called_cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi.gates.cli&quot;</span> <span class="ow">in</span> <span class="n">called_cmd</span><span class="p">,</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;expected shenbi.gates.cli module, got </span><span class="si">{</span><span class="n">called_cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+        <span class="c1"># Must NOT reference the deleted file</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;validate-gate.py&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">called_cmd</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;run_gate still references deleted tests/validate-gate.py: </span><span class="si">{</span><span class="n">called_cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="nd">@patch</span><span class="p">(</span><span class="s2">&quot;shenbi.phase_runner.subprocess.run&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_returns_parsed_json_on_success</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_run</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Non-regression: success path still returns parsed JSON.&quot;&quot;&quot;</span>
+        <span class="n">mock_run</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">(</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">[],</span> <span class="n">returncode</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">stdout</span><span class="o">=</span><span class="s1">&#39;{&quot;status&quot;: &quot;PASS&quot;, &quot;checks&quot;: []}&#39;</span><span class="p">,</span> <span class="n">stderr</span><span class="o">=</span><span class="s2">&quot;&quot;</span>
+        <span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">run_gate</span><span class="p">(</span><span class="s2">&quot;G2&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;file.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)])</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span>
+
+    <span class="nd">@patch</span><span class="p">(</span><span class="s2">&quot;shenbi.phase_runner.subprocess.run&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_returns_fail_dict_on_oserror</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mock_run</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;If subprocess.run raises OSError (e.g. python binary missing), run_gate</span>
+<span class="sd">        must return a FAIL dict, not propagate the exception.</span>
+
+<span class="sd">        NOTE: FileNotFoundError subclasses OSError (NOT subprocess.SubprocessError).</span>
+<span class="sd">        This test guards the except clause catches the right hierarchy.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">mock_run</span><span class="o">.</span><span class="n">side_effect</span> <span class="o">=</span> <span class="ne">FileNotFoundError</span><span class="p">(</span><span class="s2">&quot;[Errno 2] No such file or directory: &#39;python3&#39;&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">run_gate</span><span class="p">(</span><span class="s2">&quot;G4&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;skill&quot;</span><span class="p">,</span> <span class="s2">&quot;file.md&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)])</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/phase_runner/test_run_gate_uses_cli_module.py -v</code>
+Expected: <strong>Test 1 (<code>test_calls_gates_cli_module_not_validate_gate_py</code>) FAILs</strong> — the current code's command list contains <code>"validate-gate.py"</code> (assertion fails). Test 2 passes already (non-regression). <strong>Test 3 (<code>test_returns_fail_dict_on_oserror</code>) errors</strong> — the current <code>except (json.JSONDecodeError, ValueError)</code> does not catch <code>FileNotFoundError</code> (an <code>OSError</code>), so the mock's side_effect propagates as an unhandled exception.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>Replace <code>run_gate</code> in <code>src/shenbi/phase_runner.py:54-66</code> with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">run_gate</span><span class="p">(</span><span class="n">gate</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">args</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run a gate via the live ``shenbi.gates.cli`` module, return parsed JSON.</span>
+
+<span class="sd">    Gate logic was extracted from the legacy ``tests/validate-gate.py`` into</span>
+<span class="sd">    ``src/shenbi/gates/`` (PR-19). This function targets the module directly</span>
+<span class="sd">    via ``python -m shenbi.gates.cli``, matching ``dispatch_helper.run_gate_g3/g4``.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi.gates.cli&quot;</span><span class="p">,</span> <span class="n">gate</span><span class="p">]</span> <span class="o">+</span> <span class="n">args</span><span class="p">,</span>
+        <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">))</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="n">GateStatus</span><span class="o">.</span><span class="n">FAIL</span><span class="p">,</span> <span class="s2">&quot;raw_stdout&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="s2">&quot;raw_stderr&quot;</span><span class="p">:</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">}</span>
+</code></pre></div>
+<p>Key changes: (1) <code>[sys.executable, "-m", "shenbi.gates.cli", gate]</code> replaces <code>[sys.executable, vg, gate]</code>; (2) <code>OSError</code> added to the except clause to catch <code>FileNotFoundError</code> (which subclasses <code>OSError</code>, <strong>not</strong> <code>subprocess.SubprocessError</code> — verified empirically). This makes run_gate robust if <code>sys.executable</code> itself is ever missing.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/phase_runner/test_run_gate_uses_cli_module.py -v</code>
+Expected: PASS (3 tests) — test 1 now passes (command uses <code>shenbi.gates.cli</code>), test 3 now passes (<code>OSError</code> in the except clause catches <code>FileNotFoundError</code>).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS (ruff + mypy + basedpyright + pytest --cov-fail-under=85). If coverage drops, the new test file adds coverage for <code>run_gate</code>.</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/phase_runner.py<span class="w"> </span>tests/unit/phase_runner/test_run_gate_uses_cli_module.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(phase_runner): redirect run_gate to live shenbi.gates.cli module</span>
+
+<span class="s2">run_gate() subprocess-called tests/validate-gate.py, deleted in PR-19 when</span>
+<span class="s2">gate logic moved to src/shenbi/gates/. subprocess.run against the missing</span>
+<span class="s2">file returned returncode=2 + empty stdout, so json.loads(&#39;&#39;) threw</span>
+<span class="s2">JSONDecodeError → every gate returned a misleading FAIL regardless of real</span>
+<span class="s2">gate logic, blocking shenbi-phase start/finalize. Now targets</span>
+<span class="s2">python -m shenbi.gates.cli (matching dispatch_helper), and adds OSError to</span>
+<span class="s2">the except clause to catch FileNotFoundError if sys.executable is missing.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-fix-scoringpy-dead-gate-paths-p01-secondary">Task 2: Fix <code>scoring.py</code> dead gate paths (P0.1 — secondary)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/scoring.py:295-308</code> (<code>--gate-only</code> block) and <code>:328-350</code> (tier-gate integration block)
+- Test: <code>tests/unit/test_scoring.py</code> (existing file — add two test functions)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.gates.cli</code>
+- Produces: no interface change — <code>scoring.main()</code> behavior unchanged, only internal subprocess targets fixed.</p>
+<p><strong>Context:</strong> Two blocks in <code>scoring.py</code> construct <code>vg = str(Path(__file__).resolve().parents[2] / "tests" / "validate-gate.py")</code> (<code>:303</code> and <code>:332</code>) — the same dead path as Task 1. These fire when <code>shenbi-score</code> is called with <code>--gate-only</code> or <code>--tier T1</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing tests</strong></li>
+</ul>
+<p>Add to <code>tests/unit/test_scoring.py</code> (append at end of file, inside a new test class):</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestScoringGatePath</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Regression: scoring.py --gate-only and --tier blocks must not reference</span>
+<span class="sd">    the deleted tests/validate-gate.py. They must target shenbi.gates.cli.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_gate_only_uses_cli_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;--gate-only must invoke python -m shenbi.gates.cli, not validate-gate.py.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scoring_mod</span>
+
+        <span class="n">captured_cmds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">FakeCompleted</span><span class="p">:</span>
+            <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">stdout</span> <span class="o">=</span> <span class="s1">&#39;{&quot;status&quot;: &quot;PASS&quot;}&#39;</span>
+            <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fake_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">captured_cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">FakeCompleted</span><span class="p">()</span>
+
+        <span class="c1"># NOTE: scoring.py imports subprocess INSIDE its functions (line 296, 330),</span>
+        <span class="c1"># so shenbi.scoring has no module-level `subprocess` attribute. Patch the</span>
+        <span class="c1"># global subprocess.run instead — the function-local import binds to the</span>
+        <span class="c1"># same shared module object.</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;subprocess.run&quot;</span><span class="p">,</span> <span class="n">fake_run</span><span class="p">)</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">scoring_mod</span><span class="o">.</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;argv&quot;</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s2">&quot;shenbi-score&quot;</span><span class="p">,</span> <span class="s2">&quot;--gate-only&quot;</span><span class="p">,</span> <span class="s2">&quot;G2&quot;</span><span class="p">,</span> <span class="s2">&quot;--files&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;f.md&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;--type&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span>
+        <span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">scoring_mod</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">SystemExit</span><span class="p">:</span>
+            <span class="k">pass</span>  <span class="c1"># --gate-only calls sys.exit()</span>
+
+        <span class="k">assert</span> <span class="n">captured_cmds</span><span class="p">,</span> <span class="s2">&quot;no subprocess captured — --gate-only path not reached&quot;</span>
+        <span class="c1"># Check the last captured command (the gate call)</span>
+        <span class="n">cmd</span> <span class="o">=</span> <span class="n">captured_cmds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="s2">&quot;-m&quot;</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;expected -m flag, got </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi.gates.cli&quot;</span> <span class="ow">in</span> <span class="n">cmd</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;validate-gate.py&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;scoring --gate-only still references deleted validate-gate.py: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_tier_t1_gate_uses_cli_module</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The --tier T1 integration block (scoring.py:332) must also target</span>
+<span class="sd">        shenbi.gates.cli, not validate-gate.py. This covers the second dead-path</span>
+<span class="sd">        site that test_gate_only_uses_cli_module does not exercise.&quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">scoring_mod</span>
+
+        <span class="n">captured_cmds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">class</span><span class="w"> </span><span class="nc">FakeCompleted</span><span class="p">:</span>
+            <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+            <span class="n">stdout</span> <span class="o">=</span> <span class="s1">&#39;{&quot;status&quot;: &quot;PASS&quot;}&#39;</span>
+            <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fake_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">captured_cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+            <span class="k">return</span> <span class="n">FakeCompleted</span><span class="p">()</span>
+
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;subprocess.run&quot;</span><span class="p">,</span> <span class="n">fake_run</span><span class="p">)</span>
+        <span class="c1"># Build a minimal rubric file so load_rubric doesn&#39;t crash</span>
+        <span class="n">rubric</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;rubric.md&quot;</span>
+        <span class="n">rubric</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+            <span class="s2">&quot;| # | Dimension | Weight |</span><span class="se">\n</span><span class="s2">|---|---|---|</span><span class="se">\n</span><span class="s2">| 1 | Quality | 100% |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="n">scores</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;scores.json&quot;</span>
+        <span class="n">scores</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;1&quot;: 90}&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">round_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round&quot;</span>
+        <span class="n">round_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">scoring_mod</span><span class="o">.</span><span class="n">sys</span><span class="p">,</span> <span class="s2">&quot;argv&quot;</span><span class="p">,</span> <span class="p">[</span>
+            <span class="s2">&quot;shenbi-score&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">rubric</span><span class="p">),</span> <span class="nb">str</span><span class="p">(</span><span class="n">scores</span><span class="p">),</span>
+            <span class="s2">&quot;--test-type&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="s2">&quot;--tier&quot;</span><span class="p">,</span> <span class="s2">&quot;T1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;--round-dir&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_dir</span><span class="p">),</span>
+        <span class="p">])</span>
+
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">scoring_mod</span><span class="o">.</span><span class="n">main</span><span class="p">()</span>
+        <span class="k">except</span> <span class="ne">SystemExit</span><span class="p">:</span>
+            <span class="k">pass</span>
+
+        <span class="n">gate_cmds</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">captured_cmds</span> <span class="k">if</span> <span class="s2">&quot;gates.cli&quot;</span> <span class="ow">in</span> <span class="n">c</span> <span class="ow">or</span> <span class="s2">&quot;validate-gate&quot;</span> <span class="ow">in</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">c</span><span class="p">)]</span>
+        <span class="k">if</span> <span class="n">gate_cmds</span><span class="p">:</span>  <span class="c1"># only assert if the tier path fired a gate subprocess</span>
+            <span class="n">cmd</span> <span class="o">=</span> <span class="n">gate_cmds</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;validate-gate.py&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">p</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">),</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;scoring --tier T1 still references deleted validate-gate.py: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring.py::TestScoringGatePath -v</code>
+Expected: <code>test_gate_only_uses_cli_module</code> FAILs (current code's captured command contains <code>validate-gate.py</code>). <code>test_tier_t1_gate_uses_cli_module</code> may pass vacuously if the tier path doesn't fire without a real round_dir setup — that's acceptable; it guards against regression once the path fires.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p><strong>Fix 1 — <code>--gate-only</code> block (<code>scoring.py:303</code>):</strong> Replace:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+        <span class="n">proc_result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="n">vg</span><span class="p">,</span> <span class="n">gate_type</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">ftype</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">proc_result</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+            <span class="p">[</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="s2">&quot;-m&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi.gates.cli&quot;</span><span class="p">,</span> <span class="n">gate_type</span><span class="p">,</span> <span class="s2">&quot;,&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">files</span><span class="p">),</span> <span class="n">ftype</span><span class="p">],</span>
+            <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p><strong>Fix 2 — tier-gate block (<code>scoring.py:332</code>):</strong> Replace:</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">vg</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tests&quot;</span> <span class="o">/</span> <span class="s2">&quot;validate-gate.py&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">tier</span> <span class="o">==</span> <span class="s2">&quot;T1&quot;</span> <span class="ow">and</span> <span class="n">test_type</span><span class="p">:</span>
+</code></pre></div>
+<p>with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">tier</span> <span class="o">==</span> <span class="s2">&quot;T1&quot;</span> <span class="ow">and</span> <span class="n">test_type</span><span class="p">:</span>
+</code></pre></div>
+<p>and update the subprocess call at <code>:340</code> from <code>[sys.executable, vg, "G3", ...]</code> to <code>[sys.executable, "-m", "shenbi.gates.cli", "G3", ...]</code>.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring.py::TestScoringGatePath -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>tests/unit/test_scoring.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(scoring): redirect --gate-only and --tier blocks to shenbi.gates.cli</span>
+
+<span class="s2">Same dead-path bug as phase_runner: scoring.py constructed a path to the</span>
+<span class="s2">deleted tests/validate-gate.py in its --gate-only and --tier T1 blocks.</span>
+<span class="s2">Now targets python -m shenbi.gates.cli.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-replace-dead-shenbi-progress-subprocess-with-direct-progressjson-update-p02">Task 3: Replace dead <code>shenbi-progress</code> subprocess with direct <code>progress.json</code> update (P0.2)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/dispatcher/modes/codex.py:83-87</code> (the <code>shenbi-progress mark-done</code> call)
+- Test: <code>tests/unit/dispatcher/test_codex_mark_done.py</code> (new file)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.safe_write.safe_write</code>, <code>pathlib.Path</code>, <code>json</code>
+- Produces: <code>dispatch_codex()</code> return behavior unchanged (still returns 0 on success). The side effect changes from "call a non-existent CLI" to "directly update <code>progress.json</code>".</p>
+<p><strong>Context:</strong> <code>codex.py:84-87</code> calls <code>uv run shenbi-progress mark-done &lt;round_dir&gt; &lt;skill&gt; &lt;test_type&gt; &lt;final&gt;</code>, but <code>shenbi-progress</code> is <strong>not registered</strong> in <code>pyproject.toml [project.scripts]</code> and no such module exists in <code>src/shenbi/</code>. The historical <code>tests/update-progress.py</code> that implemented <code>mark-done</code> was deleted. The <code>codex.py</code> path is the T1 test-harness dispatch mode (fires when <code>codex</code> CLI is on PATH); it runs after <code>shenbi-score</code> succeeds (line 64-79) and extracts the final score (line 83). The fix: write the completion record directly to <code>progress.json</code> using the project's <code>safe_write</code> utility, appending to <code>completed_skill_names</code> and recording the score in the <code>skills</code> dict — mirroring how <code>g_dispatch.py</code> reads it.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/dispatcher/test_codex_mark_done.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify dispatch_codex records completion via direct progress.json update,</span>
+<span class="sd">not via the non-existent shenbi-progress CLI subprocess.</span>
+
+<span class="sd">Regression for the shenbi-progress entry point that was never registered in</span>
+<span class="sd">pyproject.toml (historical tests/update-progress.py was deleted).</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes.codex</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_codex</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestCodexMarkDone</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_writes_completion_to_progress_json</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;After a successful codex dispatch+score, progress.json must contain</span>
+<span class="sd">        the skill in completed_skill_names with its score — written directly,</span>
+<span class="sd">        not via a shenbi-progress subprocess.&quot;&quot;&quot;</span>
+        <span class="n">round_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round-001&quot;</span>
+        <span class="n">round_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+
+        <span class="c1"># Mock the two real subprocesses: codex exec + shenbi-score.</span>
+        <span class="c1"># codex exec writes a raw scores file; shenbi-score outputs final JSON.</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">fake_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">FakeResult</span><span class="p">:</span>
+                <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="c1"># shenbi-score outputs a JSON with final_score</span>
+                <span class="n">stdout</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;final_score&quot;</span><span class="p">:</span> <span class="mi">92</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;ok&quot;</span><span class="p">})</span>
+                <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+            <span class="k">return</span> <span class="n">FakeResult</span><span class="p">()</span>
+
+        <span class="c1"># Pre-create the raw output file that codex exec would produce</span>
+        <span class="c1"># (dispatch_codex reads it to extract scores JSON)</span>
+        <span class="n">raw_file</span> <span class="o">=</span> <span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi-worldbuilding-generative-scores-subagent.raw&quot;</span>
+        <span class="n">raw_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;1&quot;: 90, &quot;2&quot;: 95}&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.dispatcher.modes.codex.subprocess.run&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">fake_run</span><span class="p">):</span>
+            <span class="n">rc</span> <span class="o">=</span> <span class="n">dispatch_codex</span><span class="p">(</span>
+                <span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">round_dir</span><span class="p">,</span>
+                <span class="s2">&quot;test prompt&quot;</span><span class="p">,</span> <span class="s2">&quot;agent-001&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="c1"># progress.json must now exist and record completion</span>
+        <span class="n">progress_path</span> <span class="o">=</span> <span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;progress.json&quot;</span>
+        <span class="k">assert</span> <span class="n">progress_path</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="s2">&quot;progress.json was not written&quot;</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">progress_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="s2">&quot;shenbi-worldbuilding&quot;</span> <span class="ow">in</span> <span class="n">progress</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;completed_skill_names&quot;</span><span class="p">,</span> <span class="p">[]),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;skill not in completed_skill_names: </span><span class="si">{</span><span class="n">progress</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_does_not_call_shenbi_progress_subprocess</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;No subprocess command may contain &#39;shenbi-progress&#39;.&quot;&quot;&quot;</span>
+        <span class="n">round_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round-002&quot;</span>
+        <span class="n">round_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="p">(</span><span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="n">raw_file</span> <span class="o">=</span> <span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi-worldbuilding-generative-scores-subagent.raw&quot;</span>
+        <span class="n">raw_file</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;1&quot;: 90}&#39;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">captured_cmds</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">fake_run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="n">captured_cmds</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">cmd</span><span class="p">))</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">FakeResult</span><span class="p">:</span>
+                <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+                <span class="n">stdout</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;final_score&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">})</span>
+                <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">FakeResult</span><span class="p">()</span>
+
+        <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.dispatcher.modes.codex.subprocess.run&quot;</span><span class="p">,</span> <span class="n">side_effect</span><span class="o">=</span><span class="n">fake_run</span><span class="p">):</span>
+            <span class="n">dispatch_codex</span><span class="p">(</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">round_dir</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;a&quot;</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">cmd</span> <span class="ow">in</span> <span class="n">captured_cmds</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="ow">not</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;shenbi-progress&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">part</span><span class="p">)</span> <span class="k">for</span> <span class="n">part</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">),</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;shenbi-progress subprocess still called: </span><span class="si">{</span><span class="n">cmd</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_codex_mark_done.py -v</code>
+Expected: FAIL — (1) <code>test_writes_completion_to_progress_json</code> fails because the current code calls <code>shenbi-progress</code> with <code>check=True</code>, which raises <code>CalledProcessError</code>/<code>FileNotFoundError</code> since the script doesn't exist. (2) <code>test_does_not_call_shenbi_progress_subprocess</code> fails because the command list contains <code>"shenbi-progress"</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/dispatcher/modes/codex.py</code>, replace lines 83-87:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">final</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;final_score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">(</span>
+        <span class="p">[</span><span class="s2">&quot;uv&quot;</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="s2">&quot;shenbi-progress&quot;</span><span class="p">,</span> <span class="s2">&quot;mark-done&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">round_dir</span><span class="p">),</span> <span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">final</span><span class="p">)],</span>
+        <span class="n">check</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+</code></pre></div>
+<p>with a direct <code>progress.json</code> update:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">final</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;final_score&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">_record_completion</span><span class="p">(</span><span class="n">round_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="p">,</span> <span class="n">final</span><span class="p">)</span>
+</code></pre></div>
+<p>And add this helper function above <code>dispatch_codex</code> (after the imports):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_record_completion</span><span class="p">(</span>
+    <span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">score</span><span class="p">:</span> <span class="nb">float</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Record skill completion directly into progress.json.</span>
+
+<span class="sd">    Replaces the historical ``shenbi-progress mark-done`` subprocess, which</span>
+<span class="sd">    invoked an entry point never registered in pyproject.toml. Mirrors how</span>
+<span class="sd">    gate logic (g_dispatch.py) reads completed_skill_names.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+    <span class="n">progress_path</span> <span class="o">=</span> <span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;progress.json&quot;</span>
+    <span class="k">if</span> <span class="n">progress_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">progress_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;completed_skill_names&quot;</span><span class="p">:</span> <span class="p">[],</span> <span class="s2">&quot;skills&quot;</span><span class="p">:</span> <span class="p">{}}</span>
+
+    <span class="n">completed</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;completed_skill_names&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">completed</span><span class="p">:</span>
+        <span class="n">completed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+
+    <span class="n">skills</span> <span class="o">=</span> <span class="n">progress</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;skills&quot;</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">skill_entry</span> <span class="o">=</span> <span class="n">skills</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="p">{})</span>
+    <span class="n">skill_entry</span><span class="p">[</span><span class="n">test_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;score&quot;</span><span class="p">:</span> <span class="n">score</span><span class="p">,</span> <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;done&quot;</span><span class="p">}</span>
+
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">progress_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">progress</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_codex_mark_done.py -v</code>
+Expected: PASS (2 tests).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/dispatcher/modes/codex.py<span class="w"> </span>tests/unit/dispatcher/test_codex_mark_done.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(dispatcher/codex): replace dead shenbi-progress call with direct progress.json update</span>
+
+<span class="s2">codex.py called &#39;uv run shenbi-progress mark-done&#39;, but shenbi-progress was</span>
+<span class="s2">never registered in pyproject.toml [project.scripts] (the historical</span>
+<span class="s2">tests/update-progress.py that implemented it was deleted). The call used</span>
+<span class="s2">check=True so it crashed on every codex-mode dispatch. Now writes</span>
+<span class="s2">completed_skill_names + score directly to progress.json via safe_write,</span>
+<span class="s2">mirroring how g_dispatch.py reads it.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-remove-dead-codex-api-branch-from-executorpy-p04">Task 4: Remove dead <code>codex-api</code> branch from <code>executor.py</code> (P0.4)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/dispatcher/executor.py:237-240</code> (remove the <code>codex-api</code> branch)
+- Modify: <code>src/shenbi/dispatcher/modes/codex_api.py:1-15</code> (add DEPRECATED marker)
+- Modify: <code>tests/unit/test_dispatcher_executor.py:249-268</code> (delete obsolete <code>test_dispatch_routes_to_codex_api</code> — the route no longer exists)
+- Test: <code>tests/unit/dispatcher/test_executor_no_codex_api.py</code> (new file)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.dispatcher.modes.codex.dispatch_codex</code>, <code>shenbi.dispatcher.modes.internal.dispatch_internal</code>
+- Produces: <code>dispatch()</code> no longer has a <code>codex-api</code> code path. <code>detect_mode()</code> is unchanged (already only returns <code>"codex"</code> or <code>"internal"</code>).</p>
+<p><strong>Context:</strong> <code>executor.py:237-240</code> has a branch <code>if mode == "codex-api": ...</code> that imports and calls <code>dispatch_codex_api</code>, which is a <code>NoReturn</code> raise stub. But <code>detect_mode()</code> (<code>:164-174</code>) only ever returns <code>"codex"</code> or <code>"internal"</code> — so this branch is <strong>unreachable dead code</strong>. The spec decision (§3) is that API dispatch is handled by <code>dispatch_helper._dispatch_via_api</code>, not a separate codex_api mode.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/dispatcher/test_executor_no_codex_api.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify dispatch() has no reachable codex-api code path.</span>
+
+<span class="sd">detect_mode() only returns &#39;codex&#39; or &#39;internal&#39;. The codex-api branch was</span>
+<span class="sd">unreachable dead code. This test verifies the behavior (not source text): even</span>
+<span class="sd">if detect_mode returned &#39;codex-api&#39;, dispatch must fall through to internal,</span>
+<span class="sd">never call dispatch_codex_api.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestNoCodexApiBranch</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_codex_api_mode_falls_through_to_internal</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Behavioral test: if detect_mode somehow returned &#39;codex-api&#39;, dispatch()</span>
+<span class="sd">        must NOT call dispatch_codex_api — it must fall through to internal mode.</span>
+
+<span class="sd">        This is stronger than a source grep: it proves runtime unreachability</span>
+<span class="sd">        and won&#39;t break on cosmetic edits (e.g. a comment mentioning codex-api).</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">exec_mod</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes.codex_api</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">codex_api_mod</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch</span>
+
+        <span class="c1"># Force detect_mode to return the removed mode value</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">exec_mod</span><span class="p">,</span> <span class="s2">&quot;detect_mode&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="s2">&quot;codex-api&quot;</span><span class="p">)</span>
+        <span class="c1"># Stub G1 (run_g1) so dispatch doesn&#39;t crash on missing files</span>
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">exec_mod</span><span class="p">,</span> <span class="s2">&quot;run_g1&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">})</span>
+        <span class="c1"># Spy on dispatch_codex_api — if called, the dead branch survived</span>
+        <span class="n">codex_api_called</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">bool</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="k">def</span><span class="w"> </span><span class="nf">spy</span><span class="p">(</span><span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+            <span class="n">codex_api_called</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">codex_api_mod</span><span class="p">,</span> <span class="s2">&quot;dispatch_codex_api&quot;</span><span class="p">,</span> <span class="n">spy</span><span class="p">)</span>
+
+        <span class="n">round_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round&quot;</span>
+        <span class="n">round_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+        <span class="c1"># dispatch should return without calling codex_api (falls to internal)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">dispatch</span><span class="p">(</span><span class="s2">&quot;shenbi-worldbuilding&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">round_dir</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="ow">not</span> <span class="n">codex_api_called</span><span class="p">,</span> <span class="p">(</span>
+            <span class="s2">&quot;dispatch_codex_api was called — the dead codex-api branch still routes to it&quot;</span>
+        <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_executor_no_codex_api.py -v</code>
+Expected: FAIL — before the fix, <code>dispatch()</code> with <code>detect_mode() == "codex-api"</code> still hits the <code>if mode == "codex-api"</code> branch (line 237) and calls the spied <code>dispatch_codex_api</code>, so <code>codex_api_called</code> is <code>[True]</code> and the assertion fails.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>In <code>src/shenbi/dispatcher/executor.py</code>, delete lines 237-240:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">mode</span> <span class="o">==</span> <span class="s2">&quot;codex-api&quot;</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes.codex_api</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_codex_api</span>
+
+        <span class="k">return</span> <span class="n">dispatch_codex_api</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="p">,</span> <span class="n">round_dir</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">agent_id</span><span class="p">)</span>
+</code></pre></div>
+<p>The function now flows directly from the <code>codex</code> branch (line 233-236) to the <code>internal</code> fallback (line 241-243).</p>
+<p>In <code>src/shenbi/dispatcher/modes/codex_api.py</code>, replace the module docstring (line 1) with:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;DEPRECATED: codex-api dispatch mode — superseded by unified API executor.</span>
+
+<span class="sd">This mode was never reachable: detect_mode() only returns &#39;codex&#39; or</span>
+<span class="sd">&#39;internal&#39;, and the executor.py branch that referenced it was removed (P0.4).</span>
+<span class="sd">API dispatch is handled by pipeline/dispatch_helper._dispatch_via_api.</span>
+
+<span class="sd">Safe to delete entirely in the next minor release.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_executor_no_codex_api.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 5: Delete the obsolete test for the removed route</strong></li>
+</ul>
+<p>The existing test <code>test_dispatch_routes_to_codex_api</code> in <code>tests/unit/test_dispatcher_executor.py:249-268</code> asserts that <code>dispatch()</code> routes to <code>dispatch_codex_api</code> when <code>detect_mode</code> returns <code>"codex-api"</code>. Since we just removed that route, this test is obsolete and must be deleted — otherwise it still passes (internal returns 0) but tests nothing real, or fails depending on the spy.</p>
+<p>Delete the entire function <code>test_dispatch_routes_to_codex_api</code> (lines 249-268, including its <code>@pytest.mark.unit</code> decorator at line 249). Do not leave a stub.</p>
+<p>(Note: <code>test_dispatch_codex_api_raises_dispatcher_error</code> in <code>tests/unit/test_dispatcher_modes.py:32-35</code> tests <code>codex_api.py</code> <em>directly</em> — not via <code>dispatch()</code> — so it survives and correctly documents that the stub raises. Leave it.)</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS. If <code>test_dispatch_routes_to_codex_api</code> was not fully deleted, pytest will error on the removed route — re-check Step 5.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/dispatcher/executor.py<span class="w"> </span>src/shenbi/dispatcher/modes/codex_api.py<span class="w"> </span>tests/unit/dispatcher/test_executor_no_codex_api.py<span class="w"> </span>tests/unit/test_dispatcher_executor.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(dispatcher): remove unreachable codex-api dead branch</span>
+
+<span class="s2">executor.py had a &#39;codex-api&#39; mode branch that imported dispatch_codex_api</span>
+<span class="s2">(a NoReturn stub), but detect_mode() only returns &#39;codex&#39; or &#39;internal&#39; —</span>
+<span class="s2">so the branch was unreachable. API dispatch lives in</span>
+<span class="s2">pipeline/dispatch_helper._dispatch_via_api. codex_api.py marked DEPRECATED.</span>
+<span class="s2">Deleted the obsolete test_dispatch_routes_to_codex_api (route no longer exists).&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-remove-misleading-rollback-cli-registration-p03">Task 5: Remove misleading <code>rollback</code> CLI registration (P0.3)</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py:12</code> (remove <code>rollback</code> from docstring commands)
+- Modify: <code>src/shenbi/pipeline/cli.py:784-798</code> (change <code>cmd_rollback</code> to return error code)
+- Modify: <code>src/shenbi/pipeline/cli.py:839-842</code> (remove the <code>rollback</code> subparser registration)
+- Modify: <code>tests/unit/pipeline/test_cli.py:528</code> (update <code>TestRollbackCommand</code> assertion: <code>rc == 0</code> → <code>rc != 0</code>)
+- Modify: <code>tests/unit/pipeline/test_e2e.py:178</code> (remove <code>"rollback"</code> from the command-iteration loop — the subcommand is no longer registered)
+- Test: <code>tests/unit/pipeline/test_cli_rollback_removed.py</code> (new file)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: nothing new
+- Produces: <code>pipeline --help</code> no longer lists <code>rollback</code>. Calling <code>pipeline rollback ...</code> now returns exit code 1 with a clear "not implemented" error (instead of exit 0 masquerading as success).</p>
+<p><strong>Context:</strong> <code>cmd_rollback</code> (<code>:784-798</code>) returns <code>{"status": "not_implemented"}</code> but exit code 0 — misleadingly signaling success. The CLI docstring (<code>:12</code>) and subparser (<code>:839-842</code>) advertise it as a real command. Per spec P0.3, we remove the subparser registration now (so <code>--help</code> is honest) and make <code>cmd_rollback</code> return a non-zero exit code with a clear message. The actual snapshot-based rollback implementation is deferred (spec §9).</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/unit/pipeline/test_cli_rollback_removed.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Verify the rollback subcommand is removed from CLI registration.</span>
+
+<span class="sd">cmd_rollback still exists (for direct callers) but returns a non-zero exit</span>
+<span class="sd">code. The subparser is removed so &#39;pipeline --help&#39; doesn&#39;t advertise an</span>
+<span class="sd">unimplemented command.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">io</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">main</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TestRollbackRemoved</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_help_does_not_list_rollback</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">capsys</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;&#39;pipeline --help&#39; output must not contain &#39;rollback&#39;.&quot;&quot;&quot;</span>
+        <span class="k">with</span> <span class="nb">__import__</span><span class="p">(</span><span class="s2">&quot;pytest&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">SystemExit</span><span class="p">):</span>
+            <span class="n">main</span><span class="p">([</span><span class="s2">&quot;--help&quot;</span><span class="p">])</span>
+        <span class="n">captured</span> <span class="o">=</span> <span class="n">capsys</span><span class="o">.</span><span class="n">readouterr</span><span class="p">()</span>
+        <span class="k">assert</span> <span class="s2">&quot;rollback&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">captured</span><span class="o">.</span><span class="n">out</span><span class="o">.</span><span class="n">lower</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;--help still advertises rollback: </span><span class="si">{</span><span class="n">captured</span><span class="o">.</span><span class="n">out</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_cmd_rollback_returns_nonzero</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Direct cmd_rollback call must return exit code &gt;= 1 (not 0).&quot;&quot;&quot;</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.cli</span><span class="w"> </span><span class="kn">import</span> <span class="n">cmd_rollback</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
+
+        <span class="n">args</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">rc</span> <span class="o">=</span> <span class="n">cmd_rollback</span><span class="p">(</span><span class="n">args</span><span class="p">)</span>
+        <span class="k">assert</span> <span class="n">rc</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;cmd_rollback returned </span><span class="si">{</span><span class="n">rc</span><span class="si">}</span><span class="s2">, expected non-zero (not faking success)&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_cli_rollback_removed.py -v</code>
+Expected: FAIL — (1) <code>test_help_does_not_list_rollback</code> fails because the subparser is still registered. (2) <code>test_cmd_rollback_returns_nonzero</code> fails because <code>cmd_rollback</code> returns 0.</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p><strong>Fix 1 — docstring (<code>cli.py:12</code>):</strong> Remove the line:</p>
+<div class="highlight"><pre><span></span><code>    rollback &lt;project-dir&gt; --chapter &lt;N&gt;
+</code></pre></div>
+<p><strong>Fix 2 — subparser (<code>cli.py:839-842</code>):</strong> Delete:</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">p_rollback</span> <span class="o">=</span> <span class="n">sub</span><span class="o">.</span><span class="n">add_parser</span><span class="p">(</span><span class="s2">&quot;rollback&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Rollback to chapter snapshot&quot;</span><span class="p">)</span>
+    <span class="n">p_rollback</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;project_dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">)</span>
+    <span class="n">p_rollback</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--chapter&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">p_rollback</span><span class="o">.</span><span class="n">set_defaults</span><span class="p">(</span><span class="n">func</span><span class="o">=</span><span class="n">cmd_rollback</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>Fix 3 — <code>cmd_rollback</code> (<code>cli.py:784-798</code>):</strong> Replace the function body to return 1:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">cmd_rollback</span><span class="p">(</span><span class="n">args</span><span class="p">:</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rollback to a chapter snapshot.</span>
+
+<span class="sd">    Not yet implemented — requires snapshot integration (deferred to a future</span>
+<span class="sd">    spec, see docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).</span>
+<span class="sd">    The subparser registration has been removed so &#39;pipeline --help&#39; does not</span>
+<span class="sd">    advertise this command. This function is retained for direct callers and</span>
+<span class="sd">    returns a non-zero exit code.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;rollback_not_implemented&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">chapter</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">chapter</span><span class="p">)</span>
+    <span class="n">emit_json</span><span class="p">(</span>
+        <span class="p">{</span>
+            <span class="s2">&quot;status&quot;</span><span class="p">:</span> <span class="s2">&quot;not_implemented&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;message&quot;</span><span class="p">:</span> <span class="p">(</span>
+                <span class="s2">&quot;Rollback requires snapshot integration (deferred to future spec). &quot;</span>
+                <span class="s2">&quot;See docs/superpowers/specs/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9.&quot;</span>
+            <span class="p">),</span>
+        <span class="p">}</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="mi">1</span>
+</code></pre></div>
+<p>Key change: <code>return 0</code> → <code>return 1</code>.</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_cli_rollback_removed.py -v</code>
+Expected: PASS (2 tests).</p>
+<ul>
+<li>[ ] <strong>Step 5: Update existing tests that depend on the removed/changed rollback behavior</strong></li>
+</ul>
+<p>Two existing tests break after the implementation changes in Step 3. Fix them:</p>
+<p><strong>Fix 5a — <code>tests/unit/pipeline/test_cli.py:528</code>:</strong> The <code>TestRollbackCommand.test_rollback_not_implemented</code> test asserts <code>rc == 0</code>. Since <code>cmd_rollback</code> now returns 1, change the assertion. In <code>tests/unit/pipeline/test_cli.py</code>, find line 528:</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;not_implemented&quot;</span>
+</code></pre></div>
+<p>Replace with:</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">assert</span> <span class="n">rc</span> <span class="o">!=</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;rollback should return non-zero (not faking success)&quot;</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;not_implemented&quot;</span>
+</code></pre></div>
+<p>Also update the test's docstring (line 522) from "reports not_implemented until snapshot integration lands" to "returns non-zero not_implemented until snapshot integration lands".</p>
+<p><strong>Fix 5b — <code>tests/unit/pipeline/test_e2e.py:178</code>:</strong> The <code>test_pipeline_commands_emit_valid_json</code> test iterates over a tuple of commands including <code>"rollback"</code>. Since the <code>rollback</code> subparser is removed, argparse will raise <code>SystemExit(2)</code> for it. Remove it from the tuple. In <code>tests/unit/pipeline/test_e2e.py</code>, find lines 173-178:</p>
+<div class="highlight"><pre><span></span><code>            <span class="k">for</span> <span class="n">argv</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;chapters&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;next&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;rollback&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="s2">&quot;--chapter&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">],</span>
+            <span class="p">):</span>
+</code></pre></div>
+<p>Replace with (remove the rollback line):</p>
+<div class="highlight"><pre><span></span><code>            <span class="k">for</span> <span class="n">argv</span> <span class="ow">in</span> <span class="p">(</span>
+                <span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;chapters&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;next&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+                <span class="p">[</span><span class="s2">&quot;resume&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)],</span>
+            <span class="p">):</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS. If it fails, grep for any remaining <code>rollback</code> references in tests and remove them — the subcommand is gone.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/unit/pipeline/test_cli_rollback_removed.py<span class="w"> </span>tests/unit/pipeline/test_cli.py<span class="w"> </span>tests/unit/pipeline/test_e2e.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(pipeline/cli): remove misleading rollback subcommand registration</span>
+
+<span class="s2">cmd_rollback returned exit 0 with status &#39;not_implemented&#39; — faking success.</span>
+<span class="s2">The CLI docstring and subparser advertised it as a real command. Now: (1)</span>
+<span class="s2">subparser removed so --help doesn&#39;t list it, (2) cmd_rollback returns exit 1,</span>
+<span class="s2">(3) docstring updated. Updated test_cli.py (rc != 0) and test_e2e.py (removed</span>
+<span class="s2">rollback from command loop). Real rollback deferred to future snapshot spec.&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/cli.py<span class="w"> </span>tests/unit/pipeline/test_cli_rollback_removed.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(pipeline/cli): remove misleading rollback subcommand registration</span>
+
+<span class="s2">cmd_rollback returned exit 0 with status &#39;not_implemented&#39; — faking success.</span>
+<span class="s2">The CLI docstring and subparser advertised it as a real command. Now: (1)</span>
+<span class="s2">subparser removed so --help doesn&#39;t list it, (2) cmd_rollback returns exit 1,</span>
+<span class="s2">(3) docstring updated. Real rollback deferred to future snapshot-integration spec.&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="self-review">Self-Review</h2>
+<p><strong>1. Spec coverage (§4 P0.1–P0.4):</strong>
+- P0.1 (phase_runner dead path) → Task 1 ✓ (primary) + Task 2 ✓ (scoring.py secondary — same bug, two locations)
+- P0.2 (shenbi-progress unregistered) → Task 3 ✓
+- P0.3 (rollback stub) → Task 5 ✓
+- P0.4 (codex_api dead branch) → Task 4 ✓
+- P0.5 (end-to-end run) → <strong>intentionally not in this plan</strong> — it's an execution milestone, not a code task; depends on Tasks 1-4 + API key + spec §3 backend. Listed in spec §4 as the capstone.</p>
+<p><strong>2. Placeholder scan:</strong> No "TBD", "TODO", "add error handling", or code-less steps. Every step has actual code. ✓</p>
+<p><strong>3. Type consistency:</strong>
+- <code>run_gate(gate: str, args: list[str]) -&gt; dict[str, Any]</code> — unchanged signature across Task 1 ✓
+- <code>_record_completion(round_dir: Path, skill: str, test_type: str, score: float) -&gt; None</code> — defined in Task 3, no later task references it ✓
+- <code>cmd_rollback(args: argparse.Namespace) -&gt; int</code> — returns int in both old and new (Task 5) ✓
+- <code>dispatch_codex(...) -&gt; int</code> — unchanged (Task 3 only changes internal side effect) ✓</p>
+<p><strong>4. Code-review fixes applied (post-review):</strong>
+- C1+C2: Task 1 except clause <code>subprocess.SubprocessError</code> → <code>OSError</code> (FileNotFoundError subclasses OSError, NOT SubprocessError — verified empirically); defect narrative corrected from "crash" to "misleading FAIL" (subprocess.run against missing file returns rc=2, doesn't raise).
+- C3: Task 2 test patch target <code>scoring_mod.subprocess.run</code> → <code>"subprocess.run"</code> (scoring.py imports subprocess function-local, so no module attribute).
+- C4-a: Task 4 added Step 5 to delete obsolete <code>test_dispatch_routes_to_codex_api</code>.
+- C4-b: Task 5 added Step 5 to update <code>test_cli.py</code> (rc==0→!=0) and <code>test_e2e.py</code> (remove rollback from command loop).
+- I3: Task 4 test changed from fragile source-grep to behavioral (proves runtime unreachability).
+- I4: Task 2 added <code>test_tier_t1_gate_uses_cli_module</code> for the second dead-path site.</p>
+<p>No gaps found. Plan is ready.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2151 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-11-data-storage-optimization-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 10: Data Storage Optimization - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 10: Data Storage Optimization - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-11-data-storage-optimization-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-19-11-data-storage-optimization-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 10: Data Storage Optimization - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-19-11-data-storage-optimization-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-10-data-storage-optimization" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 10: Data Storage Optimization
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-executive-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. Executive Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-root-cause-analysis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. Root Cause Analysis
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. Root Cause Analysis">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-gate-markers-21-scattered-files-history-lost-on-overwrite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Gate Markers: 21 Scattered Files, History Lost on Overwrite
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-review-checklist-7-static-fields-regenerated-56-times" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Review Checklist: 7 Static Fields Regenerated 56 Times
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-snapshots-full-file-copies-at-172-of-referenced-size" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 Snapshots: Full File Copies at 172% of Referenced Size
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-unified-fix-strategy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Unified Fix Strategy
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. Unified Fix Strategy">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-gate-markers-single-pipeline-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Gate Markers: Single Pipeline Manifest
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.1 Gate Markers: Single Pipeline Manifest">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#311-write-side-change" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.1 Write-Side Change
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#312-read-side-change-with-backward-compatibility" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.2 Read-Side Change with Backward Compatibility
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#313-benefits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1.3 Benefits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-review-checklist-static-template-per-chapter-deltas" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Review Checklist: Static Template + Per-Chapter Deltas
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Review Checklist: Static Template + Per-Chapter Deltas">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#321-split-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.1 Split Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#322-template-regeneration-triggers" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.2 Template Regeneration Triggers
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#323-merger-function" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.3 Merger Function
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#324-skillmd-update" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.4 SKILL.md Update
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#325-consumer-adaptation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2.5 Consumer Adaptation
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-snapshots-differential-mode-with-sha-256-hash-references" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Snapshots: Differential Mode with SHA-256 Hash References
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Snapshots: Differential Mode with SHA-256 Hash References">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#331-new-snapshot-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.1 New Snapshot Format
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#332-implementation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.2 Implementation
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#333-restore-from-snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.3 Restore from Snapshot
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#334-snapshot-naming-convention" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3.4 Snapshot Naming Convention
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-affected-files" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Affected Files
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Affected Files">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gate-marker-manifest" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gate Marker Manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-checklist-staticdynamic-split" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review Checklist Static/Dynamic Split
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-differential-storage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshot Differential Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-verification-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Verification Criteria
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Verification Criteria">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#gate-marker-manifest_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Gate Marker Manifest
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#review-checklist-staticdynamic-split_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Review Checklist Static/Dynamic Split
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#snapshot-differential-storage_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Snapshot Differential Storage
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-dependencies" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Dependencies
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-original-code-mapping" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. Original Code Mapping
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-storage-impact-summary" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. Storage Impact Summary
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-10-data-storage-optimization">Spec 10: Data Storage Optimization</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-07-19
+<strong>Status:</strong> Design
+<strong>Severity:</strong> High (composite)
+<strong>Merged from:</strong> <code>2026-07-17-consolidate-gate-markers-manifest-design.md</code>, <code>2026-07-17-consolidate-review-checklist-static-fields-design.md</code>, <code>2026-07-17-consolidate-snapshot-differential-storage-design.md</code>
+<strong>Purpose:</strong> Fix three data storage inefficiencies rooted in early-development decisions that prioritized simplicity over storage efficiency and historical traceability.</p>
+</blockquote>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary</h2>
+<p>During initial pipeline development, three storage subsystems were implemented with correctness-first simplicity: gate markers scattered across 21 individual JSON files, review checklists regenerating 7 static fields for every chapter, and snapshots storing full file copies at 172% of referenced content size. While functionally correct, each decision incurs accumulating cost as the pipeline scales to 100 chapters. This spec consolidates fixes for all three: a central pipeline manifest for gate markers, static/dynamic field separation for review checklists, and differential hash-reference snapshots for chapter recovery points.</p>
+<hr />
+<h2 id="2-root-cause-analysis">2. Root Cause Analysis</h2>
+<h3 id="21-gate-markers-21-scattered-files-history-lost-on-overwrite">2.1 Gate Markers: 21 Scattered Files, History Lost on Overwrite</h3>
+<p><strong>Evidence chain:</strong></p>
+<p>The <code>gate-markers/</code> directory contains 21 individual JSON files (one per skill), totaling approximately 11 KB. Each file is named <code>G4-{skill}-generative.json</code> and records the last G4 verification result for that skill.</p>
+<p><strong>Root cause (two-level):</strong></p>
+<ol>
+<li><strong>Write-side fragmentation:</strong> <code>dispatch_helper.py:run_gate_g4()</code> and <code>phase_runner.py:cmd_post_skill()</code> (line 219-222) write gate markers independently:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># phase_runner.py:219-222</span>
+<span class="n">marker_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;gate-markers&quot;</span>
+<span class="n">marker</span> <span class="o">=</span> <span class="n">marker_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;G4-</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">-generative.json&quot;</span>
+</code></pre></div>
+<p>The <code>gates/shared.py:write_gate_marker()</code> function (line 182-198) provides the single write path but is called per-skill, per-gate, producing one file per call. There is no central aggregation -- each skill manages its own marker file.</p>
+<ol>
+<li><strong>Read-side fragmentation:</strong> The <code>scoring.py:check_gate_markers()</code> function (line 186-211) globs individual files to verify gate completion:</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># scoring.py:191-211</span>
+<span class="n">marker_dir</span> <span class="o">=</span> <span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;gate-markers&quot;</span>
+<span class="n">marker_file</span> <span class="o">=</span> <span class="n">marker_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;G4-</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">test_type</span><span class="si">}</span><span class="s2">.json&quot;</span>
+</code></pre></div>
+<p>For chapter loop skills that run every chapter (e.g., <code>shenbi-chapter-drafting</code>), the gate marker is overwritten each time -- only the last result is preserved. Historical G4 pass/fail records for earlier chapters are lost.</p>
+<p><strong>Why this matters:</strong>
+- Cannot track G4 result trends (is a skill failing more frequently over time?)
+- 21 fragmented files increase I/O and inode consumption
+- Downstream tools must glob 21 files to understand complete gate status
+- Historical gate results lost for all but the last chapter</p>
+<h3 id="22-review-checklist-7-static-fields-regenerated-56-times">2.2 Review Checklist: 7 Static Fields Regenerated 56 Times</h3>
+<p><strong>Evidence chain:</strong></p>
+<p>The <code>context/review-checklist-N.json</code> files contain 10 fields per chapter. Across all 56 generated chapters, 7 of these 10 fields have identical values in every file:</p>
+<table>
+<thead>
+<tr>
+<th>Field</th>
+<th>Source</th>
+<th>Changes Across Chapters?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chapter</code></td>
+<td>Chapter number</td>
+<td>Yes (1-56)</td>
+</tr>
+<tr>
+<td><code>transition_budget</code></td>
+<td>Chapter plan</td>
+<td>Yes (5-11 range)</td>
+</tr>
+<tr>
+<td><code>ending_constraints</code></td>
+<td>Chapter plan</td>
+<td>Yes (0-3 range)</td>
+</tr>
+<tr>
+<td><code>ai_blacklist</code></td>
+<td><code>style/style_profile.md</code></td>
+<td><strong>Never (always 14 items)</strong></td>
+</tr>
+<tr>
+<td><code>fatigue_warnings</code></td>
+<td><code>style/style_profile.md</code></td>
+<td><strong>Never</strong></td>
+</tr>
+<tr>
+<td><code>voice_constraints</code></td>
+<td>Project config</td>
+<td><strong>Never</strong></td>
+</tr>
+<tr>
+<td><code>pov_mode</code></td>
+<td>Project config</td>
+<td><strong>Never (always empty)</strong></td>
+</tr>
+<tr>
+<td><code>hook_deliverables</code></td>
+<td>Chapter plan</td>
+<td><strong>Never (always 0 -- bug, fixed in Spec 5: Content Quality Gates)</strong></td>
+</tr>
+<tr>
+<td><code>world_rules_brief</code></td>
+<td><code>world/rules.md</code></td>
+<td><strong>Never (identical long text)</strong></td>
+</tr>
+<tr>
+<td><code>sensitivity_flags</code></td>
+<td>Project config</td>
+<td><strong>Never (always 0)</strong></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Root cause:</strong></p>
+<p><code>review_checklist.py:generate_review_checklist()</code> (line 60-119) builds and caches a complete <code>ReviewChecklist</code> dataclass for each chapter. The <code>_build_checklist()</code> helper reads source files and populates all 10 fields. Since 7 fields derive from static sources (<code>world/rules.md</code>, <code>style/style_profile.md</code>, project config) that do not change during the chapter loop, the LLM (via <code>shenbi-context-composing</code>) is asked to regenerate identical content for every chapter.</p>
+<p>The review checklist was designed as a cache to avoid 11 review skills independently computing context (~330K chars -&gt; ~4K chars). This was correct for its original purpose (review context deduplication), but the design did not distinguish between static (one-time) and dynamic (per-chapter) fields -- both are regenerated every chapter.</p>
+<p>The token waste is compounded because <code>shenbi-context-composing</code> is an LLM dispatch: the LLM is prompted to output all 10 fields for each chapter, and 7 of them are identical to previous outputs. This introduces unnecessary format drift risk (the LLM might rephrase <code>world_rules_brief</code> differently across chapters).</p>
+<h3 id="23-snapshots-full-file-copies-at-172-of-referenced-size">2.3 Snapshots: Full File Copies at 172% of Referenced Size</h3>
+<p><strong>Evidence chain:</strong></p>
+<p>~51-52 snapshots consume <strong>~12 MB (52% of total pipeline output).</strong> Each snapshot is a concatenated markdown file created by <code>chapter_loop.py:_snapshot_chapter_files()</code> (line 903-960):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py:903-960</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Full chapter text</span>
+    <span class="n">chapter_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="k">if</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">chapter_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Full audit reports (all 13 types)</span>
+    <span class="k">for</span> <span class="n">audit_file</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-*.md&quot;</span><span class="p">)):</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## Audit: </span><span class="si">{</span><span class="n">audit_file</span><span class="o">.</span><span class="n">stem</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">audit_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Full truth files</span>
+    <span class="k">for</span> <span class="n">truth_file</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">truth_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">)):</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## Truth: </span><span class="si">{</span><span class="n">truth_file</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">truth_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Write concatenated markdown</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">snap_path</span><span class="p">,</span> <span class="n">content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p><strong>Root cause analysis:</strong></p>
+<p>The snapshot was designed as a recovery point -- a known-good state to roll back to. However, the implementation copies full file contents rather than storing references:</p>
+<ol>
+<li>
+<p><strong>Chapter text</strong> is duplicated: once in <code>chapters/chapter-N.md</code> and again in the snapshot. The chapter file is immutable after snapshot creation (it is the snapshot target), making the full-text copy pure redundancy.</p>
+</li>
+<li>
+<p><strong>Audit reports</strong> are duplicated: stored in both <code>audits/chapter-N-*.md</code> and the snapshot. Audit reports are historical records -- they do not change after generation. On average, audit content constitutes 30-40% of snapshot size. In sample analysis (Ch25), ~34% of snapshot content was byte-for-byte identical to files in <code>audits/</code>.</p>
+</li>
+<li>
+<p><strong>Truth files</strong> are the only content that might differ from the working directory at restore time (truth files accumulate state across chapters). These are the only files that need content-level snapshots.</p>
+</li>
+</ol>
+<p>Snapshot size = 172% of (chapter file size + audit file size sum). The 72% overhead is entirely redundant copies.</p>
+<p><strong>What a recovery point actually needs:</strong>
+- Which files existed at snapshot time (paths + content hashes)
+- Truth file content (the only mutable, accumulating state)
+- Audit report hashes for integrity verification</p>
+<p>Full file copies are unnecessary for immutable files (chapters don't change post-snapshot; audit reports don't change post-generation).</p>
+<hr />
+<h2 id="3-unified-fix-strategy">3. Unified Fix Strategy</h2>
+<h3 id="31-gate-markers-single-pipeline-manifest">3.1 Gate Markers: Single Pipeline Manifest</h3>
+<p><strong>New file:</strong> <code>gate-markers/pipeline-manifest.json</code></p>
+<p>Introduce a hierarchical manifest structure that replaces 21 individual files:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;pipeline&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;xinghuo-ranqiong&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;updated_at&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;2026-07-17T21:32:04Z&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;gates&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;genesis&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;shenbi-worldbuilding&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;G4&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;checks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;shenbi-character-design&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;G4&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;checks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}}</span>
+<span class="w">      </span><span class="p">}</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;chapter_loop&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;1&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">&quot;shenbi-chapter-drafting&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;G4&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;checks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}}</span>
+<span class="w">        </span><span class="p">},</span>
+<span class="w">        </span><span class="nt">&quot;shenbi-review-resonance&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">          </span><span class="nt">&quot;G4&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;status&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;checks&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">}}</span>
+<span class="w">        </span><span class="p">}</span>
+<span class="w">      </span><span class="p">},</span>
+<span class="w">      </span><span class="nt">&quot;2&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="err">...</span><span class="w"> </span><span class="p">}</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Hierarchy:</strong> phase (genesis/chapter_loop) -&gt; chapter (number or "genesis") -&gt; skill -&gt; gate -&gt; result.</p>
+<h4 id="311-write-side-change">3.1.1 Write-Side Change</h4>
+<p><strong>Thread safety:</strong> The manifest read-modify-write MUST be atomic. Use <code>safe_write</code> (temp + os.replace) for the final write, AND acquire a threading.Lock keyed by manifest path before the read-merge-write sequence. This prevents concurrent gate-marker writes from racing. See Spec 12 §3.2 for the locking pattern.</p>
+<p><strong>File:</strong> <code>src/shenbi/gates/shared.py</code> (line 182, <code>write_gate_marker</code>)</p>
+<p>Modify <code>write_gate_marker()</code> to write into the central manifest:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Thread-safe manifest write: the read-merge-write MUST be guarded by a lock</span>
+<span class="c1"># keyed by manifest path so concurrent gate-marker writes (e.g. parallel audits)</span>
+<span class="c1"># do not race and clobber each other&#39;s updates. See Spec 12 §3.2 locking pattern.</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">threading</span>
+<span class="n">_MANIFEST_LOCKS</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_MANIFEST_LOCKS_GUARD</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_manifest_lock</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return (creating if needed) a per-path lock for manifest writes.&quot;&quot;&quot;</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">_MANIFEST_LOCKS_GUARD</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_MANIFEST_LOCKS</span><span class="p">:</span>
+            <span class="n">_MANIFEST_LOCKS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">threading</span><span class="o">.</span><span class="n">Lock</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">_MANIFEST_LOCKS</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">record_gate_result</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">phase</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">gate</span><span class="p">,</span> <span class="n">result</span><span class="p">):</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;gate-markers&#39;</span> <span class="o">/</span> <span class="s1">&#39;pipeline-manifest.json&#39;</span>
+
+    <span class="k">with</span> <span class="n">_manifest_lock</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">):</span>  <span class="c1"># guard the whole read-merge-write</span>
+        <span class="k">if</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;pipeline&#39;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="o">.</span><span class="n">name</span><span class="p">),</span> <span class="s1">&#39;gates&#39;</span><span class="p">:</span> <span class="p">{}}</span>
+
+        <span class="n">phase_key</span> <span class="o">=</span> <span class="n">phase</span>  <span class="c1"># &#39;genesis&#39; or &#39;chapter_loop&#39;</span>
+        <span class="n">chapter_key</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">chapter</span><span class="p">)</span> <span class="k">if</span> <span class="n">chapter</span> <span class="k">else</span> <span class="s1">&#39;genesis&#39;</span>
+
+        <span class="n">gates</span> <span class="o">=</span> <span class="n">manifest</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s1">&#39;gates&#39;</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">phases</span> <span class="o">=</span> <span class="n">gates</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">phase_key</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">chapters</span> <span class="o">=</span> <span class="n">phases</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">chapter_key</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">skills</span> <span class="o">=</span> <span class="n">chapters</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="n">skills</span><span class="p">[</span><span class="n">gate</span><span class="p">]</span> <span class="o">=</span> <span class="n">result</span>
+
+        <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;updated_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">isoformat</span><span class="p">()</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">manifest_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</code></pre></div>
+<p>Also update callers:
+- <code>phase_runner.py:219-222</code> -- redirect from per-file write to manifest write
+- <code>gates/cli.py:121-128</code> -- redirect <code>write_gate_marker</code> calls</p>
+<h4 id="312-read-side-change-with-backward-compatibility">3.1.2 Read-Side Change with Backward Compatibility</h4>
+<p><strong>File:</strong> <code>src/shenbi/scoring.py</code> (line 186, <code>check_gate_markers</code>)</p>
+<p>Read from manifest first, fall back to old per-file format:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_gate_result</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">gate</span><span class="o">=</span><span class="s1">&#39;G4&#39;</span><span class="p">):</span>
+    <span class="c1"># Priority: new manifest format</span>
+    <span class="n">manifest_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;gate-markers&#39;</span> <span class="o">/</span> <span class="s1">&#39;pipeline-manifest.json&#39;</span>
+    <span class="k">if</span> <span class="n">manifest_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">manifest_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+        <span class="k">for</span> <span class="n">phase</span><span class="p">,</span> <span class="n">chapters</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;gates&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">skills</span> <span class="ow">in</span> <span class="n">chapters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">skills</span> <span class="ow">and</span> <span class="n">gate</span> <span class="ow">in</span> <span class="n">skills</span><span class="p">[</span><span class="n">skill</span><span class="p">]:</span>
+                    <span class="k">return</span> <span class="n">skills</span><span class="p">[</span><span class="n">skill</span><span class="p">][</span><span class="n">gate</span><span class="p">]</span>
+
+    <span class="c1"># Fallback: old per-file format</span>
+    <span class="n">old_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;gate-markers&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">gate</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s1">-generative.json&#39;</span>
+    <span class="k">if</span> <span class="n">old_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">old_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p>Update <code>check_gate_markers()</code> in <code>scoring.py</code> to use this unified reader.</p>
+<h4 id="313-benefits">3.1.3 Benefits</h4>
+<ul>
+<li>Single-file read for complete gate status (pipeline status reports)</li>
+<li>Historical trend tracking per chapter, per skill (is a skill's failure rate increasing?)</li>
+<li>Reduced I/O (1 file instead of 21+)</li>
+<li>Existing per-file markers remain readable during transition</li>
+</ul>
+<h3 id="32-review-checklist-static-template-per-chapter-deltas">3.2 Review Checklist: Static Template + Per-Chapter Deltas</h3>
+<h4 id="321-split-storage">3.2.1 Split Storage</h4>
+<p><strong>Static template</strong> (generated once in Genesis by <code>shenbi-context-composing</code>):</p>
+<p><code>context/review-checklist-template.json</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;ai_blacklist&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="err">...</span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;fatigue_warnings&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;voice_constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="err">...</span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;pov_mode&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;world_rules_brief&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;...&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;sensitivity_flags&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<p><strong>Per-chapter deltas</strong> (generated in chapter loop):</p>
+<p><code>context/review-checklist-chapter-N.json</code>:
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;chapter&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;transition_budget&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;ending_constraints&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;hook_deliverables&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;MH-001&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;MH-020&quot;</span><span class="p">]</span>
+<span class="p">}</span>
+</code></pre></div></p>
+<h4 id="322-template-regeneration-triggers">3.2.2 Template Regeneration Triggers</h4>
+<p>The static template is regenerated only when its source data changes:
+- Genesis completion (initial generation)
+- <code>shenbi-style-learning</code> update (every 12 chapters, per Spec 1: Truth File)
+- <code>shenbi-genre-config</code> change</p>
+<h4 id="323-merger-function">3.2.3 Merger Function</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/review_checklist.py</code> (new function)</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">get_checklist</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ReviewChecklist</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Merge static template with per-chapter delta to produce full checklist.&quot;&quot;&quot;</span>
+    <span class="n">template_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span> <span class="o">/</span> <span class="s1">&#39;review-checklist-template.json&#39;</span>
+    <span class="n">delta_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;context&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;review-checklist-chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.json&#39;</span>
+
+    <span class="n">template</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">template_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span> <span class="k">if</span> <span class="n">template_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="p">{}</span>
+    <span class="n">delta</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">delta_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span> <span class="k">if</span> <span class="n">delta_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="p">{}</span>
+
+    <span class="n">merged</span> <span class="o">=</span> <span class="p">{</span><span class="o">**</span><span class="n">template</span><span class="p">,</span> <span class="o">**</span><span class="n">delta</span><span class="p">}</span>
+    <span class="k">return</span> <span class="n">ReviewChecklist</span><span class="p">(</span><span class="o">**</span><span class="n">merged</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="324-skillmd-update">3.2.4 SKILL.md Update</h4>
+<p><strong>File:</strong> <code>skills/shenbi-context-composing/SKILL.md</code></p>
+<p>Update output contract:
+- Genesis phase: output <code>context/review-checklist-template.json</code> (static fields only)
+- Chapter loop: output <code>context/review-checklist-chapter-N.json</code> (dynamic fields + hook_deliverables)
+- Remove static fields from per-chapter output prompt</p>
+<h4 id="325-consumer-adaptation">3.2.5 Consumer Adaptation</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/review_checklist.py</code> (line 60, <code>generate_review_checklist</code>)</p>
+<p>Modify to call <code>get_checklist()</code> merger instead of regenerating all fields. Cache invalidation logic shifts to checking template mtime + delta mtime vs merged result.</p>
+<h3 id="33-snapshots-differential-mode-with-sha-256-hash-references">3.3 Snapshots: Differential Mode with SHA-256 Hash References</h3>
+<p><strong>Rollback limitation:</strong> The differential format stores only SHA-256 hashes for chapter/plan/audit files (deemed "immutable"). However, the revision-rollback use case requires restoring the PREVIOUS chapter content after a revision overwrite. Since the chapter file IS mutated during revision, the hash-reference approach cannot restore it. <strong>Fix:</strong> Store full content for the last N=3 chapter snapshots (ring buffer) alongside hash references for older snapshots. This preserves rollback capability for the most common recovery scenario while maintaining differential efficiency for historical data.</p>
+<h4 id="331-new-snapshot-format">3.3.1 New Snapshot Format</h4>
+<p><strong>File:</strong> <code>src/shenbi/pipeline/chapter_loop.py</code> (line 903, <code>_snapshot_chapter_files</code>)</p>
+<p>Replace full-content markdown snapshot with a JSON manifest containing hash references:</p>
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;chapter&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">25</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;timestamp&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;20260717T213204&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;label&quot;</span><span class="p">:</span><span class="w"> </span><span class="kc">null</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;chapter&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chapters/chapter-025.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;sha256&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;a1b2c3d4...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">15234</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;plan&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;path&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;plans/chapter-25-plan.md&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;sha256&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;e5f6g7h8...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">4521</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;audit_files&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;chapter-25-review-resonance.md&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;sha256&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;i9j0k1l2...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">8932</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;chapter-25-review-character.md&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;sha256&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;m3n4o5p6...&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;size&quot;</span><span class="p">:</span><span class="w"> </span><span class="mi">6712</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;truth_snapshot&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;book_spine.md&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;# Book Spine\n\n...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;character_matrix.md&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;| Character | Slug | ...&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">&quot;foreshadowing_ledger.md&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;| Hook ID | ...&quot;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+<p><strong>Storage:</strong> <code>snapshots/chapter-025-20260717T213204.json</code></p>
+<p><strong>Design rationale:</strong>
+- <strong>Chapter text and audit reports:</strong> Store SHA-256 hashes only (these files are immutable post-snapshot)
+- <strong>Truth files:</strong> Store full content (only mutable, accumulating state that rollback must restore)
+- <strong>Plan file:</strong> Store SHA-256 hash (plan is write-once per chapter)</p>
+<h4 id="332-implementation">3.3.2 Implementation</h4>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_snapshot_chapter_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Create a differential snapshot: hash references for immutable files,</span>
+<span class="sd">    full content for mutable truth files.&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">datetime</span><span class="w"> </span><span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">UTC</span>
+
+    <span class="n">snap_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span>
+    <span class="n">snap_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+    <span class="n">timestamp</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">UTC</span><span class="p">)</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y%m</span><span class="si">%d</span><span class="s2">T%H%M%S&quot;</span><span class="p">)</span>
+    <span class="n">snap_path</span> <span class="o">=</span> <span class="n">snap_dir</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">timestamp</span><span class="si">}</span><span class="s2">.json&quot;</span>
+
+    <span class="n">manifest</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;chapter&#39;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+        <span class="s1">&#39;timestamp&#39;</span><span class="p">:</span> <span class="n">timestamp</span><span class="p">,</span>
+        <span class="s1">&#39;label&#39;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="s1">&#39;files&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s1">&#39;audit_files&#39;</span><span class="p">:</span> <span class="p">{},</span>
+        <span class="s1">&#39;truth_snapshot&#39;</span><span class="p">:</span> <span class="p">{}</span>
+    <span class="p">}</span>
+
+    <span class="c1"># 1. Hash chapter file (immutable); ring-buffer full content for recent chapters</span>
+    <span class="c1">#    so revision-rollback can restore the PREVIOUS chapter content after a</span>
+    <span class="c1">#    revision overwrite. Only the last N=3 chapters keep full content; older</span>
+    <span class="c1">#    snapshots are hash-only (see §3.3 rollback-limitation note).</span>
+    <span class="n">latest_chapter</span> <span class="o">=</span> <span class="n">_latest_chapter_number</span><span class="p">(</span><span class="n">snap_dir</span><span class="p">)</span>  <span class="c1"># highest chapter seen so far</span>
+    <span class="n">chapter_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.md&quot;</span>
+    <span class="k">if</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_content</span> <span class="o">=</span> <span class="n">chapter_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">content_bytes</span> <span class="o">=</span> <span class="n">file_content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;sha256&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">content_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
+            <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_bytes</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">chapter</span> <span class="o">&gt;=</span> <span class="n">latest_chapter</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># ring buffer for recent chapters (N=3)</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_content</span>  <span class="c1"># enables revision rollback</span>
+        <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">][</span><span class="s1">&#39;chapter&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span>
+
+    <span class="c1"># 2. Hash plan file (write-once); same ring-buffer treatment for recent chapters</span>
+    <span class="n">plan_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;plans&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-plan.md&quot;</span>
+    <span class="k">if</span> <span class="n">plan_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">file_content</span> <span class="o">=</span> <span class="n">plan_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">content_bytes</span> <span class="o">=</span> <span class="n">file_content</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+        <span class="n">record</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;path&#39;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;plans/chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-plan.md&quot;</span><span class="p">,</span>
+            <span class="s1">&#39;sha256&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">content_bytes</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
+            <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">content_bytes</span><span class="p">)</span>
+        <span class="p">}</span>
+        <span class="k">if</span> <span class="n">chapter</span> <span class="o">&gt;=</span> <span class="n">latest_chapter</span> <span class="o">-</span> <span class="mi">2</span><span class="p">:</span>  <span class="c1"># ring buffer for recent chapters (N=3)</span>
+            <span class="n">record</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">file_content</span>
+        <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">][</span><span class="s1">&#39;plan&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">record</span>
+
+    <span class="c1"># 3. Hash audit files (immutable post-generation)</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="k">if</span> <span class="n">audit_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">af</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-*.md&quot;</span><span class="p">)):</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">af</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">()</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;audit_files&#39;</span><span class="p">][</span><span class="n">af</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s1">&#39;sha256&#39;</span><span class="p">:</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">content</span><span class="p">)</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">(),</span>
+                <span class="s1">&#39;size&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+            <span class="p">}</span>
+
+    <span class="c1"># 4. Full content for truth files (mutable, accumulating state)</span>
+    <span class="n">truth_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="k">if</span> <span class="n">truth_dir</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">tf</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">truth_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">)):</span>
+            <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;truth_snapshot&#39;</span><span class="p">][</span><span class="n">tf</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">tf</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s1">&#39;utf-8&#39;</span><span class="p">)</span>
+
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">snap_path</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">manifest</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+
+    <span class="c1"># Update manifest and prune</span>
+    <span class="o">...</span>
+</code></pre></div>
+<h4 id="333-restore-from-snapshot">3.3.3 Restore from Snapshot</h4>
+<p>Add <code>restore_from_snapshot()</code> function:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">restore_from_snapshot</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">snapshot_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Restore truth files from a differential snapshot manifest.&quot;&quot;&quot;</span>
+    <span class="n">manifest</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">snapshot_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span>
+
+    <span class="c1"># 1. Restore truth files (the only content stored in full)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;truth_snapshot&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">safe_write</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;truth&#39;</span> <span class="o">/</span> <span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+
+    <span class="c1"># 2. Verify chapter and audit file integrity via hash comparison;</span>
+    <span class="c1">#    for files whose full content was stored (ring buffer, recent chapters),</span>
+    <span class="c1">#    restore them — this is what enables revision-rollback to recover the</span>
+    <span class="c1">#    PREVIOUS chapter content after a revision overwrite.</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">manifest</span><span class="p">[</span><span class="s1">&#39;files&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">original_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="s2">&quot;content&quot;</span> <span class="ow">in</span> <span class="n">info</span><span class="p">:</span>
+            <span class="c1"># Recent-chapter ring buffer: full content was snapshotted — restore it.</span>
+            <span class="n">safe_write</span><span class="p">(</span><span class="n">original_path</span><span class="p">,</span> <span class="n">info</span><span class="p">[</span><span class="s2">&quot;content&quot;</span><span class="p">])</span>
+        <span class="k">elif</span> <span class="n">original_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="c1"># Older snapshot: hash-only. Verify integrity, do not restore.</span>
+            <span class="n">current_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">original_path</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current_hash</span> <span class="o">!=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;sha256&#39;</span><span class="p">]:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;snapshot_hash_mismatch&quot;</span><span class="p">,</span>
+                           <span class="n">file</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;path&#39;</span><span class="p">],</span>
+                           <span class="n">snapshot_hash</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sha256&#39;</span><span class="p">],</span>
+                           <span class="n">current_hash</span><span class="o">=</span><span class="n">current_hash</span><span class="p">)</span>
+
+    <span class="c1"># 3. Audit files: verify existence and hash (no restore needed --</span>
+    <span class="c1">#    they are immutable historical records)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">manifest</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;audit_files&#39;</span><span class="p">,</span> <span class="p">{})</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">af</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;audits&#39;</span> <span class="o">/</span> <span class="n">name</span>
+        <span class="k">if</span> <span class="n">af</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">current_hash</span> <span class="o">=</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">af</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+            <span class="k">if</span> <span class="n">current_hash</span> <span class="o">!=</span> <span class="n">info</span><span class="p">[</span><span class="s1">&#39;sha256&#39;</span><span class="p">]:</span>
+                <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;snapshot_audit_hash_mismatch&quot;</span><span class="p">,</span>
+                           <span class="n">file</span><span class="o">=</span><span class="n">name</span><span class="p">,</span>
+                           <span class="n">snapshot_hash</span><span class="o">=</span><span class="n">info</span><span class="p">[</span><span class="s1">&#39;sha256&#39;</span><span class="p">],</span>
+                           <span class="n">current_hash</span><span class="o">=</span><span class="n">current_hash</span><span class="p">)</span>
+</code></pre></div>
+<h4 id="334-snapshot-naming-convention">3.3.4 Snapshot Naming Convention</h4>
+<p>New snapshots use <code>.json</code> extension (was <code>.md</code>). Old markdown snapshots remain readable for backward compatibility during transition. <code>shenbi-snapshot-manage</code> SKILL.md updated to document the new format.</p>
+<hr />
+<h2 id="4-affected-files">4. Affected Files</h2>
+<h3 id="gate-marker-manifest">Gate Marker Manifest</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/gates/shared.py</code> (331 lines)</td>
+<td>Add <code>record_gate_result()</code> function; modify <code>write_gate_marker()</code> (line 182) to use manifest</td>
+</tr>
+<tr>
+<td><code>src/shenbi/phase_runner.py</code> (358 lines)</td>
+<td>Redirect gate marker writes from per-file (line 219-222) to manifest</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/cli.py</code></td>
+<td>Update <code>write_gate_marker</code> callers (line 121, 128)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/scoring.py</code></td>
+<td>Update <code>check_gate_markers()</code> (line 186-211) to read manifest first; add <code>get_gate_result()</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g7.py</code></td>
+<td>Update gate marker verification (line 169, 249) for manifest format</td>
+</tr>
+<tr>
+<td><code>gate-markers/pipeline-manifest.json</code></td>
+<td><strong>New file</strong> -- hierarchical gate result manifest</td>
+</tr>
+</tbody>
+</table>
+<h3 id="review-checklist-staticdynamic-split">Review Checklist Static/Dynamic Split</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/review_checklist.py</code> (477 lines)</td>
+<td>Add <code>get_checklist()</code> merger function; modify <code>generate_review_checklist()</code> (line 60) to use template+delta</td>
+</tr>
+<tr>
+<td><code>context/review-checklist-template.json</code></td>
+<td><strong>New file</strong> -- static fields generated once in Genesis</td>
+</tr>
+<tr>
+<td><code>context/review-checklist-chapter-N.json</code></td>
+<td>Replace current <code>review-checklist-N.json</code> -- dynamic fields only</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-context-composing/SKILL.md</code></td>
+<td>Update output contract: Genesis writes template, chapter loop writes deltas</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (1450 lines)</td>
+<td>Update context assembly to load merged checklist</td>
+</tr>
+</tbody>
+</table>
+<h3 id="snapshot-differential-storage">Snapshot Differential Storage</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/chapter_loop.py</code> (1450 lines)</td>
+<td>Rewrite <code>_snapshot_chapter_files()</code> (line 903-960) for differential JSON manifest; add <code>restore_from_snapshot()</code></td>
+</tr>
+<tr>
+<td><code>skills/shenbi-snapshot-manage/SKILL.md</code></td>
+<td>Update output format documentation for JSON manifest</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/cli.py</code></td>
+<td>Update <code>rollback</code> command to use new <code>restore_from_snapshot()</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-verification-criteria">5. Verification Criteria</h2>
+<h3 id="gate-marker-manifest_1">Gate Marker Manifest</h3>
+<ol>
+<li>After Genesis completes, <code>pipeline-manifest.json</code> contains G4 results for all genesis skills</li>
+<li>After each chapter completes, manifest contains G4 results for all chapter loop skills for that chapter</li>
+<li><code>get_gate_result('shenbi-chapter-drafting', 'G4')</code> returns the most recent result</li>
+<li>Old per-file format (<code>G4-{skill}-generative.json</code>) remains readable via fallback</li>
+<li>Pipeline status reports read complete gate status from single file</li>
+<li><code>just check</code> passes with zero failures</li>
+</ol>
+<h3 id="review-checklist-staticdynamic-split_1">Review Checklist Static/Dynamic Split</h3>
+<ol>
+<li>After Genesis, <code>review-checklist-template.json</code> exists with 6 static fields</li>
+<li>After 5 chapters, each chapter has only <code>review-checklist-chapter-N.json</code> (&lt;= 500 bytes each)</li>
+<li><code>get_checklist(N)</code> merged result is functionally equivalent to current <code>review-checklist-N.json</code></li>
+<li><code>hook_deliverables</code> is not always 0 when plan has active hooks (cross-dependency with Spec 5: Content Quality Gates)</li>
+<li>Static template regenerates when style-learning updates (every 12 chapters)</li>
+<li><code>just check</code> passes with zero failures</li>
+</ol>
+<h3 id="snapshot-differential-storage_1">Snapshot Differential Storage</h3>
+<ol>
+<li>New snapshot file size &lt;= chapter file size * 2 (not 172% as current)</li>
+<li>Rollback test: restore from snapshot -&gt; truth files correctly restored</li>
+<li>Hash verification: modifying a chapter file after snapshot creation -&gt; <code>restore_from_snapshot()</code> detects hash mismatch and warns</li>
+<li>Old markdown snapshot format remains readable during transition</li>
+<li>Snapshot coverage: all chapters have snapshots (cross-dependency with Spec 3: Dispatch Safety)</li>
+<li><code>just check</code> passes with zero failures</li>
+</ol>
+<hr />
+<h2 id="6-dependencies">6. Dependencies</h2>
+<div class="highlight"><pre><span></span><code>Spec 3 (Dispatch Safety and File Integrity)
+  └── Ensures all chapters have snapshots before optimizing snapshot format
+
+Spec 5 (Content Quality Gates and Review Optimization)
+  └── Covers review checklist fixes (hook_deliverables field)
+
+Spec 1 (Truth File and State Accumulation)
+  └── Triggers static template regeneration on style-learning update
+
+This Spec
+  ├── Pipeline status report (consumes unified manifest)
+  ├── shenbi-chapter-drafting (checklist consumer adaptation)
+  ├── shenbi-context-composing SKILL.md (split output: template vs deltas)
+  ├── shenbi-snapshot-manage SKILL.md (new JSON manifest format)
+  └── pipeline rollback (restore_from_snapshot logic)
+</code></pre></div>
+<hr />
+<h2 id="7-original-code-mapping">7. Original Code Mapping</h2>
+<p>This consolidated spec merges the following original issue codes:</p>
+<table>
+<thead>
+<tr>
+<th>Original Issue Code</th>
+<th>Description</th>
+<th>Section in This Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>gate-markers</code></td>
+<td>21 scattered gate marker JSON files with history lost on overwrite</td>
+<td>2.1, 3.1</td>
+</tr>
+<tr>
+<td><code>review-checklist-static</code></td>
+<td>7 static fields regenerated for every chapter</td>
+<td>2.2, 3.2</td>
+</tr>
+<tr>
+<td><code>snapshot-differential</code></td>
+<td>Full file copies at 172% of referenced content size</td>
+<td>2.3, 3.3</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-storage-impact-summary">8. Storage Impact Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Subsystem</th>
+<th>Before</th>
+<th>After</th>
+<th>Reduction</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Gate markers</td>
+<td>21 files, 11 KB total; historical data lost on overwrite</td>
+<td>1 file; all historical results preserved</td>
+<td>-95% file count; +historical traceability</td>
+</tr>
+<tr>
+<td>Review checklist</td>
+<td>56 files * 10 fields (7 static) = 560 field writes; ~220 KB</td>
+<td>1 template + 56 delta files (3 dynamic fields each); ~50 KB</td>
+<td>-77% storage; -70% token waste</td>
+</tr>
+<tr>
+<td>Snapshots (~51-52 chapters)</td>
+<td>~12 MB (172% of referenced content)</td>
+<td>~3.5 MB (hash references + truth files only)</td>
+<td>-72% storage</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

@@ -1,0 +1,2401 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-08-contract-consistency-infrastructure-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>契约一致性基础设施 (Contract Consistency Infrastructure) - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="契约一致性基础设施 (Contract Consistency Infrastructure) - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-08-contract-consistency-infrastructure-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-07-08-contract-consistency-infrastructure-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="契约一致性基础设施 (Contract Consistency Infrastructure) - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-07-08-contract-consistency-infrastructure-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#contract-consistency-infrastructure" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              契约一致性基础设施 (Contract Consistency Infrastructure)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景与动机
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景与动机">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 审计发现的一致性问题(8 大类)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 本 spec 的边界(分解策略)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 目标与非目标
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 目标与非目标">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 目标 —— 五大根因机制
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 非目标(明确排除)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 成功标准
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 架构:三层校验栈
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-layer-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. Layer A:运行期统一
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. Layer A:运行期统一">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 单一占位符解析 + 章节提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-roundpaths" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 RoundPaths 三根封装
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-g52-glob-aware-warn" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 G5.2 glob-aware WARN
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-layer-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 共享模块清单(Layer A 产出)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-backup_skills-i4-spec-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 BACKUP_SKILLS 派生(I4 — 从 spec 2 拉回)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-layer-bschema" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. Layer B:Schema 单一源
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. Layer B:Schema 单一源">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-schema-first" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 设计原则:Schema-First 立即切换(分类策略)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 模型清单
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 关键模型示例
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 错误信息映射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 版本化策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 死代码清理
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-layer-cci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. Layer C:CI 静态校验
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. Layer C:CI 静态校验">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-producer-registry" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 契约图闭包校验 + Producer Registry
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 字段过滤单一化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 版本兼容性校验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 聚合入口
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 实施顺序(4 阶段)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="7. 实施顺序(4 阶段)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#71-0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.1 阶段 0 — 基线快照(前置调查)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#72-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.2 阶段 1 — 底座建立
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#73-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.3 阶段 2 — 运行期统一
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#74-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.4 阶段 3 — 静态校验
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#75-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7.5 阶段 4 — 历史债清零
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 测试策略
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="8. 测试策略">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#81" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.1 测试分层映射
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#82" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.2 金丝雀回归测试(防错配回潮)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#83" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8.3 测试数据原则
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 行业最佳实践对照
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 后续 spec(明确边界)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="contract-consistency-infrastructure">契约一致性基础设施 (Contract Consistency Infrastructure)</h1>
+<ul>
+<li><strong>状态</strong>: Draft (pending user review)</li>
+<li><strong>日期</strong>: 2026-07-08</li>
+<li><strong>范围</strong>: 根因机制层 —— 路径解析统一 / 契约图闭环 / Schema 单一源 / 字段匹配单一化</li>
+<li><strong>优先级原则</strong>: 质量 &gt; 可维护性 &gt; 开发成本</li>
+<li><strong>前提</strong>: 项目处于验证阶段,无历史包袱 → 采用 schema-first 立即切换,不留过渡态</li>
+</ul>
+<hr />
+<h2 id="1">1. 背景与动机</h2>
+<p>系统运行中频繁出现 pipeline 与 skill 之间的文件路径错配、读写不一致,导致整个流程出错。对 <code>src/shenbi/</code> 全量审计(4 个探索 agent,gates / dispatcher+pipeline / contracts+scoring+cli / 跨模块上下文依赖)发现问题的广度远超最初的 7 缺口诊断。</p>
+<h3 id="11-8">1.1 审计发现的一致性问题(8 大类)</h3>
+<table>
+<thead>
+<tr>
+<th>类</th>
+<th>根因</th>
+<th>严重度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 占位符解析</td>
+<td><strong>4 套</strong>分叉实现:executor(chapter 无界 replace)、dispatch_helper(chapter 有界正则)、chapter_loop(chapter 有界正则)、<strong>closure(volume 无界 replace,漏列于初版审计)</strong>。无界 replace 腐蚀任何含<strong>大写 N</strong> 的路径(<code>import/canon/01_SECTION.md</code>→<code>01_SECTIO5.md</code>、<code>NPC-list.md</code>→<code>5PC-list.md</code>);小写 n 不受影响(故 <code>resonance</code> 不腐蚀)</td>
+<td>高</td>
+</tr>
+<tr>
+<td>2. 根目录解析</td>
+<td><code>round_dir</code>/<code>project_dir</code>/<code>PROJECT</code>/CWD 四套根;G4 的 <code>resolve_g4_base</code> 静默 fallback 到 CWD;<code>.bak</code> 用裸字符串 fp</td>
+<td>高</td>
+</tr>
+<tr>
+<td>3. 契约图闭包</td>
+<td>无"每个 read 必须有 producer"的闭包检查;pipeline 直接写的文件不在 skill 契约图内</td>
+<td>高</td>
+</tr>
+<tr>
+<td>4. Schema 校验</td>
+<td>decisions.json 三处手写副本;truth-files.yaml 两处读不同子集;deps.json 四处裸 <code>.get()</code></td>
+<td>高</td>
+</tr>
+<tr>
+<td>5. 字段过滤</td>
+<td>三套匹配语义(filter/G1 精确、lint normalize);逃生舱静默退化;fields_map 查键逻辑不同</td>
+<td>中</td>
+</tr>
+<tr>
+<td>6. gate↔gate 隐式契约</td>
+<td><code>.bak</code> 三处裸 fp;BACKUP_SKILLS 硬编码漏列 5 个 truth-updating skill;PhaseState 枚举 vs 裸字面量</td>
+<td>高</td>
+</tr>
+<tr>
+<td>7. gate 入口分叉</td>
+<td>三套入口(<code>validate-gate.py</code>/<code>python -m</code>/<code>uv run</code>),validate-gate.py 未 hash 锁定</td>
+<td>中</td>
+</tr>
+<tr>
+<td>8. 已确认活 bug</td>
+<td>D16(G6.10 死路径)、D19(G3.1 死键)、D20(pipeline 产物路径分叉)、D21-D22-D24、<strong>D26(novel.json target_words vs target_word_count 字段分裂,阶段0新发现)</strong></td>
+<td>高</td>
+</tr>
+</tbody>
+</table>
+<h3 id="12-spec">1.2 本 spec 的边界(分解策略)</h3>
+<p>本 spec 聚焦<strong>根因机制层</strong>(类 1-5 的基础设施)。gate 内部契约治理、入口统一、活 bug 修复作为<strong>后续独立 spec</strong>,各自有明确边界:</p>
+<ul>
+<li><strong>本 spec(契约一致性基础设施)</strong>:单一解析器(4 套收敛)+ RoundPaths(三根)+ 契约图闭环(含 Producer Registry)+ Schema 单一源(全结构化文件 pydantic)+ 字段匹配单一化 + <code>.bak</code> 路径/覆盖统一 + 六个活 bug 切除(D16/D19/D20/D21/D22/D24)</li>
+<li><strong>spec 2(gate↔gate 深度治理 + 入口统一)</strong>:PhaseState 单向引用、marker coverage、gate 三入口收敛、progress/summary writer 统一(升级 forbid)。详见 §10。</li>
+</ul>
+<p><strong>分解理由</strong>:类 6-8 是 gate 内部治理,与类 1-5 的路径/契约/schema 机制正交。混入一份 spec 会模糊焦点、增大回滚粒度。</p>
+<hr />
+<h2 id="2">2. 目标与非目标</h2>
+<h3 id="21">2.1 目标 —— 五大根因机制</h3>
+<ol>
+<li><strong>单一占位符解析</strong>:消灭 4 套分叉的占位符替换(3 套 chapter + 1 套 volume)与章节提取;含大写 N 路径不被腐蚀。</li>
+<li><strong>RoundPaths 三根封装</strong>:<code>round_dir</code> + <code>project_dir</code> + <code>repo_root</code>;所有路径解析的唯一出口;消除 CWD fallback 和裸字符串 join。</li>
+<li><strong>契约图闭环 + Producer Registry</strong>:每个 read 必须有 producer(skill / pipeline / external);pipeline 产物登记;ORPHAN_READ 静态 FAIL。</li>
+<li><strong>Schema 单一源</strong>:所有多处消费的结构化文件(decisions / deps / novel / progress / summary / scores / registry)都有 pydantic 模型;一处定义,所有消费方 import。<strong>producer 受控类</strong> <code>extra: forbid</code>(拼写错误当场暴露);<strong>producer 不受控类</strong>(progress/summary,shell heredoc 写)先 <code>extra: ignore</code>,writer 统一后升级 forbid(见 §5.1)。</li>
+<li><strong>字段匹配单一化</strong>:<code>match_field</code> 单函数;filter / G1 / lint 统一调用;逃生舱语义集中。</li>
+<li><strong>现存活 bug 切除</strong>:审计确认的 D16/D19/D20/D21/D22/D24 + 阶段0新发现的 D26(novel.json 字段分裂)—— 它们是上述五类机制主题的现存实例,本 spec 一并根治,不遗留。</li>
+</ol>
+<h3 id="22">2.2 非目标(明确排除)</h3>
+<ul>
+<li>gate↔gate 隐式契约治理(PhaseState 单向引用、marker coverage)→ spec 2</li>
+<li><strong>已拉回本 spec</strong>:<code>.bak</code> 路径构造(RoundPaths)+ BACKUP_SKILLS 派生(I4 — 路径与覆盖范围纠缠,拆分制造半修)</li>
+<li>gate 入口三套分叉统一 → spec 2</li>
+<li>progress.json/summary.json 的 writer 统一 + 升级 forbid → spec 2(本 spec 先 <code>ignore</code> 建模,见 §5.1)</li>
+<li><code>chapter_loop.py</code> 硬编码步骤顺序(执行序是独立关注点)</li>
+<li><code>legacy.py:_validate</code> contract 块校验重写(它工作良好,非任何缺口根源)</li>
+<li>DAG 生成器本身(<code>sync_contracts.build_dag</code> 已正确)</li>
+</ul>
+<h3 id="23">2.3 成功标准</h3>
+<ul>
+<li>故意写错 read 路径 → CI 在 PR 阶段 FAIL 并精确报 <code>ORPHAN_READ: skill=X reads=foo-bar.md no producer</code>。</li>
+<li>任何含<strong>大写 N</strong> 的路径(如 <code>import/canon/01_SECTION.md</code>、<code>NPC-list.md</code>)解析不被腐蚀(小写 n 如 <code>resonance</code> 本就不受 <code>str.replace("N")</code> 影响——核实)。</li>
+<li><code>round_dir ≠ project_dir ≠ repo_root</code> 三根分离 fixture 下,G4 / gate / dispatcher 行为正确。</li>
+<li>pipeline 写的文件(如 <code>context/chapter-N-context.md</code>)被闭包校验正确识别为有 producer,不误报孤儿。</li>
+<li>所有 <strong>producer 受控类</strong> pydantic 模型 <code>extra: forbid</code>;任一此类结构化文件带拼写错误字段 → 加载失败。(progress/summary 是 producer 不受控类,<code>extra: ignore</code>,writer 统一后升级 forbid——见 §5.1,不阻塞本 spec 成功标准。)</li>
+<li>字段标题漂移 → CI FAIL,且 filter / G1 / lint 对同一输入产生一致结果。</li>
+</ul>
+<hr />
+<h2 id="3">3. 架构:三层校验栈</h2>
+<div class="highlight"><pre><span></span><code>┌─────────────────────────────────────────────┐
+│  Layer C: CI/Authoring (静态, FAIL)         │
+│  ├─ lint_contract_graph.py   (闭包 + Producer Registry) │
+│  ├─ lint_contract_fields.py  (字段, 用 match_field)     │
+│  └─ schema_compat_check      (版本兼容)                │
+├─────────────────────────────────────────────┤
+│  Layer B: Schema 单一源 (pydantic)          │
+│  ├─ decisions / registry / deps / novel ... │
+│  └─ 所有消费方 import 模型,g2/g4/lint 共用    │
+├─────────────────────────────────────────────┤
+│  Layer A: 运行期统一                         │
+│  ├─ contracts/paths.py 单一解析器 + extract   │
+│  ├─ paths.py RoundPaths (三根)               │
+│  ├─ contracts/fields.py match_field 单函数    │
+│  └─ G5.2 glob-aware WARN                     │
+└─────────────────────────────────────────────┘
+</code></pre></div>
+<p>每层可独立测试、独立演进。schema 是底座,运行期统一在中间,CI 校验在顶层。修一类问题只动一层。</p>
+<hr />
+<h2 id="4-layer-a">4. Layer A:运行期统一</h2>
+<h3 id="41">4.1 单一占位符解析 + 章节提取</h3>
+<p><strong>现状(4 套分叉 — 审计 review 发现第 4 套)</strong>:
+- <code>dispatcher/executor.py:66</code> <code>_resolve_chapter_path</code>:无界 <code>path.replace("NNN",...).replace("N", str(chapter))</code>,缺章返哨兵 <code>""</code>。
+- <code>pipeline/dispatch_helper.py:104</code> <code>_resolve_path</code>:有界正则 <code>(?&lt;=[-/])N(?=[-./]|$)</code>,缺章直传。
+- <code>pipeline/chapter_loop.py:332</code> <code>_substitute_chapter</code>:有界正则,chapter 必填。
+- <strong><code>pipeline/closure.py:137</code> <code>_substitute_volume</code></strong>:无界 <code>path.replace("N", str(volume))</code> —— <strong>volume 替换,同样的无界 bug,初版审计漏列</strong>。注:N 在此表示 volume(非 chapter,无 zero-pad)。
+- 另:<code>executor.py:63</code> <code>_extract_chapter</code> 用 <code>\bchapter\s+(\d+)\b</code>(词边界);<code>dispatch_helper.py:100</code> 用 <code>chapter\s+(\d+)</code>(无词边界)——<code>subchapter 5</code> 一个返 None 一个返 5。</p>
+<p><strong>事实校正(经核实)</strong>:<code>str.replace("N", ...)</code> <strong>区分大小写</strong>。小写 <code>n</code> 不受影响(故 <code>resonance</code> 实际不腐蚀——初版 spec 此例错误)。真正受腐蚀的是含<strong>大写 N</strong> 的路径:<code>import/canon/01_SECTION.md</code>→<code>01_SECTIO5.md</code>、<code>NPC-list.md</code>→<code>5PC-list.md</code>(均已核实)。</p>
+<p><strong>设计</strong>:新建 <code>src/shenbi/contracts/paths.py</code>,提供<strong>三个</strong>解析函数(共享有界替换原语)+ 一个提取函数:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/paths.py</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">UnresolvedPathError</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;路径含章节/卷占位符但无上下文。&quot;&quot;&quot;</span>
+
+<span class="c1"># 共享有界替换原语(内部)</span>
+<span class="n">_BOUND_N</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?&lt;=[-/])N(?=[-./]|$)&quot;</span><span class="p">)</span>
+<span class="n">_BOUND_NNN</span> <span class="o">=</span> <span class="s2">&quot;NNN&quot;</span>  <span class="c1"># 直接 replace,无歧义</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_bounded_replace_n</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">value</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;有界替换裸 N:仅在分隔符边界,防腐蚀 SECTIO_N_/NPC 等。&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">_BOUND_N</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">),</span> <span class="n">path</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_chapter_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;单一次章节占位符替换。NNN→3位补零, N→裸数字(有界)。</span>
+
+<span class="sd">    - chapter is None 且路径含 NNN/N → 抛 UnresolvedPathError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">chapter</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_BOUND_NNN</span> <span class="ow">in</span> <span class="n">path</span> <span class="ow">or</span> <span class="n">_BOUND_N</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">UnresolvedPathError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">_BOUND_NNN</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">chapter</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_bounded_replace_n</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">resolve_volume_path</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">volume</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;单一次卷占位符替换。N→裸数字(有界,无补零)。</span>
+
+<span class="sd">    volume 与 chapter 语义不同:无 NNN、无 zero-pad。独立函数避免</span>
+<span class="sd">    &#39;chapter resolver 套到 volume 场景&#39;的误用。</span>
+<span class="sd">    - volume is None 且路径含 N → 抛 UnresolvedPathError</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">volume</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">_BOUND_N</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">path</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">UnresolvedPathError</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">path</span>
+    <span class="k">return</span> <span class="n">_bounded_replace_n</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">volume</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_chapter</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;单一次章节提取。统一用词边界正则(消除 subchapter 误匹配)。&quot;&quot;&quot;</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\bchapter\s+(\d+)\b&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="kc">None</span>
+</code></pre></div>
+<p><strong>迁移范围(4 套全改)</strong>:
+- <code>executor.py</code>:删 <code>_resolve_chapter_path</code>/<code>_extract_chapter</code>;改 import <code>resolve_chapter_path</code>/<code>extract_chapter</code>。
+- <code>dispatch_helper.py</code>:删 <code>_resolve_path</code>/<code>_extract_chapter</code>;改 import。
+- <code>chapter_loop.py</code>:删 <code>_substitute_chapter</code>;改 import <code>resolve_chapter_path</code>。
+- <strong><code>closure.py</code>:删 <code>_substitute_volume</code>;改 import <code>resolve_volume_path</code></strong>(C1 修复)。</p>
+<p><strong>调用方协议(I6 修复 — <code>resolve_chapter_path</code> 抛异常的语义)</strong>:
+当前 executor 返回哨兵 <code>""</code> 让调用方跳过;新设计抛 <code>UnresolvedPathError</code>,调用方必须显式处理。协议:
+- 新增 <code>paths.py:resolve_or_skip(path, chapter) -&gt; str | None</code>:捕获 <code>UnresolvedPathError</code> 返回 <code>None</code>(语义="跳过该路径")。
+- <strong>genesis 模式</strong>(<code>chapter is None</code>):<code>derive_input_files</code>/<code>derive_output_files</code> 调用 <code>resolve_or_skip</code>,跳过含占位符的路径(当前哨兵行为的等价)。
+- <strong>chapter 模式</strong>(<code>chapter is not None</code>):直接调用 <code>resolve_chapter_path</code>,异常向上传播 = 真正的 bug(契约声明了占位符但 dispatcher 无章节上下文)。
+- 该协议在 <code>paths.py</code> 文档化,所有调用方遵循。</p>
+<p><strong>为什么"抛异常"而非旧 executor 的哨兵</strong>:空哨兵把错误吞成"文件不存在",下游 G1.1 报"input not found"而非"路径未解析"——这正是当前路径错配难以诊断的原因。抛异常让根因直接暴露。调用方(dispatcher)捕获后决定:genesis 阶段无章节属正常,跳过该路径;chapter 阶段抛异常 = 真正的 bug。</p>
+<h3 id="42-roundpaths">4.2 RoundPaths 三根封装</h3>
+<p><strong>现状根因</strong>:<code>round_dir</code> / <code>project_dir</code> / <code>PROJECT</code>(repo 根) 三套根散落使用;G4 的 <code>resolve_g4_base</code> 用 <code>rd if rd else Path.cwd()</code>(静默 CWD fallback);10 个 G4 checker 硬编码 <code>pd/"world/..."</code> 忽略传入的 fps;codex.py:58 的 rubric_path 是唯一 CWD 相对路径;<code>.bak</code> 三处用裸 <code>Path(str(fp)+".bak")</code>。</p>
+<p><strong>设计</strong>:新建 <code>src/shenbi/paths.py</code> 的 <code>RoundPaths</code> 值对象,封装三根关系:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/paths.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_chapter_path</span>
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RoundPaths</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;一次 dispatch/run 中所有路径解析的唯一出口。frozen 防误改。&quot;&quot;&quot;</span>
+    <span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span>    <span class="c1"># 本轮工作区(产物、markers、state)</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span>  <span class="c1"># 小说项目根(novel.json, world/, chapters/, truth/)</span>
+    <span class="n">repo_root</span><span class="p">:</span> <span class="n">Path</span>    <span class="c1"># 仓库根(SKILL.md, fixtures, rubric, validate-gate.py)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">read</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;reads 可来自 round_dir(本轮中间产物)或 project_dir(持久库)。</span>
+<span class="sd">        优先 round_dir, fallback project_dir —— 明确这个优先级,消灭隐式分歧。&quot;&quot;&quot;</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="n">rd</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">round_dir</span> <span class="o">/</span> <span class="n">resolved</span>
+        <span class="k">if</span> <span class="n">rd</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">rd</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolved</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">write</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;writes 总在 round_dir(本轮产物区)。&quot;&quot;&quot;</span>
+        <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">round_dir</span> <span class="o">/</span> <span class="n">resolved</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">repo</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;repo 资源(只读):SKILL.md, fixtures, rubric。&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">repo_root</span> <span class="o">/</span> <span class="n">rel</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">backup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rel</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;G2.11 的 .bak 必须与被 diff 的文件同根。&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span><span class="o">.</span><span class="n">with_name</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">rel</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span><span class="o">.</span><span class="n">name</span> <span class="o">+</span> <span class="s2">&quot;.bak&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p><strong>范围扩展(关键)</strong>:以下位点全部改走 RoundPaths:
+- <code>dispatcher/executor.py</code>:<code>derive_input_files</code>/<code>derive_output_files</code> 用 <code>rp.read()</code>/<code>rp.write()</code>。
+- <code>pipeline/dispatch_helper.py</code>:读循环用 <code>rp.read()</code>;<code>_PROJECT_ROOT</code> 换成 <code>rp.repo()</code>。
+- <code>gates/g1.py</code>、<code>g2.py</code>、<code>g4/</code>(全部 10 个硬编码 checker)、<code>g5.py</code>:路径构造改用 RoundPaths。
+- <strong>消除 <code>resolve_g4_base</code> 的 CWD fallback</strong>:无 round_dir 时报错(<code>ValueError</code>),不再静默用 CWD。
+- <strong>G4 硬编码 checker 改造</strong>:<code>worldbuilding.py</code>/<code>story_architecture.py</code>/<code>relationship_map.py</code>/<code>plot_thread_weaver.py</code>/<code>power_system.py</code>/<code>volume_outlining.py</code>/<code>foreshadowing_track.py</code>/<code>faction_builder.py</code>/<code>location_builder.py</code>/<code>pacing_design.py</code> 的 <code>pd = resolve_g4_base(rd); pd/"world/..."</code> 改为 <code>rp.read("world/...")</code>。
+- <strong>codex.py:58 rubric_path</strong>:从 <code>Path(os.environ.get("RUBRIC", f"tests/tiers/..."))</code>(CWD 相对)改为 <code>Path(os.environ.get("RUBRIC", str(rp.repo(f"tests/tiers/t1-skill/{skill}/rubric.md"))))</code>。保留 <code>RUBRIC</code> 环境变量覆盖能力(测试/调试用),但默认值走 <code>rp.repo()</code> 而非 CWD 相对字符串。
+- <strong><code>.bak</code> 三处</strong>(g1.py:179, g2.py:242, style_polishing.py:35):改用 <code>rp.backup()</code>,消除裸 <code>Path(str(fp)+".bak")</code> 与 style_polishing 内部不一致(.bak 在 CWD、内容在 base)。</p>
+<p><strong>为什么 read 优先 round_dir</strong>:round_dir 是本轮工作区,可能含上游 skill 刚产出的中间文件;project_dir 是持久库(truth/style/outline)。本轮产物应优先,否则读到上一轮陈旧中间文件。这个优先级当前是隐式且不一致的,本设计显式化。</p>
+<h3 id="43-g52-glob-aware-warn">4.3 G5.2 glob-aware WARN</h3>
+<p><strong>现状</strong>:<code>g5.py:78</code> 裸 <code>set</code> 差集,字面匹配,只查相邻前置。</p>
+<p><strong>设计</strong>:
+- 匹配逻辑改用 <code>dag_key</code>(从 <code>sync_contracts.py</code> 提取到 <code>contracts/graph.py</code>),让 <code>chapters/chapter-N.md</code> 与 <code>chapters/chapter-5.md</code> 正确关联。
+- 保持 WARN(不 FAIL),与既定失败语义策略一致。
+- <strong>不改"只查相邻"为"全图"</strong>——全图闭包校验放在 Layer C 静态做;运行期 G5.2 保持轻量,只对当前 phase 的相邻链做即时 WARN。</p>
+<p><strong>为什么运行期不全图</strong>:全图校验是 O(skills²),每次 dispatch 跑一遍成本高且重复(契约是静态的)。静态期跑一次足矣;运行期只补"相邻链即时反馈"的增量价值。</p>
+<h3 id="44-layer-a">4.4 共享模块清单(Layer A 产出)</h3>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/contracts/paths.py</code></td>
+<td><code>resolve_chapter_path</code> + <code>resolve_volume_path</code> + <code>extract_chapter</code> + <code>resolve_or_skip</code> + <code>UnresolvedPathError</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/paths.py</code></td>
+<td><code>RoundPaths</code>(三根)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/fields.py</code></td>
+<td><code>match_field</code> + <code>filter_to_fields</code>(从 dispatch_helper 抽出)</td>
+</tr>
+<tr>
+<td><code>src/shenbi/contracts/graph.py</code></td>
+<td><code>dag_key</code>(从 sync_contracts 抽出,供 G5.2/lint 共用)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="45-backup_skills-i4-spec-2">4.5 BACKUP_SKILLS 派生(I4 — 从 spec 2 拉回)</h3>
+<p><strong>现状</strong>:<code>g1.py:26</code> <code>BACKUP_SKILLS</code> 硬编码 9 个 skill。审计核实有 <strong>15 个 skill 的 <code>updates:</code> 命中 truth 文件</strong>(drift-guidance、foreshadowing-plant/resolve/track、intent-management、memory-distill、<strong>relationship-map</strong>、review-arc-payoff、review-resonance、score-arc、score-stratum、sequel-writing、state-settling、truth-sync、volume-consolidation),其中 6 个漏列(BACKUP_SKILLS 只列了 9 个)→ G1.4 不为它们创建 <code>.bak</code> → G2.11 truth-diff 静默跳过 → truth 文件删除检测失效。</p>
+<p><strong>为什么拉回本 spec(修正 §10 的过激拆分)</strong>:<code>.bak</code> 的<strong>路径构造</strong>(rp.backup)与<strong>覆盖范围</strong>(BACKUP_SKILLS)纠缠——路径统一不解决"漏列 skill 无 .bak"的覆盖缺口,金丝雀 #3(三根分离 .bak diff)在 BACKUP_SKILLS 不全时无法通过。拆分制造半修。覆盖派生约 10 行代码,合并成本低于半修风险。</p>
+<p><strong>设计</strong>:删 <code>BACKUP_SKILLS</code> 硬编码 frozenset,改为派生:
+<div class="highlight"><pre><span></span><code><span class="c1"># gates/g1.py 或 contracts/derive.py</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_backup_skills</span><span class="p">(</span><span class="n">contracts</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;自动派生需要 .bak 的 skill:updates 命中 truth-kind 文件。&quot;&quot;&quot;</span>
+    <span class="n">truth_files</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">registry</span><span class="o">.</span><span class="n">concepts</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">kind</span> <span class="o">==</span> <span class="s2">&quot;truth&quot;</span><span class="p">}</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contracts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;updates&quot;</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">f</span> <span class="o">==</span> <span class="n">t</span> <span class="ow">or</span> <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">t</span><span class="p">)</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">truth_files</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+                <span class="k">break</span>
+    <span class="k">return</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+</code></pre></div>
+G1.4 改为调用 <code>derive_backup_skills(load_all_contracts(), load_registry())</code>。这样新增 truth-updating skill 自动获得 .bak 保护,无需手动维护列表。</p>
+<p><strong>注</strong>:sequel-writing/truth-sync 的 <code>updates: truth/*.md</code> 是"从快照恢复/正文重提取"的离线操作(见各 SKILL.md 说明),正常逐章循环不运行。派生函数会把它们纳入(它们的 updates 确实命中 truth),但这对 .bak 保护是安全的(多保护不有害)。</p>
+<hr />
+<h2 id="5-layer-bschema">5. Layer B:Schema 单一源</h2>
+<h3 id="51-schema-first">5.1 设计原则:Schema-First 立即切换(分类策略)</h3>
+<p>为<strong>所有多处消费的结构化文件</strong>建 pydantic v2 模型,集中在 <code>src/shenbi/contracts/schemas/</code>。每个模型定义后,所有消费方立即 <code>import</code> 并 <code>model_validate</code>,删除手写 <code>.get()</code> 校验。不留两套逻辑并存的过渡态(项目无历史包袱,验证期容错)。</p>
+<p><strong><code>extra</code> 策略分两类(C3 修正 — 不能对 producer 不受控的文件一律 forbid)</strong>:
+- <strong>producer 受控类</strong> → <code>extra: "forbid"</code>:decisions.json(skill 写,字段明确)、deps.json(静态)、novel.json(cli 写,字段明确)、scores.json(scoring 写)、truth-files.yaml(手写权威)。拼写错误当场暴露。
+- <strong>producer 不受控类</strong> → <code>extra: "ignore"</code> + 文档化已知字段:
+  - <strong>progress.json</strong>:writer 散落且 <code>update_progress.py</code>/<code>summarize_round.py</code> <strong>已不存在</strong>(审计 D3 确认);至少 3 种写 shape(dispatch_helper 存根、shenbi-progress CLI 引用、trace/materialize)共存。无法 forbid 一个 producer 失控的文件。用 <code>ignore</code> + 在模型 docstring 列出已知 consumer 期望的键;writer 统一(把 shell heredoc + 缺失的 writer 迁到单一 Python writer)作为 spec 2 的前置项。
+  - <strong>summary.json</strong>(顶层,含 t1_scores/t2_scores/t3_scores):由 <code>tests/round-exec.sh:116</code> 的 bash heredoc 写;同样 <code>ignore</code> + writer 统一留 spec 2。
+  - <strong>注意区分</strong>:<code>chapter_loop.py:1141</code> 写的是 <code>audits/chapter-N-review-summary.md</code>(review 总结,<strong>不同文件</strong>),不是顶层 <code>summary.json</code>。</p>
+<p><strong>为什么 progress/summary 不能在阶段 1 forbid</strong>:blast radius = 整个 G3/G_DISPATCH/G_TRANSITION 运行时。若模型与 heredoc 不完全一致,每轮 round 的前置校验全失败。先 <code>ignore</code> 让校验落地不阻塞,writer 统一后再升级 forbid。</p>
+<h3 id="52">5.2 模型清单</h3>
+<table>
+<thead>
+<tr>
+<th>模型</th>
+<th>文件</th>
+<th>当前校验位点(重复)</th>
+<th><code>extra</code></th>
+<th>消除</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>DecisionsDoc</code></td>
+<td>decisions.json</td>
+<td>g2.py:92(硬编码字面量)、g4/decisions_validator.py:53、g4/_decisions_schema.py</td>
+<td><strong>forbid</strong></td>
+<td>3→1</td>
+</tr>
+<tr>
+<td><code>TruthFilesRegistry</code></td>
+<td>truth-files.yaml</td>
+<td>legacy.py:77、registry.py:30</td>
+<td><strong>forbid</strong></td>
+<td>2→1,加结构校验</td>
+</tr>
+<tr>
+<td><code>DepsDoc</code></td>
+<td>deps.json</td>
+<td>sync_contracts.py:236、scoring.py:206、phase_runner.py:33、g0.py:91</td>
+<td><strong>forbid</strong></td>
+<td>4→1</td>
+</tr>
+<tr>
+<td><code>NovelConfig</code></td>
+<td>novel.json</td>
+<td>pipeline/cli.py:141,165</td>
+<td><strong>forbid</strong></td>
+<td>2→1</td>
+</tr>
+<tr>
+<td><code>ScoreReport</code></td>
+<td>scores.json</td>
+<td>scoring.py:405、G7.14/G7.15</td>
+<td><strong>forbid</strong></td>
+<td>2→1</td>
+</tr>
+<tr>
+<td><code>ProgressDoc</code></td>
+<td>progress.json</td>
+<td>G3/G_DISPATCH/G_TRANSITION 多处 <code>.get()</code></td>
+<td><strong>ignore</strong>(writer 不受控,见 §5.1)</td>
+<td>0→1</td>
+</tr>
+<tr>
+<td><code>SummaryDoc</code></td>
+<td>summary.json(顶层)</td>
+<td>G5.1/G7.1/G7.16</td>
+<td><strong>ignore</strong>(shell heredoc 写,见 §5.1)</td>
+<td>0→1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53">5.3 关键模型示例</h3>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/schemas/decisions.py</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span><span class="p">,</span> <span class="n">field_validator</span><span class="p">,</span> <span class="n">model_validator</span>
+
+<span class="n">DECISIONS_SCHEMA_VERSION</span> <span class="o">=</span> <span class="s2">&quot;shenbi-decisions-v1&quot;</span>
+
+<span class="c1"># 阶段 0 调查核实:完整字段清单(来自 tests/unit/gates/test_g4_decisions.py 的真实实例)</span>
+<span class="c1"># 注意:Adjustment.severity 不套用 VALID_SEVERITY —— doc 示例用 &quot;medium&quot;,</span>
+<span class="c1"># 现有 validator 从不校验 adjustment.severity;套用会拒绝 doc 自己的示例。</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Selection</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">target</span><span class="p">:</span> <span class="nb">str</span>                          <span class="c1"># 选择的 truth 文件路径</span>
+    <span class="n">selected</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>                  <span class="c1"># 被选中的条目 ID</span>
+    <span class="n">basis</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;adjacent_to_target_chapter&quot;</span><span class="p">,</span> <span class="s2">&quot;arc_relevance&quot;</span><span class="p">,</span> <span class="s2">&quot;volume_scope&quot;</span><span class="p">,</span> <span class="s2">&quot;manual_override&quot;</span><span class="p">]</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;low&quot;</span><span class="p">,</span> <span class="s2">&quot;high&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;low&quot;</span>
+    <span class="n">omitted</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>              <span class="c1"># 被排除的条目 ID</span>
+    <span class="n">rationale</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_p25_rationale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># P2.5(从 _decisions_schema.py 迁入):</span>
+        <span class="c1"># - basis in {arc_relevance, volume_scope, adjacent_to_target_chapter} 且 severity=low → rationale FORBIDDEN</span>
+        <span class="c1"># - severity=high 或 basis=manual_override → rationale REQUIRED</span>
+        <span class="c1"># - rationale ≤ 100 chars</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Adjustment</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">issue_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>                        <span class="c1"># 不枚举(doc 用 medium;validator 从不校验)</span>
+    <span class="n">handling</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;compensate_via_pacing&quot;</span><span class="p">,</span> <span class="s2">&quot;explicit_callout&quot;</span><span class="p">,</span> <span class="s2">&quot;defer_to_next_chapter&quot;</span><span class="p">,</span> <span class="s2">&quot;ignore&quot;</span><span class="p">]</span>
+    <span class="n">rationale</span><span class="p">:</span> <span class="nb">str</span>                       <span class="c1"># adjustments 总是要求 rationale(≤100 chars)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Budget</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">context_tokens_estimate</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">trim_applied</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;none&quot;</span><span class="p">,</span> <span class="s2">&quot;oldest_first&quot;</span><span class="p">,</span> <span class="s2">&quot;lowest_relevance&quot;</span><span class="p">,</span> <span class="s2">&quot;manual&quot;</span><span class="p">]</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">validate_p25_rationale</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># P2.5: routine+low → rationale FORBIDDEN</span>
+        <span class="c1">#       manual_override 或 high → rationale REQUIRED</span>
+        <span class="c1">#       rationale ≤ 100 chars</span>
+        <span class="o">...</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DecisionsDoc</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">schema_</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">alias</span><span class="o">=</span><span class="s2">&quot;$schema&quot;</span><span class="p">)</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>                          <span class="c1"># 真实实例均为 int</span>
+    <span class="n">selections</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Selection</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">adjustments</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Adjustment</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">budget</span><span class="p">:</span> <span class="n">Budget</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>          <span class="c1"># 文档定义,真实实例从未出现(保留建模)</span>
+    <span class="n">produced_at</span><span class="p">:</span> <span class="nb">str</span>
+
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;schema_&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_version</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="n">DECISIONS_SCHEMA_VERSION</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/schemas/registry.py</span>
+<span class="c1"># 注意(M5):truth-files.yaml 实际 kind 值有 16 种(阶段0核实,非15):</span>
+<span class="c1"># benchmark/chapter/character/config/context/decisions/import/outline/</span>
+<span class="c1"># plan/reference/report/short/snapshot/style/truth/world</span>
+<span class="c1"># Literal 必须覆盖全部,否则加载时 reject 一半 registry。</span>
+<span class="n">RegistryKind</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span>
+    <span class="s2">&quot;benchmark&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="s2">&quot;character&quot;</span><span class="p">,</span> <span class="s2">&quot;config&quot;</span><span class="p">,</span> <span class="s2">&quot;context&quot;</span><span class="p">,</span> <span class="s2">&quot;decisions&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;import&quot;</span><span class="p">,</span> <span class="s2">&quot;outline&quot;</span><span class="p">,</span> <span class="s2">&quot;plan&quot;</span><span class="p">,</span> <span class="s2">&quot;reference&quot;</span><span class="p">,</span> <span class="s2">&quot;report&quot;</span><span class="p">,</span> <span class="s2">&quot;short&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;snapshot&quot;</span><span class="p">,</span> <span class="s2">&quot;style&quot;</span><span class="p">,</span> <span class="s2">&quot;truth&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RegistryConcept</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">kind</span><span class="p">:</span> <span class="n">RegistryKind</span>
+    <span class="n">producer</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;skill&quot;</span><span class="p">,</span> <span class="s2">&quot;pipeline&quot;</span><span class="p">,</span> <span class="s2">&quot;external&quot;</span><span class="p">,</span> <span class="s2">&quot;shared&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;skill&quot;</span>  <span class="c1"># ← Producer Registry</span>
+    <span class="n">glob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RegistryPattern</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">parametric</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">glob</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RegistryGlob</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">pattern</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">TruthFilesRegistry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">,</span> <span class="s2">&quot;populate_by_name&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="c1"># 阶段0核实:真实文件无 version 字段。Optional,默认 1;新版必须显式声明。</span>
+    <span class="n">version</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">concepts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RegistryConcept</span><span class="p">]</span>
+    <span class="n">patterns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RegistryPattern</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>    <span class="c1"># 阶段0核实:legacy.resolves() 读此键,必须建模</span>
+    <span class="n">globs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">RegistryGlob</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>          <span class="c1"># 阶段0核实:legacy.resolves() 读此键,必须建模</span>
+
+    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;version&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_supported</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">v</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span> <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unsupported registry version </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">, expected 1&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">v</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">assert_non_empty</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># D24 修复:结构漂移曾让 registry 清空。加载后必须非空。</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">concepts</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;registry concepts empty — truth-files.yaml structural drift&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/contracts/schemas/deps.py</span>
+<span class="c1"># C4+I1 修复(第二轮 review 重写):模型必须匹配真实 deps.json shape,</span>
+<span class="c1"># 否则 forbid 会拒绝合法文件。已逐项核实 tests/tiers/deps.json。</span>
+<span class="c1">#</span>
+<span class="c1"># 真实 shape(核实):</span>
+<span class="c1">#   t2-phases: dict[phase_name -&gt; {prerequisites, expected_outputs, g4_checker}]</span>
+<span class="c1">#     (prerequisites = 该 phase 的 skill 成员花名册,sync_contracts.py:127 称为 members)</span>
+<span class="c1">#   t3-pipelines: dict[pipeline_name -&gt; {min_chapter_ratio, expected_outputs, ...}]</span>
+<span class="c1">#   _calibration_hashes: dict  (g0.14 读)</span>
+<span class="c1">#   _out_of_pipeline: {t1_only_auxiliary, t1_only_meta, t1_only_drafting_phase, _note}</span>
+<span class="c1">#   _tool_hashes: dict  (g0.14 读)</span>
+<span class="c1">#</span>
+<span class="c1"># pydantic v2 要点(第二轮 review 核实):</span>
+<span class="c1">#   - 键名是连字符(t2-phases),字段名用下划线 + Field(alias=...)</span>
+<span class="c1">#   - 带前导下划线的键(_calibration_hashes)必须用 alias,否则变 private attr</span>
+<span class="c1">#   - populate_by_name=True 允许两种键名加载</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PhaseDeps</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">,</span> <span class="s2">&quot;populate_by_name&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">prerequisites</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>          <span class="c1"># phase 的 skill 成员花名册(非 per-skill 前置!)</span>
+    <span class="n">expected_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>       <span class="c1"># sync_contracts 重新生成</span>
+    <span class="n">g4_checker</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>          <span class="c1"># 该 phase 的 G4 checker 名(g4/dispatch 读)</span>
+    <span class="n">g4_note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_g4_note&quot;</span><span class="p">)</span>  <span class="c1"># 阶段0核实:5个phase有此字段</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">PipelineDeps</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">min_chapter_ratio</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.0</span>         <span class="c1"># g6 读</span>
+    <span class="n">expected_outputs</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OutOfPipeline</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">}</span>
+    <span class="n">t1_only_auxiliary</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t1_only_meta</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">t1_only_drafting_phase</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_note&quot;</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">DepsDoc</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">model_config</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;extra&quot;</span><span class="p">:</span> <span class="s2">&quot;forbid&quot;</span><span class="p">,</span> <span class="s2">&quot;populate_by_name&quot;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+    <span class="n">t2_phases</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PhaseDeps</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;t2-phases&quot;</span><span class="p">)</span>
+    <span class="n">t3_pipelines</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">PipelineDeps</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;t3-pipelines&quot;</span><span class="p">)</span>
+    <span class="n">tool_hashes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_tool_hashes&quot;</span><span class="p">)</span>
+    <span class="n">out_of_pipeline</span><span class="p">:</span> <span class="n">OutOfPipeline</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">OutOfPipeline</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_out_of_pipeline&quot;</span><span class="p">)</span>
+    <span class="n">calibration_hashes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;_calibration_hashes&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">phase_of</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;skill 所属的 phase(用于 G3.1/G5 定位)。&quot;&quot;&quot;</span>
+        <span class="k">for</span> <span class="n">pname</span><span class="p">,</span> <span class="n">pdeps</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">t2_phases</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">pdeps</span><span class="o">.</span><span class="n">prerequisites</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">pname</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+<span class="c1"># D19 修复(第二轮 review 重写 — 原方案语义错误):</span>
+<span class="c1"># G3.1 的原始意图(g3.py:85-98)是&quot;T1 per-skill 前置依赖要有 t1-report&quot;。</span>
+<span class="c1"># 但 deps.json 的 prerequisites 是 **phase 成员花名册**(sync_contracts:127 称 members),</span>
+<span class="c1"># 从未有 per-skill 前置依赖数据。G3.1 的 deps.get(skill_name) 从一开始就是设计错误,</span>
+<span class="c1"># 不是&quot;查询写错&quot; —— deps.json 根本不存这种数据。</span>
+<span class="c1">#</span>
+<span class="c1"># 两种正确修法(spec 必须定案,不留 OR):</span>
+<span class="c1">#   (A) 删除 G3.1 的 per-skill 前置检查(G3.2 已做 score 阈值检查,覆盖了 readiness)。</span>
+<span class="c1">#   (B) 重新定义 G3.1 为&quot;该 skill 所属 phase 的所有成员已有 t1-report&quot;(phase-level,非 skill-level)。</span>
+<span class="c1">#</span>
+<span class="c1"># 定案:采用 (A) 删除。理由:(1) deps.json 无 per-skill 前置数据,(B) 的&quot;phase 成员&quot;检查</span>
+<span class="c1"># 与 G3.2 的 score 检查重叠且语义模糊(同 phase 成员不互为前置);(2) G3.2 已是真正的</span>
+<span class="c1"># readiness gate(score &gt;= 阈值)。G3.1 的 per-skill 前置是死功能,删除而非伪造数据。</span>
+<span class="c1"># 阶段 4 修复:删 G3.1 的 deps 读取逻辑,保留 G3.1 id 但改为 SKIP(&quot;per-skill prereqs not modeled&quot;)</span>
+<span class="c1"># 或合并入 G3.2。</span>
+</code></pre></div>
+<h3 id="54">5.4 错误信息映射</h3>
+<p>pydantic 的 <code>ValidationError</code> 需映射到 gate 的 micro-failure 格式(<code>{id, file, s, r}</code>)。一个适配函数 <code>pydantic_err_to_gate_failures(err, file_path, gate_id_prefix)</code> 统一转换,g2/g4 共用。</p>
+<h3 id="55">5.5 版本化策略</h3>
+<ul>
+<li><code>truth-files.yaml</code> 的 <code>version: 1</code> 当前形态;向前兼容(加字段)不 bump;破坏性(删字段/改语义)bump 到 2,<code>check_supported</code> 拒绝旧版,CI 报住所有未迁移的 consumer。</li>
+<li>decisions.json 的 <code>$schema: shenbi-decisions-v1</code> 同理。</li>
+</ul>
+<h3 id="56">5.6 死代码清理</h3>
+<p>审计发现 <code>contracts/registry.py</code> 的 <code>REGISTRY</code> 和 <code>load_skill_contract()</code> 零生产调用,<code>contracts/skills/*.py</code> 约 50 个最小 stub(dead code,仅 genre_config/pacing_design 实际使用)。本次 schema 化时清理这些死代码,避免新增模型时混淆"哪个是活的"。</p>
+<p><strong>tracked <code>.bak</code> 源文件(M1)</strong>:<code>src/shenbi/dispatcher/executor.py.bak</code>、<code>src/shenbi/gates/g4/chapter_drafting.py.bak</code> 等被 git 跟踪的 <code>.bak</code> 源文件(非运行时产物)一并删除。</p>
+<p><strong><code>site/framework/truth-files.yaml</code> 分歧副本(M2)</strong>:<code>docs/framework/truth-files.yaml</code>(权威源)与 <code>site/framework/truth-files.yaml</code>(分歧副本,仅注释差异)并存。<code>bootstrap_registry</code> 读 <code>docs/</code> 版本。阶段 1 处理:删除 <code>site/</code> 副本或改为生成产物(gitignore),禁止两份手工编辑版本并存——这正是本 spec 要根治的"两处定义会漂移"问题。</p>
+<hr />
+<h2 id="6-layer-cci">6. Layer C:CI 静态校验</h2>
+<h3 id="61-producer-registry">6.1 契约图闭包校验 + Producer Registry</h3>
+<p><strong>现状</strong>:<code>dependency-dag.json</code> 已生成(glob-aware),但无消费者做闭包检查;pipeline 直接写的文件不在 skill 契约图。</p>
+<p><strong>设计</strong>:</p>
+<p>(a) <strong>Producer Registry</strong>:<code>truth-files.yaml</code> 每个概念加 <code>producer</code> 字段:
+- <code>producer: skill</code> —— 由 skill 的 writes/updates 生产(默认)
+- <code>producer: pipeline</code> —— 由 pipeline 代码生产
+- <code>producer: external</code> —— seed 文件(novel.json、era-reference.md、import/source/<em>、source_canon/</em>、benchmarks/anchors/)</p>
+<p>pipeline 产物必须在 registry 显式登记 <code>producer: pipeline</code>,否则闭包校验会把它们的消费者误报为孤儿 read。<strong>已知 pipeline 产物清单(I5 — 阶段 0 需核实补全)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>pipeline 写入位点</th>
+<th>产物路径</th>
+<th>登记值</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context_assemble.write_context_file</code></td>
+<td><code>context/chapter-N-context.md</code></td>
+<td><code>producer: pipeline</code></td>
+</tr>
+<tr>
+<td><code>chapter_loop._snapshot_chapter_files</code></td>
+<td><code>snapshots/chapter-NNN-*.md</code>(平文件,带 timestamp)</td>
+<td><code>producer: pipeline</code>(D20 决策:登记真实平文件 glob,废弃虚构的 <code>snapshots/chapter-NNN/</code> 目录概念)</td>
+</tr>
+<tr>
+<td><code>chapter_loop._save_manifest</code></td>
+<td><code>snapshots/manifest.json</code></td>
+<td><code>producer: pipeline</code></td>
+</tr>
+<tr>
+<td><code>truth_index</code> build/rebuild</td>
+<td><code>truth-index.json</code></td>
+<td><code>producer: pipeline</code></td>
+</tr>
+<tr>
+<td><code>review_checklist</code> cache</td>
+<td>(缓存文件,待阶段 0 确认路径)</td>
+<td>待定</td>
+</tr>
+<tr>
+<td><code>triggers</code> 写 novel.json</td>
+<td>novel.json</td>
+<td><code>producer: pipeline</code>(与 skill worldbuilding 共产,需明确优先级)</td>
+</tr>
+</tbody>
+</table>
+<p>阶段 0 的 deliverable 之一:跑 <code>grep -rn "safe_write\|\.write_text" src/shenbi/pipeline/</code> 产出完整 pipeline writer 清单,交叉验证上表,补全后登记入 truth-files.yaml。<strong>禁止漏登</strong>——任何未登记的 pipeline 产物会让其 consumer 被误报孤儿。</p>
+<p>(b) <strong>闭包检查</strong>:新建 <code>tools/lint_contract_graph.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">find_closure_violations</span><span class="p">(</span><span class="n">contracts</span><span class="p">,</span> <span class="n">registry</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;闭包检查:每个 read 必须有 producer 或为 external。&quot;&quot;&quot;</span>
+    <span class="n">producers</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># dag_key(file) -&gt; set(skill)</span>
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contracts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">],</span> <span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;updates&quot;</span><span class="p">]]:</span>
+            <span class="n">producers</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">dag_key</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">registry</span><span class="p">),</span> <span class="nb">set</span><span class="p">())</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+
+    <span class="n">external</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">registry</span><span class="o">.</span><span class="n">concepts</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">producer</span> <span class="o">==</span> <span class="s2">&quot;external&quot;</span><span class="p">}</span>
+    <span class="c1"># pipeline 产物也算合法 producer</span>
+    <span class="n">pipeline_produced</span> <span class="o">=</span> <span class="p">{</span><span class="n">c</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">registry</span><span class="o">.</span><span class="n">concepts</span> <span class="k">if</span> <span class="n">c</span><span class="o">.</span><span class="n">producer</span> <span class="o">==</span> <span class="s2">&quot;pipeline&quot;</span><span class="p">}</span>
+
+    <span class="n">orphan_reads</span> <span class="o">=</span> <span class="p">[]</span>      <span class="c1"># FAIL</span>
+    <span class="n">dangling_writes</span> <span class="o">=</span> <span class="p">[]</span>   <span class="c1"># WARN</span>
+
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">contracts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;reads&quot;</span><span class="p">]:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="n">dag_key</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">external</span> <span class="ow">or</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">pipeline_produced</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">producers</span><span class="p">:</span>
+                <span class="n">orphan_reads</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">skill</span><span class="p">,</span> <span class="n">f</span><span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">producer_skill</span><span class="p">,</span> <span class="n">keys</span> <span class="ow">in</span> <span class="n">producers</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">keys</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">no_consumer</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">contracts</span><span class="p">,</span> <span class="n">registry</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">external</span><span class="p">:</span>
+                <span class="n">dangling_writes</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">orphan_reads</span><span class="p">,</span> <span class="n">dangling_writes</span>
+</code></pre></div>
+<p><strong>失败语义</strong>:
+- <code>ORPHAN_READ</code> → <strong>FAIL</strong>(exit 1,挡 PR)。抓 <code>foo.md</code> vs <code>foo-bar.md</code> 错配。
+- <code>DANGLING_WRITE</code> → <strong>WARN</strong>(stderr,不挡 PR)。无人读的产物可能是新功能或废弃,不硬拦。</p>
+<p><strong>为什么复用 <code>dag_key</code></strong>:保证"静态闭包检查"与"DAG 生成"用同一套匹配语义,不会出现"DAG 有边但闭包报孤儿"的矛盾。<code>dag_key</code> 从 <code>sync_contracts.py</code> 提取到共享的 <code>contracts/graph.py</code>。</p>
+<p><strong>DAG 不直接读</strong>:<code>dependency-dag.json</code> 是生成产物可能滞后;闭包检查实时从 contracts + registry 构建 producer 映射。</p>
+<h3 id="62">6.2 字段过滤单一化</h3>
+<p><strong>现状</strong>:<code>_extract_h2_sections</code>(精确)、<code>check_fields_exist</code>(精确但非阻塞 WARN)、<code>lint_contract_fields.py</code>(normalize:lower + 合并空白,宽松)——三套语义。</p>
+<p><strong>设计(I3 修正 — CJK 空白归一化策略,第二轮 review 精化)</strong>:
+- 新建 <code>src/shenbi/contracts/fields.py:match_field(declared, heading)</code>,单一匹配函数。<strong>归一化规则(明确决定)</strong>:<code>.strip()</code> + 把 ASCII 空白 + U+3000(全角空格)折叠为单个 ASCII 空格(正则 <code>[\s\u3000]+</code>),<strong>不做 lower</strong>(保留中文标题大小写语义——truth 文件用中文标题,lower 无意义且可能误伤)。
+- <strong>显式不折叠零宽字符(U+200B/200C/200D)</strong>:第二轮 review 核实 U+200B <code>isspace()=False</code>、<code>\s</code> 不匹配;且零宽字符在 CJK 中承载语义(词边界标记),折叠会产生假匹配。只折叠可见空白(ASCII + 全角)。
+- 这比当前 lint 的 normalize <strong>更严</strong>(不 lower),比纯 exact <strong>更宽</strong>(折叠全角/多重可见空白)——正确处理 CJK 标题里全角 vs 半角空格的视觉等价,不破坏零边界的语义。
+- 阶段 4 历史债清理必须修正:凡 canonical form 不同的标题(consumer fields 写法 vs truth 文件写法),统一为单一 canonical form。
+- <code>_filter_to_fields</code> 从 <code>dispatch_helper.py</code> 抽到 <code>contracts/fields.py</code>,filter / G1 / lint 全部调用 <code>match_field</code> + <code>filter_to_fields</code>。
+- lint 升级为 fixture-driven FAIL:拿 producer 的真实最新 fixture 输出跑 <code>filter_to_fields</code>,断言每个声明字段命中(非逃生舱 fallback)。
+- 逃生舱(命中 0)语义集中定义:运行期(<code>filter_to_fields</code> 在 dispatch 时调用)WARN + 返回全文,不中断 dispatch;CI(<code>lint_contract_fields.py</code> 对 fixture 调用)FAIL。两者调用同一个 <code>filter_to_fields</code>/<code>match_field</code>,只是调用方对"命中 0"的反应不同——filter 函数本身返回 <code>(filtered_text, matched: bool)</code>,由调用方决定 WARN 还是 FAIL。
+- <strong>新增金丝雀</strong>:全角空格等价测试(<code>## 1.　当前任务</code> vs declared <code>1. 当前任务</code> 应匹配)。</p>
+<h3 id="63">6.3 版本兼容性校验</h3>
+<p>在 <code>just lint-contracts</code> 里:
+- <code>truth-files.yaml</code> 的 <code>version</code> 经 <code>TruthFilesRegistry</code> 模型校验。
+- decisions schema 版本:producer 写出的 <code>$schema</code> 版本 ≤ 所有 consumer 期望。</p>
+<h3 id="64">6.4 聚合入口</h3>
+<div class="highlight"><pre><span></span><code><span class="c"># justfile</span>
+<span class="nf">lint-contracts</span><span class="o">:</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_contract_graph.py
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>scripts/lint_contract_fields.py<span class="w">  </span><span class="c1"># 升级版,用 match_field</span>
+<span class="w">    </span>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>tools/lint_contracts.py<span class="w">           </span><span class="c1"># 现有,保留</span>
+
+<span class="nf">check</span><span class="o">:</span><span class="w"> </span><span class="n">ruff</span> <span class="n">mypy</span> <span class="n">basedpyright</span> <span class="n">pytest</span> <span class="n">lint</span>-<span class="n">contracts</span>  <span class="c"># lint-contracts 接入 just check</span>
+</code></pre></div>
+<p>CI(<code>.github/workflows/ci.yml</code>)里 <code>just check</code> 自动包含新目标。PR 触碰 <code>skills/</code>、<code>docs/framework/truth-files.yaml</code>、任何 <code>*-decisions.json</code> 时这些 lint 必跑。</p>
+<hr />
+<h2 id="7-4">7. 实施顺序(4 阶段)</h2>
+<div class="highlight"><pre><span></span><code>阶段 0:基线快照(摸清违规规模)
+  └→ 阶段 1:底座建立(Layer A + B 共享模块:schemas 模型 + paths/fields/RoundPaths)
+      schema-first 立即切换,所有消费方 import 模型,删除手写校验
+      └→ 阶段 2:运行期统一(所有 gate/dispatcher/pipeline 改用 RoundPaths + 单一解析器)
+          └→ 阶段 3:静态校验(lint_contract_graph + match_field + Producer Registry 登记)
+              └→ 阶段 4:历史债清零(全量违规修复 + 金丝雀测试)
+</code></pre></div>
+<h3 id="71-0">7.1 阶段 0 — 基线快照(前置调查)</h3>
+<p>在写实施 plan 前先跑探查,产出违规清单作为后续阶段输入:
+- 扫所有 SKILL.md 的 reads/writes,统计孤儿 read。
+- 扫 truth-files.yaml,找 external seed、过宽 glob、需登记的 pipeline 产物。
+- 扫所有结构化文件(decisions/deps/novel 等),找 extra:forbid 会暴露的多余字段。
+- 比对 4 套解析器在所有真实路径上的输出差异,确认含大写 N 路径腐蚀的真实 case。
+- <strong>逐项复现并固化</strong> D16/D19/D20/D21/D22/D24 六个活 bug(见 §7.5 处理协议),每个写一个能稳定复现"修复前错误行为"的测试,作为修复验证基准。</p>
+<h3 id="72-1">7.2 阶段 1 — 底座建立</h3>
+<p><strong>产出</strong>:
+- <code>src/shenbi/contracts/schemas/{decisions,registry,deps,novel,progress,summary,scores}.py</code>
+- <code>src/shenbi/contracts/paths.py</code>(<code>resolve_chapter_path</code> + <code>resolve_volume_path</code> + <code>extract_chapter</code> + <code>resolve_or_skip</code>)
+- <code>src/shenbi/paths.py</code>(<code>RoundPaths</code>)
+- <code>src/shenbi/contracts/fields.py</code>(<code>match_field</code> + <code>filter_to_fields</code>)
+- <code>src/shenbi/contracts/graph.py</code>(<code>dag_key</code>)</p>
+<p><strong>改动(schema-first 立即切换,分类见 §5.1)</strong>:
+- <code>legacy.load_registry()</code> 返回 <code>TruthFilesRegistry</code> 模型实例;<code>resolves()</code> 访问模型属性。
+- g2/g4 的 decisions 校验:删除手写,改 <code>DecisionsDoc.model_validate</code>。
+- <strong>producer 受控类(forbid)立即切换</strong>:deps.json 4 处(<code>DepsDoc</code>,shape 经第二轮 review 核实重写)、novel.json 2 处、scores.json 各处。
+- <strong>producer 不受控类(ignore)立即建模但不阻断</strong>:progress.json(<code>ProgressDoc</code> extra=ignore)、summary.json(<code>SummaryDoc</code> extra=ignore)。消费方改 import 模型,模型宽容加载;writer 统一 + 升级 forbid 留 spec 2。
+- D19 修复落地:删除 G3.1 的 per-skill 前置检查(死功能,见 §5.3 DepsDoc 决策说明);G3.1 改显式 SKIP。
+- 清理 <code>contracts/registry.py</code> 的 dead <code>REGISTRY</code>/<code>load_skill_contract</code>、<code>contracts/skills/*.py</code> 的 dead stub(仅保留 genre_config/pacing_design)、tracked <code>.bak</code> 源文件(M1)。</p>
+<p><strong>验证</strong>:模型单测;<code>load_registry()</code> 返回类型变但行为等价;现有 gate 测试全绿。</p>
+<h3 id="73-2">7.3 阶段 2 — 运行期统一</h3>
+<p><strong>产出</strong>:dispatcher / pipeline / 所有 gate 改用 RoundPaths + 单一解析器。</p>
+<p><strong>改动(本 spec 最大改动面)</strong>:
+- <code>dispatcher/executor.py</code>:删 <code>_resolve_chapter_path</code>/<code>_extract_chapter</code>;<code>derive_*</code> 用 RoundPaths + <code>resolve_or_skip</code>(genesis 跳过、chapter 传播,见 §4.1 协议)。
+- <code>pipeline/dispatch_helper.py</code>:删 <code>_resolve_path</code>/<code>_filter_to_fields</code>;读循环用 RoundPaths;<code>_PROJECT_ROOT</code> 换 <code>rp.repo()</code>。
+- <code>pipeline/chapter_loop.py</code>:删 <code>_substitute_chapter</code>;改用 <code>resolve_chapter_path</code>。
+- <strong><code>pipeline/closure.py</code>:删 <code>_substitute_volume</code>;改用 <code>resolve_volume_path</code></strong>(C1 修复)。
+- <code>gates/g1.py</code>/<code>g2.py</code>/<code>g5.py</code>:路径构造用 RoundPaths;<code>.bak</code> 用 <code>rp.backup()</code>;修 g1.py:65 docstring 漂移。
+- <code>gates/g4/</code> 全部 checker(含 10 个硬编码):改用 RoundPaths;删 <code>resolve_g4_base</code> 的 CWD fallback。
+- <code>gates/g4/style_polishing.py</code>:<code>.bak</code> 用 <code>rp.backup()</code>,消除内部不一致。
+- <code>dispatcher/modes/codex.py</code>:rubric_path 走 <code>rp.repo()</code>。
+- <code>g5.py:78</code>:G5.2 改用 <code>dag_key</code>。</p>
+<p><strong>验证</strong>:
+- RoundPaths / paths / fields / graph 单测。
+- <strong>关键回归测试</strong>:固定一组真实 skill 路径,断言新旧解析器输出一致(除已知分叉 case)。
+- T1/T2/T3 全套跑通。
+- 三根分离 fixture(round_dir≠project_dir≠repo_root)下 G4/gate/dispatcher 行为正确;G2.11 <code>.bak</code> diff 不再跨根 no-op。</p>
+<p><strong>风险缓解</strong>:一个 gate/模块一个 commit,每 commit 跑 <code>just check</code>,红灯立即定位。</p>
+<h3 id="74-3">7.4 阶段 3 — 静态校验</h3>
+<p><strong>产出</strong>:
+- <code>tools/lint_contract_graph.py</code>(闭包 FAIL + dangling WARN)
+- 升级 <code>scripts/lint_contract_fields.py</code>(fixture-driven,用 match_field,FAIL)
+- <code>truth-files.yaml</code> 登记 <code>producer</code> 字段(skill/pipeline/external);pipeline 产物显式登记。
+- justfile <code>lint-contracts</code> 接入 <code>just check</code>。</p>
+<p><strong>验证</strong>:
+- 故意写错 read 路径的测试 skill → lint 报 <code>ORPHAN_READ</code> 并 exit 1。
+- 标题漂移 fixture → 字段校验 FAIL。
+- pipeline 产物(<code>producer: pipeline</code>)不误报孤儿。</p>
+<h3 id="75-4">7.5 阶段 4 — 历史债清零</h3>
+<p><strong>输入</strong>:阶段 0 违规清单 + 阶段 3 工具实跑结果(交叉验证)。</p>
+<p><strong>处理协议(每类违规)</strong>:
+- <strong>ORPHAN_READ</strong>:
+  - 拼写错误 → 修正 read 对齐 producer write。
+  - producer 漏写 → 给 producer 补 write 声明。
+  - 合理 seed → truth-files.yaml 标 <code>producer: external</code>。
+  - pipeline 产物 → truth-files.yaml 标 <code>producer: pipeline</code>。
+  - <strong>禁止</strong>:为消警告删 read 或加假 producer。每项修复说明类别。
+- <strong>字段漂移</strong>:truth 标题改了 → 更新 consumer fields;consumer fields 拼错 → 修正。
+- <strong>结构化文件多余字段</strong>(extra:forbid):合法未登记 → 加模型字段;非法/历史遗留 → 删除。
+- <strong>过宽 glob</strong>:收窄为具体 pattern 或登记 known_files。
+- <strong>已确认活 bug</strong>(审计确认的 6 个,逐项切除 + 金丝雀测试):
+  - <strong>D16</strong>(G6.10 死路径):<code>g6.py:275</code> 读 <code>pd/"config"/"style_profile.md"</code>,producer 写 <code>style/style_profile.md</code> → 修正为 <code>rp.read("style/style_profile.md")</code>(走 RoundPaths,§4.2 改造后自动正确路径)。<strong>金丝雀</strong>:断言 G6.10 在有 style_profile 时不再 SKIP。
+  - <strong>D19</strong>(G3.1 死键 — 第二轮 review 重写):<code>g3.py:85</code> <code>deps.get(skill_name)</code> 永远返 <code>{}</code>。核实发现 deps.json 的 <code>prerequisites</code> 是 <strong>phase 成员花名册</strong>(非 per-skill 前置),从未存过 per-skill 前置数据 —— G3.1 的 per-skill 前置检查是<strong>死功能</strong>,不是"查询写错"。<strong>定案:删除 G3.1 的 deps 读取逻辑</strong>(G3.2 score 阈值检查已覆盖 readiness;phase 成员检查与 G3.2 重叠且语义模糊)。保留 G3.1 id 但改 SKIP,或合并入 G3.2。详见 §5.3 DepsDoc 决策说明。<strong>金丝雀</strong>:断言 G3.1 不再因 <code>deps.get(skill_name)</code> 返空而静默 SKIP(改为显式 SKIP with reason "per-skill prereqs not modeled",不假装在做检查)。
+  - <strong>D20</strong>(pipeline 产物路径分叉):<code>snapshots/chapter-NNN/</code> 契约概念 vs pipeline 写 <code>snapshots/chapter-{N:03d}-{ts}.md</code> 平文件 → 在 truth-files.yaml 登记真实 pipeline 产物(<code>producer: pipeline</code>),让契约图反映现实而非虚构。<strong>决策(必须定)</strong>:<code>snapshots/chapter-NNN/</code> 目录概念是虚构的,登记真实平文件 glob <code>snapshots/chapter-NNN-*.md</code> + <code>snapshots/manifest.json</code> 为 <code>producer: pipeline</code>,删除/废弃旧的目录概念。<strong>补充(第二轮 review)</strong>:<code>chapter_loop.py:239</code> 的 <code>ChapterStep</code> 仍声明 <code>output_path="snapshots/chapter-NNN/"</code>(为已绕过的 <code>shenbi-snapshot-manage</code>),修复时一并改正/移除该 step 的 output_path,否则契约图仍引用虚构目录。<strong>金丝雀</strong>:断言 pipeline 产物的 consumer 不被报孤儿。
+  - <strong>D21</strong>(truth 模板缺 H2):<code>_init_truth_templates</code> 只种 H1,skill 期望 H2 字段 → 从 consumer 声明的 fields 派生 H2 骨架写入模板。<strong>金丝雀</strong>:断言 genesis 首跑时 G1 <code>check_fields_exist</code> 对模板文件不 WARN。
+  - <strong>D22</strong>(hook state 大小写 — I2 修正,第二轮 review 补全):<code>_count_triggered_hooks</code> 在 <strong><code>pipeline/chapter_loop.py:643/659/771</code></strong>(不在 g6.py;初版 spec 位置错误),用 <code>h.get("state") == "TRIGGERED"</code>(仅大写) → <strong>定义 <code>HookState</code> 枚举</strong>。第二轮 review 核实 <code>foreshadowing-track/SKILL.md</code> 引用 <strong>6 个生命周期值</strong>:PLANTED/RELEVANT/TRIGGERED/RESOLVED/<strong>ARCHIVED</strong>/<strong>EXPIRED</strong>(初版只列 4 个,会拒绝合法的 ARCHIVED/EXPIRED hook)。枚举须覆盖全部 6 个;读入时大小写归一化 + 映射非规范拼写(如 <code>TRIGGER</code>→<code>TRIGGERED</code>,见 SKILL.md:87)。锚点:<code>foreshadowing_track.py:30</code> 已有覆盖这些 state 的正则。<strong>禁止用 <code>match_field</code></strong>(范畴错误:match_field 是 H2 标题匹配,非 YAML 枚举值)。<strong>金丝雀</strong>:(a) 小写 <code>triggered</code> 被正确识别;(b) <code>state: EXPIRED</code> 的 hook 加载成功且<strong>不</strong>被计入 TRIGGERED。
+  - <strong>D24</strong>(registry 无非空断言):<code>bootstrap_registry</code> 结构漂移会清空 → <code>TruthFilesRegistry</code> 模型(§5.3)加载后 <code>assert_non_empty</code> 校验,加 lint 检查非空。<strong>金丝雀</strong>:断言空 registry 加载失败。
+  - <strong>D26</strong>(novel.json 字段名分裂 — 阶段0新发现):producer(<code>seed_parser.py</code>/<code>cli.py</code>/<code>triggers.py</code>)写 <code>target_word_count</code>,但 <code>g6.py:45</code> 读 <code>target_words</code>;fixture 又有第三套字段。<strong>决策</strong>:统一为 <code>target_word_count</code>(producer 是权威),修 <code>g6.py</code> 读取 + fixture 同步。<strong>金丝雀</strong>:<code>NovelConfig</code> 加载 producer 输出与 fixture 均成功;g6 读到正确值。</p>
+<p><strong>验证</strong>:阶段 3 所有 lint 跑出零 FAIL;D16/D19/D20/D21/D22/D24 六个活 bug 的复现测试在修复后转 PASS(从 FAIL/错误行为翻转为正确行为)。DANGLING_WRITE 的 WARN 记录到文档但不阻塞。</p>
+<hr />
+<h2 id="8">8. 测试策略</h2>
+<h3 id="81">8.1 测试分层映射</h3>
+<table>
+<thead>
+<tr>
+<th>层级</th>
+<th>测什么</th>
+<th>新增测试</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单元(B/A 共享模块)</td>
+<td>pydantic 模型、paths、RoundPaths、match_field、dag_key</td>
+<td>模型序列化/校验、解析器边界、三根优先级、字段命中/逃生舱</td>
+</tr>
+<tr>
+<td>单元(C1 闭包)</td>
+<td>闭包逻辑</td>
+<td>ORPHAN_READ FAIL、DANGLING_WRITE WARN、external/pipeline 放行、glob-aware</td>
+</tr>
+<tr>
+<td>集成(Layer A)</td>
+<td>gate 改造后行为不变</td>
+<td>g1/g2/g4/g5 用 RoundPaths + 新解析器,T1 fixture 全绿</td>
+</tr>
+<tr>
+<td>集成(Layer B)</td>
+<td>g2/g4 切换后校验等价</td>
+<td>同一 decisions.json 新旧校验结果一致(除 forbid 新增暴露)</td>
+</tr>
+<tr>
+<td>T2 阶段链</td>
+<td>相邻 skill 真实读写交接</td>
+<td>G5.2 glob-aware WARN 在真实链触发正确</td>
+</tr>
+<tr>
+<td>T3 端到端</td>
+<td>全管线无路径错配</td>
+<td>完整 chapter loop 跑通,无 "input not found" 类失败</td>
+</tr>
+</tbody>
+</table>
+<h3 id="82">8.2 金丝雀回归测试(防错配回潮)</h3>
+<ol>
+<li><strong>错配注入</strong>(M3 锁定格式):测试 fixtures 放一个故意写错 read 路径的 skill,断言 <code>lint-contracts</code> FAIL 并报<strong>精确格式</strong> <code>ORPHAN_READ: skill=X reads=foo-bar.md no producer</code>(pin 全格式,防未来重构悄悄弱化消息)。整个 spec 的防回归哨兵。</li>
+<li><strong>含大写 N 路径不腐蚀</strong>(C2 修正):<code>import/canon/01_SECTION.md</code>(含 N mid-token)、<code>NPC-list.md</code>、<code>rules-N-bound.md</code> 等真实概念路径,断言 <code>resolve_chapter_path</code>/<code>resolve_volume_path</code> 不腐蚀成 <code>SECTIO5</code>/<code>5PC</code>。<strong>注意</strong>:小写 n 路径如 <code>resonance</code> 是无效测试项(<code>str.replace("N")</code> 区分大小写,小写 n 本就不变)。</li>
+<li><strong>三根分离 + .bak 全链</strong>:round_dir≠project_dir≠repo_root 的 fixture,断言 (a) G4/gate/dispatcher 行为正确;(b) G1.4 创建的 <code>.bak</code> 与 G2.11 读取的 <code>.bak</code> 同根(I4 修复后 BACKUP_SKILLS 已派生覆盖全部 truth-updating skill,故 .bak 确实被创建,diff 不再因"无 .bak"静默 no-op)。</li>
+<li><strong>字段匹配一致性 + 全角空格等价</strong>:对每个有 dict-form reads 的 consumer,拿 producer 真实 fixture 跑 <code>filter_to_fields</code>,断言 filter/G1/lint 三处结果一致(用同一 match_field);额外断言全角空格(<code>## 1.　当前任务</code> vs declared <code>1. 当前任务</code>)匹配成功(I3)。</li>
+<li><strong>D16 G6.10 不再死路径</strong>:有 style_profile 时 G6.10 执行实际检查而非 SKIP。防止有人改回 <code>config/</code> 路径。</li>
+<li><strong>D19 G3.1 不再静默死跳</strong>:G3.1 不再因 <code>deps.get(skill_name)</code> 返空而静默 SKIP(假装在查无数据的前置)。删除后改为显式 SKIP with reason "per-skill prereqs not modeled",不冒充检查。防止有人重新引入对 deps.json 不存在的顶层 skill 键的查询。</li>
+<li><strong>跨层 seam(reviewer 建议)</strong>:改 <code>DecisionsDoc</code> 的一个字段(如新增必填),断言 g2 AND g4 AND lint_contract_fields 一致地 FAIL——验证 §3 三层栈真 compose,而非各层各测各的。</li>
+</ol>
+<h3 id="83">8.3 测试数据原则</h3>
+<p>延续 G0.9:所有 fixture 是真实 skill 输出。新增"错配注入"测试用独立测试 skill(如 <code>tests/fixtures/synthetic-skill/</code>),不污染真实 skill 集。</p>
+<hr />
+<h2 id="9">9. 行业最佳实践对照</h2>
+<table>
+<thead>
+<tr>
+<th>机制</th>
+<th>行业对照</th>
+<th>本设计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>单一占位符解析</td>
+<td>Pact matching provider / Helm tpl / Jinja 单一环境</td>
+<td>✅ 单一 <code>resolve_chapter_path</code> / <code>resolve_volume_path</code> / <code>extract_chapter</code>(共享有界替换原语)</td>
+</tr>
+<tr>
+<td>RoundPaths 值对象</td>
+<td>Rust PathBuf+工作目录封装 / Go fs.FS / Next.js 项目根探测</td>
+<td>✅ 三根封装,禁裸 join,消除 CWD fallback</td>
+</tr>
+<tr>
+<td>契约图闭包 + Producer Registry</td>
+<td>Consumer-Driven Contract Testing (Pact broker) / Conflux Schema Registry ownership / Terraform dependency graph</td>
+<td>✅ 闭包 FAIL + pipeline 产物统一登记</td>
+</tr>
+<tr>
+<td>Schema-First</td>
+<td>protobuf/gRPC / OpenAPI / Avro</td>
+<td>✅ 全结构化文件 pydantic 化,一处定义</td>
+</tr>
+<tr>
+<td>字段匹配单一化</td>
+<td>@typescript-eslint exhaustive 检查 / Pact consumer expectation</td>
+<td>✅ <code>match_field</code> 单函数,filter/G1/lint 共用</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-spec">10. 后续 spec(明确边界)</h2>
+<p>本 spec 建立的 RoundPaths / schemas / match_field / dag_key 共享模块是后续 spec 的基础。按"严格逐个 spec"节奏(本 spec 走完 plan→实施→验证后,基于真实反馈再设计下一个):</p>
+<ul>
+<li><strong>spec 2(gate↔gate 深度治理 + 入口统一)</strong>:</li>
+<li>PhaseState 单向引用(G7.16 裸字面量 <code>"finalized"</code> 改引用 <code>PhaseState.FINALIZED.value</code>)。</li>
+<li>marker coverage(G7.16 不查"每个 dispatched skill 有 G4 marker"——补全)。</li>
+<li>gate 三套入口(<code>validate-gate.py</code>/<code>python -m</code>/<code>uv run</code>)收敛为单一入口 + hash 锁定。</li>
+<li><strong>progress.json/summary.json writer 统一</strong>:本 spec 已建模(<code>extra: ignore</code>);spec 2 把 shell heredoc(summary.json)+ 缺失的 <code>update_progress.py</code>/<code>summarize_round.py</code> 迁到单一 Python writer,文档化 canonical shape,然后升级为 <code>extra: forbid</code>。</li>
+<li>合并为一个 spec 是因为入口统一、gate↔gate 治理、writer 统一都属"gate/state 内部一致性"主题。</li>
+<li><strong>本 spec 已处理(不在 spec 2 范围)</strong>:<code>.bak</code> 路径构造(RoundPaths)+ BACKUP_SKILLS 派生(§4.5)+ D16/D19/D20/D21/D22/D24 活 bug 切除。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

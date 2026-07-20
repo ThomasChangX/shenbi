@@ -1,0 +1,2336 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-28-hierarchical-system-wave2-memory/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>分层系统 Wave 2：记忆层实施计划 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="分层系统 Wave 2：记忆层实施计划 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-28-hierarchical-system-wave2-memory.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/2026-06-28-hierarchical-system-wave2-memory/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="分层系统 Wave 2：记忆层实施计划 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/2026-06-28-hierarchical-system-wave2-memory.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#wave-2" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              分层系统 Wave 2：记忆层实施计划
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="File Structure">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-shenbi-book-spine-init-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: shenbi-book-spine-init skill
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出格式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-Rationalization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-2-shenbi-memory-distill-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: shenbi-memory-distill skill
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L2 弧段合成输出格式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L4 大弧合成输出格式
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#l5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        L5 书脊滚动复核
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#anti-rationalization_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Anti-Rationalization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Anti-Rationalization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-3-context-composing-dot-exact-g4-checker" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: context-composing 完整改造（按层组装 — DOT + EXACT 节标题 + 铁律 + G4 checker 全部同步）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-shenbi-foreshadowing-recall-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: shenbi-foreshadowing-recall skill
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        铁律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        输出格式
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="输出格式">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-5-g010-59" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: G0.10 动态化（硬编码 59 → 动态）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-fixtures" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 新增 fixtures（真实样本）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-g4-checkers-t1-depsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: G4 checkers + T1 测试目录 + deps.json 注册
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-wave-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: Wave 2 全量验证
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="wave-2">分层系统 Wave 2：记忆层实施计划</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 实现分层记忆架构（L2/L4/L5），改造 context-composing 按层组装，新增 foreshadowing-recall skill，修复 G0.10 硬编码。</p>
+<p><strong>Architecture:</strong> 遵循现有 skill 模式（<code>skills/&lt;name&gt;/SKILL.md</code> + frontmatter contract）。memory-distill 泛化 volume-consolidation。context-composing 的 P1-P7 重写为按层组装。G0.10 的字面量 59 改为动态。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，pathlib.Path，SKILL.md (markdown + YAML frontmatter)，pytest。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-06-28-hierarchical-memory-scoring-system-design.md</code> v1.4.0
+- §3.1-3.4 七层蒸馏树 + memory-distill
+- §3.5 context-composing 按层组装
+- §3.6 RAG 辅助召回
+- §9.4 G0.10 动态化
+- §11.1 book-spine-init 时序（创世层末尾，author_intent 暂空）
+- §11.2 score-arc 读 L5 非 L4
+- §3.2.1 爬坡期处理</p>
+<p><strong>Depends on:</strong> Wave 1（revision_routing / escalation / scoring 扩展 / foreshadowing_recall helper 已实现）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Python 3.11+，<code>from __future__ import annotations</code>，pathlib.Path</li>
+<li>SKILL.md frontmatter: name (lowercase-kebab), description (英文 "Use when..." ≤500 chars)</li>
+<li>contract: kind (artifact/ephemeral/report), reads/writes/updates</li>
+<li>测试标记：<code>@pytest.mark.unit</code>（helper）/ <code>@pytest.mark.integration</code>（跨模块）</li>
+<li>修改 src/shenbi/ 后运行 <code>bash tests/lock-tool-hashes.sh</code></li>
+<li>新增 skill 必须同步：G4 checker + T1 测试目录 + fixtures（遵循 G0.9 禁止手写 mock）</li>
+<li>frontmatter 整体 ≤1024 字符</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>skills/shenbi-book-spine-init/SKILL.md</code></td>
+<td>书脊初始化（创世层末尾）</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-memory-distill/SKILL.md</code></td>
+<td>记忆蒸馏（L2/L4/L5）</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-foreshadowing-recall/SKILL.md</code></td>
+<td>RAG 伏笔召回封装</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-context-composing/SKILL.md</code></td>
+<td>改造：按层组装</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g0.py</code></td>
+<td>G0.10 动态化</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/memory_distill.py</code></td>
+<td>memory-distill G4 checker</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g4/book_spine_init.py</code></td>
+<td>book-spine-init G4 checker</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/arc-example.md</code></td>
+<td>L2 弧段样本</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/book-strata-example.md</code></td>
+<td>L4 大弧样本</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/book-spine-example.md</code></td>
+<td>L5 书脊样本</td>
+</tr>
+<tr>
+<td><code>tests/fixtures/volume-summary-example.md</code></td>
+<td>L3 卷摘要样本</td>
+</tr>
+<tr>
+<td><code>tests/unit/gates/test_g0_dynamic_count.py</code></td>
+<td>G0.10 动态化测试</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-1-shenbi-book-spine-init-skill">Task 1: shenbi-book-spine-init skill</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-book-spine-init/SKILL.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>outline/story_frame.md</code>（story-architecture 产出）+ <code>outline/volume_map.md</code>（volume-outlining 产出）+ <code>novel.json</code>（worldbuilding 产出）
+- Produces: <code>truth/book_spine.md</code>（L5，status: pending_intent）。被 context-composing P2 消费、memory-distill 滚动复核、score-arc/stratum 读上级目标。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-book-spine-init
+description: &quot;Use when initializing the book spine at the end of the genesis layer, before entering the per-chapter writing loop&quot;
+contract:
+  kind: artifact
+  reads:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>outline/story_frame.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>outline/volume_map.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>novel.json
+  writes:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/book_spine.md
+<span class="gu">  updates: []</span>
+<span class="gu">---</span>
+&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;
+
+<span class="gu">## 数据契约</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Reads:**</span> outline/story_frame.md, outline/volume_map.md, novel.json
+<span class="k">-</span><span class="w"> </span><span class="gs">**Writes:**</span> truth/book_spine.md
+<span class="k">-</span><span class="w"> </span><span class="gs">**Updates:**</span> none
+
+&lt;!-- END AUTO-GENERATED --&gt;
+
+<span class="gh"># 书脊初始化</span>
+
+HARD-GATE: 在创世层（worldbuilding + character + story-architecture + volume-outlining）完成后、逐章循环开始前执行。初始化全书的常青书脊（L5），后续由 memory-distill 滚动复核。
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph book_spine_init {
+    &quot;Read story_frame.md&quot; -&gt; &quot;Read volume_map.md&quot;;
+    &quot;Read volume_map.md&quot; -&gt; &quot;Read novel.json&quot;;
+    &quot;Read novel.json&quot; -&gt; &quot;Extract: core conflicts (3 layers)&quot;;
+    &quot;Extract: core conflicts&quot; -&gt; &quot;Extract: themes from novel.json&quot;;
+    &quot;Extract: themes&quot; -&gt; &quot;Extract: protagonist arc from character files&quot;;
+    &quot;Extract: protagonist arc&quot; -&gt; &quot;Extract: master hooks from volume_map&quot;;
+    &quot;Extract: master hooks&quot; -&gt; &quot;Write book_spine.md (status: pending_intent)&quot;;
+}
+</code></pre></div>
+<h2 id="_1">铁律</h2>
+<ol>
+<li><strong>不读 author_intent.md</strong> — 创世层末尾 author_intent 尚未由 intent-management 填充。书脊的 themes 从 novel.json 读取，author_intent 字段初始化为空，标记 <code>status: pending_intent</code>。memory-distill 在后续卷/大弧边界滚动合并 author_intent。</li>
+<li><strong>声明值只初始化不臆造</strong> — 核心冲突/themes/主角弧终点从 story_frame.md + novel.json 真实继承，不臆造。</li>
+<li><strong>master hooks 从 volume_map 提取</strong> — 跨卷级别的钩子（卷尾实体钩子的跨卷延续线）作为 master hooks 初始入库。</li>
+<li><strong>status: pending_intent 是合法初始态</strong> — 第一卷定稿后由 memory-distill 合并 author_intent 并改 status 为 active。</li>
+</ol>
+<h2 id="_2">输出格式</h2>
+<p>写 <code>truth/book_spine.md</code>：</p>
+<div class="highlight"><pre><span></span><code>---
+updated: YYYY-MM-DD
+total_chapters: 0
+<span class="gu">status: pending_intent</span>
+<span class="gu">---</span>
+
+<span class="gh"># 书脊</span>
+
+<span class="gu">## 核心冲突三层（声明值，从 story_frame.md 继承）</span>
+<span class="k">-</span><span class="w"> </span>surface_conflict: &quot;[从 story_frame.md frontmatter surface_conflict]&quot;
+<span class="k">-</span><span class="w"> </span>personal_conflict: &quot;[从 story_frame.md frontmatter personal_conflict]&quot;
+<span class="k">-</span><span class="w"> </span>deep_conflict: &quot;[从 story_frame.md frontmatter deep_conflict]&quot;
+
+<span class="gu">## 全书 themes（声明值，从 novel.json 继承）</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">theme 1</span>]: <span class="na">探索进度: 未开始</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">theme 2</span>]: <span class="na">探索进度: 未开始</span>
+
+<span class="gu">## 主角弧（声明终点，从 characters/protagonist.md 继承）</span>
+<span class="k">-</span><span class="w"> </span>arc_type: [GROWTH/REDEMPTION/FALL]
+<span class="k">-</span><span class="w"> </span>arc_starting: &quot;[从 protagonist.md]&quot;
+<span class="k">-</span><span class="w"> </span>arc_turning: &quot;[从 protagonist.md，若已声明]&quot;
+<span class="k">-</span><span class="w"> </span>arc_ending: &quot;[从 protagonist.md arc_ending]&quot;
+<span class="k">-</span><span class="w"> </span>当前进度: 0%
+
+<span class="gu">## 主线钩子（master hooks，从 volume_map 跨卷钩子提取）</span>
+<span class="k">-</span><span class="w"> </span>MH01: [内容] | 状态: PLANTED | 最后推进章: — | 声明兑现卷: [从 volume_map]
+<span class="k">-</span><span class="w"> </span>MH02: [内容] | 状态: PLANTED | 最后推进章: — | 声明兑现卷: [从 volume_map]
+
+<span class="gu">## 世界铁律滚动快照（从 world/rules.md 同步前5条）</span>
+<span class="k">-</span><span class="w"> </span>[rule 1]
+<span class="k">-</span><span class="w"> </span>[rule 2]
+</code></pre></div>
+<h2 id="anti-rationalization">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"author_intent 还没填，书脊先空着"</td>
+<td>themes 从 novel.json 来，不是 author_intent；空书脊 = context-composing 无上级目标 = 每章漂移</td>
+</tr>
+<tr>
+<td>"书脊以后再补"</td>
+<td>没有书脊的 context-composing P2 为空 = 第一卷就开始上下文不足</td>
+</tr>
+<tr>
+<td>"master hooks 等埋了伏笔再说"</td>
+<td>跨卷钩子在 volume_map 已声明，必须初始入库追踪</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Verify frontmatter parses**
+
+Run: `python3 -c &quot;import re; t=open(&#39;skills/shenbi-book-spine-init/SKILL.md&#39;).read(); m=re.search(r&#39;^---\n(.*?)\n---&#39;, t, re.S); print(&#39;frontmatter found&#39; if m else &#39;FAIL&#39;)&quot;`
+Expected: frontmatter found
+
+- [ ] **Step 3: Commit**
+
+```bash
+git add skills/shenbi-book-spine-init/SKILL.md
+git commit -m &quot;feat: add shenbi-book-spine-init skill (spec §11.1)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-2-shenbi-memory-distill-skill">Task 2: shenbi-memory-distill skill</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-memory-distill/SKILL.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>truth/chapter_summaries.md</code>（L1）+ <code>truth/volume_summaries.md</code>（L3，L4 蒸馏时）+ 现有 truth/*.md（伏笔池/角色矩阵）
+- Produces: <code>truth/arcs/arc-N.md</code>（L2，每12章）+ <code>truth/book_strata.md</code>（L4，每36章 append）
+- Updates: <code>truth/book_spine.md</code>（L5 滚动复核）、<code>truth/volume_summaries.md</code>（L3，复用 volume-consolidation 逻辑）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-memory-distill
+description: &quot;Use when distilling chapter summaries into arc syntheses (every 12 chapters), stratum syntheses (every 36 chapters), or rolling book spine review at volume or stratum boundaries&quot;
+contract:
+  kind: artifact
+  reads:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/chapter_summaries.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/volume_summaries.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/pending_hooks.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/character_matrix.md
+  writes:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/arcs/arc-N.md
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/book_strata.md
+  updates:
+<span class="gu">    - truth/book_spine.md</span>
+<span class="gu">---</span>
+&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;
+
+<span class="gu">## 数据契约</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Reads:**</span> truth/chapter_summaries.md, truth/volume_summaries.md, truth/pending_hooks.md, truth/character_matrix.md
+<span class="k">-</span><span class="w"> </span><span class="gs">**Writes:**</span> truth/arcs/arc-N.md, truth/book_strata.md
+<span class="k">-</span><span class="w"> </span><span class="gs">**Updates:**</span> truth/book_spine.md
+
+&lt;!-- END AUTO-GENERATED --&gt;
+
+<span class="gh"># 记忆蒸馏</span>
+
+泛化 volume-consolidation。产出 L2（弧段合成）、L4（大弧合成）、维护 L5（书脊滚动复核）。这是分层记忆架构的核心——让上下文窗口大小有界，与全书总字数无关。
+
+<span class="gu">## 触发规则（固定章数，确定性）</span>
+
+| 触发条件 | 动作 |
+|---------|------|
+| <span class="sb">`chapter % 12 == 0`</span> | L2 弧段蒸馏 → 写 <span class="sb">`truth/arcs/arc-(chapter//12).md`</span> |
+| <span class="sb">`chapter % 36 == 0`</span> | L4 大弧蒸馏 → append 到 <span class="sb">`truth/book_strata.md`</span> |
+| 卷边界（volume_map 声明的卷末章） | L3 卷摘要（复用 volume-consolidation 逻辑）+ L5 滚动复核 |
+| 大弧边界（chapter % 36 == 0） | L5 滚动复核（合并 author_intent，更新进度） |
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph memory_distill {
+    &quot;Determine trigger type&quot; -&gt; &quot;L2 arc distill?&quot;;
+    &quot;L2 arc distill?&quot; -&gt; &quot;Read chapter_summaries for arc range&quot; [label=&quot;chapter%12==0&quot;];
+    &quot;L2 arc distill?&quot; -&gt; &quot;L4 stratum distill?&quot; [label=&quot;chapter%36==0&quot;];
+    &quot;Read chapter_summaries for arc range&quot; -&gt; &quot;Synthesize arc event chain&quot;;
+    &quot;Synthesize arc event chain&quot; -&gt; &quot;Extract arc hook resolution&quot;;
+    &quot;Extract arc hook resolution&quot; -&gt; &quot;Extract arc character deltas&quot;;
+    &quot;Extract arc character deltas&quot; -&gt; &quot;Write truth/arcs/arc-N.md&quot;;
+    &quot;L4 stratum distill?&quot; -&gt; &quot;Read L2 arcs + volume_summaries&quot; [label=&quot;yes&quot;];
+    &quot;Read L2 arcs + volume_summaries&quot; -&gt; &quot;Synthesize stratum themes progress&quot;;
+    &quot;Synthesize stratum themes progress&quot; -&gt; &quot;Extract cross-arc hooks&quot;;
+    &quot;Extract cross-arc hooks&quot; -&gt; &quot;Append to truth/book_strata.md&quot;;
+    &quot;Append to truth/book_strata.md&quot; -&gt; &quot;L5 spine review?&quot;;
+    &quot;L5 spine review?&quot; -&gt; &quot;Read author_intent + book_spine&quot; [label=&quot;volume/stratum boundary&quot;];
+    &quot;Read author_intent + book_spine&quot; -&gt; &quot;Update spine progress fields&quot;;
+    &quot;Update spine progress fields&quot; -&gt; &quot;Write book_spine.md (data fields only)&quot;;
+}
+</code></pre></div>
+<h2 id="_3">铁律</h2>
+<ol>
+<li><strong>蒸馏可溯源</strong> — 每条合成结论必须可追溯到具体章节（引用章号），例如"第23-25章：林轩获得传承 → 第26章：首次实战"</li>
+<li><strong>增量产出</strong> — L2/L4 只追加本弧/本大弧的合成，不重写历史层</li>
+<li><strong>信息损失显式标注</strong> — 蒸馏必然损失信息，未兑现的伏笔/悬置的张力必须在"未解决悬置"显式列出</li>
+<li><strong>L5 滚动复核不破坏声明</strong> — 书脊的核心冲突/themes/主角弧终点是声明值（book-spine-init 从 author_intent/novel.json 继承），复核只更新数据字段（当前位置/进度/themes探索深度），不改声明本身</li>
+<li><strong>L5 字段分区所有权</strong> — memory-distill 只写数据值（进度/状态）；诊断值（漂移/达成）由 score-stratum 写；声明值由 book-spine-init 初始化。三者用不同 YAML 字段</li>
+</ol>
+<h2 id="l2">L2 弧段合成输出格式</h2>
+<p>写 <code>truth/arcs/arc-N.md</code>（N = chapter // 12）：</p>
+<div class="highlight"><pre><span></span><code>---
+arc: N
+chapter_range: [start]-[end]
+volume: [从 volume_map 确定]
+generated_at: YYYY-MM-DD
+<span class="gu">generated_by: shenbi-memory-distill</span>
+<span class="gu">---</span>
+
+<span class="gh"># 第N弧段合成</span>
+
+<span class="gu">## 弧内事件链</span>
+[连续叙事摘要，~800字，可追溯到具体章节。每个关键事件标注章号。]
+
+<span class="gu">## 弧内伏笔兑现/推进</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">hook_id</span>]: <span class="na">第X章 [advance/resolve/plant] — [方式]</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## 角色状态变化（弧段粒度）</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">角色</span>]: <span class="na">[起点状态] → [终点状态]，关键转折章: N</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## 张力曲线本弧段</span>
+[本弧段张力走向，对照卷节奏原则。标注高潮章和低谷章。]
+
+<span class="gu">## 未解决悬置（带入下一弧段）</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">悬置项</span>]: <span class="na">为何未解决，预期解决弧段</span>
+</code></pre></div>
+<h2 id="l4">L4 大弧合成输出格式</h2>
+<p>Append 到 <code>truth/book_strata.md</code>（每36章一段）：</p>
+<div class="highlight"><pre><span></span><code>---
+stratum: N
+chapter_range: [start]-[end]
+<span class="gu">generated_at: YYYY-MM-DD</span>
+<span class="gu">---</span>
+
+<span class="gh"># 第N大弧合成</span>
+
+<span class="gu">## 弧范围</span>
+第[start]章 - 第[end]章
+
+<span class="gu">## 本弧主题推进</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">theme</span>]: <span class="na">本弧如何推进此主题（具体事件链，引用大弧内章号）</span>
+
+<span class="gu">## 跨弧伏笔账</span>
+<span class="k">-</span><span class="w"> </span>MH01: 第X章种植 → 第Y章推进 → 当前状态
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## 角色弧弧段</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">角色</span>]: <span class="na">[弧段起点状态] → [弧段终点状态]，关键转折章: N</span>
+<span class="k">-</span><span class="w"> </span>...
+
+<span class="gu">## 未解决的张力悬置（带入下一大弧）</span>
+<span class="k">-</span><span class="w"> </span>[<span class="nl">悬置项</span>]: <span class="na">为何未解决，预期解决弧段</span>
+</code></pre></div>
+<h2 id="l5">L5 书脊滚动复核</h2>
+<p>卷/大弧边界时更新 <code>truth/book_spine.md</code> 的<strong>数据字段</strong>（不改声明字段）：</p>
+<ul>
+<li><code>status</code>: pending_intent → active（首次合并 author_intent 后）</li>
+<li>themes 探索进度：更新已探索章节范围</li>
+<li>主角弧进度：更新当前位置百分比</li>
+<li>master hooks 状态：更新最后推进章、状态</li>
+<li>world 铁律快照：从 world/rules.md 同步前5条</li>
+</ul>
+<h2 id="anti-rationalization_1">Anti-Rationalization</h2>
+<table>
+<thead>
+<tr>
+<th>Excuse</th>
+<th>Reality</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"弧段蒸馏就是摘要压缩"</td>
+<td>蒸馏必须提取事件链 + 伏笔 + 角色弧，不是压缩文字</td>
+</tr>
+<tr>
+<td>"信息损失无所谓"</td>
+<td>未兑现伏笔若不标注，下一弧段遗忘 = Chase Power 债务暴增</td>
+</tr>
+<tr>
+<td>"L5 复核时可以改 themes"</td>
+<td>themes 是声明值，复核只更新进度；改 themes = 偏离 author_intent</td>
+</tr>
+<tr>
+<td>"L4 大弧和 L3 卷摘要重复"</td>
+<td>L4 是跨卷长程线（master hooks/角色弧段），L3 是单卷叙事；职责不同</td>
+</tr>
+<tr>
+<td><div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-memory-distill/SKILL.md
+git commit -m &quot;feat: add shenbi-memory-distill skill (spec §3.4)&quot;
+</code></pre></div></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="task-3-context-composing-dot-exact-g4-checker">Task 3: context-composing 完整改造（按层组装 — DOT + EXACT 节标题 + 铁律 + G4 checker 全部同步）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-context-composing/SKILL.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: book_spine.md（L5）+ book_strata.md（L4，当前大弧）+ volume_summaries.md（L3，当前卷）+ arcs/arc-N.md（L2，当前弧）+ chapter_summaries.md（L1，近8章）
+- Produces: 上下文包（9节：P1-P7 + 近章结尾多样性 + Hook 债务简报），但 P2-P5 改为按层加载</p>
+<ul>
+<li>[ ] <strong>Step 1: Rewrite the context priority table</strong></li>
+</ul>
+<p>Replace the existing <code>## 上下文优先级</code> table in <code>skills/shenbi-context-composing/SKILL.md</code> with:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 上下文优先级（按层组装）</span>
+
+分层记忆架构下，上下文按层加载，使窗口大小有界（与全书总字数无关）：
+
+| 优先级 | 层 | 来源 | 裁剪规则 |
+|--------|----|------|---------|
+| P1 | - | plans/chapter-N-plan.md | 不裁剪 |
+| P2 | L5 | truth/book_spine.md | 不裁剪（常青，~1页） |
+| P3 | L4 | truth/book_strata.md（当前大弧段） | 不裁剪 |
+| P4 | L3 | truth/volume_summaries.md（当前卷） | 不裁剪 |
+| P5 | L2 | truth/arcs/arc-N.md（当前弧） | 不裁剪 |
+| P6 | L1 | truth/chapter_summaries.md（近8章拍点） | 仅取近8章 |
+| P7 | - | world/rules.md（最多5条）+ style/style_profile.md | nice，先裁剪 |
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Add ramp-up handling section</strong></li>
+</ul>
+<p>在铁律后新增：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## 爬坡期处理（章节 1-35）</span>
+
+前36章内，L2/L3/L4 尚未产出（首个L2在第12章，首个L4在第36章，首个L3在卷边界）。爬坡期规则：
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**缺失层不报错，跳过加载。**</span> 按层逐层尝试加载，若文件不存在则跳过（不填充占位）。
+<span class="k">-</span><span class="w"> </span><span class="gs">**爬坡期用 L1 近章拍点补偿。**</span> 前12章无 L2 时，L1 取近章范围扩大到近12章（而非8章）。
+<span class="k">-</span><span class="w"> </span><span class="gs">**爬坡期窗口较小（~3000-6000字），非缺陷。**</span> 稳态窗口（~10,700字）从第36章起达成。
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Update frontmatter contract reads</strong></li>
+</ul>
+<p>将 <code>reads</code> 中新增分层文件：</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/book_spine.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/book_strata.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/volume_summaries.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/arcs/arc-N.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/chapter_summaries.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/pending_hooks.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/audit_drift.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">world/rules.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/character_matrix.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">style/style_profile.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Rewrite the DOT flowchart to layer model</strong></li>
+</ul>
+<p>The existing DOT references old P3-P7 meanings (<code>Collect P3: active hooks</code>, <code>Collect P5: world rules</code>). Replace the entire DOT with:</p>
+<div class="highlight"><pre><span></span><code><span class="k">digraph</span><span class="w"> </span><span class="nt">context_composing</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;Read chapter plan (P1)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load L5: book_spine.md (P2)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load L5: book_spine.md (P2)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load L4: book_strata.md current stratum (P3)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load L4 (P3)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load L3: volume_summaries.md current volume (P4)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load L3 (P4)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load L2: arcs/arc-N.md current arc (P5)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load L2 (P5)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load L1: chapter_summaries.md near 8 chapters (P6)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load L1 (P6)&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Load P7: world/rules.md (max 5) + style/style_profile.md&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Load P7&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Check near-chapter endings (avoid repetition)&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Check near-chapter endings&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Present context to human&quot;</span><span class="p">;</span>
+<span class="w">    </span><span class="nt">&quot;Present context to human&quot;</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="nt">&quot;Proceed to chapter-drafting&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Rewrite the EXACT 节标题 output spec</strong></li>
+</ul>
+<p>The existing EXACT section mandates <code>## P3 活跃伏笔</code> etc. (old meanings). Replace with layer-based titles:</p>
+<div class="highlight"><pre><span></span><code><span class="gu">### EXACT 节标题（9/9 必须）</span>
+
+输出的 markdown 必须包含以下 H2 标题，按此顺序：
+
+<span class="k">1.</span> <span class="sb">`## P1 章节备忘`</span>
+<span class="k">2.</span> <span class="sb">`## P2 书脊（L5）`</span>
+<span class="k">3.</span> <span class="sb">`## P3 当前大弧（L4）`</span>
+<span class="k">4.</span> <span class="sb">`## P4 当前卷摘要（L3）`</span>
+<span class="k">5.</span> <span class="sb">`## P5 当前弧段（L2）`</span>
+<span class="k">6.</span> <span class="sb">`## P6 近章拍点（L1）`</span>
+<span class="k">7.</span> <span class="sb">`## P7 世界铁律与文风`</span>
+<span class="k">8.</span> <span class="sb">`## 近章结尾多样性`</span>
+<span class="k">9.</span> <span class="sb">`## Hook 债务简报`</span>
+</code></pre></div>
+<p><strong>不合格条件</strong>：缺任意一节，或使用旧的 P3 活跃伏笔/P5 世界铁律标题。</p>
+<ul>
+<li>[ ] <strong>Step 6: Rewrite the Hook 债务简报 section to reference book_spine master hooks</strong></li>
+</ul>
+<p>The existing Hook 债务简报 reads from <code>pending_hooks.md</code> directly. In the layer model, cross-arc hooks come from book_spine master hooks (MH*) or foreshadowing-recall results. Update the Hook 债务简报 to read master hooks from P2 (book_spine) and local hooks from P5 (current arc).</p>
+<ul>
+<li>[ ] <strong>Step 7: Update iron rules to layer model</strong></li>
+</ul>
+<p>Update iron rule 1 ("优先级严格递减") to: "P1 不可省略，P7 最先被裁剪。L5-L2 缺失层跳过加载（爬坡期，§3.2.1），不报错。"</p>
+<ul>
+<li>[ ] <strong>Step 8: Update g4_context_composing.py checker</strong></li>
+</ul>
+<p>Update <code>src/shenbi/gates/g4/context_composing.py</code> to validate the <strong>new</strong> layer-based section titles instead of old P3 活跃伏笔/P5 世界铁律. The checker must look for <code>## P2 书脊</code>, <code>## P3 当前大弧</code>, <code>## P4 当前卷摘要</code>, <code>## P5 当前弧段</code>, <code>## P6 近章拍点</code>.</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-context-composing/SKILL.md<span class="w"> </span>src/shenbi/gates/g4/context_composing.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: complete context-composing layer rewrite: DOT + EXACT sections + iron rules + G4 checker (spec §3.5, §3.2.1)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-shenbi-foreshadowing-recall-skill">Task 4: shenbi-foreshadowing-recall skill</h3>
+<p><strong>Files:</strong>
+- Create: <code>skills/shenbi-foreshadowing-recall/SKILL.md</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>truth/pending_hooks.md</code>（全量）+ Wave 1 helper <code>recall_overdue_hooks</code>
+- Produces: <code>truth/foreshadowing_recall_result.md</code>（超期 hook 列表）。被 review-foreshadowing（大规模时调用）、score-arc/stratum（检查长程钩子）消费。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the SKILL.md</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>---
+name: shenbi-foreshadowing-recall
+description: &quot;Use when checking for overdue foreshadowing hooks across a large chapter range, or after each chapter&#39;s state-settling to maintain the recall index&quot;
+contract:
+  kind: artifact
+  reads:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/pending_hooks.md
+  writes:
+<span class="w">    </span><span class="k">-</span><span class="w"> </span>truth/foreshadowing_recall_result.md
+<span class="gu">  updates: []</span>
+<span class="gu">---</span>
+&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;
+
+<span class="gu">## 数据契约</span>
+
+<span class="k">-</span><span class="w"> </span><span class="gs">**Reads:**</span> truth/pending_hooks.md
+<span class="k">-</span><span class="w"> </span><span class="gs">**Writes:**</span> truth/foreshadowing_recall_result.md
+<span class="k">-</span><span class="w"> </span><span class="gs">**Updates:**</span> none
+
+&lt;!-- END AUTO-GENERATED --&gt;
+
+<span class="gh"># 伏笔召回</span>
+
+封装 RAG 召回层 + 确定性阈值过滤。对调用方透明——review-foreshadowing 和评分 skill 调用本 skill 获取超期 hook 列表，无需关心 RAG 实现细节。
+
+<span class="k">&gt; </span><span class="ge">**MVP 说明（spec §3.6）**：本 skill 当前实现为确定性全量扫描 + max_distance 阈值过滤（`recall_overdue_hooks` helper）。spec §3.6 的 SQLite + bge-large-zh 向量索引增量维护为**后续增强**（post-node-1），在验证节点 1 通过后作为独立 task 加入。当前 MVP 在 chapter &lt; 500 时性能可接受；向量索引在更大规模时启用。</span>
+
+<span class="gu">## 触发</span>
+
+<span class="k">-</span><span class="w"> </span>每章 state-settling 后（增量更新索引）
+<span class="k">-</span><span class="w"> </span>review-foreshadowing 在 current_chapter &gt; 50 时调用
+
+<span class="gu">## 流程</span>
+
+```dot
+digraph foreshadowing_recall {
+    &quot;Read truth/pending_hooks.md&quot; -&gt; &quot;Extract hook list (id/last_reinforced/max_distance/state)&quot;;
+    &quot;Extract hook list&quot; -&gt; &quot;Call recall_overdue_hooks(hooks, current_chapter)&quot;;
+    &quot;Call recall_overdue_hooks&quot; -&gt; &quot;Write truth/foreshadowing_recall_result.md&quot;;
+}
+</code></pre></div>
+<h2 id="_4">铁律</h2>
+<ol>
+<li><strong>确定性阈值过滤</strong> — 最终判定（超期/未超期）由 <code>recall_overdue_hooks</code> 纯数值比较决定，不受嵌入不确定性影响</li>
+<li><strong>排除 RESOLVED</strong> — 已解决的伏笔不召回</li>
+<li><strong>输出可溯源</strong> — 每个超期 hook 标注 last_reinformed/max_distance/沉默章数</li>
+</ol>
+<h2 id="_5">输出格式</h2>
+<p>写 <code>truth/foreshadowing_recall_result.md</code>：</p>
+<p><div class="highlight"><pre><span></span><code>---
+current_chapter: N
+recall_at: YYYY-MM-DD
+<span class="gu">overdue_count: X</span>
+<span class="gu">---</span>
+
+<span class="gh"># 伏笔召回结果（第N章）</span>
+
+<span class="gu">## 超期伏笔</span>
+
+| Hook ID | 内容 | 最后推进章 | max_distance | 沉默章数 | 状态 |
+|---------|------|----------|-------------|---------|------|
+| H01 | ... | 3 | 20 | 17 | OVERDUE |
+| H02 | ... | 40 | 15 | 16 | OVERDUE |
+
+<span class="gu">## 无超期伏笔时</span>
+（空表，标记&quot;无超期伏笔&quot;）
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>- [ ] **Step 2: Commit**
+
+```bash
+git add skills/shenbi-foreshadowing-recall/SKILL.md
+git commit -m &quot;feat: add shenbi-foreshadowing-recall skill (spec §3.6)&quot;
+</code></pre></div></p>
+<hr />
+<h3 id="task-5-g010-59">Task 5: G0.10 动态化（硬编码 59 → 动态）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g0.py</code>（419-447行区域）
+- Create: <code>tests/unit/gates/test_g0_dynamic_count.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>ALL_SKILLS</code>（g0.py 已有的全局）
+- Produces: G0.10 用动态计数替代硬编码 59</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/gates/test_g0_dynamic_count.py</span>
+<span class="sd">&quot;&quot;&quot;Unit test for G0.10 dynamic skill count (spec §9.4).&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g0</span><span class="w"> </span><span class="kn">import</span> <span class="n">ALL_SKILLS</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">unit</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_all_skills_is_dynamic_not_hardcoded</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;ALL_SKILLS is scanned from the directory, not hardcoded.&quot;&quot;&quot;</span>
+    <span class="k">assert</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ALL_SKILLS</span><span class="p">,</span> <span class="p">(</span><span class="nb">list</span><span class="p">,</span> <span class="nb">set</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">ALL_SKILLS</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">61</span>  <span class="c1"># current count, grows with new skills</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run to verify it passes (ALL_SKILLS already dynamic)</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/gates/test_g0_dynamic_count.py -v</code>
+Expected: PASS (ALL_SKILLS is already a dynamic scan)</p>
+<ul>
+<li>[ ] <strong>Step 3: Replace hardcoded 59 in G0.10</strong></li>
+</ul>
+<p>In <code>src/shenbi/gates/g0.py</code>, find the G0.10 block (around line 419-447) and replace the literal <code>59</code> references with <code>len(ALL_SKILLS)</code>:</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># G0.10 — completed generative test count (must cover all skills for full round;</span>
+    <span class="c1"># WARN if fewer — allows incremental execution). Count is dynamic (scanned from</span>
+    <span class="c1"># skills/ dir), not hardcoded — new skills auto-included.</span>
+    <span class="n">total_skills</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">ALL_SKILLS</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">round_dir</span><span class="p">:</span>
+        <span class="n">rd</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">round_dir</span><span class="p">)</span>
+        <span class="n">t1_reports</span> <span class="o">=</span> <span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span>
+        <span class="k">if</span> <span class="n">t1_reports</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">t1_reports</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+            <span class="n">generative_scores</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">t1_reports</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*-generative-scores.json&quot;</span><span class="p">))</span>
+            <span class="n">count</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">generative_scores</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">count</span> <span class="o">&lt;</span> <span class="n">total_skills</span><span class="p">:</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.10&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;WARN&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;r&quot;</span><span class="p">:</span> <span class="sa">f</span><span class="s2">&quot;generative tests: </span><span class="si">{</span><span class="n">count</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">total_skills</span><span class="si">}</span><span class="s2"> — </span><span class="si">{</span><span class="n">total_skills</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">count</span><span class="si">}</span><span class="s2"> remaining&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+                        <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_skills</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">checks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="p">{</span>
+                        <span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G0.10&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">,</span>
+                        <span class="s2">&quot;completed&quot;</span><span class="p">:</span> <span class="n">count</span><span class="p">,</span>
+                        <span class="s2">&quot;total&quot;</span><span class="p">:</span> <span class="n">total_skills</span><span class="p">,</span>
+                    <span class="p">}</span>
+                <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run G0 validation to confirm no regression</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-validate G0 outline-example.md 2&gt;&amp;1 | grep "G0.10"</code>
+Expected: WARN (partial round) with dynamic total, not error</p>
+<ul>
+<li>[ ] <strong>Step 5: Re-lock hashes</strong></li>
+</ul>
+<p>Run: <code>bash tests/lock-tool-hashes.sh</code></p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>tests/unit/gates/test_g0_dynamic_count.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: G0.10 skill count dynamic instead of hardcoded 59 (spec §9.4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-fixtures">Task 6: 新增 fixtures（真实样本）</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/book-spine-example.md</code>
+- Create: <code>tests/fixtures/arc-example.md</code>
+- Create: <code>tests/fixtures/book-strata-example.md</code>
+- Create: <code>tests/fixtures/volume-summary-example.md</code></p>
+<p><strong>Note:</strong> 以下展示的 fixture 内容是<strong>完整的真实内容</strong>（基于 outline-example.md 星火燃穹设定构造），直接使用，不需要后续填充。</p>
+<ul>
+<li>[ ] <strong>Step 1: Create book-spine fixture</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/fixtures/book-spine-example.md</span>
+---
+updated: 2026-06-28
+total_chapters: 15
+<span class="gu">status: active</span>
+<span class="gu">---</span>
+
+<span class="gh"># 书脊（星火燃穹示例）</span>
+
+<span class="gu">## 核心冲突三层</span>
+<span class="k">-</span><span class="w"> </span>surface_conflict: &quot;涅普敦法西斯侵略与梅德兰民族存亡保卫战&quot;
+<span class="k">-</span><span class="w"> </span>personal_conflict: &quot;林烽利己主义苟活本能与良知/阶级情感之间的挣扎&quot;
+<span class="k">-</span><span class="w"> </span>deep_conflict: &quot;帝国主义殖民压迫与人民大众追求解放的根本对抗&quot;
+
+<span class="gu">## 全书 themes</span>
+<span class="k">-</span><span class="w"> </span>逆境成长: 探索进度 第1-15章已探索
+<span class="k">-</span><span class="w"> </span>人民至上: 探索进度 第8章起觉醒
+
+<span class="gu">## 主角弧</span>
+<span class="k">-</span><span class="w"> </span>arc_type: GROWTH
+<span class="k">-</span><span class="w"> </span>arc_starting: &quot;利己享乐的现代青年&quot;
+<span class="k">-</span><span class="w"> </span>arc_turning: &quot;目睹屠杀觉醒良知&quot;
+<span class="k">-</span><span class="w"> </span>arc_ending: &quot;文明共同体引路人&quot;
+<span class="k">-</span><span class="w"> </span>当前进度: 30%
+
+<span class="gu">## 主线钩子</span>
+<span class="k">-</span><span class="w"> </span>MH01: 前穿越者梵光社会主义失败教训 | 状态: ADVANCED | 最后推进章: 12 | 声明兑现卷: 第二卷
+<span class="k">-</span><span class="w"> </span>MH02: 灵能金手指的知识驱动上限 | 状态: PLANTED | 最后推进章: 5 | 声明兑现卷: 第三卷
+
+<span class="gu">## 世界铁律快照</span>
+<span class="k">1.</span> 灵能守恒与知识驱动
+<span class="k">2.</span> 位面通道时间流速差异
+<span class="k">3.</span> 阶级与种姓垄断高魔力量
+<span class="k">4.</span> 殖民体系经济剥削
+<span class="k">5.</span> 灵能无法凭空产生
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Create arc fixture</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/fixtures/arc-example.md</span>
+---
+arc: 1
+chapter_range: 1-12
+volume: 1
+generated_at: 2026-06-28
+<span class="gu">generated_by: shenbi-memory-distill</span>
+<span class="gu">---</span>
+
+<span class="gh"># 第一弧段合成</span>
+
+<span class="gu">## 弧内事件链</span>
+第1-3章：林烽穿越至梅德兰，发现身处战场，灵能金手指觉醒。第4-6章：首次参与抵抗，目睹平民惨状，良知开始动摇。第7-9章：遭遇前穿越者遗存线索，了解梵光社会主义失败教训。第10-12章：第一次主动选择站在人民一边，击退小规模侵略。
+
+<span class="gu">## 弧内伏笔兑现/推进</span>
+<span class="k">-</span><span class="w"> </span>MH01: 第9章 advance（发现梵光遗存文献）
+<span class="k">-</span><span class="w"> </span>H01: 第3章 plant（灵能金手指的知识驱动特性首次显现）
+
+<span class="gu">## 角色状态变化</span>
+<span class="k">-</span><span class="w"> </span>林烽: 利己苟活 → 良知觉醒，关键转折章: 第7章
+
+<span class="gu">## 张力曲线本弧段</span>
+铺垫段（1-3章）→ 上升段（4-9章）→ 小爆发（10-12章）
+
+<span class="gu">## 未解决悬置</span>
+<span class="k">-</span><span class="w"> </span>梵光社会主义失败的具体原因（预期第二弧段揭示）
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Create strata + volume-summary fixtures</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/fixtures/book-strata-example.md</span>
+---
+stratum: 1
+chapter_range: 1-36
+<span class="gu">generated_at: 2026-06-28</span>
+<span class="gu">---</span>
+
+<span class="gh"># 第一大弧合成</span>
+
+<span class="gu">## 弧范围</span>
+第1章 - 第36章
+
+<span class="gu">## 本弧主题推进</span>
+<span class="k">-</span><span class="w"> </span>逆境成长: 林烽从穿越初期的利己主义，经三次良知考验，确立&quot;人民至上&quot;信念
+<span class="k">-</span><span class="w"> </span>人民至上: 第8章首次觉醒，第20章主动组织民众，第30章提出解放纲领
+
+<span class="gu">## 跨弧伏笔账</span>
+<span class="k">-</span><span class="w"> </span>MH01: 第9章种植 → 第15章推进 → 当前状态: ADVANCED
+<span class="k">-</span><span class="w"> </span>MH02: 第3章种植 → 第20章推进 → 当前状态: ADVANCED
+
+<span class="gu">## 角色弧弧段</span>
+<span class="k">-</span><span class="w"> </span>林烽: 利己享乐者 → 觉醒的革命者，关键转折章: 第7章、第20章
+
+<span class="gu">## 未解决悬置</span>
+<span class="k">-</span><span class="w"> </span>前穿越者失败教训的完整真相（预期第二大弧揭示）
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/fixtures/volume-summary-example.md</span>
+---
+volume: 1
+chapter_range: 1-15
+<span class="gu">generated_at: 2026-06-28</span>
+<span class="gu">---</span>
+
+<span class="gh"># 第一卷摘要</span>
+
+<span class="gu">## 卷目标达成</span>
+Objective: 林烽从利己青年觉醒为有革命意识者 — 达成
+
+<span class="gu">## 核心事件</span>
+<span class="k">-</span><span class="w"> </span>穿越与金手指觉醒（1-3章）
+<span class="k">-</span><span class="w"> </span>首次抵抗与良知动摇（4-6章）
+<span class="k">-</span><span class="w"> </span>梵光遗存线索（7-9章）
+<span class="k">-</span><span class="w"> </span>主动选择人民立场（10-12章）
+<span class="k">-</span><span class="w"> </span>卷尾：林烽决定组织更大规模抵抗（13-15章）
+
+<span class="gu">## 跨卷钩子</span>
+<span class="k">-</span><span class="w"> </span>梵光失败真相的进一步线索（带入第二卷）
+<span class="k">-</span><span class="w"> </span>灵能金手指的新能力解锁（带入第二卷）
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/fixtures/book-spine-example.md<span class="w"> </span>tests/fixtures/arc-example.md<span class="w"> </span>tests/fixtures/book-strata-example.md<span class="w"> </span>tests/fixtures/volume-summary-example.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add hierarchical memory fixtures (spec §9.7)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-7-g4-checkers-t1-depsjson">Task 7: G4 checkers + T1 测试目录 + deps.json 注册</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/gates/g4/book_spine_init.py</code>
+- Create: <code>src/shenbi/gates/g4/memory_distill.py</code>
+- Create: T1 目录骨架 for 3 new skills
+- Modify: <code>tests/tiers/deps.json</code>（genesis + book-spine-init）</p>
+<ul>
+<li>[ ] <strong>Step 1: Create G4 checkers</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g4/book_spine_init.py</span>
+<span class="sd">&quot;&quot;&quot;G4 checker for shenbi-book-spine-init.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">fail</span><span class="p">,</span> <span class="n">passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">g4_book_spine_init</span><span class="p">(</span><span class="n">fps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">rd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate book_spine.md has required frontmatter fields + sections.&quot;&quot;&quot;</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">mf</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">fps</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.bsi.not_found:</span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="c1"># frontmatter fields</span>
+        <span class="k">for</span> <span class="n">field</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;updated:&quot;</span><span class="p">,</span> <span class="s2">&quot;total_chapters:&quot;</span><span class="p">,</span> <span class="s2">&quot;status:&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">field</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.bsi.missing_field:</span><span class="si">{</span><span class="n">field</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="c1"># required sections</span>
+        <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;核心冲突三层&quot;</span><span class="p">,</span> <span class="s2">&quot;全书 themes&quot;</span><span class="p">,</span> <span class="s2">&quot;主角弧&quot;</span><span class="p">,</span> <span class="s2">&quot;主线钩子&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.bsi.missing_section:</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.bsi&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">mf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;G4-book-spine-init&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">passed</span><span class="p">(</span><span class="s2">&quot;G4-book-spine-init&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># src/shenbi/gates/g4/memory_distill.py</span>
+<span class="sd">&quot;&quot;&quot;G4 checker for shenbi-memory-distill (溯源校验).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">fail</span><span class="p">,</span> <span class="n">passed</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">g4_memory_distill</span><span class="p">(</span><span class="n">fps</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">rd</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Validate arc/strata output has traceability (章号引用) + required sections.&quot;&quot;&quot;</span>
+    <span class="n">c</span><span class="p">,</span> <span class="n">mf</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fp</span> <span class="ow">in</span> <span class="n">fps</span> <span class="ow">or</span> <span class="p">[]:</span>
+        <span class="n">p</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">p</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.md.not_found:</span><span class="si">{</span><span class="n">fp</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">p</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="c1"># traceability: must reference chapter numbers</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;第\d+章|chapter.*\d+&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+            <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;G4.md.no_chapter_ref:distillation must reference chapter numbers&quot;</span><span class="p">)</span>
+        <span class="c1"># arc files need event chain + hooks</span>
+        <span class="k">if</span> <span class="s2">&quot;arc&quot;</span> <span class="ow">in</span> <span class="n">fp</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">section</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;事件链&quot;</span><span class="p">,</span> <span class="s2">&quot;伏笔&quot;</span><span class="p">,</span> <span class="s2">&quot;角色状态&quot;</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">section</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">content</span><span class="p">:</span>
+                    <span class="n">mf</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;G4.md.missing_section:</span><span class="si">{</span><span class="n">section</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">c</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="s2">&quot;G4.md&quot;</span><span class="p">,</span> <span class="s2">&quot;s&quot;</span><span class="p">:</span> <span class="s2">&quot;PASS&quot;</span><span class="p">})</span>
+    <span class="k">if</span> <span class="n">mf</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">fail</span><span class="p">(</span><span class="s2">&quot;G4-memory-distill&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="s2">&quot;scoring&quot;</span><span class="p">,</span> <span class="n">mf</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">passed</span><span class="p">(</span><span class="s2">&quot;G4-memory-distill&quot;</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Register in g4/<strong>init</strong>.py and router</strong></li>
+</ul>
+<p><strong>G4 注册（spec §9.12 — 重要：dispatch 在 generic.py 不在 <strong>init</strong>.py）：</strong></p>
+<p>G4 dispatch 在 <code>src/shenbi/gates/g4/generic.py</code> 的 <code>gate_G4()</code> 函数内（约 line 151-198），是 late imports + <code>checkers</code> dict。<code>__init__.py</code> 只 re-export <code>gate_G4</code>，在此添加 import 不生效。正确注册步骤：</p>
+<ol>
+<li>在 <code>generic.py</code> 的 late imports 块添加：<code>from shenbi.gates.g4.&lt;checker_module&gt; import &lt;checker_fn&gt;</code></li>
+<li>在 <code>checkers = {...}</code> dict 添加：<code>"shenbi-&lt;skill&gt;": &lt;checker_fn&gt;,</code></li>
+<li>在 <code>src/shenbi/gates/shared.py</code> 的 <code>G4_CHECKER_SKILLS</code> 集合添加 skill name（用于 G0.4 覆盖率统计）</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="c1"># 1. generic.py late imports 块添加：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.book_spine_init</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_book_spine_init</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.memory_distill</span><span class="w"> </span><span class="kn">import</span> <span class="n">g4_memory_distill</span>
+<span class="c1"># 2. checkers dict 添加：</span>
+<span class="c1">#   &quot;shenbi-book-spine-init&quot;: g4_book_spine_init,</span>
+<span class="c1">#   &quot;shenbi-memory-distill&quot;: g4_memory_distill,</span>
+<span class="c1"># 3. shared.py G4_CHECKER_SKILLS 添加：</span>
+<span class="c1">#   &quot;shenbi-book-spine-init&quot;, &quot;shenbi-memory-distill&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Create T1 目录骨架</strong></li>
+</ul>
+<p>为 3 个新 skill 创建 T1 测试目录结构（rubric.md + generative/bug-hunt/clean/input/scenario.md + expected/）：
+<div class="highlight"><pre><span></span><code><span class="k">for</span><span class="w"> </span>skill<span class="w"> </span><span class="k">in</span><span class="w"> </span>shenbi-book-spine-init<span class="w"> </span>shenbi-memory-distill<span class="w"> </span>shenbi-foreshadowing-recall<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span>ttype<span class="w"> </span><span class="k">in</span><span class="w"> </span>generative<span class="w"> </span>bug-hunt<span class="w"> </span>clean<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;tests/tiers/t1-skill/</span><span class="nv">$skill</span><span class="s2">/</span><span class="nv">$ttype</span><span class="s2">/input&quot;</span>
+<span class="w">    </span>mkdir<span class="w"> </span>-p<span class="w"> </span><span class="s2">&quot;tests/tiers/t1-skill/</span><span class="nv">$skill</span><span class="s2">/</span><span class="nv">$ttype</span><span class="s2">/expected&quot;</span>
+<span class="w">  </span><span class="k">done</span>
+<span class="k">done</span>
+</code></pre></div></p>
+<p>为每个 skill 创建 <code>rubric.md</code>（Universal 15% + Bespoke 85%）和 <code>scenario.md</code>（引用 tests/fixtures/ 下的样本）。以 memory-distill 为例：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/tiers/t1-skill/shenbi-memory-distill/rubric.md</span>
+<span class="gh"># T1 Rubric: shenbi-memory-distill</span>
+
+<span class="gu">## Universal Dimensions (15%)</span>
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 1 | Instruction adherence | 10% | All SKILL.md sections: L2/L4/L5 trigger rules, traceability, incremental output, loss标注 |
+| 2 | Output completeness | 5% | All sections: event chain, hook resolution, character deltas, tension curve, unsuspended |
+
+<span class="gu">## Bespoke Dimensions (85%)</span>
+| # | Dimension | Weight | Standard |
+|---|-----------|--------|----------|
+| 3 | Traceability | 30% | Every synthesized conclusion references specific chapter numbers |
+| 4 | Hook tracking accuracy | 25% | Arc hooks correctly extracted from L1 summaries, resolved/advanced/planted categorized correctly |
+| 5 | Character arc extraction | 15% | Per-character state changes accurately captured at arc granularity |
+| 6 | Information loss标注 | 15% | Unresolved foreshadowing/tension explicitly listed in &quot;unsuspended&quot; section |
+
+<span class="gu">## Kill Switches</span>
+<span class="gu">### Generative</span>
+<span class="k">-</span><span class="w"> </span>No chapter references in synthesis -&gt; total score = 0
+<span class="gu">### Bug-Hunt</span>
+<span class="k">-</span><span class="w"> </span>Missed planted unresolved hook -&gt; total score = 0
+<span class="gu">### Clean</span>
+<span class="k">-</span><span class="w"> </span>Any hallucinated event not in source summaries -&gt; total score = 0
+</code></pre></div>
+<p>scenario.md 示例：</p>
+<div class="highlight"><pre><span></span><code><span class="gh"># tests/tiers/t1-skill/shenbi-memory-distill/generative/input/scenario.md</span>
+<span class="gh"># Generative Test: shenbi-memory-distill</span>
+
+<span class="gu">## Skill Under Test</span>
+<span class="sb">`skills/shenbi-memory-distill/SKILL.md`</span>
+
+<span class="gu">## Test Setup</span>
+A novel project exists with 12 completed chapters. Truth files include chapter summaries at <span class="sb">`tests/fixtures/chapter-summaries-example.md`</span> and pending hooks at <span class="sb">`tests/fixtures/pending-hooks-example.md`</span>. The project is ready for its first L2 arc distillation (arc 1, chapters 1-12).
+
+<span class="gu">## Agent Task</span>
+Run shenbi-memory-distill to produce the first L2 arc synthesis. The agent must:
+<span class="k">1.</span> Read chapter_summaries for chapters 1-12
+<span class="k">2.</span> Synthesize arc event chain with chapter references
+<span class="k">3.</span> Extract arc hook resolution (advance/resolve/plant)
+<span class="k">4.</span> Extract character state changes at arc granularity
+<span class="k">5.</span> Document tension curve vs volume rhythm principles
+<span class="k">6.</span> List unresolved foreshadowing in &quot;unsuspended&quot; section
+
+<span class="gu">## Seed Input</span>
+Chapter summaries from <span class="sb">`tests/fixtures/chapter-summaries-example.md`</span>, hooks from <span class="sb">`tests/fixtures/pending-hooks-example.md`</span>
+</code></pre></div>
+<p>book-spine-init 和 foreshadowing-recall 的 rubric/scenario 同此模式，替换维度为各自职责（book-spine-init: frontmatter字段完整性/themes继承/master hook提取; foreshadowing-recall: 超期判定准确性/RESOLVED排除/输出可溯源）。</p>
+<ul>
+<li>[ ] <strong>Step 4: Update deps.json — genesis phase</strong></li>
+</ul>
+<p><strong>注意嵌套层级</strong>：phase 对象在 <code>t2-phases</code> 下，不是顶层。用 python patch：</p>
+<p><div class="highlight"><pre><span></span><code>python3<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;</span>
+<span class="s2">import json</span>
+<span class="s2">from pathlib import Path</span>
+<span class="s2">deps_path = Path(&#39;tests/tiers/deps.json&#39;)</span>
+<span class="s2">d = json.loads(deps_path.read_text(encoding=&#39;utf-8&#39;))</span>
+<span class="s2">genesis = d[&#39;t2-phases&#39;][&#39;genesis&#39;]</span>
+<span class="s2">if &#39;shenbi-book-spine-init&#39; not in genesis[&#39;prerequisites&#39;]:</span>
+<span class="s2">    genesis[&#39;prerequisites&#39;].append(&#39;shenbi-book-spine-init&#39;)</span>
+<span class="s2">deps_path.write_text(json.dumps(d, indent=2, ensure_ascii=False) + &#39;\n&#39;)</span>
+<span class="s2">print(&#39;genesis prerequisites:&#39;, genesis[&#39;prerequisites&#39;])</span>
+<span class="s2">&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code>- [ ] **Step 5: Run check + re-lock**
+
+```bash
+just check
+bash tests/lock-tool-hashes.sh
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/gates/g4/<span class="w"> </span>src/shenbi/gates/shared.py<span class="w"> </span>tests/tiers/<span class="w"> </span>tests/tiers/t1-skill/shenbi-book-spine-init/<span class="w"> </span>tests/tiers/t1-skill/shenbi-memory-distill/<span class="w"> </span>tests/tiers/t1-skill/shenbi-foreshadowing-recall/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add G4 checkers + T1 dirs + deps.json for Wave 2 skills (spec §9)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-8-wave-2">Task 8: Wave 2 全量验证</h3>
+<ul>
+<li>[ ] <strong>Step 1: Run all tests</strong></li>
+</ul>
+<p>Run: <code>just test &amp;&amp; just check</code>
+Expected: all passed</p>
+<ul>
+<li>[ ] <strong>Step 2: Verify skill discovery</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-validate G0 outline-example.md 2&gt;&amp;1 | grep "G0.4"</code>
+Expected: PASS with skills_count = 64 (61 + 3 new)</p>
+<ul>
+<li>[ ] <strong>Step 3: Commit final</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore: re-lock hashes after Wave 2 memory layer&quot;</span>
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
