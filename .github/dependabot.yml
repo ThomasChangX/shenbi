@@ -1,0 +1,37 @@
+# .github/dependabot.yml
+# Dependabot 版本更新配置。承接 PR #20 follow-up：
+# PR #20 是为 torch（sentence-transformers 的 transitive 依赖）开的僵尸 PR。
+# 此配置约束 Dependabot 只为直接依赖开 PR，transitive 由父包升级连带解决。
+# 详见 docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md
+version: 2
+updates:
+  # uv lockfile —— GitHub Dependabot 自 2025-03 GA 原生支持 uv（§5.1）
+  - package-ecosystem: "uv"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 5
+    # 单一 allow 规则只能有一个 dependency-type；多个 allow 条目按并集生效。
+    # 选 direct = 覆盖三处显式声明（[project.dependencies] / [dependency-groups] /
+    # [optional-dependencies]），过滤 indirect 传递依赖（torch 这类）。
+    # 不配 production/development —— 那是正交的环境标签轴，叠加只会扩大放行范围。
+    allow:
+      - dependency-type: "direct"
+    labels:
+      - "dependencies"
+      - "dependabot"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
+
+  # GitHub Actions —— workflow 依赖（actions/checkout 等）
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    labels:
+      - "dependencies"
+      - "github-actions"
+    commit-message:
+      prefix: "chore(deps)"
+      include: "scope"
