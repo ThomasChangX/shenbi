@@ -169,7 +169,7 @@ class TestGateMarkers(unittest.TestCase):
             test_file = round_dir / "test.md"
             test_file.write_text("---\ntype: chapter\n---\n" + "一些中文内容" * 50)
 
-            stdout, stderr, rc = self._run_vg("G2", str(test_file), "chapter", str(round_dir))
+            _stdout, _stderr, _rc = self._run_vg("G2", str(test_file), "chapter", str(round_dir))
             # G2 should not write any markers regardless of result
             marker_dir = round_dir / "gate-markers"
             self.assertFalse(marker_dir.exists(), "G2 should not create gate-markers")
@@ -381,7 +381,7 @@ class TestPhaseRunner(unittest.TestCase):
     def test_start_creates_state_file(self):
         """Start command should create a phase state file."""
         self._make_summary()
-        rc, stdout, stderr = run_py(
+        _rc, _stdout, _stderr = run_py(
             PR,
             [
                 "start",
@@ -401,7 +401,7 @@ class TestPhaseRunner(unittest.TestCase):
         """post-skill should append a step to the state file."""
         # Set state to "started" directly since G5 may not pass in test environment
         self._set_phase_state("genesis", "started")
-        rc, stdout, stderr = run_py(
+        _rc, _stdout, _stderr = run_py(
             PR,
             [
                 "post-skill",
@@ -442,7 +442,7 @@ class TestPhaseRunner(unittest.TestCase):
 
         # finalize calls G5 which may fail in test env; verify it sets finalized
         # by directly checking that finalize was attempted
-        rc, stdout, stderr = run_py(
+        _rc, _stdout, _stderr = run_py(
             PR,
             [
                 "finalize",

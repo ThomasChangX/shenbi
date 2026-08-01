@@ -10,7 +10,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.pipeline.truth_index import build_index
+from shenbi.pipeline.truth_index import build_index, log
 
 
 def _make_project(tmp_path: Path) -> Path:
@@ -156,9 +156,7 @@ class TestPopulationAssertion:
         # across test-ordering variations (see test_cli.py line 6-9).
         from unittest.mock import patch
 
-        import shenbi.pipeline.truth_index as ti_mod
-
-        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+        with patch.object(log, "warning", wraps=log.warning) as mock_warn:
             build_index(p)
             assert mock_warn.called
             call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
@@ -173,9 +171,7 @@ class TestPopulationAssertion:
         # successfully populated.
         from unittest.mock import patch
 
-        import shenbi.pipeline.truth_index as ti_mod
-
-        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+        with patch.object(log, "warning", wraps=log.warning) as mock_warn:
             build_index(p)
             call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
             assert not any("truth_index_empty_rules" in str(a) for a in call_args)
@@ -187,9 +183,7 @@ class TestPopulationAssertion:
         # is absent.
         from unittest.mock import patch
 
-        import shenbi.pipeline.truth_index as ti_mod
-
-        with patch.object(ti_mod.log, "warning", wraps=ti_mod.log.warning) as mock_warn:
+        with patch.object(log, "warning", wraps=log.warning) as mock_warn:
             build_index(p)
             call_args = [c[0][0] if c[0] else "" for c in mock_warn.call_args_list]
             assert not any("truth_index_empty_rules" in str(a) for a in call_args)

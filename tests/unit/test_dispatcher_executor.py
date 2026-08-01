@@ -48,12 +48,10 @@ def test_derive_file_type_returns_report_for_report_kind_skill(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """REPORT OutputKind -> 'report'."""
-    import shenbi.dispatcher.executor as exec_mod
     from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
-        exec_mod,
-        "load_contract",
+        "shenbi.dispatcher.executor.load_contract",
         lambda s: {
             "kind": OutputKind.REPORT,
             "reads": [],
@@ -70,12 +68,10 @@ def test_derive_file_type_returns_chapter_for_ephemeral_skill(
     monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     """EPHEMERAL has no persisted output -> default 'chapter' (G2 skipped upstream)."""
-    import shenbi.dispatcher.executor as exec_mod
     from shenbi.contracts import OutputKind
 
     monkeypatch.setattr(
-        exec_mod,
-        "load_contract",
+        "shenbi.dispatcher.executor.load_contract",
         lambda s: {
             "kind": OutputKind.EPHEMERAL,
             "reads": [],
@@ -235,14 +231,11 @@ def test_dispatch_returns_0_on_success(monkeypatch: pytest.MonkeyPatch) -> None:
 
     monkeypatch.setattr(subprocess, "run", mock_run)
 
-    import shenbi.dispatcher.executor as exec_mod
     from shenbi.dispatcher.executor import dispatch
 
-    monkeypatch.setattr(exec_mod, "detect_mode", lambda: "internal")
+    monkeypatch.setattr("shenbi.dispatcher.executor.detect_mode", lambda: "internal")
 
-    import shenbi.dispatcher.modes.internal as internal_mod
-
-    monkeypatch.setattr(internal_mod, "dispatch_internal", lambda *a, **kw: 0)
+    monkeypatch.setattr("shenbi.dispatcher.modes.internal.dispatch_internal", lambda *a, **kw: 0)
 
     result = dispatch("shenbi-worldbuilding", "generative", Path("/tmp/round-001"), "test")
     assert result == 0

@@ -154,7 +154,6 @@ class TestG3ErrorPaths:
             "current_scorer_agent": "agent-01",
         }
         (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
-        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         # G3.4 FAIL goes to must_fix, not checks
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         assert any("G3.4" in mf for mf in result.get("must_fix", []))
@@ -179,7 +178,6 @@ class TestG3ErrorPaths:
             "scoring_history": ["agent-01", "agent-02"],
         }
         (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
-        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         # G3.5 FAIL goes to must_fix, not checks
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         assert any("G3.5" in mf for mf in result.get("must_fix", []))
