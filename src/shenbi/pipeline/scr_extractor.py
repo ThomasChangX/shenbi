@@ -70,7 +70,7 @@ def _extract_character_locations(prose: str) -> list[dict[str, Any]]:
     _BAD_END = set("的了吗呢啊吧呀着在以和与或之地得就到从被把对向自而则且但所者也为及")
 
     # Pattern 1: dialogue with speech-verb attribution (e.g., "..."王铁说)
-    for match in re.finditer(r'["""](.+?)["»"]\s*(.+?)(?:说|道|问|答)', prose):
+    for match in re.finditer(r'["](.+?)["»]\s*(.+?)(?:说|道|问|答)', prose):
         speaker_text = match.group(2).strip()
         speaker_match = re.search(r"[\u4e00-\u9fff]{2,3}", speaker_text)
         if speaker_match:
@@ -91,7 +91,7 @@ def _extract_character_locations(prose: str) -> list[dict[str, Any]]:
                 )
 
     # Pattern 2: dialogue immediately followed by a name (e.g., "..."王铁的声音)
-    for match in re.finditer(r'["""](.+?)["»"]\s*([\u4e00-\u9fff]{2,3})', prose):
+    for match in re.finditer(r'["](.+?)["»]\s*([\u4e00-\u9fff]{2,3})', prose):
         name = match.group(2)
         if name[-1] in _BAD_END:
             name = name[:-1]
@@ -132,7 +132,7 @@ def _extract_character_locations(prose: str) -> list[dict[str, Any]]:
 def _extract_dialogue_segments(prose: str) -> list[dict[str, Any]]:
     """Extract dialogue segments with speaker attribution."""
     results = []
-    for match in re.finditer(r'(?:["""])(.+?)(?:["»"])', prose):
+    for match in re.finditer(r'(?:["])(.+?)(?:["»])', prose):
         text = match.group(1)
         pos = match.start()
         line_num = prose[:pos].count("\n") + 1
@@ -414,7 +414,7 @@ def _compute_confidence(prose: str) -> float:
     matched_chars = 0
 
     # Count characters covered by known patterns
-    matched_chars += sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', prose))
+    matched_chars += sum(len(m.group()) for m in re.finditer(r'["].+?["»]', prose))
     matched_chars += sum(len(m.group()) for m in re.finditer(r"[\u4e00-\u9fff]{2,4}", prose))
 
     return min(0.95, matched_chars / max(total_chars, 1))

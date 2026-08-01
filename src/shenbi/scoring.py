@@ -389,6 +389,7 @@ def main() -> dict[str, Any]:
                 if ks_input == "y":
                     kill_switch_triggered = True
             except EOFError:
+                # Non-interactive stdin (piped/CI): no kill-switch trigger possible.
                 pass
         for d in dimensions:
             while True:

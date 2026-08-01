@@ -295,7 +295,7 @@ def _load_baseline(project_dir: Path) -> dict[str, float]:
             total_chars = len(text)
             system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
             em_dashes = text.count("——") + text.count("--")
-            dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
+            dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["].+?["»]', text))
             baseline["system_term_density"] += system_terms / max(total_chars, 1)
             baseline["em_dash_density"] += em_dashes / max(total_chars, 1)
             baseline["dialogue_ratio"] += dialogue_chars / max(total_chars, 1)
@@ -351,7 +351,7 @@ def check_linguistic_drift(project_dir: Path, chapter: int) -> list[str]:
 
     # Dialogue density check (>chapter 10, near zero dialogue)
     if chapter > 10:
-        dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["""].+?["»"]', text))
+        dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["].+?["»]', text))
         dialogue_ratio = dialogue_chars / total_chars
         if dialogue_ratio < 0.01:
             alerts.append("Dialogue density near zero -- possible character disappearance")

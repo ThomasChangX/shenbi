@@ -20,7 +20,8 @@ def parse_resonance_scores(trend_path: Path) -> list[float]:
                     if val > 0:
                         scores.append(val)
                 except (ValueError, IndexError):
-                    pass
+                    # Malformed cell -- skip this table row, not a usable score.
+                    continue
     return scores
 
 
