@@ -77,9 +77,9 @@ DRIFT_THRESHOLD = 3
 AUDIT_DRIFT_PATH = "truth/audit_drift.md"
 
 # Re-imported from _shared: read_volume_boundaries (used internally by
-# is_volume_boundary at L320) + VOLUME_MAP_PATH (used by _count_total_chapters
-# at L370). Volume-map parsing domain was extracted to _shared to break the
-# Cluster 1 cycle (context_assemble -> triggers back-edge).
+# is_volume_boundary) + VOLUME_MAP_PATH (used by _count_total_chapters).
+# Volume-map parsing domain was extracted to _shared to break the Cluster 1
+# cycle (context_assemble -> triggers back-edge).
 from shenbi.pipeline._shared import VOLUME_MAP_PATH, read_volume_boundaries
 
 
