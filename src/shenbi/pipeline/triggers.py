@@ -51,7 +51,6 @@ from typing import Any
 
 from shenbi.logging import get_logger
 
-# py/cyclic-import (CodeQL): cycle with dispatch_helper — lazy import where needed; see follow-up. Spec §9 no refactor.
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
@@ -74,11 +73,14 @@ STRATUM_INTERVAL = 36
 #: this many times triggers a genre-config update.
 DRIFT_THRESHOLD = 3
 
-#: Path to the volume map (relative to project_dir).
-VOLUME_MAP_PATH = "outline/volume_map.md"
-
 #: Path to the audit drift log (relative to project_dir, section 6.7).
 AUDIT_DRIFT_PATH = "truth/audit_drift.md"
+
+# Re-imported from _shared: read_volume_boundaries (used internally by
+# is_volume_boundary) + VOLUME_MAP_PATH (used by _count_total_chapters).
+# Volume-map parsing domain was extracted to _shared to break the Cluster 1
+# cycle (context_assemble -> triggers back-edge).
+from shenbi.pipeline._shared import VOLUME_MAP_PATH, read_volume_boundaries
 
 
 # ---------------------------------------------------------------------------
@@ -310,49 +312,6 @@ TRIGGER_STEPS: list[TriggerStep] = [
 # ---------------------------------------------------------------------------
 # Volume-boundary detection
 # ---------------------------------------------------------------------------
-
-# Match "Chapter Start: N", "Chapter End: N", "Start: N", "End: N", or
-# "Chapter N-M" / "Chapters N-M" / "N-M" patterns in volume sections.
-_END_RE = re.compile(
-    r"(?:chapter\s*)?(?:end|chapter_end|end_chapter)\s*[:\uff1a]\s*(\d+)",
-    re.IGNORECASE,
-)
-_RANGE_RE = re.compile(
-    r"(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
-    re.IGNORECASE,
-)
-
-
-def read_volume_boundaries(project_dir: Path | str) -> set[int]:
-    """Parse ``outline/volume_map.md`` and return last-chapter numbers per volume.
-
-    Supports two markdown formats:
-
-    1. Section with ``Chapter End: N`` (or ``End: N``).
-    2. ``Chapters N-M`` range notation.
-
-    Returns an empty set if the file does not exist or cannot be parsed.
-    """
-    if not project_dir:
-        raise ValueError("read_volume_boundaries: project_dir is required")
-    project_dir = Path(project_dir)
-    vm_file = project_dir / VOLUME_MAP_PATH
-    if not vm_file.exists():
-        return set()
-
-    text = vm_file.read_text(encoding="utf-8")
-    boundaries: set[int] = set()
-
-    # Try "Chapter End: N" patterns first.
-    for m in _END_RE.finditer(text):
-        boundaries.add(int(m.group(1)))
-
-    # Fall back to "Chapters N-M" ranges.
-    if not boundaries:
-        for m in _RANGE_RE.finditer(text):
-            boundaries.add(int(m.group(2)))
-
-    return boundaries
 
 
 def is_volume_boundary(chapter: int, project_dir: Path | str) -> bool:
@@ -641,7 +600,6 @@ def run_triggered_skills(
             return False
 
         if step.requires_g3:
-            # py/cyclic-import (CodeQL): cycle with dispatch_helper — lazy import where needed; see follow-up. Spec §9 no refactor.
             from shenbi.pipeline.dispatch_helper import run_gate_g3
 
             g3 = run_gate_g3(step.skill, project_dir)

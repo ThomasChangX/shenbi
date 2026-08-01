@@ -151,7 +151,7 @@ def _update_total_chapters(project_dir: Path) -> int:
     check reflects the revised count (spec \u00a74.2 [I3], \u00a76.5). Returns the
     new total, or 0 when the volume map cannot be read.
     """
-    from shenbi.pipeline.triggers import read_volume_boundaries
+    from shenbi.pipeline._shared import read_volume_boundaries
 
     boundaries = read_volume_boundaries(project_dir)
     if not boundaries:

@@ -792,7 +792,7 @@ class TestPostSkillOutputDiscovery:
             raising=True,
         )
         monkeypatch.setattr(
-            "shenbi.dispatcher.executor.derive_output_files",
+            "shenbi.audit._shared.derive_output_files",
             lambda skill, chapter, rd: [str(out_file)],
             raising=True,
         )
@@ -839,7 +839,7 @@ class TestPostSkillOutputDiscovery:
         # derive_output_files returns only contract-declared paths (empty here)
         monkeypatch.setattr(phase_runner, "run_gate", mock_run_gate)
         monkeypatch.setattr(
-            "shenbi.dispatcher.executor.derive_output_files",
+            "shenbi.audit._shared.derive_output_files",
             lambda skill, chapter, rd: [],
             raising=True,
         )

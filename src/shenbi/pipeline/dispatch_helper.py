@@ -50,12 +50,6 @@ from shenbi.pipeline.llm_output_integrity import (
 from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
-# write_truth_file is imported so tests can verify it is NOT routed through
-# the generic dispatch write path. Truth-file append/upsert is the CALLER's
-# responsibility (the state-settling skill calls write_truth_file directly).
-# Imported but never called in this module.
-from shenbi.pipeline.truth_io import write_truth_file  # noqa: F401  # pyright: ignore[reportUnusedImport]
-
 log = get_logger(__name__)
 
 #: Repository root, resolved from this file's location (match gates/shared.py pattern).
@@ -685,7 +679,6 @@ def _build_skill_prompt(
         vm_path = project_dir / "outline" / "volume_map.md"
         if vm_path.exists():
             try:
-                # py/cyclic-import (CodeQL): cycle with plan_skeleton — lazy import where needed; see follow-up. Spec §9 no refactor.
                 from shenbi.pipeline.plan_skeleton import generate_plan_skeleton
 
                 skeleton = generate_plan_skeleton(project_dir, chapter)

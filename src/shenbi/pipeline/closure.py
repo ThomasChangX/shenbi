@@ -27,7 +27,7 @@ from shenbi.pipeline.dispatch_helper import (
 )
 from shenbi.pipeline.machine import is_at_checkpoint, set_checkpoint
 from shenbi.pipeline.error_handler import handle_dispatch_failure
-from shenbi.pipeline.triggers import read_volume_boundaries
+from shenbi.pipeline._shared import read_volume_boundaries
 from shenbi.pipeline.state import CheckpointType, ClosureState, PipelineState
 from shenbi.status import GateStatus
 

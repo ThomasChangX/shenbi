@@ -187,7 +187,8 @@ def cmd_post_skill(
     require_state(state, ["started"], "post-skill")
     assert project_dir is not None
     proj = Path(project_dir)
-    from shenbi.dispatcher.executor import derive_file_type, derive_output_files
+    from shenbi.audit._shared import derive_output_files
+    from shenbi.dispatcher.executor import derive_file_type
 
     # M5: use contract-declared outputs instead of rglob heuristic.
     # chapter must be provided for chapter-parametric skills; when None

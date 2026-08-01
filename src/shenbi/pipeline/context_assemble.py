@@ -23,6 +23,10 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.logging import get_logger
+from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
+    _BRIDGE_ACTIVATION_WINDOW,
+    _resolve_volume_at_runtime,
+)
 from shenbi.pipeline.truth_index import (
     build_index,
     extract_entities_from_plan,
@@ -40,9 +44,6 @@ BUDGET_BY_ROLE: dict[str, int] = {
 }
 DEFAULT_BUDGET = 12000
 TOKEN_FACTOR = 1.5
-
-# Bridge activation window: chapters before activation to start surfacing bridges.
-_BRIDGE_ACTIVATION_WINDOW = 3
 
 # Route C: always-loaded fixed context files (§7.1 "规则路由").
 # volume_map.md is also injected at runtime via _load_volume_context()
@@ -194,32 +195,8 @@ def _route_c(project_dir: Path) -> list[dict[str, Any]]:
 
 
 # Volume boundaries are parsed at runtime from volume_map.md via
-# triggers.py:read_volume_boundaries() -- NEVER hard-coded. Hard-coding
+# _shared.read_volume_boundaries() -- NEVER hard-coded. Hard-coding
 # ('Volume 1', (1, 15)) duplicates the map and will diverge.
-
-
-def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
-    """Resolve (volume_name, ch_start, ch_end) for a chapter at runtime.
-
-    Parses volume_map.md via triggers.py:read_volume_boundaries() which
-    returns a set of last-chapter numbers per volume. We build the
-    (start, end) ranges from that set.
-    """
-    # py/cyclic-import (CodeQL): cycle with triggers — lazy import where needed; see follow-up. Spec §9 no refactor.
-    from shenbi.pipeline.triggers import read_volume_boundaries
-
-    boundary_chapters = read_volume_boundaries(project_dir)
-    if not boundary_chapters:
-        return None
-
-    boundaries_sorted = sorted(boundary_chapters)
-    prev_end = 0
-    for i, end in enumerate(boundaries_sorted, 1):
-        ch_start = prev_end + 1
-        if ch_start <= chapter <= end:
-            return (f"Volume {i}", ch_start, end)
-        prev_end = end
-    return None
 
 
 def _load_volume_context(project_dir: Path, chapter: int) -> str:

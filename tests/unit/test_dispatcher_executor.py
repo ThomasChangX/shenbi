@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
+from shenbi.audit._shared import derive_output_files
 from shenbi.dispatcher.executor import (
     derive_file_type,
     derive_input_files,
-    derive_output_files,
     detect_mode,
     generate_agent_id,
 )
@@ -86,15 +86,17 @@ def test_derive_file_type_returns_chapter_for_ephemeral_skill(
 @pytest.mark.unit
 def test_derive_files_delegate_to_contract_loader(monkeypatch: pytest.MonkeyPatch) -> None:
     """derive_input_files/derive_output_files delegate to load_contract (no regex)."""
-    monkeypatch.setattr(
-        "shenbi.dispatcher.executor.load_contract",
-        lambda s: {
-            "kind": "artifact",
-            "reads": ["plans/chapter-N-plan.md"],
-            "writes": ["chapters/chapter-N.md"],
-            "updates": ["truth/current_state.md"],
-        },
-    )
+    # derive_input_files lives in executor; derive_output_files moved to audit/_shared
+    # (Cluster 2 cyclic-import refactor). Both must be patched at their respective
+    # load_contract import sites for the monkeypatch to intercept.
+    fake_contract = lambda s: {  # noqa: E731
+        "kind": "artifact",
+        "reads": ["plans/chapter-N-plan.md"],
+        "writes": ["chapters/chapter-N.md"],
+        "updates": ["truth/current_state.md"],
+    }
+    monkeypatch.setattr("shenbi.dispatcher.executor.load_contract", fake_contract)
+    monkeypatch.setattr("shenbi.audit._shared.load_contract", fake_contract)
     assert derive_input_files("shenbi-x", chapter=1) == ["plans/chapter-1-plan.md"]
     # writes + updates both fold into output files
     assert derive_output_files("shenbi-x", chapter=1) == [
@@ -112,6 +114,7 @@ def test_derive_files_empty_when_skill_has_no_contract(monkeypatch: pytest.Monke
         raise ContractError("no contract")
 
     monkeypatch.setattr("shenbi.dispatcher.executor.load_contract", raise_contract_error)
+    monkeypatch.setattr("shenbi.audit._shared.load_contract", raise_contract_error)
     assert derive_input_files("using-shenbi") == []
     assert derive_output_files("using-shenbi") == []
 
