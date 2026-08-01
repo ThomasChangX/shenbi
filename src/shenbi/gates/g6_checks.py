@@ -108,7 +108,7 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
         action_count = len(
             re.findall(r"(?:爆炸|战斗|攻击|闪避|格挡|冲锋|斩杀|灵力爆发|拳|剑|刀|枪)", body)
         )
-        dialogue_chars = len(re.findall(r'[""][^""]*[""]', body)) + len(
+        dialogue_chars = len(re.findall(r'["][^"]*["]', body)) + len(
             re.findall(r"「[^」]*」", body)
         )
         body_chars = len(re.findall(r"[一-鿿]", body))
@@ -210,7 +210,7 @@ def check_style_consistency(
                         ranges["para_lo"] = max(1, avg_para * 0.5)
                         ranges["para_hi"] = avg_para * 1.5
                 except ValueError:
-                    pass
+                    pass  # malformed numeric cell → skip; ranges stay empty (SKIP below)
                 break
 
     if not ranges:

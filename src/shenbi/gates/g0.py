@@ -204,7 +204,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                     default_w = gc_data.get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
                     break
                 except (json.JSONDecodeError, OSError):
-                    pass
+                    continue  # malformed genre-config.json → try next project dir
     # Ceiling division: -(-a // b)
     expected = -(-target_words // default_w)
     checks.append(
@@ -526,7 +526,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             for category in ("generative", "bughunt", "clean"):
                 exempt_skills.update(exempt_data.get(category, []))
         except (json.JSONDecodeError, OSError):
-            pass
+            pass  # tolerate malformed exemptions file; G0.12 reports coverage as-is
     # bug-hunt and clean have generic checkers (apply to ALL skills via
     # g4_generic_bughunt / g4_generic_clean). Generative has dedicated
     # checkers for 20 skills + g4_generic_generative fallback for the rest.

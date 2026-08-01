@@ -158,7 +158,7 @@ def gate_G1(
         try:
             input_files = json.loads(input_files)
         except (json.JSONDecodeError, ValueError):
-            pass
+            pass  # not valid JSON → treat input_files as a plain string/list below
     fps = normalize_file_paths(input_files)
     rd = Path(round_dir) if round_dir else None
     targets = compute_backup_targets(skill_name, fps, str(rd) if rd else None)

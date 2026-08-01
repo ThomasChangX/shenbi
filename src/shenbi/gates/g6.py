@@ -304,9 +304,6 @@ def gate_G6(
         # Extract volume-chapter mappings: "第一卷", "第X卷", "Volume N", chapter ranges
         volumes: list[dict[str, Any]] = []
         vol_pat = re.compile(r"(?:第\s*(\d+|[一二三四五六七八九十百千]+)\s*卷|Volume\s+(\d+))")
-        _ch_range_pat = re.compile(
-            r"(?:第\s*(\d+)\s*[章節].*?(?:第\s*(\d+)\s*[章節]|(\d+)\s*[章節]))"
-        )
         # Simpler: find "第X章" to "第Y章" or "Chapter X-Y" patterns
         range_pat = re.compile(r"(?:chapters?|第)\s*(\d+)\s*[-—\-到至]\s*(\d+)")
         for m in vol_pat.finditer(vm_text):

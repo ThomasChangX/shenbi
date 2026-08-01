@@ -60,7 +60,7 @@ def gate_G7(round_dir: str) -> str:
             if missing_in_summary:
                 mf.append(f"G7.1:missing_coverage:{sorted(missing_in_summary)}")
         except (json.JSONDecodeError, OSError):
-            pass
+            pass  # malformed summary.json → reverse coverage check skipped (G7.1b)
 
     # G7.5 — template placeholder detection
     no_dir = rd / "skill-output"
@@ -97,7 +97,7 @@ def gate_G7(round_dir: str) -> str:
                 if fm.get("status") == "pending":
                     pending.append(f.name)
             except Exception:
-                pass
+                continue  # malformed truth file frontmatter → skip, check remaining files
         if pending:
             mf.append(f"G7.6:pending_truth:{pending}")
         else:
@@ -187,7 +187,7 @@ def gate_G7(round_dir: str) -> str:
                             )
                             break
             except OSError:
-                pass
+                continue  # stat() failed on a score/marker file → skip timeline check for it
     if timeline_warnings:
         for tw in timeline_warnings:
             c.append({"id": "G7.14", "s": "WARN", "detail": tw})
@@ -218,7 +218,7 @@ def gate_G7(round_dir: str) -> str:
                     score_vectors[vec] = []
                 score_vectors[vec].append(score_file.stem)
             except Exception:
-                pass
+                continue  # malformed/unreadable scores file → skip pattern analysis for it
         for vec, names in score_vectors.items():
             if len(names) >= 3:
                 pattern_warnings.append(
@@ -256,7 +256,7 @@ def gate_G7(round_dir: str) -> str:
                     {"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"}
                 )
         except (json.JSONDecodeError, OSError):
-            pass
+            pass  # malformed summary.json → G7.16 phase-state check skipped
 
     # G7 is pure: collect audit_warnings into the returned JSON, never write to
     # summary.json (spec: gates must not have write side-effects).

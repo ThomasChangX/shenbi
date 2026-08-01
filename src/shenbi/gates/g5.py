@@ -56,7 +56,7 @@ def gate_G5(
             try:
                 summary_data = jload(str(sp)).get("t1_scores", {})
             except (json.JSONDecodeError, OSError):
-                pass
+                pass  # malformed summary.json → fall back to per-report scores below
     for pr in prereqs:
         score = 0
         if pr in summary_data:
@@ -131,7 +131,7 @@ def gate_G5(
                         role_val = rms[0] if rms else "unknown"
                         char_data[nm].append((cf.name, role_val))
                 except Exception:
-                    pass
+                    continue  # unreadable character file → skip, continue scanning
             for name, entries in char_data.items():
                 if len(entries) > 1:
                     roles = set(r for _, r in entries)
@@ -169,7 +169,7 @@ def gate_G5(
                     else:
                         numeric_registry[ckey].append((wf.name, val))
             except Exception:
-                pass
+                continue  # unreadable output file → skip numeric scan
         for key, num_entries in numeric_registry.items():
             unique = {v for _, v in num_entries}
             if len(unique) > 1 and len(num_entries) >= 2:
@@ -190,7 +190,7 @@ def gate_G5(
                 try:
                     sample_text += cf.read_text(encoding="utf-8")[:3000]
                 except Exception:
-                    pass
+                    continue  # tolerate unreadable char file; sample_text uses what parsed
             for t1, t2 in term_pairs:
                 c1 = len(re.findall(t1, sample_text))
                 c2 = len(re.findall(t2, sample_text))
