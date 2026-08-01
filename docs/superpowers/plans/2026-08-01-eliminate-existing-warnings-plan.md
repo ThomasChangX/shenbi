@@ -102,10 +102,10 @@ CI security.yml 用 uv sync --frozen --group dev 后 audit；pre-push
 - Modify: `.pre-commit-config.yaml`（在 contract-sync-idempotency hook 后加新 hook）
 
 **Interfaces:**
-- Consumes: `shenbi.gates.g0.MIRROR_MAP`（Task 3 提到模块级后；此 Task 先写脚本骨架，import 语句在 Task 3 完成后生效）
+- Consumes: `shenbi.gates.g0.MIRROR_MAP`（Task 3 提到模块级后；此 Task 的脚本 import 它）
 - Produces: `tools/check_fixture_mirror.py` 的 `main() -> int`（无参数，读 MIRROR_MAP，漂移返回 1）
 
-> **注意**：此 Task 的脚本会 `from shenbi.gates.g0 import MIRROR_MAP`，但 MIRROR_MAP 在 Task 3 才提到模块级。执行顺序：先 Task 2（脚本含 import + hook 注册，此时若跑会 ImportError）→ 紧接 Task 3（g0.py 提常量）→ 然后 Task 2 的 hook 才工作。两 Task 须连续做，中间不跑 hook。
+> **注意**：此 Task 的脚本 `from shenbi.gates.g0 import MIRROR_MAP`。**执行顺序：先 Task 3（g0.py 提常量）→ 再本 Task 2**（脚本 + hook 注册）。这样 import 立即解析，无 ImportError 红窗。两 Task 一并 commit（Task 3 Step 6）。
 
 - [ ] **Step 1: 写 check_fixture_mirror.py**
 
