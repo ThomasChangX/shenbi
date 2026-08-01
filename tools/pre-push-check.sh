@@ -34,7 +34,8 @@ echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
 # 4b. Security audit (ci.yml security workflow)
-echo "--- pip-audit ---"
+echo "--- pip-audit (dev group, mirroring CI security.yml) ---"
+uv sync --frozen --group dev >/dev/null
 uv run pip-audit
 
 # 5. Tests (ci.yml step 10)
