@@ -23,30 +23,32 @@
 
 ### #4 · Token 效率全栈 audit 总纲：读写一致性与输入侧浪费
 
-- **文件**：`2026-08-01-pipeline-read-write-consistency-audit-design.md`
+> **注**：#4–#7 这 4 个 spec 设计文档当前为**本地未提交**（untracked）文件，尚未纳入版本库。INDEX 在此预登记以反映队列意图；待各自 plan 批准、实施 PR 时随同提交。文件名字段标注 `（本地未提交）`。
+
+- **文件**：`2026-08-01-pipeline-read-write-consistency-audit-design.md`（本地未提交）
 - **系列**：Token 效率全栈 audit（第三轮，承接归档 `2026-07-17-reduce-token-waste` / `2026-07-18-optimize-llm-context` / `2026-07-19-06-llm-context-engineering`）
 - **状态**：Design（总纲）
 - **优先级**：🟠 High（系统性效率与契约一致性缺陷，非 P0 阻塞）
 - **方法**：`systematic-debugging` 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
-- **依赖**：上述 3 归档 spec；G4 结构校验门；`src/shenbi/pipeline/dispatch_helper.py` / `audit_layer.py` / `src/shenbi/cost/`
+- **依赖**：上述 3 归档 spec；G4 结构校验门；`src/shenbi/pipeline/dispatch_helper.py` / `src/shenbi/pipeline/audit_layer.py` / `src/shenbi/cost/`
 - **内容**：本 spec 是 **总纲**——定义全局决策原则（质量 > token > 速度，但不应有浪费）、四 spec 分工边界（§0）、跨 spec 根因簇图（§1b：Cluster A dead-wiring / B 契约脱节 / C 重复传输 / D 调用方式→子 spec #5 / E 输出放大→子 spec #6）；并保留**输入侧（读/写/system prompt）的 10 条 findings**（§3）。折叠 3 个证据不足的维度：provider cache（并入 §3.9）、并行效率（SharedAuditContext 省 IO 不省 token）、审计器去冗（并入子 spec #6 F9）。决策原则：凡是 G4/gate FAIL 的上下文都是必要保留。
 - **关系**：#4 总纲 ← #5 推理控制 / #6 确定性替换 / #7 输出侧（三个子 spec 的前置依赖与共享根因簇图）
 - **对应 plan**：❌ 未写
 
 ### #5 · 推理控制层审计：采样参数 / 模型路由 / 重试经济
 
-- **文件**：`2026-08-01-inference-control-audit-design.md`
+- **文件**：`2026-08-01-inference-control-audit-design.md`（本地未提交）
 - **系列**：Token 效率全栈 audit（子 spec 1/3，隶属总纲 #4）
 - **状态**：Design
 - **优先级**：🟠 High（调用方式层的系统性浪费与盲点）
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：总纲 spec #4（决策原则、跨 spec 根因簇图）；`executor_config.toml`；`src/shenbi/pipeline/dispatch_helper.py`；`src/shenbi/cost/pricing.py`
-- **内容**：只审 **how the model is CALLED**（采样参数、模型选择、重试/截断处理），不审 prompt 内容、不审输出侧浪费、不审确定性替换。10 类 findings：A 温度错配（24 review + 3 score 默认 0.7，与任务类型不符）/ B max_tokens 双向错（全局 16384 但 review 头部空 62-75%、drafting 撑满 15787）/ C 未用采样杠杆 / D 单点模型硬编码 / E 模型路由机制缺失 / F pro↔flash doc drift / G G4 全量重发 / H enriched feedback 只增不减 / I 429 thundering herd / J `finish_reason=length` 完全未检测（`dispatch_helper.py:1295` `_RETRYABLE_STATUSES` 不含 length；`:1468-1469` stop_reason 只 log 不用）。根因簇：采样错配 / 模型单点 / 重试经济。P0：修温度+max_tokens 右对齐+检测 length 截断；P1：模型路由机制；P2：重试压缩。
+- **内容**：只审 **how the model is CALLED**（采样参数、模型选择、重试/截断处理），不审 prompt 内容、不审输出侧浪费、不审确定性替换。10 类 findings：A 温度错配（24 review + 3 score 默认 0.7，与任务类型不符）/ B max_tokens 双向错（全局 16384 但 review 头部空 62-75%、drafting 撑满 15787）/ C 未用采样杠杆 / D 单点模型硬编码 / E 模型路由机制缺失 / F pro↔flash doc drift / G G4 全量重发 / H enriched feedback 只增不减 / I 429 thundering herd / J `finish_reason=length` 截断完全未检测（stop_reason 仅 log 未分支处理）。根因簇：采样错配 / 模型单点 / 重试经济。P0：修温度+max_tokens 右对齐+检测 length 截断；P1：模型路由机制；P2：重试压缩。
 - **对应 plan**：❌ 未写
 
 ### #6 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
 
-- **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`
+- **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`（本地未提交）
 - **系列**：Token 效率全栈 audit（子 spec 2/3，隶属总纲 #4）
 - **状态**：Design
 - **优先级**：🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）
@@ -57,7 +59,7 @@
 
 ### #7 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
 
-- **文件**：`2026-08-01-output-side-waste-audit-design.md`
+- **文件**：`2026-08-01-output-side-waste-audit-design.md`（本地未提交）
 - **系列**：Token 效率全栈 audit（子 spec 3/3，隶属总纲 #4）
 - **状态**：Design
 - **优先级**：🟠 High（输出 token 单价 2-3× 输入；总纲 #4 的盲点）
