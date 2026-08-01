@@ -1402,7 +1402,7 @@ def _dispatch_via_api(
 
     Configure via environment variables:
     - ``SHENBI_LLM_API_KEY`` (required)
-    - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
+    - ``SHENBI_LLM_BASE_URL`` (default: https://api.deepseek.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: deepseek-v4-flash)
 
     Args:

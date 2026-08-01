@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），pathlib+json+hashlib+os+fcntl。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier A（成功判据 7、11）。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier A（成功判据 7、11）。
 
 **v7 修订（round-5 审核 7→目标 9+，Bohr 高精度 reproduced）：** C1 compact() sign_and_new 补 schema_version=1（必填字段，缺失致 ValidationError）；I1 ruff 忽略列表精确化（src/shenbi/*.py 含 RUF001/003/005/059 但缺 RUF002）；M1 safe_write CJK 注释改 ASCII。
 

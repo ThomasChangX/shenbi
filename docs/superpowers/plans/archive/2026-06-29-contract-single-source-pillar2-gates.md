@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），pathlib+json。复用已落地模块：`shenbi.contracts.registry`（`bootstrap_registry`/`load_skill_contract`）、`shenbi.text.cjk`（`find_terms`/`TermHit`）。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱二「门的阈值派生与抽取」+ 实现顺序 step 5；成功判据 5（三份门登记表从单一源派生）、判据 13。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱二「门的阈值派生与抽取」+ 实现顺序 step 5；成功判据 5（三份门登记表从单一源派生）、判据 13。
 
 **前置依赖:** 支柱一（`src/shenbi/contracts/` 骨架、`enums.py`、`base.py`、`registry.py`、`skills/foreshadowing_resolve.py`）与支柱三（`src/shenbi/text/cjk.py` 含 `find_terms`）均已落地，本计划直接 import。支柱四 Tier A（`trace/`、`g7_trace.audit_trace`）已落地；本计划**不**强制把 `audit_trace` 接入 `gate_G7` 主体（那是行为切换，留给后续），但 G7 写副作用删除（Task 7）为其铺路。
 

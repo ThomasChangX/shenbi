@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，pytest + hypothesis（已依赖），jieba==0.42.1（已固定，pyproject.toml:10），mypy strict（已 CI），ruff，pathlib+json。**不引入 hypothesis-jsonschema**（N8 可选，手写 strategy 即可）。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱五（成功判据 4/5/6/14）。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱五（成功判据 4/5/6/14）。
 
 **前置依赖:** 支柱一已落地（`shenbi.contracts.registry.bootstrap_registry`、`shenbi.contracts.enums`）；支柱三已落地（`shenbi.text.cjk`：`find_terms`/`count_punctuation`/`tokenize`）。本计划 import 这两者。
 

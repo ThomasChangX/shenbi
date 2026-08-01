@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），pathlib+json+yaml+hashlib。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier B（成功判据 12、13、14）。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱四 Tier B（成功判据 12、13、14）。
 
 **前置依赖:** 支柱一骨架已落地（`shenbi.contracts.enums`、`shenbi.contracts.base`、`shenbi.contracts.registry`、`shenbi.contracts.skills.foreshadowing_resolve`）。**Tier A `trace/` 尚未落地**（`g7_trace.py` 不存在）——本计划因此**自包含**：审计结果写自包含 `write-audit.jsonl` 账本，并对 `trace.jsonl` 预留 try-import seam（Tier A 落地后一行接入）。本计划**不依赖** Tier A。
 
