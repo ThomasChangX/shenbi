@@ -220,28 +220,43 @@ if __name__ == "__main__":
 **改 `tools/pre-push-check.sh`**，在 pip-audit 块后加（仅 docs 变更触发，避免日常推送背 docs 组）：
 ```bash
 # 4c. mkdocs link check (only when docs change)
-if git diff --cached --name-only | grep -qE '^(docs/|mkdocs\.yml)'; then
+# 触发条件：用 working-tree diff（对照本文件既有 idiom L64/L69 的 `git diff --exit-code`，
+#   非 --cached —— pre-push 阶段所有改动已 commit，--cached 恒空，见审查 N1）。
+if git diff --name-only HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
   echo "--- mkdocs link check (docs changed) ---"
   uv sync --group docs >/dev/null
-  out="$(uv run mkdocs build --strict 2>&1)"
-  # 死链 = 必失败
-  if echo "$out" | grep -q 'contains a link'; then
-    echo "$out" | grep 'contains a link'; exit 1
-  fi
-  # 非零退出且非 libcairo 良性 = 也失败（避免吞掉 pymdown 不兼容等真错误）
-  # libcairo 良性 marker：见下方注释，完整枚举
-  if ! uv run mkdocs build --strict >/dev/null 2>&1; then
-    benign_markers='cairosvg.*crashed|no library called.*cairo'
-    if ! echo "$out" | grep -qE "$benign_markers" \
-       || echo "$out" | grep -qE 'contains a link|Error|Traceback'; then
-      echo "$out"; exit 1
+  # 单次 build，同时捕获输出与 exit code（审查 N4：避免双 build 浪费/不一致）
+  if ! out="$(uv run mkdocs build --strict 2>&1)"; then
+    # build 失败。区分三类（审查 N2：libcairo 崩溃本身含 Error/Traceback，不可用宽 grep 反判）：
+    #   (a) 死链 → 必失败
+    #   (b) libcairo-only（良性的本地环境问题，§9 声明不处理）→ 容忍
+    #   (c) 其他真错误（pymdown 不兼容、yml 语法、插件错）→ 必失败
+    if echo "$out" | grep -q 'contains a link'; then
+      echo "$out" | grep 'contains a link'; exit 1          # (a) 死链
     fi
-    echo "--- mkdocs: libcairo-only warnings tolerated ---"
+    # 判 (b)：输出里的 WARNING/ERROR 行是否【全部】可归因于 libcairo？
+    # libcairo 特征串：cairosvg crashed / no library called cairo / cairo-2
+    non_cairo_problems="$(echo "$out" | grep -E '^(WARNING|ERROR)' \
+      | grep -vE 'cairosvg|no library called.*cairo|cairo-2|libcairo')"
+    if [ -z "$non_cairo_problems" ]; then
+      echo "--- mkdocs: libcairo-only warnings tolerated (§9 out-of-scope) ---"
+    else
+      echo "$non_cairo_problems"; exit 1                      # (c) 真错误
+    fi
   fi
 fi
 ```
 
-**机制**：postmortem §5.2 缺口 A 已论证——`contains a link` 是死链特征串。但单纯 `|| true`（早期方案）会吞掉**非链接**的 build 失败（如 Task 1.2 pymdown 10→11 不兼容、mkdocs.yml 语法错、插件错），重蹈"在 CI 才发现"覆辙。故分两段：死链必失败；非零退出时，只有**完整枚举的 libcairo 良性 marker**（`cairosvg.*crashed` / `no library called.*cairo`）可容忍，其余非零退出一律 fail。libcairo 是本地渲染库缺失问题，非仓库缺陷（§9 已声明不处理）。
+**决策表（审查 N2 要求的完整追踪，三路径不可重叠）**：
+
+| 情形 | mkdocs exit | `contains a link` | 非 libcairo 的 WARNING/ERROR 行 | 判定 |
+|------|-------------|-------------------|--------------------------------|------|
+| (a) 死链 | ≠0 | 有 | — | **FAIL** |
+| (b) 仅 libcairo（本地 cairo 缺失） | ≠0 | 无 | 无（全部 cairosvg/no library called cairo/cairo-2/libcairo） | **容忍** |
+| (c) 真错误（pymdown 不兼容/yml/插件） | ≠0 | 无 | 有 | **FAIL** |
+| (d) 干净 | 0 | — | — | PASS |
+
+**机制**：postmortem §5.2 缺口 A 已论证——`contains a link` 是死链特征串。但单纯 `|| true`（早期方案）会吞掉**非链接**的 build 失败（如 Task 1.2 pymdown 10→11 不兼容、mkdocs.yml 语法错、插件错），重蹈"在 CI 才发现"覆辙。而宽 grep 反判（`grep Error|Traceback`）会误杀 libcairo（其崩溃本身带 Error/Traceback，见审查 N2）。故用**排除法**：build 失败时，剥离所有 libcairo 归因行后，若仍有 WARNING/ERROR 行则真失败，否则容忍。libcairo 是本地渲染库缺失问题，非仓库缺陷（§9 已声明不处理）。
 
 **与缺口 B 的张力（postmortem 已论证解法）**：B 先 `uv sync --group dev`，A 又 `uv sync --group docs`。两者顺序：B 先（审计基准），A 后（docs 链接，按需）。A 的 sync 不影响 B 已完成的审计。
 
@@ -263,7 +278,7 @@ fi
 
 **目标**：证明 Phase 2 的守卫能拦截它们对应根因，而非装了摆设。**Issue 2 是"沙堡修复，已复发"的最高风险根因——其守卫（Task 2.1）必须有 negative test，不可只靠读文件验证。**
 
-**Task 3.0**：negative test——证明 pre-push 的 `--group dev` 锁有效（守 Task 2.1 / Issue 2）。方法：临时把 pre-push 的 `uv sync --frozen --group dev` 改回裸 `uv run pip-audit`（即模拟 Issue 2 复发），本地装 docs 组（`uv sync --group docs`），跑 pre-push → 必须**误判通过**（因为审 venv 现状而非 dev 组）；改回正确版本 → pre-push 必须报 dev 组外的漏洞。或者用 grep 自检断言：在 pre-push-check.sh 加 `[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ] || { echo 'dev-group lock missing'; exit 1; }`。还原。证明"本地绿 = CI 绿"契约不靠人读。
+**Task 3.0**：negative test——证明 pre-push 的 `--group dev` 锁有效（守 Task 2.1 / Issue 2）。**必需方法**（审查 N5：只验证锁真生效，非只验字符串存在）：临时把 pre-push 的 `uv sync --frozen --group dev` 改回裸 `uv run pip-audit`（即模拟 Issue 2 复发），本地装 docs 组（`uv sync --group docs`），跑 pre-push → 必须**误判通过**（因为审 venv 现状而非 dev 组，docs 组的 21 漏洞被漏掉）；改回正确版本（`--group dev`）→ pre-push 必须报 0 漏洞（dev 组干净）。这证明"本地绿 = CI 绿"契约靠锁的语义生效，不靠人读。**辅助断言**（可选，不可替代必需方法）：pre-push-check.sh 加 grep 自检 `[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ]` 防字符串被误删——但此断言不能替代上面的语义测试（typo `--group docs` 仍会过 grep）。还原。
 **Task 3.1**：negative test——本地造一个 fixture 漂移（改 `outline-example.md` 加一行空格，不改 fixture），跑 `pre-commit run fixture-mirror-sync`，必须 FAIL 并提示 cp 命令。还原。
 **Task 3.2**：negative test——本地造一个死链（在某个 `docs/superpowers/specs/*.md` 加一段形如 `](../nonexistent.md)` 的 markdown 链接文本），staged 后跑 pre-push 的 docs 块，必须 FAIL。还原。
 **Task 3.3**：positive test——干净树跑 `pre-commit run --all-files` + `pre-push-check.sh`（手动 bash 调用），全绿。
@@ -361,11 +376,11 @@ fi
 |------|------|---------|-------|
 | CodeQL open alerts | **0** | `gh api ... \| jq length` | 4 |
 | `pip-audit` 漏洞 | **0**（或注明 pymdown 回退） | `uv run pip-audit` | 1 |
-| pre-push 审计基准 = CI | `--group dev` 锁定 | 读 `pre-push-check.sh` | 2 |
+| pre-push 审计基准 = CI | `--group dev` 锁定 | negative test（Task 3.0，证明锁语义生效非只验字符串） | 3 |
 | fixture 漂移本地拦截 | pre-commit 触发 | negative test | 3 |
 | mkdocs 死链本地拦截 | docs 变更触发 | negative test | 3 |
 | `just check` | 2787 passed（基线保持） | `just check` | 每 Phase |
-| `mkdocs build --strict` 死链 | 0（既有 libcairo 告警除外） | `grep 'contains a link'` | 2 |
+| `mkdocs build --strict` 死链（基线，非守卫） | 0（既有 libcairo 告警除外） | `uv run mkdocs build --strict 2>&1 \| grep 'contains a link'` | 基线（非 Phase，现状已 0） |
 
 ---
 
