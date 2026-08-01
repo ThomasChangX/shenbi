@@ -43,7 +43,7 @@ uv run pip-audit
 #   正确 idiom 是 main...HEAD（推送范围）。
 if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)'; then
   echo "--- mkdocs link check (docs changed) ---"
-  uv sync --group docs >/dev/null
+  uv sync --frozen --group docs >/dev/null
   # 单次 build 捕获输出与 exit code
   if ! out="$(uv run mkdocs build --strict 2>&1)"; then
     # (a) 死链 → 必失败
@@ -60,6 +60,7 @@ if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)
       echo "$non_cairo_problems"; exit 1
     fi
   fi
+  uv sync --frozen --group dev >/dev/null  # restore dev env for subsequent pytest/mypy/ruff
 fi
 
 # 5. Tests (ci.yml step 10)

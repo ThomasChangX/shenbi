@@ -77,8 +77,6 @@ def test_frequency_divergence_flags_outlier_terms():
     baseline_text = "林风看着远处的山。" * 50  # normal vocabulary
     # '在场度' is a new outlier term absent from baseline
     degraded = baseline_text + ("在场度 0.89。" * 30)
-    _current_metrics = compute_linguistic_metrics(degraded)
-    _baseline_metrics = compute_linguistic_metrics(baseline_text)
 
     alarms = frequency_divergence_alarms(degraded, baseline_text, sigma_threshold=3.0)
     # The novel outlier term must be flagged without being in SYSTEM_TERMS

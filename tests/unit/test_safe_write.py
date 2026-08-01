@@ -64,7 +64,6 @@ def test_lockfile_has_correct_permissions():
     import tempfile
 
     with tempfile.TemporaryDirectory() as tmp:
-        _path = Path(tmp) / "test.json"
         # Use _acquire_lock directly to test the lockfile path
         lockfile = Path(tmp) / "test.json.lock"
         # Create lockfile like _acquire_lock does
