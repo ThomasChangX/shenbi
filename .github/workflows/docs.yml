@@ -13,7 +13,7 @@ jobs:
       - run: sudo apt-get update && sudo apt-get install -y libcairo2-dev
       - run: uv sync --frozen --group docs
       - run: uv run mkdocs build --strict
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: docs-site
           path: site/
