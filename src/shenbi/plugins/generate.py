@@ -1,8 +1,7 @@
 """Generate per-platform plugin manifests from master.json.
 
 Single source of truth: plugins/master.json
-Output: 4 platform manifests (.claude-plugin/, .codex-plugin/,
-.cursor-plugin/, .opencode/).
+Output: codex platform manifest (.codex-plugin/).
 """
 
 import json
@@ -45,12 +44,6 @@ def _common_header(master: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def gen_claude(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
-    out = _common_header(master)
-    out["skills"] = master["skills"]
-    return out
-
-
 def gen_codex(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     fields = config.get("fields", {})
     out = _common_header(master)
@@ -60,43 +53,8 @@ def gen_codex(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     return out
 
 
-def gen_cursor(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
-    fields = config.get("fields", {})
-    out = _common_header(master)
-    out["pluginRoot"] = fields["pluginRoot"]
-    out["skills"] = master["skills"]
-    out["hooks"] = fields["hooks"]
-    return out
-
-
-def _js_string(s: str) -> str:
-    """Escape a Python string for a JS single-quoted literal."""
-    return s.replace("\\", "\\\\").replace("'", "\\'")
-
-
-def gen_opencode(master: dict[str, Any], config: dict[str, Any]) -> str:
-    """OpenCode uses an ES module (export default) with single-quoted strings."""
-    lines = [
-        "export default {",
-        f"  name: '{_js_string(str(master['name']))}',",
-        f"  version: '{_js_string(str(master['version']))}',",
-        f"  description: '{_js_string(str(master['description']))}',",
-        f"  author: '{_js_string(str(master['author']))}',",
-        "  skills: [",
-    ]
-    for skill in master["skills"]:
-        lines.append(f"    '{_js_string(str(skill))}',")
-    lines[-1] = lines[-1].rstrip(",")
-    lines.append("  ]")
-    lines.append("};")
-    return "\n".join(lines) + "\n"
-
-
 GENERATORS: dict[str, tuple[str, Any]] = {
-    "claude-code": ("json", gen_claude),
     "codex-cli": ("json", gen_codex),
-    "cursor": ("json", gen_cursor),
-    "opencode-js": ("js", gen_opencode),
 }
 
 

@@ -1,6 +1,6 @@
 """Phase transition logic for the novel pipeline state machine.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 3.1
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 3.1
 (state transition table).
 
 Each transition mutates the passed-in :class:`PipelineState` in place and is a

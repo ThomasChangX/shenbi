@@ -67,10 +67,6 @@
     "skills/shenbi-sequel-writing/SKILL.md"
   ],
   "platforms": {
-    "claude": {
-      "output": ".claude-plugin/plugin.json",
-      "format": "claude-code"
-    },
     "codex": {
       "output": ".codex-plugin/plugin.json",
       "format": "codex-cli",
@@ -78,20 +74,6 @@
         "marketplace": "shenbi",
         "type": "skill-pack"
       }
-    },
-    "cursor": {
-      "output": ".cursor-plugin/plugin.json",
-      "format": "cursor",
-      "fields": {
-        "pluginRoot": ".cursor-plugin",
-        "hooks": {
-          "sessionStart": "hooks/hooks-cursor.json"
-        }
-      }
-    },
-    "opencode": {
-      "output": ".opencode/plugins/shenbi.js",
-      "format": "opencode-js"
     }
   }
 }

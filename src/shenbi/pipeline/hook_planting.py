@@ -4,7 +4,7 @@ Parses chapter plan section 7 for hook plant operations, generates hook YAML
 metadata from templates, and appends to ``truth/pending_hooks.md`` — all
 without an LLM call. Replaces 1 LLM call per chapter. Speed: ~5min → ~50ms.
 
-Spec: docs/superpowers/specs/2026-07-07-pipeline-performance-redesign.md Phase 2.2
+Spec: docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md Phase 2.2
 """
 
 from __future__ import annotations

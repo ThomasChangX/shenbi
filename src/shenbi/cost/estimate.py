@@ -16,11 +16,9 @@ CONTEXT_WARN_FRACTION = 0.8
 # Conservative per-model context limits (prompt tokens). Unknown models fall
 # back to the default entry.
 MODEL_CONTEXT_LIMITS: dict[str, int] = {
-    "deepseek-v4-pro": 128_000,
-    "gpt-4o": 128_000,
-    "gpt-4o-mini": 128_000,
+    "deepseek-v4-flash": 1_048_576,
 }
-_DEFAULT_CONTEXT_LIMIT = 128_000
+_DEFAULT_CONTEXT_LIMIT = 1_048_576
 
 # CJK Unified Ideographs range, used to pick the denser char/token ratio.
 _CJK_START = 0x4E00

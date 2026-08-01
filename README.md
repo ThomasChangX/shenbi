@@ -62,14 +62,14 @@ Pipeline 自动检测执行环境。以下环境变量控制 LLM 后端：
 |------|------|------|
 | `SHENBI_LLM_API_KEY` | API 密钥（设置后走 API 路径） | `sk-xxx` |
 | `SHENBI_LLM_BASE_URL` | API 地址 | `https://api.deepseek.com/v1` |
-| `SHENBI_LLM_MODEL` | 模型名 | `deepseek-v4-pro` |
+| `SHENBI_LLM_MODEL` | 模型名 | `deepseek-v4-flash` |
 
 **运行模式：**
 
 | 环境 | 配置 | 说明 |
 |------|------|------|
-| ZCode / Codex IDE | 无需配置，自动检测 `codex` CLI | 通过 `codex exec` 子进程执行 |
-| DeepSeek API | `SHENBI_LLM_API_KEY` + `SHENBI_LLM_BASE_URL=https://api.deepseek.com/v1` + `SHENBI_LLM_MODEL=deepseek-v4-pro` | OpenAI 兼容接口 |
+| Codex IDE | 无需配置，自动检测 `codex` CLI | 通过 `codex exec` 子进程执行 |
+| DeepSeek API | `SHENBI_LLM_API_KEY` + `SHENBI_LLM_BASE_URL=https://api.deepseek.com/v1` + `SHENBI_LLM_MODEL=deepseek-v4-flash` | OpenAI 兼容接口 |
 | MiniMax API | `SHENBI_LLM_API_KEY` + `SHENBI_LLM_BASE_URL=https://api.minimax.chat/v1` + `SHENBI_LLM_MODEL=M3` | OpenAI 兼容接口 |
 | 其他兼容接口 | 同上，修改 `BASE_URL` 和 `MODEL` | 任何 OpenAI-compatible API |
 

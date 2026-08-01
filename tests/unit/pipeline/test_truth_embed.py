@@ -1,6 +1,6 @@
 """Tests for Route B float32 embedding store (wave2 task2).
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md §7.3-7.4.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md §7.3-7.4.
 Route B stores text chunks as float32 embeddings and retrieves by numpy
 cosine similarity. The embedding *model* (sentence_transformers) is optional:
 when absent, Route B degrades gracefully (§7.3).

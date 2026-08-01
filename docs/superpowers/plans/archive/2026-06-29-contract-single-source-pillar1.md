@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），pathlib+json。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2（9/10）。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2（9/10）。
 
 **v2 修订（round-1 审核 6→目标 9+）：** C1 truth-files.yaml 真实结构是 `concepts/globs/patterns`（非 `files`）；C2 Task 7 迭代层级错；C3 Task 3↔4 顺序（registry import skills 包，须先建包）；C4 `dict[str,type]` mypy strict 拒（Literal 非 type）；I1 GateResult 与 status.GateResult 碰撞→改名 GateOutcome；I2 测试数引用（v3 改为不引用具体数字，避免漂移）；I3 pre-commit 条件性 TODO→给精确 YAML + `uv run python`；I4 测试相对路径→用 repo 绝对路径。
 

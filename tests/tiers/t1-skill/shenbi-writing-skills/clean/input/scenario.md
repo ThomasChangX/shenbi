@@ -12,7 +12,7 @@ The created skill is fully correct:
 - Frontmatter description describes only when to trigger, not what the skill does
 - Pressure-tested against 3 real rationalization scenarios
 - Persuasion ethics use only Authority/Commitment/Scarcity/Social Proof/Unity
-- Output follows SKILL.md frontmatter + markdown structure per CLAUDE.md conventions
+- Output follows SKILL.md frontmatter + markdown structure per AGENTS.md conventions
 
 ## Scenario
 All created skill content is correct and follows all skill creation rules. No defects present.

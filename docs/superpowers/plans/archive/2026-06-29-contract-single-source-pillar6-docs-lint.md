@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，Pydantic v2.5+（已依赖），mypy strict（已 CI），pytest+hypothesis（已依赖），ast+pathlib。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱六 + 成功判据 4（纯度强制，allowlist 偏差：2 永久 + 14 过渡）。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱六 + 成功判据 4（纯度强制，allowlist 偏差：2 永久 + 14 过渡）。
 
 **v5 修订（round-4 审核 8→目标 9+，Meitner 高精度 reproduced）：** Important：transitional allowlist 修正（删 gates/g7.py——pillar2 执行后 G7 已纯化；加 audit/record.py——pillar4-tierB 执行后新增 append-only ledger）。Minor：加 tier_advance_eligible hard_binary 回归测试；判据 4 allowlist 偏差声明（永久 2 + 过渡 14，非 spec「仅 safe_write」）。
 

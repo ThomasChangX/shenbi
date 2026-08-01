@@ -1,6 +1,6 @@
 """Staging mechanism for checkpoint-gated skill outputs.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.7.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.7.
 
 Checkpoint-gated skills (chapter-planning, state-settling) write to staging/
 during dispatch. On review approve, the pipeline commits staging to final

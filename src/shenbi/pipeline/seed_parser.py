@@ -1,6 +1,6 @@
 """Parse seed files (format: outline-example.md) into structured project data.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 4.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 4.
 
 The seed is a bilingual (EN/ZH) Markdown outline. Section headings map to
 output targets per spec 4.1:

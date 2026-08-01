@@ -9,7 +9,7 @@ Cache invalidation: compares mtime of source files (genre-config.json, chapter
 file, truth/ files) against cache mtime. Graceful degradation: if any source
 is missing, omit that section (don't crash).
 
-Spec: docs/superpowers/specs/2026-07-07-pipeline-performance-redesign.md Phase 2.3
+Spec: docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md Phase 2.3
 """
 
 from __future__ import annotations

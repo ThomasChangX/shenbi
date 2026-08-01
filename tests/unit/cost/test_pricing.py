@@ -13,10 +13,10 @@ from shenbi.cost.pricing import (
 
 
 class TestPricingTable:
-    def test_default_model_is_deepseek_v4_pro(self):
-        # The repo default model is deepseek-v4-pro (dispatch_helper._DEFAULT_MODEL),
-        # NOT gpt-4o. Pricing must default to the model that actually runs.
-        assert DEFAULT_PRICING_MODEL == "deepseek-v4-pro"
+    def test_default_model_is_deepseek_v4_flash(self):
+        # The repo default model is deepseek-v4-flash (dispatch_helper._DEFAULT_MODEL).
+        # Pricing must default to the model that actually runs.
+        assert DEFAULT_PRICING_MODEL == "deepseek-v4-flash"
 
     def test_pricing_has_default_model(self):
         assert DEFAULT_PRICING_MODEL in PRICING
@@ -31,8 +31,8 @@ class TestPricingTable:
 
 class TestResolveModel:
     def test_explicit_model_wins(self, monkeypatch):
-        monkeypatch.setenv("SHENBI_LLM_MODEL", "gpt-4o")
-        assert resolve_model("deepseek-v4-pro") == "deepseek-v4-pro"
+        monkeypatch.setenv("SHENBI_LLM_MODEL", "some-other-model")
+        assert resolve_model("deepseek-v4-flash") == "deepseek-v4-flash"
 
     def test_env_used_when_none(self, monkeypatch):
         monkeypatch.setenv("SHENBI_LLM_MODEL", "some-other-model")
@@ -97,19 +97,19 @@ class TestEstimateCost:
 
     def test_model_from_env_not_explicit(self, monkeypatch):
         """When model is None, env var SHENBI_LLM_MODEL drives pricing."""
-        monkeypatch.setenv("SHENBI_LLM_MODEL", "gpt-4o")
+        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
         usage = {"prompt_tokens": 1_000_000, "completion_tokens": 0}
         cost = estimate_cost(usage)
-        assert cost == pytest.approx(2.50)
+        assert cost == pytest.approx(0.14)
 
     def test_explicit_none_uses_env_or_default(self, monkeypatch):
         """Passing model=None explicitly behaves same as omitting it."""
-        monkeypatch.setenv("SHENBI_LLM_MODEL", "gpt-4o-mini")
+        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
         usage = {"prompt_tokens": 1_000_000, "completion_tokens": 0}
         cost = estimate_cost(usage, model=None)
-        assert cost == pytest.approx(0.15)
+        assert cost == pytest.approx(0.14)
 
-    @pytest.mark.parametrize("model", ["deepseek-v4-pro", "gpt-4o", "gpt-4o-mini"])
+    @pytest.mark.parametrize("model", ["deepseek-v4-flash"])
     def test_each_known_model_produces_monotonic_cost(self, model):
         """More tokens → higher cost for every known model."""
         usage_small = {"prompt_tokens": 1, "completion_tokens": 1}

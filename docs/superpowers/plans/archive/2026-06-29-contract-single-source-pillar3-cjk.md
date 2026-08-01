@@ -8,7 +8,7 @@
 
 **Tech Stack:** Python 3.11+，jieba（新增依赖），pytest + hypothesis，mypy strict，ruff。
 
-**关联 spec:** [../specs/2026-06-29-contract-single-source-design.md](../specs/2026-06-29-contract-single-source-design.md) v5.2 支柱三。
+**关联 spec:** [docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md](../../specs/archive/2026-06-29-contract-single-source-design.md) v5.2 支柱三。
 
 **v2 修订（round-1 审核 6→目标 9+）：** C1 per-file-ignores 补全 D101/D103/E402；C2 冻结分词用真实 token 基线；I1 顶置所有 import；I2 find_terms 加 substring 语义测试 + 文档化。
 

@@ -68,7 +68,7 @@ The Shenbi wheel contains only `src/shenbi/` (framework runtime). Skills under `
 
 ## Plugin Manifests
 
-The four platform plugin manifests (`.claude-plugin/`, `.codex-plugin/`, `.cursor-plugin/`, `.opencode/`) are generated from a single source: `plugins/master.json`.
+The codex platform plugin manifest (`.codex-plugin/`) is generated from a single source: `plugins/master.json`.
 
 When adding or removing a skill:
 

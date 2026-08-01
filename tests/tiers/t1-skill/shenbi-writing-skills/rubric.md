@@ -16,7 +16,7 @@
 | 5 | Iron law absoluteness | 15% | Rules use MUST/NEVER/ALWAYS; "should"/"prefer"/"recommend" = fail |
 | 6 | Pressure-test rigor | 15% | Skills tested against >=3 real rationalization scenarios |
 | 7 | Persuasion ethics | 10% | Uses Authority/Commitment/Scarcity/Social Proof/Unity only; Liking/Reciprocity absent |
-| 8 | Output format | 10% | SKILL.md follows frontmatter + markdown structure from CLAUDE.md conventions |
+| 8 | Output format | 10% | SKILL.md follows frontmatter + markdown structure from AGENTS.md conventions |
 
 ## Kill Switches by Test Type
 

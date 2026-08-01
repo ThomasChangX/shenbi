@@ -22,7 +22,7 @@ shenbi/
 ├── pyproject.toml          # PEP 621 + tool config
 ├── uv.lock                 # Locked deps with hashes
 ├── justfile                # Task runner (just check, just test, etc.)
-├── CLAUDE.md / GEMINI.md / AGENTS.md  # Multi-agent entry points
+├── AGENTS.md              # Agent entry point
 └── command-to-give.md      # Execution protocol
 ```
 

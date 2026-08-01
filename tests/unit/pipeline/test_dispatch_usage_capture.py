@@ -22,7 +22,7 @@ def _fake_stream(content: str) -> list[SimpleNamespace]:
 class TestUsageCapture:
     def test_usage_recorded_on_success(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
-        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-pro")
+        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
 
         # Streaming: return an iterable of chunks
         fake_stream = _fake_stream("### FILE: chapters/chapter-1.md\nbody\n")
