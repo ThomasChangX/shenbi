@@ -38,6 +38,30 @@ echo "--- pip-audit (dev group, mirroring CI security.yml) ---"
 uv sync --frozen --group dev >/dev/null
 uv run pip-audit
 
+# 4c. mkdocs link check (only when docs changes)
+# 触发：检测待 push 的 docs 变更。pre-push 阶段已 commit，--cached 和 HEAD diff 都恒空，
+#   正确 idiom 是 main...HEAD（推送范围）。
+if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)'; then
+  echo "--- mkdocs link check (docs changed) ---"
+  uv sync --group docs >/dev/null
+  # 单次 build 捕获输出与 exit code
+  if ! out="$(uv run mkdocs build --strict 2>&1)"; then
+    # (a) 死链 → 必失败
+    if echo "$out" | grep -q 'contains a link'; then
+      echo "$out" | grep 'contains a link'; exit 1
+    fi
+    # 判 libcairo-only：剥离 libcairo 归因行后若仍有 WARNING/ERROR 则真失败
+    # set -euo pipefail 下 grep -vE 空匹配 exit 1 会 abort，故 || true
+    non_cairo_problems="$(echo "$out" | grep -E '^(WARNING|ERROR)' \
+      | grep -vE 'cairosvg|no library called.*cairo|cairo-2|libcairo' || true)"
+    if [ -z "$non_cairo_problems" ]; then
+      echo "--- mkdocs: libcairo-only warnings tolerated (§9 out-of-scope) ---"
+    else
+      echo "$non_cairo_problems"; exit 1
+    fi
+  fi
+fi
+
 # 5. Tests (ci.yml step 10)
 # --dist loadscope groups tests by module so ThreadPoolExecutor tests
 # don't interfere across modules. --timeout prevents indefinite hangs.
