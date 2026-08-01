@@ -95,6 +95,8 @@ CI security.yml 用 uv sync --frozen --group dev 后 audit；pre-push
 **复杂度: leaf**（新脚本 + hook 注册；g0.py 改动在 Task 3）
 **test_kind: regression_guard**（守 Issue 7 复发；negative test 在 Task 8 Task 3.1）
 
+> **执行顺序（审查 I2 纠正）**：先做 **Task 3**（g0.py 提 MIRROR_MAP 到模块级），**再做本 Task 2**（脚本 import MIRROR_MAP + 注册 hook）。这样 import 立即解析，无 ImportError 红窗（违反 Global Constraint "每 Task 后 just check 基线"）。两 Task 紧耦合一并 commit（Task 3 Step 6 的 commit 含两者）。
+
 **Files:**
 - Create: `tools/check_fixture_mirror.py`
 - Modify: `.pre-commit-config.yaml`（在 contract-sync-idempotency hook 后加新 hook）
@@ -162,12 +164,10 @@ if __name__ == "__main__":
         pass_filenames: false
 ```
 
-- [ ] **Step 3: 跑 just check（此时 hook 可能 ImportError，因 Task 3 未做）**
-
-> 若 `pre-commit run --all-files` 因 `MIRROR_MAP` ImportError 失败，是预期（Task 3 前提常量未就位）。直接进 Task 3。
+- [ ] **Step 3: 跑 just check（Task 3 已先完成，MIRROR_MAP 就位，hook 应工作）**
 
 Run: `just check`
-Expected: 若 Task 3 已紧跟完成则绿；否则 hook 报 ImportError（预期，Task 3 后修）
+Expected: 2787 passed + 4 last-marked passed（import 解析，fixture 当前一致）
 
 - [ ] **Step 4: 暂不单独 commit（与 Task 3 一起 commit，因两者紧耦合）**
 
@@ -325,28 +325,34 @@ spec §4 Task 2.4 / 缺口 A（经 R1-R5 audit_loop 收敛）。"
 
 - [ ] **Step 1: 确认基线（Phase 1 前，docs 组含漏洞）**
 
-Run: `uv sync --group docs && uv run pip-audit 2>&1 | grep -c "vulnerabilities"`
-Expected: `Found 21 known vulnerabilities`（pillow 12.2.0 + pymdown 10.21.3）
+Run: `uv sync --group docs && uv run pip-audit; echo "exit=$?"`
+Expected: exit=1 + `Found 21 known vulnerabilities`（pillow 12.2.0 + pymdown 10.21.3）
 
-> 若已 0 漏洞，说明 Phase 1 已先跑——须用注入法（spec Task 3.0 时序约束：临时在非 dev 组 pin 已知漏洞包）。
+> **grep matcher（审查 I3）**：用 pip-audit 退出码（1=有漏洞）判断，非 `grep -c vulnerabilities`（后者对"Found N"和"No vulnerabilities"都返回 1，无法区分）。
+> 若 exit=0，说明 Phase 1 已先跑——须用注入法（spec Task 3.0 时序约束：临时在非 dev 组 pin 已知漏洞包）。
 
-- [ ] **Step 2: 模拟 Issue 2 复发（注释锁）**
+- [ ] **Step 2: 模拟 Issue 2 复发（注释锁，用副本保护原文件）**
 
-临时改 `tools/pre-push-check.sh`，把 `uv sync --frozen --group dev >/dev/null` 注释掉。
+**保护原文件（审查 I4）**：不直接改 `tools/pre-push-check.sh`，而是复制副本测试：
+```bash
+cp tools/pre-push-check.sh /tmp/pp-nolock-test.sh
+# 在副本里把 uv sync --frozen --group dev >/dev/null 注释掉
+```
+这样无论测试中发生什么（中断、意外输出），原文件不受污染。
 
-- [ ] **Step 3: 跑 pre-push，预期误判失败**
+- [ ] **Step 3: 跑副本 pre-push，预期误判失败**
 
-Run: `bash tools/pre-push-check.sh 2>&1 | grep -A2 pip-audit`（或手动跑 pre-push hook）
+Run: `bash /tmp/pp-nolock-test.sh 2>&1 | grep -A2 pip-audit; echo "exit=$?"`
 Expected: 报 21 漏洞，exit 1（误判失败——审脏 venv）
 
-- [ ] **Step 4: 还原锁，跑 pre-push，预期 0 漏洞**
+- [ ] **Step 4: 跑原文件（锁在），预期 0 漏洞**
 
-取消注释 `uv sync --frozen --group dev`。Run: `bash tools/pre-push-check.sh 2>&1 | grep -A2 pip-audit`
-Expected: `No known vulnerabilities found`（锁 reconcile venv 回 dev 组）
+Run: `bash tools/pre-push-check.sh 2>&1 | grep -A2 pip-audit; echo "exit=$?"`
+Expected: `No known vulnerabilities found`，exit 0（锁 reconcile venv 回 dev 组）
 
-- [ ] **Step 5: 还原 venv**
+- [ ] **Step 5: 清理副本 + 还原 venv**
 
-Run: `uv sync --frozen --group dev`
+Run: `rm /tmp/pp-nolock-test.sh && uv sync --frozen --group dev`
 
 - [ ] **Step 6: 记录输出到 PR 描述**
 
@@ -367,11 +373,15 @@ Run: `git checkout outline-example.md`
 
 #### Task 3.2: mkdocs dead link negative test
 
-- [ ] **Step 1: 造死链并 commit**
+- [ ] **Step 1: 造死链（用 throwaway 文件，审查 M2，不污染 tracked spec）**
 
-在 `docs/superpowers/specs/2026-08-01-pr23-debugging-postmortem-design.md` 末尾加：`](../nonexistent-test-link.md)`
+新建 `docs/_tmp_deadlink_test.md`，内容含死链：
+```markdown
+# temp dead link test
+](../nonexistent-test-link.md)
+```
 
-Run: `git add docs/superpowers/specs/2026-08-01-pr23-debugging-postmortem-design.md && git commit -m "test(temp): inject dead link for Task 3.2"`
+Run: `git add docs/_tmp_deadlink_test.md && git commit -m "test(temp): inject dead link for Task 3.2"`
 
 - [ ] **Step 2: 跑 pre-push docs 块，预期 FAIL**
 
@@ -380,7 +390,7 @@ Expected: exit 1，输出 `contains a link` 行
 
 - [ ] **Step 3: 还原**
 
-Run: `git reset --hard HEAD~1`
+Run: `git reset --hard HEAD~1 && rm docs/_tmp_deadlink_test.md`
 
 #### Task 3.3: positive test（干净树全绿）
 
@@ -511,7 +521,9 @@ spec §4 Task 4.1 Option A。消 17 条 CodeQL。"
 
 - [ ] **Step 1: 取 tests/ 下 36 条告警清单**
 
-Run: `gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=main&state=open&tool_name=CodeQL' --paginate | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("tests/"))] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.startLine) \(.rule.id)"'`
+Run: `gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=main&state=open&tool_name=CodeQL' --paginate | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("tests/"))] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) \(.rule.id)"'`
+
+> **字段名**：GitHub Code Scanning API 用 snake_case `start_line`（非 camelCase `startLine`，后者产出 `:null`）。
 
 - [ ] **Step 2: 逐文件修（按规则，每文件 commit 或整批 commit）**
 
@@ -545,7 +557,7 @@ spec §4 Task 4.2a（leaf，机械修）。"
 
 - [ ] **Step 1: 取 gates/ 下 18 条清单**
 
-Run: `gh api '...' | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("src/shenbi/gates/"))] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.startLine) \(.rule.id)"'`
+Run: `gh api '...' | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("src/shenbi/gates/"))] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) \(.rule.id)"'`
 
 - [ ] **Step 2: 逐 site 审查 + 修**
 
@@ -598,7 +610,7 @@ git commit -m "chore(codeql): clean 18 alerts in gates/ (per-site except review)
 
 - [ ] **Step 1: 取 pipeline/ + 其余 + cyclic-import 清单**
 
-Run: `gh api '...' | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("src/shenbi/pipeline/") or .rule.id=="py/cyclic-import")] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.startLine) \(.rule.id)"'`
+Run: `gh api '...' | jq -r '[.[]|select(.most_recent_instance.location.path|startswith("src/shenbi/pipeline/") or .rule.id=="py/cyclic-import")] | .[] | "\(.most_recent_instance.location.path):\(.most_recent_instance.location.start_line) \(.rule.id)"'`
 
 - [ ] **Step 2: 逐文件修（pipeline 按 except/unused 模式；cyclic 逐个判断）**
 
@@ -631,9 +643,13 @@ cyclic-import: X fixed (lazy import) / Y suppressed (noqa + follow-up #NNN).
 spec §4 Task 4.2c/4.2d/4.3（4.2c/4.3 infra, 4.2d leaf）。"
 ```
 
-- [ ] **Step 7: 最终验证 CodeQL 归 0**
+- [ ] **Step 7: 最终验证 CodeQL 归 0（审查 I1）**
 
-Run: `gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=main&state=open&tool_name=CodeQL' --paginate | jq length`
+**分两阶段验证**（`ref=main` 只报 main 分支告警，feature 分支修复在合并 + 重扫后才反映）：
+1. **分支验证**（push 后，待 CodeQL 在本分支重扫完成）：`gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=spec/eliminate-existing-warnings&state=open&tool_name=CodeQL' --paginate | jq length` → 期望趋近 0（CodeQL push 触发，重扫延迟数分钟-数小时）
+2. **合并后验证**（Phase 4 PR 合并到 main 后）：`gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=main&state=open&tool_name=CodeQL' --paginate | jq length` → 期望 0
+
+> 若分支查询返回 94（CodeQL 未重扫），等 workflow 完成（`gh run list -w codeql -L1`）后再查。**禁止把"main 仍 94"误判为清理失败**——合并前 main 必然保持旧值。
 Expected: `0`（待 CodeQL 重扫后；可能需 push 触发）
 
 ---
