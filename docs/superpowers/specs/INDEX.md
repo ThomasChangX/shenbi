@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-08-01
-> **活跃 spec 数**：0 | **已归档**：92（见 `archive/`）
+> **最后更新**：2026-08-02
+> **活跃 spec 数**：1 | **已归档**：95（见 `archive/`）
 
 仅列待执行 spec；已完成/合并的 spec 已移至 `archive/`，不在此重复。
 按推荐执行顺序排列；执行序列号见各 spec 文件名日期前缀。
@@ -10,7 +10,20 @@
 
 ## 执行队列
 
-暂无活跃 spec。v1 基线（Foundation / Contracts / Pipeline / Quality Gates / Context Handoff / CI / 07-19 一致性与韧性集群）已全部交付，对应 PR #1–#19 均已合并。
+### #3 · PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖
+
+- **文件**：`2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md`
+- **系列**：依赖治理（承接 #1 PR20 处置 spec 的两项 follow-up；#1 已归档）
+- **状态**：Design
+- **优先级**：🟡 Medium（根因未修→僵尸 PR 再生；可选组零 CI 覆盖→兼容性回归无防线）
+- **方法**：新建 `.github/dependabot.yml`（当前不存在，Dependabot 以默认配置开 transitive PR）+ CI 加 embeddings 可选组覆盖
+- **依赖**：PR #20（已 CLOSED）；前序 spec `archive/2026-08-02-pr20-torch-bump-disposition-design.md`；`pyproject.toml` `[project.optional-dependencies].embeddings`；`.github/workflows/`（ci/nightly/security）
+- **内容**：两项 follow-up——(a) 新建 `.github/dependabot.yml` 配 `allow.dependency-type: ["direct"]` 过滤 transitive PR（根因修复，防 PR #20 式僵尸态再生）；(b) embeddings 可选组 CI 覆盖（当前 CI 全用 `--group dev` 不装 embeddings，torch/sentence-transformers 兼容性零防线）。倾向方案：nightly smoke job（B1）+ security.yml 加 `--extra embeddings`（B3）。3 阶段实施，验证：Dependabot 配置被 GitHub 加载 + embeddings import 在 CI 成功 + 前 spec 归档。
+- **对应 plan**：❌ 未写（待 spec 批准后另起 plan，含 §5 四项决策：ecosystem 名、CI 方案组合、模型下载策略、PR 拆分）
+
+---
+
+v1 基线（Foundation / Contracts / Pipeline / Quality Gates / Context Handoff / CI / 07-19 一致性与韧性集群）已全部交付，对应 PR #1–#19 均已合并。PR #21/#22（Dependabot）+ PR #25（消除既有 warning）也已合并。
 
 新增 spec 时在此登记（`### #NN · <title>` + 文件/系列/状态/优先级/依赖/内容/对应 plan 字段），完成后移动至 `archive/` 并从本页删除。
 
