@@ -21,6 +21,7 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch
 
+from shenbi.pipeline._shared import read_volume_boundaries
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.state import (
     CheckpointType,
@@ -37,7 +38,6 @@ from shenbi.pipeline.triggers import (
     check_triggers,
     get_trigger_steps,
     is_volume_boundary,
-    read_volume_boundaries,
     run_triggered_skills,
     volume_snapshot_pending,
 )

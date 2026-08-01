@@ -685,7 +685,6 @@ def _build_skill_prompt(
         vm_path = project_dir / "outline" / "volume_map.md"
         if vm_path.exists():
             try:
-                # py/cyclic-import (CodeQL): cycle with plan_skeleton — lazy import where needed; see follow-up. Spec §9 no refactor.
                 from shenbi.pipeline.plan_skeleton import generate_plan_skeleton
 
                 skeleton = generate_plan_skeleton(project_dir, chapter)

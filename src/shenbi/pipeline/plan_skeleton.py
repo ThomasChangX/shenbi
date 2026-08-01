@@ -25,11 +25,10 @@ from __future__ import annotations
 import re
 from pathlib import Path
 
-# Volume boundaries are parsed at runtime via triggers.py:read_volume_boundaries()
-# -- NEVER hard-coded. See _resolve_volume_at_runtime().
-
-# py/cyclic-import (CodeQL): cycle with context_assemble — lazy import where needed; see follow-up. Spec §9 no refactor.
-from shenbi.pipeline.context_assemble import _BRIDGE_ACTIVATION_WINDOW  # pyright: ignore[reportPrivateUsage]
+from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
+    _BRIDGE_ACTIVATION_WINDOW,
+    _resolve_volume_at_runtime,
+)
 
 _SKELETON_TEMPLATE = """# Chapter {chapter} Plan Skeleton
 
@@ -193,11 +192,6 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
         section_7=section_7,
         section_8=section_8,
     )
-
-
-# _resolve_volume_at_runtime imported from context_assemble (canonical definition)
-# py/cyclic-import (CodeQL): cycle with context_assemble — lazy import where needed; see follow-up. Spec §9 no refactor.
-from shenbi.pipeline.context_assemble import _resolve_volume_at_runtime  # pyright: ignore[reportPrivateUsage]
 
 
 def _extract_chapter_node(volume_map_text: str, chapter: int) -> dict[str, str] | None:

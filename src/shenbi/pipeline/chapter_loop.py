@@ -973,7 +973,7 @@ def _check_soft_fail_escalation(state: PipelineState, project_dir: Path, chapter
     ``check_escalation`` fires >=1 signal, dispatch escalation-review via the
     existing ``dispatch_escalation`` path.
     """
-    from shenbi.pipeline.triggers import read_volume_boundaries
+    from shenbi.pipeline._shared import read_volume_boundaries
 
     any_escalated = any(
         len(t.occurrences) >= t.escalation_threshold
