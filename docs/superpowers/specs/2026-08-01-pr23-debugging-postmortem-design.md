@@ -285,9 +285,22 @@ fi
 
 **目标**：证明 Phase 2 的守卫能拦截它们对应根因，而非装了摆设。**Issue 2 是"沙堡修复，已复发"的最高风险根因——其守卫（Task 2.1）必须有 negative test，不可只靠读文件验证。**
 
-**Task 3.0**：negative test——证明 pre-push 的 `--group dev` 锁有效（守 Task 2.1 / Issue 2）。**必需方法**（审查 N5：只验证锁真生效，非只验字符串存在）：临时把 pre-push 的 `uv sync --frozen --group dev` 改回裸 `uv run pip-audit`（即模拟 Issue 2 复发），本地装 docs 组（`uv sync --group docs`），跑 pre-push → 必须**误判通过**（因为审 venv 现状而非 dev 组，docs 组的 21 漏洞被漏掉）；改回正确版本（`--group dev`）→ pre-push 必须报 0 漏洞（dev 组干净）。这证明"本地绿 = CI 绿"契约靠锁的语义生效，不靠人读。**辅助断言**（可选，不可替代必需方法）：pre-push-check.sh 加 grep 自检 `[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ]` 防字符串被误删——但此断言不能替代上面的语义测试（typo `--group docs` 仍会过 grep）。还原。
+**Task 3.0**：negative test——证明 pre-push 的 `--group dev` 锁有效（守 Task 2.1 / Issue 2）。**必需方法**（审查 N5：只验证锁真生效，非只验字符串存在）：
+
+**关键语义**（审查 I1 纠正）：`pip-audit` 审计的是**已安装**包。Issue 2 的真实症状是——开发者本地装过 docs 组（`uv sync --group docs` 复现 mkdocs），venv 变脏含漏洞包，裸 `pip-audit` 此时**误判失败**（exit 1，报 21 漏洞），而非误判通过。`--group dev` 锁的作用是 push 前 `uv sync --frozen --group dev` 把 venv ** reconcil 回 dev 组**（卸载 docs 组的漏洞包），使审计基准 = CI。
+
+**测试步骤**（须在 Phase 1 合并 Dependabot **之前**跑，否则 docs 组已修补，测试空洞化——见时序约束）：
+1. 确认当前在 Phase 1 之前的基线（pillow 12.2.0 / pymdown 10.21.3 仍有漏洞）。
+2. `uv sync --group docs` 把脏 venv 复现出来（装漏洞包）。
+3. 临时把 pre-push 的 `uv sync --frozen --group dev` 注释掉（模拟 Issue 2 复发），跑 pre-push → 必须**误判失败**（报 21 漏洞，因为审脏 venv）。
+4. 改回正确版本（`--group dev`），跑 pre-push → 必须报 0 漏洞（锁把 venv reconcil 回 dev 组）。
+5. 还原：`uv sync --frozen --group dev` 清理 venv + 恢复 pre-push 文件。
+
+**时序约束**：此测试依赖 docs 组含漏洞包，**必须在 Phase 1（合 Dependabot）之前执行**。若 Phase 1 已先合，改用注入法：临时在 dev 组 pin 一个已知漏洞包（如 `pip-audit` 自带的测试 vuln db 条目），验证锁能拦截 dev 组外的差异。plan 须把 Task 3.0 排在 Phase 1 之前，或用注入法去耦。
+
+**辅助断言**（可选，不可替代必需方法）：pre-push-check.sh 加 grep 自检 `[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ]` 防字符串被误删——但此断言不能替代上面的语义测试（typo `--group docs` 仍会过 grep）。
 **Task 3.1**：negative test——本地造一个 fixture 漂移（改 `outline-example.md` 加一行空格，不改 fixture），跑 `pre-commit run fixture-mirror-sync`，必须 FAIL 并提示 cp 命令。还原。
-**Task 3.2**：negative test——本地造一个死链（在某个 `docs/superpowers/specs/*.md` 加一段形如 `](../nonexistent.md)` 的 markdown 链接文本），staged 后跑 pre-push 的 docs 块，必须 FAIL。还原。
+**Task 3.2**：negative test——本地造一个死链（在某个 `docs/superpowers/specs/*.md` 加一段形如 `](../nonexistent.md)` 的 markdown 链接文本），**commit** 后跑 pre-push 的 docs 块，必须 FAIL。（审查 I2：触发器是 `git diff --name-only main...HEAD`，只看 committed-not-on-main；staged-but-uncommitted 不触发，故必须 commit。）还原（amend 掉该 commit 或 reset）。
 **Task 3.3**：positive test——干净树跑 `pre-commit run --all-files` + `pre-push-check.sh`（手动 bash 调用），全绿。
 
 **AC（Phase 3）**：4 个测试均符合预期，输出记录在 PR 描述。**缺 Task 3.0 = 违铁律 6（Issue 2 的守卫无 negative test）。**
