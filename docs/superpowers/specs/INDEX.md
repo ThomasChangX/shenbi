@@ -14,12 +14,12 @@
 
 - **文件**：`2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md`
 - **系列**：依赖治理（承接 #1 PR20 处置 spec 的两项 follow-up；#1 已归档）
-- **状态**：Design
-- **优先级**：🟡 Medium（根因未修→僵尸 PR 再生；可选组零 CI 覆盖→兼容性回归无防线）
-- **方法**：新建 `.github/dependabot.yml`（当前不存在，Dependabot 以默认配置开 transitive PR）+ CI 加 embeddings 可选组覆盖
-- **依赖**：PR #20（已 CLOSED）；前序 spec `archive/2026-08-02-pr20-torch-bump-disposition-design.md`；`pyproject.toml` `[project.optional-dependencies].embeddings`；`.github/workflows/`（ci/nightly/security）
-- **内容**：两项 follow-up——(a) 新建 `.github/dependabot.yml` 配 `allow.dependency-type: ["direct"]` 过滤 transitive PR（根因修复，防 PR #20 式僵尸态再生）；(b) embeddings 可选组 CI 覆盖（当前 CI 全用 `--group dev` 不装 embeddings，torch/sentence-transformers 兼容性零防线）。倾向方案：nightly smoke job（B1）+ security.yml 加 `--extra embeddings`（B3）。3 阶段实施，验证：Dependabot 配置被 GitHub 加载 + embeddings import 在 CI 成功 + 前 spec 归档。
-- **对应 plan**：❌ 未写（待 spec 批准后另起 plan，含 §5 四项决策：ecosystem 名、CI 方案组合、模型下载策略、PR 拆分）
+- **状态**：Implementing（spec + plan 已审，代码落地中）
+- **优先级**：🟡 Medium（根因未修→僵尸 PR 再生；embeddings 推理时零 CI 覆盖→兼容性回归无防线）
+- **方法**：新建 `.github/dependabot.yml`（uv ecosystem，`allow.dependency-type: direct` 过滤 transitive PR）+ 删除 stale renovate.json + 移除 ci.yml 死 renovate 校验 step + 独立 embeddings 推理 smoke workflow
+- **依赖**：PR #20（已 CLOSED）；前序 spec `archive/2026-08-02-pr20-torch-bump-disposition-design.md`；`pyproject.toml` `[dependency-groups].dev`（已含 sentence-transformers+torch，import 已覆盖）；`.github/workflows/`
+- **内容**：两项 follow-up——(a) `.github/dependabot.yml` 配 `allow.dependency-type: direct`（单规则）过滤 transitive PR（根因修复）+ 删 renovate.json（Dependabot 是事实 bot）+ 移除 ci.yml 死 step（audit-T2：删除 PR 会使守卫对缺失文件 exit 1）；(b) embeddings **推理** smoke（import 已被 dev 组覆盖，缺口在推理——无测试实例化模型）。方案：独立 scheduled+dispatch workflow（非 disabled 的 nightly.yml），用小模型 all-MiniLM-L6-v2 + HF 缓存。验证：Dependabot 配置被 GitHub 加载 + embeddings 推理在 CI 成功。
+- **对应 plan**：✅ `plans/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.md`（3 task，已过 Phase 4 审查）
 
 ### #4 · Token 效率全栈 audit 总纲：读写一致性与输入侧浪费
 
