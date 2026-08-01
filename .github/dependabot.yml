@@ -14,7 +14,7 @@ updates:
     # 单一 allow 规则只能有一个 dependency-type；多个 allow 条目按并集生效。
     # 选 direct = 覆盖三处显式声明（[project.dependencies] / [dependency-groups] /
     # [optional-dependencies]），过滤 indirect 传递依赖（torch 这类）。
-    # 不配 production/development —— 那是正交的环境标签轴，叠加只会扩大放行范围。
+    # 不配 production/development —— 正交的环境标签轴，叠加会扩大放行范围。
     allow:
       - dependency-type: "direct"
     labels:
