@@ -50,6 +50,8 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.logging import get_logger
+
+# py/cyclic-import (CodeQL): cycle with dispatch_helper — lazy import where needed; see follow-up. Spec §9 no refactor.
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
@@ -639,6 +641,7 @@ def run_triggered_skills(
             return False
 
         if step.requires_g3:
+            # py/cyclic-import (CodeQL): cycle with dispatch_helper — lazy import where needed; see follow-up. Spec §9 no refactor.
             from shenbi.pipeline.dispatch_helper import run_gate_g3
 
             g3 = run_gate_g3(step.skill, project_dir)

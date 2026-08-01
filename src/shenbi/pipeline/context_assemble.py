@@ -205,6 +205,7 @@ def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, in
     returns a set of last-chapter numbers per volume. We build the
     (start, end) ranges from that set.
     """
+    # py/cyclic-import (CodeQL): cycle with triggers — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.pipeline.triggers import read_volume_boundaries
 
     boundary_chapters = read_volume_boundaries(project_dir)

@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    # py/cyclic-import (CodeQL): cycle with write_audit — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.audit.write_audit import AuditResult
 
 from shenbi.logging import get_logger

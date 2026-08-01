@@ -256,8 +256,11 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     for all dispatch modes incl. codex subprocesses; read provenance in a
     subprocess is a known blind spot.
     """
+    # py/cyclic-import (CodeQL): cycle with record — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.audit.record import record_audit_outcome
     from shenbi.audit.snapshot import snapshot_tree
+
+    # py/cyclic-import (CodeQL): cycle with write_audit — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.audit.write_audit import audit_writes
 
     chapter = extract_chapter(prompt)
