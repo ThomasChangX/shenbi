@@ -220,9 +220,12 @@ if __name__ == "__main__":
 **改 `tools/pre-push-check.sh`**，在 pip-audit 块后加（仅 docs 变更触发，避免日常推送背 docs 组）：
 ```bash
 # 4c. mkdocs link check (only when docs change)
-# 触发条件：用 working-tree diff（对照本文件既有 idiom L64/L69 的 `git diff --exit-code`，
-#   非 --cached —— pre-push 阶段所有改动已 commit，--cached 恒空，见审查 N1）。
-if git diff --name-only HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
+# 触发条件：检测【待 push 的】docs 变更。pre-push 阶段所有改动已 commit，
+#   故 `git diff --cached`（round-1）和 `git diff --name-only HEAD`（round-2）都恒空——
+#   前者比 index（已提交故空），后者比工作树（干净故空）。正确 idiom 是比推送范围。
+#   本 repo 主分支模型用 main：`git diff --name-only main...HEAD` 列待 push 的 docs 改动。
+#   （不用 @{u}...HEAD：feature 分支常无 upstream，会 fatal。）
+if git diff --name-only main...HEAD 2>/dev/null | grep -qE '^(docs/|mkdocs\.yml)'; then
   echo "--- mkdocs link check (docs changed) ---"
   uv sync --group docs >/dev/null
   # 单次 build，同时捕获输出与 exit code（审查 N4：避免双 build 浪费/不一致）
@@ -235,9 +238,11 @@ if git diff --name-only HEAD | grep -qE '^(docs/|mkdocs\.yml)'; then
       echo "$out" | grep 'contains a link'; exit 1          # (a) 死链
     fi
     # 判 (b)：输出里的 WARNING/ERROR 行是否【全部】可归因于 libcairo？
-    # libcairo 特征串：cairosvg crashed / no library called cairo / cairo-2
+    # 审查 C1：本脚本 L4 是 `set -euo pipefail`，`grep -vE` 全过滤时 exit 1，
+    #   pipefail + set -e 会 abort 整个脚本。故 `|| true` 中和退出码。
+    # libcairo 特征串：cairosvg crashed / no library called cairo / cairo-2 / libcairo
     non_cairo_problems="$(echo "$out" | grep -E '^(WARNING|ERROR)' \
-      | grep -vE 'cairosvg|no library called.*cairo|cairo-2|libcairo')"
+      | grep -vE 'cairosvg|no library called.*cairo|cairo-2|libcairo' || true)"
     if [ -z "$non_cairo_problems" ]; then
       echo "--- mkdocs: libcairo-only warnings tolerated (§9 out-of-scope) ---"
     else
@@ -257,6 +262,8 @@ fi
 | (d) 干净 | 0 | — | — | PASS |
 
 **机制**：postmortem §5.2 缺口 A 已论证——`contains a link` 是死链特征串。但单纯 `|| true`（早期方案）会吞掉**非链接**的 build 失败（如 Task 1.2 pymdown 10→11 不兼容、mkdocs.yml 语法错、插件错），重蹈"在 CI 才发现"覆辙。而宽 grep 反判（`grep Error|Traceback`）会误杀 libcairo（其崩溃本身带 Error/Traceback，见审查 N2）。故用**排除法**：build 失败时，剥离所有 libcairo 归因行后，若仍有 WARNING/ERROR 行则真失败，否则容忍。libcairo 是本地渲染库缺失问题，非仓库缺陷（§9 已声明不处理）。
+
+**`set -euo pipefail` 兼容性（审查 C1）**：本脚本 L4 启用 `set -euo pipefail`。决策表 row (b) 中 `grep -vE` 把所有行过滤光时 exit 1，`pipefail` 传播 + `set -e` 会 abort 脚本——使"容忍"分支反而阻塞推送。故 `grep -vE` 末尾加 `|| true` 中和（L241）。`if ! out="$(...)"` 和 `if git diff ... | grep -q` 在 `if` 条件内不受 `set -e` 影响（POSIX 豁免）。
 
 **与缺口 B 的张力（postmortem 已论证解法）**：B 先 `uv sync --group dev`，A 又 `uv sync --group docs`。两者顺序：B 先（审计基准），A 后（docs 链接，按需）。A 的 sync 不影响 B 已完成的审计。
 
