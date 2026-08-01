@@ -1,10 +1,10 @@
 """USD pricing per 1M tokens, keyed to the model that actually ran (spec §3.3).
 
 The dispatch path resolves the model as
-``os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-pro")`` — see
+``os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-flash")`` — see
 ``shenbi.pipeline.dispatch_helper`` constants ``_ENV_LLM_MODEL`` /
 ``_DEFAULT_MODEL``. Pricing MUST use that same default so cost reflects what
-ran; do NOT hardcode gpt-4o here.
+ran; do NOT hardcode other models here.
 """
 
 from __future__ import annotations
@@ -13,14 +13,13 @@ import os
 from typing import Any
 
 # The model the dispatch path defaults to (mirrors dispatch_helper._DEFAULT_MODEL).
-DEFAULT_PRICING_MODEL = "deepseek-v4-pro"
+DEFAULT_PRICING_MODEL = "deepseek-v4-flash"
 
-#: USD per 1,000,000 tokens. Update rates when confirmed for the deployment.
+#: USD per 1,000,000 tokens (DeepSeek V4 Flash official rates, cache-miss).
+#: Update rates when confirmed for the deployment.
 #: Unknown models fall back to the default entry (never crash on cost).
 PRICING: dict[str, dict[str, float]] = {
-    "deepseek-v4-pro": {"input": 1.10 / 1_000_000, "output": 4.40 / 1_000_000},
-    "gpt-4o": {"input": 2.50 / 1_000_000, "output": 10.00 / 1_000_000},
-    "gpt-4o-mini": {"input": 0.15 / 1_000_000, "output": 0.60 / 1_000_000},
+    "deepseek-v4-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
 }
 
 # Env var name — must match shenbi.pipeline.dispatch_helper._ENV_LLM_MODEL.

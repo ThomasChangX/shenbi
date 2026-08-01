@@ -81,12 +81,12 @@ jobs:
         run: uv run shenbi-sync-contracts
       - name: Auto-check docs (spec P6)
         run: uv run python tools/generate_autocheck_docs.py
-      - name: Plugin manifests (.claude/.codex/.cursor/.opencode)
+      - name: Plugin manifests (.codex)
         run: uv run shenbi-generate-plugins
       - name: Idempotency — all generated artifacts must match committed
         run: |
           git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ \
-                                  .claude-plugin/ .codex-plugin/ .cursor-plugin/ .opencode/
+                                  .codex-plugin/
 
   dependency-review:
     runs-on: ubuntu-latest

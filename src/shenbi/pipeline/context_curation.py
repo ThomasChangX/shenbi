@@ -4,7 +4,7 @@ Performs 9-section structuring of assembled context, ending diversity checks,
 and hook debt briefing — all deterministic Python operations. Replaces the
 ``shenbi-context-composing`` LLM call with deterministic functions.
 
-Spec: docs/superpowers/specs/2026-07-07-pipeline-performance-redesign.md Phase 2.1
+Spec: docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md Phase 2.1
 """
 
 from __future__ import annotations

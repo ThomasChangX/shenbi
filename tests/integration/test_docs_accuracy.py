@@ -16,8 +16,6 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 
 DOCS_TO_CHECK = [
     "AGENTS.md",
-    "CLAUDE.md",
-    "GEMINI.md",
     "README.md",
     "CONTRIBUTING.md",
     "SECURITY.md",

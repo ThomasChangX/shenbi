@@ -1,6 +1,6 @@
 """Tests for Route A truth entity index (wave2 task1).
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 7.1.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 7.1.
 Route A extracts named entities deterministically from truth files.
 """
 

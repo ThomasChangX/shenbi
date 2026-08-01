@@ -17,10 +17,7 @@ __pycache__/
 # IDE
 .idea/
 .vscode/
-.claude-plugin/
 .codex-plugin/
-.cursor-plugin/
-.opencode/
 
 # Tool local settings
 .claude/

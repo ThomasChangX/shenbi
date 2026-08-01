@@ -1,6 +1,6 @@
 """Tests for context assembly with Route A/B/C + dedup + CLI (wave2 task3).
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md §7.1-7.4.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md §7.1-7.4.
 Integrates Route A (entity index), Route B (embedding search), Route C
 (fixed rule routing) with deterministic reranking and content-hash dedup.
 """

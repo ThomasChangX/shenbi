@@ -1,6 +1,6 @@
 """Tests for checkpoint staging mechanism.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 2.7.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.7.
 """
 
 from __future__ import annotations

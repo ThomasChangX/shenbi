@@ -9,7 +9,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/).
 ### Added
 - P-1.E Foundation Completion: src layout migration, tooling integration,
   testing foundation, CI hardening, enterprise baseline. See
-  `docs/superpowers/specs/2026-06-15-p-1.e-foundation-completion/`.
+  `docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/`.
 
 ## [0.1.0] - 2026-06-08
 

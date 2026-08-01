@@ -69,7 +69,7 @@ _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 
 #: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
-_DEFAULT_MODEL = "deepseek-v4-pro"  # fallback when SHENBI_LLM_MODEL not set
+_DEFAULT_MODEL = "deepseek-v4-flash"  # fallback when SHENBI_LLM_MODEL not set
 #: Externalised per-skill temperature/max_tokens configuration.
 #: Loaded from executor_config.toml at project root (Spec 6 §5.4).
 
@@ -1403,7 +1403,7 @@ def _dispatch_via_api(
     Configure via environment variables:
     - ``SHENBI_LLM_API_KEY`` (required)
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.openai.com/v1)
-    - ``SHENBI_LLM_MODEL`` (default: gpt-4o)
+    - ``SHENBI_LLM_MODEL`` (default: deepseek-v4-flash)
 
     Args:
         skill: The skill name to dispatch.

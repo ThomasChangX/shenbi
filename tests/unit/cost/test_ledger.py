@@ -15,7 +15,7 @@ class TestRecord:
             skill="shenbi-chapter-drafting",
             chapter=1,
             usage={"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150},
-            model="deepseek-v4-pro",
+            model="deepseek-v4-flash",
         )
         lines = led.ledger_path.read_text(encoding="utf-8").splitlines()
         assert len(lines) == 1
@@ -69,7 +69,7 @@ class TestRecord:
         """When model=None, the resolved model is the default."""
         led = TokenLedger(tmp_path)
         rec = led.record("s", 1, {"prompt_tokens": 1, "completion_tokens": 1}, model=None)
-        assert rec.model == "deepseek-v4-pro"
+        assert rec.model == "deepseek-v4-flash"
 
     def test_record_timestamp_is_iso8601_utc(self, tmp_path: Path):
         """Timestamp must be ISO 8601 with timezone info."""

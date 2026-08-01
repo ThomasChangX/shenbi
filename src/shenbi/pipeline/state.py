@@ -1,6 +1,6 @@
 """Typed state vocabulary and dataclasses for the novel pipeline state machine.
 
-Spec: docs/superpowers/specs/2026-07-01-novel-pipeline-design.md Section 3.
+Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 3.
 """
 
 from __future__ import annotations

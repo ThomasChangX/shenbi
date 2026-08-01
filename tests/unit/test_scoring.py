@@ -2,7 +2,7 @@
 
 Coverage target: 90% line, 80% branch.
 
-Business rules under test (per CLAUDE.md rule 八 — each test must encode
+Business rules under test (each test must encode
 business value, not just exercise a function):
 - Rubric parsing: weight table + kill-switch section shape contract
 - Score validation: REJECT semantics (empty / missing / out-of-range)

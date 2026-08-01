@@ -1188,7 +1188,7 @@ In `run_chapter_step`, after step 9 (foreshadowing-recall), add a check for the 
     # After the last pre-audit step (foreshadowing-recall), run all reviews
     # in two parallel waves instead of serial dispatch.
     _FIRST_AUDIT_IDX = min(i for i, s in enumerate(CHAPTER_STEPS) if s.is_audit)
-    
+
     if step_idx == _FIRST_AUDIT_IDX and step.is_audit:
         from shenbi.pipeline.parallel_dispatch import (
             ReviewTask, dispatch_reviews_parallel, consolidate_review_results
@@ -1196,12 +1196,12 @@ In `run_chapter_step`, after step 9 (foreshadowing-recall), add a check for the 
         from shenbi.pipeline.audit_layer import (
             get_active_genre_audits, audit_relative_path, audit_suffix
         )
-        
+
         chapter = state.chapter_loop.current_chapter
-        
+
         # Wave 1: Core-circle reviews (7 skills in parallel)
         core_skills = [
-            s.skill for s in CHAPTER_STEPS 
+            s.skill for s in CHAPTER_STEPS
             if s.is_audit and "review" in s.skill
         ]
         core_tasks = [
@@ -1215,7 +1215,7 @@ In `run_chapter_step`, after step 9 (foreshadowing-recall), add a check for the 
         ]
         log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
         core_results = dispatch_reviews_parallel(core_tasks)
-        
+
         # Wave 2: Genre-circle reviews (conditionally active, in parallel)
         gc_path = project_dir / "genre-config.json"
         gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
@@ -1234,29 +1234,29 @@ In `run_chapter_step`, after step 9 (foreshadowing-recall), add a check for the 
             genre_results = dispatch_reviews_parallel(genre_tasks)
         else:
             genre_results = []
-        
+
         # Consolidate
         all_results = core_results + genre_results
         consolidated = consolidate_review_results(all_results, chapter)
         summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
         safe_write(summary_path, consolidated)
-        
+
         # Record all review steps as done and advance past them
         for i in range(_FIRST_AUDIT_IDX, _LAST_AUDIT_IDX + 1):
             if i < len(CHAPTER_STEPS):
                 _record_step_done(state, CHAPTER_STEPS[i], chapter)
-        
+
         state.chapter_loop.step_index = _LAST_AUDIT_IDX + 1
         state.chapter_loop.current_step = ""
-        
+
         # Check for blocking issues
         cs = _get_chapter_state(state, chapter)
         cs.audit_results["blocking_found"] = "BLOCKING" in consolidated
         cs.audit_results["audit_reports"] = [
             t.output_path for t in core_tasks + genre_tasks
         ]
-        
-        return _advance(state, _LAST_AUDIT_IDX, 
+
+        return _advance(state, _LAST_AUDIT_IDX,
                         CHAPTER_STEPS[_LAST_AUDIT_IDX], chapter,
                         project_dir=project_dir)
 ```
@@ -1418,35 +1418,35 @@ In `review_checklist.py`, replace the embedding-based voice extraction with dete
 ```python
 def _extract_voice_constraints(project_dir: Path, chapter: int) -> dict[str, str]:
     """Extract voice fingerprints for characters appearing in this chapter.
-    
+
     Deterministic name-matching — simpler and more reliable than embedding search.
     """
     chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
     if not chapter_path.exists():
         return {}
-    
+
     chapter_text = chapter_path.read_text(encoding="utf-8")
     characters_dir = project_dir / "characters"
     if not characters_dir.exists():
         return {}
-    
+
     voice_map = {}
     for profile_path in characters_dir.glob("**/*.md"):
         profile_text = profile_path.read_text(encoding="utf-8")
-        
+
         # Extract display name from frontmatter
         name_match = re.search(r"name\s*[:：]\s*(.+)", profile_text)
         display_name = name_match.group(1).strip() if name_match else profile_path.stem
-        
+
         # Check if character appears in chapter
         if display_name not in chapter_text:
             continue
-        
+
         # Extract voice fingerprint
         voice_match = re.search(r"voice_fingerprint\s*[:：]\s*(.+)", profile_text)
         if voice_match:
             voice_map[display_name] = voice_match.group(1).strip()
-    
+
     return voice_map
 ```
 
@@ -1460,7 +1460,7 @@ def _summarize_world_rules(project_dir: Path) -> str:
     rules_path = project_dir / "world" / "rules.md"
     if not rules_path.exists():
         return ""
-    
+
     text = rules_path.read_text(encoding="utf-8")
     # Keep rules brief — reviews need constraints, not full lore
     return text[:2000] if len(text) > 2000 else text

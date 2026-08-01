@@ -8,11 +8,7 @@ import pytest
 
 from shenbi.plugins.generate import (
     _common_header,
-    _js_string,
-    gen_claude,
     gen_codex,
-    gen_cursor,
-    gen_opencode,
     load_master,
 )
 
@@ -39,20 +35,6 @@ def test_common_header_returns_canonical_key_order() -> None:
 
 
 @pytest.mark.unit
-def test_gen_claude_returns_dict_with_skills() -> None:
-    master = {
-        "name": "test",
-        "version": "0.1.0",
-        "description": "d",
-        "author": "a",
-        "skills": [{"name": "skill-x"}],
-    }
-    result = gen_claude(master, {})
-    assert result["skills"] == master["skills"]
-    assert "name" in result
-
-
-@pytest.mark.unit
 def test_gen_codex_adds_marketplace_and_type() -> None:
     master = {
         "name": "test",
@@ -65,50 +47,6 @@ def test_gen_codex_adds_marketplace_and_type() -> None:
     result = gen_codex(master, config)
     assert result["marketplace"] == "mp"
     assert result["type"] == "skill"
-
-
-@pytest.mark.unit
-def test_js_string_escapes_apostrophe_and_backslash() -> None:
-    assert _js_string("it's") == "it\\'s"
-    assert _js_string("a\\b") == "a\\\\b"
-    assert _js_string("plain") == "plain"
-
-
-@pytest.mark.unit
-def test_gen_cursor_adds_plugin_root_and_hooks() -> None:
-    """gen_cursor returns dict with pluginRoot and hooks."""
-    master = {"name": "t", "version": "0.1.0", "description": "d", "author": "a", "skills": []}
-    config = {"fields": {"pluginRoot": ".codex", "hooks": {"onStart": "run.sh"}}}
-    result = gen_cursor(master, config)
-    assert result["pluginRoot"] == ".codex"
-    assert result["hooks"] == config["fields"]["hooks"]
-
-
-@pytest.mark.unit
-def test_gen_opencode_returns_valid_es_module() -> None:
-    """gen_opencode returns a JS module with name, version, description, author, skills."""
-    master = {"name": "t", "version": "0.1.0", "description": "d", "author": "a", "skills": ["s1"]}
-    result = gen_opencode(master, {})
-    assert "export default" in result
-    assert "name: 't'" in result
-    assert "skills:" in result
-    assert "'s1'" in result
-
-
-@pytest.mark.unit
-def test_gen_opencode_escapes_special_chars() -> None:
-    """gen_opencode properly escapes apostrophes and backslashes."""
-    master = {
-        "name": "it's",
-        "version": "0.1.0",
-        "description": "a\\b",
-        "author": "a",
-        "skills": [],
-    }
-    result = gen_opencode(master, {})
-    assert "it\\'s" in result
-    assert "a\\\\b" in result
-    assert result.endswith("\n")
 
 
 @pytest.mark.unit
@@ -165,8 +103,8 @@ def test_load_master_raises_on_missing_required_fields(tmp_path: Path, monkeypat
 def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch) -> None:
     """generate_all writes each platform manifest under REPO_ROOT/config.output.
 
-    Covers generate.py:103-126 (the full generation loop, both json and js
-    write branches) across all four generators.
+    Covers generate.py:103-126 (the full generation loop, json write branch)
+    across the codex generator.
     """
     import json as _json
 
@@ -179,25 +117,10 @@ def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch)
         "author": "a",
         "skills": ["s1"],
         "platforms": {
-            "claude-code": {
-                "format": "claude-code",
-                "output": ".claude-plugin/plugin.json",
-                "fields": {},
-            },
             "codex-cli": {
                 "format": "codex-cli",
                 "output": ".codex-plugin/plugin.json",
                 "fields": {"marketplace": "mp", "type": "skill"},
-            },
-            "cursor": {
-                "format": "cursor",
-                "output": ".cursor-plugin/plugin.json",
-                "fields": {"pluginRoot": ".", "hooks": {}},
-            },
-            "opencode-js": {
-                "format": "opencode-js",
-                "output": ".opencode/plugin.ts",
-                "fields": {},
             },
         },
     }
@@ -206,10 +129,7 @@ def test_generate_all_writes_all_platform_manifests(tmp_path: Path, monkeypatch)
     monkeypatch.setattr(gen_mod, "MASTER_PATH", fake)
     monkeypatch.setattr(gen_mod, "REPO_ROOT", tmp_path)
     assert gen_mod.generate_all() == 0
-    assert (tmp_path / ".claude-plugin" / "plugin.json").exists()
     assert (tmp_path / ".codex-plugin" / "plugin.json").exists()
-    assert (tmp_path / ".cursor-plugin" / "plugin.json").exists()
-    assert (tmp_path / ".opencode" / "plugin.ts").exists()
 
 
 @pytest.mark.unit

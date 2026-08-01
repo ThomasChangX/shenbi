@@ -43,14 +43,16 @@ class TestContextLimits:
 class TestWarnIfOverBudget:
     def test_small_prompt_no_warning(self, caplog):
         with caplog.at_level(logging.WARNING):
-            warned = warn_if_over_budget("short", "deepseek-v4-pro", logger=logging.getLogger("t"))
+            warned = warn_if_over_budget(
+                "short", "deepseek-v4-flash", logger=logging.getLogger("t")
+            )
         assert warned is False
 
     def test_huge_prompt_warns(self):
-        limit = MODEL_CONTEXT_LIMITS["deepseek-v4-pro"]
+        limit = MODEL_CONTEXT_LIMITS["deepseek-v4-flash"]
         # Build a string whose estimate exceeds 80% of the limit.
         huge = "a" * (limit * 5)  # way over
-        warned = warn_if_over_budget(huge, "deepseek-v4-pro", logger=logging.getLogger("t"))
+        warned = warn_if_over_budget(huge, "deepseek-v4-flash", logger=logging.getLogger("t"))
         assert warned is True
 
     def test_unknown_model_uses_default_no_crash(self):

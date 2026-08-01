@@ -21,7 +21,7 @@ STUCK_COUNT=0
 
 while [ "$LOOP" -lt "$MAX_LOOPS" ]; do
     LOOP=$((LOOP + 1))
-    
+
     OUTPUT=$(uv run pipeline resume "$PROJECT_DIR" 2>&1) || true
     STATUS=$(echo "$OUTPUT" | grep -o '"status": "[^"]*"' | tail -1 | cut -d'"' -f4)
     CP=$(echo "$OUTPUT" | grep -o '"checkpoint": "[^"]*"' | tail -1 | cut -d'"' -f4 || echo "")

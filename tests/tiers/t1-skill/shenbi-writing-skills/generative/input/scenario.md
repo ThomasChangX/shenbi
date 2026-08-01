@@ -15,7 +15,7 @@ Run shenbi-writing-skills to create a new SKILL.md for a "POV transition managem
 5. Have a frontmatter description that describes only when to trigger (never what it does)
 6. Be pressure-tested against at least 3 real rationalization scenarios
 7. Use only Authority/Commitment/Scarcity/Social Proof/Unity persuasion ethics (no Liking/Reciprocity)
-8. Follow SKILL.md frontmatter + markdown structure per CLAUDE.md conventions
+8. Follow SKILL.md frontmatter + markdown structure per AGENTS.md conventions
 
 ## Seed Input
 Multi-POV novel project with frequent viewpoint switches between 4 main characters
