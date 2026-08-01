@@ -792,7 +792,7 @@ class TestPostSkillOutputDiscovery:
             raising=True,
         )
         monkeypatch.setattr(
-            "shenbi.dispatcher.executor.derive_output_files",
+            "shenbi.audit._shared.derive_output_files",
             lambda skill, chapter, rd: [str(out_file)],
             raising=True,
         )

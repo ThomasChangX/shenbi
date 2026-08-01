@@ -8,27 +8,18 @@ cross-section drift（pending_hooks.md YAML vs 派生表）一并检测（判据
 from __future__ import annotations
 
 import fnmatch
-from dataclasses import dataclass
 
+from shenbi.audit._shared import AuditResult
 from shenbi.audit.snapshot import compute_file_change, parametric_globs
 from shenbi.contracts.ownership import check_write_ownership, get_ownership
 from shenbi.records.drift import detect_cross_section_drift, parse_markdown_table
 from shenbi.records.parser import parse_records
 
 
-@dataclass(frozen=True)
-class AuditResult:
-    skill: str
-    violations: tuple[str, ...]
-    drift: tuple[str, ...]
-    checked_files: tuple[str, ...]
-
-
 def _declared_patterns(skill: str) -> list[str]:
     """技能契约的 writes+updates（项目相对路径）。"""
     try:
-        # py/cyclic-import (CodeQL): cycle with executor — lazy import where needed; see follow-up. Spec §9 no refactor.
-        from shenbi.dispatcher.executor import derive_output_files
+        from shenbi.audit._shared import derive_output_files
 
         return derive_output_files(skill)
     except Exception:

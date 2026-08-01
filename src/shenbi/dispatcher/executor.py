@@ -13,6 +13,7 @@ import uuid
 from pathlib import Path
 from typing import Any
 
+from shenbi.audit._shared import derive_output_files
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts import OutputKind
 from shenbi.contracts.paths import extract_chapter, resolve_or_skip
@@ -98,29 +99,6 @@ def derive_input_files(
         paths = [
             rp
             for p in load_contract(skill)["reads"]
-            if (rp := resolve_or_skip(p, chapter)) is not None
-        ]
-        if round_dir is not None:
-            paths = [str((round_dir / p).resolve()) for p in paths]
-        return paths
-    except ContractError:
-        return []
-
-
-def derive_output_files(
-    skill: str, chapter: int | None = None, round_dir: Path | None = None
-) -> list[str]:
-    """Return the skill's contract writes+updates, resolving chapter placeholders.
-    When *chapter* is provided, N/NNN placeholders are resolved.
-    Paths with unresolvable placeholders (genesis mode) are skipped via
-    resolve_or_skip → None → filtered. When *round_dir* is provided,
-    relative paths are made absolute.
-    """
-    try:
-        c = load_contract(skill)
-        paths = [
-            rp
-            for p in [*c["writes"], *c["updates"]]
             if (rp := resolve_or_skip(p, chapter)) is not None
         ]
         if round_dir is not None:
@@ -256,11 +234,9 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     for all dispatch modes incl. codex subprocesses; read provenance in a
     subprocess is a known blind spot.
     """
-    # py/cyclic-import (CodeQL): cycle with record — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.audit.record import record_audit_outcome
     from shenbi.audit.snapshot import snapshot_tree
 
-    # py/cyclic-import (CodeQL): cycle with write_audit — lazy import where needed; see follow-up. Spec §9 no refactor.
     from shenbi.audit.write_audit import audit_writes
 
     chapter = extract_chapter(prompt)

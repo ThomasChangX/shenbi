@@ -3,8 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+from shenbi.audit._shared import AuditResult
 from shenbi.audit.record import record_audit_outcome
-from shenbi.audit.write_audit import AuditResult
 
 
 def _res(violations: tuple[str, ...] = (), drift: tuple[str, ...] = ()) -> AuditResult:
