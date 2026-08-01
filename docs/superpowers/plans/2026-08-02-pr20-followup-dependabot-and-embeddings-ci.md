@@ -129,35 +129,40 @@ Closes follow-up (a) of PR #20 disposition spec."
 
 ---
 
-### Task 2: 删除 stale `renovate.json`（§5.6 用户裁决）
+### Task 2: 删除 stale `renovate.json` + 移除 ci.yml 死 renovate 校验 step（§5.6 用户裁决）
 
 **Files:**
 - Delete: `renovate.json`
-- Modify: 无（ci.yml 的 renovate 校验 step 由 `if` 守卫自动跳过，不需改）
+- Modify: `.github/workflows/ci.yml`（移除 `action-validation` job 的 "Validate Renovate config schema" step —— renovate.json 删除后该校验 step 验证一个不存在的配置，是死代码）
 
 **Interfaces:**
 - Consumes: §5.6 决策（用户 2026-08-02 选删除）
-- Produces: 单 bot 统一（Dependabot）
+- Produces: 单 bot 统一（Dependabot）+ ci.yml 无死 step
 
-**复杂度:** leaf（单文件删除）
-**test_kind:** characterization（删除后验证 ci.yml 守卫语义 + 无残留引用）
+**复杂度:** leaf（删除 1 文件 + 移除 ci.yml 1 step，无跨模块）
+**test_kind:** characterization（删除/移除后验证 ci.yml 仍合法 + 无残留引用）
 
 **关键事实（已核实）**：
 - `renovate.json` 存在（1355 bytes），但 `gh pr list` 显示 Renovate bot 从未开 PR（app 未装 / stale）。
 - PR #20/#21/#22 全部由 `app/dependabot` 开 → Dependabot 是事实 bot。
-- `ci.yml:110-127` 的 "Validate Renovate config schema" step 用 `if: github.event_name == 'pull_request'` + `gh api ... | grep -c '^renovate\.json$'` 守卫。删 renovate.json 后 CHANGED=0 → step 输出 "renovate.json unchanged — skipping"。**无需改 ci.yml**。
-- renovate.json 仅在 archive 计划文档中被引用（非活跃代码/配置），删除安全。
+- ⚠️ **audit-T2 复核订正（原 plan/spec 误判）**：ci.yml 原 renovate 校验 step 用 `gh api .../files | grep -c '^renovate\.json$'` 守卫。**GitHub PR-files API 把删除的文件也列为 changed**（`status: "removed"`，`filename` 仍为 `renovate.json`，已用 PR #23 的 CLAUDE.md/GEMINI.md 删除实证）。故**删除 PR 本身** CHANGED=1 → 走 if 分支 → `renovate-config-validator renovate.json` 对缺失文件 exit 1 → CI 红。"CHANGED=0 自动 skip" 只对**未来不相关 PR** 成立。故必须改 ci.yml。
+- renovate.json 仅在 archive 计划文档 + ci.yml 该 step 中被引用。删 step + 删文件后无残留。
 
 - [ ] **Step 1: 确认无活跃引用**
 
 ```bash
 # 排除 archive 计划文档（历史记录，可保留提及）+ .git + uv.lock
 grep -rn "renovate" --include="*.yml" --include="*.yaml" --include="*.py" --include="*.toml" . \
-  | grep -v "node_modules\|\.git/\|uv\.lock\|docs/superpowers/plans/archive" \
-  | grep -v "ci.yml"
-# 应只剩 ci.yml 的校验 step（保留，守卫会自动 skip）
+  | grep -v "node_modules\|\.git/\|uv\.lock\|docs/superpowers/plans/archive"
+# 应只剩 ci.yml 的校验 step（本 task 将移除它）
 ```
-Expected: 仅 ci.yml 的 renovate validator step（行 110-127），无其他活跃引用。
+Expected: 仅 ci.yml 的 renovate validator step（行 109-127），无其他活跃引用。
+
+- [ ] **Step 1b: 移除 ci.yml 的 renovate 校验 step**
+
+删除 `action-validation` job 中 `- name: Validate Renovate config schema` 起到其 `env: GH_TOKEN: ...` 止的整个 step 块（原 ci.yml:109-127）。保留该 job 的 `yamllint --strict` step。删除后 `GH_TOKEN` env 仅此处用过，一并移除。
+
+理由：renovate.json 删除后，该 step 校验一个不存在的配置 = 死代码；且对删除 PR 本身会 CI 红（见关键事实）。移除比加 `[ -f renovate.json ]` 守卫更干净（YAGNI——Renovate 已弃用）。
 
 - [ ] **Step 2: 删除 renovate.json**
 
@@ -165,41 +170,50 @@ Expected: 仅 ci.yml 的 renovate validator step（行 110-127），无其他活
 git rm renovate.json
 ```
 
-- [ ] **Step 3: 验证 ci.yml renovate 守卫仍语义正确（不破坏）**
+- [ ] **Step 2: 删除 renovate.json**
 
 ```bash
-# 守卫逻辑：CHANGED=$(... grep -c '^renovate\.json$' || true)；if CHANGED>0 才跑 validator
-# 删文件后：文件不在 PR diff → CHANGED=0 → 走 else 分支 "skipping"
-# 验证 ci.yml 该 step 仍在（不删 step，保留为未来恢复路径）
-grep -q "Validate Renovate config schema" .github/workflows/ci.yml && echo "renovate guard step preserved ok"
-grep -q 'renovate.json unchanged — skipping' .github/workflows/ci.yml && echo "skip-branch intact ok"
+git rm renovate.json
 ```
-Expected: 两个 ok（step 保留，skip 分支完好——删 renovate.json 不需改 ci.yml）。
+
+- [ ] **Step 3: 验证 ci.yml renovate step 已移除 + yamllint 仍合法**
+
+```bash
+# renovate step 应已不存在（Step 1b 移除）
+! grep -q "Validate Renovate config schema" .github/workflows/ci.yml && echo "renovate step removed ok"
+# action-validation job 的 yamllint step 仍在
+grep -q "Validate GitHub Actions YAML" .github/workflows/ci.yml && echo "yamllint step preserved ok"
+# ci.yml 整体仍 yamllint 合法
+uv run yamllint --strict .github/workflows/ci.yml && echo "ci.yml yamllint ok"
+```
+Expected: 三个 ok。
 
 - [ ] **Step 4: 本地全量 gate 不回归**
 
 ```bash
 just check
 ```
-Expected: 全绿（删除 renovate.json 不影响任何 gate——它不是 Python 代码，不进 ruff/mypy/pyright；yamllint 只扫 workflows/）。
+Expected: 全绿（删除 renovate.json + 移除 ci.yml step 不影响任何 gate——renovate.json 非 Python；ci.yml 改动仅删 step，yamllint 仍合法）。
 
 - [ ] **Step 5: 提交**
 
 ```bash
-git add -A  # renovate.json 的删除
-git commit -m "chore(deps): remove stale renovate.json — Dependabot is the active bot
+git add renovate.json .github/workflows/ci.yml
+git commit -m "chore(deps): remove stale renovate.json + drop dead renovate validator step
 
 renovate.json existed but the Renovate bot never opened a PR (app not
 installed / stale). PR #20/#21/#22 were all opened by app/dependabot,
-confirming Dependabot is the de-facto bot. The duplicate config only
-adds confusion and risks duplicate PRs if Renovate is ever activated.
+confirming Dependabot is the de-facto bot.
 
-ci.yml's 'Validate Renovate config schema' step (L110-127) is guarded by
-a changed-files check (grep -c '^renovate\.json$'); with the file gone,
-CHANGED=0 and the step auto-skips ('renovate.json unchanged — skipping').
-No ci.yml edit needed.
+Also drop the 'Validate Renovate config schema' step from ci.yml's
+action-validation job. The step's changed-files guard counted a deleted
+renovate.json as 'changed' (GitHub PR-files API lists removals with the
+filename intact — verified via PR #23's CLAUDE.md/GEMINI.md removals),
+so the validator would run against the now-missing file and exit 1,
+failing CI on this very deletion PR. With Renovate gone, the step is
+dead code; removing it is cleaner than adding a file-existence guard.
 
-User decision (spec §5.6, 2026-08-02): delete."
+User decision (spec §5.6, 2026-08-02): delete renovate.json."
 ```
 
 ---

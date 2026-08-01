@@ -215,7 +215,7 @@ embeddings-smoke:
 仓库根有 `renovate.json`（完整配置），但 Renovate bot 从未开过 PR（stale 残留 / app 未装）；事实活跃 bot = Dependabot。
 - **选项 A（✅ 已定）**：本 spec 顺手 `git rm renovate.json`，统一用 Dependabot，消除双 bot 混淆与未来重复 PR 风险。**用户 2026-08-02 裁决选 A。**
 - **选项 B（未选）**：保留 `renovate.json`，在 dependabot.yml 注释说明共存策略。
-- 注意 `ci.yml` 有 "Validate Renovate config schema" step（仅 renovate.json 变更时跑），删文件后该 step 的 `if` 守卫自然跳过，无需改 ci.yml。
+- ⚠️ **实施订正（audit-T2 发现）**：原 spec 称 "ci.yml 的 renovate 校验 step 删文件后自动 skip，无需改 ci.yml"——**此判断错误**。GitHub PR-files API 把**删除**的文件也列为 changed（`status: "removed"`，`filename` 仍为 `renovate.json`），故删除 PR 本身 CHANGED=1 → validator 对缺失文件 exit 1 → CI 红（已用 PR #23 删除实证）。故 plan Task 2 同时移除 ci.yml 的 renovate 校验 step（死代码 + 对本 PR 会 CI 红），与删文件同 PR 落地。
 
 ---
 
