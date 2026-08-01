@@ -375,10 +375,11 @@ Run: `git checkout outline-example.md`
 
 - [ ] **Step 1: 造死链（用 throwaway 文件，审查 M2，不污染 tracked spec）**
 
-新建 `docs/_tmp_deadlink_test.md`，内容含死链：
+新建 `docs/_tmp_deadlink_test.md`，内容含死链（**完整 markdown 格式**，spec-deviation 修正：`](path)` 不完整，mkdocs 不识别为链接）：
 ```markdown
 # temp dead link test
-](../nonexistent-test-link.md)
+
+[dead link](../nonexistent-test-link.md)
 ```
 
 Run: `git add docs/_tmp_deadlink_test.md && git commit -m "test(temp): inject dead link for Task 3.2"`
