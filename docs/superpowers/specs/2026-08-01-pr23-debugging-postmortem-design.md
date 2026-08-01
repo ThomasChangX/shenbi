@@ -296,7 +296,7 @@ fi
 4. 改回正确版本（`--group dev`），跑 pre-push → 必须报 0 漏洞（锁把 venv reconcil 回 dev 组）。
 5. 还原：`uv sync --frozen --group dev` 清理 venv + 恢复 pre-push 文件。
 
-**时序约束**：此测试依赖 docs 组含漏洞包，**必须在 Phase 1（合 Dependabot）之前执行**。若 Phase 1 已先合，改用注入法：临时在 dev 组 pin 一个已知漏洞包（如 `pip-audit` 自带的测试 vuln db 条目），验证锁能拦截 dev 组外的差异。plan 须把 Task 3.0 排在 Phase 1 之前，或用注入法去耦。
+**时序约束**：此测试依赖 docs 组含漏洞包，**必须在 Phase 1（合 Dependabot）之前执行**。若 Phase 1 已先合，改用注入法：临时在**非 dev 组**（如新建 `test-injection` 组或临时加到 docs 组）pin 一个已知漏洞包，验证 `--group dev` 锁能把它排除在审计外（pin 在 dev 组内反而会被 `uv sync --group dev` 装上，测不出过滤）。plan 须把 Task 3.0 排在 Phase 1 之前，或用注入法去耦。
 
 **辅助断言**（可选，不可替代必需方法）：pre-push-check.sh 加 grep 自检 `[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ]` 防字符串被误删——但此断言不能替代上面的语义测试（typo `--group docs` 仍会过 grep）。
 **Task 3.1**：negative test——本地造一个 fixture 漂移（改 `outline-example.md` 加一行空格，不改 fixture），跑 `pre-commit run fixture-mirror-sync`，必须 FAIL 并提示 cp 命令。还原。
@@ -419,7 +419,7 @@ Phase 3 (PR-B 内或独立 PR-C): negative test  [leaf, ~1h]
 Phase 4 (PR-D…PR-G, 4 个 chore): 清 94 CodeQL [含 infra 4.2b/c/4.3, ~1-2天]
 ```
 
-**依赖关系**：Phase 1 独立可先行；Phase 2/3 顺序（3 验证 2）；Phase 4 与 1-3 独立（可并行开 chore PR，但建议在 2/3 后，避免清理时守卫未就位反复触发）。
+**依赖关系**：Phase 1 独立可先行；Phase 2/3 顺序（3 验证 2）；Phase 4 与 1-3 独立（可并行开 chore PR，但建议在 2/3 后，避免清理时守卫未就位反复触发）。**例外**：Phase 3 Task 3.0 须排在 Phase 1 **之前**（依赖 docs 组含漏洞包；Phase 1 合 Dependabot 后测试空洞化，见 Task 3.0 时序约束）。
 
 **预估总工作量**：Phase 1-3 约 1 天；Phase 4 约 1-2 天（取决 Task 4.1 裁决）。
 
