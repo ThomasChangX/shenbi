@@ -314,7 +314,6 @@ TRIGGER_STEPS: list[TriggerStep] = [
 # ---------------------------------------------------------------------------
 
 
-# Match "Chapter Start: N", "Chapter End: N", "Start: N", "End: N", or
 def is_volume_boundary(chapter: int, project_dir: Path | str) -> bool:
     """True if *chapter* is the last chapter of any volume."""
     return chapter in read_volume_boundaries(project_dir)

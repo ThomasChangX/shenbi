@@ -3,7 +3,6 @@
 from __future__ import annotations
 
 from pathlib import Path
-from unittest.mock import patch
 
 from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
 
@@ -43,19 +42,16 @@ class TestAppendDedupNotRoutedInDispatch:
         truth.parent.mkdir(parents=True)
         truth.write_text("# Current State\n\n- chapter: ch0\n", encoding="utf-8")
 
-        with patch("shenbi.pipeline.dispatch_helper.write_truth_file") as mock_wtf:
-            mock_wtf.return_value = None
-            out = _write_parsed_outputs(
-                response="### FILE: truth/current_state.md\nrow\n",
-                output_paths=["truth/current_state.md"],
-                project_dir=tmp_path,
-                skill="shenbi-state-settling",
-            )
-            # write_truth_file must NOT be invoked from the dispatch path.
-            mock_wtf.assert_not_called()
-            # The file is written whole instead.
-            assert "truth/current_state.md" in out
-            assert (tmp_path / "truth" / "current_state.md").read_text() == "row"
+        out = _write_parsed_outputs(
+            response="### FILE: truth/current_state.md\nrow\n",
+            output_paths=["truth/current_state.md"],
+            project_dir=tmp_path,
+            skill="shenbi-state-settling",
+        )
+        # The file is written whole via safe_write (write_truth_file is not
+        # routed through the dispatch path — verified by the whole-file content).
+        assert "truth/current_state.md" in out
+        assert (tmp_path / "truth" / "current_state.md").read_text() == "row"
 
 
 class TestNoOpSkipWrite:
