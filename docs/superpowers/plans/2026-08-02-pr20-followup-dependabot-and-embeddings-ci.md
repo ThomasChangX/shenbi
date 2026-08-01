@@ -15,10 +15,10 @@
 - **§7 Out-of-Scope**：不动 `src/`；不改 `[project.optional-dependencies].embeddings` 声明位置；不升级 torch/sentence-transformers；不为 embeddings 写功能测试；不重新处置 PR #20。
 - **ecosystem = `uv`**（§5.1 已定，GA 2025-03；`pip` 会找 requirements.txt 而 no-op）。
 - **`allow.dependency-type` 只配 `direct`**（单一规则一个值；不叠 production/development——那是正交环境轴）。
-- **renovate.json 删除**（§5.6 用户裁决；ci.yml 的 renovate 校验 step 由 `if` 守卫自动跳过，无需改 ci.yml）。
+- **renovate.json 删除 + ci.yml 死 step 移除**（§5.6 用户裁决；audit-T2 发现删除 PR 会使 renovate 校验 step 对缺失文件 exit 1 → CI 红，故 Task 2 同时移除该死 step）。
 - **推理 smoke 用 `all-MiniLM-L6-v2`**（~80MB，非 bge-large-zh ~1.3GB；推理兼容性与具体模型无关）。
 - **CI 工具链**：`astral-sh/setup-uv@v3`（无 composite action）；commit 前缀 `chore(deps)`。
-- **PR 拆 2 个**（§5.5）：PR-1 = dependabot.yml + 删 renovate.json（Phase 1，纯配置）；PR-2 = embeddings smoke workflow（Phase 2，CI 行为）。
+- **PR 拆分**（§5.5 倾向 2 PR；**执行实际合并为单 branch/PR**——三项改动同属"依赖治理"且总 diff 小，单 PR 审阅更连贯。PR-1/PR-2 的 task 边界仍保留为 T1+T2 / T3 的逻辑分组）。
 - **YAGNI**：smoke job 只做推理防线，不跑 embeddings 单测（那些已在 PR CI，且 skip-when-available）。
 
 ## File Structure
@@ -163,12 +163,6 @@ Expected: 仅 ci.yml 的 renovate validator step（行 109-127），无其他活
 删除 `action-validation` job 中 `- name: Validate Renovate config schema` 起到其 `env: GH_TOKEN: ...` 止的整个 step 块（原 ci.yml:109-127）。保留该 job 的 `yamllint --strict` step。删除后 `GH_TOKEN` env 仅此处用过，一并移除。
 
 理由：renovate.json 删除后，该 step 校验一个不存在的配置 = 死代码；且对删除 PR 本身会 CI 红（见关键事实）。移除比加 `[ -f renovate.json ]` 守卫更干净（YAGNI——Renovate 已弃用）。
-
-- [ ] **Step 2: 删除 renovate.json**
-
-```bash
-git rm renovate.json
-```
 
 - [ ] **Step 2: 删除 renovate.json**
 
