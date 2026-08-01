@@ -136,7 +136,7 @@ def gate_G3(
                         else:
                             c.append({"id": "G3.2", "file": rp.name, "s": "PASS", "score": score})
                     except (json.JSONDecodeError, OSError):
-                        pass
+                        continue  # malformed score file → skip, score next report
         except (json.JSONDecodeError, OSError):
             c.append({"id": "G3.2", "s": "SKIP", "r": "acceptance.json invalid"})
     else:

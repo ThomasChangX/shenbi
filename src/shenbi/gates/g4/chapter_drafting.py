@@ -157,7 +157,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
                     if isinstance(fm, dict) and "name" in fm:
                         names.append(str(fm["name"]))
                 except Exception:
-                    pass
+                    pass  # malformed YAML frontmatter → fall back to regex name match above
     if not names:
         names = ["林烽", "他"]
     # Always include common pronoun

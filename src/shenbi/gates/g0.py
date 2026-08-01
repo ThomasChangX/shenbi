@@ -8,6 +8,13 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+# G0.11 fixture mirror map — single source of truth (spec Task 2.3 铁律 7).
+# tools/check_fixture_mirror.py 与 gate_G0() 都读此常量，避免两处漂移。
+MIRROR_MAP: dict[str, str] = {
+    "tests/fixtures/outline-example.md": "outline-example.md",
+}
+
+
 import hashlib
 import json
 import os
@@ -197,7 +204,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                     default_w = gc_data.get("chapter_word", {}).get("default", CHAPTER_WORD_FLOOR)
                     break
                 except (json.JSONDecodeError, OSError):
-                    pass
+                    continue  # malformed genre-config.json → try next project dir
     # Ceiling division: -(-a // b)
     expected = -(-target_words // default_w)
     checks.append(
@@ -471,11 +478,8 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     # G0.11 — fixture mirror integrity: fixtures that mirror project source
     # files must have matching content hashes. This catches the "fixture
     # stale while source updated" failure mode.
-    mirror_map = {
-        "tests/fixtures/outline-example.md": "outline-example.md",
-    }
     stale_mirrors: list[str] = []
-    for fixture_rel, source_rel in mirror_map.items():
+    for fixture_rel, source_rel in MIRROR_MAP.items():
         fixture_path = PROJECT / fixture_rel
         source_path = PROJECT / source_rel
         if not fixture_path.exists():
@@ -522,7 +526,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             for category in ("generative", "bughunt", "clean"):
                 exempt_skills.update(exempt_data.get(category, []))
         except (json.JSONDecodeError, OSError):
-            pass
+            pass  # tolerate malformed exemptions file; G0.12 reports coverage as-is
     # bug-hunt and clean have generic checkers (apply to ALL skills via
     # g4_generic_bughunt / g4_generic_clean). Generative has dedicated
     # checkers for 20 skills + g4_generic_generative fallback for the rest.

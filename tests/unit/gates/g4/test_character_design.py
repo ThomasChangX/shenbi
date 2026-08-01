@@ -283,7 +283,6 @@ def test_g4_character_design_major_count_pass(project_with_characters: Path):
         str(project_with_characters / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(project_with_characters))
-    import json
 
     data = json.loads(result)
     assert data["status"] == "PASS"
@@ -305,7 +304,6 @@ def test_g4_character_design_minor_count_pass(project_with_characters: Path):
         str(project_with_characters / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(project_with_characters))
-    import json
 
     data = json.loads(result)
 
@@ -329,7 +327,6 @@ def test_g4_character_design_fails_when_too_few_major(tmp_path: Path):
     # No protagonist or relationships needed in fps for this check
     fps: list[str] = []
     result = g4_character_design(fps, rd=str(tmp_path))
-    import json
 
     data = json.loads(result)
     assert data["status"] == "FAIL"
@@ -415,7 +412,6 @@ archetype_sources:
         str(tmp_path / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(tmp_path))
-    import json
 
     data = json.loads(result)
 
@@ -506,7 +502,6 @@ voice_profile:
         str(tmp_path / "characters" / "relationships.md"),
     ]
     result = g4_character_design(fps, rd=str(tmp_path))
-    import json
 
     data = json.loads(result)
     assert data["status"] == "FAIL"

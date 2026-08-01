@@ -286,7 +286,9 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
             }
         )
         sys.exit(1)
-    _scores_data = json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    # Validate the scores file parses as JSON before marking the phase SCORED;
+    # a malformed file must abort here rather than silently advancing state.
+    json.loads(Path(scores_file).read_text(encoding="utf-8"))
     step = {
         "action": "post-score",
         "timestamp": now_iso(),

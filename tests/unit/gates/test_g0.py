@@ -190,7 +190,6 @@ class TestG0ErrorPaths:
         seed = tmp_path / "seed.md"
         seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
         result = _result_dict(gate_G0(seed_file=str(seed)))
-        g06 = next((c for c in result["checks"] if c["id"] == "G0.6"), None)
         # Gate may short-circuit at G0.6 FAIL; check status + must_fix.
         assert result["status"] == "FAIL"
         assert "G0.6" in result.get("must_fix", [])

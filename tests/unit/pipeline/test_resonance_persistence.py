@@ -70,7 +70,7 @@ def test_persist_via_write_truth_file_round_trips_through_reader():
                     try:
                         scores.append(float(cells[6]))
                     except ValueError:
-                        pass
+                        continue
         assert scores == [88.0]
 
 

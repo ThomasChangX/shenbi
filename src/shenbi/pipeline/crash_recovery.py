@@ -79,6 +79,9 @@ def _check_emergency_flag(project_dir: Path) -> None:  # pyright: ignore[reportU
     """Called at step boundaries in main loop. Performs cleanup if flag set."""
     global _emergency_flag  # noqa: PLW0603
     if _emergency_flag:
+        # Clear before cleanup: if the process survives this step boundary,
+        # the next call must not re-enter cleanup. This reset is load-bearing
+        # re-entry state, read at line 81 above and set by the signal handler.
         _emergency_flag = False
         try:
             _emergency_cleanup(project_dir)
@@ -113,6 +116,7 @@ def _emergency_cleanup(
             current_skill = getattr(cl, "current_step", "") or "unknown"
             cl.current_step = f"EMERGENCY_SHUTDOWN_AT_{current_skill}"
     except Exception:
+        # Best-effort annotation only; must not abort the cleanup sequence.
         pass
 
     # 2. Save pipeline state
@@ -143,6 +147,7 @@ def _emergency_cleanup(
         clear_staging(project_dir)
         logger.info("staging_cleared")
     except Exception:
+        # Best-effort staging wipe; failures here must not block process exit.
         pass
 
 

@@ -27,6 +27,7 @@ class AuditResult:
 def _declared_patterns(skill: str) -> list[str]:
     """技能契约的 writes+updates（项目相对路径）。"""
     try:
+        # py/cyclic-import (CodeQL): cycle with executor — lazy import where needed; see follow-up. Spec §9 no refactor.
         from shenbi.dispatcher.executor import derive_output_files
 
         return derive_output_files(skill)

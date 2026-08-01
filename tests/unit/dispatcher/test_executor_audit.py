@@ -6,7 +6,6 @@ from pathlib import Path
 import pytest
 
 import shenbi.dispatcher.executor as ex
-from shenbi.dispatcher.executor import dispatch_with_write_audit
 
 
 def _cfg() -> dict[str, object]:
@@ -30,7 +29,7 @@ def test_audit_passes_on_allowed_genre_key_change(
         return 0
 
     monkeypatch.setattr(ex, "dispatch", allowed)  # type: ignore[attr-defined]
-    rc = dispatch_with_write_audit("shenbi-genre-config", "generative", tmp_path, "p")
+    rc = ex.dispatch_with_write_audit("shenbi-genre-config", "generative", tmp_path, "p")
     assert rc == 0
     assert (tmp_path / "write-audit.jsonl").exists()
 
@@ -52,7 +51,7 @@ def test_audit_blocks_on_undeclared_genre_key(
         return 0
 
     monkeypatch.setattr(ex, "dispatch", forbidden)  # type: ignore[attr-defined]
-    rc = dispatch_with_write_audit("shenbi-genre-config", "generative", tmp_path, "p")
+    rc = ex.dispatch_with_write_audit("shenbi-genre-config", "generative", tmp_path, "p")
     assert rc == 2  # GATE_FAIL
     last = json.loads((tmp_path / "write-audit.jsonl").read_text(encoding="utf-8").splitlines()[-1])
     assert last["blocked"] is True

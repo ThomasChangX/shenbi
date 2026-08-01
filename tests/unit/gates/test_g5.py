@@ -230,12 +230,11 @@ def test_g5_returns_fail_not_crash_when_deps_json_malformed(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """Malformed deps.json -> G5 returns FAIL JSON, never raises."""
-    import shenbi.gates.g5 as g5_mod
 
     def boom(_p: object) -> dict[str, object]:
         raise json.JSONDecodeError("bad", "doc", 0)
 
-    monkeypatch.setattr(g5_mod, "jload", boom)
+    monkeypatch.setattr("shenbi.gates.g5.jload", boom)
     round_dir = tmp_path / "round"
     round_dir.mkdir()
     result = json.loads(gate_G5("some-phase", str(round_dir), str(tmp_path)))

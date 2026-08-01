@@ -28,7 +28,8 @@ def test_worldbuilding_uses_max_of_heading_and_numbered():
     expression is present (spec §2.2).
     """
     src = pytest.importorskip("shenbi.gates.g4.worldbuilding").__file__
-    text = open(src, encoding="utf-8").read()  # noqa: SIM115
+    with open(src, encoding="utf-8") as f:
+        text = f.read()
     assert "heading_rules" in text
     assert "numbered_rules" in text
     assert "max(heading_rules, numbered_rules)" in text

@@ -204,7 +204,7 @@ def write_gate_marker(
         marker_file = marker_dir / f"{gate}-{target}-{test_type}.json"
         safe_write(marker_file, json.dumps(marker, indent=2, ensure_ascii=False))
     except (json.JSONDecodeError, OSError):
-        pass
+        pass  # best-effort marker write; non-PASS or unreadable result → skip marker
 
 
 def unimplemented(gate_name: str, note: str = "") -> str:

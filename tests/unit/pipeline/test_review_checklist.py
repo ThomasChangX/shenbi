@@ -268,7 +268,7 @@ class TestCacheInvalidation:
         (tmp_path / "chapters").mkdir()
         (tmp_path / "chapters" / "chapter-2.md").write_text("text", encoding="utf-8")
 
-        c1 = generate_review_checklist(tmp_path, chapter=2)
+        generate_review_checklist(tmp_path, chapter=2)
 
         time.sleep(0.02)
         (tmp_path / "genre-config.json").write_text('{"povMode": "first-person"}', encoding="utf-8")
