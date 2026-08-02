@@ -485,13 +485,13 @@ git commit -m "fix: remove 3 dead reads from escalation-review + sync codegen (�
 
 | Producer | writes | skill reads? | code/G4 consumer? | Disposition |
 |----------|--------|-------------|-------------------|-------------|
-| chapter-planning | plans/chapter-N-plan-decisions.json | ❌ | ❌ no G4 checker, no code | **DELETE writes** |
-| state-settling | truth/state-settling-decisions.json | ❌ | ❌ no G4 checker, no code | **DELETE writes** |
-| chapter-revision | chapters/chapter-N-revision-decisions.json | ❌ | ✅ G4 `g4_decisions` schema validation; `state_heal.py:58` + `chapter_loop.py:1570` check file *existence* only (not content) | **KEEP writes** (G4 schema consumer is real; code refs are existence-only) |
+| chapter-planning | plans/chapter-N-plan-decisions.json | ❌ | ✅ G4 `make_composite_checker(g4_chapter_planning, g4_decisions)` (generic.py:285) — BUT the decisions path is `derive_expected_outputs`-derived from `writes:`, so removing the write drops it from G4's feed (no orphan `not_found`); no code reads content | **DELETE writes** (G4 feed tracks writes; removing write removes the G4 expectation too) |
+| state-settling | truth/state-settling-decisions.json | ❌ | ✅ G4 `make_composite_checker(g4_state_settling, g4_decisions)` (generic.py:300) — same derives-from-writes mechanism; no code reads content | **DELETE writes** (same as above) |
+| chapter-revision | chapters/chapter-N-revision-decisions.json | ❌ | ✅ G4 `g4_decisions` schema validation; `state_heal.py:58` + `chapter_loop.py:1570` check file *existence* only (not content) | **KEEP writes** (state_heal existence-check + snapshot depend on the file being present even if content isn't parsed) |
 | short-drafting | short/short-N-decisions.json | ❌ | ✅ G4 `g4_decisions` | **KEEP writes** (G4 validates schema) |
 | market-radar | context/market-radar-decisions.json | ❌ | ✅ G4 `g4_decisions` | **KEEP writes** (G4 validates schema) |
 
-Rationale: "dead" per spec §3.5 = no skill `reads:` consumer. But 3 of 5 have non-skill structural consumers (G4 schema validation, state_heal counter). Deleting those writes would break G4 or state reconciliation. Only the 2 with zero consumers (plan-decisions, state-settling-decisions) are safe to delete. The new lint (Task 6) will use a smarter definition: flag a decisions.json write only if it has NO skill reads AND no G4 checker AND no code reference.
+Rationale: "dead" per spec §3.5 = no skill `reads:` consumer. All 5 have G4 checkers (`g4_decisions` composite), but the 2 deleted (plan-decisions, state-settling-decisions) are safe because (a) the decisions path is derived from `writes:` via `derive_expected_outputs` (sync_contracts.py:76-92) — removing the write removes it from `expected_outputs`/`deps.json`, so G4 stops expecting it (no `not_found`); (b) no code reads their content. The 3 kept have non-removable structural dependencies: chapter-revision has `state_heal.py:58` existence-check + snapshot patterns; short-drafting + market-radar have no code dependency but their G4 schema validation is design-intended. The new lint (Task 7) uses the smarter definition: flag a decisions.json write only if it has NO skill reads AND is not in `_G4_DECISIONS_SKILLS` AND no code reference.
 
 **Files:**
 - Modify: `skills/shenbi-chapter-planning/SKILL.md` (remove `plans/chapter-N-plan-decisions.json` from `writes:`)
