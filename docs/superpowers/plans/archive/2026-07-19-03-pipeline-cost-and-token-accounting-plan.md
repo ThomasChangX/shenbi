@@ -4,13 +4,13 @@
 
 **Goal:** Capture `response.usage` token counts on every API dispatch, persist them to a JSONL ledger, estimate USD cost against the actual configured model, warn on pre-flight context overflow, and expose a `shenbi-cost` report CLI.
 
-**Architecture:** Five layers. (1) `dispatch_helper._dispatch_via_api` reads `response.usage` (free data the API already returns) and records it. (2) A new `src/shenbi/cost/ledger.py` appends one JSONL record per call and summarizes by skill/chapter/total. (3) `src/shenbi/cost/pricing.py` maps model name → per-million input/output rates and computes cost; the model is read from the same env var (`SHENBI_LLM_MODEL`, default `deepseek-v4-pro`) the dispatch path uses, so pricing matches what actually ran. (4) A pre-flight token estimator warns when an assembled prompt exceeds 80% of the model context limit. (5) A `shenbi-cost` console script prints the per-skill/per-chapter/total report. No `cost/` package exists yet — it is created here.
+**Architecture:** Five layers. (1) `dispatch_helper._dispatch_via_api` reads `response.usage` (free data the API already returns) and records it. (2) A new `src/shenbi/cost/ledger.py` appends one JSONL record per call and summarizes by skill/chapter/total. (3) `src/shenbi/cost/pricing.py` maps model name → per-million input/output rates and computes cost; the model is read from the same env var (`SHENBI_LLM_MODEL`, default `deepseek-v4-flash`) the dispatch path uses, so pricing matches what actually ran. (4) A pre-flight token estimator warns when an assembled prompt exceeds 80% of the model context limit. (5) A `shenbi-cost` console script prints the per-skill/per-chapter/total report. No `cost/` package exists yet — it is created here.
 
 **Tech Stack:** Python 3.11+, pathlib, pydantic/dataclasses, structlog, pytest, OpenAI SDK (read-only)
 
 ## Global Constraints
 
-- The pricing module MUST price against the model that actually ran. The dispatch path resolves the model as `os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-pro")` (confirmed in `src/shenbi/pipeline/dispatch_helper.py` constants `_ENV_LLM_MODEL`/`_DEFAULT_MODEL`). Do NOT hardcode gpt-4o pricing — the default model is `deepseek-v4-pro`. Record the resolved model name in each ledger record so pricing is unambiguous (spec §3.1, §3.3).
+- The pricing module MUST price against the model that actually ran. The dispatch path resolves the model as `os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-flash")` (confirmed in `src/shenbi/pipeline/dispatch_helper.py` constants `_ENV_LLM_MODEL`/`_DEFAULT_MODEL`). Do NOT hardcode gpt-4o pricing — the default model is `deepseek-v4-flash`. Record the resolved model name in each ledger record so pricing is unambiguous (spec §3.1, §3.3).
 - Token usage is captured ONLY on the API path (`_dispatch_via_api`). The IDE-CLI path (`_dispatch_via_ide`) and legacy subprocess path do not return `response.usage`; they record nothing (or a `None`/skipped record), and the report must tolerate missing records.
 - The ledger is append-only JSONL at `project_dir/cost/token-ledger.jsonl` (spec §3.2). Each record is self-contained so partial writes never corrupt aggregation.
 - Token estimation is a rough heuristic (~4 chars/token English, ~1.5 chars/token CJK); it is a warning signal, not a hard gate (spec §3.4).
@@ -27,9 +27,9 @@
 
 **Interfaces:**
 - Consumes: nothing (pure rates table + arithmetic)
-- Produces: `PRICING: dict[str, dict[str, float]]` (USD per 1M tokens), `DEFAULT_PRICING_MODEL = "deepseek-v4-pro"`, `estimate_cost(usage: dict, model: str | None = None) -> float`, `resolve_model(model: str | None = None) -> str`. Later tasks import `estimate_cost` and `resolve_model`.
+- Produces: `PRICING: dict[str, dict[str, float]]` (USD per 1M tokens), `DEFAULT_PRICING_MODEL = "deepseek-v4-flash"`, `estimate_cost(usage: dict, model: str | None = None) -> float`, `resolve_model(model: str | None = None) -> str`. Later tasks import `estimate_cost` and `resolve_model`.
 
-**Context:** The spec's snippet hardcodes `gpt-4o`, but the repo's default model is `deepseek-v4-pro`. This task establishes the correct default and makes the model explicit. `resolve_model` mirrors the dispatch path's resolution so the same env var drives both dispatch and pricing. Rates are placeholder values structured so they can be updated when real 2026-07 rates are confirmed; the test pins the structure and the default-model wiring, not the exact USD.
+**Context:** The spec's snippet hardcodes `gpt-4o`, but the repo's default model is `deepseek-v4-flash`. This task establishes the correct default and makes the model explicit. `resolve_model` mirrors the dispatch path's resolution so the same env var drives both dispatch and pricing. Rates are placeholder values structured so they can be updated when real 2026-07 rates are confirmed; the test pins the structure and the default-model wiring, not the exact USD.
 
 - [ ] **Step 1: Write the failing test**
 
@@ -49,10 +49,10 @@ from shenbi.cost.pricing import (
 
 
 class TestPricingTable:
-    def test_default_model_is_deepseek_v4_pro(self):
-        # The repo default model is deepseek-v4-pro (dispatch_helper._DEFAULT_MODEL),
+    def test_default_model_is_deepseek_v4_flash(self):
+        # The repo default model is deepseek-v4-flash (dispatch_helper._DEFAULT_MODEL),
         # NOT gpt-4o. Pricing must default to the model that actually runs.
-        assert DEFAULT_PRICING_MODEL == "deepseek-v4-pro"
+        assert DEFAULT_PRICING_MODEL == "deepseek-v4-flash"
 
     def test_pricing_has_default_model(self):
         assert DEFAULT_PRICING_MODEL in PRICING
@@ -68,7 +68,7 @@ class TestPricingTable:
 class TestResolveModel:
     def test_explicit_model_wins(self, monkeypatch):
         monkeypatch.setenv("SHENBI_LLM_MODEL", "gpt-4o")
-        assert resolve_model("deepseek-v4-pro") == "deepseek-v4-pro"
+        assert resolve_model("deepseek-v4-flash") == "deepseek-v4-flash"
 
     def test_env_used_when_none(self, monkeypatch):
         monkeypatch.setenv("SHENBI_LLM_MODEL", "some-other-model")
@@ -115,7 +115,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'shenbi.cost'`
 """USD pricing per 1M tokens, keyed to the model that actually ran (spec §3.3).
 
 The dispatch path resolves the model as
-``os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-pro")`` — see
+``os.environ.get("SHENBI_LLM_MODEL", "deepseek-v4-flash")`` — see
 ``shenbi.pipeline.dispatch_helper`` constants ``_ENV_LLM_MODEL`` /
 ``_DEFAULT_MODEL``. Pricing MUST use that same default so cost reflects what
 ran; do NOT hardcode gpt-4o here.
@@ -126,12 +126,12 @@ import os
 from typing import Any
 
 # The model the dispatch path defaults to (mirrors dispatch_helper._DEFAULT_MODEL).
-DEFAULT_PRICING_MODEL = "deepseek-v4-pro"
+DEFAULT_PRICING_MODEL = "deepseek-v4-flash"
 
 #: USD per 1,000,000 tokens. Update rates when confirmed for the deployment.
 #: Unknown models fall back to the default entry (never crash on cost).
 PRICING: dict[str, dict[str, float]] = {
-    "deepseek-v4-pro": {"input": 1.10 / 1_000_000, "output": 4.40 / 1_000_000},
+    "deepseek-v4-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
     "gpt-4o": {"input": 2.50 / 1_000_000, "output": 10.00 / 1_000_000},
     "gpt-4o-mini": {"input": 0.15 / 1_000_000, "output": 0.60 / 1_000_000},
 }
@@ -177,7 +177,7 @@ Expected: PASS (all tests)
 git add src/shenbi/cost/__init__.py src/shenbi/cost/pricing.py tests/unit/cost/test_pricing.py
 git commit -m "feat(cost): add pricing module keyed to actual configured model
 
-Spec 16 §3.3. Default model is deepseek-v4-pro (mirrors dispatch_helper),
+Spec 16 §3.3. Default model is deepseek-v4-flash (mirrors dispatch_helper),
 NOT gpt-4o. estimate_cost falls back to default for unknown models."
 ```
 
@@ -215,7 +215,7 @@ class TestRecord:
             skill="shenbi-chapter-drafting",
             chapter=1,
             usage={"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150},
-            model="deepseek-v4-pro",
+            model="deepseek-v4-flash",
         )
         lines = led.ledger_path.read_text(encoding="utf-8").splitlines()
         assert len(lines) == 1
@@ -462,7 +462,7 @@ def _fake_response(content: str, usage=None):
 class TestUsageCapture:
     def test_usage_recorded_on_success(self, tmp_path: Path, monkeypatch):
         monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
-        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-pro")
+        monkeypatch.setenv("SHENBI_LLM_MODEL", "deepseek-v4-flash")
 
         usage = SimpleNamespace(prompt_tokens=111, completion_tokens=222, total_tokens=333)
         # NOTE: _write_parsed_outputs expects "### FILE: <path>" markers
@@ -487,7 +487,7 @@ class TestUsageCapture:
         assert rec["prompt_tokens"] == 111
         assert rec["completion_tokens"] == 222
         assert rec["total_tokens"] == 333
-        assert rec["model"] == "deepseek-v4-pro"
+        assert rec["model"] == "deepseek-v4-flash"
 
     def test_missing_usage_does_not_crash(self, tmp_path: Path, monkeypatch):
         """An endpoint that omits response.usage must not break dispatch."""
@@ -641,14 +641,14 @@ class TestContextLimits:
 class TestWarnIfOverBudget:
     def test_small_prompt_no_warning(self, caplog):
         with caplog.at_level(logging.WARNING):
-            warned = warn_if_over_budget("short", "deepseek-v4-pro", logger=logging.getLogger("t"))
+            warned = warn_if_over_budget("short", "deepseek-v4-flash", logger=logging.getLogger("t"))
         assert warned is False
 
     def test_huge_prompt_warns(self):
-        limit = MODEL_CONTEXT_LIMITS["deepseek-v4-pro"]
+        limit = MODEL_CONTEXT_LIMITS["deepseek-v4-flash"]
         # Build a string whose estimate exceeds 80% of the limit.
         huge = "a" * (limit * 5)  # way over
-        warned = warn_if_over_budget(huge, "deepseek-v4-pro", logger=logging.getLogger("t"))
+        warned = warn_if_over_budget(huge, "deepseek-v4-flash", logger=logging.getLogger("t"))
         assert warned is True
 
     def test_unknown_model_uses_default_no_crash(self):
@@ -682,7 +682,7 @@ CONTEXT_WARN_FRACTION = 0.8
 # Conservative per-model context limits (prompt tokens). Unknown models fall
 # back to the default entry.
 MODEL_CONTEXT_LIMITS: dict[str, int] = {
-    "deepseek-v4-pro": 128_000,
+    "deepseek-v4-flash": 128_000,
     "gpt-4o": 128_000,
     "gpt-4o-mini": 128_000,
 }

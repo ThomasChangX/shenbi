@@ -4,7 +4,12 @@ max_tokens = 16384
 
 [overrides."shenbi-chapter-drafting"]
 temperature = 0.85
-max_tokens = 16384
+# Spec §2.2: drafting AVG output 15,787 tokens (96% of old 16384 cap).
+# Raised to 32768 to eliminate truncation. PRE-DEPLOYMENT: probe
+# `deepseek-v4-flash` with max_tokens=32768 to confirm model accepts it.
+# If model hard-limits below 32768, root cause shifts to "chapter too long"
+# (prompt-content layer, out of scope — see spec §2.9 fail-fast).
+max_tokens = 32768
 
 [overrides."shenbi-chapter-revision"]
 temperature = 0.6
@@ -20,3 +25,44 @@ temperature = 0.1
 
 [overrides."shenbi-foreshadowing-lifecycle"]
 temperature = 0.5
+
+# Spec §2.1 P0: score-* (most deterministic task) + discriminative review queue.
+# Evaluative queue (texture/reader-pull/highpoint/pacing/long-span/motivation/
+# character/group-craft) deferred to P1 pilot. Aggregator queue (group-character/
+# group-factual/group-plan/foreshadowing) deferred to plan-stage decision.
+
+[overrides."shenbi-score-arc"]
+temperature = 0.1
+
+[overrides."shenbi-score-stratum"]
+temperature = 0.1
+
+[overrides."shenbi-score-volume"]
+temperature = 0.1
+
+[overrides."shenbi-review-memo-compliance"]
+temperature = 0.1
+
+[overrides."shenbi-review-world-rules"]
+temperature = 0.1
+
+[overrides."shenbi-review-arc-payoff"]
+temperature = 0.1
+
+[overrides."shenbi-review-pov"]
+temperature = 0.15
+
+[overrides."shenbi-review-era"]
+temperature = 0.1
+
+[overrides."shenbi-review-fanfic"]
+temperature = 0.1
+
+[overrides."shenbi-review-sensitivity"]
+temperature = 0.1
+
+[overrides."shenbi-review-spinoff"]
+temperature = 0.15
+
+[overrides."shenbi-review-dialogue"]
+temperature = 0.15

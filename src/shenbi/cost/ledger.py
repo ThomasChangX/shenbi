@@ -20,6 +20,20 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+def _safe_estimate_cost(usage: dict[str, Any], model: str) -> float:
+    """Estimate cost, returning 0.0 on unknown model instead of crashing (spec §5.2 I3).
+
+    The ledger is a hot-path side-effect of dispatch — it must never crash
+    the pipeline. estimate_cost raises ValueError for unknown models; here
+    we catch and log so a misconfigured SHENBI_LLM_MODEL doesn't break dispatch.
+    """
+    try:
+        return estimate_cost(usage, model)
+    except ValueError:
+        log.warning("ledger_unknown_model_no_pricing", model=model)
+        return 0.0
+
+
 @dataclass
 class TokenUsageRecord:
     timestamp: str
@@ -59,7 +73,7 @@ class TokenLedger:
             prompt_tokens=int(usage.get("prompt_tokens", 0)),
             completion_tokens=int(usage.get("completion_tokens", 0)),
             total_tokens=int(usage.get("total_tokens", 0)),
-            estimated_cost_usd=estimate_cost(usage, resolved),
+            estimated_cost_usd=_safe_estimate_cost(usage, resolved),
         )
         with self._write_lock, self.ledger_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")

@@ -31,7 +31,9 @@ MAX_RETRIES = 2
 RETRY_BACKOFF_BASE = 2.0
 
 #: Random jitter range for backoff (seconds, uniform [0, jitter]).
-RETRY_JITTER = 1.0
+#: Spec §5.3/§2.8: jitter must be same-magnitude as RETRY_BACKOFF_BASE
+#: to decorrelate parallel workers (old 1.0 was half the base → near-lockstep).
+RETRY_JITTER = 2.0
 
 
 @dataclass

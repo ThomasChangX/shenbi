@@ -65,6 +65,14 @@ _ENV_LLM_MODEL = "SHENBI_LLM_MODEL"
 #: Dispatch configuration constants
 _DEFAULT_BASE_URL = "https://api.deepseek.com/v1"
 _DEFAULT_MODEL = "deepseek-v4-flash"  # fallback when SHENBI_LLM_MODEL not set
+#: Hard ceiling for max_tokens cap-raise (spec §5.1 C1, §7 iron rule #2).
+#: The cap-raise on finish_reason=length will not exceed this × 0.9
+#: (spec mandates 0.9 safety factor below the ceiling).
+#: Must be > drafting's configured max_tokens (32768 after T3) so that
+#: int(65536 * 0.9) = 58982 > 32768 and the cap-raise has headroom to fire.
+#: If the model's actual output limit is lower, the API will 400 and the
+#: error surfaces via the existing except block.
+_MODEL_OUTPUT_CEILING = 65536
 #: Externalised per-skill temperature/max_tokens configuration.
 #: Loaded from executor_config.toml at project root (Spec 6 §5.4).
 
@@ -1374,16 +1382,20 @@ def _call_llm_streaming(
     messages: list[dict[str, str]],
     early_stop_patterns: list[str] | None = None,
     **kwargs: Any,
-) -> tuple[str, str | None, Any]:
+) -> tuple[str, str | None, Any, str | None]:
     """Stream LLM response with optional early-stop patterns.
 
-    Returns (collected_text, stop_reason, usage) where stop_reason is None for
-    normal completion or a description string for early termination, and usage
-    is the token usage object from the API response (or None if unavailable).
+    Returns (collected_text, stop_reason, usage, finish_reason) where:
+    - stop_reason: None for normal completion or early_stop description string
+    - usage: token usage object from the API response (or None)
+    - finish_reason: API's finish_reason from the final chunk (e.g. "length",
+      "content_filter", "stop", "tool_calls"), or None if unavailable.
+      Spec §2.9: this is the truncation detection signal.
     """
     collected: list[str] = []
     stop_reason: str | None = None
     usage: Any = None
+    finish_reason: str | None = None
     stream = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -1395,24 +1407,35 @@ def _call_llm_streaming(
         # Collect usage from final chunk (when stream_options include_usage is set)
         if hasattr(chunk, "usage") and chunk.usage is not None:
             usage = chunk.usage
-        if chunk.choices and chunk.choices[0].delta.content:
-            delta = chunk.choices[0].delta.content
-            collected.append(delta)
-            if early_stop_patterns:
-                text_so_far = "".join(collected)
-                for pat in early_stop_patterns:
-                    if pat in text_so_far:
-                        stop_reason = f"early_stop: matched '{pat[:30]}'"
+        if chunk.choices:
+            choice = chunk.choices[0]
+            # Spec §2.9: capture finish_reason from the final chunk.
+            # Use getattr (not attribute access) because existing test fake chunks
+            # (test_dispatch_usage_capture.py, test_retry.py) build SimpleNamespace
+            # or MagicMock choices that may not have finish_reason set.
+            chunk_finish = getattr(choice, "finish_reason", None)
+            if chunk_finish is not None:
+                finish_reason = chunk_finish
+            delta_content = getattr(choice.delta, "content", None)
+            if delta_content:
+                collected.append(delta_content)
+                if early_stop_patterns:
+                    text_so_far = "".join(collected)
+                    for pat in early_stop_patterns:
+                        if pat in text_so_far:
+                            stop_reason = f"early_stop: matched '{pat[:30]}'"
+                            break
+                    if stop_reason:
                         break
-                if stop_reason:
-                    break
     result = "".join(collected)
     if stop_reason:
         log.info("streaming_early_stop", reason=stop_reason)
+    if finish_reason == "length":
+        log.warning("length_truncation_detected", model=model)
     # Fallback: try stream.usage if not captured from individual chunks
     if usage is None and hasattr(stream, "usage") and stream.usage is not None:
         usage = stream.usage
-    return result, stop_reason, usage
+    return result, stop_reason, usage, finish_reason
 
 
 @retry(
@@ -1431,14 +1454,13 @@ def _call_llm_streaming_with_retry(
     messages: list[dict[str, str]],
     early_stop_patterns: list[str] | None = None,
     **kwargs: Any,
-) -> tuple[str, str | None, Any]:
+) -> tuple[str, str | None, Any, str | None]:
     """Stream LLM response with retry on transient failures.
 
     Retries: 429 (rate limit), 5xx (server errors), timeouts.
     Does NOT retry: 400, 401, 403 (client errors).
 
-    Returns (collected_text, stop_reason, usage) where usage is the token
-    usage object from the API response (or None if unavailable).
+    Returns (collected_text, stop_reason, usage, finish_reason).
     """
     return _call_llm_streaming(
         client,
@@ -1512,7 +1534,7 @@ def _dispatch_via_api(
     warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
 
     try:
-        output_text, stop_reason, usage = _call_llm_streaming_with_retry(
+        output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
             client,
             model,
             [
@@ -1538,6 +1560,88 @@ def _dispatch_via_api(
     # heuristic (warn_if_over_budget) when usage is unavailable.
     if usage is not None:
         _log_token_usage(usage, skill, state=state, project_dir=project_dir)
+
+    # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
+    if finish_reason == "content_filter":
+        log.error("content_filter_blocked", skill=skill)
+        return DispatchResult(
+            False, -1, "", "content_filter: output blocked by provider safety filter"
+        )
+
+    if finish_reason == "length":
+        original_cap = _get_skill_max_tokens(skill)
+        raised_cap = min(original_cap * 2, int(_MODEL_OUTPUT_CEILING * 0.9))
+        if raised_cap <= original_cap:
+            # Cap already at ceiling — can't raise further.
+            log.error(
+                "length_truncation_at_ceiling",
+                skill=skill,
+                cap=original_cap,
+                ceiling=_MODEL_OUTPUT_CEILING,
+            )
+            return DispatchResult(
+                False,
+                -1,
+                "",
+                f"length_truncation: output exceeded max_tokens={original_cap} and cap "
+                f"is at model ceiling {_MODEL_OUTPUT_CEILING}. Chapter too long — "
+                f"consider splitting (spec §2.9 fail-fast).",
+            )
+        log.warning(
+            "length_truncation_cap_raise",
+            skill=skill,
+            original_cap=original_cap,
+            raised_cap=raised_cap,
+        )
+        try:
+            output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
+                client,
+                model,
+                [
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": user_prompt},
+                ],
+                temperature=_get_skill_temperature(skill),
+                max_tokens=raised_cap,
+                timeout=api_timeout,
+            )
+        except Exception as exc:
+            # Only treat as timeout if it actually is — cap-raise may 400
+            # if the provider rejects the raised max_tokens (Copilot review).
+            if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
+                _handle_timeout_gracefully(skill, chapter)
+            log.error("api_call_failed", skill=skill, error=str(exc))
+            return DispatchResult(False, -1, "", f"API call failed: {exc}")
+
+        # Log cap-raised usage.
+        if usage is not None:
+            _log_token_usage(usage, skill, state=state, project_dir=project_dir)
+
+        # After cap-raise, if STILL length → fail-fast (spec §5.1: max 1 resend).
+        if finish_reason == "length":
+            log.error(
+                "length_truncation_persistent",
+                skill=skill,
+                raised_cap=raised_cap,
+            )
+            return DispatchResult(
+                False,
+                -1,
+                "",
+                f"length_truncation: output still exceeds raised cap={raised_cap}. "
+                f"Chapter too long for model output limit — consider splitting.",
+            )
+        if finish_reason == "content_filter":
+            log.error("content_filter_blocked_after_cap_raise", skill=skill)
+            return DispatchResult(
+                False,
+                -1,
+                "",
+                "content_filter: output blocked by provider safety filter (after cap-raise)",
+            )
+    # If we reach here (no length/content_filter, or cap-raise succeeded with
+    # finish_reason="stop"), output_text is valid — fall through to the existing
+    # _parse_structured_output / _write_parsed_outputs block below.
 
     try:
         output = _parse_structured_output(output_text)
