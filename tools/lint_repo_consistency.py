@@ -103,13 +103,18 @@ def find_extra_contract_key_readers(files: Iterable[File]) -> list[str]:
 
 
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
-# (these are NOT dead even with no skill reads: — G4 consumes their schema).
-# Verified against src/shenbi/gates/g4/generic.py checkers dict.
+# (alone or via make_composite_checker). These are NOT dead even with no skill
+# reads: — G4 consumes their schema. Verified against the checkers dict in
+# src/shenbi/gates/g4/generic.py (7 skills use g4_decisions as of this audit).
 _G4_DECISIONS_SKILLS = frozenset(
     {
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-context-composing",
         "shenbi-market-radar",
         "shenbi-chapter-revision",
         "shenbi-short-drafting",
+        "shenbi-state-settling",
     }
 )
 
