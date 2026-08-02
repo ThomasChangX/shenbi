@@ -24,12 +24,12 @@
 |------|---------------|-------|
 | `src/shenbi/pipeline/dispatch_helper.py` | Dispatcher: input key form, auto-gen strip, ledger wire-up | T1, T2, T5 |
 | `src/shenbi/cost/ledger.py` | TokenLedger (no change — already correct, just unwired) | T2 (read-only ref) |
-| `tools/lint_repo_consistency.py` | Repo-consistency lints — add dead-decisions-sidecar check | T6 |
+| `tools/lint_repo_consistency.py` | Repo-consistency lints — add dead-decisions-sidecar check | T7 |
 | `skills/shenbi-escalation-review/SKILL.md` | Dead reads removal (frontmatter) | T3 |
 | `skills/shenbi-chapter-planning/SKILL.md` | Dead writes removal (state-settling-decisions too) | T4 |
 | `skills/shenbi-state-settling/SKILL.md` | Dead writes removal | T4 |
 | `tests/pipeline/test_dispatch_helper_*.py` | Dispatcher unit tests | T1, T2, T5 |
-| `tests/unit/test_lint_repo_consistency.py` | Lint tests | T6 |
+| `tests/unit/test_lint_repo_consistency.py` | Lint tests | T7 |
 
 ---
 
@@ -316,16 +316,40 @@ Add the import at the top of `dispatch_helper.py` (near other `shenbi.cost` impo
 from shenbi.cost.ledger import TokenLedger
 ```
 
-- [ ] **Step 4: Pass `project_dir` at the existing `_record_token_usage` call site**
+- [ ] **Step 4: Thread `project_dir` through `_log_token_usage` → `_record_token_usage`**
 
-At `dispatch_helper.py:1243` (inside `_dispatch_via_api`, the only current caller), update:
+The call chain is: `_dispatch_via_api` (`:1387`) → `_log_token_usage(usage, skill, state=state)` (`:1470`) → `_record_token_usage(state, skill_name, usage)` (`:1243`). The `_record_token_usage` call at `:1243` lives INSIDE `_log_token_usage` (def `:1228`, signature `(response, skill_name, state=None)`), NOT `_dispatch_via_api`. So `project_dir` must be threaded through `_log_token_usage` first.
+
+**4a.** Add `project_dir` param to `_log_token_usage` signature (`:1228`):
 ```python
 # OLD:
+def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
+# NEW:
+def _log_token_usage(
+    response: Any, skill_name: str, state: Any = None, project_dir: Path | None = None
+) -> None:
+```
+
+**4b.** Pass `project_dir` at the `_record_token_usage` call site (`:1243`, inside `_log_token_usage`):
+```python
+# OLD:
+    if state:
         _record_token_usage(state, skill_name, usage)
 # NEW:
+    if state:
         _record_token_usage(state, skill_name, usage, project_dir=project_dir)
 ```
-(`project_dir` is in scope in `_dispatch_via_api`.)
+
+**4c.** Pass `project_dir` from `_dispatch_via_api` to `_log_token_usage` (`:1470`):
+```python
+# OLD:
+        _log_token_usage(usage, skill, state=state)
+# NEW:
+        _log_token_usage(usage, skill, state=state, project_dir=project_dir)
+```
+(`project_dir` IS in scope in `_dispatch_via_api` — it's a parameter of that function at `:1387`.)
+
+**Verify the chain is complete:** `_dispatch_via_api`(has project_dir) → `_log_token_usage`(now receives it) → `_record_token_usage`(now receives it) → `TokenLedger(project_dir).record(...)`.
 
 - [ ] **Step 5: Thread `state` through the IDE-CLI path (I6 fix)**
 
