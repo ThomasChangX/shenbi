@@ -1,0 +1,1887 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>消除 cyclic-import 簇 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="消除 cyclic-import 簇 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="消除 cyclic-import 簇 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cyclic-import-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              消除 cyclic-import 簇 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ac-spec-5-task-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AC 覆盖表（每 spec §5 验证标准 → task → test）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-pipeline_sharedpy-volume-map-cluster-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 新建 pipeline/_shared.py，下沉 volume-map 解析域（Cluster 1）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-audit_sharedpy-derive_output_files-auditresultcluster-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 新建 audit/_shared.py，下沉 derive_output_files + AuditResult（Cluster 2）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-write_truth_file-vacuous-re-export-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 删除 write_truth_file vacuous re-export（第 11 条告警）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#phase-63-task-commit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        全量验证（Phase 6，3 task 全 commit 后）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cyclic-import-implementation-plan">消除 cyclic-import 簇 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 把 pipeline 4-节点环 + dispatcher/audit 2-节点环改造为 DAG，消除 10 条 <code>py/cyclic-import</code> + 1 条 <code>py/unused-import</code>（共 11 条 CodeQL 告警），通过下沉纯函数/常量/frozen dataclass 到两个新 <code>_shared.py</code> 中性模块，行为零变更。</p>
+<p><strong>Architecture:</strong> 识别环内被多方依赖但自身不依赖任何环内成员的符号，迁移到 <code>_shared.py</code>；原模块对 <code>_shared</code> 形成单向依赖，回边消失。Cluster 1（pipeline）下沉 volume-map 解析域 6 符号到 <code>pipeline/_shared.py</code>；Cluster 2（audit）下沉 <code>derive_output_files</code> + <code>AuditResult</code> 到 <code>audit/_shared.py</code>。Re-export 守住 <code>closure.py</code>/<code>cli.py</code>/<code>chapter_loop.py</code>/<code>phase_runner.py</code> 等运行时消费者 + 测试锚点 + <code>__init__.py</code> 公开 API。第 11 条告警（<code>write_truth_file</code> vacuous re-export）单独删除。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，<code>pathlib.Path</code>，<code>dataclasses</code>，<code>re</code>。无新依赖。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<p>（来自 spec §1-§8 + AGENTS.md，每 task 隐式包含）
+- Python 3.11+，框架代码用 <code>pathlib.Path</code> 做文件 I/O，无 <code>print()</code>（用 structlog）。
+- 纯重构，<strong>行为零变更</strong>——不优化 volume_map 解析逻辑、不改 <code>AuditResult</code> 字段、不动 <code>__init__.py</code> 公开 API 声明（只改内部 import 来源）。
+- Conventional Commits：<code>refactor:</code> 前缀。
+- Gate checkers 保持幂等纯函数。本 plan 不动 G4 schema / 契约 <code>reads</code>/<code>writes</code>。
+- 测试基线（V1/V2）：≥2787 passed + 4 last-marked，coverage ≥85.03%（PR #25 后 main 实测值）。<strong>不回归</strong>。
+- 每个 task commit 后必须产 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code>（fresh-context 全量重审），无 audit-T<N>.md 不得开始 T<N+1>。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md</code>（Phase 1 已核实、Phase 2 已设计审查收敛）</p>
+<hr />
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>操作</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/_shared.py</code></td>
+<td><strong>新建</strong></td>
+<td>Cluster 1 中性模块：volume-map 解析域（6 符号）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/audit/_shared.py</code></td>
+<td><strong>新建</strong></td>
+<td>Cluster 2 中性模块：<code>derive_output_files</code> + <code>AuditResult</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/triggers.py</code></td>
+<td>改</td>
+<td>删 <code>read_volume_boundaries</code>/<code>VOLUME_MAP_PATH</code>/<code>_END_RE</code>/<code>_RANGE_RE</code> 定义，顶部加 re-export</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/context_assemble.py</code></td>
+<td>改</td>
+<td>删 <code>_BRIDGE_ACTIVATION_WINDOW</code>/<code>_resolve_volume_at_runtime</code> 定义，顶部 import 自 <code>_shared</code>，L208 回边改指 <code>_shared</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/plan_skeleton.py</code></td>
+<td>改</td>
+<td>L31-32/L199-200 的 <code>context_assemble</code> import 改指 <code>_shared</code>（L200 上移顶部）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>改</td>
+<td>删 L688 cyclic 注释（import 语句保留——<code>triggers↔dispatch_helper</code> 与 <code>dispatch_helper→plan_skeleton</code> 边 T1 后变 acyclic，注释成 stale suppression）</td>
+</tr>
+<tr>
+<td><code>src/shenbi/dispatcher/executor.py</code></td>
+<td>改</td>
+<td>删 <code>derive_output_files</code> 定义，顶部加 re-export</td>
+</tr>
+<tr>
+<td><code>src/shenbi/audit/write_audit.py</code></td>
+<td>改</td>
+<td>删 <code>AuditResult</code> 定义加 re-export，L31 回边改指 <code>_shared</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/audit/record.py</code></td>
+<td>改</td>
+<td>L17 TYPE_CHECKING import 改指 <code>_shared</code></td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>改</td>
+<td>删 L53-57 <code>write_truth_file</code> re-export 块</td>
+</tr>
+<tr>
+<td><code>tests/unit/pipeline/test_dispatch_write_semantics.py</code></td>
+<td>改</td>
+<td>删 vacuous <code>patch(...)</code> 块，保留正面断言</td>
+</tr>
+</tbody>
+</table>
+<p><strong>复杂度分类</strong>：3 task 全部 <code>infra</code>（多文件、跨包 import 重构、被 3+ pipeline 模块 import）→ 协调者亲自实现，不分派子 agent（SDD leaf/infra 分流规则）。</p>
+<p><strong>test_kind</strong>：3 task 全部 <code>regression_guard</code>——纯重构、行为保持，既有测试是回归网，不写新 TDD 测试。</p>
+<hr />
+<h2 id="ac-spec-5-task-test">AC 覆盖表（每 spec §5 验证标准 → task → test）</h2>
+<table>
+<thead>
+<tr>
+<th>spec AC</th>
+<th>task</th>
+<th>验证 test/命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1 <code>just check</code> 全绿 ≥2787 passed</td>
+<td>T1+T2+T3 后 Phase 6</td>
+<td><code>just check</code> 末尾 pytest</td>
+</tr>
+<tr>
+<td>V2 coverage ≥85.03%</td>
+<td>T1+T2+T3 后 Phase 6</td>
+<td><code>just check</code> 覆盖率行</td>
+</tr>
+<tr>
+<td>V3 codebase 零 <code># py/cyclic-import</code> 注释</td>
+<td>T1+T2+T3</td>
+<td><code>grep -rn "py/cyclic-import" src/shenbi/</code> 返回空</td>
+</tr>
+<tr>
+<td>V4 CodeQL <code>py/cyclic-import</code> = 0</td>
+<td>PR 的 CodeQL 扫描</td>
+<td>Phase 8-9</td>
+</tr>
+<tr>
+<td>V5 CodeQL <code>py/unused-import</code>(dispatch_helper.py)=0</td>
+<td>PR 的 CodeQL 扫描</td>
+<td>Phase 8-9</td>
+</tr>
+<tr>
+<td>V6 被迁移符号既有测试全绿</td>
+<td>T1/T2/T3 各阶段 pytest</td>
+<td>各 task 验证步</td>
+</tr>
+<tr>
+<td>V7 ruff/mypy/basedpyright 对 <code>_shared</code> 全绿</td>
+<td>T1+T2 后</td>
+<td><code>just check</code> lint 段</td>
+</tr>
+<tr>
+<td>V8 <code>from shenbi.audit import AuditResult</code> 不变</td>
+<td>T2 后</td>
+<td><code>python -c "from shenbi.audit import AuditResult"</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-1-pipeline_sharedpy-volume-map-cluster-1">Task 1: 新建 <code>pipeline/_shared.py</code>，下沉 volume-map 解析域（Cluster 1）</h2>
+<p><strong>复杂度:</strong> infra（跨 4 个 pipeline 模块 import 重构）→ 协调者亲自实现</p>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/_shared.py</code>
+- Modify: <code>src/shenbi/pipeline/triggers.py</code>（删 L78/316/320/326-355 定义，顶部加 re-export）
+- Modify: <code>src/shenbi/pipeline/context_assemble.py</code>（删 L45/201-222 定义，顶部 import 自 <code>_shared</code>，L208-209 回边改指 <code>_shared</code>）
+- Modify: <code>src/shenbi/pipeline/plan_skeleton.py</code>（L31-32/L199-200 import 改指 <code>_shared</code>，L200 上移顶部）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（删 L688 cyclic 注释，import 语句保留）
+- Modify: <code>src/shenbi/pipeline/triggers.py</code>（额外：删 L54/L644 cyclic 注释，import 语句保留）
+- Test（回归网）: <code>tests/unit/pipeline/test_triggers.py</code>、<code>tests/unit/pipeline/test_context_assemble.py</code>、<code>tests/unit/pipeline/test_plan_skeleton.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无（<code>_shared.py</code> 是叶子模块，只 import <code>re</code> + <code>pathlib.Path</code>）
+- Produces: <code>read_volume_boundaries(project_dir: Path | str) -&gt; set[int]</code>、<code>_resolve_volume_at_runtime(project_dir: Path, chapter: int) -&gt; tuple[str, int, int] | None</code>、<code>_BRIDGE_ACTIVATION_WINDOW: int</code>（=3）、<code>VOLUME_MAP_PATH: str</code>、<code>_END_RE: re.Pattern</code>、<code>_RANGE_RE: re.Pattern</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 新建 <code>src/shenbi/pipeline/_shared.py</code></strong>（迁移 6 符号，从源码逐字复制）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Volume-map 解析域共享符号（Cluster 1 cyclic-import 重构中性模块）。</span>
+
+<span class="sd">本模块是叶子模块——只依赖标准库（re/pathlib），不 import 任何 pipeline 环内成员</span>
+<span class="sd">（triggers/context_assemble/plan_skeleton/dispatch_helper）。原 4-节点环</span>
+<span class="sd">（triggers → dispatch_helper → plan_skeleton → context_assemble → triggers）</span>
+<span class="sd">的回边（context_assemble → triggers）通过把共享符号下沉到本模块打断。</span>
+
+<span class="sd">迁移自：triggers.py（read_volume_boundaries/VOLUME_MAP_PATH/_END_RE/_RANGE_RE）+</span>
+<span class="sd">context_assemble.py（_BRIDGE_ACTIVATION_WINDOW/_resolve_volume_at_runtime）。</span>
+<span class="sd">行为零变更（spec §3.2）。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="c1">#: Bridge activation window: chapters before activation to start surfacing bridges.</span>
+<span class="n">_BRIDGE_ACTIVATION_WINDOW</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1">#: Path to the volume map (relative to project_dir).</span>
+<span class="n">VOLUME_MAP_PATH</span> <span class="o">=</span> <span class="s2">&quot;outline/volume_map.md&quot;</span>
+
+<span class="c1"># &quot;Chapter N-M&quot; / &quot;Chapters N-M&quot; / &quot;N-M&quot; patterns in volume sections.</span>
+<span class="n">_END_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:chapter\s*)?(?:end|chapter_end|end_chapter)\s*[:\uff1a]\s*(\d+)&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_RANGE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">read_volume_boundaries</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse ``outline/volume_map.md`` and return last-chapter numbers per volume.</span>
+
+<span class="sd">    Supports two markdown formats:</span>
+
+<span class="sd">    1. Section with ``Chapter End: N`` (or ``End: N``).</span>
+<span class="sd">    2. ``Chapters N-M`` range notation.</span>
+
+<span class="sd">    Returns an empty set if the file does not exist or cannot be parsed.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">project_dir</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;read_volume_boundaries: project_dir is required&quot;</span><span class="p">)</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">vm_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">VOLUME_MAP_PATH</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">vm_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="n">text</span> <span class="o">=</span> <span class="n">vm_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">boundaries</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="c1"># Try &quot;Chapter End: N&quot; patterns first.</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_END_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+        <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)))</span>
+
+    <span class="c1"># Fall back to &quot;Chapters N-M&quot; ranges.</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">boundaries</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">_RANGE_RE</span><span class="o">.</span><span class="n">finditer</span><span class="p">(</span><span class="n">text</span><span class="p">):</span>
+            <span class="n">boundaries</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>
+
+    <span class="k">return</span> <span class="n">boundaries</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_volume_at_runtime</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve (volume_name, ch_start, ch_end) for a chapter at runtime.</span>
+
+<span class="sd">    Parses volume_map.md via read_volume_boundaries() which</span>
+<span class="sd">    returns a set of last-chapter numbers per volume. We build the</span>
+<span class="sd">    (start, end) ranges from that set.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">boundary_chapters</span> <span class="o">=</span> <span class="n">read_volume_boundaries</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">boundary_chapters</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">boundaries_sorted</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">boundary_chapters</span><span class="p">)</span>
+    <span class="n">prev_end</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">boundaries_sorted</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+        <span class="n">ch_start</span> <span class="o">=</span> <span class="n">prev_end</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="k">if</span> <span class="n">ch_start</span> <span class="o">&lt;=</span> <span class="n">chapter</span> <span class="o">&lt;=</span> <span class="n">end</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Volume </span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">ch_start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+        <span class="n">prev_end</span> <span class="o">=</span> <span class="n">end</span>
+    <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 改 <code>src/shenbi/pipeline/triggers.py</code></strong>——删 <code>VOLUME_MAP_PATH</code>(L78)、<code>_END_RE</code>/<code>_RANGE_RE</code>(L316-323)、<code>read_volume_boundaries</code>(L326-355) 定义；顶部加 re-export（MANDATORY：closure.py:30 顶层 + chapter_loop.py:976/cli.py:154/triggers.py:360/context_assemble.py:209 运行时消费者 + test_triggers.py:40 测试锚点）。</li>
+</ul>
+<p>删除 L78 区块：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除（原 L75-79）：</span>
+<span class="n">DRIFT_THRESHOLD</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1">#: Path to the volume map (relative to project_dir).</span>
+<span class="n">VOLUME_MAP_PATH</span> <span class="o">=</span> <span class="s2">&quot;outline/volume_map.md&quot;</span>
+
+<span class="c1">#: Path to the audit drift log (relative to project_dir, section 6.7).</span>
+<span class="n">AUDIT_DRIFT_PATH</span> <span class="o">=</span> <span class="s2">&quot;truth/audit_drift.md&quot;</span>
+</code></pre></div>
+替换为（只留 DRIFT_THRESHOLD + AUDIT_DRIFT_PATH，VOLUME_MAP_PATH 走 re-export）：
+<div class="highlight"><pre><span></span><code><span class="n">DRIFT_THRESHOLD</span> <span class="o">=</span> <span class="mi">3</span>
+
+<span class="c1">#: Path to the audit drift log (relative to project_dir, section 6.7).</span>
+<span class="n">AUDIT_DRIFT_PATH</span> <span class="o">=</span> <span class="s2">&quot;truth/audit_drift.md&quot;</span>
+
+<span class="c1"># Re-export from _shared (MANDATORY: closure.py top-level import + 4 runtime</span>
+<span class="c1"># consumers + test anchor — see spec §3.2). Volume-map parsing domain was</span>
+<span class="c1"># extracted to break the Cluster 1 cycle (context_assemble → triggers back-edge).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>  <span class="c1"># noqa: F401</span>
+    <span class="n">VOLUME_MAP_PATH</span><span class="p">,</span>
+    <span class="n">_END_RE</span><span class="p">,</span>
+    <span class="n">_RANGE_RE</span><span class="p">,</span>
+    <span class="n">read_volume_boundaries</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<p>删除 L315-323（<code>_END_RE</code>/<code>_RANGE_RE</code> 定义区块，已迁 <code>_shared</code>）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除整块（原 L315-323）：</span>
+<span class="c1"># &quot;Chapter N-M&quot; / &quot;Chapters N-M&quot; / &quot;N-M&quot; patterns in volume sections.</span>
+<span class="n">_END_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:chapter\s*)?(?:end|chapter_end|end_chapter)\s*[:\uff1a]\s*(\d+)&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_RANGE_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<p>删除 L326-355（<code>read_volume_boundaries</code> 定义，已迁 <code>_shared</code>）。</p>
+<blockquote>
+<p><strong><code>import re</code> 必须保留</strong>（已核实）：triggers.py 仍在用 <code>re.search</code>（L120）、<code>_WARNING_RE = re.compile</code>（L367）、<code>re.compile</code>（L412 <code>_extract_chapter_node</code>）。只 <code>_END_RE</code>/<code>_RANGE_RE</code> 搬走，其他正则留原地。</p>
+</blockquote>
+<p><strong>额外删 cyclic 注释（保留 import 语句）</strong>：T1 必须清 Cluster 1 全部 6 条 cyclic 注释。本步删 triggers.py 的 2 条（<code>triggers↔dispatch_helper</code> 边 T1 后变 acyclic——回边 <code>context_assemble→triggers</code> 已断）：
+- L54 cyclic 注释行（<code># py/cyclic-import (CodeQL): cycle with dispatch_helper ...</code>）——<strong>只删注释行</strong>，下方 <code>from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4</code>（L55）保留。
+- L644 cyclic 注释行（同上，缩进在 <code>if step.requires_g3:</code> 块内）——<strong>只删注释行</strong>，下方 <code>from shenbi.pipeline.dispatch_helper import run_gate_g3</code>（L645）保留。</p>
+<blockquote>
+<p>删除顺序：<strong>自下而上</strong>（先 L644-645 区的注释、再 L326-355 <code>read_volume_boundaries</code>、再 L316-323 正则常量、再 L78 <code>VOLUME_MAP_PATH</code>、最后 L54-55 区的注释），避免行号漂移。或用 Edit 唯一字符串匹配（行号仅供参考）。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: 改 <code>src/shenbi/pipeline/context_assemble.py</code></strong>——删 <code>_BRIDGE_ACTIVATION_WINDOW</code>(L44-45)、<code>_resolve_volume_at_runtime</code>(L201-222) 定义；顶部加 import 自 <code>_shared</code>；L208-209 回边改指 <code>_shared</code>；删 L208 cyclic 注释。</li>
+</ul>
+<p>删除 L44-45：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除（原 L44-45）：</span>
+<span class="c1"># Bridge activation window: chapters before activation to start surfacing bridges.</span>
+<span class="n">_BRIDGE_ACTIVATION_WINDOW</span> <span class="o">=</span> <span class="mi">3</span>
+</code></pre></div></p>
+<p>顶部（与其他 <code>from shenbi...</code> import 同区，L13 附近 <code>from shenbi.audit.snapshot import ...</code> 之后）加：
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_BRIDGE_ACTIVATION_WINDOW</span><span class="p">,</span>
+    <span class="n">_resolve_volume_at_runtime</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div></p>
+<blockquote>
+<p><strong>只 import 这 2 个符号</strong>（均已核实 context_assemble.py 自用）：<code>_BRIDGE_ACTIVATION_WINDOW</code> 在 L287 <code>_load_volume_context</code> 用；<code>_resolve_volume_at_runtime</code> 在 L240 用。<strong>不 import <code>read_volume_boundaries</code></strong>——它只被 <code>_resolve_volume_at_runtime</code>（已迁 <code>_shared</code>）调用，context_assemble.py 本体无其他消费者，import 它是 dead weight。<strong>无需 <code># noqa: F401</code></strong>——两符号均被使用。</p>
+</blockquote>
+<p>L208-209 区块：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除整块（原 L196-209，含注释 + cyclic 注释 + lazy import）：</span>
+<span class="c1"># Volume boundaries are parsed at runtime from volume_map.md via</span>
+<span class="c1"># triggers.py:read_volume_boundaries() -- NEVER hard-coded. Hard-coding</span>
+<span class="c1"># (&#39;Volume 1&#39;, (1, 15)) duplicates the map and will diverge.</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_volume_at_runtime</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;...&quot;&quot;&quot;</span>
+    <span class="c1"># py/cyclic-import (CodeQL): ...</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.triggers</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_volume_boundaries</span>
+    <span class="o">...</span>
+</code></pre></div>
+替换为（<code>_resolve_volume_at_runtime</code> 定义移除，文档注释保留在 <code>_shared.py</code>；顶部 import 已提供符号）：
+<div class="highlight"><pre><span></span><code><span class="c1"># Volume boundaries are parsed at runtime from volume_map.md via</span>
+<span class="c1"># _shared.read_volume_boundaries() -- NEVER hard-coded. Hard-coding</span>
+<span class="c1"># (&#39;Volume 1&#39;, (1, 15)) duplicates the map and will diverge.</span>
+</code></pre></div></p>
+<p>删除 L201-222（<code>_resolve_volume_at_runtime</code> 定义，已迁 <code>_shared</code>）。</p>
+<blockquote>
+<p>关键（C1 修复）：L287 的 <code>_load_volume_context</code> 仍用 <code>_BRIDGE_ACTIVATION_WINDOW</code>——顶部 import 已覆盖，不报 NameError。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: 改 <code>src/shenbi/pipeline/plan_skeleton.py</code></strong>——L31-32/L199-200 的 <code>context_assemble</code> import 改指 <code>_shared</code>，删 cyclic 注释。</li>
+</ul>
+<p>L29-32 区块（与 L199-200 合并，见下）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除（原 L28-32）：</span>
+<span class="c1"># Volume boundaries are parsed at runtime via triggers.py:read_volume_boundaries()</span>
+<span class="c1"># -- NEVER hard-coded. See _resolve_volume_at_runtime().</span>
+
+<span class="c1"># py/cyclic-import (CodeQL): cycle with context_assemble — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">_BRIDGE_ACTIVATION_WINDOW</span>  <span class="c1"># pyright: ignore[reportPrivateUsage]</span>
+</code></pre></div></p>
+<p>L199-200 区块：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除整块（原 L198-200，含 `# imported from context_assemble` 注释 + cyclic 注释 + import）：</span>
+<span class="c1"># _resolve_volume_at_runtime imported from context_assemble (canonical definition)</span>
+<span class="c1"># py/cyclic-import (CodeQL): cycle with context_assemble — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.context_assemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_volume_at_runtime</span>  <span class="c1"># pyright: ignore[reportPrivateUsage]</span>
+</code></pre></div>
+<strong>上移到顶部 import 区</strong>（与 L31-32 的 <code>_BRIDGE_ACTIVATION_WINDOW</code> import 合并，符合 plan_skeleton.py 顶部 import 惯例——L200 原在 <code>_SKELETON_TEMPLATE</code> 赋值后属 mid-file，是 cyclic 规避的遗留，T1 后无环可上移）。合并后顶部 import 块：
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">_BRIDGE_ACTIVATION_WINDOW</span><span class="p">,</span>
+    <span class="n">_resolve_volume_at_runtime</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+（替换原 L29-32 的 <code># Volume boundaries...</code> 注释 + <code>_BRIDGE_ACTIVATION_WINDOW</code> 单行 import + cyclic 注释，整块合并为上面的多行 import。）</p>
+<ul>
+<li>[ ] <strong>Step 4b: 改 <code>src/shenbi/pipeline/dispatch_helper.py</code></strong>——删 L688 cyclic 注释（<code>dispatch_helper→plan_skeleton</code> 边 T1 后变 acyclic，注释成 stale suppression）。<strong>只删注释行，import 语句保留。</strong></li>
+</ul>
+<p>L687-689 区块：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除注释行（原 L688），保留 import（原 L689）：</span>
+                <span class="c1"># py/cyclic-import (CodeQL): cycle with plan_skeleton — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+                <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.plan_skeleton</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_plan_skeleton</span>
+</code></pre></div>
+替换为（只留 import，删 cyclic 注释）：
+<div class="highlight"><pre><span></span><code>                <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.plan_skeleton</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_plan_skeleton</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 5: 跑回归测试</strong>（V6 Cluster 1）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline/test_triggers.py<span class="w"> </span>tests/unit/pipeline/test_context_assemble.py<span class="w"> </span>tests/unit/pipeline/test_plan_skeleton.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: 全绿（与重构前同 test 数 passed，0 failed）。若 <code>_BRIDGE_ACTIVATION_WINDOW</code> NameError → Step 3 顶部 import 漏了（C1 类回归）。</p>
+<ul>
+<li>[ ] <strong>Step 6: lint + cyclic 注释核查</strong>（V3/V7 Cluster 1）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>src/shenbi/pipeline/_shared.py<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/context_assemble.py<span class="w"> </span>src/shenbi/pipeline/plan_skeleton.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>format<span class="w"> </span>--check<span class="w"> </span>src/shenbi/pipeline/_shared.py<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/context_assemble.py<span class="w"> </span>src/shenbi/pipeline/plan_skeleton.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;py/cyclic-import&quot;</span><span class="w"> </span>src/shenbi/pipeline/
+</code></pre></div>
+Expected: ruff 全绿；<strong>grep 返回空</strong>（Cluster 1 的 <strong>6 条</strong> cyclic 注释全删：triggers.py L54/L644 + plan_skeleton.py L31/L199 + context_assemble.py L208 + dispatch_helper.py L688）。</p>
+<blockquote>
+<p>注：本步 grep 扫 <code>src/shenbi/pipeline/</code>（Cluster 1 范围）。Cluster 2 的 4 条注释（<code>dispatcher/executor.py</code> + <code>audit/</code>）在 T2 后才清——本步不扫那些目录。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 7: DAG 核验</strong>（import 图无环）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import shenbi.pipeline.triggers, shenbi.pipeline.context_assemble, shenbi.pipeline.plan_skeleton, shenbi.pipeline.dispatch_helper, shenbi.pipeline._shared; print(&#39;Cluster 1 imports OK&#39;)&quot;</span>
+</code></pre></div>
+Expected: 打印 <code>Cluster 1 imports OK</code>（无 ImportError）。</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/_shared.py<span class="w"> </span>src/shenbi/pipeline/triggers.py<span class="w"> </span>src/shenbi/pipeline/context_assemble.py<span class="w"> </span>src/shenbi/pipeline/plan_skeleton.py<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor(pipeline): extract volume-map domain to _shared — break Cluster 1 cycle (6/10 py/cyclic-import)</span>
+
+<span class="s2">- new pipeline/_shared.py: read_volume_boundaries, _resolve_volume_at_runtime,</span>
+<span class="s2">  _BRIDGE_ACTIVATION_WINDOW, VOLUME_MAP_PATH, _END_RE, _RANGE_RE (leaf module)</span>
+<span class="s2">- triggers.py: re-export read_volume_boundaries/VOLUME_MAP_PATH/_END_RE/_RANGE_RE</span>
+<span class="s2">  (MANDATORY: closure.py top-level + 4 runtime consumers); delete L54/L644</span>
+<span class="s2">  cyclic comments (triggers↔dispatch_helper edge now acyclic)</span>
+<span class="s2">- context_assemble.py: import _BRIDGE_ACTIVATION_WINDOW/_resolve_volume_at_runtime</span>
+<span class="s2">  from _shared (L287 _load_volume_context still uses _BRIDGE_ACTIVATION_WINDOW)</span>
+<span class="s2">- plan_skeleton.py: merge L31+L200 imports to top-level multi-line from _shared</span>
+<span class="s2">- dispatch_helper.py: delete L688 cyclic comment (dispatch_helper→plan_skeleton</span>
+<span class="s2">  edge now acyclic)</span>
+<span class="s2">- delete all 6 Cluster-1 py/cyclic-import comments (CodeQL ignores them anyway)</span>
+<span class="s2">- behavior unchanged (pure relocation)</span>
+
+<span class="s2">Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.2&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-2-audit_sharedpy-derive_output_files-auditresultcluster-2">Task 2: 新建 <code>audit/_shared.py</code>，下沉 derive_output_files + AuditResult（Cluster 2）</h2>
+<p><strong>复杂度:</strong> infra（跨 dispatcher/audit 两包 import 重构）→ 协调者亲自实现</p>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/audit/_shared.py</code>
+- Modify: <code>src/shenbi/dispatcher/executor.py</code>（删 L110-130 <code>derive_output_files</code> 定义，顶部加 re-export）
+- Modify: <code>src/shenbi/audit/write_audit.py</code>（删 L19-24 <code>AuditResult</code> 定义加 re-export，L30-31 回边改指 <code>_shared</code>，删 cyclic 注释）
+- Modify: <code>src/shenbi/audit/record.py</code>（L16-17 TYPE_CHECKING import 改指 <code>_shared</code>，删 cyclic 注释）
+- Modify: <code>src/shenbi/dispatcher/executor.py</code>（L259/L263 cyclic 注释删除——import 语句本身保留，是合法单向依赖）
+- Test（回归网）: <code>tests/unit/test_dispatcher_executor.py</code>、<code>tests/unit/audit/test_record.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi.contracts.load_contract</code>、<code>shenbi.contracts.ContractError</code>、<code>shenbi.contracts.paths.resolve_or_skip</code>（全部 contracts 包，非环内）
+- Produces: <code>derive_output_files(skill: str, chapter: int | None = None, round_dir: Path | None = None) -&gt; list[str]</code>、<code>AuditResult</code>（frozen dataclass: <code>skill</code>/<code>violations</code>/<code>drift</code>/<code>checked_files</code>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 新建 <code>src/shenbi/audit/_shared.py</code></strong>（迁移 <code>derive_output_files</code> + <code>AuditResult</code>，从源码逐字复制）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;审计共享符号（Cluster 2 cyclic-import 重构中性模块）。</span>
+
+<span class="sd">本模块是叶子模块——只 import shenbi.contracts.* + 标准库，不 import</span>
+<span class="sd">dispatcher/audit.write_audit/audit.record。原 dispatcher/audit 环</span>
+<span class="sd">（executor ⇄ write_audit + record → write_audit TYPE_CHECKING）的回边</span>
+<span class="sd">通过把共享符号下沉到本模块打断。</span>
+
+<span class="sd">迁移自：dispatcher/executor.py（derive_output_files）+</span>
+<span class="sd">audit/write_audit.py（AuditResult）。行为零变更（spec §3.3）。</span>
+
+<span class="sd">依赖方向说明：executor.py（dispatcher 包）将顶部 import derive_output_files</span>
+<span class="sd">自本模块，使 dispatcher → audit 包级依赖出现。这是有意接受的——本模块是</span>
+<span class="sd">叶子（不回 import dispatcher/audit.write_audit/audit.record），audit 前缀</span>
+<span class="sd">是组织性的（包内私有 _shared），非语义层。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">ContractError</span><span class="p">,</span> <span class="n">load_contract</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.paths</span><span class="w"> </span><span class="kn">import</span> <span class="n">resolve_or_skip</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuditResult</span><span class="p">:</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">violations</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">drift</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">checked_files</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">derive_output_files</span><span class="p">(</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the skill&#39;s contract writes+updates, resolving chapter placeholders.</span>
+<span class="sd">    When *chapter* is provided, N/NNN placeholders are resolved.</span>
+<span class="sd">    Paths with unresolvable placeholders (genesis mode) are skipped via</span>
+<span class="sd">    resolve_or_skip → None → filtered. When *round_dir* is provided,</span>
+<span class="sd">    relative paths are made absolute.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+        <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="n">rp</span>
+            <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">],</span> <span class="o">*</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;updates&quot;</span><span class="p">]]</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">rp</span> <span class="o">:=</span> <span class="n">resolve_or_skip</span><span class="p">(</span><span class="n">p</span><span class="p">,</span> <span class="n">chapter</span><span class="p">))</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="p">]</span>
+        <span class="k">if</span> <span class="n">round_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">paths</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">((</span><span class="n">round_dir</span> <span class="o">/</span> <span class="n">p</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">())</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span>
+        <span class="k">return</span> <span class="n">paths</span>
+    <span class="k">except</span> <span class="n">ContractError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 改 <code>src/shenbi/dispatcher/executor.py</code></strong>——删 L110-130 <code>derive_output_files</code> 定义；顶部加 re-export（MANDATORY：phase_runner.py:190 + write_audit.py:31 运行时消费者 + test_dispatcher_executor.py:13 测试锚点 + executor.py:218/245 自调）；删 L259/L263 cyclic 注释（import 语句本身保留）。</li>
+</ul>
+<p>顶部 import 区（L16-19 附近，<code>from shenbi.contracts...</code> 之后）加：
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_output_files</span>
+</code></pre></div></p>
+<blockquote>
+<p><strong>无需 <code># noqa: F401</code></strong>（已核实）：<code>derive_output_files</code> 在 executor.py L218/L245 自用（<code>dispatch_with_write_audit</code> 内），不是纯 re-export。ruff/basedpyright 见使用即不报 unused。</p>
+</blockquote>
+<p>删除 L110-130（<code>derive_output_files</code> 定义，已迁 <code>_shared</code>）。注意：<code>load_contract</code>/<code>ContractError</code>/<code>resolve_or_skip</code> 的 import 在 executor.py 体内其他地方还用（如 L16 <code>from shenbi.contracts import ContractError, load_contract</code>、L18 <code>resolve_or_skip</code> 用于 <code>derive_input_files</code> 等）——<strong>保留这些 import</strong>，只 <code>derive_output_files</code> 定义搬走。grep 确认 <code>load_contract</code>/<code>resolve_or_skip</code> 其他调用点后再定（实际 executor.py 多处用，不会变 unused）。</p>
+<p>L259-260 区块（cyclic 注释 + lazy import record）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除注释行（原 L259），保留 import（原 L260）：</span>
+    <span class="c1"># py/cyclic-import (CodeQL): cycle with record — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit.record</span><span class="w"> </span><span class="kn">import</span> <span class="n">record_audit_outcome</span>
+</code></pre></div>
+替换为（只留 import，删 cyclic 注释）：
+<div class="highlight"><pre><span></span><code>    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit.record</span><span class="w"> </span><span class="kn">import</span> <span class="n">record_audit_outcome</span>
+</code></pre></div></p>
+<p>L263-264 区块（cyclic 注释 + lazy import write_audit）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除注释行（原 L263），保留 import（原 L264）：</span>
+    <span class="c1"># py/cyclic-import (CodeQL): cycle with write_audit — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit.write_audit</span><span class="w"> </span><span class="kn">import</span> <span class="n">audit_writes</span>
+</code></pre></div>
+替换为：
+<div class="highlight"><pre><span></span><code>    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit.write_audit</span><span class="w"> </span><span class="kn">import</span> <span class="n">audit_writes</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: 改 <code>src/shenbi/audit/write_audit.py</code></strong>——删 L19-24 <code>AuditResult</code> 定义加 re-export；L30-31 回边（<code>_declared_patterns</code> 内 lazy import）改指 <code>_shared</code>，删 cyclic 注释。</li>
+</ul>
+<p>L19-24 区块（<code>AuditResult</code> 定义）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除（原 L19-24）：</span>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">AuditResult</span><span class="p">:</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">violations</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">drift</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+    <span class="n">checked_files</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+</code></pre></div>
+替换为（顶部 import 区，L13 <code>from shenbi.audit.snapshot import ...</code> 之后加）：
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuditResult</span>
+</code></pre></div></p>
+<blockquote>
+<p><strong>无需 <code># noqa: F401</code></strong>（已核实）：<code>AuditResult</code> 在 write_audit.py 本体自用——L50 <code>audit_writes</code> 返回类型注解、L74 构造返回值。既是 re-export（守 <code>__init__.py:8</code> + <code>test_record.py:7</code>）又自用。
+<strong>同步删 <code>from dataclasses import dataclass</code>（L11）</strong>（已 grep 确认：<code>@dataclass</code> 仅 L19 用于 <code>AuditResult</code>，搬走后无其他 <code>@dataclass</code> 使用）。不删会留 F401 unused-import（ruff 会报）。</p>
+</blockquote>
+<p>L30-31 区块（<code>_declared_patterns</code> 内回边）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除注释 + 改 import 源（原 L30-31）：</span>
+        <span class="c1"># py/cyclic-import (CodeQL): cycle with executor — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.executor</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_output_files</span>
+</code></pre></div>
+替换为（回边消失，改指 <code>_shared</code>）：
+<div class="highlight"><pre><span></span><code>        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">derive_output_files</span>
+</code></pre></div></p>
+<blockquote>
+<p><strong>必须保留 lazy import</strong>（已核实）：<code>_declared_patterns</code>（L27 def）用 <code>try: ... except Exception: return []</code> 容错——contracts 注册表 bootstrap 失败 / skill 无契约时，<code>derive_output_files(skill)</code> 抛 <code>ContractError</code>（被 <code>except</code> 兜底返回 <code>[]</code>）。<strong>禁止改顶部 import</strong>：顶部 import 会在 <code>write_audit.py</code> import 期触发 <code>audit/_shared</code> → <code>contracts</code> 链解析，若 contracts 注册表 bootstrap 失败，整个 <code>write_audit</code> 模块不可 import，连带破坏 <code>audit/__init__.py:8</code> 公开 API + <code>record.py</code> TYPE_CHECKING。lazy import 把失败隔离在 <code>_declared_patterns</code> 调用点，<code>audit_writes</code> 其他路径不受影响。cyclic 注释删（环已断），import 语句留 lazy。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 4: 改 <code>src/shenbi/audit/record.py</code></strong>——L16-17 TYPE_CHECKING import 改指 <code>_shared</code>，删 cyclic 注释。</li>
+</ul>
+<p>L15-17 区块：
+<div class="highlight"><pre><span></span><code><span class="c1"># 删除注释 + 改 import 源（原 L15-17）：</span>
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="c1"># py/cyclic-import (CodeQL): cycle with write_audit — lazy import where needed; see follow-up. Spec §9 no refactor.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit.write_audit</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuditResult</span>
+</code></pre></div>
+替换为（类型注解环消失，改指 <code>_shared</code>）：
+<div class="highlight"><pre><span></span><code><span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.audit._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">AuditResult</span>
+</code></pre></div></p>
+<blockquote>
+<p><code>record.py:24</code> 的 <code>result: AuditResult</code> 注解在 <code>from __future__ import annotations</code> 下是字符串，TYPE_CHECKING import 足够，<strong>不要</strong>加运行时 import（会重建环）。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 5: 跑回归测试</strong>（V6 Cluster 2）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/test_dispatcher_executor.py<span class="w"> </span>tests/unit/audit/test_record.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: 全绿。<code>test_dispatcher_executor.py</code> 覆盖 <code>derive_output_files</code>（L13 import）；<code>test_record.py</code> 覆盖 <code>write_audit.AuditResult</code>（L7 import，cycle 内 AuditResult 真实消费者）。</p>
+<ul>
+<li>[ ] <strong>Step 6: 公开 API 核验</strong>（V8）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from shenbi.audit import AuditResult; print(AuditResult)&quot;</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from shenbi.dispatcher.executor import derive_output_files; print(derive_output_files)&quot;</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;from shenbi.audit.write_audit import AuditResult; print(AuditResult)&quot;</span>
+</code></pre></div>
+Expected: 3 行均打印类对象（无 ImportError）。</p>
+<ul>
+<li>[ ] <strong>Step 7: lint + cyclic 注释核查</strong>（V3/V7 Cluster 2）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>src/shenbi/audit/_shared.py<span class="w"> </span>src/shenbi/dispatcher/executor.py<span class="w"> </span>src/shenbi/audit/write_audit.py<span class="w"> </span>src/shenbi/audit/record.py
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;py/cyclic-import&quot;</span><span class="w"> </span>src/shenbi/
+</code></pre></div>
+Expected: ruff 全绿；grep 返回空（Cluster 1 + 2 共 10 条 cyclic 注释全删）。</p>
+<ul>
+<li>[ ] <strong>Step 8: DAG 核验</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import shenbi.dispatcher.executor, shenbi.audit.write_audit, shenbi.audit.record, shenbi.audit._shared, shenbi.phase_runner; print(&#39;Cluster 2 imports OK&#39;)&quot;</span>
+</code></pre></div>
+Expected: 打印 <code>Cluster 2 imports OK</code>。</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/audit/_shared.py<span class="w"> </span>src/shenbi/dispatcher/executor.py<span class="w"> </span>src/shenbi/audit/write_audit.py<span class="w"> </span>src/shenbi/audit/record.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor(audit): extract derive_output_files + AuditResult to _shared — break Cluster 2 cycle (4/10 py/cyclic-import)</span>
+
+<span class="s2">- new audit/_shared.py: derive_output_files, AuditResult (leaf module, only</span>
+<span class="s2">  imports shenbi.contracts.*)</span>
+<span class="s2">- executor.py: re-export derive_output_files (MANDATORY: phase_runner.py:190 +</span>
+<span class="s2">  write_audit.py:31 + test anchor + self-call L218/L245)</span>
+<span class="s2">- write_audit.py: re-export AuditResult (public API via __init__.py:8 +</span>
+<span class="s2">  test_record.py:7); _declared_patterns back-edge → _shared</span>
+<span class="s2">- record.py: TYPE_CHECKING import → _shared (no runtime import, preserves</span>
+<span class="s2">  string annotation under from __future__ import annotations)</span>
+<span class="s2">- delete 4 py/cyclic-import suppression comments</span>
+<span class="s2">- behavior unchanged (pure relocation)</span>
+
+<span class="s2">Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.3&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-3-write_truth_file-vacuous-re-export-11">Task 3: 删除 <code>write_truth_file</code> vacuous re-export（第 11 条告警）</h2>
+<p><strong>复杂度:</strong> infra（改测试断言结构）→ 协调者亲自实现</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（删 L53-57 re-export 块）
+- Modify: <code>tests/unit/pipeline/test_dispatch_write_semantics.py</code>（删 vacuous <code>patch(...)</code> 块，保留正面断言）
+- Test（回归网）: <code>tests/unit/pipeline/test_dispatch_write_semantics.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无
+- Produces: 无（纯删除）</p>
+<ul>
+<li>[ ] <strong>Step 1: 改 <code>src/shenbi/pipeline/dispatch_helper.py</code></strong>——删 L53-57 整块（4 行解释注释 + 1 行 re-export）。</li>
+</ul>
+<p>删除（原 L53-57）：
+<div class="highlight"><pre><span></span><code><span class="c1"># write_truth_file is imported so tests can verify it is NOT routed through</span>
+<span class="c1"># the generic dispatch write path. Truth-file upsert is the state-settling</span>
+<span class="c1"># skill&#39;s (caller&#39;s) responsibility (the state-settling skill calls</span>
+<span class="c1"># write_truth_file directly with a real key).</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_truth_file</span>  <span class="c1"># noqa: F401  # pyright: ignore[reportUnusedImport]</span>
+</code></pre></div></p>
+<blockquote>
+<p>前置确认（spec §3.4 Phase 1 已核实）：<code>grep -n "write_truth_file" dispatch_helper.py</code> 返回 4 hit——L57（本 re-export）+ L1034/L1137/L1214（docstring/comment 文本，非可执行调用）。运行时零调用，删除安全。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 2: 改 <code>tests/unit/pipeline/test_dispatch_write_semantics.py</code></strong>——<code>TestAppendDedupNotRoutedInDispatch.test_append_dedup_truth_file_is_written_whole_not_upserted</code>（L37-58）删 vacuous <code>patch(...)</code> 块，保留正面断言。</li>
+</ul>
+<p>L37-58 区块替换为：
+<div class="highlight"><pre><span></span><code>    <span class="k">def</span><span class="w"> </span><span class="nf">test_append_dedup_truth_file_is_written_whole_not_upserted</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;A truth/ path declared mode: append_dedup is written as a whole file</span>
+<span class="sd">        by _write_parsed_outputs (safe_write), NOT routed to write_truth_file.</span>
+<span class="sd">        Upsert is the caller&#39;s (state-settling skill&#39;s) responsibility.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span>
+        <span class="n">truth</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">truth</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# Current State</span><span class="se">\n\n</span><span class="s2">- chapter: ch0</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+        <span class="n">out</span> <span class="o">=</span> <span class="n">_write_parsed_outputs</span><span class="p">(</span>
+            <span class="n">response</span><span class="o">=</span><span class="s2">&quot;### FILE: truth/current_state.md</span><span class="se">\n</span><span class="s2">row</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">output_paths</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">],</span>
+            <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="c1"># The file is written whole via safe_write (write_truth_file is not</span>
+        <span class="c1"># routed through the dispatch path — verified by the whole-file content).</span>
+        <span class="k">assert</span> <span class="s2">&quot;truth/current_state.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+        <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;row&quot;</span>
+</code></pre></div></p>
+<blockquote>
+<p>删除内容：<code>with patch("shenbi.pipeline.dispatch_helper.write_truth_file") as mock_wtf:</code> + <code>mock_wtf.return_value = None</code> 包裹层 + 缩进 + <code>mock_wtf.assert_not_called()</code>。该 patch 本就是 vacuous negative-assertion（<code>_write_parsed_outputs</code> 从不调 <code>write_truth_file</code>，patch 拦截的符号永不分发）。改后测试仍验证真实信号（whole-file 写入经 safe_write，L57-58 断言）。
+<strong>同步删顶部 <code>from unittest.mock import patch</code>（L6）</strong>（已 grep 确认：本文件仅 L46 用 <code>patch</code>，删 with 块后无其他引用——L15/26/27/34/54 是注释/字符串，非调用）。</p>
+</blockquote>
+<ul>
+<li>[ ] <strong>Step 3: 跑回归测试</strong>（V6 第 11 条）</li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/pipeline/test_dispatch_write_semantics.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: 全绿（test_append_dedup 仍 pass，正面断言 whole-file 写入成立）。</p>
+<ul>
+<li>[ ] <strong>Step 4: lint + re-export 核查</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>ruff<span class="w"> </span>check<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_write_semantics.py
+grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;import.*write_truth_file&quot;</span><span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py
+</code></pre></div>
+Expected: ruff 全绿；grep 返回空（re-export 行已删；docstring/comment 文本提及不在 grep 模式内）。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_write_semantics.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor(dispatch_helper): remove write_truth_file vacuous re-export (1/1 py/unused-import)</span>
+
+<span class="s2">- delete L53-57 re-export block (write_truth_file had zero runtime calls in</span>
+<span class="s2">  dispatch_helper — only L1034/L1137/L1214 docstring/comment mentions)</span>
+<span class="s2">- test_dispatch_write_semantics: delete vacuous patch() negative-assertion</span>
+<span class="s2">  block (patched a symbol that was never dispatched); keep positive whole-file</span>
+<span class="s2">  write assertions (real signal via safe_write)</span>
+<span class="s2">- behavior unchanged; CodeQL py/unused-import on dispatch_helper.py:57 → 0</span>
+
+<span class="s2">Spec: docs/superpowers/specs/2026-08-02-issue24-cyclic-import-refactor-design.md §3.4&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="phase-63-task-commit">全量验证（Phase 6，3 task 全 commit 后）</h2>
+<ul>
+<li>[ ] <code>just check</code> 全绿，测试数 ≥2787 passed + 4 last-marked，coverage ≥85.03%（V1/V2）</li>
+<li>[ ] <code>ls .superpowers/sdd/audit-T*.md | wc -l</code> == 3（T1/T2/T3 各一，阶段 5 每_task 后产出）</li>
+<li>[ ] <code>grep -rn "py/cyclic-import" src/shenbi/</code> 返回空（V3）</li>
+<li>[ ] <code>uv run python -c "from shenbi.audit import AuditResult; from shenbi.pipeline.triggers import read_volume_boundaries; from shenbi.dispatcher.executor import derive_output_files; print('public API stable')"</code>（V8 + re-export 守护）</li>
+</ul>
+<h2 id="self-review">Self-Review</h2>
+<p><strong>Spec coverage:</strong> §3.2（Cluster 1）→ T1；§3.3（Cluster 2）→ T2；§3.4（第 11 条）→ T3；§4 四 Phase → T1/T2/T3 + Phase 6；§5 V1-V8 → AC 覆盖表 + 各 task 验证步；§6.1 命名（<code>_shared.py</code> Option A）→ 已定；§6.2 re-export（两 <code>_</code>-前缀符号 Option A 保留）→ T1 Step 2 re-export 含 <code>_BRIDGE_ACTIVATION_WINDOW</code>/<code>_resolve_volume_at_runtime</code>；§6.3（Option A）→ T3；§6.4（单 PR）→ Phase 8。无遗漏。</p>
+<p><strong>Placeholder scan:</strong> 无 TBD/TODO；每步含实际代码或实际命令 + expected output。grep 确认项（<code>re</code> import、<code>dataclass</code> import、<code>patch</code> import）已标注"grep 确认后再定"，非占位符而是 conditional lint 决策。</p>
+<p><strong>Type consistency:</strong> <code>read_volume_boundaries(project_dir: Path | str) -&gt; set[int]</code>（T1 <code>_shared</code> 定义 + triggers.py re-export 一致）；<code>_resolve_volume_at_runtime(project_dir: Path, chapter: int) -&gt; tuple[str, int, int] | None</code>（T1 一致）；<code>derive_output_files(skill: str, chapter: int | None = None, round_dir: Path | None = None) -&gt; list[str]</code>（T2 <code>_shared</code> 定义 + executor.py re-export 一致）；<code>AuditResult</code>（frozen dataclass 4 字段，T2 <code>_shared</code> 定义 + write_audit.py re-export + record.py TYPE_CHECKING 一致）。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

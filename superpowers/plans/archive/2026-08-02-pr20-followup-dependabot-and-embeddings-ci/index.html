@@ -1,0 +1,1622 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>PR #20 Follow-up: Dependabot 配置治理 + embeddings 推理 smoke CI Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="PR #20 Follow-up: Dependabot 配置治理 + embeddings 推理 smoke CI Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="PR #20 Follow-up: Dependabot 配置治理 + embeddings 推理 smoke CI Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pr-20-follow-up-dependabot-embeddings-smoke-ci-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PR #20 Follow-up: Dependabot 配置治理 + embeddings 推理 smoke CI Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-1-phase-1dependabot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-1 · Phase 1：Dependabot 配置治理（纯配置）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-1 · Phase 1：Dependabot 配置治理（纯配置）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-githubdependabotymluv-direct-only-github-actions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 新建 .github/dependabot.yml（uv direct-only + github-actions）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-stale-renovatejson-ciyml-renovate-step56" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 删除 stale renovate.json + 移除 ci.yml 死 renovate 校验 step（§5.6 用户裁决）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#pr-2-phase-2embeddings-smoke-ci-workflow" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        PR-2 · Phase 2：embeddings 推理 smoke CI（独立 workflow）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="PR-2 · Phase 2：embeddings 推理 smoke CI（独立 workflow）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-3-githubworkflowsembeddings-smokeyml-smoke" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 新建 .github/workflows/embeddings-smoke.yml（推理 smoke）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#ac-spec-4-v1-v7-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        AC 覆盖表（spec §4 V1-V7 → task → 验证）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#grep-plan-rubricphase-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        签名 grep 验证记录（plan 专属 rubric，Phase 4 复核订正）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-reviewwriting-plans-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review（writing-plans skill 要求）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pr-20-follow-up-dependabot-embeddings-smoke-ci-implementation-plan">PR #20 Follow-up: Dependabot 配置治理 + embeddings 推理 smoke CI Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 落地 PR #20 处置 spec 的两项 follow-up——(a) 新建 <code>.github/dependabot.yml</code> 约束 transitive-PR 再生 + 删除 stale <code>renovate.json</code>；(b) 给 embeddings 推理兼容性加 CI smoke 防线（独立 scheduled workflow）。</p>
+<p><strong>Architecture:</strong> Phase 1 纯配置（dependabot.yml + 删 renovate.json），Phase 2 独立 scheduled workflow 跑 embeddings 推理 smoke（实例化 <code>all-MiniLM-L6-v2</code> + encode）。两 PR 拆分（§5.5）。所有改动在 <code>.github/</code>，零 src/ 改动。</p>
+<p><strong>Tech Stack:</strong> GitHub Dependabot v2 config（<code>package-ecosystem: uv</code>）、GitHub Actions workflow、uv（<code>uv sync --group dev</code>）、sentence-transformers + torch（推理 smoke）。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md</code>（已过 Phase 1 事实核实 + Phase 2 设计审查，plan-ready）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><strong>§7 Out-of-Scope</strong>：不动 <code>src/</code>；不改 <code>[project.optional-dependencies].embeddings</code> 声明位置；不升级 torch/sentence-transformers；不为 embeddings 写功能测试；不重新处置 PR #20。</li>
+<li><strong>ecosystem = <code>uv</code></strong>（§5.1 已定，GA 2025-03；<code>pip</code> 会找 requirements.txt 而 no-op）。</li>
+<li><strong><code>allow.dependency-type</code> 只配 <code>direct</code></strong>（单一规则一个值；不叠 production/development——那是正交环境轴）。</li>
+<li><strong>renovate.json 删除 + ci.yml 死 step 移除</strong>（§5.6 用户裁决；audit-T2 发现删除 PR 会使 renovate 校验 step 对缺失文件 exit 1 → CI 红，故 Task 2 同时移除该死 step）。</li>
+<li><strong>推理 smoke 用 <code>all-MiniLM-L6-v2</code></strong>（~80MB，非 bge-large-zh ~1.3GB；推理兼容性与具体模型无关）。</li>
+<li><strong>CI 工具链</strong>：<code>astral-sh/setup-uv@v3</code>（无 composite action）；commit 前缀 <code>chore(deps)</code>。</li>
+<li><strong>PR 拆分</strong>（§5.5 倾向 2 PR；<strong>执行实际合并为单 branch/PR</strong>——三项改动同属"依赖治理"且总 diff 小，单 PR 审阅更连贯。PR-1/PR-2 的 task 边界仍保留为 T1+T2 / T3 的逻辑分组）。</li>
+<li><strong>YAGNI</strong>：smoke job 只做推理防线，不跑 embeddings 单测（那些已在 PR CI，且 skip-when-available）。</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>动作</th>
+<th>责任</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.github/dependabot.yml</code></td>
+<td>Create</td>
+<td>Dependabot v2 配置：uv ecosystem（direct-only）+ github-actions ecosystem</td>
+</tr>
+<tr>
+<td><code>renovate.json</code></td>
+<td>Delete</td>
+<td>stale 残留（Renovate bot 从未开 PR），用户裁决删除</td>
+</tr>
+<tr>
+<td><code>.github/workflows/embeddings-smoke.yml</code></td>
+<td>Create</td>
+<td>独立 scheduled（daily）+ dispatch workflow，跑 embeddings 推理 smoke</td>
+</tr>
+<tr>
+<td><code>docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md</code></td>
+<td>(已有，归档时移)</td>
+<td>设计 spec（plan 依据）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>为什么独立 workflow 而非加进 nightly.yml</strong>：<code>nightly.yml</code> 当前 DISABLED（schedule 注释掉，仅 dispatch），加进去不会自动跑（§5.4）。独立 <code>embeddings-smoke.yml</code> 精准启用 schedule，不连带启用 nightly 的 flaky job（doc-links 依赖外部站）。</p>
+<hr />
+<h2 id="pr-1-phase-1dependabot">PR-1 · Phase 1：Dependabot 配置治理（纯配置）</h2>
+<h3 id="task-1-githubdependabotymluv-direct-only-github-actions">Task 1: 新建 <code>.github/dependabot.yml</code>（uv direct-only + github-actions）</h3>
+<p><strong>Files:</strong>
+- Create: <code>.github/dependabot.yml</code>
+- Test: 无单元测试（YAML 配置文件）；验证靠 YAML 合法性 + 字段核对</p>
+<p><strong>Interfaces:</strong>
+- Consumes: spec §2.1 草案 + §2.1 决策点（direct 单规则）
+- Produces: Dependabot 行为约束（direct-only，过滤 transitive torch PR）</p>
+<p><strong>复杂度:</strong> leaf（单文件、纯配置、无跨模块）
+<strong>test_kind:</strong> characterization（配置文件无 TDD red-green；验证 = YAML 合法 + 字段语义核对）</p>
+<ul>
+<li>[ ] <strong>Step 1: 创建 <code>.github/dependabot.yml</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/dependabot.yml</span>
+<span class="c1"># Dependabot 版本更新配置。承接 PR #20 follow-up：</span>
+<span class="c1"># PR #20 是为 torch（sentence-transformers 的 transitive 依赖）开的僵尸 PR。</span>
+<span class="c1"># 此配置约束 Dependabot 只为直接依赖开 PR，transitive 由父包升级连带解决。</span>
+<span class="c1"># 详见 docs/superpowers/specs/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">updates</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># uv lockfile —— GitHub Dependabot 自 2025-03 GA 原生支持 uv（§5.1）</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">package-ecosystem</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uv&quot;</span>
+<span class="w">    </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/&quot;</span>
+<span class="w">    </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly&quot;</span>
+<span class="w">    </span><span class="nt">open-pull-requests-limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="c1"># 单一 allow 规则只能有一个 dependency-type；多个 allow 条目按并集生效。</span>
+<span class="w">    </span><span class="c1"># 选 direct = 覆盖三处显式声明（[project.dependencies] / [dependency-groups] /</span>
+<span class="w">    </span><span class="c1"># [optional-dependencies]），过滤 indirect 传递依赖（torch 这类）。</span>
+<span class="w">    </span><span class="c1"># 不配 production/development —— 那是正交的环境标签轴，叠加只会扩大放行范围。</span>
+<span class="w">    </span><span class="nt">allow</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dependency-type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;direct&quot;</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependencies&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependabot&quot;</span>
+<span class="w">    </span><span class="nt">commit-message</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;chore(deps)&quot;</span>
+<span class="w">      </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scope&quot;</span>
+
+<span class="w">  </span><span class="c1"># GitHub Actions —— workflow 依赖（actions/checkout 等）</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">package-ecosystem</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;github-actions&quot;</span>
+<span class="w">    </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/&quot;</span>
+<span class="w">    </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly&quot;</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependencies&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;github-actions&quot;</span>
+<span class="w">    </span><span class="nt">commit-message</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;chore(deps)&quot;</span>
+<span class="w">      </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scope&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 验证 YAML 合法 + 字段语义</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># YAML 语法合法</span>
+python<span class="w"> </span>-c<span class="w"> </span><span class="s2">&quot;import yaml; d=yaml.safe_load(open(&#39;.github/dependabot.yml&#39;)); assert d[&#39;version&#39;]==2; print(&#39;YAML ok&#39;)&quot;</span>
+
+<span class="c1"># uv ecosystem 存在 + direct-only 过滤（V1 + V2）</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;package-ecosystem: &quot;uv&quot;&#39;</span><span class="w"> </span>.github/dependabot.yml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;uv ecosystem ok&quot;</span>
+grep<span class="w"> </span>-A1<span class="w"> </span><span class="s1">&#39;allow:&#39;</span><span class="w"> </span>.github/dependabot.yml<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;dependency-type: &quot;direct&quot;&#39;</span><span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;direct-only ok&quot;</span>
+
+<span class="c1"># 确认无 production/development 叠加（避免意外扩大放行）</span>
+!<span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;dependency-type: &quot;production&quot;&#39;</span><span class="w"> </span>.github/dependabot.yml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;no production overlay ok&quot;</span>
+</code></pre></div>
+Expected: 全部 ok。</p>
+<ul>
+<li>[ ] <strong>Step 3: 提交</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/dependabot.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(deps): add dependabot.yml — uv direct-only, filter transitive PRs</span>
+
+<span class="s2">PR #20 was a zombie Dependabot PR for torch (a transitive dep of</span>
+<span class="s2">sentence-transformers). With no dependabot.yml, Dependabot ran on repo-</span>
+<span class="s2">default config and tracked all ecosystems including indirect deps.</span>
+
+<span class="s2">New config: package-ecosystem uv + allow.dependency-type direct only.</span>
+<span class="s2">Direct covers [project.dependencies] + [dependency-groups] +</span>
+<span class="s2">[optional-dependencies] explicit declarations; filters indirect</span>
+<span class="s2">transitive deps (torch). sentence-transformers (direct optional dep)</span>
+<span class="s2">still tracked; its transitive torch is filtered.</span>
+
+<span class="s2">Also adds github-actions ecosystem for workflow deps.</span>
+
+<span class="s2">Closes follow-up (a) of PR #20 disposition spec.&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-stale-renovatejson-ciyml-renovate-step56">Task 2: 删除 stale <code>renovate.json</code> + 移除 ci.yml 死 renovate 校验 step（§5.6 用户裁决）</h3>
+<p><strong>Files:</strong>
+- Delete: <code>renovate.json</code>
+- Modify: <code>.github/workflows/ci.yml</code>（移除 <code>action-validation</code> job 的 "Validate Renovate config schema" step —— renovate.json 删除后该校验 step 验证一个不存在的配置，是死代码）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: §5.6 决策（用户 2026-08-02 选删除）
+- Produces: 单 bot 统一（Dependabot）+ ci.yml 无死 step</p>
+<p><strong>复杂度:</strong> leaf（删除 1 文件 + 移除 ci.yml 1 step，无跨模块）
+<strong>test_kind:</strong> characterization（删除/移除后验证 ci.yml 仍合法 + 无残留引用）</p>
+<p><strong>关键事实（已核实）</strong>：
+- <code>renovate.json</code> 存在（1355 bytes），但 <code>gh pr list</code> 显示 Renovate bot 从未开 PR（app 未装 / stale）。
+- PR #20/#21/#22 全部由 <code>app/dependabot</code> 开 → Dependabot 是事实 bot。
+- ⚠️ <strong>audit-T2 复核订正（原 plan/spec 误判）</strong>：ci.yml 原 renovate 校验 step 用 <code>gh api .../files | grep -c '^renovate\.json$'</code> 守卫。<strong>GitHub PR-files API 把删除的文件也列为 changed</strong>（<code>status: "removed"</code>，<code>filename</code> 仍为 <code>renovate.json</code>，已用 PR #23 的 CLAUDE.md/GEMINI.md 删除实证）。故<strong>删除 PR 本身</strong> CHANGED=1 → 走 if 分支 → <code>renovate-config-validator renovate.json</code> 对缺失文件 exit 1 → CI 红。"CHANGED=0 自动 skip" 只对<strong>未来不相关 PR</strong> 成立。故必须改 ci.yml。
+- renovate.json 仅在 archive 计划文档 + ci.yml 该 step 中被引用。删 step + 删文件后无残留。</p>
+<ul>
+<li>[ ] <strong>Step 1: 确认无活跃引用</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># 排除 archive 计划文档（历史记录，可保留提及）+ .git + uv.lock</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;renovate&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.yml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.yaml&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.py&quot;</span><span class="w"> </span>--include<span class="o">=</span><span class="s2">&quot;*.toml&quot;</span><span class="w"> </span>.<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;node_modules\|\.git/\|uv\.lock\|docs/superpowers/plans/archive&quot;</span>
+<span class="c1"># 应只剩 ci.yml 的校验 step（本 task 将移除它）</span>
+</code></pre></div>
+Expected: 仅 ci.yml 的 renovate validator step（行 109-127），无其他活跃引用。</p>
+<ul>
+<li>[ ] <strong>Step 1b: 移除 ci.yml 的 renovate 校验 step</strong></li>
+</ul>
+<p>删除 <code>action-validation</code> job 中 <code>- name: Validate Renovate config schema</code> 起到其 <code>env: GH_TOKEN: ...</code> 止的整个 step 块（原 ci.yml:109-127）。保留该 job 的 <code>yamllint --strict</code> step。删除后 <code>GH_TOKEN</code> env 仅此处用过，一并移除。</p>
+<p>理由：renovate.json 删除后，该 step 校验一个不存在的配置 = 死代码；且对删除 PR 本身会 CI 红（见关键事实）。移除比加 <code>[ -f renovate.json ]</code> 守卫更干净（YAGNI——Renovate 已弃用）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 删除 renovate.json</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>rm<span class="w"> </span>renovate.json
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 验证 ci.yml renovate step 已移除 + yamllint 仍合法</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># renovate step 应已不存在（Step 1b 移除）</span>
+!<span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;Validate Renovate config schema&quot;</span><span class="w"> </span>.github/workflows/ci.yml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;renovate step removed ok&quot;</span>
+<span class="c1"># action-validation job 的 yamllint step 仍在</span>
+grep<span class="w"> </span>-q<span class="w"> </span><span class="s2">&quot;Validate GitHub Actions YAML&quot;</span><span class="w"> </span>.github/workflows/ci.yml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;yamllint step preserved ok&quot;</span>
+<span class="c1"># ci.yml 整体仍 yamllint 合法</span>
+uv<span class="w"> </span>run<span class="w"> </span>yamllint<span class="w"> </span>--strict<span class="w"> </span>.github/workflows/ci.yml<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;ci.yml yamllint ok&quot;</span>
+</code></pre></div>
+Expected: 三个 ok。</p>
+<ul>
+<li>[ ] <strong>Step 4: 本地全量 gate 不回归</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>just<span class="w"> </span>check
+</code></pre></div>
+Expected: 全绿（删除 renovate.json + 移除 ci.yml step 不影响任何 gate——renovate.json 非 Python；ci.yml 改动仅删 step，yamllint 仍合法）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>renovate.json<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(deps): remove stale renovate.json + drop dead renovate validator step</span>
+
+<span class="s2">renovate.json existed but the Renovate bot never opened a PR (app not</span>
+<span class="s2">installed / stale). PR #20/#21/#22 were all opened by app/dependabot,</span>
+<span class="s2">confirming Dependabot is the de-facto bot.</span>
+
+<span class="s2">Also drop the &#39;Validate Renovate config schema&#39; step from ci.yml&#39;s</span>
+<span class="s2">action-validation job. The step&#39;s changed-files guard counted a deleted</span>
+<span class="s2">renovate.json as &#39;changed&#39; (GitHub PR-files API lists removals with the</span>
+<span class="s2">filename intact — verified via PR #23&#39;s CLAUDE.md/GEMINI.md removals),</span>
+<span class="s2">so the validator would run against the now-missing file and exit 1,</span>
+<span class="s2">failing CI on this very deletion PR. With Renovate gone, the step is</span>
+<span class="s2">dead code; removing it is cleaner than adding a file-existence guard.</span>
+
+<span class="s2">User decision (spec §5.6, 2026-08-02): delete renovate.json.&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="pr-2-phase-2embeddings-smoke-ci-workflow">PR-2 · Phase 2：embeddings 推理 smoke CI（独立 workflow）</h2>
+<blockquote>
+<p><strong>PR-2 在 PR-1 合并后另起分支实施。</strong> 本 plan 文档同时定义两个 PR 的 task，便于一次审查；执行时按 PR 边界分两次 subagent-driven-development 会话。</p>
+</blockquote>
+<h3 id="task-3-githubworkflowsembeddings-smokeyml-smoke">Task 3: 新建 <code>.github/workflows/embeddings-smoke.yml</code>（推理 smoke）</h3>
+<p><strong>Files:</strong>
+- Create: <code>.github/workflows/embeddings-smoke.yml</code>
+- Test: 无单元测试；验证靠 workflow YAML 合法 + 手动 dispatch 跑通</p>
+<p><strong>Interfaces:</strong>
+- Consumes: spec §2.2 B1（推理 smoke）+ §5.3（小模型）+ §5.4（独立 workflow）
+- Produces: 每日（+ dispatch）embeddings 推理兼容性防线</p>
+<p><strong>复杂度:</strong> leaf（单文件 workflow，无跨模块；但属 infra-adjacent——CI 行为变更。按 leaf 处理：单文件、无契约/schema/并发改动；协调者亲自实现因触及 CI 行为）
+<strong>test_kind:</strong> characterization（workflow 文件；验证 = yamllint + 手动 dispatch 绿）</p>
+<p><strong>关键决策（spec §5 已定）</strong>：
+- schedule daily（<code>0 7 * * *</code>，UTC，避开夜间其他负载）；同时 <code>workflow_dispatch</code> 手动。
+- 仅 ubuntu-latest（linux torch wheel 更小，省 macOS 大 wheel）。
+- 模型 <code>all-MiniLM-L6-v2</code>（~80MB）——推理兼容性与模型无关，小模型省下载。
+- <code>continue-on-error: false</code>（<strong>刻意偏离 spec §6 风险表"初期 true"</strong>——理由：本 workflow 非分支保护，不阻塞 PR；红 smoke 应被看见而非吞掉。spec §6 该行是保守初稿，plan 阶段裁决为 false 更符合"信号 &gt; 噪音"。Phase 4 审查认可此偏离）。
+- 缓存：HuggingFace 模型目录用 <code>actions/cache@v4</code>（key 含 model 名 + runner os）。注：<code>actions/cache@v4</code> 是本 plan <strong>新引入</strong>（仓库无先例，见签名 grep 记录）。</p>
+<ul>
+<li>[ ] <strong>Step 1: 创建 <code>.github/workflows/embeddings-smoke.yml</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/workflows/embeddings-smoke.yml</span>
+<span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Embeddings smoke</span>
+<span class="c1"># 推理时（inference-time）embeddings 兼容性防线。</span>
+<span class="c1"># sentence-transformers + torch 由 [dependency-groups].dev 安装（每个 PR CI 都装），</span>
+<span class="c1"># import 级兼容性已被守。但无测试实例化模型或跑 encode —— 本 job 补这一层：</span>
+<span class="c1"># 守 torch 2.13 这类升级破坏 sentence-transformers 推理（非 import）的 regression。</span>
+<span class="c1"># spec: 2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md §1.2 根因B</span>
+<span class="nt">on</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&#39;0</span><span class="nv"> </span><span class="s">7</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*&#39;</span><span class="w">   </span><span class="c1"># daily 07:00 UTC</span>
+<span class="w">  </span><span class="nt">workflow_dispatch</span><span class="p">:</span><span class="w">       </span><span class="c1"># 手动触发</span>
+
+<span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">embeddings-inference-smoke</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">timeout-minutes</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">15</span>
+<span class="w">    </span><span class="nt">env</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">PYTHONUTF8</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;1&quot;</span>
+<span class="w">      </span><span class="c1"># HuggingFace 模型缓存目录（actions/cache 挂载点）</span>
+<span class="w">      </span><span class="nt">HF_HOME</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.workspace }}/.hf-cache</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">          </span><span class="nt">cache-dependency-glob</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uv.lock&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv python install 3.12</span>
+<span class="w">      </span><span class="c1"># dev 组已含 sentence-transformers + torch（pyproject.toml [dependency-groups].dev）</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Cache HuggingFace model (~80MB all-MiniLM-L6-v2)</span>
+<span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/cache@v4</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">${{ github.workspace }}/.hf-cache</span>
+<span class="w">          </span><span class="nt">key</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">hf-model-all-MiniLM-L6-v2-${{ runner.os }}</span>
+<span class="w">          </span><span class="nt">restore-keys</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">            </span><span class="no">hf-model-all-MiniLM-L6-v2-</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Inference smoke (instantiate + encode, not import-only)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">uv run python -c &quot;</span>
+<span class="w">          </span><span class="no">from sentence_transformers import SentenceTransformer</span>
+<span class="w">          </span><span class="no"># 用小模型 all-MiniLM-L6-v2（~80MB）而非 bge-large-zh（~1.3GB）：</span>
+<span class="w">          </span><span class="no"># 推理兼容性取决于 sentence-transformers + torch 栈，与具体模型无关。</span>
+<span class="w">          </span><span class="no">m = SentenceTransformer(&#39;all-MiniLM-L6-v2&#39;)</span>
+<span class="w">          </span><span class="no">v = m.encode([&#39;推理兼容性 smoke 测试&#39;, &#39;another sentence&#39;])</span>
+<span class="w">          </span><span class="no">assert v.shape == (2, 384), f&#39;unexpected shape: {v.shape}&#39;</span>
+<span class="w">          </span><span class="no">print(&#39;inference ok&#39;, v.shape)</span>
+<span class="w">          </span><span class="no">&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 验证 workflow YAML 合法（yamllint，本地）</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># ci.yml 的 action-validation job 跑 &#39;yamllint --strict .github/workflows/&#39;，</span>
+<span class="c1"># 本地复现同一命令确保不破 CI</span>
+uv<span class="w"> </span>run<span class="w"> </span>yamllint<span class="w"> </span>--strict<span class="w"> </span>.github/workflows/embeddings-smoke.yml
+</code></pre></div>
+Expected: 无错误（strict 模式）。若 yamllint 报 line-length / document-start，调整格式至合规。</p>
+<ul>
+<li>[ ] <strong>Step 3: 验证 yamllint 全 workflows 目录不回归</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>yamllint<span class="w"> </span>--strict<span class="w"> </span>.github/workflows/
+</code></pre></div>
+Expected: 全部 workflow（含新增 embeddings-smoke.yml）合规。</p>
+<ul>
+<li>[ ] <strong>Step 4: 本地全量 gate 不回归</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>just<span class="w"> </span>check
+</code></pre></div>
+Expected: 全绿（新 workflow 不影响 Python 代码 / 契约 / 测试）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 提交</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/embeddings-smoke.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: add embeddings inference smoke workflow</span>
+
+<span class="s2">sentence-transformers + torch are installed via [dependency-groups].dev</span>
+<span class="s2">on every PR CI, so import-level compatibility is guarded. But no test</span>
+<span class="s2">instantiates the model or runs encode — the two relevant unit tests</span>
+<span class="s2">(test_truth_embed.py, test_context_assemble.py) skip when</span>
+<span class="s2">is_embed_available() is True. So torch 2.13-style upgrades that break</span>
+<span class="s2">sentence-transformers *inference* (not import) go uncaught.</span>
+
+<span class="s2">New independent scheduled workflow (daily 07:00 UTC + manual dispatch):</span>
+<span class="s2">- instantiates all-MiniLM-L6-v2 (~80MB; inference compatibility is</span>
+<span class="s2">  model-agnostic) and runs encode() with a shape assertion</span>
+<span class="s2">- caches the HuggingFace model dir (keyed by model + OS)</span>
+<span class="s2">- ubuntu-only (smaller torch wheel)</span>
+<span class="s2">- NOT added to nightly.yml (which is disabled; adding there would not</span>
+<span class="s2">  auto-run). Independent workflow enables schedule precisely without</span>
+<span class="s2">  enabling nightly&#39;s flaky jobs (doc-links depends on external sites).</span>
+
+<span class="s2">Closes follow-up (b) of PR #20 disposition spec.&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: 推 branch + 手动 dispatch 验证 smoke 实际跑通</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># 推到 PR 分支后，在 GitHub UI 或 gh CLI 手动 dispatch</span>
+gh<span class="w"> </span>workflow<span class="w"> </span>run<span class="w"> </span>embeddings-smoke.yml<span class="w"> </span>--ref<span class="w"> </span>&lt;pr-2-branch&gt;
+<span class="c1"># 等待 run 完成并确认 inference step 绿</span>
+gh<span class="w"> </span>run<span class="w"> </span>watch<span class="w"> </span>--exit-status<span class="w"> </span><span class="k">$(</span>gh<span class="w"> </span>run<span class="w"> </span>list<span class="w"> </span>--workflow<span class="o">=</span>embeddings-smoke.yml<span class="w"> </span>--limit<span class="o">=</span><span class="m">1</span><span class="w"> </span>--json<span class="w"> </span>databaseId<span class="w"> </span>--jq<span class="w"> </span><span class="s1">&#39;.[0].databaseId&#39;</span><span class="k">)</span>
+</code></pre></div>
+Expected: run 绿，"inference ok (2, 384)" 打印（满足 V4 dispatch 半 + V5）。若首次因模型下载超时，确认 cache key 命中后第二次 run 绿。</p>
+<blockquote>
+<p><strong>⚠️ V4 scheduled 半的 post-merge 跟进</strong>（Phase 4 审查要求）：<code>schedule</code> cron 只在 PR-2 合到默认分支后才生效——dispatch 验证无法预证 cron 触发路径。合并后第 1 个 07:00 UTC 周期内必须人工确认 scheduled run 自动触发（<code>gh run list --workflow=embeddings-smoke.yml</code> 看是否有非 dispatch 来源的 run），类比 V3（Dependabot 配置加载）的 post-merge 观察。若 24h 内无 scheduled run，排查 cron 语法 / workflow 是否在默认分支。</p>
+</blockquote>
+<hr />
+<h2 id="ac-spec-4-v1-v7-task">AC 覆盖表（spec §4 V1-V7 → task → 验证）</h2>
+<table>
+<thead>
+<tr>
+<th>spec AC</th>
+<th>覆盖 task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1 <code>.github/dependabot.yml</code> 存在且 YAML 合法</td>
+<td>T1 S2</td>
+<td><code>test -f</code> + <code>yaml.safe_load</code></td>
+</tr>
+<tr>
+<td>V2 dependabot.yml 含 <code>allow.dependency-type: direct</code></td>
+<td>T1 S2</td>
+<td>grep direct + 确认无 production 叠加</td>
+</tr>
+<tr>
+<td>V3 Dependabot 配置被 GitHub 正确加载</td>
+<td>T1（PR 合并后观察）</td>
+<td>仓库 Settings → Dependabot 显示 schedule；或 Dependabot 在 PR 发 "Configuration validated"</td>
+</tr>
+<tr>
+<td>V4 embeddings smoke workflow 存在且可触发</td>
+<td>T3 S6</td>
+<td>手动 dispatch run 存在且绿</td>
+</tr>
+<tr>
+<td>V5 sentence-transformers + torch 推理在 CI 成功</td>
+<td>T3 S6</td>
+<td>smoke run 的 inference step 绿（非仅 import）</td>
+</tr>
+<tr>
+<td>V6 现有 PR CI 不回归；smoke 时长可接受</td>
+<td>T2 S4 + T3 S4/S6</td>
+<td><code>just check</code> 全绿 + smoke run 时长记录（cache hit vs miss）</td>
+</tr>
+<tr>
+<td>V7 前序 PR20 spec 已归档</td>
+<td>（已自动满足）</td>
+<td><code>test -f .../archive/2026-08-02-pr20-torch-bump-disposition-design.md</code> 已 PASS</td>
+</tr>
+</tbody>
+</table>
+<h2 id="grep-plan-rubricphase-4">签名 grep 验证记录（plan 专属 rubric，Phase 4 复核订正）</h2>
+<ul>
+<li>无 Python 函数签名变更（全 <code>.github/</code> 改动）。N/A。</li>
+<li><strong>现有 ci.yml 已用版本</strong>（grep 确认）：</li>
+<li><code>actions/checkout@v4</code>：<code>grep -rn "actions/checkout" .github/workflows/ci.yml</code> → 命中。</li>
+<li><code>astral-sh/setup-uv@v3</code>：<code>grep -rn "setup-uv@v3" .github/workflows/ci.yml</code> → 命中。</li>
+<li><strong>本 plan 新引入</strong>（仓库无先例，Phase 4 复核订正——原稿误称"均为现有版本"）：</li>
+<li><code>actions/cache@v4</code>：<code>grep -rn "actions/cache" .github/workflows/</code> → <strong>零命中</strong>（无 workflow 用过 cache）。v4 是 actions/cache 当前 published 最新 major（对照 <a href="https://github.com/actions/cache">GitHub Marketplace</a>），按"取当前 major"原则引入，非沿用先例。yamllint 不校验 action 版本号，无 lint 风险。</li>
+<li>dependabot <code>version: 2</code> + <code>package-ecosystem</code> 取值对照 GitHub docs（uv GA 2025-03）。</li>
+<li><strong>yamllint --strict 影响域</strong>（Phase 4 新增认知）：pre-commit 的 yamllint hook (<code>args: [--strict]</code>, <code>files: \.(yaml|yml)$</code>) 扫<strong>所有</strong> <code>.yml/.yaml</code>（仅排除 <code>tests/rounds/</code>），故 <code>.github/dependabot.yml</code> + <code>.github/workflows/embeddings-smoke.yml</code> 提交时都会被 <code>--strict</code> lint。本 plan 两文件所有行均 ≤100 chars（pyproject line-length=100），合规。</li>
+</ul>
+<h2 id="self-reviewwriting-plans-skill">Self-Review（writing-plans skill 要求）</h2>
+<ol>
+<li><strong>Spec 覆盖</strong>：§2.1→T1；§5.6 renovate 删除→T2；§2.2 B1 推理 smoke + §5.3 小模型 + §5.4 独立 workflow→T3。§3 Phase 3（归档前序 spec）= 空操作（V7 已满足）。§4 V1-V7 全覆盖（见上表）。✅</li>
+<li><strong>Placeholder 扫描</strong>：无 TBD/TODO/"add error handling"；每步含实际 YAML/命令/expected。✅</li>
+<li><strong>类型一致性</strong>：无跨 task 函数签名（纯配置 + workflow）。workflow 内 <code>uses:</code> 版本与 ci.yml 一致。✅</li>
+<li><strong>task 分解</strong>：T1/T2 独立（不同文件，无隐式依赖）；T3 独立 workflow。每个 task 有独立 test cycle（YAML 合法 / gate 不回归 / dispatch 绿）。✅</li>
+<li><strong>leaf/infra 分类</strong>：T1/T2 leaf（纯配置，单文件）；T3 leaf 但 CI-行为变更 → 协调者亲自实现（infra-adjacent 路由，按 spec 阶段 5 规则）。✅</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

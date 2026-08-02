@@ -1,0 +1,2484 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-18-optimize-llm-context-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>LLM 调用上下文设计全面优化 Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="LLM 调用上下文设计全面优化 Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-07-18-optimize-llm-context-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="LLM 调用上下文设计全面优化 Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#llm-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              LLM 调用上下文设计全面优化 Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 当前状态
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 审查方法
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-skill" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 逐 Skill 上下文审查
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 逐 Skill 上下文审查">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-shenbi-chapter-planning225k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 shenbi-chapter-planning（~22.5K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-shenbi-chapter-drafting10k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 shenbi-chapter-drafting（~10K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-shenbi-state-settling9k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.3 shenbi-state-settling（~9K tokens）— 🔴 最严重的上下文不足
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-13-skills-20k-tokens-260k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.4 审计组（13 skills × ~20K tokens = 260K tokens/章）— 🔴 最大的浪费源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-shenbi-review-resonance14k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.5 shenbi-review-resonance（~14K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-shenbi-chapter-revision14k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.6 shenbi-chapter-revision（~14K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-shenbi-context-composing18k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.7 shenbi-context-composing（~18K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-shenbi-foreshadowing-planttrackrecall-8-12k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.8 shenbi-foreshadowing-plant/track/recall（各 ~8-12K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-shenbi-escalation-review8k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.9 shenbi-escalation-review（~8K tokens）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 行业最佳实践对照与具体修复方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 行业最佳实践对照与具体修复方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#30" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.0 方法论：四个来源
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#31-bug-1glob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 Bug 1：Glob 模式静默失败 → 文件通配符展开
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-bug-2utf-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Bug 2：UTF-8 截断破坏多字节字符 → 安全截断函数
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-bug-3code-fence-xml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Bug 3：Code Fence 嵌套冲突 → XML 标签分隔
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        第一卷...
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="第一卷...">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#34-1-drafting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 架构缺陷 1：策展上下文仅 drafting 消费 → 审计器共享上下文缓存
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-2review-world-rules-33k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 架构缺陷 2：review-world-rules 33K tokens → 确定性世界规则摘要
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-3-40-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.6 架构缺陷 3：仅 40% reads 有字段过滤 → 系统性声明所有大文件字段
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.7 架构缺陷 4：均权截断 → 优先级驱动的上下文预算
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-n-pass" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.8 审计级联：前 N 个审计 PASS 后跳过其余
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.9 SKILL.md 冗余 → 共享引用提取
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#310" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.10 指令优先级：三级层次结构
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#311-skill-do-not" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.11 负面提示：每个 Skill 的 DO NOT 区块
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#312" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.12 上下文新鲜度检查
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 汇总
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 汇总">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 优化效果预估
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.2 优化后每章上下文
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.3 新 Spec 关联
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-prompt-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.4 系统 Prompt 层面冗余（SKILL.md 审计发现）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-bug-dispatch_helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.5 代码层 Bug 和架构缺陷（dispatch_helper 审计发现）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4.5 代码层 Bug 和架构缺陷（dispatch_helper 审计发现）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#bug-1-glob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug 1: Glob 模式从未展开（静默数据丢失）🔴
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-2-utf-8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug 2: 截断破坏 UTF-8 多字节字符
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#bug-3-code-fence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bug 3: Code fence 嵌套冲突
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#1-drafting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构缺陷 1: 策展上下文仅被 drafting 消费
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#2-review-world-rules-33k-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构缺陷 2: review-world-rules 单次调用 33K tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-40-reads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构缺陷 3: 仅 40% 的 reads 声明了字段过滤
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        架构缺陷 4: 截断是均权而非优先级驱动
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 验证标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="llm-spec">LLM 调用上下文设计全面优化 Spec</h1>
+<blockquote>
+<p><strong>日期:</strong> 2026-07-18
+<strong>状态:</strong> 设计中
+<strong>严重度:</strong> 🟠 High（系统性效率缺陷）
+<strong>前置:</strong> Spec CN3（Truth 追加模式）、Spec S2（Checklist 静态提取）、Spec Volume Map 消费
+<strong>目的:</strong> 基于行业最佳实践，对 pipeline 中每次 LLM 调用的上下文设计进行逐个审查和优化——压缩浪费、补充缺失、重构结构。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 背景</h2>
+<h3 id="11">1.1 当前状态</h3>
+<p>每章 chapter loop 产生 <strong>~24 次 LLM 调用</strong>，每次调用推送 <strong>~17K tokens 上下文</strong>（平均），每章总上下文消耗 <strong>~408K tokens</strong>，56 章合计 <strong>~22.9M tokens</strong>。</p>
+<p>其中估计 <strong>38%（~153K tokens/章）是浪费</strong>——要么是重复内容（13 个审计器各自读取同一章节）、要么是无关内容（volume_map 的 99% 无关章节）、要么是过期数据（truth 文件仅含最后一章）。</p>
+<h3 id="12">1.2 审查方法</h3>
+<p>对每个 LLM 调用类型，按四个维度评估：</p>
+<table>
+<thead>
+<tr>
+<th>维度</th>
+<th>评估标准</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>压缩机会</strong></td>
+<td>上下文中有多少是可以去除而不影响输出质量的</td>
+</tr>
+<tr>
+<td><strong>补充需求</strong></td>
+<td>缺少哪些上下文导致输出质量下降（如 state-settling 缺少 volume_map）</td>
+</tr>
+<tr>
+<td><strong>结构优化</strong></td>
+<td>上下文组织方式是否符合"指令优先、分级提示、负面约束"的最佳实践</td>
+</tr>
+<tr>
+<td><strong>批处理机会</strong></td>
+<td>是否可以将多个 LLM 调用合并为一次</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-skill">2. 逐 Skill 上下文审查</h2>
+<h3 id="21-shenbi-chapter-planning225k-tokens">2.1 shenbi-chapter-planning（~22.5K tokens）</h3>
+<p><strong>当前上下文：</strong> 7 个输入文件（83KB） + 5KB 系统 prompt + 1.5KB 用户模板</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>大小</th>
+<th>有效性</th>
+<th>问题</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>volume_map.md</td>
+<td>26KB</td>
+<td><strong>2%</strong></td>
+<td>460 行中仅 2 行与当前章相关</td>
+</tr>
+<tr>
+<td>current_focus.md</td>
+<td>20KB</td>
+<td>100%</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>current_state.md</td>
+<td>10KB</td>
+<td><strong>1%</strong></td>
+<td>覆盖 bug——仅 Ch56 数据</td>
+</tr>
+<tr>
+<td>pending_hooks.md</td>
+<td>10KB</td>
+<td>80%</td>
+<td>🟡 非结构化</td>
+</tr>
+<tr>
+<td>chapter_summaries.md</td>
+<td>6KB</td>
+<td><strong>2%</strong></td>
+<td>覆盖 bug——仅 1 章</td>
+</tr>
+<tr>
+<td>story_frame.md</td>
+<td>5KB</td>
+<td>100%</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>author_intent.md</td>
+<td>5KB</td>
+<td>100%</td>
+<td>✅</td>
+</tr>
+</tbody>
+</table>
+<p><strong>压缩（-53% → ~10.5K tokens）：</strong>
+- volume_map：完整文件 → 当前章节点提取（Spec Volume Map 消费）
+- current_state + chapter_summaries：修复 CN3 后变为有用，否则跳过过期文件
+- pending_hooks：标准化格式（Spec CN2）</p>
+<p><strong>补充：</strong>
+- 前 3 章的实际结尾段落（帮助 Section 2 "读者此刻在等什么" 更精准）
+- 上一章的 resonance 评分（调整本章的野心级别）</p>
+<p><strong>结构优化：</strong>
+- 当前：volume_map 在"Input Files"区与其他文件并列 → LLM 视为参考资料而非指令
+- 改为：<code>## ⚠️ VOLUME MAP NODE (MUST ALIGN) → ## Input Files</code>
+- 增加负面约束：<code>## DO NOT: 偏离以下卷纲节点超过 30%。如需要偏离，必须在 Section 1 中明确说明理由。</code></p>
+<hr />
+<h3 id="22-shenbi-chapter-drafting10k-tokens">2.2 shenbi-chapter-drafting（~10K tokens）</h3>
+<p><strong>当前上下文：</strong> chapter plan + context + style_profile + genre-config + audit_drift</p>
+<p><strong>压缩（-25% → ~7.5K tokens）：</strong>
+- style_profile：当前为 bootstrap（无实际数据）→ 在 CN4 修复前可跳过
+- audit_drift：仅 849B → 保留但确保非空
+- Plan 字段级读取：仅读取 section 1/3/6/8（已声明 <code>fields:</code>）→ 验证此项是否被实际执行</p>
+<p><strong>补充：</strong>
+- <strong>volume_map 当前章节点</strong>（当前 drafting 不读 volume_map！）→ 确保章节内容不偏离卷纲
+- <strong>前章结尾段落</strong>（帮助续写开头与上文衔接）</p>
+<p><strong>结构优化：</strong>
+- 增加 <code>## STYLE CONSTRAINTS</code> 区——从 style_profile 提取关键约束（如果 CN4 已修复）
+- 增加 <code>## CONTINUITY CHECKPOINTS</code>——前章的 3 个关键状态（位置、情感、活跃冲突）</p>
+<hr />
+<h3 id="23-shenbi-state-settling9k-tokens">2.3 shenbi-state-settling（~9K tokens）— 🔴 最严重的上下文不足</h3>
+<p><strong>当前上下文：</strong> 仅 <code>chapters/chapter-N.md</code>（30KB）——<strong>一个文件，零结构性上下文</strong>。</p>
+<p><strong>补充（+80% → ~16K tokens）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>缺失的上下文</th>
+<th>用途</th>
+<th>大小估计</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>前一版 truth 文件</td>
+<td>知道什么变了 → 追加而非覆盖</td>
+<td>~5KB</td>
+</tr>
+<tr>
+<td>volume_map 当前章节点</td>
+<td>知道本章在弧线中的位置</td>
+<td>~500B</td>
+</tr>
+<tr>
+<td>character_matrix.md</td>
+<td>更新角色状态而非替换为参数</td>
+<td>~4KB</td>
+</tr>
+<tr>
+<td>前章 chapter_summary</td>
+<td>维护跨章连续性</td>
+<td>~1KB</td>
+</tr>
+<tr>
+<td>pending_hooks 前版</td>
+<td>追加新钩子而非覆盖旧钩子</td>
+<td>~5KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>这是 CN3（覆盖模式）和 CN1（角色消失）的直接根因——LLM 没有足够上下文来做出正确的"追加 vs 覆盖"判断。</strong></p>
+<hr />
+<h3 id="24-13-skills-20k-tokens-260k-tokens">2.4 审计组（13 skills × ~20K tokens = 260K tokens/章）— 🔴 最大的浪费源</h3>
+<p><strong>当前上下文：</strong> 每个审计器独立接收 <code>chapter-N.md</code>（30KB）+ <code>chapter-N-plan.md</code>（13KB）+ 共享 truth 文件（~30KB）。</p>
+<p><strong>问题：13 个审计器各自独立读取同一份 30KB 章节文件 = 390KB 重复传输。</strong></p>
+<p><strong>压缩方案 A：共享上下文缓存（-85%）</strong></p>
+<div class="highlight"><pre><span></span><code>传统模式：                       共享缓存模式：
+Audit 1 ← chapter(30KB)         Audit 1 ─┐
+Audit 2 ← chapter(30KB)         Audit 2 ─┤
+...                              ...     ├─ Shared: chapter(30KB) + plan(13KB) + truth(30KB)
+Audit 13 ← chapter(30KB)        Audit 13 ─┘  = 73KB total (not 13×73KB)
+
+Each: 73KB context              Each: 3KB audit-specific instructions + 73KB shared
+Total: 13 × 73KB = 949KB        Total: 73KB + 13 × 3KB = 112KB
+Savings: 837KB/章 (88%)
+</code></pre></div>
+<p><strong>实现</strong>：在 <code>dispatch_helper.py</code> 中增加 <code>_build_shared_audit_context()</code>，所有审计 skill 共享同一份章节+计划+truth 上下文，每审计器仅附加其特定的审计检查清单（从 SKILL.md 提取）。</p>
+<p><strong>压缩方案 B：级联审计（-50%）</strong></p>
+<p>如果前 4 个核心审计（continuity + character + world-rules + pacing）全部 PASS 且 confidence &gt; 90%：
+→ 跳过其余 9 个审计
+→ 但 resonance 和 memo-compliance 始终运行（质量评分需要）</p>
+<hr />
+<h3 id="25-shenbi-review-resonance14k-tokens">2.5 shenbi-review-resonance（~14K tokens）</h3>
+<p><strong>补充：</strong>
+- 前 5 章的 resonance 趋势（修复 CN3 后）→ 评估当前章是否在改善或恶化
+- volume_map 的张力曲线位置 → 根据章在弧线中的位置调整评分标准（高潮章应有更高标准）</p>
+<p><strong>结构优化：</strong>
+- 当前 resonance 审计格式要求过于严格 → G4 重试 35 次
+- 在 prompt 中增加<strong>完整示例</strong>（不仅仅是字段名列表）——Spec M5</p>
+<hr />
+<h3 id="26-shenbi-chapter-revision14k-tokens">2.6 shenbi-chapter-revision（~14K tokens）</h3>
+<p><strong>补充：</strong>
+- 审计报告摘要（哪些审计发现问题，哪些 PASS）→ 聚焦修订范围
+- 前次修订历史（如果是第二次修订）→ 避免重复无效修改</p>
+<p><strong>结构优化：</strong>
+- 增加 <code>## REVISION PRIORITIES</code>：按严重度排序的修订项
+- 增加 <code>## DO NOT REGENERATE</code>：明确列出不应改动的段落</p>
+<hr />
+<h3 id="27-shenbi-context-composing18k-tokens">2.7 shenbi-context-composing（~18K tokens）</h3>
+<p><strong>压缩：</strong>
+- volume_map：同 planning，提取当前章节点
+- Review checklist 静态字段 → Spec S2 提取到模板</p>
+<p><strong>补充：</strong>
+- 前章 context 文件（如果存在）→ 维护 context 连续性
+- 当前章的 resonance 评分 → 调整 context 的紧张度</p>
+<hr />
+<h3 id="28-shenbi-foreshadowing-planttrackrecall-8-12k-tokens">2.8 shenbi-foreshadowing-plant/track/recall（各 ~8-12K tokens）</h3>
+<p><strong>补充：</strong>
+- volume_map 跨卷桥接（哪些钩子需要在 N 章后激活）→ 帮助规划钩子生命周期
+- 前版 pending_hooks（修复 CN3 后）→ 知道哪些钩子已 PLANTED/TRIGGERED</p>
+<hr />
+<h3 id="29-shenbi-escalation-review8k-tokens">2.9 shenbi-escalation-review（~8K tokens）</h3>
+<p><strong>压缩（-100%）：</strong>
+- Spec CN5：当无 escalation 信号时<strong>完全跳过</strong>此调用
+- 当前 55/56 次调用产出相同模板——纯浪费</p>
+<hr />
+<h2 id="3">3. 行业最佳实践对照与具体修复方案</h2>
+<h3 id="30">3.0 方法论：四个来源</h3>
+<table>
+<thead>
+<tr>
+<th>来源</th>
+<th>核心原则</th>
+<th>本 Spec 应用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Anthropic Context Engineering</strong></td>
+<td>指令置顶（primacy）、XML 结构化分隔、数据与指令分离、缓存复用</td>
+<td>§3.1, §3.4, §3.7</td>
+</tr>
+<tr>
+<td><strong>OpenAI Prompt Engineering</strong></td>
+<td>系统消息=角色/语调、用户消息=任务、few-shot 示例、CoT 复杂推理</td>
+<td>§3.2, §3.6</td>
+</tr>
+<tr>
+<td><strong>LangChain/LlamaIndex RAG</strong></td>
+<td>文档分块+重叠、检索增强生成、上下文预算、去重</td>
+<td>§3.3, §3.5</td>
+</tr>
+<tr>
+<td><strong>Google Prompt Design</strong></td>
+<td>任务优先排序、结构化输出、负面示例</td>
+<td>§3.8, §3.12</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="31-bug-1glob">3.1 Bug 1：Glob 模式静默失败 → 文件通配符展开</h3>
+<p><strong>行业实践</strong>：LangChain <code>DirectoryLoader</code> 模式——通配符应在上下文构建时展开，并在预算约束下优先级排序。</p>
+<p><strong>具体修复</strong>（<code>dispatch_helper.py:142-161</code>）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 替换 L142-161 的简单路径拼接</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">glob</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">globmod</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">read_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;解析读取路径，支持通配符展开。返回 [(resolved_name, full_path_str), ...]。</span>
+
+<span class="sd">    行业实践：通配符在构建时展开（LangChain DirectoryLoader），</span>
+<span class="sd">    结果按优先级排序后纳入总预算。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_or_skip</span><span class="p">(</span><span class="n">read_path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolved</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">[]</span>
+
+    <span class="c1"># 通配符展开</span>
+    <span class="k">if</span> <span class="s1">&#39;*&#39;</span> <span class="ow">in</span> <span class="n">resolved</span> <span class="ow">or</span> <span class="s1">&#39;?&#39;</span> <span class="ow">in</span> <span class="n">resolved</span><span class="p">:</span>
+        <span class="n">pattern</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolved</span><span class="p">)</span>
+        <span class="n">matches</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globmod</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="n">pattern</span><span class="p">,</span> <span class="n">recursive</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">matches</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;glob_no_matches&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">pattern</span><span class="o">=</span><span class="n">pattern</span><span class="p">)</span>
+            <span class="k">return</span> <span class="p">[(</span><span class="n">resolved</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;[glob matched 0 files: </span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)]</span>
+
+        <span class="c1"># 按 mtime 降序（最新文件优先），限制数量</span>
+        <span class="n">matches_with_mtime</span> <span class="o">=</span> <span class="p">[(</span><span class="n">m</span><span class="p">,</span> <span class="n">Path</span><span class="p">(</span><span class="n">m</span><span class="p">)</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_mtime</span><span class="p">)</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">matches</span><span class="p">]</span>
+        <span class="n">matches_with_mtime</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="o">-</span><span class="n">x</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+
+        <span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">m_path</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">matches_with_mtime</span><span class="p">[:</span><span class="mi">50</span><span class="p">]:</span>  <span class="c1"># 最多 50 个文件</span>
+            <span class="n">rel</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">m_path</span><span class="p">)</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span>
+            <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rel</span><span class="p">,</span> <span class="n">m_path</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">results</span>
+
+    <span class="c1"># 单文件路径</span>
+    <span class="n">full_path</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">resolved</span>
+    <span class="k">return</span> <span class="p">[(</span><span class="n">resolved</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">))]</span> <span class="k">if</span> <span class="n">full_path</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="k">else</span> <span class="p">[(</span><span class="n">resolved</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;[file not found: </span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">]&quot;</span><span class="p">)]</span>
+</code></pre></div>
+<p><strong>额外收益</strong>：<code>review-long-span</code> 恢复跨章 n-gram 分析能力；<code>review-character</code> 可读取 <code>characters/major/*.md</code>。</p>
+<hr />
+<h3 id="32-bug-2utf-8">3.2 Bug 2：UTF-8 截断破坏多字节字符 → 安全截断函数</h3>
+<p><strong>行业实践</strong>：Python <code>text[:limit]</code> 在字符边界操作（非字节），但 <code>len(text)</code> 计算的是码点数——中文字符 1 码点 = 1 长度。问题仅在 <code>text.encode()[:limit]</code> 时出现。核实后：当前代码使用 <code>len(text)</code>（字符数），截断在字符边界，<strong>无 UTF-8 破坏</strong>。</p>
+<p>但存在另一个问题：<strong>硬截断无指示</strong>——LLM 收到被截断的文本但不知道。</p>
+<p><strong>具体修复</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_safe_truncate</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">limit</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">label</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;安全截断，添加截断指示器。</span>
+
+<span class="sd">    行业实践（Anthropic）：当内容被截断时，应明确告知模型，</span>
+<span class="sd">    避免模型基于不完整信息做出错误推断。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">&lt;=</span> <span class="n">limit</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">text</span>
+
+    <span class="c1"># 在 limit 处截断，保留完整的段落/句子边界</span>
+    <span class="n">truncated</span> <span class="o">=</span> <span class="n">text</span><span class="p">[:</span><span class="n">limit</span><span class="p">]</span>
+    <span class="c1"># 回退到最后一个完整段落</span>
+    <span class="n">last_para</span> <span class="o">=</span> <span class="n">truncated</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n\n</span><span class="s1">&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">last_para</span> <span class="o">&gt;</span> <span class="n">limit</span> <span class="o">*</span> <span class="mf">0.7</span><span class="p">:</span>  <span class="c1"># 如果最后一段不太短</span>
+        <span class="n">truncated</span> <span class="o">=</span> <span class="n">truncated</span><span class="p">[:</span><span class="n">last_para</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">limit</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">:</span>
+        <span class="c1"># 回退到最后一个完整句子</span>
+        <span class="k">for</span> <span class="n">sent_end</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;。</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;.</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;！</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;?</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">,</span> <span class="s1">&#39;？</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">]:</span>
+            <span class="n">last_sent</span> <span class="o">=</span> <span class="n">truncated</span><span class="o">.</span><span class="n">rfind</span><span class="p">(</span><span class="n">sent_end</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">last_sent</span> <span class="o">&gt;</span> <span class="n">limit</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="n">truncated</span> <span class="o">=</span> <span class="n">truncated</span><span class="p">[:</span><span class="n">last_sent</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">break</span>
+
+    <span class="n">removed</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="nb">len</span><span class="p">(</span><span class="n">truncated</span><span class="p">)</span>
+    <span class="n">truncated</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">[截断指示：已省略 </span><span class="si">{</span><span class="n">removed</span><span class="si">}</span><span class="s2"> 字符（</span><span class="si">{</span><span class="n">removed</span><span class="o">//</span><span class="mi">4</span><span class="si">}</span><span class="s2"> tokens）。原始文件：</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">]&quot;</span>
+    <span class="k">return</span> <span class="n">truncated</span>
+</code></pre></div>
+<hr />
+<h3 id="33-bug-3code-fence-xml">3.3 Bug 3：Code Fence 嵌套冲突 → XML 标签分隔</h3>
+<p><strong>行业实践</strong>：Anthropic 推荐使用 XML 标签包裹结构化内容——<code>&lt;document&gt;</code> 不会与 Markdown 冲突。</p>
+<p><strong>当前格式</strong>（有问题）：
+<div class="highlight"><pre><span></span><code>### outline/volume_map.md
+</code></pre></div></p>
+<h2 id="_1">第一卷...</h2>
+<div class="highlight"><pre><span></span><code>此处如果 volume_map 包含 ``` 会破坏外层
+</code></pre></div>
+<p><strong>修复后格式</strong>：
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py L241-243 替换为：</span>
+
+<span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="c1"># 使用 XML 标签替代 code fence——不会与文件内容冲突</span>
+    <span class="c1"># 行业实践（Anthropic）：&lt;document&gt; 标签用于分隔多个文档</span>
+    <span class="n">safe_content</span> <span class="o">=</span> <span class="n">content</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s1">&#39;&lt;/doc&gt;&#39;</span><span class="p">,</span> <span class="s1">&#39;&lt;</span><span class="se">\\</span><span class="s1">/doc&gt;&#39;</span><span class="p">)</span>  <span class="c1"># 转义内部标签</span>
+    <span class="n">user_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;document name=&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">safe_content</span><span class="si">}</span><span class="se">\n</span><span class="s1">&lt;/document&gt;&#39;</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>效果</strong>：
+- <code>&lt;/doc&gt;</code> 不会出现在正常 Markdown 中，零冲突
+- LLM 可清晰识别文档边界（Anthropic 微调数据大量使用此格式）
+- 可在标签上附加元数据（token 数、截断状态）</p>
+<hr />
+<h3 id="34-1-drafting">3.4 架构缺陷 1：策展上下文仅 drafting 消费 → 审计器共享上下文缓存</h3>
+<p><strong>行业实践</strong>：LangChain <code>BaseCache</code> 模式——多次调用共享相同底层数据时使用缓存层。</p>
+<p><strong>具体修复</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 新增：dispatch_helper.py</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_shared_audit_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;构建审计器共享上下文缓存。</span>
+
+<span class="sd">    行业实践（LangChain Cache）：多个 LLM 调用共享相同的基础文档时，</span>
+<span class="sd">    只构建一次，后续调用复用缓存。</span>
+
+<span class="sd">    返回按审计类型索引的上下文片段字典。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">cache_key</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;audit_context_ch</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="k">if</span> <span class="n">cache_key</span> <span class="ow">in</span> <span class="n">_AUDIT_CONTEXT_CACHE</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_AUDIT_CONTEXT_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span>
+
+    <span class="c1"># 一次性加载所有审计器需要的共享文件</span>
+    <span class="n">chapter_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;chapters&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">plan_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;plans&#39;</span> <span class="o">/</span> <span class="sa">f</span><span class="s1">&#39;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s1">-plan.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+
+    <span class="c1"># 从策展上下文提取特定节（而非让每个审计器各自读取原始 truth）</span>
+    <span class="n">curated</span> <span class="o">=</span> <span class="n">_get_or_create_curated_context</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+
+    <span class="n">shared</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s1">&#39;chapter_full&#39;</span><span class="p">:</span> <span class="n">chapter_text</span><span class="p">,</span>
+        <span class="s1">&#39;plan_full&#39;</span><span class="p">:</span> <span class="n">plan_text</span><span class="p">,</span>
+        <span class="c1"># 按审计类型分发策展上下文的特定节</span>
+        <span class="s1">&#39;world_rules_context&#39;</span><span class="p">:</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P7&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;character_context&#39;</span><span class="p">:</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P5&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P6&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;continuity_context&#39;</span><span class="p">:</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P6&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="o">+</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span> <span class="o">+</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P4&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;pacing_context&#39;</span><span class="p">:</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;P4&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+        <span class="s1">&#39;hook_context&#39;</span><span class="p">:</span> <span class="n">curated</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;hook_debt_briefing&#39;</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">),</span>
+    <span class="p">}</span>
+
+    <span class="n">_AUDIT_CONTEXT_CACHE</span><span class="p">[</span><span class="n">cache_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">shared</span>
+    <span class="k">return</span> <span class="n">shared</span>
+</code></pre></div>
+<p><strong>效果</strong>：13 个审计器 × 73KB → 1 次加载 73KB + 13 × 3KB（审计特定指令）。节省 ~88% 审计上下文。</p>
+<hr />
+<h3 id="35-2review-world-rules-33k-tokens">3.5 架构缺陷 2：review-world-rules 33K tokens → 确定性世界规则摘要</h3>
+<p><strong>行业实践</strong>：LlamaIndex <code>SummaryIndex</code>——对大文档先生成摘要，LLM 调用时使用摘要而非全文。</p>
+<p><strong>具体修复</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># 新增：src/shenbi/pipeline/world_summarizer.py</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">summarize_world_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">max_chars</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">2000</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;确定性摘要世界文件——无需 LLM。</span>
+
+<span class="sd">    行业实践：对大型参考文档在上下文注入前进行确定性压缩。</span>
+<span class="sd">    保留规则名称和关键约束，丢弃示例和叙述性描述。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">summaries</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># power_system.md: 提取规则名称+关键数字</span>
+    <span class="n">ps_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;world&#39;</span> <span class="o">/</span> <span class="s1">&#39;power_system.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">rules</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;(?:###|##)\s+(.+?)(?=\n(?:###|##)|\Z)&#39;</span><span class="p">,</span> <span class="n">ps_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="n">ps_summary</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">r</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">10</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rules</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">20</span>
+    <span class="p">)[:</span><span class="n">max_chars</span><span class="p">]</span>
+    <span class="n">summaries</span><span class="p">[</span><span class="s1">&#39;power_system&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ps_summary</span>
+
+    <span class="c1"># locations.md: 提取地点名称+关键特征</span>
+    <span class="n">loc_text</span> <span class="o">=</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s1">&#39;world&#39;</span> <span class="o">/</span> <span class="s1">&#39;locations.md&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span>
+    <span class="n">locations</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;###\s+(.+?)(?=\n###|\Z)&#39;</span><span class="p">,</span> <span class="n">loc_text</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+    <span class="n">loc_summary</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">10</span><span class="p">))[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">10</span><span class="p">))[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="w"> </span><span class="k">if</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">l</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="mi">10</span><span class="p">)))</span><span class="w"> </span><span class="o">&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="k">else</span><span class="w"> </span><span class="s1">&#39;&#39;</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span> <span class="n">locations</span>
+    <span class="p">)[:</span><span class="n">max_chars</span><span class="p">]</span>
+    <span class="n">summaries</span><span class="p">[</span><span class="s1">&#39;locations&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">loc_summary</span>
+
+    <span class="k">return</span> <span class="n">summaries</span>
+</code></pre></div>
+<p><strong>效果</strong>：review-world-rules 从 33K tokens → ~10K tokens（-70%），且保留所有规则名称供验证。</p>
+<hr />
+<h3 id="36-3-40-reads">3.6 架构缺陷 3：仅 40% reads 有字段过滤 → 系统性声明所有大文件字段</h3>
+<p><strong>行业实践</strong>：OpenAI 的 "needle-in-haystack" 问题——给 LLM 的长文档中，只有小部分是相关的。字段过滤（Layer B）是已实现的解决方案，但覆盖不完整。</p>
+<p><strong>具体修复</strong>：为所有大于 5KB 的 reads 声明字段过滤。</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># shenbi-chapter-planning SKILL.md contract 更新</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/volume_map.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">当前卷Objective</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">当前章节点</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">跨卷桥接</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/current_state.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">主角状态</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="nv">当前世界局势</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">truth/chapter_summaries.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">最近3章</span><span class="p p-Indicator">]}</span>
+<span class="w">    </span><span class="c1"># ... 其他已有字段声明的保持不变</span>
+
+<span class="c1"># shenbi-review-world-rules SKILL.md contract 更新</span>
+<span class="nt">contract</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">chapters/chapter-N.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">世界规则相关段落</span><span class="p p-Indicator">]}</span><span class="w">  </span><span class="c1"># 新增过滤</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">world/rules.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">世界铁律</span><span class="p p-Indicator">]}</span><span class="w">                  </span><span class="c1"># 已有</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">world/power_system.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">核心规则</span><span class="p p-Indicator">]}</span><span class="w">           </span><span class="c1"># 新增！</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">world/locations.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">本章涉及地点</span><span class="p p-Indicator">]}</span><span class="w">         </span><span class="c1"># 新增！</span>
+</code></pre></div>
+<p><strong>实现</strong>：<code>filter_to_fields</code>（<code>fields.py:44-52</code>）已支持 H2 节提取——只需在合约中声明字段名。</p>
+<hr />
+<h3 id="37-4">3.7 架构缺陷 4：均权截断 → 优先级驱动的上下文预算</h3>
+<p><strong>行业实践</strong>：Anthropic 的 "Context Window Budgeting"——将 tokens 分配给最重要的内容，而非均分。</p>
+<p><strong>具体修复</strong>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py 替换 L163-192</span>
+
+<span class="c1"># 文件优先级权重（基于行业实践：指令 &gt; 核心内容 &gt; 参考数据）</span>
+<span class="n">_FILE_PRIORITY_WEIGHTS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;plan&#39;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">,</span>           <span class="c1"># 章节计划——最高优先级</span>
+    <span class="s1">&#39;chapter&#39;</span><span class="p">:</span> <span class="mf">0.9</span><span class="p">,</span>        <span class="c1"># 章节正文</span>
+    <span class="s1">&#39;volume_map&#39;</span><span class="p">:</span> <span class="mf">0.8</span><span class="p">,</span>     <span class="c1"># 卷纲</span>
+    <span class="s1">&#39;story_frame&#39;</span><span class="p">:</span> <span class="mf">0.7</span><span class="p">,</span>    <span class="c1"># 故事框架</span>
+    <span class="s1">&#39;current_state&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>  <span class="c1"># 当前状态</span>
+    <span class="s1">&#39;pending_hooks&#39;</span><span class="p">:</span> <span class="mf">0.6</span><span class="p">,</span>  <span class="c1"># 伏笔</span>
+    <span class="s1">&#39;character&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>      <span class="c1"># 角色数据</span>
+    <span class="s1">&#39;style&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>          <span class="c1"># 风格</span>
+    <span class="s1">&#39;audit_drift&#39;</span><span class="p">:</span> <span class="mf">0.4</span><span class="p">,</span>    <span class="c1"># 漂移</span>
+    <span class="s1">&#39;world&#39;</span><span class="p">:</span> <span class="mf">0.3</span><span class="p">,</span>          <span class="c1"># 世界设定（参考）</span>
+    <span class="s1">&#39;default&#39;</span><span class="p">:</span> <span class="mf">0.5</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_file_priority</span><span class="p">(</span><span class="n">filename</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">float</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">weight</span> <span class="ow">in</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">filename</span><span class="o">.</span><span class="n">lower</span><span class="p">():</span>
+            <span class="k">return</span> <span class="n">weight</span>
+    <span class="k">return</span> <span class="n">_FILE_PRIORITY_WEIGHTS</span><span class="p">[</span><span class="s1">&#39;default&#39;</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_budgeted_truncate</span><span class="p">(</span><span class="n">raw_inputs</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">total_budget</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;优先级驱动的上下文预算分配。</span>
+
+<span class="sd">    行业实践（Anthropic）：给指令和核心内容分配更多 tokens，</span>
+<span class="sd">    给参考数据分配更少。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># 计算权重</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="p">{</span><span class="n">f</span><span class="p">:</span> <span class="n">_get_file_priority</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">raw_inputs</span><span class="p">}</span>
+    <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+    <span class="c1"># 按权重分配预算</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">raw_inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">budget</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">total_budget</span> <span class="o">*</span> <span class="n">weights</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">/</span> <span class="n">total_weight</span><span class="p">)</span>
+        <span class="n">budget</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>  <span class="c1"># 最小 500 字符</span>
+        <span class="n">budget</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="n">budget</span><span class="p">,</span> <span class="n">_INPUT_MAX_CHARS_PER_FILE</span><span class="p">)</span>
+        <span class="n">result</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">_safe_truncate</span><span class="p">(</span><span class="n">text</span><span class="p">,</span> <span class="n">budget</span><span class="p">,</span> <span class="n">fname</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+<hr />
+<h3 id="38-n-pass">3.8 审计级联：前 N 个审计 PASS 后跳过其余</h3>
+<p><strong>行业实践</strong>：Google "early exit" 模式——低成本分类器先运行，仅在其不确定时才调用高成本模型。</p>
+<p><strong>具体修复</strong>（<code>chapter_loop.py</code> 审计步骤）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># chapter_loop.py:_run_audits 中增加级联逻辑</span>
+
+<span class="n">CORE_AUDITS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;continuity&#39;</span><span class="p">,</span> <span class="s1">&#39;character&#39;</span><span class="p">,</span> <span class="s1">&#39;world-rules&#39;</span><span class="p">,</span> <span class="s1">&#39;pacing&#39;</span><span class="p">]</span>
+<span class="n">CASCADABLE_AUDITS</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;dialogue&#39;</span><span class="p">,</span> <span class="s1">&#39;motivation&#39;</span><span class="p">,</span> <span class="s1">&#39;sensitivity&#39;</span><span class="p">,</span> <span class="s1">&#39;foreshadowing&#39;</span><span class="p">,</span>
+                     <span class="s1">&#39;pov&#39;</span><span class="p">,</span> <span class="s1">&#39;memo-compliance&#39;</span><span class="p">,</span> <span class="s1">&#39;anti-ai&#39;</span><span class="p">,</span> <span class="s1">&#39;texture&#39;</span><span class="p">,</span> <span class="s1">&#39;reader-pull&#39;</span><span class="p">]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_should_skip_cascaded_audit</span><span class="p">(</span><span class="n">audit_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">core_results</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;如果核心审计全部 PASS 且 confidence &gt; 90%，跳过级联审计。</span>
+
+<span class="sd">    行业实践：Google &#39;cascade evaluation&#39;——低风险项跳过详细审查。</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">audit_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">CASCADABLE_AUDITS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">core_pass</span> <span class="o">=</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;status&#39;</span><span class="p">)</span> <span class="o">==</span> <span class="s1">&#39;PASS&#39;</span> <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;confidence&#39;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mf">0.9</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">core_results</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">core_pass</span>
+</code></pre></div>
+<p><strong>注意</strong>：resonance 和 memo-compliance 始终运行（评分需要）。</p>
+<hr />
+<h3 id="39-skillmd">3.9 SKILL.md 冗余 → 共享引用提取</h3>
+<p><strong>行业实践</strong>：DRY（Don't Repeat Yourself）——20 个审计 skill 中逐字重复的"四元素缺陷证据格式"是典型的跨文件代码重复。</p>
+<p><strong>具体修复</strong>：</p>
+<ol>
+<li>
+<p><strong>提取共享引用文件</strong>：<code>skills/_shared/defect-evidence-format.md</code>
+<div class="highlight"><pre><span></span><code><span class="gu">## 缺陷证据格式（所有审计 skill 共用）</span>
+
+每个发现的缺陷必须包含以下四元素：
+
+| 元素 | 格式 | 示例 |
+|------|------|------|
+| position | <span class="sb">`chapter-N.md L45-52`</span> | 文件:行号范围 |
+| quote | <span class="sb">`&gt; 原文引用`</span> | 至少 20 字的原文摘录 |
+| rule | <span class="sb">`G4.{check_id}`</span> | 违反的规则编号 |
+| severity | <span class="sb">`BLOCKING\|CRITICAL\|WARNING`</span> | 严重度 |
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>在审计 skill 中引用而非重复</strong>：
+<div class="highlight"><pre><span></span><code><span class="gu">## 缺陷证据格式</span>
+见 <span class="sb">`skills/_shared/defect-evidence-format.md`</span>（所有审计 skill 共用）
+</code></pre></div></p>
+</li>
+<li>
+<p><strong>同样提取</strong>：</p>
+</li>
+<li><code>skills/_shared/u-shaped-gap-explanation.md</code>（resonance + arc-payoff 共用）</li>
+<li><code>skills/_shared/pipeline-integration-mode.md</code>（drafting + context-composing 共用）</li>
+<li><code>skills/_shared/anti-rationalization-base.md</code>（所有 skill 的基础反合理化表 + skill 特定追加）</li>
+</ol>
+<hr />
+<h3 id="310">3.10 指令优先级：三级层次结构</h3>
+<p><strong>行业实践</strong>：Anthropic "Primacy Effect"——LLM 对提示开头和结尾的内容注意力最高。</p>
+<p><strong>当前</strong>：所有输入文件在 <code>## Input Files</code> 区平等呈现。</p>
+<p><strong>修复后</strong>（<code>_build_skill_prompt</code> 用户 prompt 重构）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_build_user_prompt_with_hierarchy</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">inputs</span><span class="p">,</span> <span class="n">output_paths</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;按三级优先级构建用户 prompt。</span>
+
+<span class="sd">    行业实践（Anthropic）：</span>
+<span class="sd">    - HARD CONSTRAINTS 放在最前面（违反=重试）</span>
+<span class="sd">    - GUIDELINES 放在中间（优先遵循）</span>
+<span class="sd">    - REFERENCE 放在最后（仅供参考）</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># L1: HARD CONSTRAINTS（最高优先级，违反触发 G4 重试）</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## 🔴 HARD CONSTRAINTS — 违反将触发 G4 重试</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="s1">&#39;volume_map&#39;</span> <span class="ow">in</span> <span class="n">inputs</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **卷纲对齐**：本章必须对齐 volume_map 中声明的章节点：</span><span class="si">{</span><span class="n">inputs</span><span class="p">[</span><span class="s1">&#39;volume_node&#39;</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **8 节完整性**：计划必须包含全部 8 节，每节标题精确匹配&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **输出格式**：严格使用 `### FILE:` 标记，JSON 文件禁止尾部注释</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># L2: GUIDELINES（优先遵循，轻微偏离可接受）</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## 🟡 GUIDELINES — 优先遵循</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- 从 volume_map 跨卷桥接中选取本章应推进的钩子&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Section 1 从卷纲 Key Result 推导章节目标&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- 转折词预算：≤ </span><span class="si">{</span><span class="n">transition_budget</span><span class="si">}</span><span class="s2"> 次</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># L3: TASK</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## 📋 TASK</span><span class="se">\n</span><span class="si">{</span><span class="n">prompt</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># L4: REFERENCE（仅供参考）</span>
+    <span class="k">if</span> <span class="n">inputs</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## 🔵 REFERENCE — 仅供参考&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">content</span> <span class="ow">in</span> <span class="n">inputs</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;&lt;document name=&quot;</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1">&quot;&gt;</span><span class="se">\n</span><span class="si">{</span><span class="n">content</span><span class="si">}</span><span class="se">\n</span><span class="s1">&lt;/document&gt;&#39;</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+</code></pre></div>
+<hr />
+<h3 id="311-skill-do-not">3.11 负面提示：每个 Skill 的 DO NOT 区块</h3>
+<p><strong>行业实践</strong>：OpenAI "Negative Prompting"——明确告知模型"不要做什么"与"要做什么"同等重要。减少模型在错误方向上的概率质量。</p>
+<p><strong>具体修复</strong>：在每个 skill 的 SKILL.md 末尾追加标准化的 <code>## DO NOT</code> 块：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">## ⛔ DO NOT</span>
+
+<span class="gu">### 通用禁止（所有 skill 共用）</span>
+<span class="k">-</span><span class="w"> </span>DO NOT 在 JSON 文件后追加 markdown 解释
+<span class="k">-</span><span class="w"> </span>DO NOT 输出 <span class="sb">`### FILE:`</span> 标记之外的内容
+<span class="k">-</span><span class="w"> </span>DO NOT 询问澄清问题或等待人类确认
+<span class="k">-</span><span class="w"> </span>DO NOT 使用 &quot;注意：&quot; &quot;提示：&quot; 等元注释引导语
+
+<span class="gu">### 本 Skill 特定禁止</span>
+<span class="k">-</span><span class="w"> </span>Planning: DO NOT 规划与 volume_map 章节点矛盾的内容
+<span class="k">-</span><span class="w"> </span>Drafting: DO NOT 连续 2 章使用相同开篇句式
+<span class="k">-</span><span class="w"> </span>State-settling: DO NOT 覆盖整个 truth 文件——仅追加新章数据
+<span class="k">-</span><span class="w"> </span>Revision: DO NOT 在 no-op 路由下覆盖章节正文
+</code></pre></div>
+<hr />
+<h3 id="312">3.12 上下文新鲜度检查</h3>
+<p><strong>行业实践</strong>：数据管道中的 "Data Freshness SLA"——在消费数据前验证其时效性。</p>
+<p><strong>具体修复</strong>（<code>dispatch_helper.py</code>）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_validate_context_freshness</span><span class="p">(</span><span class="n">input_texts</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;检查输入上下文是否包含过期数据。</span>
+
+<span class="sd">    行业实践（Data Freshness SLA）：</span>
+<span class="sd">    - 累积型 truth 文件（resonance_trend, chapter_summaries）应包含当前章附近的数据</span>
+<span class="sd">    - 如果仅包含 1-2 章的数据但当前在 10+ 章，标记为过期</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">warnings</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="n">input_texts</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="k">if</span> <span class="s1">&#39;chapter_summaries&#39;</span> <span class="ow">in</span> <span class="n">fname</span> <span class="ow">or</span> <span class="s1">&#39;resonance_trend&#39;</span> <span class="ow">in</span> <span class="n">fname</span><span class="p">:</span>
+            <span class="n">ch_refs</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">re</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="sa">r</span><span class="s1">&#39;[Cc]h(?:apter)?[ .-]*(\d+)&#39;</span><span class="p">,</span> <span class="n">text</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">ch_refs</span> <span class="o">&lt;=</span> <span class="mi">2</span> <span class="ow">and</span> <span class="n">chapter</span> <span class="o">&gt;</span> <span class="mi">5</span><span class="p">:</span>
+                <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">&quot;STALE: </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2"> 仅引用 </span><span class="si">{</span><span class="n">ch_refs</span><span class="si">}</span><span class="s2"> 章，&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;但当前在第 </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> 章。可能使用了过期数据。&quot;</span>
+                    <span class="sa">f</span><span class="s2">&quot;根因：state-settling 覆盖模式（Spec CN3）。&quot;</span>
+                <span class="p">)</span>
+
+        <span class="k">if</span> <span class="s1">&#39;style_profile&#39;</span> <span class="ow">in</span> <span class="n">fname</span> <span class="ow">and</span> <span class="s1">&#39;bootstrap&#39;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span> <span class="ow">and</span> <span class="n">chapter</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;STALE: style_profile 仍为 bootstrap 模式，&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;但已生成 </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> 章。根因：style-learning 未更新（Spec CN4）。&quot;</span>
+            <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">warnings</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;context_freshness&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span> <span class="n">warnings</span><span class="o">=</span><span class="n">warnings</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">warnings</span>
+</code></pre></div>
+<hr />
+<h2 id="4">4. 汇总</h2>
+<h3 id="41">4.1 优化效果预估</h3>
+<table>
+<thead>
+<tr>
+<th>优化项</th>
+<th>节省/章</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>审计共享上下文缓存</td>
+<td>-84K tokens</td>
+<td>压缩</td>
+</tr>
+<tr>
+<td>volume_map 章节点提取</td>
+<td>-6K tokens</td>
+<td>压缩</td>
+</tr>
+<tr>
+<td>escalation-review 条件跳过</td>
+<td>-8K tokens</td>
+<td>压缩</td>
+</tr>
+<tr>
+<td>审计级联（≥90% confidence 跳过）</td>
+<td>-90K tokens</td>
+<td>压缩</td>
+</tr>
+<tr>
+<td>Truth 文件修复（转废为宝）</td>
+<td>+16K → 有用</td>
+<td>修复</td>
+</tr>
+<tr>
+<td>State-settling 上下文补充</td>
+<td>+7K tokens</td>
+<td>补充</td>
+</tr>
+<tr>
+<td><strong>净效果</strong></td>
+<td><strong>-165K tokens/章（-40%）</strong></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="42">4.2 优化后每章上下文</h3>
+<table>
+<thead>
+<tr>
+<th>指标</th>
+<th>当前</th>
+<th>优化后</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LLM 调用次数</td>
+<td>24</td>
+<td>14-24（级联）</td>
+</tr>
+<tr>
+<td>总 tokens/章</td>
+<td>408K</td>
+<td>~243K</td>
+</tr>
+<tr>
+<td>有效信息占比</td>
+<td>62%</td>
+<td>~90%</td>
+</tr>
+<tr>
+<td>56 章总 tokens</td>
+<td>22.9M</td>
+<td>~13.6M</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-spec">4.3 新 Spec 关联</h3>
+<table>
+<thead>
+<tr>
+<th>本 Spec 建议</th>
+<th>关联已有 Spec</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>volume_map 章节点提取</td>
+<td>Spec Volume Map 消费</td>
+</tr>
+<tr>
+<td>Truth 文件修复</td>
+<td>CN3</td>
+</tr>
+<tr>
+<td>Review checklist 静态提取</td>
+<td>S2</td>
+</tr>
+<tr>
+<td>escalation-review 跳过</td>
+<td>CN5</td>
+</tr>
+<tr>
+<td>State-settling 上下文补充</td>
+<td>CN1, CN3</td>
+</tr>
+<tr>
+<td>Resonance 格式示例</td>
+<td>M5</td>
+</tr>
+<tr>
+<td>Audit 共享上下文</td>
+<td><strong>新建</strong></td>
+</tr>
+<tr>
+<td>审计级联跳过</td>
+<td><strong>新建</strong></td>
+</tr>
+<tr>
+<td>上下文分层架构</td>
+<td><strong>新建（架构改进）</strong></td>
+</tr>
+<tr>
+<td>指令优先级</td>
+<td><strong>新建（prompt 工程）</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="44-prompt-skillmd">4.4 系统 Prompt 层面冗余（SKILL.md 审计发现）</h3>
+<p>Agent 对 32 个 SKILL.md 进行逐文件审计，发现 8 类跨 skill 的 prompt 冗余：</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>冗余模式</th>
+<th>影响范围</th>
+<th>浪费量</th>
+<th>修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td><strong>自动生成的数据契约块</strong>（<code>## 数据契约</code>）</td>
+<td>32 skills</td>
+<td>~160-320 行</td>
+<td>移除或折叠——与 frontmatter 重复</td>
+</tr>
+<tr>
+<td>2</td>
+<td><strong>四元素缺陷证据格式</strong>（position+quote+rule+severity）</td>
+<td>20 review skills</td>
+<td>~120 行逐字重复</td>
+<td>提取为共享引用 <code>defect-evidence-format.md</code></td>
+</tr>
+<tr>
+<td>3</td>
+<td><strong>U型缺口/负向门控解释</strong></td>
+<td>resonance + arc-payoff</td>
+<td>~30 行重复</td>
+<td>提取为共享架构文档</td>
+</tr>
+<tr>
+<td>4</td>
+<td><strong>Pipeline 集成模式描述</strong></td>
+<td>drafting + context-composing</td>
+<td>~16 行</td>
+<td>提取为共享引用</td>
+</tr>
+<tr>
+<td>5</td>
+<td><strong>State-settling 人工审批门禁模板</strong></td>
+<td>1 skill</td>
+<td>65 行→15 行</td>
+<td>压缩为结构描述</td>
+</tr>
+<tr>
+<td>6</td>
+<td><strong>Foreshadowing-resolve CP 公式</strong></td>
+<td>1 skill</td>
+<td>出现 2 次</td>
+<td>去重</td>
+</tr>
+<tr>
+<td>7</td>
+<td><strong>AUTO-CHECK 空块</strong></td>
+<td>32 skills</td>
+<td>~100 行</td>
+<td>移除空注释块</td>
+</tr>
+<tr>
+<td>8</td>
+<td><strong>Escalation-review 无反合理化表</strong></td>
+<td>1 skill</td>
+<td>安全缺口</td>
+<td><strong>补充</strong>（唯一缺少此表的 skill）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>额外发现：最大的两个系统 prompt</strong>
+- <code>shenbi-review-resonance</code>：~12,600 字符（第二冗长）
+- <code>shenbi-review-arc-payoff</code>：~12,100 字符（最冗长）
+- 两者各花 15-20 行解释同一架构概念——可提取共享文档节省 ~40 行</p>
+<p><strong>Prompt 大小分布：</strong>
+| 大小范围 | Skills 数 | 代表 |
+|---------|----------|------|
+| &lt; 3,000 字符 | 4 | escalation-review(1,000), foreshadowing-recall(1,800) |
+| 3,000-6,000 | 20 | 大部分审计 skills |
+| 6,000-10,000 | 5 | chapter-planning, state-settling, chapter-revision |
+| &gt; 10,000 | 2 | resonance(12,600), arc-payoff(12,100) |</p>
+<h3 id="45-bug-dispatch_helper">4.5 代码层 Bug 和架构缺陷（dispatch_helper 审计发现）</h3>
+<p>Agent 对 <code>dispatch_helper.py</code> 的逐行审计发现 <strong>3 个 bug</strong> 和 <strong>4 个架构缺陷</strong>：</p>
+<h4 id="bug-1-glob">Bug 1: Glob 模式从未展开（静默数据丢失）🔴</h4>
+<p>多个 SKILL.md 合约声明了 glob 读取：
+<div class="highlight"><pre><span></span><code><span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/*.md</span><span class="w">           </span><span class="c1"># review-long-span, review-arc-payoff</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">characters/major/*.md</span><span class="w">   </span><span class="c1"># review-character, review-dialogue, review-motivation</span>
+</code></pre></div></p>
+<p>但 <code>_build_skill_prompt</code> 的 L146 行 <code>full_path = project_dir / resolved</code> 将字面量 <code>*</code> 传给 <code>Path.exists()</code>——返回 False。结果是 <code>[file not found: chapters/*.md]</code>。</p>
+<p><strong>影响</strong>：
+- <code>review-long-span</code> 无法做跨章 n-gram 分析（其核心功能）
+- 角色审查 skills 看不到 major/ 目录下的配角档案
+- <strong>静默失败——无日志、无告警、LLM 收到占位符文本但不知道这是错误</strong></p>
+<h4 id="bug-2-utf-8">Bug 2: 截断破坏 UTF-8 多字节字符</h4>
+<p>L169 行 <code>text[:limit]</code> 在任意字节偏移处切割——中文字符 3 字节，切割可能在字符中间，产生损坏的尾部字节。</p>
+<h4 id="bug-3-code-fence">Bug 3: Code fence 嵌套冲突</h4>
+<p>L243 行用 <code>```</code> 包裹输入文件内容。如果文件本身包含 <code>```</code>（如 META 块中的代码示例），内部 fence 会提前关闭外部包裹——LLM 解析混乱。</p>
+<h4 id="1-drafting">架构缺陷 1: 策展上下文仅被 drafting 消费</h4>
+<p><code>context_assemble.py</code> + <code>context_curation.py</code> 每章生成高质量的 9 节策展上下文（~12K chars），但 <strong>13 个审计 skills 都不读取它</strong>。它们各自独立重新读取原始 truth 文件。如果审计 skills 读取 <code>context/chapter-N-context.md</code> 的对应节（如 P7 世界铁律），可消除跨审计器的重复 truth 文件读取。</p>
+<h4 id="2-review-world-rules-33k-tokens">架构缺陷 2: review-world-rules 单次调用 33K tokens</h4>
+<p>读取 7 个文件（chapter + rules + power_system + locations + bible + summaries + current_state），总计 ~115K 字符。是所有 LLM 调用中最大的。<code>world/power_system.md</code>（28.8K）和 <code>world/locations.md</code>（24.9K）未被摘要就被全量发送。</p>
+<h4 id="3-40-reads">架构缺陷 3: 仅 40% 的 reads 声明了字段过滤</h4>
+<p>最大的文件最需要字段过滤，但恰恰缺少：
+- <code>chapters/chapter-N.md</code>（31K+）— 从未字段过滤
+- <code>world/power_system.md</code>（28.8K）— 从未字段过滤
+- <code>outline/volume_map.md</code>（26.3K）— 从未字段过滤</p>
+<h4 id="4_1">架构缺陷 4: 截断是均权而非优先级驱动</h4>
+<p>当总输入超过 128K 时，每个文件获得均等预算——500 字节的 audit_drift 和 30K 字节的 chapter 获得相同切片。应该基于文件类型分配权重。</p>
+<hr />
+<h2 id="5">5. 验证标准</h2>
+<ol>
+<li>每章总 token 消耗降低 ≥ 30%</li>
+<li>审计共享上下文缓存实现后，13 个审计器不再各自读取章节全文</li>
+<li>无 escalation 时 escalation-review 不产生 LLM 调用</li>
+<li>State-settling 在补充上下文后产出正确的追加（而非覆盖）</li>
+<li><code>just check</code> 全量通过</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
