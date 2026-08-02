@@ -1260,11 +1260,24 @@ def _log_token_usage(
     state: Any = None,
     project_dir: Path | None = None,
 ) -> None:
-    """Log token usage from API response."""
-    if not hasattr(response, "usage") or response.usage is None:
+    """Log token usage from API response or a bare usage object.
+
+    Accepts either (a) a full API response object with a ``.usage`` attribute,
+    or (b) a bare Usage object (e.g. ``CompletionUsage`` from the streaming
+    final chunk) that has ``prompt_tokens`` / ``completion_tokens`` directly.
+    The streaming path passes the bare usage object (``_call_llm_streaming_
+    with_retry`` returns ``chunk.usage``), so the ``hasattr(response, "usage")``
+    guard alone would skip it — handle both shapes.
+    """
+    # Form (b): bare Usage object (has prompt_tokens directly, no nested .usage).
+    if hasattr(response, "prompt_tokens") and not hasattr(response, "usage"):
+        usage = response
+    # Form (a): response object wrapping usage.
+    elif hasattr(response, "usage") and response.usage is not None:
+        usage = response.usage
+    else:
         return
 
-    usage = response.usage
     log.info(
         "llm_token_usage",
         skill=skill_name,

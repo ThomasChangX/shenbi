@@ -1,15 +1,18 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-02
-> **活跃 plan 数**：0 | **已归档**：64（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：64（见 `archive/`）
 
-Plan 文件在 spec 进入实施阶段后才创建。当前 v1 基线 + PR #28（dependabot/embeddings CI follow-up）已全部交付，无活跃 plan。
+Plan 文件在 spec 进入实施阶段后才创建。当前 v1 基线 + PR #28（dependabot/embeddings CI follow-up）已交付。
 
 ---
 
 ## 活跃 Plan
 
-暂无活跃 plan。活跃 spec 执行队列见 [`specs/INDEX.md`](../specs/INDEX.md)。
+### `2026-08-02-token-efficiency-master-p0-p1.md`
+- **对应 spec**：`specs/2026-08-01-pipeline-read-write-consistency-audit-design.md`（#3 总纲）
+- **范围**：P0（纯浪费 5 项）+ P1（契约一致 2 项）；T8 §3.7 字段级 reads + P2 效率优化延后
+- **状态**：Implementing（PR #39）
 
 ## 待执行的 spec → plan 映射
 

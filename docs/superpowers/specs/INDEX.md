@@ -12,9 +12,9 @@
 
 ### #3 · Token 效率全栈 audit 总纲：读写一致性与输入侧浪费
 
-> **注**：#3–#6 这 4 个 spec 设计文档当前为**本地未提交**（untracked）文件，尚未纳入版本库。INDEX 在此预登记以反映队列意图；待各自 plan 批准、实施 PR 时随同提交。文件名字段标注 `（本地未提交）`。
+> **状态**：本 PR (#39) 落地总纲 P0+P1；3 子 spec (#4-#6) 同 PR 入库，待各自 plan 批准后实施。
 
-- **文件**：`2026-08-01-pipeline-read-write-consistency-audit-design.md`（本地未提交）
+- **文件**：`2026-08-01-pipeline-read-write-consistency-audit-design.md`
 - **系列**：Token 效率全栈 audit（第三轮，承接归档 `2026-07-17-reduce-token-waste` / `2026-07-18-optimize-llm-context` / `2026-07-19-06-llm-context-engineering`）
 - **状态**：Design（总纲）
 - **优先级**：🟠 High（系统性效率与契约一致性缺陷，非 P0 阻塞）
@@ -22,11 +22,11 @@
 - **依赖**：上述 3 归档 spec；G4 结构校验门；`src/shenbi/pipeline/dispatch_helper.py` / `src/shenbi/pipeline/audit_layer.py` / `src/shenbi/cost/`
 - **内容**：本 spec 是 **总纲**——定义全局决策原则（质量 > token > 速度，但不应有浪费）、四 spec 分工边界（§0）、跨 spec 根因簇图（§1b：Cluster A dead-wiring / B 契约脱节 / C 重复传输 / D 调用方式→子 spec #5 / E 输出放大→子 spec #6）；并保留**输入侧（读/写/system prompt）的 10 条 findings**（§3）。折叠 3 个证据不足的维度：provider cache（并入 §3.9）、并行效率（SharedAuditContext 省 IO 不省 token）、审计器去冗（并入子 spec #6 F9）。决策原则：凡是 G4/gate FAIL 的上下文都是必要保留。
 - **关系**：#3 总纲 ← #4 推理控制 / #5 确定性替换 / #6 输出侧（三个子 spec 的前置依赖与共享根因簇图）
-- **对应 plan**：❌ 未写
+- **对应 plan**：✅ `plans/2026-08-02-token-efficiency-master-p0-p1.md`（P0+P1 实施；T8 §3.7 + P2 延后）
 
 ### #4 · 推理控制层审计：采样参数 / 模型路由 / 重试经济
 
-- **文件**：`2026-08-01-inference-control-audit-design.md`（本地未提交）
+- **文件**：`2026-08-01-inference-control-audit-design.md`
 - **系列**：Token 效率全栈 audit（子 spec 1/3，隶属总纲 #3）
 - **状态**：Design
 - **优先级**：🟠 High（调用方式层的系统性浪费与盲点）
@@ -37,7 +37,7 @@
 
 ### #5 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
 
-- **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`（本地未提交）
+- **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`
 - **系列**：Token 效率全栈 audit（子 spec 2/3，隶属总纲 #3）
 - **状态**：Design
 - **优先级**：🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）
@@ -48,7 +48,7 @@
 
 ### #6 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
 
-- **文件**：`2026-08-01-output-side-waste-audit-design.md`（本地未提交）
+- **文件**：`2026-08-01-output-side-waste-audit-design.md`
 - **系列**：Token 效率全栈 audit（子 spec 3/3，隶属总纲 #3）
 - **状态**：Design
 - **优先级**：🟠 High（输出 token 单价 2-3× 输入；总纲 #3 的盲点）
