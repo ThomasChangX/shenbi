@@ -43,10 +43,17 @@ def estimate_cost(usage: dict[str, Any], model: str | None = None) -> float:
         usage: dict with 'prompt_tokens' and 'completion_tokens' (int).
         model: explicit model name; None resolves from env/default.
 
-    Unknown models fall back to the DEFAULT_PRICING_MODEL entry.
+    Raises:
+        ValueError: if the resolved model has no PRICING entry (spec §5.2 I3).
     """
     resolved = resolve_model(model)
-    rates = PRICING.get(resolved, PRICING[DEFAULT_PRICING_MODEL])
+    if resolved not in PRICING:
+        raise ValueError(
+            f"unknown model '{resolved}': no PRICING entry. "
+            f"Add it to PRICING or use a known model. "
+            f"Known: {list(PRICING.keys())}"
+        )
+    rates = PRICING[resolved]
     input_cost = int(usage.get("prompt_tokens", 0)) * rates["input"]
     output_cost = int(usage.get("completion_tokens", 0)) * rates["output"]
     return input_cost + output_cost

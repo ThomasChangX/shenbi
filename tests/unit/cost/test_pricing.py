@@ -70,13 +70,6 @@ class TestEstimateCost:
         )
         assert estimate_cost(usage) == pytest.approx(expected)
 
-    def test_unknown_model_falls_back_to_default(self):
-        # An unknown model must not crash; it prices against the default.
-        usage = {"prompt_tokens": 10, "completion_tokens": 10}
-        # Should not raise:
-        cost = estimate_cost(usage, model="brand-new-model-x")
-        assert cost >= 0
-
     def test_missing_tokens_treated_as_zero(self):
         """Missing prompt_tokens or completion_tokens default to 0."""
         cost = estimate_cost({"prompt_tokens": 0})
