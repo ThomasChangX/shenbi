@@ -368,13 +368,6 @@
       "shenbi-intent-management"
     ]
   },
-  "plans/chapter-N-plan-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-chapter-planning"
-    ],
-    "updates": []
-  },
   "audits/chapter-N-*.md": {
     "reads": [
       "shenbi-chapter-revision",
@@ -973,13 +966,6 @@
     "reads": [],
     "writes": [
       "shenbi-short-packaging"
-    ],
-    "updates": []
-  },
-  "truth/state-settling-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-state-settling"
     ],
     "updates": []
   },
