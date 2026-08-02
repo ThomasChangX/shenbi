@@ -4,7 +4,7 @@
 > **Status:** Design
 > **Severity:** 🟠 High（调用方式层的系统性浪费与盲点）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
-> **系列:** Token 效率全栈 audit（子 spec 1/3，隶属总纲 [`...read-write-consistency-audit-design.md`](2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
+> **系列:** Token 效率全栈 audit（子 spec 1/3，隶属总纲 [`...read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
 > **依赖:** 总纲 spec（决策原则、跨 spec 根因簇图）；`executor_config.toml`；`src/shenbi/pipeline/dispatch_helper.py`；`src/shenbi/cost/pricing.py`
 > **范围:** 本 spec 只审 **how the model is CALLED**（采样参数、模型选择、重试/截断处理），**不审** prompt 内容（见总纲）、不审输出侧浪费（见子 spec 3）、不审确定性替换（见子 spec 2）。
 > **Purpose:** 把"模型怎么被调用"这一层的 10 类隐性浪费与盲点定位到根因——采样参数与任务类型错配、模型单点硬编码无路由、G4 重试全量重发、`finish_reason=length` 完全未检测致重试预算空烧——使调用层从"全 skill 同参数同模型"演进到"按任务类型分层调用"。

@@ -4,7 +4,7 @@
 > **Status:** Design
 > **Severity:** 🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段
-> **系列:** Token 效率全栈 audit（子 spec 2/3，隶属总纲 [`...read-write-consistency-audit-design.md`](2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
+> **系列:** Token 效率全栈 audit（子 spec 2/3，隶属总纲 [`...read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
 > **依赖:** 总纲 spec；`src/shenbi/skill_utils/`（9 个已存在的确定性助手）；`src/shenbi/pipeline/{context_assemble,truth_io,hook_planting,scr_extractor}.py`；archive `2026-07-19-01`（覆盖 vs 追加 postmortem）
 > **范围:** 本 spec 只审 **"这个 LLM 调用本身是否必要"**——能否用确定性 Python 替代（部分或全部）。**不审** prompt 内容（总纲）、不审调用参数（推理控制 spec）、不审输出浪费（输出侧 spec）。
 > **核心洞察（决定本 spec 框架）:** "确定性替换"不是假设性维度——**repo 已 9 次实现该模式**（`skill_utils/` + `pipeline/` 助手），且 repo 自有 postmortem 证明确定性写路径是最高严重缺陷（CN3 覆盖 bug）的根因修复。因此本 spec 不是"要不要引入"，是"把提升判据形式化 + 逐候选评估剩余 skill"。

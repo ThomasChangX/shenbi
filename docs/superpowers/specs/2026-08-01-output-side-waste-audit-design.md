@@ -4,7 +4,7 @@
 > **Status:** Design
 > **Severity:** 🟠 High（输出 token 单价 2-3× 输入；输出侧是总纲 spec 的盲点）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段
-> **系列:** Token 效率全栈 audit（子 spec 3/3，隶属总纲 [`...read-write-consistency-audit-design.md`](2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
+> **系列:** Token 效率全栈 audit（子 spec 3/3，隶属总纲 [`...read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
 > **依赖:** 总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置）；推理控制 spec（§2.9 finish_reason=length 盲点驱动本 spec F8 重试放大）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
 > **范围:** 本 spec 只审 **输出侧浪费**——LLM 产出 token 的浪费（重试放大、审计器交叉冗余、revision 读原始 glob 无去重）。**不审** 输入侧（总纲 §3 的 10 条）、不审调用参数（推理控制 spec）。
 > **核心定位:** 总纲 spec §3 的 10 条 findings **全部是输入侧**（reads/system prompt）。但 LLM 调用成本 = 输入 + 输出，输出 token 单价更高。本 spec 补总纲盲点：4 条输出侧 findings，其中 3 条是总纲完全未覆盖的新发现。
