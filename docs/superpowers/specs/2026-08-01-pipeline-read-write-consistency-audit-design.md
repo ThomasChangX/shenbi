@@ -81,7 +81,7 @@ G4/gate 是唯一裁判；spec 不主观判断"质量"。
 
 - Agent-1：dispatcher 派发 I/O 路径（`dispatch_helper.py` / `audit_context_cache.py`）
 - Agent-2：73 个 `shenbi-*` skills 的 `reads:` / `writes:` 契约面（268 reads / ~140 writes）
-- Agent-3：prompt 体量与 boilerplate（74 SKILL.md body 度量）
+- Agent-3：prompt 体量与 boilerplate（73 SKILL.md body 度量）
 - Agent-4：前两轮 13 项提议的实现态复核（grep + 读源码核验）
 - Agent-5/6/7（全栈扩展）：推理控制层 / 确定性替换可行性 / 输出侧 + provider cache + 并行的 deep-dive（撑起三子 spec + 折叠决策）
 
