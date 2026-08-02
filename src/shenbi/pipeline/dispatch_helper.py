@@ -149,6 +149,33 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     return _META_PATTERN.sub("", text)
 
 
+# Sentinels for the auto-generated body blocks (spec §3.8). These are kept in
+# the SKILL.md for codegen traceability + CI idempotency, but they are 100%
+# redundant with the frontmatter contract (which the dispatcher already parses
+# separately) and should never reach the LLM.
+_AUTOGEN_DATA_RE = re.compile(
+    r"<!-- AUTO-GENERATED.*?-->\n.*?<!-- END AUTO-GENERATED -->\n?",
+    re.DOTALL,
+)
+_AUTOGEN_CHECK_RE = re.compile(
+    r"<!-- AUTO-CHECK-START.*?-->\n.*?<!-- AUTO-CHECK-END -->\n?",
+    re.DOTALL,
+)
+
+
+def _strip_autogen_blocks(text: str) -> str:
+    """Remove the auto-generated 数据契约 + AUTO-CHECK blocks from a SKILL.md body.
+
+    Spec §3.8: both blocks duplicate frontmatter info (数据契约) or are empty
+    placeholders (AUTO-CHECK). Stripping them before the system prompt is sent
+    saves ~150-320 chars (data-contract) + ~80 chars (auto-check) per skill per
+    dispatch. The blocks remain in SKILL.md for codegen/CI — only the LLM view
+    changes.
+    """
+    text = _AUTOGEN_DATA_RE.sub("", text)
+    return _AUTOGEN_CHECK_RE.sub("", text)
+
+
 # ---------------------------------------------------------------------------
 # 10b: Genre-config per-chapter cache
 # ---------------------------------------------------------------------------
@@ -519,7 +546,7 @@ def _build_skill_prompt(
     # System prompt = SKILL.md (resolved from repo root, not CWD)
     skill_file = _PROJECT_ROOT / "skills" / skill / "SKILL.md"
     if skill_file.exists():
-        system_prompt = skill_file.read_text(encoding="utf-8")
+        system_prompt = _strip_autogen_blocks(skill_file.read_text(encoding="utf-8"))
     else:
         log.warning("skill_file_missing", skill=skill, path=str(skill_file))
         system_prompt = f"Execute the {skill} skill."
