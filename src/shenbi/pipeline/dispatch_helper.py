@@ -37,6 +37,7 @@ from tenacity import (
 
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
+from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.exceptions import DispatchWriteFailureError
 from shenbi.pipeline.llm_output_integrity import (
@@ -1250,7 +1251,12 @@ def _init_truth_templates(project_dir: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
+def _log_token_usage(
+    response: Any,
+    skill_name: str,
+    state: Any = None,
+    project_dir: Path | None = None,
+) -> None:
     """Log token usage from API response."""
     if not hasattr(response, "usage") or response.usage is None:
         return
@@ -1265,11 +1271,22 @@ def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
     )
 
     if state:
-        _record_token_usage(state, skill_name, usage)
+        _record_token_usage(state, skill_name, usage, project_dir=project_dir)
 
 
-def _record_token_usage(state: Any, skill_name: str, usage: Any) -> None:
-    """Accumulate token usage in pipeline state."""
+def _record_token_usage(
+    state: Any,
+    skill_name: str,
+    usage: Any,
+    project_dir: Path | None = None,
+) -> None:
+    """Accumulate token usage in pipeline state and persist to the ledger.
+
+    Spec §3.1: previously only mutated the in-memory state.token_usage dict —
+    the TokenLedger.record() write side was never wired, leaving
+    cost/token-ledger.jsonl permanently empty (dead-wire). Now also appends a
+    record when project_dir is available.
+    """
     if not hasattr(state, "token_usage"):
         state.token_usage = {}
 
@@ -1286,6 +1303,18 @@ def _record_token_usage(state: Any, skill_name: str, usage: Any) -> None:
     rec["completion_tokens"] += usage.completion_tokens
     rec["total_tokens"] += usage.total_tokens
     rec["calls"] += 1
+
+    # Spec §3.1 wire-up: persist this usage to the append-only ledger.
+    if project_dir is not None:
+        TokenLedger(project_dir).record(
+            skill_name,
+            getattr(state, "chapter", 0) or 0,
+            {
+                "prompt_tokens": usage.prompt_tokens,
+                "completion_tokens": usage.completion_tokens,
+                "total_tokens": usage.total_tokens,
+            },
+        )
 
 
 def print_token_summary(state: Any) -> None:
@@ -1492,7 +1521,7 @@ def _dispatch_via_api(
     # (via stream_options={"include_usage": True}). Falls back to pre-flight
     # heuristic (warn_if_over_budget) when usage is unavailable.
     if usage is not None:
-        _log_token_usage(usage, skill, state=state)
+        _log_token_usage(usage, skill, state=state, project_dir=project_dir)
 
     try:
         output = _parse_structured_output(output_text)
@@ -1549,6 +1578,7 @@ def _dispatch_via_ide(
     prompt: str,
     uses_staging: bool = False,
     shared_context: Any = None,
+    state: Any = None,
 ) -> DispatchResult:
     """Execute a skill via an IDE agent CLI (codex / zcode).
 
@@ -1621,6 +1651,15 @@ def _dispatch_via_ide(
     if missing:
         log.error("ide_missing_outputs", skill=skill, missing=missing)
 
+    # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
+    # (codex exec stdout is prose, not a usage object). state is threaded so a
+    # future codex --json or zcode usage-report feature can record here.
+    if state is not None:
+        log.info(
+            "ide_dispatch_uninstrumented_tokens",
+            skill=skill,
+            hint="IDE path cannot record usage; ledger row skipped",
+        )
     return DispatchResult(True, 0, r.stdout, r.stderr)
 
 
@@ -1673,7 +1712,12 @@ def dispatch_skill(
     # IDE CLI path
     if _find_ide_cli():
         return _dispatch_via_ide(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+            skill,
+            pd,
+            prompt,
+            uses_staging=uses_staging,
+            shared_context=shared_context,
+            state=state,
         )
 
     # Legacy CLI subprocess path
