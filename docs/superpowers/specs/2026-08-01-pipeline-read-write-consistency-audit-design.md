@@ -59,7 +59,7 @@ archive 中已有三轮 Token 效率设计：
 本 spec **不复述**上述设计的论证，只做两件它们都没做的事：
 
 1. **审计审计者** —— 逐项复核前两轮 13 项提议的**实际代码落地状态**，用 `file:line` 落证。这是本 spec 的核心新贡献：前两轮都是"设计 + 计划"，从未做过一次"事后核验哪些真接进派发路径了"。
-2. **补 5 类前两轮漏掉的根因** —— 全部来自本轮 4 个并行 Explore agent 的新证据（详见 §3）。
+2. **补 5 类前两轮漏掉的根因** —— 全部来自本轮 7 个并行 Explore agent 的新证据（详见 §3）。
 
 前两轮 spec 的设计论证仍作参考；本 spec 在 §2 用"落地状态表"接管它们的跟踪职责。
 
@@ -77,10 +77,10 @@ G4/gate 是唯一裁判；spec 不主观判断"质量"。
 
 ### 1.3 证据来源
 
-4 个并行 Explore agent（"very thorough"），全部 `file:line` 落证：
+7 个并行 Explore agent（"very thorough"），全部 `file:line` 落证（Agent-1–4 为核心审计组，Agent-5/6/7 为全栈扩展，撑起三子 spec）：
 
 - Agent-1：dispatcher 派发 I/O 路径（`dispatch_helper.py` / `audit_context_cache.py`）
-- Agent-2：69 skills 的 `reads:` / `writes:` 契约面（268 reads / ~140 writes）
+- Agent-2：73 个 `shenbi-*` skills 的 `reads:` / `writes:` 契约面（268 reads / ~140 writes）
 - Agent-3：prompt 体量与 boilerplate（74 SKILL.md body 度量）
 - Agent-4：前两轮 13 项提议的实现态复核（grep + 读源码核验）
 - Agent-5/6/7（全栈扩展）：推理控制层 / 确定性替换可行性 / 输出侧 + provider cache + 并行的 deep-dive（撑起三子 spec + 折叠决策）
@@ -140,7 +140,7 @@ Cluster E "输出放大"（输出 spec 专属）
 | 4 | 07-18 §3.1 | reads glob 展开 | `dispatch_helper.py:354` `_resolve_read_path` / `:366` `glob_module.glob` / 专用测试 `tests/pipeline/test_dispatch_helper_glob.py` |
 | 5 | 07-18 §3.3 | 输入 `<document>` XML 包裹 | `dispatch_helper.py:669-674`（`:673` `<` 转 `\u003c` + `:674` `<document>` 包裹）/ 专用测试 `test_dispatch_helper_xml.py` |
 | 6 | 07-18 §3.6 | 字段级 reads 过滤 | `src/shenbi/contracts/fields.py:83` `filter_to_fields` / `dispatch_helper.py:541` 调用 |
-| 7 | 07-18 §3.8 | 审计级联早退 | `chapter_loop.py:327` `_should_skip_audit`（N 章连续 PASS 的启发式，非"core PASS 即跳"）/ `:2545` 过滤 |
+| 7 | 07-18 §3.8 | 审计级联早退 | `chapter_loop.py:327` `_should_skip_audit`（N 章连续 PASS 的启发式，**非原案"core PASS 即跳"——实为部分落地，语义更保守**）/ `:2545` 过滤 |
 
 ### 2.2 部分落地（2 项，详述）
 
@@ -185,7 +185,7 @@ Cluster E "输出放大"（输出 spec 专属）
 #### 3.1 TokenLedger dead-wire（dead infrastructure）
 
 - **症状**：`cost/token-ledger.jsonl` 任何 round 后为空；`shenbi-cost-report` 全零。
-- **证据**：`ledger.py:45` `record()` 定义；`grep -rn "TokenLedger\|\.record(" src/shenbi/` 仅命中类定义 + `report.py:40` 的 `summarize()`；`dispatch_helper.py:1246` `_record_token_usage` 只写 `state.token_usage` 内存 dict（`chapter_loop.py:2857` 的 `tracker.record()` 是 `EscalationTracker`，非 `TokenLedger`）。
+- **证据**：`ledger.py:45` `record()` 定义；`grep -rn "TokenLedger\|\.record(" src/shenbi/` 仅命中类定义 + `report.py:40` 的 `summarize()`；`dispatch_helper.py:1246` `_record_token_usage` 只写 `state.token_usage` 内存 dict（`chapter_loop.py:2857` 的 `tracker.record()` 是 `EscalationTracker`，非 `TokenLedger`）。**另**：IDE-CLI 路径 `_dispatch_via_ide`（`:1521`）无 `state` 形参、从不调 `_record_token_usage`/`_log_token_usage`——即使 API 路径接了 ledger，IDE dispatch 的用量也从未入账（§3.9 强调 IDE 路径是主要损耗点，却恰是最未观测的路径）。
 - **根因**：cost 基础设施按"类 + 读侧"先建，写侧接线（在 `_record_token_usage` 里 `ledger.record(...)`）从未补上。第一轮 spec 把可观测性列为目标，但实施止步于类存在。
 - **分类**：dead-wire（修不影响任何 gate）。
 - **浪费量**：零 token 节省，但**使所有后续 token 优化无法度量**——没有 baseline 就无法证明 §6 任何 P2 改动的收益。
@@ -203,7 +203,7 @@ Cluster E "输出放大"（输出 spec 专属）
 #### 3.3 跨 dispatch 文件 read_text 无缓存
 
 - **症状**：同一 truth 文件在一章内被 5+ 个 dispatch 重复读取并发送给 LLM。
-- **证据**：`dispatch_helper.py:537` `content = full_path.read_text(...)` 每次 `_build_skill_prompt` 调用都执行；无跨调用缓存（对比 `_load_executor_config:127` / `_load_genre_config_cached:164` 是显式缓存的）。`truth/pending_hooks.md` 被 17 个 skill 声明为 read，`truth/chapter_summaries.md` 被 12 个，`truth/character_matrix.md` 被 8 个；单章链 planning→context→drafting→revision→state-settling 内 `pending_hooks` 至少读 3 次。
+- **证据**：`dispatch_helper.py:537` `content = full_path.read_text(...)` 每次 `_build_skill_prompt` 调用都执行；无跨调用缓存（对比 `_load_executor_config:127` / `_load_genre_config_cached:164` 是显式缓存的）。`truth/pending_hooks.md` 被 22 个 skill 声明为 read，`truth/chapter_summaries.md` 被 16 个，`truth/character_matrix.md` 被 12 个（grep skills/*/SKILL.md 计数，含 producer 自身契约）；单章链 planning→context→drafting→revision→state-settling 内 `pending_hooks` 至少读 3 次。
 - **根因**：dispatcher 把每次 dispatch 视为独立无状态调用，没有"本章已发送文件集"的概念。`SharedAuditContext` 是这个概念的局部实现，但只覆盖审计场景。
 - **分类**：冗余待去重（provider 端 prompt caching 能部分兜底，但 IDE-CLI 路径绕过——见 3.9）。
 - **浪费量**：单章 ~5-8 个非审计 dispatch × ~30-60KB truth 集合 = ~150-480KB 重发/章。
@@ -252,7 +252,7 @@ Cluster E "输出放大"（输出 spec 专属）
 #### 3.7 字段级 reads 覆盖率 13%，最大三文件零 fields
 
 - **症状**：字段级过滤（Layer B）本是最有效的 token 削减手段，但绝大多数 read 仍是全文件读。
-- **证据**：268 条 read 中 dict-form `fields:` 仅 35 条（13.1%），58/72 skill 从不用字段过滤；最该过滤的三个大文件**零 fields 声明**：
+- **证据**：268 条 read 中 dict-form `fields:` 仅 35 条（13.1%），58/73 skill 从不用字段过滤；最该过滤的三个大文件**零 fields 声明**：
 
   | 文件 | 体积 | 是否任何 skill 声明 fields？ |
   |---|---|---|
@@ -270,7 +270,7 @@ Cluster E "输出放大"（输出 spec 专属）
 #### 3.8 auto-generated `## 数据契约` + 空 `AUTO-CHECK` 块跨 72-73 skills 与 frontmatter 重复
 
 - **症状**：每个 SKILL.md 的 body 都有一段 codegen 生成的块，重复 frontmatter 的 `contract:`，且有空占位块。
-- **证据**：72/74 skills 含 `<!-- AUTO-GENERATED -->` + `## 数据契约`（重复 frontmatter reads/writes/updates，每 skill ~150-320 字符）；73/74 skills 含 `<!-- AUTO-CHECK-START -->` + `## auto-check (generated -- do not edit)` + `<!-- AUTO-CHECK-END -->` 纯空占位（例：`escalation-review/SKILL.md:19-23`）。
+- **证据**：72/73 skills 含 `<!-- AUTO-GENERATED -->` + `## 数据契约`（重复 frontmatter reads/writes/updates，每 skill ~150-320 字符）；73/73 skills 含 `<!-- AUTO-CHECK-START -->` + `## auto-check (generated -- do not edit)` + `<!-- AUTO-CHECK-END -->` 纯空占位（例：`escalation-review/SKILL.md:19-23`）。
 - **根因**：codegen 步骤生成这两块时，body 也被当独立载体发送给 LLM——而 dispatcher 发 system prompt 是**整文件 `read_text`**（`dispatch_helper.py:506`），frontmatter + auto-gen 块 + body 全送。
 - **分类**：纯浪费（auto-gen 与 frontmatter 100% 信息冗余；AUTO-CHECK 空块零信息）。
 - **浪费量**：~150-320 字符/skill × 72 + ~80 字符空块 × 73 ≈ ~17-27KB 的 system prompt 冗余。因 system prompt 每次 dispatch 全发（见 3.9），单章累计放大 N 倍。
@@ -280,7 +280,7 @@ Cluster E "输出放大"（输出 spec 专属）
 
 - **症状**：同一 skill 在一章内被多次 dispatch 时，其 ~3-13KB 的 SKILL.md 每次都作为 system prompt 全量发送。
 - **证据**：`dispatch_helper.py:506` `system_prompt = skill_file.read_text(...)` 每次 `_build_skill_prompt` 重读重发；`dispatch_helper.py:1550` IDE-CLI 路径 `_dispatch_via_ide`（def `:1521`）把 `system_prompt + "\n\n" + user_prompt`（`:1550`）拼成单 stdin 字符串（`subprocess.run(input=full_prompt, ...)` `:1561`），**完全绕过 provider 的 prompt caching**（provider cache 要求 system 与 user 分离、system 前缀稳定）。
-- **根因**：dispatcher 把 system prompt 当作"每次都要重新组装的字符串"，而非"跨调用稳定的可缓存前缀"。最大的 5 个 SKILL.md（`review-resonance` 13,221 字符 / `review-arc-payoff` 12,554 / `chapter-pattern` 11,118 / `pacing-design` 10,634 / `foundation-review` 10,426）每章被发 N 次。
+- **根因**：dispatcher 把 system prompt 当作"每次都要重新组装的字符串"，而非"跨调用稳定的可缓存前缀"。最大的 5 个 SKILL.md（`review-resonance` 13,987 字节 / `review-arc-payoff` 13,354 / `chapter-pattern` 11,582 / `state-settling` 11,113 / `pacing-design` 11,089）每章被发 N 次。
 - **分类**：冗余待去重（API 路径靠 provider cache 部分兜底；IDE-CLI 路径完全不兜底）。
 - **浪费量**：review 类一章 ~13 个器 × ~13KB ≈ ~170KB/章（API 路径有 cache 抵消大半；IDE-CLI 路径全损）。
 - **质量影响**：无。
@@ -309,6 +309,8 @@ Cluster E "输出放大"（输出 spec 专属）
 
 **簇分析的价值**：修单点不如修模式。Cluster A 的 3 项都靠"补一条派发路径接线"修；Cluster B 都靠"加一个契约一致性 gate（G4 扩展或新 lint）"修；Cluster C 都靠"引入跨 dispatch 上下文记忆层"修。
 
+> **注（3.9 跨簇）**：3.9 同时属 Cluster A（IDE-CLI 路径拼 stdin 绕过 provider cache = dead-wiring）与 Cluster C（system prompt 每次 dispatch 全文重发 = 重复传输）。§1.4 跨 spec 图把 3.9 归 C；本表归 A。二者皆成立（3.9 是 cache-bypass 也是重复传输）——修复时需同时考虑接线（A）与缓存前缀稳定（C）。
+
 ---
 
 ## 5. 假设与验证（Phase 3）—— 每条 finding 一行
@@ -319,7 +321,7 @@ Cluster E "输出放大"（输出 spec 专属）
 | 3.2 | serial 路径不传 shared_context 是接线遗漏 | `run_audit_layer` 调 `dispatch_skill` 处加 `shared_context=...` 后跑一章，对比 serial 审计器的 prompt_tokens 下降 |
 | 3.3 | 同章同文件被多次 read_text | 在 `_build_skill_prompt:537` 加临时日志 `log.info("read_text", path=..., skill=...)`，跑一章统计同文件被多少 skill 读 |
 | 3.4 | basename 键会冲突 | 构造两目录同名文件（如 `a/hooks.md` + `b/hooks.md`）的 round，查 LLM 收到的 inputs 是否少一份 |
-| 3.5 | 5 个 sidecar 无下游 reads | grep 全 skills 的 `reads:` 块对每个 sidecar 路径（已核，见 §3.5 表） |
+| 3.5 | 5 个 sidecar 无下游 reads | grep 全 skills 的 `reads:` 块对每个 sidecar 路径（已核：`grep -rn "decisions.json" skills/*/SKILL.md` 的 reads 段，仅 2 命中——见 §3.5 表；5 个 dead 的负证据 = 该 grep 对其路径零 reads 命中） |
 | 3.6 | 3 个 score 文件 body 不引用 | 对 escalation-review body 做字面量搜索（已核，见 §3.6） |
 | 3.7 | 三大文件零 fields 声明 | grep `contract.reads` 中含这三文件名的 dict-form 命中数（已核 = 0） |
 | 3.8 | auto-gen 块与 frontmatter 100% 冗余 | diff 任一 SKILL.md 的 frontmatter `contract:` 与 `## 数据契约` 块内容 |
@@ -336,9 +338,9 @@ Cluster E "输出放大"（输出 spec 专属）
 
 | Finding | 修复 | 落地点 | 验证 |
 |---|---|---|---|
-| 3.1 | 在 `_record_token_usage` 末尾接 `TokenLedger(project_dir).record(skill, chapter, usage_dict, model)` | `dispatch_helper.py:1246-1263` | 一章 round 后 `cost/token-ledger.jsonl` 非空 |
-| 3.4 | `raw_inputs[full_path.name]` → `raw_inputs[str(full_path.relative_to(project_dir))]` | `dispatch_helper.py:544` | 加两同名文件 round 测试，inputs 含两份 |
-| 3.6 | 删 `escalation-review` 的 3 个 dead reads | `skills/shenbi-escalation-review/SKILL.md:10-12` + `:29` + 重跑 codegen | G4 PASS；escalation 触发时输出不变 |
+| 3.1 | 在 `_record_token_usage` 末尾接 `TokenLedger(project_dir).record(skill, chapter, usage_dict, model)`；**同时把 `state` 穿入 IDE-CLI 路径**（`_dispatch_via_ide` 当前无 `state` 形参、不调 `_record_token_usage`，IDE dispatch 的 token 用量从未入账——见 §3.1 证据补注） | `dispatch_helper.py:1246-1263`（API 路径）+ `:1521` 签名补 `state` + `:1650` 调用点补传 | 一章 round 后 `cost/token-ledger.jsonl` 非空；IDE 路径 dispatch 亦追加一行（集成测试） |
+| 3.4 | `raw_inputs[full_path.name]` → `raw_inputs[str(full_path.relative_to(project_dir))]`，**同步更新 SharedAuditContext 注入块的键**（当前 `dispatch_helper.py:551-557` 用 basename `world_rules.md` / `character_matrix.md` / `style_profile.md` / `pending_hooks.md` 注入；若 read 路径改 relative-path 键而注入块不改，同一逻辑文件会以两个键名各发一次——重复传输，与 Cluster C 目的相悖）。**推荐**：抽取单一 `_input_key(full_path, project_dir)` helper，read 循环与注入块共用。 | `dispatch_helper.py:544` + `:551-557` 注入块同步 | 两同名文件 round 测试：inputs 含两份；**额外**：`raw_inputs` 中同一逻辑文件不出现两个键名（无重复 `<document>`）；shared_context 注入生效后不与磁盘读重复 |
+| 3.6 | 删 `escalation-review` 的 3 个 dead reads。**codegen 重跑是硬前置**：`:29` auto-gen `**Reads:**` 行由 frontmatter 生成，只改 frontmatter 不重跑 codegen → LLM 仍在 system prompt 的 `## 数据契约` 块看到 dead reads（见 3.8）。必须 `just generate`（或等价 codegen）使 `:29` 同步删除 | `skills/shenbi-escalation-review/SKILL.md:10-12`（frontmatter）+ `:29`（auto-gen，codegen 重跑后自动同步） | G4 PASS；`## 数据契约` Reads 行不再含 volume/arc/stratum-N-score；escalation 触发时输出不变 |
 | 3.8 | codegen 不再生成 `## 数据契约` + `AUTO-CHECK` 块（或 dispatcher 发 system prompt 前剥离它们） | codegen 脚本 or `dispatch_helper.py:506` 后处理 | G4 全过；system prompt 字符数下降 |
 | 2.3 #11 | 删死码 `_inject_instruction_hierarchy` 或接进 `_build_skill_prompt`（二选一） | `dispatch_helper.py:714` | 删：无 caller 不影响；接：单测 prompt 结构 |
 
@@ -346,7 +348,7 @@ Cluster E "输出放大"（输出 spec 专属）
 
 | Finding | 修复 | 验证 |
 |---|---|---|
-| 3.5 | 5 个 dead sidecar：要么删其 `writes:`（若真无下游需要），要么补一个下游 `reads:`（若设计上该有）—— 逐个判定。建议先加一条 G4/lint：**"writes 中的 `*-decisions.json` 必须在某个 skill 的 reads 中出现"** | 新 lint 跑全 skills 报剩余违规数 |
+| 3.5 | 5 个 dead sidecar：要么删其 `writes:`（若真无下游需要），要么补一个下游 `reads:`（若设计上该有）—— **逐个判定，非一刀切删**。至少 2 个有设计意图歧义：`plans/chapter-N-plan-decisions.json`（drafting 读 plan.md 但不读其 decisions——是否本应给 drafting？）、`truth/state-settling-decisions.json`（`state_heal.py:58` 读的是 revision-decisions 做计数器，state-settling-decisions 是否预留给尚未建的下游 skill？）。plan 阶段须产出 per-sidecar disposition 表（delete / add-consumer，各附一行理由）。无论 disposition 如何，都加一条 G4/lint：**"writes 中的 `*-decisions.json` 必须在某个 skill 的 reads 中出现"**（防止再生） | 新 lint 跑全 skills 报剩余违规数；per-sidecar disposition 表评审通过 |
 | 3.7 | 为三大文件（chapter-N / power_system / volume_map）在高频 skill（planning / drafting / context-composing / review-world-rules）的 reads 声明 fields，复用 07-18 §2.1 的字段结论 | 字段覆盖率 >5KB reads ≥80%；G4 对相关 skill 仍 PASS |
 
 ### 6.3 P2 效率（需 G4 全量验证收益与无回归）
@@ -354,8 +356,8 @@ Cluster E "输出放大"（输出 spec 专属）
 | Finding | 修复 | 风险 | 收益验证 |
 |---|---|---|---|
 | 3.2 | `run_audit_layer` 调 `dispatch_skill` 时传 `shared_context`（需先 `build_shared_audit_context`） | 低（parallel 波已验证） | serial 审计器 prompt_tokens 下降 |
-| 3.3 | 引入跨 dispatch 的"本章已发文件"缓存层（在 pipeline state 上挂 dict，`_build_skill_prompt` 命中则引用前次切片） | 中（缓存失效语义：文件被本 skill 写后失效） | 同章同文件 read_text 次数下降 |
-| 3.9 | IDE-CLI 路径 system/user 分离（若 codex/zcode CLI 支持 system 参数）；否则至少保证 system 前缀字节稳定以触发 provider cache | 中（依赖 CLI 能力） | IDE 路径 prompt cache hit rate 上升 |
+| 3.3 | 引入跨 dispatch 的"本章已发文件"缓存层（在 pipeline state 上挂 dict，`_build_skill_prompt` 命中则引用前次切片）。**失效语义必须基于内容变化（hash/etag of post-write bytes），非"写事件"**——repo 有 6+ skill 同章既读又写 truth 文件（drift-guidance / foreshadowing-recall / memory-distill / state-settling 写 `pending_hooks` 后被下章 planning 读 等）；"写后失效"会过宽失效（mid-chapter 对未变内容重读）或过窄（stale-read）。缓存不变式：cached slice 反映文件在 chapter planning phase 的内容；失效当且仅当 post-write bytes ≠ cached bytes | 中（缓存失效语义：content-hash 比对；read-write-same-file 模式需 §5 加 read→write→read 不 stale 验证） | 同章同文件 read_text 次数下降；read→write→read 序列不返回 stale slice |
+| 3.9 | **默认形态**：保证 system 前缀字节稳定以触发 provider cache（system prompt 跨 dispatch 不变即足）。**强形态（stretch）**：IDE-CLI 路径 system/user 分离——**前提是 codex/zcode CLI 支持 system 参数**；当前 `_find_ide_cli`（`:1500`）构造 `codex exec ... -`（stdin 单 prompt），无 `--system` flag，强形态未验证可行。plan 阶段先验证 CLI 能力，不支持则只做默认形态 | 中（依赖 CLI 能力——plan 阶段先验证） | IDE 路径 prompt cache hit rate 上升（默认形态：前缀稳定即可部分受益） |
 | 3.10 | 5 大 SKILL.md 示例外置到 `skills/_shared/*.md` 或 `tests/fixtures/`，body 改引用；首次 dispatch 带、后续引用 | 中-高（可能影响格式遵循） | G4 对 5 skill 仍 PASS；system prompt 字符数下降 |
 | 2.3 #8/#9 | 落地 `world_summarizer.py` + `skills/_shared/`（07-18 §3.5/§3.9 原案） | 中 | review-world-rules prompt_tokens 下降且 G4 PASS |
 
@@ -409,6 +411,12 @@ P0/P1 实施前需另写 plan 并批准（本 spec 是 design，不实施）
    执行 plan ──► just check + G4 全过 ──► 归档本 spec
 ```
 
+**修复顺序约束**（plan 阶段必须遵守，源于 §6 各修复间的相互作用）：
+- **3.4 → 3.2**：3.4（basename→relative-path 键）必须先于 3.2（shared_context serial 接线）落地——否则 3.2 激活的 SharedAuditContext 注入块（basename 键）与未同步的 read 路径（relative-path 键）冲突，触发 §6.1 C1 所述重复传输回归。
+- **3.8 → 3.6**：3.8（移除 auto-gen 块）或 codegen 重跑必须先于/同于 3.6（删 escalation dead reads）——否则 `:29` auto-gen `**Reads:**` 仍向 LLM 广播 dead reads，3.6 对 LLM 视图无效。
+- **3.1（含 IDE 路径穿 state）是所有 P2 收益度量的前置**——无 ledger 写入，§6.3 任何"prompt_tokens 下降"不可证。
+```
+
 ---
 
 ## 10. 与前两轮的差异（为何本 spec 非重复）
@@ -416,7 +424,7 @@ P0/P1 实施前需另写 plan 并批准（本 spec 是 design，不实施）
 | 维度 | 前两轮（archive） | 本轮 |
 |---|---|---|
 | 视角 | 设计 + 提议 | 审计 + 落地复核 + 补漏 |
-| 证据 | 推理 + 估算 | 4 个并行 Explore agent 的 `file:line` 实证 |
+| 证据 | 推理 + 估算 | 7 个并行 Explore agent 的 `file:line` 实证 |
 | 对前两轮 | 不存在 | 逐项标落地状态（7/2/4），接管跟踪职责 |
 | dead-wire 发现 | 无 | TokenLedger / shared_context serial / IDE-CLI 绕 cache（Cluster A） |
 | 契约违规量化 | 无 | 5/7 dead sidecar、3 dead reads、13% 字段覆盖（Cluster B） |
