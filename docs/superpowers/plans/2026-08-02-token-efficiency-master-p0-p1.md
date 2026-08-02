@@ -785,8 +785,13 @@ Expected: FAIL — `ImportError: cannot import name 'find_dead_decisions_sidecar
 In `tools/lint_repo_consistency.py`, add (pure-Python, matching the existing `find_*` style — NO subprocess, NO shell-out grep):
 
 ```python
-from collections.abc import Container  # add at top if not already imported
-import yaml  # add at top if not already imported
+# Merge into the EXISTING `from collections.abc import Iterable` line at the
+# top of the file → `from collections.abc import Container, Iterable`.
+# Add `import yaml` alongside the other top-level imports.
+from collections.abc import Container, Iterable  # noqa: I001 (merge, don't duplicate)
+from typing import Any
+
+import yaml
 
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
 # (these are NOT dead even with no skill reads: — G4 consumes their schema).
@@ -796,6 +801,10 @@ _G4_DECISIONS_SKILLS = frozenset({
     "shenbi-chapter-revision",
     "shenbi-short-drafting",
 })
+
+# A SKILL.md with frontmatter splits into [pre, frontmatter, body] on "---".
+_FRONTMATTER_DELIM = "---"
+_EXPECTED_FRONTMATTER_PARTS = 3
 
 
 def _write_path(entry: object) -> str | None:
@@ -811,31 +820,32 @@ def _write_path(entry: object) -> str | None:
     return None
 
 
-def _all_skill_frontmatter() -> dict[str, dict]:
+def _all_skill_frontmatter() -> dict[str, dict[str, Any]]:
     """Return {skill_name: parsed frontmatter dict} for all shenbi-* skills."""
-    out: dict[str, dict] = {}
+    out: dict[str, dict[str, Any]] = {}
     for skill_md in sorted((REPO / "skills").glob("shenbi-*/SKILL.md")):
         text = skill_md.read_text(encoding="utf-8")
-        if text.startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
-                out[skill_md.parent.name] = yaml.safe_load(parts[1]) or {}
+        if text.startswith(_FRONTMATTER_DELIM):
+            parts = text.split(_FRONTMATTER_DELIM, 2)
+            if len(parts) >= _EXPECTED_FRONTMATTER_PARTS:
+                loaded = yaml.safe_load(parts[1])
+                if isinstance(loaded, dict):
+                    out[skill_md.parent.name] = loaded
     return out
 
 
-def _code_reference_stems() -> set[str]:
-    """Collect substring-stems from all src/shenbi + tools *.py files.
+def _code_reference_blob() -> str:
+    """Concatenate all src/shenbi + tools *.py file contents into one blob.
 
-    Used to check if a decisions.json path pattern is referenced in code.
-    Pure-Python (rglob + read_text) — matches the existing lint style, no
-    subprocess / shell-out grep (cross-platform safe).
+    Used by _is_dead_decisions_sidecar to check if a decisions.json path stem
+    is referenced in code. Pure-Python (rglob + read_text) — matches the
+    existing lint style, no subprocess / shell-out grep (cross-platform safe).
     """
-    stems: set[str] = set()
+    parts: list[str] = []
     for root in (REPO / "src" / "shenbi", REPO / "tools"):
         for py in root.rglob("*.py"):
-            stems.add(py.read_text(encoding="utf-8"))
-    # Join into one blob; callers do substring search against it.
-    return stems
+            parts.append(py.read_text(encoding="utf-8"))
+    return "\n".join(parts)
 
 
 def _is_dead_decisions_sidecar(
@@ -861,9 +871,7 @@ def _is_dead_decisions_sidecar(
         return False  # G4 validates it
     # Code reference: check the path stem (strip the -N- chapter index).
     stem = path.replace("chapter-N-", "chapter-").replace("short-N-", "short-").replace("-N-", "-")
-    if stem in code_blob:
-        return False  # code references it
-    return True
+    return stem not in code_blob  # dead iff no code references it
 
 
 def find_dead_decisions_sidecars() -> list[str]:
@@ -882,7 +890,7 @@ def find_dead_decisions_sidecars() -> list[str]:
             p = _write_path(r)
             if p:
                 all_reads.add(p)
-    code_blob = "\n".join(_code_reference_stems())
+    code_blob = _code_reference_blob()
 
     vios: list[str] = []
     for skill, fm in frontmatters.items():
