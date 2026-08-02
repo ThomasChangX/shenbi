@@ -1606,7 +1606,10 @@ def _dispatch_via_api(
                 timeout=api_timeout,
             )
         except Exception as exc:
-            _handle_timeout_gracefully(skill, chapter)
+            # Only treat as timeout if it actually is — cap-raise may 400
+            # if the provider rejects the raised max_tokens (Copilot review).
+            if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
+                _handle_timeout_gracefully(skill, chapter)
             log.error("api_call_failed", skill=skill, error=str(exc))
             return DispatchResult(False, -1, "", f"API call failed: {exc}")
 

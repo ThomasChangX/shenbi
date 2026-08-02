@@ -43,7 +43,7 @@ def test_length_truncation_triggers_cap_raise_resend(monkeypatch):
         lambda text: MagicMock(files=[]),
     )
 
-    result = _dispatch_via_api("shenbi-chapter-drafting", Path("/tmp/proj"), "test prompt")
+    _dispatch_via_api("shenbi-chapter-drafting", Path("/tmp/proj"), "test prompt")
 
     assert call_count[0] == 2  # exactly 2 calls: original + 1 cap-raise resend
     assert max_tokens_used[1] > max_tokens_used[0]  # cap was raised
