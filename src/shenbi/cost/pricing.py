@@ -17,7 +17,8 @@ DEFAULT_PRICING_MODEL = "deepseek-v4-flash"
 
 #: USD per 1,000,000 tokens (DeepSeek V4 Flash official rates, cache-miss).
 #: Update rates when confirmed for the deployment.
-#: Unknown models fall back to the default entry (never crash on cost).
+#: Unknown models raise ValueError in estimate_cost (spec §5.2 I3).
+#: The ledger wraps this in _safe_estimate_cost to avoid crashing dispatch.
 PRICING: dict[str, dict[str, float]] = {
     "deepseek-v4-flash": {"input": 0.14 / 1_000_000, "output": 0.28 / 1_000_000},
 }
