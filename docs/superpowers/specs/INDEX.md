@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-02
-> **活跃 spec 数**：3 | **已归档**：98（见 `archive/`）
+> **活跃 spec 数**：2 | **已归档**：99（见 `archive/`）
 
 仅列待执行 spec；已完成/合并的 spec 已移至 `archive/`，不在此重复。
 按推荐执行顺序排列；执行序列号见各 spec 文件名日期前缀。
@@ -10,18 +10,7 @@
 
 ## 执行队列
 
-### #3 · 推理控制层审计：采样参数 / 模型路由 / 重试经济
-
-- **文件**：`2026-08-01-inference-control-audit-design.md`
-- **系列**：Token 效率全栈 audit（子 spec 1/3，隶属已归档总纲 [`archive/2026-08-01-pipeline-read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
-- **状态**：Design
-- **优先级**：🟠 High（调用方式层的系统性浪费与盲点）
-- **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 spec（决策原则、跨 spec 根因簇图）；`executor_config.toml`；`src/shenbi/pipeline/dispatch_helper.py`；`src/shenbi/cost/pricing.py`
-- **内容**：只审 **how the model is CALLED**（采样参数、模型选择、重试/截断处理），不审 prompt 内容、不审输出侧浪费、不审确定性替换。10 类 findings：A 温度错配（24 review + 3 score 默认 0.7，与任务类型不符）/ B max_tokens 双向错（全局 16384 但 review 头部空 62-75%、drafting 撑满 15787）/ C 未用采样杠杆 / D 单点模型硬编码 / E 模型路由机制缺失 / F pro↔flash doc drift / G G4 全量重发 / H enriched feedback 只增不减 / I 429 thundering herd / J `finish_reason=length` 截断完全未检测（stop_reason 仅 log 未分支处理）。根因簇：采样错配 / 模型单点 / 重试经济。P0：修温度+max_tokens 右对齐+检测 length 截断；P1：模型路由机制；P2：重试压缩。
-- **对应 plan**：❌ 未写
-
-### #4 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
+### #3 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
 
 - **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`
 - **系列**：Token 效率全栈 audit（子 spec 2/3，隶属已归档总纲 [`archive/...`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
@@ -32,14 +21,14 @@
 - **内容**：只审 **"这个 LLM 调用本身是否必要"**——能否用确定性 Python 替代（部分或全部）。核心洞察：确定性替换非假设——repo 已 9 次实现该模式（`skill_utils/` + `pipeline/` 助手），且 postmortem 证明确定性写路径是 CN3 覆盖 bug 根因修复。形式化**提升判据**（{纯文件操作 / 键值 upsert / 计数 / 固定模板填充 / 阈值比较}）+ 逐候选评估：snapshot-manage（100% 确定，立即可换）/ context-composing（pipeline 模式 85% 确定，helper 已存在）/ state-settling（写半路径已落地 truth_io.py，抽取留 LLM）/ memory-distill（结构字段聚合确定，800 字叙事留 LLM）。铁律：`requires_independent_agent` 的 skill（review/score）不换。
 - **对应 plan**：❌ 未写
 
-### #5 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
+### #4 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
 
 - **文件**：`2026-08-01-output-side-waste-audit-design.md`
 - **系列**：Token 效率全栈 audit（子 spec 3/3，隶属已归档总纲 [`archive/...`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
 - **状态**：Design
 - **优先级**：🟠 High（输出 token 单价 2-3× 输入；总纲的盲点）
 - **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——**PR #39 已修**）；推理控制 spec #3（§J finish_reason=length 盲点驱动本 spec F8 重试放大）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
+- **依赖**：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——**PR #39 已修**）；推理控制 spec（已归档，§J finish_reason=length 盲点驱动本 spec F8 重试放大——**PR #40 已修**）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
 - **内容**：只审**输出侧浪费**——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大（坏章最坏 ~6 章等价输出 + 3 审计波；`error_handler.py:36-37` MAX_DISPATCH_RETRIES=2/MAX_AUDIT_RETRIES=3）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，`parallel_dispatch.py:189-249` consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（`revision_router.py:199`，~60-120KB/次）/ dead sidecar 产出 token。根因簇：无输出聚合层 / 无重试预算计量。P0：revision 前加审计聚合去重层；P1：重试预算计量 + TokenLedger 接线（**PR #39 已接 API 路径**）；P2：审计器缺陷共享去冗。
 - **对应 plan**：❌ 未写
 
@@ -77,7 +66,7 @@ P0 阻塞修复 (#19) ◄── 07-19 一致性与韧性集群（19 spec，全�
 
 ## 归档说明
 
-96 个已完成 spec 在 `archive/` 中，按日期排序（2026-06 ~ 08）。按系列：
+97 个已完成 spec 在 `archive/` 中，按日期排序（2026-06 ~ 08）。按系列：
 
 - **P-1 基础卫生与地基**（`2026-06-14` ~ `2026-06-16`，含 `2026-06-15-p-1.e-foundation-completion/` 主 spec 簇）— pyproject/uv/ruff/mypy、structlog、ADR、src 布局、测试地基、CI 供应链、企业文件、文档配置；交付于 PR #3/#4
 - **契约单一信源**（`2026-06-21`、`2026-06-29`、`2026-06-30`）— frontmatter 契约 + 生成物 + lint、契约执行与生产接线；交付于 PR #6/#8
