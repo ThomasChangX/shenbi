@@ -49,6 +49,7 @@
 from __future__ import annotations
 
 from types import SimpleNamespace
+from typing import Any
 from unittest.mock import MagicMock
 
 from shenbi.pipeline.dispatch_helper import _call_llm_streaming
@@ -300,7 +301,6 @@ def test_length_truncation_triggers_cap_raise_resend(monkeypatch):
     max_tokens_used: list[int] = []
 
     call_count = [0]
-    original_call = _call_llm_streaming_with_retry  # capture for delegation
 
     def mock_streaming_with_retry(client, model, messages, **kwargs):
         call_count[0] += 1
@@ -363,12 +363,43 @@ def test_content_filter_is_hard_fail(monkeypatch):
 
 
 def test_cap_raise_capped_at_model_ceiling(monkeypatch):
-    """If raised cap would exceed model output ceiling, fail-fast instead of resend."""
+    """When cap is already at ceiling (raised_cap <= original_cap), fail-fast with NO resend."""
     call_count = [0]
 
     def mock_streaming_with_retry(client, model, messages, **kwargs):
         call_count[0] += 1
-        # Always returns length — simulates cap already at ceiling
+        return ("truncated...", None, MagicMock(), "length")
+
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper._call_llm_streaming_with_retry",
+        mock_streaming_with_retry,
+    )
+    monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+        lambda *a, **kw: ("sys", "user", []),
+    )
+    # Set ceiling = drafting's configured max_tokens so raised_cap (min(cap*2, ceiling))
+    # == ceiling == original_cap → raised_cap <= original_cap → fail-fast, NO resend.
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper._MODEL_OUTPUT_CEILING",
+        32768,  # == drafting's max_tokens after T3
+    )
+
+    result = _dispatch_via_api("shenbi-chapter-drafting", Path("/tmp/proj"), "test prompt")
+
+    assert call_count[0] == 1  # fail-fast BEFORE any resend (raised_cap <= original_cap)
+    assert result.success is False
+    assert "ceiling" in result.stderr.lower()
+
+
+def test_cap_raise_persistent_length_fail_fast(monkeypatch):
+    """After cap-raise resend, if STILL length → fail-fast (spec §5.1: max 1 resend)."""
+    call_count = [0]
+
+    def mock_streaming_with_retry(client, model, messages, **kwargs):
+        call_count[0] += 1
+        # Always returns length — even after cap-raise
         return ("still truncated...", None, MagicMock(), "length")
 
     monkeypatch.setattr(
@@ -380,18 +411,25 @@ def test_cap_raise_capped_at_model_ceiling(monkeypatch):
         "shenbi.pipeline.dispatch_helper._build_skill_prompt",
         lambda *a, **kw: ("sys", "user", []),
     )
-    # Set model ceiling low so cap-raise exceeds it immediately
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper._write_parsed_outputs",
+        lambda *a, **kw: True,
+    )
+    monkeypatch.setattr(
+        "shenbi.pipeline.dispatch_helper._parse_structured_output",
+        lambda text: MagicMock(files=[]),
+    )
+    # Ceiling high enough that cap-raise DOES fire (65536 > drafting's 32768)
     monkeypatch.setattr(
         "shenbi.pipeline.dispatch_helper._MODEL_OUTPUT_CEILING",
-        16384,
+        65536,
     )
 
     result = _dispatch_via_api("shenbi-chapter-drafting", Path("/tmp/proj"), "test prompt")
 
-    assert call_count[0] == 2  # original + 1 cap-raise attempt (capped at ceiling)
-    # After cap-raise still length → fail-fast, no 3rd call
+    assert call_count[0] == 2  # original + exactly 1 cap-raise resend (then fail-fast)
     assert result.success is False
-    assert "cap" in result.stderr.lower() or "ceiling" in result.stderr.lower()
+    assert "still exceeds" in result.stderr.lower() or "persistent" in result.stderr.lower()
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -406,9 +444,10 @@ Add constant near the top of `dispatch_helper.py` (after `_DEFAULT_MODEL` at :67
 ```python
 #: Hard ceiling for max_tokens cap-raise (spec §5.1 C1).
 #: The cap-raise on finish_reason=length will not exceed this.
-#: Set conservatively; if the model's actual output limit is lower,
+#: Must be > drafting's configured max_tokens (32768 after T3) so the cap-raise
+#: has headroom to fire. If the model's actual output limit is lower,
 #: the API will 400 and the error surfaces via the existing except block.
-_MODEL_OUTPUT_CEILING = 32768
+_MODEL_OUTPUT_CEILING = 65536
 ```
 
 Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
@@ -438,7 +477,7 @@ Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
 
     if finish_reason == "length":
         original_cap = _get_skill_max_tokens(skill)
-        raised_cap = min(original_cap * 2, int(_MODEL_OUTPUT_CEILING * 0.9))
+        raised_cap = min(original_cap * 2, _MODEL_OUTPUT_CEILING)
         if raised_cap <= original_cap:
             # Cap already at ceiling — can't raise further.
             log.error(
@@ -494,6 +533,11 @@ Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
                 False, -1, "",
                 "content_filter: output blocked by provider safety filter (after cap-raise)",
             )
+    # If we reach here (no length/content_filter, or cap-raise succeeded with
+    # finish_reason="stop"), output_text is valid — fall through to the existing
+    # _parse_structured_output / _write_parsed_outputs block at dispatch_helper.py:1542+.
+    # No code change needed in that downstream block — it uses the (possibly
+    # reassigned) output_text variable naturally.
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -904,47 +948,58 @@ def estimate_cost(usage: dict[str, Any], model: str | None = None) -> float:
 Run: `pytest tests/unit/test_pricing_fail_loud.py -v`
 Expected: 2 PASS
 
-- [ ] **Step 5: Delete the old fallback test and update existing callers**
+- [ ] **Step 5: Delete the old fallback test and guard the ledger hot-path**
 
-The existing test `tests/unit/cost/test_pricing.py:73-78` `test_unknown_model_falls_back_to_default` encodes the OLD silent-fallback contract. It MUST be deleted or rewritten — it will fail after Step 3.
+The existing test `tests/unit/cost/test_pricing.py:73-78` `test_unknown_model_falls_back_to_default` encodes the OLD silent-fallback contract. It MUST be deleted — it will fail after Step 3.
 
 ```bash
 # Delete the old test (it tested the silent-fallback behavior we're removing):
 # Open tests/unit/cost/test_pricing.py and DELETE the test_unknown_model_falls_back_to_default method (lines 73-78).
 ```
 
-Also audit the production caller: `src/shenbi/cost/ledger.py` calls `estimate_cost(usage, resolved)` where `resolved = resolve_model(model)`. If `SHENBI_LLM_MODEL` env var is set to an unregistered model, `estimate_cost` now raises. Check if `ledger.py:record()` wraps this in a try/except:
+**Unconditionally guard the ledger hot-path**: `src/shenbi/cost/ledger.py:62` calls `estimate_cost(usage, resolved)` with no try/except. If `SHENBI_LLM_MODEL` env var is set to an unregistered model, this now raises `ValueError`, crashing the dispatch. Add a guard:
 
-```bash
-grep -n "estimate_cost" src/shenbi/cost/ledger.py
-```
-
-If `ledger.record()` does NOT catch `ValueError`, add a guard so a bad model name doesn't crash the dispatch:
+Modify `src/shenbi/cost/ledger.py:62`:
 
 ```python
-# In ledger.py record(), wrap the cost calculation:
-try:
-    cost = estimate_cost(usage_dict, model=resolved_model)
-except ValueError:
-    log.warning("ledger_unknown_model", model=resolved_model)
-    cost = 0.0
+            total_tokens=int(usage.get("total_tokens", 0)),
+            estimated_cost_usd=_safe_estimate_cost(usage, resolved),
 ```
+
+Add helper function before the `TokenLedger` class (or at module top after imports):
+
+```python
+def _safe_estimate_cost(usage: dict[str, Any], model: str) -> float:
+    """Estimate cost, returning 0.0 on unknown model instead of crashing (spec §5.2 I3).
+
+    The ledger is a hot-path side-effect of dispatch — it must never crash
+    the pipeline. estimate_cost raises ValueError for unknown models; here
+    we catch and log so a misconfigured SHENBI_LLM_MODEL doesn't break dispatch.
+    """
+    try:
+        return estimate_cost(usage, model)
+    except ValueError:
+        log.warning("ledger_unknown_model_no_pricing", model=model)
+        return 0.0
+```
+
+**Note**: `test_estimate.py:58` (`test_unknown_model_uses_default_no_crash`) tests `warn_if_over_budget`, NOT `estimate_cost` — it uses its own `MODEL_CONTEXT_LIMITS.get()` fallback and is unaffected by this change.
 
 - [ ] **Step 6: Run all pricing tests to verify**
 
 Run: `pytest tests/ -v -k "pricing or cost or estimate or ledger" -x`
-Expected: All PASS (old fallback test deleted; new fail-loud test passes; existing callers work with known model)
+Expected: All PASS (old fallback test deleted; new fail-loud test passes; ledger guard works; existing callers work with known model)
 
 - [ ] **Step 7: Commit**
 
 ```bash
-git add src/shenbi/cost/pricing.py tests/unit/test_pricing_fail_loud.py
-git commit -m "fix(pricing): fail-loud on unknown model instead of silent fallback
+git add src/shenbi/cost/pricing.py src/shenbi/cost/ledger.py tests/unit/test_pricing_fail_loud.py tests/unit/cost/test_pricing.py
+git commit -m "fix(pricing): fail-loud on unknown model + guard ledger hot-path
 
 Spec §5.2 I3: estimate_cost silently fell back to flash pricing for
-unknown models. Now raises ValueError. Prepares for per-skill model
-routing (spec §2.4) — when a second model is added, its pricing entry
-MUST be added to PRICING or cost accounting will error visibly."
+unknown models. Now raises ValueError. Ledger._safe_estimate_cost wraps
+the call so a misconfigured SHENBI_LLM_MODEL doesn't crash dispatch.
+Prepares for per-skill model routing (spec §2.4)."
 ```
 
 ---
