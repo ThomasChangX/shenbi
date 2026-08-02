@@ -785,6 +785,7 @@ Expected: FAIL — `ImportError: cannot import name 'find_dead_decisions_sidecar
 In `tools/lint_repo_consistency.py`, add (pure-Python, matching the existing `find_*` style — NO subprocess, NO shell-out grep):
 
 ```python
+from collections.abc import Container  # add at top if not already imported
 import yaml  # add at top if not already imported
 
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
@@ -840,8 +841,8 @@ def _code_reference_stems() -> set[str]:
 def _is_dead_decisions_sidecar(
     write_entry: object,
     skill: str,
-    all_reads: set[str],
-    g4_skills: set[str],
+    all_reads: Container[str],
+    g4_skills: Container[str],
     code_blob: str,
 ) -> bool:
     """Return True iff a decisions.json write has no consumer (spec §3.5).
