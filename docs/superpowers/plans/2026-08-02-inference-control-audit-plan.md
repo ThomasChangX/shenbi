@@ -158,9 +158,14 @@ def _call_llm_streaming(
         if chunk.choices:
             choice = chunk.choices[0]
             # Spec §2.9: capture finish_reason from the final chunk.
-            if choice.finish_reason is not None:
-                finish_reason = choice.finish_reason
-            if choice.delta.content:
+            # Use getattr (not attribute access) because existing test fake chunks
+            # (test_dispatch_usage_capture.py, test_retry.py) build SimpleNamespace
+            # or MagicMock choices that may not have finish_reason set.
+            chunk_finish = getattr(choice, "finish_reason", None)
+            if chunk_finish is not None:
+                finish_reason = chunk_finish
+            delta_content = getattr(choice.delta, "content", None)
+            if delta_content:
                 collected.append(choice.delta.content)
                 if early_stop_patterns:
                     text_so_far = "".join(collected)
@@ -240,10 +245,14 @@ Expected: All existing tests PASS (they unpack 3-tuple from _call_llm_streaming_
 
 - [ ] **Step 8: Fix any broken tests that mock the old 3-tuple return**
 
-Search for tests that mock `_call_llm_streaming_with_retry` or `_call_llm_streaming` return values:
+Search for ALL tests that interact with the streaming chain (not just by name — structurally coupled tests exist):
 ```bash
-grep -rn "_call_llm_streaming" tests/
+grep -rn "_call_llm_streaming\|_dispatch_via_api\|chat.completions.create\|_fake_chunk\|SimpleNamespace(delta" tests/
 ```
+Key files to check:
+- `tests/pipeline/test_retry.py:37,54,93` — unpacks 3-tuple from `_call_llm_streaming_with_retry`. Update to 4-tuple (append `_` for unused finish_reason).
+- `tests/unit/pipeline/test_dispatch_usage_capture.py:10-14` — builds `SimpleNamespace(choices=[SimpleNamespace(delta=...)])` WITHOUT `finish_reason`. The `getattr(choice, "finish_reason", None)` guard in Step 3 handles this, but verify no AttributeError leaks.
+
 Update any mock that returns a 3-tuple to return a 4-tuple (append `None` as finish_reason).
 
 - [ ] **Step 9: Commit**
@@ -262,6 +271,8 @@ _call_llm_streaming_with_retry and _dispatch_via_api updated to unpack."
 ---
 
 ### Task 2: cap-raise 循环 + content_filter hard fail in `_dispatch_via_api`（infra）
+
+**⚠ Prerequisite: T1 must land first.** T2's cap-raise code consumes the `finish_reason` 4th element from T1's return-type change. Do not reorder.
 
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:1514-1567` (`_dispatch_via_api` streaming section)
@@ -380,7 +391,7 @@ def test_cap_raise_capped_at_model_ceiling(monkeypatch):
     assert call_count[0] == 2  # original + 1 cap-raise attempt (capped at ceiling)
     # After cap-raise still length → fail-fast, no 3rd call
     assert result.success is False
-    assert "章过长" in result.stderr or "cap" in result.stderr.lower()
+    assert "cap" in result.stderr.lower() or "ceiling" in result.stderr.lower()
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -578,8 +589,9 @@ git add executor_config.toml tests/pipeline/test_executor_config.py
 git commit -m "feat(config): raise drafting max_tokens 16384→32768 (spec §2.2)
 
 AVG drafting output was 96% of the 16384 cap → frequent truncation.
-Raised to 32768. PRE-DEPLOYMENT: API probe required to confirm
-deepseek-v4-flash accepts max_tokens=32768 (spec §2.2 verification)."
+Raised to 32768 CONDITIONAL on API probe confirming deepseek-v4-flash
+accepts max_tokens=32768. If probe fails, root cause shifts to
+'chapter too long' (prompt-content layer, see spec §2.9 fail-fast)."
 ```
 
 ---
@@ -723,11 +735,12 @@ Run:
 sed -i '' 's/deepseek-v4-pro/deepseek-v4-flash/g' docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md
 ```
 
-Also fix the test function name and prices:
+Also fix the test function name and the pro pricing line. The actual format uses `1_000_000` with spaces (verified at line 134: `"input": 1.10 / 1_000_000`):
 ```bash
 sed -i '' 's/test_default_model_is_deepseek_v4_pro/test_default_model_is_deepseek_v4_flash/g' docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md
-sed -i '' 's/"input": 1.10\/1e6, "output": 4.40\/1e6/"input": 0.14\/1e6, "output": 0.28\/1e6/g' docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md
+sed -i '' 's/"input": 1.10 \/ 1_000_000, "output": 4.40 \/ 1_000_000/"input": 0.14 \/ 1_000_000, "output": 0.28 \/ 1_000_000/g' docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md
 ```
+**Note:** If the sed pattern doesn't match (format may vary), verify line 134 manually and edit with the Edit tool instead.
 
 - [ ] **Step 3: Verify the fix**
 
@@ -891,12 +904,38 @@ def estimate_cost(usage: dict[str, Any], model: str | None = None) -> float:
 Run: `pytest tests/unit/test_pricing_fail_loud.py -v`
 Expected: 2 PASS
 
-- [ ] **Step 5: Check that existing callers still work**
+- [ ] **Step 5: Delete the old fallback test and update existing callers**
 
-Run: `pytest tests/ -v -k "pricing or cost or estimate" -x`
-Expected: All PASS (existing callers pass the default model or None, which resolves to the known flash entry)
+The existing test `tests/unit/cost/test_pricing.py:73-78` `test_unknown_model_falls_back_to_default` encodes the OLD silent-fallback contract. It MUST be deleted or rewritten — it will fail after Step 3.
 
-- [ ] **Step 6: Commit**
+```bash
+# Delete the old test (it tested the silent-fallback behavior we're removing):
+# Open tests/unit/cost/test_pricing.py and DELETE the test_unknown_model_falls_back_to_default method (lines 73-78).
+```
+
+Also audit the production caller: `src/shenbi/cost/ledger.py` calls `estimate_cost(usage, resolved)` where `resolved = resolve_model(model)`. If `SHENBI_LLM_MODEL` env var is set to an unregistered model, `estimate_cost` now raises. Check if `ledger.py:record()` wraps this in a try/except:
+
+```bash
+grep -n "estimate_cost" src/shenbi/cost/ledger.py
+```
+
+If `ledger.record()` does NOT catch `ValueError`, add a guard so a bad model name doesn't crash the dispatch:
+
+```python
+# In ledger.py record(), wrap the cost calculation:
+try:
+    cost = estimate_cost(usage_dict, model=resolved_model)
+except ValueError:
+    log.warning("ledger_unknown_model", model=resolved_model)
+    cost = 0.0
+```
+
+- [ ] **Step 6: Run all pricing tests to verify**
+
+Run: `pytest tests/ -v -k "pricing or cost or estimate or ledger" -x`
+Expected: All PASS (old fallback test deleted; new fail-loud test passes; existing callers work with known model)
+
+- [ ] **Step 7: Commit**
 
 ```bash
 git add src/shenbi/cost/pricing.py tests/unit/test_pricing_fail_loud.py
