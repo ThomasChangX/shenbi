@@ -163,20 +163,53 @@ def test_injection_keys_match_disk_read_keys():
         assert "/" in injected_key  # relative-path form, not bare basename
 ```
 
-- [ ] **Step 7: Run all dispatch_helper tests**
+- [ ] **Step 7: Update the stale `test_audit_context_cache.py` simulation (Phase-4 C2 fix)**
 
-Run: `pytest tests/pipeline/test_dispatch_helper_keys.py tests/pipeline/test_dispatch_helper_glob.py tests/pipeline/test_dispatch_helper_xml.py -v`
-Expected: all PASS.
+`tests/pipeline/test_audit_context_cache.py:40-72` (`test_shared_context_fields_are_injectable`) duplicates the injection logic inline with the OLD basename keys (`world_rules.md` etc.) and asserts those keys land in `raw_inputs`. After Step 5, the real injection uses relative-path keys — this test still passes (it simulates, doesn't call real code) but documents the WRONG behavior, violating AGENTS.md L4 (test truthfulness). Update the simulation to match the new relative-path key form:
 
-- [ ] **Step 8: Run full check**
+In `tests/pipeline/test_audit_context_cache.py`, change the simulated `_INJECT_FROM_CACHE` keys from basename to relative-path form (matching Step 5's real injection block):
+```python
+# OLD (lines ~55-61):
+        _INJECT_FROM_CACHE["world_rules.md"] = ctx.world_rules
+        _INJECT_FROM_CACHE["character_matrix.md"] = ctx.character_list
+        _INJECT_FROM_CACHE["style_profile.md"] = ctx.style_profile
+        _INJECT_FROM_CACHE["pending_hooks.md"] = ctx.pending_hooks
+# NEW:
+        _INJECT_FROM_CACHE["truth/world_rules.md"] = ctx.world_rules
+        _INJECT_FROM_CACHE["truth/character_matrix.md"] = ctx.character_list
+        _INJECT_FROM_CACHE["truth/style_profile.md"] = ctx.style_profile
+        _INJECT_FROM_CACHE["truth/pending_hooks.md"] = ctx.pending_hooks
+```
+And update the assertions (lines ~66-70) accordingly:
+```python
+# OLD:
+    assert "world_rules.md" in raw_inputs
+    assert raw_inputs["world_rules.md"] == "world rules summary"
+    assert "character_matrix.md" in raw_inputs
+    assert "style_profile.md" in raw_inputs
+    assert "pending_hooks.md" in raw_inputs
+# NEW:
+    assert "truth/world_rules.md" in raw_inputs
+    assert raw_inputs["truth/world_rules.md"] == "world rules summary"
+    assert "truth/character_matrix.md" in raw_inputs
+    assert "truth/style_profile.md" in raw_inputs
+    assert "truth/pending_hooks.md" in raw_inputs
+```
+
+- [ ] **Step 8: Run all dispatch_helper + audit_context tests**
+
+Run: `pytest tests/pipeline/test_dispatch_helper_keys.py tests/pipeline/test_dispatch_helper_glob.py tests/pipeline/test_dispatch_helper_xml.py tests/pipeline/test_audit_context_cache.py -v`
+Expected: all PASS (the audit_context test now passes with updated relative-path keys from Step 7).
+
+- [ ] **Step 9: Run full check**
 
 Run: `just check`
-Expected: PASS (no regressions). The `_input_key` change is behavioral only for the rare same-basename-different-dir case, which has no existing test relying on basename keys.
+Expected: PASS (no regressions). The `_input_key` change is behavioral only for the rare same-basename-different-dir case; the audit_context simulation now matches the new key form.
 
-- [ ] **Step 9: Commit**
+- [ ] **Step 10: Commit**
 
 ```bash
-git add src/shenbi/pipeline/dispatch_helper.py tests/pipeline/test_dispatch_helper_keys.py
+git add src/shenbi/pipeline/dispatch_helper.py tests/pipeline/test_dispatch_helper_keys.py tests/pipeline/test_audit_context_cache.py
 git commit -m "fix: use project-relative input keys + lockstep SharedAuditContext injection (§3.4/C1)"
 ```
 
@@ -322,9 +355,10 @@ Update the call site at `dispatch_helper.py:1653` (in `dispatch_skill` routing):
 
 - [ ] **Step 6: Add IDE-path usage recording (best-effort)**
 
-The IDE-CLI subprocess (`codex exec`) does not return structured token usage in its stdout. The IDE path therefore cannot populate `state.token_usage` from the CLI output alone. Add a `log.info` marker so the uninstrumented path is at least observable, and document the limitation:
+The IDE-CLI subprocess (`codex exec`) does not return structured token usage in its stdout. The IDE path therefore cannot populate `state.token_usage` from the CLI output alone. Add a `log.info` marker so the uninstrumented path is at least observable, and document the limitation.
 
-After the IDE dispatch's `DispatchResult` return (end of `_dispatch_via_ide`), add before the final return:
+**Insertion point (IMPORTANT — `_dispatch_via_ide` has 8 return points):** insert immediately before the SUCCESS-path return at line ~1599 (`return DispatchResult(True, 0, r.stdout, r.stderr)`), which comes AFTER the `missing` outputs check. Do NOT insert before the early-exit error returns (PromptBuildFailure :1544, no-CLI :1548, timeout :1566, FileNotFound :1569, non-zero-rc :1573, write-failure :1591, no-files-written :1593) — those don't represent successful dispatches.
+
 ```python
     # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
     # (codex exec stdout is prose, not a usage object). state is threaded so a
@@ -429,7 +463,7 @@ git commit -m "fix: remove 3 dead reads from escalation-review + sync codegen (�
 |----------|--------|-------------|-------------------|-------------|
 | chapter-planning | plans/chapter-N-plan-decisions.json | ❌ | ❌ no G4 checker, no code | **DELETE writes** |
 | state-settling | truth/state-settling-decisions.json | ❌ | ❌ no G4 checker, no code | **DELETE writes** |
-| chapter-revision | chapters/chapter-N-revision-decisions.json | ❌ | ✅ G4 `g4_decisions` + `state_heal.py:58` counter | **KEEP writes** (structural: G4 validates + code counts) |
+| chapter-revision | chapters/chapter-N-revision-decisions.json | ❌ | ✅ G4 `g4_decisions` schema validation; `state_heal.py:58` + `chapter_loop.py:1570` check file *existence* only (not content) | **KEEP writes** (G4 schema consumer is real; code refs are existence-only) |
 | short-drafting | short/short-N-decisions.json | ❌ | ✅ G4 `g4_decisions` | **KEEP writes** (G4 validates schema) |
 | market-radar | context/market-radar-decisions.json | ❌ | ✅ G4 `g4_decisions` | **KEEP writes** (G4 validates schema) |
 
@@ -659,97 +693,167 @@ This avoids false-positives on the 3 G4-structural sidecars kept in Task 4.
 
 Run: `head -40 tests/unit/test_lint_repo_consistency.py` to see the test patterns used.
 
-- [ ] **Step 2: Write the failing test**
+- [ ] **Step 2: Write the failing tests (negative + positive control)**
 
-Append to `tests/unit/test_lint_repo_consistency.py` (or create if minimal):
+Append to `tests/unit/test_lint_repo_consistency.py`:
 
 ```python
-def test_dead_decisions_sidecar_detection(tmp_path):
-    """find_dead_decisions_sidecars flags decisions.json writes with no consumer.
+def test_dead_decisions_sidecar_clean_tree():
+    """On the real repo (after Task 4), 0 dead decisions sidecars remain.
 
-    A consumer is: a skill reads: declaration, OR a G4 g4_decisions checker,
-    OR a src/tools code reference (spec §3.5 + Task 4 disposition).
+    Negative control: confirms the lint runs without error on a clean tree.
     """
     from tools.lint_repo_consistency import find_dead_decisions_sidecars
-    # This test uses the real repo skills; after Task 4, the 2 truly-dead
-    # sidecars (plan-decisions, state-settling-decisions) are deleted, so the
-    # lint should report 0 dead sidecars on a clean tree.
+
     dead = find_dead_decisions_sidecars()
     assert dead == [], f"expected 0 dead decisions sidecars after Task 4, got {dead}"
+
+
+def test_dead_decisions_sidecar_flags_synthetic_dead(tmp_path):
+    """Positive control: a decisions.json write with no consumer IS flagged.
+
+    Without this, a broken lint (e.g. isinstance(w, str) on dict-form writes)
+    would pass the negative control via vacuous truth — exactly the dead-wire
+    pattern spec §8.1 iron law forbids.
+    """
+    from tools.lint_repo_consistency import _is_dead_decisions_sidecar
+
+    # A dict-form write (the actual repo form: {file: ..., mode: ...}).
+    synthetic_write = {"file": "plans/chapter-N-totally-dead-decisions.json", "mode": "create_or_overwrite"}
+    all_reads: set[str] = set()  # no skill reads it
+    g4_skills: set[str] = set()  # not G4-validated
+    code_refs: set[str] = set()  # no code references
+    assert _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_refs) is True
+
+
+def test_dead_decisions_sidecar_spares_g4_validated():
+    """A decisions.json write consumed by G4 is NOT flagged (Task 4 disposition)."""
+    from tools.lint_repo_consistency import _is_dead_decisions_sidecar
+
+    write = {"file": "chapters/chapter-N-revision-decisions.json", "mode": "create_or_overwrite"}
+    all_reads: set[str] = set()
+    g4_skills = {"shenbi-chapter-revision"}  # G4 g4_decisions validates it
+    code_refs: set[str] = set()
+    assert _is_dead_decisions_sidecar(write, "shenbi-chapter-revision", all_reads, g4_skills, code_refs) is False
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [ ] **Step 3: Run tests to verify they fail**
 
-Run: `pytest tests/unit/test_lint_repo_consistency.py::test_dead_decisions_sidecar_detection -v`
+Run: `pytest tests/unit/test_lint_repo_consistency.py -k dead_decisions_sidecar -v`
 Expected: FAIL — `ImportError: cannot import name 'find_dead_decisions_sidecars'`.
 
-- [ ] **Step 4: Implement `find_dead_decisions_sidecars`**
+- [ ] **Step 4: Implement `find_dead_decisions_sidecars` + `_is_dead_decisions_sidecar`**
 
-In `tools/lint_repo_consistency.py`, add (matching the existing `find_*` style):
+In `tools/lint_repo_consistency.py`, add (pure-Python, matching the existing `find_*` style — NO subprocess, NO shell-out grep):
 
 ```python
-import yaml  # if not already imported
+import yaml  # add at top if not already imported
 
 # Skills whose decisions.json is structurally validated by G4 g4_decisions
-# (these are NOT dead even with no skill reads: — G4 consumes them).
+# (these are NOT dead even with no skill reads: — G4 consumes their schema).
+# Verified against src/shenbi/gates/g4/generic.py checkers dict.
 _G4_DECISIONS_SKILLS = frozenset({
     "shenbi-market-radar",
     "shenbi-chapter-revision",
     "shenbi-short-drafting",
 })
 
-_DECISIONS_WRITE_RE = re.compile(r"-\s+(.*?-decisions\.json)\s*$")
+
+def _write_path(entry: object) -> str | None:
+    """Extract the file path from a writes/reads entry (string OR dict-form).
+
+    Spec contract: writes/reads entries may be a bare string OR a dict with a
+    `file:` key (optionally `mode:` / `fields:`). This normalizer handles both.
+    """
+    if isinstance(entry, str):
+        return entry
+    if isinstance(entry, dict):
+        return entry.get("file")
+    return None
 
 
 def _all_skill_frontmatter() -> dict[str, dict]:
     """Return {skill_name: parsed frontmatter dict} for all shenbi-* skills."""
     out: dict[str, dict] = {}
-    for skill_dir in sorted((REPO / "skills").glob("shenbi-*/SKILL.md")):
-        text = skill_dir.read_text(encoding="utf-8")
+    for skill_md in sorted((REPO / "skills").glob("shenbi-*/SKILL.md")):
+        text = skill_md.read_text(encoding="utf-8")
         if text.startswith("---"):
-            _, fm, _ = text.split("---", 2)
-            out[skill_dir.parent.name] = yaml.safe_load(fm) or {}
+            parts = text.split("---", 2)
+            if len(parts) >= 3:
+                out[skill_md.parent.name] = yaml.safe_load(parts[1]) or {}
     return out
+
+
+def _code_reference_stems() -> set[str]:
+    """Collect substring-stems from all src/shenbi + tools *.py files.
+
+    Used to check if a decisions.json path pattern is referenced in code.
+    Pure-Python (rglob + read_text) — matches the existing lint style, no
+    subprocess / shell-out grep (cross-platform safe).
+    """
+    stems: set[str] = set()
+    for root in (REPO / "src" / "shenbi", REPO / "tools"):
+        for py in root.rglob("*.py"):
+            stems.add(py.read_text(encoding="utf-8"))
+    # Join into one blob; callers do substring search against it.
+    return stems
+
+
+def _is_dead_decisions_sidecar(
+    write_entry: object,
+    skill: str,
+    all_reads: set[str],
+    g4_skills: set[str],
+    code_blob: str,
+) -> bool:
+    """Return True iff a decisions.json write has no consumer (spec §3.5).
+
+    A decisions.json write is 'dead' iff ALL of:
+      1. No skill declares it in reads: (string OR dict-form)
+      2. The producer skill is NOT in _G4_DECISIONS_SKILLS (G4 validates it)
+      3. No src/tools code references the path stem
+    """
+    path = _write_path(write_entry)
+    if not (isinstance(path, str) and path.endswith("-decisions.json")):
+        return False
+    if path in all_reads:
+        return False  # a skill reads it
+    if skill in g4_skills:
+        return False  # G4 validates it
+    # Code reference: check the path stem (strip the -N- chapter index).
+    stem = path.replace("chapter-N-", "chapter-").replace("short-N-", "short-").replace("-N-", "-")
+    if stem in code_blob:
+        return False  # code references it
+    return True
 
 
 def find_dead_decisions_sidecars() -> list[str]:
     """Flag decisions.json writes with no consumer (spec §3.5).
 
-    A decisions.json write is 'dead' iff it has no skill reads: declaration,
-    the producer is not in _G4_DECISIONS_SKILLS, and no src/tools code
-    references the path pattern. Returns a list of violation strings.
+    Returns a list of violation strings. See _is_dead_decisions_sidecar for
+    the 'dead' definition (smarter than the spec's original 'no reads' —
+    accounts for G4 + code consumers found in Task 4 disposition).
     """
     frontmatters = _all_skill_frontmatter()
-    # Collect all reads across all skills (normalized patterns).
+    # Collect all reads paths across all skills (string + dict-form).
     all_reads: set[str] = set()
     for fm in frontmatters.values():
         contract = fm.get("contract") or {}
         for r in (contract.get("reads") or []):
-            if isinstance(r, str):
-                all_reads.add(r)
+            p = _write_path(r)
+            if p:
+                all_reads.add(p)
+    code_blob = "\n".join(_code_reference_stems())
 
     vios: list[str] = []
     for skill, fm in frontmatters.items():
         contract = fm.get("contract") or {}
         for w in (contract.get("writes") or []):
-            if isinstance(w, str) and w.endswith("-decisions.json"):
-                # Check the 3 consumer conditions.
-                if w in all_reads:
-                    continue  # a skill reads it
-                if skill in _G4_DECISIONS_SKILLS:
-                    continue  # G4 validates it
-                # Check code references (src/ + tools/).
-                pattern = w.replace("chapter-N", "chapter-").replace("short-N", "short-").replace("-N-", "-")
-                refs = subprocess.run(  # noqa: S603,S607
-                    ["grep", "-rl", pattern, str(REPO / "src"), str(REPO / "tools")],
-                    capture_output=True, text=True,
-                )
-                if refs.stdout.strip():
-                    continue  # code references it
-                vios.append(f"dead-decisions-sidecar: {skill}: {w}")
+            if _is_dead_decisions_sidecar(w, skill, all_reads, _G4_DECISIONS_SKILLS, code_blob):
+                path = _write_path(w) or "?"
+                vios.append(f"dead-decisions-sidecar: {skill}: {path}")
     return vios
 ```
-(Add `import subprocess` and `import yaml` at the top if not present. Prefer a Python-only grep to avoid subprocess if the repo already has a walk-based helper — but matching the existing simple style is acceptable.)
 
 - [ ] **Step 5: Wire the new check into `main()`**
 
@@ -778,70 +882,33 @@ git commit -m "feat: add dead-decisions-sidecar lint to repo-consistency (§3.5/
 
 ---
 
-## Task 8: Add field-level reads for the 3 largest truth files (spec §3.7, §6.2)
+## Task 8: DEFERRED — Field-level reads for 3 largest truth files (spec §3.7) → separate plan
 
-**complexity: leaf** (contract edits to high-frequency skills' reads blocks; reuses 07-18 §2.1 field analysis)
+**Status: DEFERRED from this run.** Per Phase-4 plan review (I4), this task is under-specified for an executable plan: the exact field names (matching `## ` H2 headers in `volume_map.md` / `power_system.md` / `chapter-N.md`) cannot be pre-derived because these truth files are **runtime-generated** (no fixed template in the repo), and the 07-18 §2.1 field analysis is in an archived spec referencing a specific round's output.
 
-**Files:**
-- Modify: `skills/shenbi-chapter-planning/SKILL.md` (add `fields:` to chapter-N.md read)
-- Modify: `skills/shenbi-chapter-drafting/SKILL.md` (add `fields:` to chapter-N.md read)
-- Modify: `skills/shenbi-context-composing/SKILL.md` (add `fields:` to chapter-N.md / power_system / volume_map reads)
-- Modify: `skills/shenbi-review-world-rules/SKILL.md` (add `fields:` to power_system / volume_map reads)
+**Why defer (not drop):** The P0+P1 core value of this run (T1-T7: dead-wire fix, correctness bug, dead reads/sidecars, lint, auto-gen strip, dead code) does not depend on T8. T8 is a P1 *efficiency* optimization (reduce full-file reads to field-filtered), and its risk profile (wrong field name → `filter_to_fields` escape hatch fires → silent full-file read + WARN → AC unmet) is higher than the other tasks. It deserves a dedicated plan where field names can be validated against a real round's `truth/` output before the contract edit lands.
 
-**Note:** The exact field lists must be derived from what each skill's body actually references. This task requires reading each skill body to identify the consumed sections. The 07-18 §2.1 analysis (archived) already did this for volume_map ("460 lines, 2 relevant").
-
-- [ ] **Step 1: For each high-frequency skill, identify which fields of the 3 large files it actually consumes**
-
-Run: read each target skill's body + identify the sections it references from `chapters/chapter-N.md`, `world/power_system.md`, `outline/volume_map.md`. Document the field list per skill per file.
-
-(This step is analysis, not code — the field lists are skill-specific and must be verified against the body. If a skill genuinely needs the whole file, do NOT add fields for that file.)
-
-- [ ] **Step 2: Convert the relevant string-form reads to dict-form with `fields:`**
-
-For each identified (skill, file, fields) tuple, change the `reads:` entry from:
-```yaml
-    - chapters/chapter-N.md
-```
-to:
-```yaml
-    - file: chapters/chapter-N.md
-      fields: [主角状态, 当前场景, 本章目标]
-```
-(field names in Chinese, matching the `##` section headers in the actual truth file.)
-
-- [ ] **Step 3: Re-run codegen + verify idempotency**
-
-Run: `uv run shenbi-sync-contracts && git diff --exit-code`
-Expected: exit 0 on second run.
-
-- [ ] **Step 4: Verify the field-filter escape hatch doesn't fire (fields actually match file sections)**
-
-Run: `just check` (the contract-sync + lint will catch mismatches); additionally run any test that exercises `filter_to_fields` to confirm no WARN logs.
-
-- [ ] **Step 5: Run full check**
-
-Run: `just check`
-Expected: PASS.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add skills/shenbi-*/SKILL.md tests/tiers/deps.json docs/framework/
-git commit -m "feat: add field-level reads for 3 largest truth files (§3.7)"
-```
+**What the follow-up plan must do (recorded so it's not lost):**
+1. Run a real round to generate `truth/volume_map.md` / `truth/power_system.md` / `chapters/chapter-N.md` with actual `## ` section headers.
+2. For each of the 4 high-frequency skills (chapter-planning, chapter-drafting, context-composing, review-world-rules), read the skill body + identify which H2 sections it actually consumes from each large file.
+3. Cross-check the 07-18 archived spec (`docs/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.md` §2.1, lines 40/49/71/74/92) which notes volume_map "460 行中仅 2 行相关" and sections 1/3/6/8.
+4. Convert the verified string-form reads to dict-form `fields:` with real header names.
+5. G4-validate each affected skill still PASSes with filtered context.
 
 ---
 
-## Self-Review (coordinator run after writing)
+## Self-Review (coordinator run after Phase-4 fixes)
 
 **1. Spec coverage:**
 - §6.1 P0 (5 items): 3.1 → T2 ✅; 3.4 → T1 ✅; 3.6 → T3 ✅; 3.8 → T5 ✅; 2.3#11 → T6 ✅
-- §6.2 P1 (2 items): 3.5 → T4 (disposition) + T7 (lint) ✅; 3.7 → T8 ✅
-- §6.3 P2 (5 items): DEFERRED to separate future plan (depends on T2 measurement + each needs G4 full validation) — documented in plan header.
-- §9 ordering constraints: T1 before any P2 3.2 wire-up ✅ (T1 is in this plan, 3.2 is not); T5 independent of T3 but T3's codegen re-run is its own step ✅; T2 prerequisite for P2 measurement ✅.
+- §6.2 P1 (2 items): 3.5 → T4 (disposition) + T7 (lint) ✅; 3.7 → T8 **DEFERRED** (field names need live round validation; separate plan) — spec §6.2 AC partially met (the lint + dead-sidecar cleanup lands; field-level reads deferred with documented rationale).
+- §6.3 P2 (5 items): DEFERRED — depends on T2 measurement + each needs G4 full validation.
+- §9 ordering constraints: T1 before any P2 3.2 wire-up ✅; T3 codegen self-contained ✅; T2 prerequisite for P2 measurement ✅.
 
-**2. Placeholder scan:** Task 8 Step 1 is analysis (identify fields from body) — this is inherent to the task (fields are skill-specific), not a placeholder. All code steps show full code. No TBD/TODO.
+**2. Placeholder scan:** All remaining tasks (T1-T7) show complete code with real signatures. T8's deferral note is explicit (not a placeholder — it's a documented scope decision). No TBD/TODO in executable tasks.
 
-**3. Type consistency:** `_input_key(full_path, project_dir)` used consistently in T1. `_record_token_usage` signature extended consistently (state, skill_name, usage, project_dir). `_strip_autogen_blocks(text)` consistent. `_G4_DECISIONS_SKILLS` set consistent between T4 disposition table and T7 lint.
+**3. Type consistency:** `_input_key(full_path, project_dir)` used consistently in T1. `_record_token_usage(state, skill_name, usage, project_dir)` consistent. `_strip_autogen_blocks(text)` consistent. `_write_path(entry)` + `_is_dead_decisions_sidecar(...)` consistent in T7. `_G4_DECISIONS_SKILLS` consistent between T4 disposition table and T7 lint.
 
-**4. C1/C2/I6 from Phase 2 addressed:** C1 (basename+injection lockstep) → T1 Step 5 ✅; C2 (cache invalidation) → deferred with P2 (content-hash noted in plan header) ✅; I6 (IDE path state) → T2 Step 5-6 ✅.
+**4. Phase-2 C1/C2/I6 closure:** C1 (basename+injection lockstep) → T1 Step 5 ✅; C2 (cache invalidation) → deferred with P2 ✅; I6 (IDE path state) → T2 Step 5-6 ✅.
+
+**5. Phase-4 plan-review fixes applied:** C1 (T7 dict-form writes) → rewrote lint with `_write_path` normalizer ✅; C2 (stale test_audit_context_cache) → T1 Step 7 ✅; I1 (dead regex) → removed ✅; I2 (subprocess grep) → pure-Python rglob ✅; I3 (weak test) → positive-control test added ✅; I4 (T8 under-specified) → T8 deferred ✅; I5 (multi-return ambiguity) → T2 Step 6 insertion point clarified ✅; I6 (T4 overstatement) → table cell reworded ✅.
