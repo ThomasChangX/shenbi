@@ -640,32 +640,46 @@ git commit -m "fix: strip redundant auto-gen blocks from LLM system prompt (§3.
 
 ---
 
-## Task 6: Delete dead code `_inject_instruction_hierarchy` (spec §2.3 #11, §6.1)
+## Task 6: Delete dead code `_inject_instruction_hierarchy` + its test (spec §2.3 #11, §6.1)
 
-**complexity: leaf** (single function deletion, zero callers, marked pyright-ignore)
+**complexity: leaf** (single function deletion + its dedicated test; function is dead in production but has a test caller)
 
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py` (delete `_inject_instruction_hierarchy` at `:714-735`)
+- Modify: `tests/pipeline/test_audit_cascading.py` (delete the import at `:5` + `test_instruction_hierarchy_has_three_tiers` at `:8-13`; keep the other tests in that file)
 
-- [ ] **Step 1: Confirm zero callers**
+- [ ] **Step 1: Identify ALL references (production + test)**
 
-Run: `grep -rn "_inject_instruction_hierarchy" src/shenbi/ tests/ | grep -v __pycache__`
-Expected: only the definition line (`:714`) — no callers (the `# pyright: ignore[reportUnusedFunction]` confirms pyright already knows).
+Run: `grep -rn "_inject_instruction_hierarchy" src/shenbi/ tests/ | grep -v __pycache__ | grep -v coverage`
+Expected: 3 hits — (1) the definition at `src/shenbi/pipeline/dispatch_helper.py:714`; (2) the import at `tests/pipeline/test_audit_cascading.py:5`; (3) the call at `tests/pipeline/test_audit_cascading.py:10`. The `# pyright: ignore[reportUnusedFunction]` only reflects PRODUCTION callers — there is one test caller (`test_instruction_hierarchy_has_three_tiers`) that must be removed together with the function.
 
 - [ ] **Step 2: Delete the function**
 
 In `src/shenbi/pipeline/dispatch_helper.py`, delete the entire `_inject_instruction_hierarchy` function (`:714-735`, including the `# pyright: ignore[reportUnusedFunction]` comment). The `_build_skill_prompt` function already returns at `:711` without calling it.
 
-- [ ] **Step 3: Run full check**
+- [ ] **Step 3: Delete the dedicated test + its import**
+
+In `tests/pipeline/test_audit_cascading.py`:
+- Delete the import line `:5` (`from shenbi.pipeline.dispatch_helper import _inject_instruction_hierarchy`).
+- Delete the `test_instruction_hierarchy_has_three_tiers` function (`:8-13`).
+- Keep the remaining tests in that file (`test_three_chapter_zero_hard_streak_skips_cascaded_audit` and any others — they test `_should_skip_audit`, not the hierarchy injection).
+- If the module docstring (`:1-3`) mentions "3-tier instruction hierarchy injection", trim that clause so the docstring matches the remaining tests.
+
+- [ ] **Step 4: Verify no remaining references**
+
+Run: `grep -rn "_inject_instruction_hierarchy" src/shenbi/ tests/ | grep -v __pycache__ | grep -v coverage`
+Expected: no matches (definition + import + call all removed).
+
+- [ ] **Step 5: Run full check**
 
 Run: `just check`
-Expected: PASS (no caller breaks; basedpyright no longer needs the ignore comment).
+Expected: PASS (no caller breaks — the test that called it is also deleted; basedpyright no longer needs the ignore comment).
 
-- [ ] **Step 4: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
-git add src/shenbi/pipeline/dispatch_helper.py
-git commit -m "refactor: delete dead code _inject_instruction_hierarchy (§2.3 #11)"
+git add src/shenbi/pipeline/dispatch_helper.py tests/pipeline/test_audit_cascading.py
+git commit -m "refactor: delete dead code _inject_instruction_hierarchy + its test (§2.3 #11)"
 ```
 
 ---
@@ -722,8 +736,8 @@ def test_dead_decisions_sidecar_flags_synthetic_dead(tmp_path):
     synthetic_write = {"file": "plans/chapter-N-totally-dead-decisions.json", "mode": "create_or_overwrite"}
     all_reads: set[str] = set()  # no skill reads it
     g4_skills: set[str] = set()  # not G4-validated
-    code_refs: set[str] = set()  # no code references
-    assert _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_refs) is True
+    code_blob: str = ""  # no code references (param type is str, not set — basedpyright strict)
+    assert _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_blob) is True
 
 
 def test_dead_decisions_sidecar_spares_g4_validated():
@@ -733,8 +747,8 @@ def test_dead_decisions_sidecar_spares_g4_validated():
     write = {"file": "chapters/chapter-N-revision-decisions.json", "mode": "create_or_overwrite"}
     all_reads: set[str] = set()
     g4_skills = {"shenbi-chapter-revision"}  # G4 g4_decisions validates it
-    code_refs: set[str] = set()
-    assert _is_dead_decisions_sidecar(write, "shenbi-chapter-revision", all_reads, g4_skills, code_refs) is False
+    code_blob: str = ""  # param type is str (basedpyright strict)
+    assert _is_dead_decisions_sidecar(write, "shenbi-chapter-revision", all_reads, g4_skills, code_blob) is False
 ```
 
 - [ ] **Step 3: Run tests to verify they fail**
@@ -863,10 +877,10 @@ In `lint_repo_consistency.py` `main()`, add before the `return`:
         vios.append(v)
 ```
 
-- [ ] **Step 6: Run the lint test**
+- [ ] **Step 6: Run the lint tests (all 3: negative + 2 positive controls)**
 
-Run: `pytest tests/unit/test_lint_repo_consistency.py::test_dead_decisions_sidecar_detection -v`
-Expected: PASS (0 dead sidecars after Task 4 deleted the 2 truly-dead ones).
+Run: `pytest tests/unit/test_lint_repo_consistency.py -k dead_decisions_sidecar -v`
+Expected: 3 PASS (clean_tree=0 dead after T4; flags_synthetic_dead=True; spares_g4_validated=False).
 
 - [ ] **Step 7: Run full check**
 
