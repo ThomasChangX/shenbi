@@ -1,9 +1,9 @@
 # Plan 执行索引
 
-> **最后更新**：2026-08-01
-> **活跃 plan 数**：0 | **已归档**：63（见 `archive/`）
+> **最后更新**：2026-08-02
+> **活跃 plan 数**：0 | **已归档**：64（见 `archive/`）
 
-Plan 文件在 spec 进入实施阶段后才创建。当前 v1 基线已全部交付，无活跃 plan。
+Plan 文件在 spec 进入实施阶段后才创建。当前 v1 基线 + PR #28（dependabot/embeddings CI follow-up）已全部交付，无活跃 plan。
 
 ---
 
