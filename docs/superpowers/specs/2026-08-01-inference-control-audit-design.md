@@ -35,7 +35,7 @@
 #### 2.1 21/24 review + 3/3 score skill 温度错配（用创意温度跑判别任务）
 
 - **症状**：判别/打分类 skill 本该用低温（确定性），却跑了默认 0.7（创意温度）。
-- **证据**：`executor_config.toml` 仅 6 个 skill 覆盖温度（drafting 0.85 / revision 0.6 / review-continuity 0.2 / review-anti-ai 0.15 / review-resonance 0.1 / foreshadowing-lifecycle 0.5）。skills/ 下有 **24 个 `shenbi-review-*`**，仅 3 个覆盖 → **21 个 review 落回默认 0.7**（`dispatch_helper.py:174-184` `_get_skill_temperature`）。**3 个 `shenbi-score-*`（最该确定的任务）零覆盖，全跑 0.7**。
+- **证据**：`executor_config.toml` 仅 6 个 skill 覆盖温度（drafting 0.85 / revision 0.6 / review-continuity 0.2 / review-anti-ai 0.15 / review-resonance 0.1 / foreshadowing-lifecycle 0.5）。skills/ 下有 **24 个 `shenbi-review-*`**，仅 3 个覆盖 → **21 个 review 落回默认 0.7**（`dispatch_helper.py:196-206` `_get_skill_temperature`）。**3 个 `shenbi-score-*`（最该确定的任务）零覆盖，全跑 0.7**。
 - **根因**：温度覆盖是手动逐 skill 加的，无"按 task type 推断默认温度"的机制；score 类被遗漏。
 - **分类**：纯浪费（判别任务高温既烧 token 又降一致性 → G4 重试概率升）。
 - **浪费量**：间接——高温致输出方差大 → G4 FAIL 率升 → 重试（见 2.7）。score 类温度从 0.7→0.1 可降重试率。
@@ -46,7 +46,7 @@
 #### 2.2 `max_tokens` 双向错：review 头部空 62-75%，drafting 撑满并截断
 
 - **症状**：全局 `max_tokens=16384`（`executor_config.toml:3`），对小输出 skill 是巨额头部空置，对 drafting 是撑满截断。
-- **证据**：`_get_skill_max_tokens`（`dispatch_helper.py:187-197`）仅 drafting 覆盖（且值同默认=空操作）。实测输出分布（`novel-output/xinghuo-ranqiong/`，CJK ~1.5 字/token）：drafting AVG **15,787 tokens（96% 上限）**、review AVG **6,136（38%）**、state-settling AVG **4,109（25%）**。
+- **证据**：`_get_skill_max_tokens`（`dispatch_helper.py:209-219`）仅 drafting 覆盖（且值同默认=空操作）。实测输出分布（`novel-output/xinghuo-ranqiong/`，CJK ~1.5 字/token）：drafting AVG **15,787 tokens（96% 上限）**、review AVG **6,136（38%）**、state-settling AVG **4,109（25%）**。
 - **根因**：max_tokens 无 per-skill 右对齐机制；drafting 撑满 = 输出本就 >16K 被截断；review/state-settling 空头部 = 无害但掩盖真实成本模型。
 - **分类**：drafting 侧 = 质量风险（截断）；review 侧 = 计量盲点（非直接 token 浪费）。
 - **浪费量**：drafting 截断的直接浪费见 2.7（重试空烧）。
@@ -57,7 +57,7 @@
 #### 2.3 `top_p` / `frequency_penalty` / `presence_penalty` 从未使用
 
 - **症状**：三个标准采样杠杆全程默认，未针对重复倾向 skill 调。
-- **证据**：grep `src/` + `executor_config.toml` + `skills/` 对三参数**零命中**；OpenAI 调用（`dispatch_helper.py:1323-1329`）只设 temperature/max_tokens/stream。
+- **证据**：grep `src/` + `executor_config.toml` + `skills/` 对三参数**零命中**；OpenAI 调用（`dispatch_helper.py:1387-1393` `client.chat.completions.create`）只设 model/messages/stream/stream_options，温度与上限由调用方 kwargs 注入（`:1522-1524`），从不设 top_p/penalty。
 - **根因**：参数面未开放到 executor_config；重复倾向 skill（revision 重写、state-settling 重发累积）本可用 `frequency_penalty` 抑制。
 - **分类**：潜在优化（非既存浪费）。
 - **浪费量**：间接——重复输出可能触发 G4 文体检查 FAIL → 重试。
@@ -70,7 +70,7 @@
 #### 2.4 单点模型硬编码，无 per-skill 覆盖机制
 
 - **症状**：73 个 task type 各异的 skill 全用同一模型。
-- **证据**：`_DEFAULT_MODEL = "deepseek-v4-flash"`（`dispatch_helper.py:72`）；运行时 `os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)`（`:1436`）一次性解析，**所有 dispatch 共用**。无类似 `_get_skill_temperature` 的 model 覆盖；`executor_config.toml` 无 `model` 键；`pricing.py:22` PRICING 仅一条。
+- **证据**：`_DEFAULT_MODEL = "deepseek-v4-flash"`（`dispatch_helper.py:67`）；运行时 `os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)`（`:1500`）一次性解析，**所有 dispatch 共用**。无类似 `_get_skill_temperature` 的 model 覆盖；`executor_config.toml` 无 `model` 键；`pricing.py:22` PRICING 仅一条。
 - **根因**：从未设计分层路由；判别类（review/score，~30 skill）与聚合类（context-composing/state-settling，~8 skill）本可用更便宜/快模型，长文 drafting 才需大模型。
 - **分类**：成本/延迟浪费（非 token 浪费，但属"调用方式"效率）。
 - **浪费量**：review 类 667 dispatch × 6,136 output tokens 全用同一模型——若判别任务路由到便宜 reasoning 模型，单价可降。
@@ -81,7 +81,7 @@
 #### 2.5 pro↔flash doc drift（计划文档与实现不一致）
 
 - **症状**：归档 plan 写默认 `deepseek-v4-pro`，实代码是 `deepseek-v4-flash`，单价差 8-15×。
-- **证据**：`docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md:13,30,55,134` 反复写 pro，甚至 pin 测试 `test_default_model_is_deepseek_v4_pro`（L52）；实代码 `dispatch_helper.py:72` flash；`pricing.py` 用 flash 单价（$0.14/$0.28 vs plan 的 $1.10/$4.40）。
+- **证据**：`docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md:13,30,55,134` 反复写 pro，甚至 pin 测试 `test_default_model_is_deepseek_v4_pro`（L52）；实代码 `dispatch_helper.py:67` flash；`pricing.py` 用 flash 单价（$0.14/$0.28 vs plan 的 $1.10/$4.40）。
 - **根因**：代码降级到 flash（更便宜）后未回写 plan，文档漂移。
 - **分类**：文档缺陷（非直接浪费，但使成本估算失真）。
 - **验证**：grep 确认 plan vs code 不一致；应以代码为准订正 plan。
@@ -110,7 +110,7 @@
 #### 2.8 429 重试 thundering herd（结构风险）
 
 - **症状**：并行审计波遇 429 时，N 个 worker 近同步退避再发，可能加剧限流。
-- **证据**：`parallel_dispatch.py:25` `MAX_CONCURRENT_REVIEWS=4`；`:28` `MAX_RETRIES=2`；退避 `2.0**attempt + uniform(0,1.0)`（`:116`）——抖动仅 0-1s 叠在 2^attempt 上，worker 近锁步；无共享限流协调器、无 token bucket。两层重试叠加：streaming 层（`dispatch_helper.py:1354` 3 次）+ parallel 层（2 次）。
+- **证据**：`parallel_dispatch.py:25` `MAX_CONCURRENT_REVIEWS=4`；`:28` `MAX_RETRIES=2`；退避 `2.0**attempt + uniform(0,1.0)`（`:116`）——抖动仅 0-1s 叠在 2^attempt 上，worker 近锁步；无共享限流协调器、无 token bucket。两层重试叠加：streaming 层（`dispatch_helper.py:1419` `stop_after_attempt(3)`）+ parallel 层（2 次）。
 - **根因**：退避抖动幅度相对基数太小，不 decorrelate worker。
 - **分类**：延迟/稳定性风险（非直接 token 浪费，但失败重发烧 token）。
 - **验证**：模拟 429 注入，观察 worker 退避时序。
@@ -119,9 +119,9 @@
 
 - **症状**：输出因 max_tokens 截断时，系统**检测不到**，截断输出被当成功写盘 → G4 必 FAIL（结构不完整）→ 触发全量重试 → 再截断 → 重试预算空烧。
 - **证据**：
-  - `_call_llm_streaming`（`dispatch_helper.py:1307-1351`）返回的 `stop_reason` **只来自 `early_stop_patterns` 子串匹配**（`:1337-1344`），**从不查 API 的 `finish_reason`**（OpenAI chunk 的 `choices[0].finish_reason`，截断时为 `"length"`）。
-  - `stop_reason` 在 `:1468-1469` 仅 `log.info` 后丢弃，无分支处理 length。
-  - 截断的 `output_text` 直接流入 `_write_parsed_outputs`（`:1481-1488`）写盘。
+  - `_call_llm_streaming`（`dispatch_helper.py:1371-1415`）返回的 `stop_reason` **只来自 `early_stop_patterns` 子串匹配**（`:1401-1408`），**从不查 API 的 `finish_reason`**（OpenAI chunk 的 `choices[0].finish_reason`，截断时为 `"length"`）。
+  - `stop_reason` 在 `:1410-1411`（streaming 内）+ `:1532-1533`（调用方 `_dispatch_via_api`）仅 `log.info` 后丢弃，无分支处理 length。
+  - 截断的 `output_text` 直接流入 `_write_parsed_outputs`（`:1545-1552`）写盘。
   - G4 在截断内容上跑（`chapter_loop.py:2836-2838`）→ 结构缺陷 FAIL → 重试（2.6）→ 同 cap 再截断。
 - **根因**：`stop_reason` 命名误导（实为 early_stop，非 finish_reason）；从未接 finish_reason 检测分支。
 - **分类**：纯浪费 + 质量风险（最严重——重试预算被不可解决的问题空烧）。
@@ -133,7 +133,7 @@
 #### 2.10 并行 SharedAuditContext 省 disk-IO 不省 token（折叠自原待审维度 G）
 
 - **症状**：普遍误解 SharedAuditContext 省 token，实只省 disk read。
-- **证据**：`audit_context_cache.py:45-81` 一次性预算共享字段；`dispatch_helper.py:554-566` 注入 `raw_inputs[fname]` 覆盖，跳过 read_text。但**每个审计器仍把共享上下文全文塞进自己的 user prompt**（`:674-680` 逐 dispatch 拼输入）→ token 仍每器全发。仅 provider 端 prompt cache（总纲 §3.9）能省 token，且仅 API 路径。
+- **证据**：`audit_context_cache.py:45-81` 一次性预算共享字段；`dispatch_helper.py:593-613` 注入 `raw_inputs[fname]` 覆盖，跳过 read_text。但**每个审计器仍把共享上下文全文塞进自己的 user prompt**（`:720-727` 逐 dispatch 拼输入）→ token 仍每器全发。仅 provider 端 prompt cache（总纲 §3.9）能省 token，且仅 API 路径。
 - **根因**：cache 设计目标是 disk-IO + prompt 组装，非 token 传输。
 - **分类**：认知澄清（非既存浪费，但避免后续优化误判）。
 
@@ -167,7 +167,7 @@
 
 | finding | 修复 | 落地点 | 验证 |
 |---|---|---|---|
-| 2.9 | `_call_llm_streaming` 读 chunk 的 `finish_reason`；`=="length"` 时提 max_tokens 重发（非全量同参重试），并 log `length_truncation` | `dispatch_helper.py:1307-1351, 1468-1469` | mock length 截断，确认重发提 cap 而非同参 |
+| 2.9 | `_call_llm_streaming` 读 chunk 的 `finish_reason`；`=="length"` 时提 max_tokens 重发（非全量同参重试），并 log `length_truncation` | `dispatch_helper.py:1371-1415, 1532-1533` | mock length 截断，确认重发提 cap 而非同参 |
 | 2.1 | score-* 三 skill 加 `temperature=0.1` 覆盖；未覆盖的 21 review 按任务类型批量设（判别类 0.1-0.2） | `executor_config.toml` | 跑 score round 对比 G4 首过率 |
 | 2.2 | drafting `max_tokens` 提至输出 P99（实测后定，预估 ≥32768） | `executor_config.toml:5-7` | 截断率降至 0 |
 
