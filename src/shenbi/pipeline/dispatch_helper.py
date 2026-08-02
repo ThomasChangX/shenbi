@@ -461,6 +461,21 @@ def _resolve_all_wildcards(
 # ---------------------------------------------------------------------------
 
 
+def _input_key(full_path: Path, project_dir: Path) -> str:
+    """Return the canonical raw_inputs key for a file (spec §3.4).
+
+    Uses the project-relative path (not basename) so two same-named files in
+    different directories don't silently overwrite each other. Shared by the
+    disk-read loop and the SharedAuditContext injection block so the two never
+    produce mismatched keys (spec §6.1 C1 regression guard).
+    """
+    try:
+        return str(full_path.relative_to(project_dir))
+    except ValueError:
+        # full_path is not under project_dir (defensive); fall back to full str.
+        return str(full_path)
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -541,22 +556,32 @@ def _build_skill_prompt(
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
             content = _strip_meta_for_non_drafting(skill, content)
-            raw_inputs[full_path.name] = content
+            raw_inputs[_input_key(full_path, project_dir)] = content
 
     # Inject cached fields from shared_context so auditors skip re-reading
-    # those files from disk (Task 6 Step 2 wiring).
+    # those files from disk (Task 6 Step 2 wiring). Keys must match the
+    # disk-read path's _input_key form (spec §6.1 C1) — basename before was
+    # coincidentally consistent; now both use relative paths explicitly.
     if shared_context is not None:
         _INJECT_FROM_CACHE: dict[str, str] = {}
         if getattr(shared_context, "world_rules", ""):
-            _INJECT_FROM_CACHE["world_rules.md"] = shared_context.world_rules
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "world_rules.md", project_dir)
+            ] = shared_context.world_rules
         if getattr(shared_context, "character_list", ""):
-            _INJECT_FROM_CACHE["character_matrix.md"] = shared_context.character_list
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "character_matrix.md", project_dir)
+            ] = shared_context.character_list
         if getattr(shared_context, "style_profile", ""):
-            _INJECT_FROM_CACHE["style_profile.md"] = shared_context.style_profile
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "style_profile.md", project_dir)
+            ] = shared_context.style_profile
         if getattr(shared_context, "pending_hooks", ""):
-            _INJECT_FROM_CACHE["pending_hooks.md"] = shared_context.pending_hooks
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "pending_hooks.md", project_dir)
+            ] = shared_context.pending_hooks
         for fname, cached in _INJECT_FROM_CACHE.items():
-            if cached:
+            if cached and fname not in raw_inputs:
                 raw_inputs[fname] = cached
 
     # Priority-weighted budgeted truncation (Task 4/6 wiring).
