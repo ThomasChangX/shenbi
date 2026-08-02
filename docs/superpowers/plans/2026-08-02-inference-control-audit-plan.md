@@ -442,11 +442,13 @@ Expected: FAIL — `_MODEL_OUTPUT_CEILING` doesn't exist; cap-raise logic doesn'
 Add constant near the top of `dispatch_helper.py` (after `_DEFAULT_MODEL` at :67):
 
 ```python
-#: Hard ceiling for max_tokens cap-raise (spec §5.1 C1).
-#: The cap-raise on finish_reason=length will not exceed this.
-#: Must be > drafting's configured max_tokens (32768 after T3) so the cap-raise
-#: has headroom to fire. If the model's actual output limit is lower,
-#: the API will 400 and the error surfaces via the existing except block.
+#: Hard ceiling for max_tokens cap-raise (spec §5.1 C1, §7 iron rule #2).
+#: The cap-raise on finish_reason=length will not exceed this × 0.9
+#: (spec mandates 0.9 safety factor below the ceiling).
+#: Must be > drafting's configured max_tokens (32768 after T3) so that
+#: int(65536 * 0.9) = 58982 > 32768 and the cap-raise has headroom to fire.
+#: If the model's actual output limit is lower, the API will 400 and the
+#: error surfaces via the existing except block.
 _MODEL_OUTPUT_CEILING = 65536
 ```
 
@@ -477,7 +479,7 @@ Modify `_dispatch_via_api` streaming section (`dispatch_helper.py:1514-1533`):
 
     if finish_reason == "length":
         original_cap = _get_skill_max_tokens(skill)
-        raised_cap = min(original_cap * 2, _MODEL_OUTPUT_CEILING)
+        raised_cap = min(original_cap * 2, int(_MODEL_OUTPUT_CEILING * 0.9))
         if raised_cap <= original_cap:
             # Cap already at ceiling — can't raise further.
             log.error(
