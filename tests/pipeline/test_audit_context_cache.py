@@ -47,26 +47,28 @@ def test_shared_context_fields_are_injectable():
         pending_hooks="pending hooks text",
     )
 
-    # Simulate the injection logic from _build_skill_prompt
-    raw_inputs: dict[str, str] = {"chapter-001.md": ctx.chapter_text}
+    # Simulate the injection logic from _build_skill_prompt.
+    # Keys use project-relative form (spec §6.1 C1) — matches the real
+    # _input_key helper used by both the disk-read path and injection block.
+    raw_inputs: dict[str, str] = {"chapters/chapter-001.md": ctx.chapter_text}
 
     _INJECT_FROM_CACHE: dict[str, str] = {}
     if ctx.world_rules:
-        _INJECT_FROM_CACHE["world_rules.md"] = ctx.world_rules
+        _INJECT_FROM_CACHE["truth/world_rules.md"] = ctx.world_rules
     if ctx.character_list:
-        _INJECT_FROM_CACHE["character_matrix.md"] = ctx.character_list
+        _INJECT_FROM_CACHE["truth/character_matrix.md"] = ctx.character_list
     if ctx.style_profile:
-        _INJECT_FROM_CACHE["style_profile.md"] = ctx.style_profile
+        _INJECT_FROM_CACHE["truth/style_profile.md"] = ctx.style_profile
     if ctx.pending_hooks:
-        _INJECT_FROM_CACHE["pending_hooks.md"] = ctx.pending_hooks
+        _INJECT_FROM_CACHE["truth/pending_hooks.md"] = ctx.pending_hooks
     for fname, cached in _INJECT_FROM_CACHE.items():
-        if cached:
+        if cached and fname not in raw_inputs:
             raw_inputs[fname] = cached
 
-    assert "world_rules.md" in raw_inputs
-    assert raw_inputs["world_rules.md"] == "world rules summary"
-    assert "character_matrix.md" in raw_inputs
-    assert "style_profile.md" in raw_inputs
-    assert "pending_hooks.md" in raw_inputs
+    assert "truth/world_rules.md" in raw_inputs
+    assert raw_inputs["truth/world_rules.md"] == "world rules summary"
+    assert "truth/character_matrix.md" in raw_inputs
+    assert "truth/style_profile.md" in raw_inputs
+    assert "truth/pending_hooks.md" in raw_inputs
     # Chapter text from the original read is preserved
-    assert raw_inputs["chapter-001.md"] == "chapter content"
+    assert raw_inputs["chapters/chapter-001.md"] == "chapter content"

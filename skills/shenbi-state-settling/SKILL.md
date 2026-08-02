@@ -6,8 +6,6 @@ contract:
   reads:
     - chapters/chapter-N.md
   writes:
-    - file: truth/state-settling-decisions.json
-      mode: create_or_overwrite
     - file: truth/character_matrix.md
       mode: create_or_overwrite
   updates:
@@ -41,7 +39,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md
-- **Writes:** truth/state-settling-decisions.json, truth/character_matrix.md
+- **Writes:** truth/character_matrix.md
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
 <!-- END AUTO-GENERATED -->

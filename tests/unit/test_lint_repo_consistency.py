@@ -69,3 +69,56 @@ def test_loader_uniqueness_flags_contract_key_outside_contract_py() -> None:
             [("src/shenbi/other.py", py), ("src/shenbi/contract.py", py)]
         )[0]
     )
+
+
+@pytest.mark.unit
+def test_dead_decisions_sidecar_clean_tree() -> None:
+    """On the real repo (after T4), 0 dead decisions sidecars remain.
+
+    Negative control: confirms the lint runs without error on a clean tree.
+    """
+    from tools.lint_repo_consistency import find_dead_decisions_sidecars
+
+    dead = find_dead_decisions_sidecars()
+    assert dead == [], f"expected 0 dead decisions sidecars after T4, got {dead}"
+
+
+@pytest.mark.unit
+def test_dead_decisions_sidecar_flags_synthetic_dead() -> None:
+    """Positive control: a decisions.json write with no consumer IS flagged.
+
+    Without this, a broken lint (e.g. isinstance(w, str) on dict-form writes)
+    would pass the negative control via vacuous truth — exactly the dead-wire
+    pattern spec §8.1 iron law forbids.
+    """
+    from tools.lint_repo_consistency import _is_dead_decisions_sidecar
+
+    # A dict-form write (the actual repo form: {file: ..., mode: ...}).
+    synthetic_write = {
+        "file": "plans/chapter-N-totally-dead-decisions.json",
+        "mode": "create_or_overwrite",
+    }
+    all_reads: set[str] = set()  # no skill reads it
+    g4_skills: set[str] = set()  # not G4-validated
+    code_blob: str = ""  # no code references (param type is str, not set — basedpyright strict)
+    assert (
+        _is_dead_decisions_sidecar(synthetic_write, "shenbi-fake", all_reads, g4_skills, code_blob)
+        is True
+    )
+
+
+@pytest.mark.unit
+def test_dead_decisions_sidecar_spares_g4_validated() -> None:
+    """A decisions.json write consumed by G4 is NOT flagged (Task 4 disposition)."""
+    from tools.lint_repo_consistency import _is_dead_decisions_sidecar
+
+    write = {"file": "chapters/chapter-N-revision-decisions.json", "mode": "create_or_overwrite"}
+    all_reads: set[str] = set()
+    g4_skills = {"shenbi-chapter-revision"}  # G4 g4_decisions validates it
+    code_blob: str = ""  # param type is str (basedpyright strict)
+    assert (
+        _is_dead_decisions_sidecar(
+            write, "shenbi-chapter-revision", all_reads, g4_skills, code_blob
+        )
+        is False
+    )

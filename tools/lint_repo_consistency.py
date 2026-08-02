@@ -12,8 +12,11 @@
 from __future__ import annotations
 
 import re
-from collections.abc import Iterable
+from collections.abc import Container, Iterable
 from pathlib import Path
+from typing import Any
+
+import yaml
 
 REPO = Path(__file__).resolve().parents[1]
 BANNER = "<!-- AUTO-GENERATED from frontmatter — do not edit -->"
@@ -99,6 +102,122 @@ def find_extra_contract_key_readers(files: Iterable[File]) -> list[str]:
     return flagged
 
 
+# Skills whose decisions.json is structurally validated by G4 g4_decisions
+# (alone or via make_composite_checker). These are NOT dead even with no skill
+# reads: — G4 consumes their schema. Verified against the checkers dict in
+# src/shenbi/gates/g4/generic.py (7 skills use g4_decisions as of this audit).
+_G4_DECISIONS_SKILLS = frozenset(
+    {
+        "shenbi-chapter-drafting",
+        "shenbi-chapter-planning",
+        "shenbi-context-composing",
+        "shenbi-market-radar",
+        "shenbi-chapter-revision",
+        "shenbi-short-drafting",
+        "shenbi-state-settling",
+    }
+)
+
+# A SKILL.md with frontmatter splits into [pre, frontmatter, body] on "---".
+_FRONTMATTER_DELIM = "---"
+_EXPECTED_FRONTMATTER_PARTS = 3
+
+
+def _write_path(entry: object) -> str | None:
+    """Extract the file path from a writes/reads entry (string OR dict-form).
+
+    Spec contract: writes/reads entries may be a bare string OR a dict with a
+    `file:` key (optionally `mode:` / `fields:`). This normalizer handles both.
+    """
+    if isinstance(entry, str):
+        return entry
+    if isinstance(entry, dict):
+        return entry.get("file")
+    return None
+
+
+def _all_skill_frontmatter() -> dict[str, dict[str, Any]]:
+    """Return {skill_name: parsed frontmatter dict} for all shenbi-* skills."""
+    out: dict[str, dict[str, Any]] = {}
+    for skill_md in sorted((REPO / "skills").glob("shenbi-*/SKILL.md")):
+        text = skill_md.read_text(encoding="utf-8")
+        if text.startswith(_FRONTMATTER_DELIM):
+            parts = text.split(_FRONTMATTER_DELIM, 2)
+            if len(parts) >= _EXPECTED_FRONTMATTER_PARTS:
+                loaded = yaml.safe_load(parts[1])
+                if isinstance(loaded, dict):
+                    out[skill_md.parent.name] = loaded
+    return out
+
+
+def _code_reference_blob() -> str:
+    """Concatenate all src/shenbi + tools *.py file contents into one blob.
+
+    Used by _is_dead_decisions_sidecar to check if a decisions.json path stem
+    is referenced in code. Pure-Python (rglob + read_text) — matches the
+    existing lint style, no subprocess / shell-out grep (cross-platform safe).
+    """
+    parts: list[str] = []
+    for root in (REPO / "src" / "shenbi", REPO / "tools"):
+        for py in root.rglob("*.py"):
+            parts.append(py.read_text(encoding="utf-8"))
+    return "\n".join(parts)
+
+
+def _is_dead_decisions_sidecar(
+    write_entry: object,
+    skill: str,
+    all_reads: Container[str],
+    g4_skills: Container[str],
+    code_blob: str,
+) -> bool:
+    """Return True iff a decisions.json write has no consumer (spec §3.5).
+
+    A decisions.json write is 'dead' iff ALL of:
+      1. No skill declares it in reads: (string OR dict-form)
+      2. The producer skill is NOT in _G4_DECISIONS_SKILLS (G4 validates it)
+      3. No src/tools code references the path stem
+    """
+    path = _write_path(write_entry)
+    if not (isinstance(path, str) and path.endswith("-decisions.json")):
+        return False
+    if path in all_reads:
+        return False  # a skill reads it
+    if skill in g4_skills:
+        return False  # G4 validates it
+    # Code reference: check the path stem (strip the -N- chapter index).
+    stem = path.replace("chapter-N-", "chapter-").replace("short-N-", "short-").replace("-N-", "-")
+    return stem not in code_blob  # dead iff no code references it
+
+
+def find_dead_decisions_sidecars() -> list[str]:
+    """Flag decisions.json writes with no consumer (spec §3.5).
+
+    Returns a list of violation strings. See _is_dead_decisions_sidecar for
+    the 'dead' definition (smarter than the spec's original 'no reads' —
+    accounts for G4 + code consumers found in Task 4 disposition).
+    """
+    frontmatters = _all_skill_frontmatter()
+    # Collect all reads paths across all skills (string + dict-form).
+    all_reads: set[str] = set()
+    for fm in frontmatters.values():
+        contract = fm.get("contract") or {}
+        for r in contract.get("reads") or []:
+            p = _write_path(r)
+            if p:
+                all_reads.add(p)
+    code_blob = _code_reference_blob()
+
+    vios: list[str] = []
+    for skill, fm in frontmatters.items():
+        contract = fm.get("contract") or {}
+        for w in contract.get("writes") or []:
+            if _is_dead_decisions_sidecar(w, skill, all_reads, _G4_DECISIONS_SKILLS, code_blob):
+                path = _write_path(w) or "?"
+                vios.append(f"dead-decisions-sidecar: {skill}: {path}")
+    return vios
+
+
 def main() -> int:
     """Run all repo-consistency checks; print violations, exit non-zero if any."""
     vios: list[str] = []
@@ -115,6 +234,8 @@ def main() -> int:
     ]
     for p in find_extra_contract_key_readers(py_files):
         vios.append(f"loader-uniqueness: {p} reads frontmatter contract: key")
+    for v in find_dead_decisions_sidecars():
+        vios.append(v)
     for v in vios:
         print(v)
     return 1 if vios else 0

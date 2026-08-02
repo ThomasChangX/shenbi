@@ -24,8 +24,6 @@ contract:
   writes:
   - file: plans/chapter-N-plan.md
     mode: create_or_overwrite
-  - file: plans/chapter-N-plan-decisions.json
-    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -45,7 +43,7 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
-- **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
+- **Writes:** plans/chapter-N-plan.md
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->

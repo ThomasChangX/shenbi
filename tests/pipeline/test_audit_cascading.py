@@ -1,16 +1,6 @@
-"""Tests for audit cascading (N=3 chapter zero-HARD-failure streak heuristic),
-3-tier instruction hierarchy injection, and Task 6 wiring helpers.
+"""Tests for audit cascading (N=3 chapter zero-HARD-failure streak heuristic)
+and Task 6 wiring helpers.
 """
-
-from shenbi.pipeline.dispatch_helper import _inject_instruction_hierarchy
-
-
-def test_instruction_hierarchy_has_three_tiers():
-    prompt = "Review the chapter for issues."
-    result = _inject_instruction_hierarchy(prompt)
-    assert "HARD_CONSTRAINTS" in result
-    assert "GUIDELINES" in result
-    assert "REFERENCE" in result
 
 
 def test_three_chapter_zero_hard_streak_skips_cascaded_audit():

@@ -37,6 +37,7 @@ from tenacity import (
 
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
+from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.exceptions import DispatchWriteFailureError
 from shenbi.pipeline.llm_output_integrity import (
@@ -146,6 +147,33 @@ def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
     if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
         return text
     return _META_PATTERN.sub("", text)
+
+
+# Sentinels for the auto-generated body blocks (spec §3.8). These are kept in
+# the SKILL.md for codegen traceability + CI idempotency, but they are 100%
+# redundant with the frontmatter contract (which the dispatcher already parses
+# separately) and should never reach the LLM.
+_AUTOGEN_DATA_RE = re.compile(
+    r"<!-- AUTO-GENERATED.*?-->\n.*?<!-- END AUTO-GENERATED -->\n?",
+    re.DOTALL,
+)
+_AUTOGEN_CHECK_RE = re.compile(
+    r"<!-- AUTO-CHECK-START.*?-->\n.*?<!-- AUTO-CHECK-END -->\n?",
+    re.DOTALL,
+)
+
+
+def _strip_autogen_blocks(text: str) -> str:
+    """Remove the auto-generated 数据契约 + AUTO-CHECK blocks from a SKILL.md body.
+
+    Spec §3.8: both blocks duplicate frontmatter info (数据契约) or are empty
+    placeholders (AUTO-CHECK). Stripping them before the system prompt is sent
+    saves ~150-320 chars (data-contract) + ~80 chars (auto-check) per skill per
+    dispatch. The blocks remain in SKILL.md for codegen/CI — only the LLM view
+    changes.
+    """
+    text = _AUTOGEN_DATA_RE.sub("", text)
+    return _AUTOGEN_CHECK_RE.sub("", text)
 
 
 # ---------------------------------------------------------------------------
@@ -461,6 +489,21 @@ def _resolve_all_wildcards(
 # ---------------------------------------------------------------------------
 
 
+def _input_key(full_path: Path, project_dir: Path) -> str:
+    """Return the canonical raw_inputs key for a file (spec §3.4).
+
+    Uses the project-relative path (not basename) so two same-named files in
+    different directories don't silently overwrite each other. Shared by the
+    disk-read loop and the SharedAuditContext injection block so the two never
+    produce mismatched keys (spec §6.1 C1 regression guard).
+    """
+    try:
+        return str(full_path.relative_to(project_dir))
+    except ValueError:
+        # full_path is not under project_dir (defensive); fall back to full str.
+        return str(full_path)
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -503,7 +546,7 @@ def _build_skill_prompt(
     # System prompt = SKILL.md (resolved from repo root, not CWD)
     skill_file = _PROJECT_ROOT / "skills" / skill / "SKILL.md"
     if skill_file.exists():
-        system_prompt = skill_file.read_text(encoding="utf-8")
+        system_prompt = _strip_autogen_blocks(skill_file.read_text(encoding="utf-8"))
     else:
         log.warning("skill_file_missing", skill=skill, path=str(skill_file))
         system_prompt = f"Execute the {skill} skill."
@@ -541,22 +584,32 @@ def _build_skill_prompt(
                 content, _matched = filter_to_fields(content, fields, str(full_path))
             # 10a: Strip META blocks for non-drafting skills (save 16-31% input)
             content = _strip_meta_for_non_drafting(skill, content)
-            raw_inputs[full_path.name] = content
+            raw_inputs[_input_key(full_path, project_dir)] = content
 
     # Inject cached fields from shared_context so auditors skip re-reading
-    # those files from disk (Task 6 Step 2 wiring).
+    # those files from disk (Task 6 Step 2 wiring). Keys must match the
+    # disk-read path's _input_key form (spec §6.1 C1) — basename before was
+    # coincidentally consistent; now both use relative paths explicitly.
     if shared_context is not None:
         _INJECT_FROM_CACHE: dict[str, str] = {}
         if getattr(shared_context, "world_rules", ""):
-            _INJECT_FROM_CACHE["world_rules.md"] = shared_context.world_rules
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "world_rules.md", project_dir)
+            ] = shared_context.world_rules
         if getattr(shared_context, "character_list", ""):
-            _INJECT_FROM_CACHE["character_matrix.md"] = shared_context.character_list
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "character_matrix.md", project_dir)
+            ] = shared_context.character_list
         if getattr(shared_context, "style_profile", ""):
-            _INJECT_FROM_CACHE["style_profile.md"] = shared_context.style_profile
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "style_profile.md", project_dir)
+            ] = shared_context.style_profile
         if getattr(shared_context, "pending_hooks", ""):
-            _INJECT_FROM_CACHE["pending_hooks.md"] = shared_context.pending_hooks
+            _INJECT_FROM_CACHE[
+                _input_key(project_dir / "truth" / "pending_hooks.md", project_dir)
+            ] = shared_context.pending_hooks
         for fname, cached in _INJECT_FROM_CACHE.items():
-            if cached:
+            if cached and fname not in raw_inputs:
                 raw_inputs[fname] = cached
 
     # Priority-weighted budgeted truncation (Task 4/6 wiring).
@@ -709,30 +762,6 @@ def _build_skill_prompt(
             log.warning("review_checklist_inject_failed", skill=skill, error=str(e))
 
     return system_prompt, user_prompt, output_paths
-
-
-def _inject_instruction_hierarchy(prompt: str) -> str:  # pyright: ignore[reportUnusedFunction]
-    """Add 3-tier instruction hierarchy to prompt (Anthropic Context Engineering pattern)."""
-    header = """## Instruction Hierarchy
-
-<HARD_CONSTRAINTS>
-- These rules CANNOT be violated under any circumstances
-- Violation = automatic rejection
-</HARD_CONSTRAINTS>
-
-<GUIDELINES>
-- Follow these unless there is a compelling creative reason not to
-- Deviations must be justified in the decisions JSON
-</GUIDELINES>
-
-<REFERENCE>
-- This section provides context and examples
-- Use for inspiration, not as strict rules
-</REFERENCE>
-
----
-"""
-    return header + prompt
 
 
 def _is_review_skill(skill: str) -> bool:
@@ -1225,12 +1254,30 @@ def _init_truth_templates(project_dir: Path) -> None:
 # ---------------------------------------------------------------------------
 
 
-def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
-    """Log token usage from API response."""
-    if not hasattr(response, "usage") or response.usage is None:
+def _log_token_usage(
+    response: Any,
+    skill_name: str,
+    state: Any = None,
+    project_dir: Path | None = None,
+) -> None:
+    """Log token usage from API response or a bare usage object.
+
+    Accepts either (a) a full API response object with a ``.usage`` attribute,
+    or (b) a bare Usage object (e.g. ``CompletionUsage`` from the streaming
+    final chunk) that has ``prompt_tokens`` / ``completion_tokens`` directly.
+    The streaming path passes the bare usage object (``_call_llm_streaming_
+    with_retry`` returns ``chunk.usage``), so the ``hasattr(response, "usage")``
+    guard alone would skip it — handle both shapes.
+    """
+    # Form (b): bare Usage object (has prompt_tokens directly, no nested .usage).
+    if hasattr(response, "prompt_tokens") and not hasattr(response, "usage"):
+        usage = response
+    # Form (a): response object wrapping usage.
+    elif hasattr(response, "usage") and response.usage is not None:
+        usage = response.usage
+    else:
         return
 
-    usage = response.usage
     log.info(
         "llm_token_usage",
         skill=skill_name,
@@ -1240,11 +1287,22 @@ def _log_token_usage(response: Any, skill_name: str, state: Any = None) -> None:
     )
 
     if state:
-        _record_token_usage(state, skill_name, usage)
+        _record_token_usage(state, skill_name, usage, project_dir=project_dir)
 
 
-def _record_token_usage(state: Any, skill_name: str, usage: Any) -> None:
-    """Accumulate token usage in pipeline state."""
+def _record_token_usage(
+    state: Any,
+    skill_name: str,
+    usage: Any,
+    project_dir: Path | None = None,
+) -> None:
+    """Accumulate token usage in pipeline state and persist to the ledger.
+
+    Spec §3.1: previously only mutated the in-memory state.token_usage dict —
+    the TokenLedger.record() write side was never wired, leaving
+    cost/token-ledger.jsonl permanently empty (dead-wire). Now also appends a
+    record when project_dir is available.
+    """
     if not hasattr(state, "token_usage"):
         state.token_usage = {}
 
@@ -1261,6 +1319,18 @@ def _record_token_usage(state: Any, skill_name: str, usage: Any) -> None:
     rec["completion_tokens"] += usage.completion_tokens
     rec["total_tokens"] += usage.total_tokens
     rec["calls"] += 1
+
+    # Spec §3.1 wire-up: persist this usage to the append-only ledger.
+    if project_dir is not None:
+        TokenLedger(project_dir).record(
+            skill_name,
+            getattr(state, "chapter", 0) or 0,
+            {
+                "prompt_tokens": usage.prompt_tokens,
+                "completion_tokens": usage.completion_tokens,
+                "total_tokens": usage.total_tokens,
+            },
+        )
 
 
 def print_token_summary(state: Any) -> None:
@@ -1467,7 +1537,7 @@ def _dispatch_via_api(
     # (via stream_options={"include_usage": True}). Falls back to pre-flight
     # heuristic (warn_if_over_budget) when usage is unavailable.
     if usage is not None:
-        _log_token_usage(usage, skill, state=state)
+        _log_token_usage(usage, skill, state=state, project_dir=project_dir)
 
     try:
         output = _parse_structured_output(output_text)
@@ -1524,6 +1594,7 @@ def _dispatch_via_ide(
     prompt: str,
     uses_staging: bool = False,
     shared_context: Any = None,
+    state: Any = None,
 ) -> DispatchResult:
     """Execute a skill via an IDE agent CLI (codex / zcode).
 
@@ -1596,6 +1667,15 @@ def _dispatch_via_ide(
     if missing:
         log.error("ide_missing_outputs", skill=skill, missing=missing)
 
+    # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
+    # (codex exec stdout is prose, not a usage object). state is threaded so a
+    # future codex --json or zcode usage-report feature can record here.
+    if state is not None:
+        log.info(
+            "ide_dispatch_uninstrumented_tokens",
+            skill=skill,
+            hint="IDE path cannot record usage; ledger row skipped",
+        )
     return DispatchResult(True, 0, r.stdout, r.stderr)
 
 
@@ -1648,7 +1728,12 @@ def dispatch_skill(
     # IDE CLI path
     if _find_ide_cli():
         return _dispatch_via_ide(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+            skill,
+            pd,
+            prompt,
+            uses_staging=uses_staging,
+            shared_context=shared_context,
+            state=state,
         )
 
     # Legacy CLI subprocess path

@@ -368,13 +368,6 @@
       "shenbi-intent-management"
     ]
   },
-  "plans/chapter-N-plan-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-chapter-planning"
-    ],
-    "updates": []
-  },
   "audits/chapter-N-*.md": {
     "reads": [
       "shenbi-chapter-revision",
@@ -586,33 +579,6 @@
     "reads": [],
     "writes": [
       "shenbi-drift-guidance"
-    ],
-    "updates": []
-  },
-  "audits/volume-N-score.md": {
-    "reads": [
-      "shenbi-escalation-review"
-    ],
-    "writes": [
-      "shenbi-score-volume"
-    ],
-    "updates": []
-  },
-  "audits/arc-N-score.md": {
-    "reads": [
-      "shenbi-escalation-review"
-    ],
-    "writes": [
-      "shenbi-score-arc"
-    ],
-    "updates": []
-  },
-  "audits/stratum-N-score.md": {
-    "reads": [
-      "shenbi-escalation-review"
-    ],
-    "writes": [
-      "shenbi-score-stratum"
     ],
     "updates": []
   },
@@ -935,6 +901,27 @@
     ],
     "updates": []
   },
+  "audits/arc-N-score.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-score-arc"
+    ],
+    "updates": []
+  },
+  "audits/stratum-N-score.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-score-stratum"
+    ],
+    "updates": []
+  },
+  "audits/volume-N-score.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-score-volume"
+    ],
+    "updates": []
+  },
   "snapshots/chapter-NNN/*": {
     "reads": [
       "shenbi-sequel-writing"
@@ -979,13 +966,6 @@
     "reads": [],
     "writes": [
       "shenbi-short-packaging"
-    ],
-    "updates": []
-  },
-  "truth/state-settling-decisions.json": {
-    "reads": [],
-    "writes": [
-      "shenbi-state-settling"
     ],
     "updates": []
   },

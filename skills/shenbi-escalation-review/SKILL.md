@@ -7,9 +7,6 @@ contract:
   kind: report
   reads:
   - truth/resonance_trend.md
-  - audits/volume-N-score.md
-  - audits/arc-N-score.md
-  - audits/stratum-N-score.md
   - audits/chapter-N-sensitivity.md
   writes:
   - file: audits/escalation-N-report.md
@@ -26,7 +23,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/resonance_trend.md, audits/volume-N-score.md, audits/arc-N-score.md, audits/stratum-N-score.md, audits/chapter-N-sensitivity.md
+- **Reads:** truth/resonance_trend.md, audits/chapter-N-sensitivity.md
 - **Writes:** audits/escalation-N-report.md
 - **Updates:** none
 

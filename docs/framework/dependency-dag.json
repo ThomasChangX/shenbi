@@ -2801,26 +2801,6 @@
       "file": "truth/resonance_trend.md"
     },
     {
-      "producer": "shenbi-review-arc-payoff",
-      "consumer": "shenbi-escalation-review",
-      "file": "audits/volume-N-score.md"
-    },
-    {
-      "producer": "shenbi-score-volume",
-      "consumer": "shenbi-escalation-review",
-      "file": "audits/volume-N-score.md"
-    },
-    {
-      "producer": "shenbi-score-arc",
-      "consumer": "shenbi-escalation-review",
-      "file": "audits/arc-N-score.md"
-    },
-    {
-      "producer": "shenbi-score-stratum",
-      "consumer": "shenbi-escalation-review",
-      "file": "audits/stratum-N-score.md"
-    },
-    {
       "producer": "shenbi-review-anti-ai",
       "consumer": "shenbi-escalation-review",
       "file": "audits/chapter-N-sensitivity.md"

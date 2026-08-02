@@ -132,11 +132,11 @@ def test_derive_files_read_real_migrated_skill_contract() -> None:
         "genre-config.json",
         "truth/audit_drift.md",
     ]
-    # shenbi-state-settling: writes a decisions sidecar + character_matrix,
-    # plus updates=7 truth files (all fold into outputs; character_matrix
-    # appears in both writes and updates).
+    # shenbi-state-settling: writes character_matrix, plus updates=7 truth files
+    # (all fold into outputs; character_matrix appears in both writes and updates).
+    # The state-settling-decisions.json sidecar was removed (spec §3.5/T4 — dead
+    # output, no downstream consumer).
     assert derive_output_files("shenbi-state-settling") == [
-        "truth/state-settling-decisions.json",
         "truth/character_matrix.md",
         "truth/current_state.md",
         "truth/particle_ledger.md",
