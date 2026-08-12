@@ -54,8 +54,8 @@
 |---|---|---|
 | 0 清点与基线 | 生成全文件清单台账；跑 D1 机械基线（`just check` 全套 + tools/ 全部 lint 脚本 + 74 个 SKILL.md frontmatter 解析 + G2/G4 校验 + coverage 报告），记录 **pre-existing 失败基线** | G1 台账建成 + D1 基线归档 |
 | 1 整体层审查 | 架构一致性（AGENTS.md 声明 vs 实际）、契约单一信源体系、pipeline 状态机设计、G0-G7 体系、CI 设计、文档体系——找**系统性**错误 | 每项有结论（通过/问题→findings） |
-| 2 分区深度审查 | Z1-Z10 十区，每区一个 fresh-context 初审 agent **并行只读**深读，产出 per-file 报告 | 每区报告含**全文件** per-file 条目（G1） |
-| 3 跨模块审计线程 | T1-T9 九条横切线程，每条一个 fresh-context agent，读全部相关文件，产出线程报告 | 9 线程报告齐全 |
+| 2 分区深度审查 | Z1-Z11 十一区，每区一个 fresh-context 初审 agent **并行只读**深读，产出 per-file 报告 | 每区报告含**全文件** per-file 条目（G1） |
+| 3 跨模块审计线程 | T1-T11 十一条横切线程，每条一个 fresh-context agent，读全部相关文件，产出线程报告 | 11 线程报告齐全 |
 | 4 根因聚类 | 跨区去重（同根因→合并）、严重度校准 P0/P1/P2/M、根因簇图、抽查复核（fresh-context agent 抽查 20% 分区结论 vs 真实文件） | findings ledger 无重复根因 + 严重度已校准 |
 | 5 spec 产出 | 总纲 catalog spec + 每 finding 独立子 spec + INDEX 登记 | G5：ledger 条目数 == spec 文件数 |
 | 6 覆盖证明 + meta-audit | G1 台账零未处置文件；G2 复核收敛；meta-audit 审审计（抽查 per-file 报告 vs 真实文件）；总结报告 → **人类裁决** | G1-G6 全过 + 人类说"够了"（G7） |
@@ -71,13 +71,14 @@
 | **D1 确定性机械层** | `just check` 全套（contract lints ×3 + ruff + format + mypy + basedpyright + sync-contracts 幂等 + pytest 双 pass）+ tools/ 其余脚本（`audit-skill-descriptions.py`、`check_fixture_mirror.py`、`lint_no_forbid_with_computed_field.py`、`lint_no_fs_mutation.py` 等 13 个）+ 全部 74 个 SKILL.md frontmatter 解析 + G2/G4 校验全部 fixtures/skills + 禁用模式 git grep（bare except / print() / pickle / TODO-FIXME-HACK）+ pytest `--cov` 缺口报告 | **100% 文件**，机器穷举；输出归档为 `d1-baseline.md`（含 pre-existing 失败，与审查新增发现分离） |
 | **D2 结构化模式层** | 契约图闭包与 reads/writes 接线 vs deps.json、import 环、死代码、重复块、文档↔代码 file:line 漂移、SKILL.md 元数据一致性（name/description ≤500 字符规则/kind/reads） | **100% 文件**，grep/脚本模式可达 |
 | **D3 语义深读层** | 每文件人工语义审查：逻辑正确性、设计质量、边界条件、错误处理、测试真实性。**不抽样**——全文件深读 | **100% 文件**（生成物目录除外，见 §4.1） |
+| **D4 运行时产物与日志层** | 磁盘未跟踪执行产物的清点与审计：`novel-output/`、`truth/`、`.superpowers/`、`*.log`、`.hypothesis/examples/`（真实运行证据——novel-output 的 .gitignore 注释明示其为 auditable pipeline verification）；日志 grep 异常；sdd 历史已知问题转 pre-seeded findings | **100% 磁盘执行产物**（构建产物/工具缓存除外） |
 
-**覆盖台账（G1 的载体）**：`git ls-files` 全清单（当前 2736 文件），每文件恰好一条处置记录，唯一合法值：
+**覆盖台账（G1 的载体，双表）**：
 
-- `deep-read` → 必须链接 per-file 报告条目
-- `generated-excluded` → 仅限生成物目录（`dist/`、`site/`、`novel-output/`、`truth/`、`__pycache__/`），且**必须记录排除理由 + 已验证可再生成/gitignore 正确**
+- **表 A · tracked**（`git ls-files`，当前 2736 文件）：每文件一条处置，唯一合法值 `deep-read`（链接 per-file 报告）。
+- **表 B · 磁盘执行产物**（阶段 0 `find` + `git status --ignored` 清点）：`audited`（链接 D4 报告）\ `generated-excluded(理由)`（仅可再生成的构建产物 dist/site）\ `cache-ignored`（工具缓存，验证 .gitignore）。
 
-不存在 `sampled`。台账零未处置文件是阶段 6 的硬门。
+不存在 `sampled`。两表零未处置是阶段 6 的硬门。
 
 ### 4.1 D3 排序（派发顺序优化，非覆盖裁剪）
 
@@ -89,8 +90,8 @@
 
 | 门 | 判据 |
 |---|---|
-| **G1 广度** | 覆盖台账每文件 = `deep-read`（有 per-file 报告）或 `generated-excluded`（有理由）；零未处置 |
-| **G2 深度** | 每区初审通过**独立** fresh-context 复核 agent（与初审分离）：复核重读全文件，0 新 Critical/Important 才算过；9 条线程报告齐全 |
+| **G1 广度** | 台账表 A 每文件 = `deep-read`；表 B 每项 = `audited` / `generated-excluded(理由)` / `cache-ignored`；两表零未处置 |
+| **G2 深度** | 每区初审通过**独立** fresh-context 复核 agent（与初审分离）：复核重读全文件，0 新 Critical/Important 才算过；11 条线程报告齐全 |
 | **G3 验证** | D1 全工具真实运行、输出归档（pre-existing 失败单独列）；全部 CLI 入口冒烟（shenbi-validate G0/G2/G4、shenbi-score、shenbi-phase、shenbi-dispatch dry-run 若可行） |
 | **G4 收敛** | 复核轮次不设上限、重审无条件；终止条件仅为本轮 0 新 C/I |
 | **G5 产出** | findings ledger 条目数 == 子 spec 文件数（M 级批量 spec 例外见 §9）；每 spec 过自审 |
@@ -99,7 +100,7 @@
 
 ---
 
-## 6. 分区矩阵 Z1-Z10（阶段 2 派发单元）
+## 6. 分区矩阵 Z1-Z11（阶段 2 派发单元）
 
 每区 = 一个 fresh-context 初审 agent + 独立复核 agent；并行只读，只写各自 `zone-reports/Z<N>.md`。
 
@@ -115,12 +116,13 @@
 | Z8 | `skills/` 74 个 skill（SKILL.md 全文 + 附属文件） | 触发条件 description ≤500 字符、DOT 流程图与正文一致性、decisions 声明、reads 字段声明 vs truth 文件实况 |
 | Z9 | `docs/` 200 md（framework / architecture / superpowers/specs+plans+archive / ADR）+ 根级 AGENTS.md / README / 其余根 md | 文档↔代码漂移（file:line 引用抽查）、INDEX 一致性、spec 间矛盾 |
 | Z10 | `.github/workflows/` 8 个 + `pyproject.toml` + `justfile` + `uv.lock` + `tools/` 13 脚本 + `scripts/` + `plugins/master.json` + `benchmarks/` + `executor_config.toml` + `goal-prompt.md` + `command-to-give.md` + `run_pipeline.sh` + `mkdocs.yml` + `cliff.toml` | CI 与 just check 一致性、脚本正确性、配置漂移、meta-prompt 自身（含 single-model-sdd-prompt.md） |
+| Z11 | **磁盘执行产物**（清单 = 台账表 B）：`novel-output/`（test-validation / validation-results / xinghuo-ranqiong 真实运行）、`truth/`、`.superpowers/sdd*`、`*.log`（先读 `src/shenbi/logging.py` 定位日志汇） | 产物与 pipeline 不变量一致性、decisions.json 真实数据 schema/P2.5、日志异常（ERROR/traceback/retry/429/finish_reason）、sdd 历史已知问题转 pre-seeded findings |
 
 子 agent prompt 必须**内联完整 rubric**（fresh-context 子 agent 看不到本 prompt 文件，禁止只引用章节名——沿用 single-model-sdd-prompt.md 的注入规则）。
 
 ---
 
-## 7. 跨模块审计线程 T1-T9（阶段 3，第一公民）
+## 7. 跨模块审计线程 T1-T11（阶段 3，第一公民）
 
 每条线程一个 fresh-context agent，读全部相关文件横切审查；与分区并行派发。
 
@@ -135,6 +137,8 @@
 | T7 | truth 文件写路径幂等：覆盖 vs 追加、upsert 键唯一性（CN3 先例） | 归档 postmortem |
 | T8 | fixture 真实性：G0.9 禁止手写 mock；fixtures 必须为真实输出或上游生成副本 | AGENTS.md fixtures |
 | T9 | 枚举/状态字符串单一信源：`contracts/enums.py` 唯一定义；lint_status_strings 覆盖范围是否有洞 | PR #19 集群 |
+| T10 | 历史修复回归核验：archive spec / INDEX 全部"已修(PR #N)"声明逐一 grep 修复签名是否仍在当前代码（TokenLedger 接线、finish_reason 检测、truth_io upsert 调用方全覆盖）；消失 = 回归 | 归档 spec P0 声明 |
+| T11 | 运行时行为核验：实际运行 pressure-tests / benchmark（对比 baselines）/ golden / 差分测试；3-4 关键模块跑 mutmut 突变测试；重放 .hypothesis/examples/ 失败样本 | pyproject `[tool.mutmut]`、tests 分层 |
 
 ---
 
