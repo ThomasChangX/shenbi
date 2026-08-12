@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-08-02
-> **活跃 spec 数**：2 | **已归档**：99（见 `archive/`）
+> **最后更新**：2026-08-13
+> **活跃 spec 数**：3 | **已归档**：99（见 `archive/`）
 
 仅列待执行 spec；已完成/合并的 spec 已移至 `archive/`，不在此重复。
 按推荐执行顺序排列；执行序列号见各 spec 文件名日期前缀。
@@ -30,6 +30,17 @@
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——**PR #39 已修**）；推理控制 spec（已归档，§J finish_reason=length 盲点驱动本 spec F8 重试放大——**PR #40 已修**）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
 - **内容**：只审**输出侧浪费**——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大（坏章最坏 ~6 章等价输出 + 3 审计波；`error_handler.py:36-37` MAX_DISPATCH_RETRIES=2/MAX_AUDIT_RETRIES=3）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，`parallel_dispatch.py:189-249` consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（`revision_router.py:199`，~60-120KB/次）/ dead sidecar 产出 token。根因簇：无输出聚合层 / 无重试预算计量。P0：revision 前加审计聚合去重层；P1：重试预算计量 + TokenLedger 接线（**PR #39 已接 API 路径**）；P2：审计器缺陷共享去冗。
+- **对应 plan**：❌ 未写
+
+### #5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）
+
+- **文件**：`2026-08-13-full-project-audit-prompt-design.md`
+- **系列**：2026-08-13 全项目审查（总纲；只设计审查 prompt 文档本身，审查执行另起会话）
+- **状态**：Design
+- **优先级**：🟠 High（工程卫生总审查的执行载体；产出驱动后续所有修复 spec）
+- **方法**：`brainstorming`（已完成）→ `writing-plans`
+- **依赖**：`docs/superpowers/single-model-sdd-prompt.md`（Iron Law / audit_loop / 反合理化表机制先例）；repo spec/INDEX 约定；AGENTS.md
+- **内容**：设计无时间盒、完备性门驱动（G1-G7）的全项目审查 prompt：三层覆盖模型（D1 机械 100% / D2 模式 100% / D3 语义深读全文件）+ 覆盖台账（无 sampled 兜底）+ 分区矩阵 Z1-Z10 + 跨模块审计线程 T1-T9 + per-file 报告/findings ledger schema + 每 finding 独立 spec 产出契约（1 总纲 + N 子 spec）+ checkpoint/resume 协议。诚实代价：串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话。
 - **对应 plan**：❌ 未写
 
 ---
