@@ -90,7 +90,7 @@
 | **G2 深度** | 每区初审通过**独立** fresh-context 复核 agent（与初审分离）：复核重读全文件，0 新 Critical/Important 才算过；9 条线程报告齐全 |
 | **G3 验证** | D1 全工具真实运行、输出归档（pre-existing 失败单独列）；全部 CLI 入口冒烟（shenbi-validate G0/G2/G4、shenbi-score、shenbi-phase、shenbi-dispatch dry-run 若可行） |
 | **G4 收敛** | 复核轮次不设上限、重审无条件；终止条件仅为本轮 0 新 C/I |
-| **G5 产出** | findings ledger 条目数 == 子 spec 文件数（M 级批量 spec 例外见 §7）；每 spec 过自审 |
+| **G5 产出** | findings ledger 条目数 == 子 spec 文件数（M 级批量 spec 例外见 §9）；每 spec 过自审 |
 | **G6 Meta** | meta-audit：fresh-context agent 抽查 ≥20% 的 per-file 报告 vs 真实文件，抓假深读/橡皮图章/覆盖空洞 |
 | **G7 人类裁决** | 执行者**禁止**自行宣布"审计完成"；阶段 6 产出总结报告（覆盖数字、findings 统计、遗留风险）后停，由人类拍板结束或追加审查 |
 
