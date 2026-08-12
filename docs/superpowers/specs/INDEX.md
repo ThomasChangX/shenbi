@@ -38,9 +38,9 @@
 - **系列**：2026-08-13 全项目审查（总纲；只设计审查 prompt 文档本身，审查执行另起会话）
 - **状态**：Design
 - **优先级**：🟠 High（工程卫生总审查的执行载体；产出驱动后续所有修复 spec）
-- **方法**：`brainstorming`（已完成）→ 直接编写 prompt 文档（无 superpowers skill / 无 SDD）
+- **方法**：`brainstorming`（已完成）→ 直接编写 prompt 文档（superpowers skill 可选增强 / 无 SDD）
 - **依赖**：`docs/superpowers/single-model-sdd-prompt.md`（仅风格先例：Iron Law / 反合理化）；repo spec/INDEX 约定；AGENTS.md
-- **内容**：设计无时间盒、完备性门驱动（G1-G7）的全项目审查 prompt（交付物：`docs/superpowers/full-project-audit-prompt.md`，完全自包含、不引用 skill/SDD）：三层覆盖模型（D1 机械 100% / D2 模式 100% / D3 语义深读全文件）+ 覆盖台账（无 sampled 兜底）+ 分区矩阵 Z1-Z10 + 跨模块审计线程 T1-T9 + per-file 报告/findings ledger schema + 每 finding 独立 spec 产出契约（1 总纲 + N 子 spec + M 级合并批量 spec）+ checkpoint/resume 协议。只审不修。诚实代价：串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话。
+- **内容**：设计无时间盒、完备性门驱动（G1-G7）的全项目审查 prompt（交付物：`docs/superpowers/full-project-audit-prompt.md`，自包含基线 + superpowers skill 白名单可选增强（增强非替代）/ 无 SDD）：三层覆盖模型（D1 机械 100% / D2 模式 100% / D3 语义深读全文件）+ 覆盖台账（无 sampled 兜底）+ 分区矩阵 Z1-Z10 + 跨模块审计线程 T1-T9 + per-file 报告/findings ledger schema + 每 finding 独立 spec 产出契约（1 总纲 + N 子 spec + M 级合并批量 spec）+ checkpoint/resume 协议。只审不修。诚实代价：串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话。
 - **对应 plan**：❌ 未写
 
 ---

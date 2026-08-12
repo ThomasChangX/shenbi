@@ -3,9 +3,9 @@
 > **Date:** 2026-08-13
 > **Status:** Design
 > **Severity:** 🟠 High（工程卫生总审查的执行载体；其产出的每一条 finding 是后续所有修复 spec 的来源）
-> **方法:** `brainstorming`（已完成）→ 本文档 → **直接编写 prompt 文档**（用户明确：不走 writing-plans；执行时不依赖任何 superpowers skill、不走 SDD）
+> **方法:** `brainstorming`（已完成）→ 本文档 → **直接编写 prompt 文档**（用户 2026-08-13 更正：superpowers skill 可作为**可选增强**用于提升审查/spec 质量；仍不走 writing-plans、不用 SDD 流程）
 > **系列:** 2026-08-13 全项目审查（总纲；本 spec 只设计**审查 prompt 文档本身**，不包含审查执行）
-> **依赖:** `single-model-sdd-prompt.md`（仅作 Iron Law / 反合理化表的**风格先例**，本 prompt 不引用任何 skill）；repo spec 约定（specs/INDEX.md 登记、archive 流程）；AGENTS.md（三层测试、G0-G7、decisions-sidecar、字段级 reads、G0.9 fixture 真实性——prompt 的执行依据，非 skill）
+> **依赖:** `single-model-sdd-prompt.md`（仅作 Iron Law / 反合理化表的**风格先例**）；superpowers skill 白名单（可选增强，见 prompt §1.5 映射）；repo spec 约定（specs/INDEX.md 登记、archive 流程）；AGENTS.md（三层测试、G0-G7、decisions-sidecar、字段级 reads、G0.9 fixture 真实性——prompt 的执行依据）
 > **范围:** 交付物为 `docs/superpowers/full-project-audit-prompt.md`。审查执行、findings 修复、子 spec 产出**均不在本 spec 范围内**——它们是该 prompt 被执行后的产物。执行者：任意有文件读写 + 命令执行能力的会话；子 agent 派发为**可选**能力，无则串行。
 > **核心洞察（决定本 spec 框架）:** 用户已明确**无时间盒**、"最深入最广"。无时间约束的审查必须由**完备性门驱动而非时钟驱动**——否则要么无限审、要么执行者自我妥协降级为抽样。全量深读 65K 行 Python + 74 skills + 200 docs + 独立复核的诚实代价是串行 100+ 小时 / 并行墙钟 20-40 小时、跨 10-20 个会话，因此**可恢复性是第一公民**，且执行者**不得自行宣布完成**（最终"够了"由人类拍板）。
 
@@ -21,7 +21,7 @@
 4. 产出：**每个 finding 一个独立 spec**，遵循 repo spec 约定；**minor issue 可合并**为一个批量 spec（用户 2026-08-13 补充确认）。
 5. **不限制审查时长**；要求最深入、最广的审查。
 6. **只审不修**：执行者不修复任何问题，修复留给后续 spec→plan。
-7. **无 skill / 无 SDD**：prompt 不引用 superpowers skill，不采用 SDD 流程；所有防偷懒机制在 prompt 内自包含（用户 2026-08-13 明确）。
+7. **skill 可选增强 / 无 SDD**：prompt 机制自包含为基线（无 skill 环境可执行）；superpowers skill 按白名单表可选使用以提升审查/spec 质量（用户 2026-08-13 更正）；不走 SDD 流程。
 
 ### 1.2 关键设计张力与裁决
 
@@ -32,13 +32,13 @@
 | 深读真实性 vs 假深读 | per-file 报告必须列**声称检查的不变量清单** + 验证命令输出；独立复核 agent + meta-audit 抽查抓假 |
 | 多天多会话 vs 上下文丢失 | checkpoint commit + tracked 审计状态目录 + resume 协议（§10） |
 | 并行提速 vs 审查独立性 | 审查全程**只读**（只写各自报告文件），zone 子 agent 可并行派发；复核与初审分离、协调者逐条核实 |
-| 无 skill / 无 SDD vs 防偷懒 | Iron Law / 反合理化 / 独立复核全部以**纯文本**内联进 prompt；执行者只用会话通用能力（文件 / 命令 / 可选子 agent 派发，无则串行） |
+| skill 可选 vs 机制完整性 | Iron Law / 反合理化 / 独立复核全部**内联自包含**（无 skill 环境可执行）；superpowers skill 按 prompt 内白名单表作可选增强——增强非替代，使用必粘贴输出，白名单外禁止 |
 
 ---
 
 ## 2. 交付物
 
-`docs/superpowers/full-project-audit-prompt.md`——中文、**完全自包含**的自治执行 prompt：不引用任何 superpowers skill、不含 SDD 机制；只依赖执行会话的通用能力（文件读写、命令执行、可选的子 agent 派发）与 repo 的 AGENTS.md。与 `single-model-sdd-prompt.md` 同目录同风格（仅风格，非机制）。其结构 TOC 见 §11。
+`docs/superpowers/full-project-audit-prompt.md`——中文、**自包含基线**的自治执行 prompt：机制全部内联（无 skill 环境可执行）；superpowers skill 作为白名单**可选增强**（提升审查/spec 质量，增强非替代，用户 2026-08-13 更正）；不含 SDD 机制。只依赖执行会话的通用能力（文件读写、命令执行、可选的子 agent 派发）与 repo 的 AGENTS.md。与 `single-model-sdd-prompt.md` 同目录同风格（仅风格，非机制）。其结构 TOC 见 §11。
 
 ---
 
@@ -219,10 +219,10 @@ audit-runs/2026-08-13/
 `docs/superpowers/full-project-audit-prompt.md` 结构：
 
 1. 标题 + Variables（日期、审计目录路径）
-2. 核心原则（Iron Law / 只审不改 / 完备性门驱动 / 审查独立性 / 可恢复）
+2. 核心原则（Iron Law / 只审不改 / 完备性门驱动 / 审查独立性 / 可恢复）+ skill 白名单（可选增强映射表）
 3. 覆盖模型三层 + 台账规则（§4 内容）
 4. 完备性门 G1-G7 表（§5 内容）
-5. 阶段 0-6 流程（§3 内容；每阶段：输入、动作、退出条件——**无 skill 引擎字段**）
+5. 阶段 0-6 流程（§3 内容；每阶段：输入、动作、退出条件；skill 增强点见白名单表）
 6. 分区矩阵 Z1-Z10（§6 内容，含每区文件 glob + rubric 内联模板）
 7. 跨模块线程 T1-T9（§7 内容）
 8. schema 三件套（per-file 报告 / findings ledger / coverage 台账模板，§8 内容）
@@ -239,7 +239,7 @@ audit-runs/2026-08-13/
 |---|---|
 | 设计↔prompt 映射 | prompt 文件包含 §11 全部 12 节，且 G1-G7 / Z1-Z10 / T1-T9 / 三 schema / 反合理化表**逐项在 prompt 中可找到对应机制** |
 | 无占位符 | prompt 中无 TBD/TODO/待定 |
-| 自包含 | 新会话只读 prompt + AGENTS.md 即可开始执行；全文 grep 无 skill 引用（"skill" 一词只出现在否定声明中） |
+| 自包含基线 | 新会话只读 prompt + AGENTS.md 即可**无 skill** 完整执行；skill 引用仅存在于白名单表（增强非替代）与否定声明中 |
 | repo 惯例 | 遵循 spec 头部块、INDEX 登记、Conventional Commits |
 
 ---

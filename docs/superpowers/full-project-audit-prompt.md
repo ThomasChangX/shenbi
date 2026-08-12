@@ -1,6 +1,6 @@
 # 全项目深度审查执行 Prompt（full-project-audit）
 
-> **完全自包含**：不引用任何 superpowers skill，不采用 SDD 流程。执行者只需三类通用能力：**文件读写、命令执行、（可选的）子 agent 派发**。所有审查机制、防偷懒规则、产出契约都在本文件内。
+> **自包含基线 + 可选 skill 增强**：所有审查机制、防偷懒规则、产出契约都在本文件内，**无 skill 环境完整可执行**；若环境具备 superpowers skill，可按 §1.5 白名单作**可选增强**（增强非替代，映射表外的 skill 禁止使用）。SDD 流程不使用。执行者所需通用能力：**文件读写、命令执行、（可选的）子 agent 派发**。
 
 ---
 
@@ -22,7 +22,7 @@
 **铁则（最高优先级，违反任何一条 = 执行失败）**：
 
 1. **只审不改**：除 `$AUDIT_DIR`、`$SPECS_DIR` 新增 spec、`$INDEX` 登记行外，**禁止修改仓库任何文件**（含 src/tests/skills/docs/配置）。修复一律留给后续 spec→plan。
-2. **无 skill / 无 SDD**：本文件是全部机制的来源。禁止调用 superpowers skill、禁止套用 SDD 流程、禁止自造"等价流程"替代本文件规定的步骤。
+2. **机制自包含为基线，skill 可选增强**：本文件是全部机制的来源；无 skill 环境必须完整执行，**禁止自造"等价流程"替代本文件规定的步骤**。SDD 流程不使用。若环境具备 superpowers skill，仅可按 §1.5 白名单在指定环节使用——**skill 增强而非替代**：使用 skill 不豁免本文件任何步骤，且调用 skill 后必须粘贴其实际输出（Iron Law 同样适用于 skill 调用）。
 3. **完备性门驱动，非时间驱动**：无时间盒。唯一终止条件 = 完备性门 G1-G6 全过（§3）**且**人类裁决（G7）。**禁止自宣"审计完成"。**
 4. **证据先于断言（Iron Law）**：任何含"通过 / 完成 / 无问题 / 已审 / 正确"字样的消息，该断言的具体验证命令**必须在同一条消息内运行过并粘贴输出**。上一轮跑过 ≠ 本轮成立。
 
@@ -35,6 +35,19 @@
 3. **rubric 内联**：派发子 agent 时，必须把对应 rubric **完整复制**进子 agent prompt。子 agent 看不到本文件，禁止只引用章节名/表名。
 4. **可恢复**：每完成一个 zone / 线程 / 阶段即 checkpoint commit；`progress.md` 是权威状态（§9）。
 5. **增量收敛**：复核轮次不设上限、重审无条件；唯一终止条件为本轮 **0 新 Critical/Important**。每轮新 C/I 数必须记录，出现不降反升说明审查流程本身有缺陷，必须查明。
+
+### 1.5 superpowers skill 白名单（可选增强，非替代）
+
+本 prompt 在无 skill 环境完整可执行。若执行环境具备以下 superpowers skill，可在对应环节**选择性使用**以提升审查/spec 质量；映射固定，禁止越界使用；使用后必须粘贴 skill 实际输出（Iron Law）。不使用 skill 完全合规——skill 是增强，不是步骤。
+
+| skill | 强化环节 | 用法 | 不替代什么 |
+|---|---|---|---|
+| `superpowers:systematic-debugging` | 阶段 4 根因分析、阶段 5 spec 编写 | 其四阶段框架组织每个 finding 的根因分析与假设验证；spec 的"方法"字段本应引用它 | 不替代 file:line 证据核实；不替代独立复核 |
+| `superpowers:verification-before-completion` | 每阶段退出、G3/G6 核验 | 声称门通过前用它做证据清单核对 | 不替代实际运行命令并粘贴输出 |
+| `superpowers:requesting-code-review` | 阶段 2/3 独立复核层 | 其 rubric 结构（Critical/Important/Minor + plan/code/test 维度）作为复核 agent 的**补充** rubric 来源 | 不替代 fresh-context 全量重读；不替代协调者逐条核实 |
+| `superpowers:dispatching-parallel-agents` | 阶段 2/3 并行派发 | 其并行分派实践指导 zone/线程 agent 组织（只读任务互不冲突） | 不替代 rubric 内联与编号段分配 |
+
+**禁止**：`superpowers:writing-plans`（本任务产出 spec 不产出 plan）、`superpowers:brainstorming`（需求已定）、SDD 系流程（`subagent-driven-development` / `executing-plans`）。任何 skill 与本文件冲突时，**以本文件为准**。
 
 ---
 
@@ -304,7 +317,8 @@ F<编号> | 标题 | 类别(error|optimization) | 严重度(P0|P1|P2|M) | 证据
 | "生成物目录可以整目录跳过" | 必须逐个声明 `generated-excluded` + 再生成性验证 + 理由。 |
 | "审计完成" | 禁止自宣。G1-G6 全过 + 人类裁决（G7）。 |
 | "发现太多先记着后面写" | 发现即录入 findings ledger（当轮），禁止内存暂存。 |
-| "用 superpowers skill 审更规范" | 禁止。本 prompt 机制自包含（铁则 2）；任何"等价替代"都是逃避规定步骤。 |
+| "用了 skill 就能跳过 prompt 的步骤" | 禁止。skill 是增强非替代（§1.5）；白名单之外禁止；使用必粘贴输出。 |
+| "环境没有 skill 所以完不成" | 禁止。本 prompt 无 skill 环境完整可执行（自包含基线）。 |
 | "没有子 agent 能力，所以抽样" | 禁止。降级为协调者串行全量，绝不抽样。 |
 | "这 finding 和另一个类似，我口头合并了" | 禁止。合并必须走 ledger `merged-into-Fx` 标记，理由写入。 |
 | "文档没改动就不用复核" | 禁止。重审无条件，doc-only / 配置文件无例外。 |
