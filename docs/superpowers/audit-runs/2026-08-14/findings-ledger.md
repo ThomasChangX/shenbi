@@ -196,3 +196,18 @@
 | F232 | decisions.py P2.5 rationale 空串/纯空白绕过 REQUIRED 规则 | 漏报（校验洞） | P2 | 见 Z2.review2.md#F232 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F233 | ownership.py record_create 的 write_keys 从不校验新增记录键集——plant 可写任意键，_HOOK_KEYS_NEW_RECORD 声明 dead | 漏报（审计盲区） | P2 | 见 Z2.review2.md#F233 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F234 | 整文件删除 owned 文件零违规——check_write_ownership 忽略 FileChange.status | 漏报（审计盲区） | P2 | 见 Z2.review2.md#F234 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F630 | revision_router.DEFAULT_RESONANCE_FLOOR=50 与单源阈值 65 漂移（E11 缺陷类复活） | 跨文件状态一致性 | P2 | 见 Z6.review3.md#F630 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F631 | config 治理规则 1 与 G0 均用 `is False` 严格相等：`0`/`null`/`""` 等 falsy 值绕过 rationale 与 G0 检查且实际禁用审计 | 治理绕过 | P2 | 见 Z6.review3.md#F631 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F632 | linguistic_drift severity 阶梯硬编码 30/50/100 与 thresholds.py 单源阈值重复且不一致风险（"single source of truth" 声明被违反） | 跨文件状态一致性 | P2 | 见 Z6.review3.md#F632 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F633 | segment_paragraphs docstring 声称支持单换行分段，实现只按空行分割 → 单换行章节被当作 1 个巨段落且换行被计为句末 | 文档↔代码漂移 | P2 | 见 Z6.review3.md#F633 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F634 | compute_linguistic_metrics / compute_stats 把 pipeline 自产的 META 指令块当章节正文统计 → 密度稀释 + 指令文本进计数 | 统计口径 | P2 | 见 Z6.review3.md#F634 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F635 | 整个 config 治理层（update_genre_config）零生产调用：docstring "Every change flows through" 为假，genre-config 由 skill 直写，audit trail 仅一次人工修复产物 | 死代码/未接线 | P2 | 见 Z6.review3.md#F635 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F636 | detect_drift 把任意指标 0→正值映射为 6.0x 偏差 → 基线为 0 的指标首次出现即触发 is_drift=True（severity≥WARN） | 边界触发语义 | P2 | 见 Z6.review3.md#F636 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F517 | `audit_writes` 将 pending_hooks 专属解析无差别应用于全部 watched .md：非 truth .md 含 `## 活跃伏笔` 表 → 假 drift GATE_FAIL；含 `## hooks` 节 → ValueError/YAMLError 崩审计链 | 审计健壮性/正确性 | P2 | 见 Z5.review2.md#F517 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F518 | OWNERSHIP 文件 `added` 状态零拦截（F507 的 added 孪生）：首次创建 OWNERSHIP 文件携带未授权键静默过审 | 审计完整性 | P2 | 见 Z5.review2.md#F518 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F519 | `TokenLedger.record` 写侧（mkdir/open/f.write）无 OSError 防御：文件系统错误崩 API dispatch hot path（API 成功后、输出写入前）→ 丢 LLM 输出并失败该步 | 错误处理 | P2 | 见 Z5.review2.md#F519 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F520 | tenacity 重试失败 attempt 的 token 消耗不记账：仅最终成功 attempt 的 usage 落账 → 429/5xx/timeout 重试成本被少计 | 计量缺口 | P2 | 见 Z5.review2.md#F520 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F521 | `estimate_prompt_tokens` CJK 判定范围仅 0x4E00-0x9FFF：中文标点/全角/扩展 A 按 ASCII 4 chars/token 计 → 中文 prompt 系统性低估 token，上下文告警阈值提前量被侵蚀 | 估算精度/边界 | P2 | 见 Z5.review2.md#F521 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F522 | resonance_trend.md 写侧（`_build_resonance_trend_row` 无 header 7 列行）与 `compute_drift.parse_trend`（要求 header 行含维度名）格式不兼容 → parse_trend 恒返回空，volume-decline 检测永不触发 | 格式兼容性（跨区：Z6/skill_utils） | P2 | 见 Z5.review2.md#F522 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F523 | `_diff_records` 对无 id 记录按 `str(None)` 键合并：id-less 记录的新增/删除在 record 级 diff 中静默掩盖 | 边界/错误处理 | P2 | 见 Z5.review2.md#F523 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F524 | `audit_writes` 内部 `_declared_patterns` 不带 chapter 调 `derive_output_files` → 全部 chapter-parametric 写模式被 genesis 过滤（resolve_or_skip→None）→ declared=[] → 所有章节文件判"未声明写入"假阳性 GATE_FAIL（确定性，非边角） | 审计正确性 | P2 | 见 Z5.review2.md#F524 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
