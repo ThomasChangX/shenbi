@@ -153,3 +153,16 @@
 | F224 | G3.3「output files passed G2」全仓无生产者 → 永久 SKIP；codex.py _record_completion 写 progress["skills"][skill][test_type]={score,status} 无 output_files 键 | 漏报（门静默空转） | P2 | 见 Z2.review.md#F224 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F225 | 独立 dispatcher（codex 模式）不消费 contract read_fields：Layer B 字段过滤仅 pipeline 生效 | 漏报 | P2 | 见 Z2.review.md#F225 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F226 | cli.py usage 声明 prompt 可选，codex 模式硬要求非空 → 缺参时裸 SubAgentProtocolError | 漏报 | M | 见 Z2.review.md#F226 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F620 | `_check_linguistic_drift` 唯一调用点用宽泛 `except Exception` 吞掉 DriftEscalationError → "ESCALATE 暂停 pipeline" 契约在任何路径下永不生效 | error | P1 | 见 Z6.review2.md#F620 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F621 | compute_pattern 熵对词表外 pattern 只算分母不算分子 → 互异章节被评"严重单调" | error | P2 | 见 Z6.review2.md#F621 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F622 | recall_overdue_hooks 对 str 类型 last_reinforced/max_distance TypeError 崩溃（F610 之外的独立类型失败模式） | error | P2 | 见 Z6.review2.md#F622 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F623 | AI_MARKERS "不是…而是" 用单省略号字符字面量 → 真实文本"不是……而是"（双字符）恒不命中 | error | P2 | 见 Z6.review2.md#F623 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F624 | plugins/master.json skills 清单与 skills/ 目录漂移（59 vs 74，15 个 skill 未列）+ generate.py 无任何 skills 校验 → 静默不发布 | doc drift | P2 | 见 Z6.review2.md#F624 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F625 | versioning.migrate_to_current 缺迁移函数时 `_identity` 回退 → while 循环永不前进 → 无限循环挂死 | error | P2 | 见 Z6.review2.md#F625 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F626 | check_linguistic_drift_trigger（第 4 漂移触发点）死导出：HARD/ESCALATE 从未接入 drift-guidance | dead code | P2 | 见 Z6.review2.md#F626 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F628 | segment_sentences 与 segment_paragraphs 句数口径不一致（"；" 只计入段落句数）→ 同一报告自相矛盾 | error | P2 | 见 Z6.review2.md#F628 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F629 | revision_routing.verify_preservation 无生产调用方：§5.3 再生保留校验器实现+测试但未接线，保留保障仅靠 LLM prompt | dead code | P2 | 见 Z6.review2.md#F629 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F513 | 写审计快照根错位：`dispatch_with_write_audit` 快照 `PROJECT_DIR`（框架仓库根）而非 `round_dir` | 接线错误 | P1 | 见 Z5.review.md#F513 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F514 | d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实 | 审计工件质量 | P2 | 见 Z5.review.md#F514 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F515 | `_matches_declared` 不匹配契约原生 glob 写模式（`truth/*.md`）→ 已声明写被误报"未声明写入" | 审计正确性 | P2 | 见 Z5.review.md#F515 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F516 | 初审误判 snapshot.py:43-45 为"无 `*` 写入"死代码：契约实际存在 glob 写模式 | 初审覆盖处置错误 | M | 见 Z5.review.md#F516 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |

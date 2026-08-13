@@ -63,3 +63,8 @@
 
 ## 更正记录（2026-08-14 会话内发现）
 - **F508（审计工件质量）**：d1-06-coverage-gaps.txt 初版从被 `pytest --collect-only`（addopts --cov）覆写的 16.08% coverage.xml 提取（7050 未覆盖行 ≈ 16.08% 版本），全部逐行条目失效。已重跑 `pytest -n auto --dist loadscope -m "not last"` 生成真实 85.14% coverage.xml 并重新提取 d1-06-coverage-gaps.txt（真实 7123 未覆盖行，85.16% 版本）。
+
+## 更正记录 2（F514，2026-08-14）
+- 首轮"重生成"（bash-9）仍被并行子 agent 的 pytest（Z4 初审 801 passed 覆写 tests/coverage/coverage.xml 为 32.89%）污染——共享 coverage.xml 无锁写竞争（D1-02 同根因第三表现）。
+- 修复：`COVERAGE_FILE=/tmp/audit-exclusive.coverage` + `--cov-report=xml:docs/superpowers/audit-runs/2026-08-14/d1/coverage.xml` 独占重跑（85.16%，2814 passed），d1-06 重新提取 = **1448 真实未覆盖行**（estimate.py/capability_fs.py 等 100% 文件不再出现）。
+- 教训：审计工具链自身需规避共享写入面；Z 区维度 8 处置以本版 d1-06 与 d1-01-just-check.log 为准。
