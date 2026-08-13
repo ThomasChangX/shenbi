@@ -2749,3 +2749,5 @@
 | tests/coverage/* | generated-excluded | — | pytest-cov 产物，pytest --cov 可再生（阶段0验证） |
 | .cache/ .mypy_cache/ .pytest_cache/ .ruff_cache/ .hypothesis/{constants,patches,unicode_data}/ .coverage .DS_Store | cache-ignored | — | 工具缓存，.gitignore 覆盖 |
 | .claude/ .codegraph/ .playwright-mcp/ | cache-ignored | — | 工具目录，.gitignore 覆盖 |
+
+> Z5 区 G2 通过：初审 12 findings + 复核 26 findings 全部 verified，第六轮复核 0 新 finding（2026-08-14，Z5.review6.md）
