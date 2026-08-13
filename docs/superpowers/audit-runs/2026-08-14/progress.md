@@ -3,8 +3,8 @@
 | 阶段 | 状态 | 轮次历史 |
 |---|---|---|
 | 0 清点与基线 | done | D1 ①-⑫ 全部运行并归档；3 findings (D1-01~03) |
-| 1 整体层审查 | in_progress | — |
-| 2 分区深度审查 | pending | — |
+| 1 整体层审查 | done | 8 维度全部有结论；8 findings F0-01~08 |
+| 2 分区深度审查 | in_progress | Z1-Z11 待派发 |
 | 3 线程 | pending | — |
 | 4 聚类校准 | pending | — |
 | 5 spec 产出 | pending | — |
@@ -31,5 +31,5 @@
 - G6 meta-audit: seed=20260814，≥20% per-file 报告条目，按区成层（每区≥1条；Z3/Z4/Z5/Z11 与低置信度文件必抽；区内按 path 确定性 hash 排序取前 k 条；k = max(1, round(n*0.20))；Z7 共 182 条、Z8 20、Z9 43、Z11 256 等按上表）
 ## 会话日志（追加式）
 ### 2026-08-14 会话 1
-- 完成: 阶段 0 全部——目录/台账/表A(2738)/表B(磁盘产物)/Z1-Z11 清单（覆盖校验零遗漏）/抽样种子登记/D1 ①-⑫ 归档（d1-baseline.md）/3 findings 录入
-- 下一步: 阶段 1 整体层审查（8 维度）
+- 完成: 阶段 1 整体层审查——8 维度全部有结论；8 findings (F0-01~08) 录入（skills 计数漂移 / deps.json 契约缺 5 skill / gate 文档漂移 / INDEX 计数 / dispatch-subagent 引用 / py 版本三元不一致 / SECURITY weekly 声明 / coverage 注释漂移）
+- 下一步: 阶段 2 分区深读——Z1 先行（高风险：pipeline/gates/contracts/cost 优先）
