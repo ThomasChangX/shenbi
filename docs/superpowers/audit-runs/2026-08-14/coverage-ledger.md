@@ -1616,16 +1616,16 @@
 | skills/using-shenbi/.gitkeep | unreviewed | — | — |
 | skills/using-shenbi/SKILL.md | unreviewed | — | — |
 | src/shenbi/__init__.py | unreviewed | — | — |
-| src/shenbi/audit/__init__.py | unreviewed | — | — |
-| src/shenbi/audit/_shared.py | unreviewed | — | — |
-| src/shenbi/audit/record.py | unreviewed | — | — |
-| src/shenbi/audit/snapshot.py | unreviewed | — | — |
-| src/shenbi/audit/write_audit.py | unreviewed | — | — |
+| src/shenbi/audit/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
+| src/shenbi/audit/_shared.py | deep-read | zone-reports/Z5.a.md#_shared.py | Z5 初审 |
+| src/shenbi/audit/record.py | deep-read | zone-reports/Z5.a.md#record.py | Z5 初审 |
+| src/shenbi/audit/snapshot.py | deep-read | zone-reports/Z5.a.md#snapshot.py | Z5 初审 |
+| src/shenbi/audit/write_audit.py | deep-read | zone-reports/Z5.a.md#write_audit.py | Z5 初审 |
 | src/shenbi/capability_fs.py | unreviewed | — | — |
 | src/shenbi/cli_utils.py | unreviewed | — | — |
-| src/shenbi/config/__init__.py | unreviewed | — | — |
-| src/shenbi/config/config_coherence.py | unreviewed | — | — |
-| src/shenbi/config/thresholds.py | unreviewed | — | — |
+| src/shenbi/config/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/config/config_coherence.py | deep-read | zone-reports/Z6.a.md#config_coherence.py | Z6 初审 |
+| src/shenbi/config/thresholds.py | deep-read | zone-reports/Z6.a.md#thresholds.py | Z6 初审 |
 | src/shenbi/contracts/__init__.py | unreviewed | — | — |
 | src/shenbi/contracts/base.py | unreviewed | — | — |
 | src/shenbi/contracts/enums.py | unreviewed | — | — |
@@ -1657,11 +1657,11 @@
 | src/shenbi/contracts/skills/volume_outlining.py | unreviewed | — | — |
 | src/shenbi/contracts/skills/worldbuilding.py | unreviewed | — | — |
 | src/shenbi/contracts/thresholds.py | unreviewed | — | — |
-| src/shenbi/cost/__init__.py | unreviewed | — | — |
-| src/shenbi/cost/estimate.py | unreviewed | — | — |
-| src/shenbi/cost/ledger.py | unreviewed | — | — |
-| src/shenbi/cost/pricing.py | unreviewed | — | — |
-| src/shenbi/cost/report.py | unreviewed | — | — |
+| src/shenbi/cost/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
+| src/shenbi/cost/estimate.py | deep-read | zone-reports/Z5.a.md#estimate.py | Z5 初审 |
+| src/shenbi/cost/ledger.py | deep-read | zone-reports/Z5.a.md#ledger.py | Z5 初审 |
+| src/shenbi/cost/pricing.py | deep-read | zone-reports/Z5.a.md#pricing.py | Z5 初审 |
+| src/shenbi/cost/report.py | deep-read | zone-reports/Z5.a.md#report.py | Z5 初审 |
 | src/shenbi/dispatcher/__init__.py | unreviewed | — | — |
 | src/shenbi/dispatcher/cli.py | unreviewed | — | — |
 | src/shenbi/dispatcher/executor.py | unreviewed | — | — |
@@ -1724,9 +1724,9 @@
 | src/shenbi/gates/gate_manifest.py | unreviewed | — | — |
 | src/shenbi/gates/shared.py | unreviewed | — | — |
 | src/shenbi/logging.py | unreviewed | — | — |
-| src/shenbi/orchestration/__init__.py | unreviewed | — | — |
-| src/shenbi/orchestration/escalation_bridge.py | unreviewed | — | — |
-| src/shenbi/orchestration/scoring_bridge.py | unreviewed | — | — |
+| src/shenbi/orchestration/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
+| src/shenbi/orchestration/escalation_bridge.py | deep-read | zone-reports/Z5.a.md#escalation_bridge.py | Z5 初审 |
+| src/shenbi/orchestration/scoring_bridge.py | deep-read | zone-reports/Z5.a.md#scoring_bridge.py | Z5 初审 |
 | src/shenbi/paths.py | unreviewed | — | — |
 | src/shenbi/phase_runner.py | unreviewed | — | — |
 | src/shenbi/pipeline/__init__.py | unreviewed | — | — |
@@ -1763,58 +1763,58 @@
 | src/shenbi/pipeline/truth_io.py | unreviewed | — | — |
 | src/shenbi/pipeline/volume_align.py | unreviewed | — | — |
 | src/shenbi/pipeline/write_safety.py | unreviewed | — | — |
-| src/shenbi/plugins/__init__.py | unreviewed | — | — |
-| src/shenbi/plugins/generate.py | unreviewed | — | — |
+| src/shenbi/plugins/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/plugins/generate.py | deep-read | zone-reports/Z6.a.md#generate.py | Z6 初审 |
 | src/shenbi/py.typed | unreviewed | — | — |
-| src/shenbi/records/__init__.py | unreviewed | — | — |
-| src/shenbi/records/drift.py | unreviewed | — | — |
-| src/shenbi/records/parser.py | unreviewed | — | — |
+| src/shenbi/records/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/records/drift.py | deep-read | zone-reports/Z6.a.md#drift.py | Z6 初审 |
+| src/shenbi/records/parser.py | deep-read | zone-reports/Z6.a.md#parser.py | Z6 初审 |
 | src/shenbi/recovery.py | unreviewed | — | — |
 | src/shenbi/safe_write.py | unreviewed | — | — |
 | src/shenbi/scoring.py | unreviewed | — | — |
-| src/shenbi/skill_utils/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/calibration/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/calibration/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/calibration/confidence.py | unreviewed | — | — |
-| src/shenbi/skill_utils/chapter_pattern/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/chapter_pattern/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/chapter_pattern/compute_pattern.py | unreviewed | — | — |
-| src/shenbi/skill_utils/drift_detection/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/drift_detection/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/drift_detection/baseline.py | unreviewed | — | — |
-| src/shenbi/skill_utils/drift_detection/compute_drift.py | unreviewed | — | — |
-| src/shenbi/skill_utils/drift_detection/linguistic_drift.py | unreviewed | — | — |
-| src/shenbi/skill_utils/escalation/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/escalation/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/escalation/check.py | unreviewed | — | — |
-| src/shenbi/skill_utils/foreshadowing_recall/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/foreshadowing_recall/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/foreshadowing_recall/recall.py | unreviewed | — | — |
-| src/shenbi/skill_utils/review_resonance/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/review_resonance/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/review_resonance/routing.py | unreviewed | — | — |
-| src/shenbi/skill_utils/revision_routing/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/revision_routing/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/revision_routing/preserve_check.py | unreviewed | — | — |
-| src/shenbi/skill_utils/revision_routing/route.py | unreviewed | — | — |
-| src/shenbi/skill_utils/style_learning/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/style_learning/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/style_learning/compute_stats.py | unreviewed | — | — |
-| src/shenbi/skill_utils/trope_detection/__init__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/trope_detection/__main__.py | unreviewed | — | — |
-| src/shenbi/skill_utils/trope_detection/match_tropes.py | unreviewed | — | — |
+| src/shenbi/skill_utils/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/calibration/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/calibration/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/calibration/confidence.py | deep-read | zone-reports/Z6.a.md#confidence.py | Z6 初审 |
+| src/shenbi/skill_utils/chapter_pattern/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/chapter_pattern/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/chapter_pattern/compute_pattern.py | deep-read | zone-reports/Z6.a.md#compute_pattern.py | Z6 初审 |
+| src/shenbi/skill_utils/drift_detection/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/drift_detection/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/drift_detection/baseline.py | deep-read | zone-reports/Z6.a.md#baseline.py | Z6 初审 |
+| src/shenbi/skill_utils/drift_detection/compute_drift.py | deep-read | zone-reports/Z6.a.md#compute_drift.py | Z6 初审 |
+| src/shenbi/skill_utils/drift_detection/linguistic_drift.py | deep-read | zone-reports/Z6.a.md#linguistic_drift.py | Z6 初审 |
+| src/shenbi/skill_utils/escalation/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/escalation/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/escalation/check.py | deep-read | zone-reports/Z6.a.md#check.py | Z6 初审 |
+| src/shenbi/skill_utils/foreshadowing_recall/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/foreshadowing_recall/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/foreshadowing_recall/recall.py | deep-read | zone-reports/Z6.a.md#recall.py | Z6 初审 |
+| src/shenbi/skill_utils/review_resonance/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/review_resonance/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/review_resonance/routing.py | deep-read | zone-reports/Z6.a.md#routing.py | Z6 初审 |
+| src/shenbi/skill_utils/revision_routing/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/revision_routing/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/revision_routing/preserve_check.py | deep-read | zone-reports/Z6.a.md#preserve_check.py | Z6 初审 |
+| src/shenbi/skill_utils/revision_routing/route.py | deep-read | zone-reports/Z6.a.md#route.py | Z6 初审 |
+| src/shenbi/skill_utils/style_learning/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/style_learning/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/style_learning/compute_stats.py | deep-read | zone-reports/Z6.a.md#compute_stats.py | Z6 初审 |
+| src/shenbi/skill_utils/trope_detection/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/skill_utils/trope_detection/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
+| src/shenbi/skill_utils/trope_detection/match_tropes.py | deep-read | zone-reports/Z6.a.md#match_tropes.py | Z6 初审 |
 | src/shenbi/status.py | unreviewed | — | — |
 | src/shenbi/sync_contracts.py | unreviewed | — | — |
-| src/shenbi/text/__init__.py | unreviewed | — | — |
-| src/shenbi/text/cjk.py | unreviewed | — | — |
-| src/shenbi/trace/__init__.py | unreviewed | — | — |
-| src/shenbi/trace/compaction.py | unreviewed | — | — |
-| src/shenbi/trace/event.py | unreviewed | — | — |
-| src/shenbi/trace/materialize.py | unreviewed | — | — |
-| src/shenbi/trace/migrate.py | unreviewed | — | — |
-| src/shenbi/trace/replay.py | unreviewed | — | — |
-| src/shenbi/trace/versioning.py | unreviewed | — | — |
-| src/shenbi/trace/writer.py | unreviewed | — | — |
+| src/shenbi/text/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/text/cjk.py | deep-read | zone-reports/Z6.a.md#cjk.py | Z6 初审 |
+| src/shenbi/trace/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
+| src/shenbi/trace/compaction.py | deep-read | zone-reports/Z6.a.md#compaction.py | Z6 初审 |
+| src/shenbi/trace/event.py | deep-read | zone-reports/Z6.a.md#event.py | Z6 初审 |
+| src/shenbi/trace/materialize.py | deep-read | zone-reports/Z6.a.md#materialize.py | Z6 初审 |
+| src/shenbi/trace/migrate.py | deep-read | zone-reports/Z6.a.md#migrate.py | Z6 初审 |
+| src/shenbi/trace/replay.py | deep-read | zone-reports/Z6.a.md#replay.py | Z6 初审 |
+| src/shenbi/trace/versioning.py | deep-read | zone-reports/Z6.a.md#versioning.py | Z6 初审 |
+| src/shenbi/trace/writer.py | deep-read | zone-reports/Z6.a.md#writer.py | Z6 初审 |
 | tests/ARCHIVE-MIGRATED.md | unreviewed | — | — |
 | tests/__init__.py | unreviewed | — | — |
 | tests/baselines/.gitkeep | unreviewed | — | — |

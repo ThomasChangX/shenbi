@@ -4,7 +4,7 @@
 |---|---|---|
 | 0 清点与基线 | done | D1 ①-⑫ 全部运行并归档；3 findings (D1-01~03) |
 | 1 整体层审查 | done | 8 维度全部有结论；8 findings F0-01~08 |
-| 2 分区深度审查 | in_progress | Z1-Z11 待派发 |
+| 2 分区深度审查 | in_progress | Z5: 初审13/13✓ 复核中; Z6: 初审49/49✓ 复核中; Z1-Z4 初审运行中; Z7-Z11 待派发 |
 | 3 线程 | pending | — |
 | 4 聚类校准 | pending | — |
 | 5 spec 产出 | pending | — |
@@ -32,4 +32,5 @@
 ## 会话日志（追加式）
 ### 2026-08-14 会话 1
 - 完成: 阶段 1 整体层审查——8 维度全部有结论；8 findings (F0-01~08) 录入（skills 计数漂移 / deps.json 契约缺 5 skill / gate 文档漂移 / INDEX 计数 / dispatch-subagent 引用 / py 版本三元不一致 / SECURITY weekly 声明 / coverage 注释漂移）
-- 下一步: 阶段 2 分区深读——Z1 先行（高风险：pipeline/gates/contracts/cost 优先）
+- 下一步: 阶段 2——Z5/Z6 复核收敛 → Z1-Z4 收报告核实 → Z7-Z11 派发
+- 待核实 findings: F500-F512 (Z5), F601-F611 (Z6) 已核实 verified；Z5-01 (novel-output decisions.json 83/145 无效) 待 Z11 深查

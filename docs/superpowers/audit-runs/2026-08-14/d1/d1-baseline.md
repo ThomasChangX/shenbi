@@ -60,3 +60,6 @@
 
 ## pre-existing 失败（单独一节）
 - 无 pre-existing 失败；collect-only 触发 cov 插件输出 16.08% 假失败（F-D1-02，见 ledger）
+
+## 更正记录（2026-08-14 会话内发现）
+- **F508（审计工件质量）**：d1-06-coverage-gaps.txt 初版从被 `pytest --collect-only`（addopts --cov）覆写的 16.08% coverage.xml 提取（7050 未覆盖行 ≈ 16.08% 版本），全部逐行条目失效。已重跑 `pytest -n auto --dist loadscope -m "not last"` 生成真实 85.14% coverage.xml 并重新提取 d1-06-coverage-gaps.txt（真实 7123 未覆盖行，85.16% 版本）。
