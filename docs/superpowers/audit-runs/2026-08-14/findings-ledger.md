@@ -296,3 +296,9 @@
 | F243 | 独立 dispatcher 无独立评分者：PR-20 把原 shell 的"独立评分 subagent 派发（G3.4 wrapper）"改为"生成器自评" | 漏报（G3.4 结构性违反，F214 互补） | P2 | 见 Z2.review4.md#F243 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F244 | G1.4 的 .bak 由 INPUTS 创建、G2.11 对 truth OUTPUTS diff → 输出非输入的 truth-updater G2.11 永不触发 | 漏报（保护静默失效，跨区） | P2 | 见 Z2.review4.md#F244 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F144 | phase_runner `load_state` 对 phase-state 文件无形状/类型校验：损坏或非 dict 的状态文件 → 未捕获 JSONDecodeError/KeyError/TypeError 裸 traceback，与其余命令的结构化错误信封不一致 | error | P2 | 见 Z1.review6.md#F144 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F456 | G6 章节目录按字典序排序（chapter-10 < chapter-2）→ G6.4 时间线回归漏报、future_knowledge 语义错乱、G6.5 连续分类与 G6.8/G6.10 采样错章 | error | P2 | 见 Z4.review5.md#F456 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F457 | G6.5/G6.10 对话占比用「对话段数 / 总字数」而非「对话字数 / 总字数」→ dialogue 分类死路、对白范围判定失真 | error | P2 | 见 Z4.review5.md#F457 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F458 | DecisionsDoc Adjustment.rationale 空串绕过 P2.5 REQUIRED（F404 家族第二实例） | error | P1 | 见 Z4.review5.md#F458 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F459 | g4_worldbuilding novel.json / genre-config.json 的 jload ValueError 未捕获 → 合法非 dict JSON 崩溃（F431 家族漏网 2 处） | error | P2 | 见 Z4.review5.md#F459 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F460 | json.loads/jload 后内层形状未校验 → AttributeError 崩溃（G0.3 chapter_word / G0.cc auditDimensions / G5.1 t1_scores 条目 / G4 _check_adjacent_budget 相邻文件） | error | P2 | 见 Z4.review5.md#F460 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F461 | g4_chapter_drafting protagonist_presence / scene_concreteness 未剥离 PRE/POST 元区块（F447 家族剩余消费方）→ 边缘章节主角在场/视觉场景误判 | error | P2 | 见 Z4.review5.md#F461 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
