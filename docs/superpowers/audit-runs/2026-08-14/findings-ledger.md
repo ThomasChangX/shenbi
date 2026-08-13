@@ -4,10 +4,10 @@
 | D1-01 | pyproject dev group 含 sentence-transformers 与 :17 注释矛盾（dev 安装拉入 torch/CUDA），且使 2 个降级路径测试永远 skip（masking） | deps | P1 | pyproject.toml:17,47; tests/unit/pipeline/test_truth_embed.py:122; test_context_assemble.py:167 | 注释声明已移至 optional，dev group 却仍显式声明；sentence-transformers 经 embeddings 链拉 torch | uv tree 显示 st 在 dev group (*)；pytest -rs 显示 2 skip "sentence_transformers installed; degradation path not testable" | dev 安装违背注释意图（拉 torch/CUDA 巨型依赖）；2 个降级路径测试失去意义 | 从 dev group 移除 sentence-transformers（仅保留 optional），同步 uv.lock | deep-read | open |
 | D1-02 | pytest addopts 全局 `--cov` 使 `--collect-only` 触发 cov 插件：输出 16.08% 假 FAIL 报告并覆写 tests/coverage/ | error | P2 | pyproject.toml:420-426 | addopts 无条件附加 cov，collect-only 也执行 | `pytest --collect-only` → "FAIL Required test coverage of 85.0% not reached. Total coverage: 16.08%" | collect-only 产生误导性失败输出；反复覆写 coverage.xml 破坏 G3 证据链 | addopts 用 `--cov` 条件化或 collect-only 时传 --no-cov | deep-read | open |
 | D1-03 | G2.12 对文件清单输入报 WARN "may be truncated"（Z8.files 2047 字节清单被截断校验？） | error | P2 | src/shenbi/gates/cli.py G2 路径 | 大文件清单在 G2.12 长度/截断检查中触发 WARN | shenbi-validate G2 zones/Z8.files generative → G2.12 WARN "may be truncated" | 清单文件作 G2 输入时 WARN 但 PASS，语义不清（Z4 深读确认） | Z4 深读后定级 | deep-read | open |
-| F0-01 | skills 数量漂移：AGENTS.md:19 声称 69、README.md:10 声称 67、docs/skills/index.md:189 声称 69（67+2），实际 skills/ 74 个 | error | P2 | AGENTS.md:19; README.md:10; docs/skills/index.md:189; skills/ 目录 74 项 | 目录新增 skill 后未同步文档计数 | ls -d skills/*/ | wc -l = 74；D1③ 74 SKILL.md 解析 | 文档误导（计数作为事实引用） | 更新三处计数或改为动态生成 | deep-read | open |
+| F0-01 | skills 数量漂移：AGENTS.md:19 声称 69、README.md:10 声称 67、docs/skills/index.md:189 声称 69（67+2），实际 skills/ 74 个 | error | P2 | AGENTS.md:19; README.md:10; docs/skills/index.md:189; skills/ 目录 74 项 | 目录新增 skill 后未同步文档计数 | ls -d skills/*/ \| wc -l = 74；D1③ 74 SKILL.md 解析 | 文档误导（计数作为事实引用） | 更新三处计数或改为动态生成 | deep-read | open |
 | F0-02 | deps.json 契约缺 5 skill 登记（foreshadowing-lifecycle + review-group-{character,craft,factual,plan}），truth-files.index.json 与 executor_config.toml 有引用；lint_repo_consistency 未抓 = 契约 lint 覆盖洞 | error | P1 | tests/tiers/deps.json（无此 5 名）; docs/framework/truth-files.index.json:24,34-37; executor_config.toml（foreshadowing-lifecycle override） | 契约三源不同步，lint 无 skill↔deps.json 完整性检查 | python 统计：deps.json 68 vs 目录 74，差 5 全为上述；D1② 5 个 lint 全过 | 契约单信源被破坏且无检测；pipeline 可调度未登记 skill（executor_config 引用） | lint 增加 skill 目录↔deps.json 闭包检查；登记 5 skill 或明确 out-of-pipeline | deep-read | open |
 | F0-03 | gate 文档漂移：overview.md:55 "八道门"、gates.md:3 "8 validation gates"、README "8 道" vs CLI 实际 11 gate（G0-G7+G_TRANSITION+G_DISPATCH+G_RECONCILE），活跃文档 0 引用额外 gate | error | P2 | src/shenbi/gates/cli.py:61,131-133; docs/framework/gates.md:3; docs/architecture/overview.md:55 | 3 个内部 gate 未入文档 | cli.py 声明 11 gate；grep 非 archive 文档 0 命中；tests/unit/gates/test_g_{dispatch,reconcile,transition}.py 存在 | 文档与实现门数不符，读者误解门体系 | 更新 gates.md/overview.md 或区分内部 gate | deep-read | open |
-| F0-04 | 归档计数漂移：INDEX.md:4 "已归档 99"、:80 "97 个"，实际 specs/archive/ 91 项 | error | M | docs/superpowers/specs/INDEX.md:4,80 | 归档移动后未更新计数 | ls specs/archive | wc -l = 91 | 索引计数失真 | 修正计数或自动生成 | deep-read | open |
+| F0-04 | 归档计数漂移：INDEX.md:4 "已归档 99"、:80 "97 个"，实际 specs/archive/ 91 项 | error | M | docs/superpowers/specs/INDEX.md:4,80 | 归档移动后未更新计数 | ls specs/archive \| wc -l = 91 | 索引计数失真 | 修正计数或自动生成 | deep-read | open |
 | F0-05 | command-to-give.md:48 引用已删除脚本 tests/dispatch-subagent.sh（0f68102 PR-22 删除 shim），执行者照做会失败 | error | P2 | command-to-give.md:48; git show 0f68102 | 文档未随脚本删除更新 | 文件不存在；git log --diff-filter=D 确认删除 | 执行协议失效（评分分派路径） | 改用 shenbi-dispatch 或更新协议 | deep-read | open |
 | F0-06 | python 版本三元不一致：requires-python>=3.11 vs mypy python_version=3.12 vs basedpyright pythonVersion=3.11 | error | P2 | pyproject.toml:8,359,378 | 类型检查基准未对齐 | grep 确认三值 | 类型检查语义基准漂移（3.11 vs 3.12 语法/API 差异可能漏报/误报） | 统一为 3.11 或 CI 实际版本 | deep-read | open |
 | F0-07 | SECURITY.md:20-21 声称 pip-audit "runs on every PR and weekly"，security.yml 无 schedule、nightly.yml 无 pip-audit job | error | P2 | SECURITY.md:20-21; .github/workflows/security.yml（仅 push/PR） | 文档声明与 workflow 触发面不符 | grep schedule security.yml = 0 | 供应链审计频率声明失真 | 加 weekly schedule 或改文档 | deep-read | open |
@@ -30,10 +30,138 @@
 | F602 | establish_baseline 全仓零调用 → style/linguistic_baseline.json 永不生成 → chapter_loop 语言漂移 3 层干预静默失效 | error | P1 | baseline.py:24,78-83; chapter_loop.py:2014-2019 | 建立函数从未接线 | grep 零调用 + find 文件不存在 | 安全网静默失效 | 接线或显式废弃 | deep-read | verified |
 | F603 | records drift 只检 md→YAML 方向：YAML 新增 hook 未同步派生表不报 drift | error | P2 | src/shenbi/records/drift.py:82-93 | 只遍历 md_rows | read 确认无反向检查 | 派生视图陈旧仍过 gate | 补反向检查 | deep-read | verified |
 | F604 | compute_stats 引号桶 ASCII 引号重复计数（chars 串重复字符，count 双计） | error | P2 | src/shenbi/skill_utils/style_learning/compute_stats.py:27,226 | 字面量含重复字符 | 运行验证 '他说"你好"。' → count 4（应为 2） | 密度口径不一致 | set(chars) 去重 | deep-read | verified |
-| F605 | 空 system_terms 正则匹配空串 → 密度 ~1000‰ 假 ESCALATE（健康章节假暂停） | error | P2 | linguistic_drift.py:107 | "|".join([])=="" → findall("") 每位置匹配 | 运行验证 system_term_density: 1125.0 | 假阳性暂停 pipeline | 空列表返回 0 + 类型校验 | deep-read | verified |
+| F605 | 空 system_terms 正则匹配空串 → 密度 ~1000‰ 假 ESCALATE（健康章节假暂停） | error | P2 | linguistic_drift.py:107 | "\|".join([])=="" → findall("") 每位置匹配 | 运行验证 system_term_density: 1125.0 | 假阳性暂停 pipeline | 空列表返回 0 + 类型校验 | deep-read | verified |
 | F606 | update_genre_config floor 只认 int：float/str 绕过下限（59.5 通过） | error | P2 | config/config_coherence.py:121-130 | 类型孔 | 运行验证 59.5 被接受 | 配置治理可绕过 | isinstance(int,float) 非 bool | deep-read | verified |
 | F607 | 同包双 baseline 路径分裂：baseline.py 写 style/ vs linguistic_drift.py 读 context/；术语表也分裂 | error | P2 | baseline.py:78; linguistic_drift.py:278,296 | 平行实现互不消费 | grep 双路径确认 | 死数据 + 不一致 | 统一路径与术语源 | deep-read | verified |
 | F608 | cjk.py 引号桶只数相邻字符对：真实引号文本恒计 0 | error | P2 | src/shenbi/text/cjk.py:54,67-70 | 桶 token 是相邻双字符串 | 运行验证 '「你好」' → 0 | 指标恒 0 失真 | 计开引号单字符 | deep-read | verified |
 | F609 | replay 撕裂行/签名断链静默截断且无日志（改写文件不可追踪） | error | P2 | src/shenbi/trace/replay.py:40-48 | except Exception: break 无日志 | read 确认 | G7/排障不可见损坏原因 | 记 WARN（原因+行号） | deep-read | verified |
 | F610 | recall_overdue_hooks 对缺 id hook 直接 KeyError，单条坏记录使整批崩溃 | error | P2 | skill_utils/foreshadowing_recall/recall.py:47 | 无 get 防御 | read 确认 | 确定性过滤可崩 | hook.get("id") 判空跳过 | deep-read | verified |
 | F611 | config 治理规则 1 只拦 auditDimensions.<dim>:false，整键 auditDimensions 禁用可绕过 | error | P2 | config/config_coherence.py:109 | startswith 要求带点 | read 确认 | 关键审计维度治理可绕过 | 覆盖整键与更深子键 | deep-read | verified |
+| F201 | chapter_planning/context_composing/volume_outlining 契约模型 dead-wire，g4 携带私有且**规则不同**的实现 | error | P1 | 见 Z2.a.md#F201 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F202 | contracts/registry.py REGISTRY + load_skill_contract 生产无消费者（仅测试用） | optimization | P2 | 见 Z2.a.md#F202 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F203 | schemas/deps.py DepsDoc + phase_of 未接线；sync_contracts 仍用 json.loads 解析 deps.json | optimization | P2 | 见 Z2.a.md#F203 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F204 | schemas/novel.py NovelConfig 声称 g6 consumer，g6 未 import | optimization | P2 | 见 Z2.a.md#F204 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F205 | schemas/scores.py ScoreReport 声称 g5 consumer，无生产 import | optimization | P2 | 见 Z2.a.md#F205 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F206 | schemas/state.py ProgressDoc/SummaryDoc 从未被加载验证（C3 修复无生效面） | optimization | P2 | 见 Z2.a.md#F206 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F207 | skills/_scoring_base.py ScoreReport + score_arc/stratum/volume 评分契约 dead-wire（M3 修复未接线） | optimization | P2 | 见 Z2.a.md#F207 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F208 | enums.py Severity/Verdict 无生产消费者；严重性字面量仍散落 4 处裸字符串 | error | P2 | 见 Z2.a.md#F208 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F209 | base.py GateOutcome.status 用裸 Literal 复制 status.py GateStatus 词表 | error | P2 | 见 Z2.a.md#F209 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F210 | hooks.py 的 SKILL.md 行号引用漂移（超出 ±5） | error | P2 | 见 Z2.a.md#F210 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F211 | executor.py SHENBI_G1_SKIP_READS 环境特性零测试覆盖 | optimization | P2 | 见 Z2.a.md#F211 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F212 | executor.py run_g1/run_g2 不检查 returncode，stdout 非 JSON 时裸 JSONDecodeError | error | P2 | 见 Z2.a.md#F212 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F213 | dispatcher/modes/codex.py 单次 codex exec、无重试/429/finish_reason/并行上限（仅 pipeline 路径有） | optimization | P2 | 见 Z2.a.md#F213 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F214 | codex.py _record_completion 不记录 current_scorer_agent；G3.4 fail-closed 与 pipeline 伪造 scorer 并存 | error | P2 | 见 Z2.a.md#F214 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F215 | codex.py 用 `\{[^{}]*\}` 提取首个"无嵌套花括号"JSON 片段 | error | P2 | 见 Z2.a.md#F215 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F216 | genre_config.py `_disabled_dimensions_have_rules` 在 customRules 为空时跳过检查 → G4 校验洞 | error | P1 | 见 Z2.a.md#F216 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F217 | pacing_design.py CONSTELLATION 区间三处不一致（docstring 20-30 / 代码 15-35 / SKILL.md 15-25） | error | P2 | 见 Z2.a.md#F217 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F218 | fields.py 部分匹配时未命中的已声明字段被静默丢弃（escape hatch 仅全缺触发），调用方丢弃 matched 标志 | error | P2 | 见 Z2.a.md#F218 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F219 | executor.py 对 ContractError 静默 fail-open：registry 缺失 → 空 inputs → G1 空集真空 PASS → 无上下文派发 | error | P2 | 见 Z2.a.md#F219 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F220 | ownership.py OWNERSHIP 矩阵仅 5 条参考条目（docstring 自述「支柱一续」），其余技能落 file-level 检查 | optimization | P2 | 见 Z2.a.md#F220 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F300 | dispatch_helper `"\u003c"` 转义是 no-op，文档声明的标签注入缓解未生效 | security | P1 | 见 Z3.a.md#F300 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F301 | 并行审计波使串行审计路径（run_audit_layer / 审计 BLOCKING 重审环 / resonance 解析与落盘 / boundary circle）在生产中不可达 | error | P1 | 见 Z3.a.md#F301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F302 | TokenLedger 接线不全：genesis/closure/triggers/并行 post-draft/审计波调用 dispatch_skill 均未传 state，账本缺大部分调用；chapter 字段恒 0 | error | P1 | 见 Z3.a.md#F302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F303 | 快照子系统生产未接线：create_differential_snapshot / restore_from_snapshot / _prune_old_snapshots / chapter_loop._snapshot_chapter_files 全部无生产调用方；step 15 "pre-revision-snapshot" 空转；last_snapshot 永不写入 | error | P1 | 见 Z3.a.md#F303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F304 | RetryExhaustedError 在 crash-resume 预算耗尽路径未被捕获，CLI 裸崩而非 escalation checkpoint | error | P1 | 见 Z3.a.md#F304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F305 | 审计严重度裸子串检测（"BLOCKING"/"FAIL"）产生误报 | error | P2 | 见 Z3.a.md#F305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F306 | audit_context_cache 读错 volume_map 路径 + 章节号子串匹配缺陷 | error | P2 | 见 Z3.a.md#F306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F307 | hook_planting 模块生产死线：plant_hooks_from_plan 只在不可达分支被调用，确定性伏笔种植从未运行 | error | P2 | 见 Z3.a.md#F307 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F308 | compact_pipeline_state / _archive_chapter_state 死代码（Plan 17 10d 未勾选 TODO 从未接线） | optimization | P2 | 见 Z3.a.md#F308 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F309 | _validate_state_consistency / _heal_current_step 死代码（注释声称 cli.py resume 调用，实际无调用方） | error | P2 | 见 Z3.a.md#F309 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F310 | volume_align.py 死模块（与 chapter_loop._check_volume_map_alignment 重复，无生产调用方） | optimization | P2 | 见 Z3.a.md#F310 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F311 | scr_extractor 缓存永不失效：revision 改写章节后 SCR 持续陈旧 | error | P2 | 见 Z3.a.md#F311 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F312 | truth_io.upsert_yaml 模式序列化丢弃 markdown body（潜在数据丢失；当前无生产调用方） | error | P2 | 见 Z3.a.md#F312 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F313 | closure step 6 G4 目标路径用卷号替换 N（应为章号）——closure 正常路径 G4 校验错误文件 | error | P1 | 见 Z3.a.md#F313 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F314 | bridge 激活窗口包含已激活桥（chapter >= activation - 3 未排除 past-activation） | optimization | P2 | 见 Z3.a.md#F314 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F315 | _merge_step_result / _apply_step_outputs 为 no-op 死线（"单写者合并"实际什么都不做） | optimization | P2 | 见 Z3.a.md#F315 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F316 | revision_router.collect_audit_issues 读原始 glob 无聚合去重（F10 先例未修复） | optimization | P2 | 见 Z3.a.md#F316 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F317 | error_handler 常量与配置耦合：MAX_DISPATCH_RETRIES/MAX_AUDIT_RETRIES 死常量；dispatch 重试上限绑定 max_revision_retries（配置放大隐患） | optimization | P2 | 见 Z3.a.md#F317 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F318 | 文档/注释漂移（M 级合并条目） | error | M | 见 Z3.a.md#F318 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F319 | cmd_review MODIFY 对 PER_CHAPTER 检查点无回滚语义，feedback 泄漏到下一章 | error | P2 | 见 Z3.a.md#F319 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F400 | G2.12 无 file_type 守卫 → JSON/清单文件误报"截断"WARN（D1-03 根因核实） | error | P2 | 见 Z4.a.md#F400 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F401 | G_RECONCILE GR.2 未剥离 -scores 后缀 → 生产命名下恒误报；测试刻意绕开（masking） | error | P1 | 见 Z4.a.md#F401 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F402 | g4_length_normalizing 用未解析路径计字数 → rd+相对路径崩溃 | error | P1 | 见 Z4.a.md#F402 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F403 | CLI G4 无 round_dir 时 ValueError 崩溃，破坏 JSON/退出码契约 | error | P2 | 见 Z4.a.md#F403 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F404 | DecisionsDoc P2.5 "REQUIRED" 被空字符串 rationale 绕过 | error | P2 | 见 Z4.a.md#F404 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F405 | G4_CHECKER_SKILLS 注册表过期：漏 9 个专用 checker | error | P2 | 见 Z4.a.md#F405 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F406 | G0.3/G0.6/G7.5 使用遗留目录名 skill-output（真实布局 novel-output / project-output） | error | P2 | 见 Z4.a.md#F406 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F407 | G0 无 seed 时早退 → 全部环境检查被跳过，gate 空转 PASS | error | P2 | 见 Z4.a.md#F407 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F408 | G3.4 fail-closed 被调用方伪造 scorer 证据击穿（跨区交互） | error | P2 | 见 Z4.a.md#F408 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F409 | G1 空输入 → PASS（G1.0 SKIP 空转） | error | P2 | 见 Z4.a.md#F409 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F410 | cli.py SHORT_MAP 缺 11 个技能的 shorthand | optimization | M | 见 Z4.a.md#F410 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F411 | g0.py G0.4 missing_dirs 死代码 + G0.12 注释 "20 skills" 过期 | optimization | M | 见 Z4.a.md#F411 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F412 | g3_independence.py docstring 行引用过期 | docs | M | 见 Z4.a.md#F412 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F413 | decisions_validator.py:175 注释 "shared.py:113" 错位 | docs | M | 见 Z4.a.md#F413 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F414 | g4_chapter_revision 返回 "HARD_FAIL" 状态值不在 GateStatus 词表 | error | M | 见 Z4.a.md#F414 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F415 | g4/chapter_drafting.py:73 引用 SKILL.md:125，实际规则在 140（漂移 15 行） | docs | P2 | 见 Z4.a.md#F415 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F416 | docs/framework/decisions-schema.md 严重度枚举缺 medium（代码与示例均有） | docs | M | 见 Z4.a.md#F416 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F417 | 覆盖率缺口处置汇总（对应 d1-06 本区 415 行） | — | — | 见 Z4.a.md#F417 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F418 | g0_config_coherence 的 threshold_mismatch / floor_too_low 检测在真实调用路径永不触发 | error | P2 | 见 Z4.a.md#F418 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F101 | safe_write 写入后目标文件权限一律 0600，仓库 0644 工件已被改写 | error | P2 | 见 Z1.a.md#F101 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F102 | error_guidance 6 条 doc_url 全指向不存在的文档路径/锚点；2 条 action 指向不存在的脚本 | error | P2 | 见 Z1.a.md#F102 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F103 | exceptions.py 22 类中 17 类在 src/ 无 raise 站点；error_guidance/recovery 目录引用的全部 6 类均不会被真实错误命中 | error | P2 | 见 Z1.a.md#F103 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F104 | scoring.py `--kill-switch` 无 scores.json 的死分支必然 REJECT，永远到不了 0 分 | error | P2 | 见 Z1.a.md#F104 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F105 | phase_runner main() 不强制 --project-dir，缺失时把字符串 "None" 传给 G5；assert 守卫在 python -O 下失效 | error | P2 | 见 Z1.a.md#F105 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F106 | scoring.py G3 gate 输出解析异常被 `except Exception: pass` 静默吞掉，无日志，评分继续 | error | P2 | 见 Z1.a.md#F106 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F107 | G_TRANSITION/G_DISPATCH/G_RECONCILE 未接入 phase_runner 状态机，仅 CLI 手动入口 + 各自单测 | optimization | P2 | 见 Z1.a.md#F107 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F108 | safe_write 两处并发缺陷：mkstemp 在锁获取后、try 块外 → mkstemp 失败锁泄漏；stale-takeover unlink 后 O_EXCL 竞态 FileExistsError 未捕获 | error | P2 | 见 Z1.a.md#F108 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F109 | sync_contracts.verify_bijection 用 assert 做一致性守卫，python -O 下整函数失效 | optimization | M | 见 Z1.a.md#F109 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F112 | RoundPaths.repo() 无任何调用方（死代码） | optimization | P2 | 见 Z1.a.md#F112 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F113 | phase_runner cmd_pre_skill 的 ContractError 静默吞错：契约损坏时无日志降级为空 reads/writes | error | P2 | 见 Z1.a.md#F113 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F400 | G2.12 无 file_type 守卫 → JSON/清单文件误报"截断"WARN（D1-03 根因核实） | error | P2 | 见 Z4.a.md#F400 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F401 | G_RECONCILE GR.2 未剥离 -scores 后缀 → 生产命名下恒误报；测试刻意绕开（masking） | error | P1 | 见 Z4.a.md#F401 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F402 | g4_length_normalizing 用未解析路径计字数 → rd+相对路径崩溃 | error | P1 | 见 Z4.a.md#F402 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F403 | CLI G4 无 round_dir 时 ValueError 崩溃，破坏 JSON/退出码契约 | error | P2 | 见 Z4.a.md#F403 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F404 | DecisionsDoc P2.5 "REQUIRED" 被空字符串 rationale 绕过 | error | P2 | 见 Z4.a.md#F404 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F405 | G4_CHECKER_SKILLS 注册表过期：漏 9 个专用 checker | error | P2 | 见 Z4.a.md#F405 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F406 | G0.3/G0.6/G7.5 使用遗留目录名 skill-output（真实布局 novel-output / project-output） | error | P2 | 见 Z4.a.md#F406 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F407 | G0 无 seed 时早退 → 全部环境检查被跳过，gate 空转 PASS | error | P2 | 见 Z4.a.md#F407 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F408 | G3.4 fail-closed 被调用方伪造 scorer 证据击穿（跨区交互） | error | P2 | 见 Z4.a.md#F408 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F409 | G1 空输入 → PASS（G1.0 SKIP 空转） | error | P2 | 见 Z4.a.md#F409 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F410 | cli.py SHORT_MAP 缺 11 个技能的 shorthand | optimization | M | 见 Z4.a.md#F410 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F411 | g0.py G0.4 missing_dirs 死代码 + G0.12 注释 "20 skills" 过期 | optimization | M | 见 Z4.a.md#F411 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F412 | g3_independence.py docstring 行引用过期 | docs | M | 见 Z4.a.md#F412 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F413 | decisions_validator.py:175 注释 "shared.py:113" 错位 | docs | M | 见 Z4.a.md#F413 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F414 | g4_chapter_revision 返回 "HARD_FAIL" 状态值不在 GateStatus 词表 | error | M | 见 Z4.a.md#F414 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F415 | g4/chapter_drafting.py:73 引用 SKILL.md:125，实际规则在 140（漂移 15 行） | docs | P2 | 见 Z4.a.md#F415 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F416 | docs/framework/decisions-schema.md 严重度枚举缺 medium（代码与示例均有） | docs | M | 见 Z4.a.md#F416 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F418 | g0_config_coherence 的 threshold_mismatch / floor_too_low 检测在真实调用路径永不触发 | error | P2 | 见 Z4.a.md#F418 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F300 | dispatch_helper `"\u003c"` 转义是 no-op，文档声明的标签注入缓解未生效 | security | P1 | 见 Z3.a.md#F300 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F301 | 并行审计波使串行审计路径（run_audit_layer / 审计 BLOCKING 重审环 / resonance 解析与落盘 / boundary circle）在生产中不可达 | error | P1 | 见 Z3.a.md#F301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F302 | TokenLedger 接线不全：genesis/closure/triggers/并行 post-draft/审计波调用 dispatch_skill 均未传 state，账本缺大部分调用；chapter 字段恒 0 | error | P1 | 见 Z3.a.md#F302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F303 | 快照子系统生产未接线：create_differential_snapshot / restore_from_snapshot / _prune_old_snapshots / chapter_loop._snapshot_chapter_files 全部无生产调用方；step 15 "pre-revision-snapshot" 空转；last_snapshot 永不写入 | error | P1 | 见 Z3.a.md#F303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F304 | RetryExhaustedError 在 crash-resume 预算耗尽路径未被捕获，CLI 裸崩而非 escalation checkpoint | error | P1 | 见 Z3.a.md#F304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F305 | 审计严重度裸子串检测（"BLOCKING"/"FAIL"）产生误报 | error | P2 | 见 Z3.a.md#F305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F306 | audit_context_cache 读错 volume_map 路径 + 章节号子串匹配缺陷 | error | P2 | 见 Z3.a.md#F306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F307 | hook_planting 模块生产死线：plant_hooks_from_plan 只在不可达分支被调用，确定性伏笔种植从未运行 | error | P2 | 见 Z3.a.md#F307 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F308 | compact_pipeline_state / _archive_chapter_state 死代码（Plan 17 10d 未勾选 TODO 从未接线） | optimization | P2 | 见 Z3.a.md#F308 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F309 | _validate_state_consistency / _heal_current_step 死代码（注释声称 cli.py resume 调用，实际无调用方） | error | P2 | 见 Z3.a.md#F309 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F310 | volume_align.py 死模块（与 chapter_loop._check_volume_map_alignment 重复，无生产调用方） | optimization | P2 | 见 Z3.a.md#F310 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F311 | scr_extractor 缓存永不失效：revision 改写章节后 SCR 持续陈旧 | error | P2 | 见 Z3.a.md#F311 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F312 | truth_io.upsert_yaml 模式序列化丢弃 markdown body（潜在数据丢失；当前无生产调用方） | error | P2 | 见 Z3.a.md#F312 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F313 | closure step 6 G4 目标路径用卷号替换 N（应为章号）——closure 正常路径 G4 校验错误文件 | error | P1 | 见 Z3.a.md#F313 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F314 | bridge 激活窗口包含已激活桥（chapter >= activation - 3 未排除 past-activation） | optimization | P2 | 见 Z3.a.md#F314 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F315 | _merge_step_result / _apply_step_outputs 为 no-op 死线（"单写者合并"实际什么都不做） | optimization | P2 | 见 Z3.a.md#F315 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F316 | revision_router.collect_audit_issues 读原始 glob 无聚合去重（F10 先例未修复） | optimization | P2 | 见 Z3.a.md#F316 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F317 | error_handler 常量与配置耦合：MAX_DISPATCH_RETRIES/MAX_AUDIT_RETRIES 死常量；dispatch 重试上限绑定 max_revision_retries（配置放大隐患） | optimization | P2 | 见 Z3.a.md#F317 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F318 | 文档/注释漂移（M 级合并条目） | error | M | 见 Z3.a.md#F318 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F319 | cmd_review MODIFY 对 PER_CHAPTER 检查点无回滚语义，feedback 泄漏到下一章 | error | P2 | 见 Z3.a.md#F319 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F201 | chapter_planning/context_composing/volume_outlining 契约模型 dead-wire，g4 携带私有且**规则不同**的实现 | error | P1 | 见 Z2.a.md#F201 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F202 | contracts/registry.py REGISTRY + load_skill_contract 生产无消费者（仅测试用） | optimization | P2 | 见 Z2.a.md#F202 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F203 | schemas/deps.py DepsDoc + phase_of 未接线；sync_contracts 仍用 json.loads 解析 deps.json | optimization | P2 | 见 Z2.a.md#F203 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F204 | schemas/novel.py NovelConfig 声称 g6 consumer，g6 未 import | optimization | P2 | 见 Z2.a.md#F204 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F205 | schemas/scores.py ScoreReport 声称 g5 consumer，无生产 import | optimization | P2 | 见 Z2.a.md#F205 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F206 | schemas/state.py ProgressDoc/SummaryDoc 从未被加载验证（C3 修复无生效面） | optimization | P2 | 见 Z2.a.md#F206 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F207 | skills/_scoring_base.py ScoreReport + score_arc/stratum/volume 评分契约 dead-wire（M3 修复未接线） | optimization | P2 | 见 Z2.a.md#F207 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F208 | enums.py Severity/Verdict 无生产消费者；严重性字面量仍散落 4 处裸字符串 | error | P2 | 见 Z2.a.md#F208 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F209 | base.py GateOutcome.status 用裸 Literal 复制 status.py GateStatus 词表 | error | P2 | 见 Z2.a.md#F209 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F210 | hooks.py 的 SKILL.md 行号引用漂移（超出 ±5） | error | P2 | 见 Z2.a.md#F210 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F211 | executor.py SHENBI_G1_SKIP_READS 环境特性零测试覆盖 | optimization | P2 | 见 Z2.a.md#F211 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F212 | executor.py run_g1/run_g2 不检查 returncode，stdout 非 JSON 时裸 JSONDecodeError | error | P2 | 见 Z2.a.md#F212 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F213 | dispatcher/modes/codex.py 单次 codex exec、无重试/429/finish_reason/并行上限（仅 pipeline 路径有） | optimization | P2 | 见 Z2.a.md#F213 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F214 | codex.py _record_completion 不记录 current_scorer_agent；G3.4 fail-closed 与 pipeline 伪造 scorer 并存 | error | P2 | 见 Z2.a.md#F214 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F215 | codex.py 用 `\{[^{}]*\}` 提取首个"无嵌套花括号"JSON 片段 | error | P2 | 见 Z2.a.md#F215 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F216 | genre_config.py `_disabled_dimensions_have_rules` 在 customRules 为空时跳过检查 → G4 校验洞 | error | P1 | 见 Z2.a.md#F216 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F217 | pacing_design.py CONSTELLATION 区间三处不一致（docstring 20-30 / 代码 15-35 / SKILL.md 15-25） | error | P2 | 见 Z2.a.md#F217 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F218 | fields.py 部分匹配时未命中的已声明字段被静默丢弃（escape hatch 仅全缺触发），调用方丢弃 matched 标志 | error | P2 | 见 Z2.a.md#F218 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F219 | executor.py 对 ContractError 静默 fail-open：registry 缺失 → 空 inputs → G1 空集真空 PASS → 无上下文派发 | error | P2 | 见 Z2.a.md#F219 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F220 | ownership.py OWNERSHIP 矩阵仅 5 条参考条目（docstring 自述「支柱一续」），其余技能落 file-level 检查 | optimization | P2 | 见 Z2.a.md#F220 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
