@@ -127,7 +127,7 @@
 | F428 | G3.2 阈值分叉：total_score 直读路径用 acceptance.t1(94)，rubric/维度回退路径硬编码 90 | error | P2 | 见 Z4.review.md#F428 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F429 | G1.4 在 gate 内写 .bak（AGENTS.md 纯验证契约偏离） | contract | P2 | 见 Z4.review.md#F429 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F430 | g4_foreshadowing_track G4.ft.changes 判定过松：正文出现"操作"一词即 PASS | error | P2 | 见 Z4.review.md#F430 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F324 | 生产 volume_map 中文格式与全部解析器不匹配：卷边界系统、closure 转换、卷上下文、计划骨架全线静默失效 | error | **P0** | 见 Z3.review.md#F324 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F324 | 生产 volume_map 中文格式与全部解析器不匹配：卷边界系统、closure 转换、卷上下文、计划骨架全线静默失效 | error | P0 | 见 Z3.review.md#F324 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F325 | step 16 revision 双重门控矛盾：`_any_audit_has_findings` 扫描旧式审计文件名，BLOCKING 路由后 revision 仍被跳过（审计 BLOCKING 永不修复） | error | P1 | 见 Z3.review2.md（误报，已撤销）| 复核发现：group contract writes 声明旧式路径、磁盘 722 旧式审计文件、BLOCKING 必命中 | 实证 | 误报撤销 | — | deep-read | false-positive |
 | F326 | 并行 post-draft 违反 write_safety WRITE_SHARED 串行不变量：lifecycle 与 state-settling 并发写 truth/pending_hooks.md（lost-update 竞态） | error | P1 | 见 Z3.review.md#F326 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F327 | §6.3 决策树未接线：decide_revision 无生产调用；route_chapter_revision 忽略 blocking；resonance floor 仅 log 不决策 | error | P2 | 见 Z3.review.md#F327 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -228,8 +228,19 @@
 | F637 | records 判据 12 漂移检查在真实 pending_hooks.md 上恒为空操作：真实文件无 `## hooks` YAML 与 `## 活跃伏笔` 表，ch-025 快照有 → 格式在 ch25→ch56 间分叉，drift/block-ship 安全网静默失效且单测全部掩盖 | 真实数据验证 | P1 | 见 Z6.review4.md#F637 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F638 | 治理链 auditDimensions 键形分叉：audit_layer 支持 snake_case 回退，config_coherence Rule 1 与 G0 只认 camelCase → snake_case 配置禁用关键审计维度时绕过写侧 rationale 与读侧 G0，审计却照常被禁用 | 跨文件状态一致性 | P2 | 见 Z6.review4.md#F638 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F639 | compute_drift CLI 对缺失趋势文件静默跳过并 exit 0（误判"无漂移"）；真实项目缺 arc_payoff/volume 趋势文件 → CLI 只跑半个检测；`--write-audit-drift` 向 drift-guidance 单一写者拥有的 audit_drift.md 追加无协调 | 边界/CLI | P2 | 见 Z6.review4.md#F639 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F525 | `TokenLedger.summarize`/`iter_records` 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约 | 错误处理/边界 | **P2** | 见 Z5.review3.md#F525 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F526 | `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规 | 审计正确性 | **P2** | 见 Z5.review3.md#F526 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | **P2** | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F528 | `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc | 错误处理 | **P2** | 见 Z5.review3.md#F528 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F530 | `parse_resonance_scores` 的 `val > 0` 过滤丢弃合法 0 分（dead-wire 桥上下文，无现行生产影响） | 边界/语义 | **M** | 见 Z5.review3.md#F530 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F525 | `TokenLedger.summarize`/`iter_records` 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约 | 错误处理/边界 | P2 | 见 Z5.review3.md#F525 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F526 | `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规 | 审计正确性 | P2 | 见 Z5.review3.md#F526 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | P2 | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F528 | `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc | 错误处理 | P2 | 见 Z5.review3.md#F528 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F530 | `parse_resonance_scores` 的 `val > 0` 过滤丢弃合法 0 分（dead-wire 桥上下文，无现行生产影响） | 边界/语义 | M | 见 Z5.review3.md#F530 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F353 | novel.json.total_chapters 无任何正常流写入点（自锁死循环）——F324 修复后 pipeline 仍永不完成 | error | P1 | 见 Z3.review4.md#F353 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F354 | 并行审计波静默吞掉 dispatch 失败：全部审计失败仍标记完成并推进（对照串行 _handle_failure 重试/升级） | error | P1 | 见 Z3.review4.md#F354 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F355 | 确定性策展层输出死线：context/chapter-N-curated.md 无任何 skill 读取（9 节分层编排生产无效） | error | P2 | 见 Z3.review4.md#F355 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F356 | curate_context P 分层渲染失效：章节 plan 与全部 route 条目落入 P7，P1/P3-P6 恒 "(未产出)" | error | P2 | 见 Z3.review4.md#F356 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F357 | SharedAuditContext 的 style_profile 以幽灵路径 truth/style_profile.md 注入（style 内容重复进入每个审计 prompt） | error | P2 | 见 Z3.review4.md#F357 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F358 | linguistic drift ESCALATE 被吞：DriftEscalationError 在 pipeline-linguistic-drift-check 的 except Exception 中仅 log；drift 指令文件无消费者 | error | P2 | 见 Z3.review4.md#F358 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F359 | Route A 检索条目无实体内容（仅 "[category] id from file" 标签），entity 事实从不进入上下文 | error | P2 | 见 Z3.review4.md#F359 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F360 | chapter_loop._maybe_rebuild_truth_index 只 build 不落盘（周期索引重建无效，日志误导） | optimization | P2 | 见 Z3.review4.md#F360 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F361 | _call_llm_streaming 的 early_stop_patterns 死参数（无调用方传值） | optimization | M | 见 Z3.review4.md#F361 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F363 | run_triggered_skills 中途失败后重试会重发已成功的触发步骤（无 per-skill 进度追踪） | optimization | M | 见 Z3.review4.md#F363 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F362 | cmd_backfill_context 使用 print() 违反框架约定（AGENTS.md：No print() in framework code） | error | M | 见 Z3.review4.md#F362 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
