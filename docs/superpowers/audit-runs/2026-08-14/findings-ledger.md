@@ -454,3 +454,7 @@
 | F3AF | run_gate_g3 在 progress.json 缺失时预写伪造评分证据（current_scorer_agent/g2_passed），G3.4 fail-closed 独立性检查恒 PASS——G3 门在全部调用路径（含串行 genesis/closure）以自证证据通过，与 F345 叠加后 G3 全路径零真实校验 | error | P1 | 见 Z3.review18.md#F3AF | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3B0 | check_audit_line_refs 的 `_LINE_REF_RE` 仅匹配英文 `L(\d+)` 行号格式，生产 15/722 审计文件用「第N行」中文格式 → G4.av.stale_line_ref 对这些审计静默失效（格式契约断裂，F324/F396/F389 同族） | error | M | 见 Z3.review18.md#F3B0 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3B1 | truth_embed main() 的 emit_json 用裸字面量 "degraded" 作 status 值（非 CommandStatus 成员），违反 spec D3 类型化信封约定（F3AE 同族、独立实例） | error | M | 见 Z3.review18.md#F3B1 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F270 | `record_audit_outcome` 的 write-audit.jsonl ledger 写入无防护：round_dir 只读/磁盘故障时 finally 块裸抛，掩盖 dispatch 异常且审计记录丢失（F238 的 record 层孪生，故障面=文件系统） | 漏报（错误处理缺陷，F238 家族新触发面） | M | 见 Z2.review17.md#F270 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F271 | `extract_h2_sections` 不跳过围栏代码块：truth 文件内 ``` 围栏含 `## ` 行时产生伪 section，字段过滤输出携带悬空围栏标记（F264/F218/F262 均未覆盖代码围栏干扰面） | 漏报（边界解析缺陷，字段过滤层） | M | 见 Z2.review17.md#F271 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F667 | compute_pattern 词表外 pattern（含 skill 文档化回退标签"未分类"）在连续运行检测、最大连续、转移矩阵中被静默丢弃 → 单调性报警对词表外主模式完全失明（F621 熵失真的同族、独立向量） | 统计口径 | P2 | 见 Z6.review17.md#F667 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F668 | segment_sentences 引号内句末标点劈句：闭合引号成为 1 字符伪句、引号句被拆成两段 → 句数/句长统计失真（56 章语料 172 个伪句，占 1.4%） | 统计口径 | P2 | 见 Z6.review17.md#F668 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
