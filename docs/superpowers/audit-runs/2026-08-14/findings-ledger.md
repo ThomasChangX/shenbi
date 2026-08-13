@@ -437,3 +437,4 @@
 | F264 | `extract_h2_sections` 重复 H2 标题折叠：同标题多段内容在字段过滤时静默丢首段（dict 键覆盖），与 F218 的"未匹配丢弃"机制不同 | 漏报（边界数据丢失，字段过滤层） | M | 见 Z2.review14.md#F264 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F265 | `_diff_records` 的 None 哨兵使 null 值新增键旁路 record_field 键集校验（F260 的 record 层孪生）：track/resolve/state-settling 对 null 值键写入零审计 | 漏报（审计盲区，根因 Z5 audit/snapshot.py） | M | 见 Z2.review14.md#F265 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F266 | write_semantics 校验面整体未接线：`mode` 值自由形式无词表校验（拼写错误静默通过）、`append_dedup`/`merge_prose` 声明无框架实现（dispatch_helper 显式 NOT branched、g4 无 checker）、且与 truth 模板 `update_mode:` 词表双轨并行 | 漏报（契约声明↔执行漂移，Z2 根因 legacy.py） | P2 | 见 Z2.review14.md#F266 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F3AA | cmd_status / cmd_chapters 的 ReadLock TimeoutError 未捕获（管线运行期间 30s 后裸 traceback；cmd_init 有先例却漏接） | error | M | src/shenbi/pipeline/cli.py（见 Z3.review16.md#F3AA） | 读锁超时未捕获 | 沙箱复现 | 裸 traceback | 补捕获 | deep-read | verified |
