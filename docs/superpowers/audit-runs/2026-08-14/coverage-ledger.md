@@ -2751,3 +2751,5 @@
 | .claude/ .codegraph/ .playwright-mcp/ | cache-ignored | — | 工具目录，.gitignore 覆盖 |
 
 > Z5 区 G2 通过：初审 12 findings + 复核 26 findings 全部 verified，第六轮复核 0 新 finding（2026-08-14，Z5.review6.md）
+
+> Z1 区 G2 通过：初审 13 findings + 复核 53 findings 全部 verified，第十六轮复核 0 新 finding（2026-08-14，Z1.review16.md）
