@@ -210,7 +210,7 @@
 | F521 | `estimate_prompt_tokens` CJK 判定范围仅 0x4E00-0x9FFF：中文标点/全角/扩展 A 按 ASCII 4 chars/token 计 → 中文 prompt 系统性低估 token，上下文告警阈值提前量被侵蚀 | 估算精度/边界 | P2 | 见 Z5.review2.md#F521 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F522 | resonance_trend.md 写侧（`_build_resonance_trend_row` 无 header 7 列行）与 `compute_drift.parse_trend`（要求 header 行含维度名）格式不兼容 → parse_trend 恒返回空，volume-decline 检测永不触发 | 格式兼容性（跨区：Z6/skill_utils） | P2 | 见 Z5.review2.md#F522 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F523 | `_diff_records` 对无 id 记录按 `str(None)` 键合并：id-less 记录的新增/删除在 record 级 diff 中静默掩盖 | 边界/错误处理 | P2 | 见 Z5.review2.md#F523 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F524 | `audit_writes` 内部 `_declared_patterns` 不带 chapter 调 `derive_output_files` → 全部 chapter-parametric 写模式被 genesis 过滤（resolve_or_skip→None）→ declared=[] → 所有章节文件判"未声明写入"假阳性 GATE_FAIL（确定性，非边角） | 审计正确性 | P2 | 见 Z5.review2.md#F524 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F524 | `audit_writes` 内部 `_declared_patterns` 不带 chapter 调 `derive_output_files` → 全部 chapter-parametric 写模式被 genesis 过滤（resolve_or_skip→None）→ declared=[] → 所有章节文件判"未声明写入"假阳性 GATE_FAIL（确定性，非边角） | 审计正确性 | P1 | 见 Z5.review2.md#F524 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F345 | 并行审计波完全绕过 G3（scoring independence）——6 个 audit skill 均 requires_independent=True | 契约违反 | P1 | 见 Z3.review3.md#F345 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F346 | truth_index._HOOK_ID_RE 不匹配生产带连字符 hook id（MH-001/H-N01）→ master hooks 从 Route A 检索静默缺失 | error | P2 | 见 Z3.review3.md#F346 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F347 | 生产 hook 数据格式与上下文"伏笔债务简报"解析全错位：简报恒"(无)" | error | P2 | 见 Z3.review3.md#F347 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -225,3 +225,11 @@
 | F443 | g1.check_fields_exist 死代码：仅测试引用，gate_G1 与生产均未接线（B.4 字段软检查未生效） | dead-wire | P2 | 见 Z4.review3.md#F443 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F444 | G3.3 output_files 读取层级与 progress.json 实际结构不匹配 → G3.3 恒 SKIP，G2 复查死路（测试用非生产形状掩盖） | error | P1 | 见 Z4.review3.md#F444 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F445 | shared.unimplemented() 无调用方（死代码） | dead-wire | M | 见 Z4.review3.md#F445 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F637 | records 判据 12 漂移检查在真实 pending_hooks.md 上恒为空操作：真实文件无 `## hooks` YAML 与 `## 活跃伏笔` 表，ch-025 快照有 → 格式在 ch25→ch56 间分叉，drift/block-ship 安全网静默失效且单测全部掩盖 | 真实数据验证 | P1 | 见 Z6.review4.md#F637 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F638 | 治理链 auditDimensions 键形分叉：audit_layer 支持 snake_case 回退，config_coherence Rule 1 与 G0 只认 camelCase → snake_case 配置禁用关键审计维度时绕过写侧 rationale 与读侧 G0，审计却照常被禁用 | 跨文件状态一致性 | P2 | 见 Z6.review4.md#F638 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F639 | compute_drift CLI 对缺失趋势文件静默跳过并 exit 0（误判"无漂移"）；真实项目缺 arc_payoff/volume 趋势文件 → CLI 只跑半个检测；`--write-audit-drift` 向 drift-guidance 单一写者拥有的 audit_drift.md 追加无协调 | 边界/CLI | P2 | 见 Z6.review4.md#F639 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F525 | `TokenLedger.summarize`/`iter_records` 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约 | 错误处理/边界 | **P2** | 见 Z5.review3.md#F525 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F526 | `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规 | 审计正确性 | **P2** | 见 Z5.review3.md#F526 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | **P2** | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F528 | `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc | 错误处理 | **P2** | 见 Z5.review3.md#F528 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F530 | `parse_resonance_scores` 的 `val > 0` 过滤丢弃合法 0 分（dead-wire 桥上下文，无现行生产影响） | 边界/语义 | **M** | 见 Z5.review3.md#F530 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
