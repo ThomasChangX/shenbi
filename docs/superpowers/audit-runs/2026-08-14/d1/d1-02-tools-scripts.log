@@ -1,0 +1,23 @@
+=== tools/lint_status_strings.py ===
+EXIT=0
+=== tools/lint_repo_consistency.py ===
+EXIT=0
+=== tools/lint_contract_graph.py ===
+DANGLING_WRITE (warn): skill=shenbi-score-stratum writes=audits/stratum-*-score.md no consumer
+DANGLING_WRITE (warn): skill=shenbi-short-drafting writes=short/short-*-decisions.json no consumer
+DANGLING_WRITE (warn): skill=shenbi-short-packaging writes=import/packaging/* no consumer
+EXIT=0
+=== scripts/lint_contract_fields.py ===
+All contract field declarations match truth files.
+EXIT=0
+=== tools/lint_contracts.py ===
+EXIT=0
+=== tools/audit-skill-descriptions.py ===
+OK: all descriptions compliant in /Users/xiaotiac/Documents/GitHub/shenbi/skills
+EXIT=0
+=== tools/check_fixture_mirror.py ===
+EXIT=0
+=== tools/lint_no_forbid_with_computed_field.py ===
+EXIT=0
+=== tools/lint_no_fs_mutation.py ===
+EXIT=0
