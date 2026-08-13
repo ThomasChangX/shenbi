@@ -1615,163 +1615,163 @@
 | skills/shenbi-writing-skills/SKILL.md | unreviewed | — | — |
 | skills/using-shenbi/.gitkeep | unreviewed | — | — |
 | skills/using-shenbi/SKILL.md | unreviewed | — | — |
-| src/shenbi/__init__.py | unreviewed | — | — |
+| src/shenbi/__init__.py | deep-read | zone-reports/Z1.a.md#__init__.py | Z 初审 |
 | src/shenbi/audit/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
 | src/shenbi/audit/_shared.py | deep-read | zone-reports/Z5.a.md#_shared.py | Z5 初审 |
 | src/shenbi/audit/record.py | deep-read | zone-reports/Z5.a.md#record.py | Z5 初审 |
 | src/shenbi/audit/snapshot.py | deep-read | zone-reports/Z5.a.md#snapshot.py | Z5 初审 |
 | src/shenbi/audit/write_audit.py | deep-read | zone-reports/Z5.a.md#write_audit.py | Z5 初审 |
-| src/shenbi/capability_fs.py | unreviewed | — | — |
-| src/shenbi/cli_utils.py | unreviewed | — | — |
+| src/shenbi/capability_fs.py | deep-read | zone-reports/Z1.a.md#capability_fs.py | Z 初审 |
+| src/shenbi/cli_utils.py | deep-read | zone-reports/Z1.a.md#cli_utils.py | Z 初审 |
 | src/shenbi/config/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/config/config_coherence.py | deep-read | zone-reports/Z6.a.md#config_coherence.py | Z6 初审 |
 | src/shenbi/config/thresholds.py | deep-read | zone-reports/Z6.a.md#thresholds.py | Z6 初审 |
-| src/shenbi/contracts/__init__.py | unreviewed | — | — |
-| src/shenbi/contracts/base.py | unreviewed | — | — |
-| src/shenbi/contracts/enums.py | unreviewed | — | — |
-| src/shenbi/contracts/fields.py | unreviewed | — | — |
-| src/shenbi/contracts/graph.py | unreviewed | — | — |
-| src/shenbi/contracts/legacy.py | unreviewed | — | — |
-| src/shenbi/contracts/ownership.py | unreviewed | — | — |
-| src/shenbi/contracts/paths.py | unreviewed | — | — |
-| src/shenbi/contracts/registry.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/__init__.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/adapt.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/decisions.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/deps.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/hooks.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/novel.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/registry.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/scores.py | unreviewed | — | — |
-| src/shenbi/contracts/schemas/state.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/__init__.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/_scoring_base.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/chapter_planning.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/context_composing.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/foreshadowing_resolve.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/genre_config.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/pacing_design.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/score_arc.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/score_stratum.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/score_volume.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/volume_outlining.py | unreviewed | — | — |
-| src/shenbi/contracts/skills/worldbuilding.py | unreviewed | — | — |
-| src/shenbi/contracts/thresholds.py | unreviewed | — | — |
+| src/shenbi/contracts/__init__.py | deep-read | zone-reports/Z2.a.md#__init__.py | Z 初审 |
+| src/shenbi/contracts/base.py | deep-read | zone-reports/Z2.a.md#base.py | Z 初审 |
+| src/shenbi/contracts/enums.py | deep-read | zone-reports/Z2.a.md#enums.py | Z 初审 |
+| src/shenbi/contracts/fields.py | deep-read | zone-reports/Z2.a.md#fields.py | Z 初审 |
+| src/shenbi/contracts/graph.py | deep-read | zone-reports/Z2.a.md#graph.py | Z 初审 |
+| src/shenbi/contracts/legacy.py | deep-read | zone-reports/Z2.a.md#legacy.py | Z 初审 |
+| src/shenbi/contracts/ownership.py | deep-read | zone-reports/Z2.a.md#ownership.py | Z 初审 |
+| src/shenbi/contracts/paths.py | deep-read | zone-reports/Z2.a.md#paths.py | Z 初审 |
+| src/shenbi/contracts/registry.py | deep-read | zone-reports/Z2.a.md#registry.py | Z 初审 |
+| src/shenbi/contracts/schemas/__init__.py | deep-read | zone-reports/Z2.a.md#__init__.py | Z 初审 |
+| src/shenbi/contracts/schemas/adapt.py | deep-read | zone-reports/Z2.a.md#adapt.py | Z 初审 |
+| src/shenbi/contracts/schemas/decisions.py | deep-read | zone-reports/Z2.a.md#decisions.py | Z 初审 |
+| src/shenbi/contracts/schemas/deps.py | deep-read | zone-reports/Z2.a.md#deps.py | Z 初审 |
+| src/shenbi/contracts/schemas/hooks.py | deep-read | zone-reports/Z2.a.md#hooks.py | Z 初审 |
+| src/shenbi/contracts/schemas/novel.py | deep-read | zone-reports/Z2.a.md#novel.py | Z 初审 |
+| src/shenbi/contracts/schemas/registry.py | deep-read | zone-reports/Z2.a.md#registry.py | Z 初审 |
+| src/shenbi/contracts/schemas/scores.py | deep-read | zone-reports/Z2.a.md#scores.py | Z 初审 |
+| src/shenbi/contracts/schemas/state.py | deep-read | zone-reports/Z2.a.md#state.py | Z 初审 |
+| src/shenbi/contracts/skills/__init__.py | deep-read | zone-reports/Z2.a.md#__init__.py | Z 初审 |
+| src/shenbi/contracts/skills/_scoring_base.py | deep-read | zone-reports/Z2.a.md#_scoring_base.py | Z 初审 |
+| src/shenbi/contracts/skills/chapter_planning.py | deep-read | zone-reports/Z2.a.md#chapter_planning.py | Z 初审 |
+| src/shenbi/contracts/skills/context_composing.py | deep-read | zone-reports/Z2.a.md#context_composing.py | Z 初审 |
+| src/shenbi/contracts/skills/foreshadowing_resolve.py | deep-read | zone-reports/Z2.a.md#foreshadowing_resolve.py | Z 初审 |
+| src/shenbi/contracts/skills/genre_config.py | deep-read | zone-reports/Z2.a.md#genre_config.py | Z 初审 |
+| src/shenbi/contracts/skills/pacing_design.py | deep-read | zone-reports/Z2.a.md#pacing_design.py | Z 初审 |
+| src/shenbi/contracts/skills/score_arc.py | deep-read | zone-reports/Z2.a.md#score_arc.py | Z 初审 |
+| src/shenbi/contracts/skills/score_stratum.py | deep-read | zone-reports/Z2.a.md#score_stratum.py | Z 初审 |
+| src/shenbi/contracts/skills/score_volume.py | deep-read | zone-reports/Z2.a.md#score_volume.py | Z 初审 |
+| src/shenbi/contracts/skills/volume_outlining.py | deep-read | zone-reports/Z2.a.md#volume_outlining.py | Z 初审 |
+| src/shenbi/contracts/skills/worldbuilding.py | deep-read | zone-reports/Z2.a.md#worldbuilding.py | Z 初审 |
+| src/shenbi/contracts/thresholds.py | deep-read | zone-reports/Z2.a.md#thresholds.py | Z 初审 |
 | src/shenbi/cost/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
 | src/shenbi/cost/estimate.py | deep-read | zone-reports/Z5.a.md#estimate.py | Z5 初审 |
 | src/shenbi/cost/ledger.py | deep-read | zone-reports/Z5.a.md#ledger.py | Z5 初审 |
 | src/shenbi/cost/pricing.py | deep-read | zone-reports/Z5.a.md#pricing.py | Z5 初审 |
 | src/shenbi/cost/report.py | deep-read | zone-reports/Z5.a.md#report.py | Z5 初审 |
-| src/shenbi/dispatcher/__init__.py | unreviewed | — | — |
-| src/shenbi/dispatcher/cli.py | unreviewed | — | — |
-| src/shenbi/dispatcher/executor.py | unreviewed | — | — |
-| src/shenbi/dispatcher/modes/__init__.py | unreviewed | — | — |
-| src/shenbi/dispatcher/modes/codex.py | unreviewed | — | — |
-| src/shenbi/dispatcher/modes/codex_api.py | unreviewed | — | — |
-| src/shenbi/dispatcher/modes/internal.py | unreviewed | — | — |
-| src/shenbi/error_guidance.py | unreviewed | — | — |
-| src/shenbi/exceptions.py | unreviewed | — | — |
-| src/shenbi/gates/__init__.py | unreviewed | — | — |
-| src/shenbi/gates/cli.py | unreviewed | — | — |
-| src/shenbi/gates/g0.py | unreviewed | — | — |
-| src/shenbi/gates/g0_config_coherence.py | unreviewed | — | — |
-| src/shenbi/gates/g0_purity.py | unreviewed | — | — |
-| src/shenbi/gates/g0_skill_contract.py | unreviewed | — | — |
-| src/shenbi/gates/g1.py | unreviewed | — | — |
-| src/shenbi/gates/g2.py | unreviewed | — | — |
-| src/shenbi/gates/g3.py | unreviewed | — | — |
-| src/shenbi/gates/g3_independence.py | unreviewed | — | — |
-| src/shenbi/gates/g4/__init__.py | unreviewed | — | — |
-| src/shenbi/gates/g4/anti_detect.py | unreviewed | — | — |
-| src/shenbi/gates/g4/book_spine_init.py | unreviewed | — | — |
-| src/shenbi/gates/g4/chapter_drafting.py | unreviewed | — | — |
-| src/shenbi/gates/g4/chapter_planning.py | unreviewed | — | — |
-| src/shenbi/gates/g4/chapter_revision.py | unreviewed | — | — |
-| src/shenbi/gates/g4/character_design.py | unreviewed | — | — |
-| src/shenbi/gates/g4/context_composing.py | unreviewed | — | — |
-| src/shenbi/gates/g4/decisions_validator.py | unreviewed | — | — |
-| src/shenbi/gates/g4/escalation_review.py | unreviewed | — | — |
-| src/shenbi/gates/g4/faction_builder.py | unreviewed | — | — |
-| src/shenbi/gates/g4/foreshadowing_plant.py | unreviewed | — | — |
-| src/shenbi/gates/g4/foreshadowing_track.py | unreviewed | — | — |
-| src/shenbi/gates/g4/generic.py | unreviewed | — | — |
-| src/shenbi/gates/g4/genre_config.py | unreviewed | — | — |
-| src/shenbi/gates/g4/length_normalizing.py | unreviewed | — | — |
-| src/shenbi/gates/g4/location_builder.py | unreviewed | — | — |
-| src/shenbi/gates/g4/memory_distill.py | unreviewed | — | — |
-| src/shenbi/gates/g4/pacing_design.py | unreviewed | — | — |
-| src/shenbi/gates/g4/plot_thread_weaver.py | unreviewed | — | — |
-| src/shenbi/gates/g4/power_system.py | unreviewed | — | — |
-| src/shenbi/gates/g4/relationship_map.py | unreviewed | — | — |
-| src/shenbi/gates/g4/review_arc_payoff.py | unreviewed | — | — |
-| src/shenbi/gates/g4/review_resonance.py | unreviewed | — | — |
-| src/shenbi/gates/g4/score_arc.py | unreviewed | — | — |
-| src/shenbi/gates/g4/score_stratum.py | unreviewed | — | — |
-| src/shenbi/gates/g4/score_volume.py | unreviewed | — | — |
-| src/shenbi/gates/g4/state_settling.py | unreviewed | — | — |
-| src/shenbi/gates/g4/story_architecture.py | unreviewed | — | — |
-| src/shenbi/gates/g4/style_polishing.py | unreviewed | — | — |
-| src/shenbi/gates/g4/volume_outlining.py | unreviewed | — | — |
-| src/shenbi/gates/g4/worldbuilding.py | unreviewed | — | — |
-| src/shenbi/gates/g5.py | unreviewed | — | — |
-| src/shenbi/gates/g6.py | unreviewed | — | — |
-| src/shenbi/gates/g6_checks.py | unreviewed | — | — |
-| src/shenbi/gates/g7.py | unreviewed | — | — |
-| src/shenbi/gates/g7_trace.py | unreviewed | — | — |
-| src/shenbi/gates/g_dispatch.py | unreviewed | — | — |
-| src/shenbi/gates/g_reconcile.py | unreviewed | — | — |
-| src/shenbi/gates/g_transition.py | unreviewed | — | — |
-| src/shenbi/gates/gate_manifest.py | unreviewed | — | — |
-| src/shenbi/gates/shared.py | unreviewed | — | — |
-| src/shenbi/logging.py | unreviewed | — | — |
+| src/shenbi/dispatcher/__init__.py | deep-read | zone-reports/Z2.a.md#__init__.py | Z 初审 |
+| src/shenbi/dispatcher/cli.py | deep-read | zone-reports/Z2.a.md#cli.py | Z 初审 |
+| src/shenbi/dispatcher/executor.py | deep-read | zone-reports/Z2.a.md#executor.py | Z 初审 |
+| src/shenbi/dispatcher/modes/__init__.py | deep-read | zone-reports/Z2.a.md#__init__.py | Z 初审 |
+| src/shenbi/dispatcher/modes/codex.py | deep-read | zone-reports/Z2.a.md#codex.py | Z 初审 |
+| src/shenbi/dispatcher/modes/codex_api.py | deep-read | zone-reports/Z2.a.md#codex_api.py | Z 初审 |
+| src/shenbi/dispatcher/modes/internal.py | deep-read | zone-reports/Z2.a.md#internal.py | Z 初审 |
+| src/shenbi/error_guidance.py | deep-read | zone-reports/Z1.a.md#error_guidance.py | Z 初审 |
+| src/shenbi/exceptions.py | deep-read | zone-reports/Z1.a.md#exceptions.py | Z 初审 |
+| src/shenbi/gates/__init__.py | deep-read | zone-reports/Z4.a.md#__init__.py | Z 初审 |
+| src/shenbi/gates/cli.py | deep-read | zone-reports/Z4.a.md#cli.py | Z 初审 |
+| src/shenbi/gates/g0.py | deep-read | zone-reports/Z4.a.md#g0.py | Z 初审 |
+| src/shenbi/gates/g0_config_coherence.py | deep-read | zone-reports/Z4.a.md#g0_config_coherence.py | Z 初审 |
+| src/shenbi/gates/g0_purity.py | deep-read | zone-reports/Z4.a.md#g0_purity.py | Z 初审 |
+| src/shenbi/gates/g0_skill_contract.py | deep-read | zone-reports/Z4.a.md#g0_skill_contract.py | Z 初审 |
+| src/shenbi/gates/g1.py | deep-read | zone-reports/Z4.a.md#g1.py | Z 初审 |
+| src/shenbi/gates/g2.py | deep-read | zone-reports/Z4.a.md#g2.py | Z 初审 |
+| src/shenbi/gates/g3.py | deep-read | zone-reports/Z4.a.md#g3.py | Z 初审 |
+| src/shenbi/gates/g3_independence.py | deep-read | zone-reports/Z4.a.md#g3_independence.py | Z 初审 |
+| src/shenbi/gates/g4/__init__.py | deep-read | zone-reports/Z4.a.md#__init__.py | Z 初审 |
+| src/shenbi/gates/g4/anti_detect.py | deep-read | zone-reports/Z4.a.md#anti_detect.py | Z 初审 |
+| src/shenbi/gates/g4/book_spine_init.py | deep-read | zone-reports/Z4.a.md#book_spine_init.py | Z 初审 |
+| src/shenbi/gates/g4/chapter_drafting.py | deep-read | zone-reports/Z4.a.md#chapter_drafting.py | Z 初审 |
+| src/shenbi/gates/g4/chapter_planning.py | deep-read | zone-reports/Z4.a.md#chapter_planning.py | Z 初审 |
+| src/shenbi/gates/g4/chapter_revision.py | deep-read | zone-reports/Z4.a.md#chapter_revision.py | Z 初审 |
+| src/shenbi/gates/g4/character_design.py | deep-read | zone-reports/Z4.a.md#character_design.py | Z 初审 |
+| src/shenbi/gates/g4/context_composing.py | deep-read | zone-reports/Z4.a.md#context_composing.py | Z 初审 |
+| src/shenbi/gates/g4/decisions_validator.py | deep-read | zone-reports/Z4.a.md#decisions_validator.py | Z 初审 |
+| src/shenbi/gates/g4/escalation_review.py | deep-read | zone-reports/Z4.a.md#escalation_review.py | Z 初审 |
+| src/shenbi/gates/g4/faction_builder.py | deep-read | zone-reports/Z4.a.md#faction_builder.py | Z 初审 |
+| src/shenbi/gates/g4/foreshadowing_plant.py | deep-read | zone-reports/Z4.a.md#foreshadowing_plant.py | Z 初审 |
+| src/shenbi/gates/g4/foreshadowing_track.py | deep-read | zone-reports/Z4.a.md#foreshadowing_track.py | Z 初审 |
+| src/shenbi/gates/g4/generic.py | deep-read | zone-reports/Z4.a.md#generic.py | Z 初审 |
+| src/shenbi/gates/g4/genre_config.py | deep-read | zone-reports/Z4.a.md#genre_config.py | Z 初审 |
+| src/shenbi/gates/g4/length_normalizing.py | deep-read | zone-reports/Z4.a.md#length_normalizing.py | Z 初审 |
+| src/shenbi/gates/g4/location_builder.py | deep-read | zone-reports/Z4.a.md#location_builder.py | Z 初审 |
+| src/shenbi/gates/g4/memory_distill.py | deep-read | zone-reports/Z4.a.md#memory_distill.py | Z 初审 |
+| src/shenbi/gates/g4/pacing_design.py | deep-read | zone-reports/Z4.a.md#pacing_design.py | Z 初审 |
+| src/shenbi/gates/g4/plot_thread_weaver.py | deep-read | zone-reports/Z4.a.md#plot_thread_weaver.py | Z 初审 |
+| src/shenbi/gates/g4/power_system.py | deep-read | zone-reports/Z4.a.md#power_system.py | Z 初审 |
+| src/shenbi/gates/g4/relationship_map.py | deep-read | zone-reports/Z4.a.md#relationship_map.py | Z 初审 |
+| src/shenbi/gates/g4/review_arc_payoff.py | deep-read | zone-reports/Z4.a.md#review_arc_payoff.py | Z 初审 |
+| src/shenbi/gates/g4/review_resonance.py | deep-read | zone-reports/Z4.a.md#review_resonance.py | Z 初审 |
+| src/shenbi/gates/g4/score_arc.py | deep-read | zone-reports/Z4.a.md#score_arc.py | Z 初审 |
+| src/shenbi/gates/g4/score_stratum.py | deep-read | zone-reports/Z4.a.md#score_stratum.py | Z 初审 |
+| src/shenbi/gates/g4/score_volume.py | deep-read | zone-reports/Z4.a.md#score_volume.py | Z 初审 |
+| src/shenbi/gates/g4/state_settling.py | deep-read | zone-reports/Z4.a.md#state_settling.py | Z 初审 |
+| src/shenbi/gates/g4/story_architecture.py | deep-read | zone-reports/Z4.a.md#story_architecture.py | Z 初审 |
+| src/shenbi/gates/g4/style_polishing.py | deep-read | zone-reports/Z4.a.md#style_polishing.py | Z 初审 |
+| src/shenbi/gates/g4/volume_outlining.py | deep-read | zone-reports/Z4.a.md#volume_outlining.py | Z 初审 |
+| src/shenbi/gates/g4/worldbuilding.py | deep-read | zone-reports/Z4.a.md#worldbuilding.py | Z 初审 |
+| src/shenbi/gates/g5.py | deep-read | zone-reports/Z4.a.md#g5.py | Z 初审 |
+| src/shenbi/gates/g6.py | deep-read | zone-reports/Z4.a.md#g6.py | Z 初审 |
+| src/shenbi/gates/g6_checks.py | deep-read | zone-reports/Z4.a.md#g6_checks.py | Z 初审 |
+| src/shenbi/gates/g7.py | deep-read | zone-reports/Z4.a.md#g7.py | Z 初审 |
+| src/shenbi/gates/g7_trace.py | deep-read | zone-reports/Z4.a.md#g7_trace.py | Z 初审 |
+| src/shenbi/gates/g_dispatch.py | deep-read | zone-reports/Z4.a.md#g_dispatch.py | Z 初审 |
+| src/shenbi/gates/g_reconcile.py | deep-read | zone-reports/Z4.a.md#g_reconcile.py | Z 初审 |
+| src/shenbi/gates/g_transition.py | deep-read | zone-reports/Z4.a.md#g_transition.py | Z 初审 |
+| src/shenbi/gates/gate_manifest.py | deep-read | zone-reports/Z4.a.md#gate_manifest.py | Z 初审 |
+| src/shenbi/gates/shared.py | deep-read | zone-reports/Z4.a.md#shared.py | Z 初审 |
+| src/shenbi/logging.py | deep-read | zone-reports/Z1.a.md#logging.py | Z 初审 |
 | src/shenbi/orchestration/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
 | src/shenbi/orchestration/escalation_bridge.py | deep-read | zone-reports/Z5.a.md#escalation_bridge.py | Z5 初审 |
 | src/shenbi/orchestration/scoring_bridge.py | deep-read | zone-reports/Z5.a.md#scoring_bridge.py | Z5 初审 |
-| src/shenbi/paths.py | unreviewed | — | — |
-| src/shenbi/phase_runner.py | unreviewed | — | — |
-| src/shenbi/pipeline/__init__.py | unreviewed | — | — |
-| src/shenbi/pipeline/_shared.py | unreviewed | — | — |
-| src/shenbi/pipeline/audit_context_cache.py | unreviewed | — | — |
-| src/shenbi/pipeline/audit_layer.py | unreviewed | — | — |
-| src/shenbi/pipeline/chapter_loop.py | unreviewed | — | — |
-| src/shenbi/pipeline/checkpoint.py | unreviewed | — | — |
-| src/shenbi/pipeline/cli.py | unreviewed | — | — |
-| src/shenbi/pipeline/closure.py | unreviewed | — | — |
-| src/shenbi/pipeline/context_assemble.py | unreviewed | — | — |
-| src/shenbi/pipeline/context_curation.py | unreviewed | — | — |
-| src/shenbi/pipeline/crash_recovery.py | unreviewed | — | — |
-| src/shenbi/pipeline/dispatch_helper.py | unreviewed | — | — |
-| src/shenbi/pipeline/error_handler.py | unreviewed | — | — |
-| src/shenbi/pipeline/filelock_utils.py | unreviewed | — | — |
-| src/shenbi/pipeline/genesis.py | unreviewed | — | — |
-| src/shenbi/pipeline/hook_planting.py | unreviewed | — | — |
-| src/shenbi/pipeline/llm_output_integrity.py | unreviewed | — | — |
-| src/shenbi/pipeline/machine.py | unreviewed | — | — |
-| src/shenbi/pipeline/parallel_dispatch.py | unreviewed | — | — |
-| src/shenbi/pipeline/plan_skeleton.py | unreviewed | — | — |
-| src/shenbi/pipeline/review_checklist.py | unreviewed | — | — |
-| src/shenbi/pipeline/revision_router.py | unreviewed | — | — |
-| src/shenbi/pipeline/scr_extractor.py | unreviewed | — | — |
-| src/shenbi/pipeline/seed_parser.py | unreviewed | — | — |
-| src/shenbi/pipeline/snapshot_diff.py | unreviewed | — | — |
-| src/shenbi/pipeline/state.py | unreviewed | — | — |
-| src/shenbi/pipeline/state_heal.py | unreviewed | — | — |
-| src/shenbi/pipeline/transitions.py | unreviewed | — | — |
-| src/shenbi/pipeline/triggers.py | unreviewed | — | — |
-| src/shenbi/pipeline/truth_embed.py | unreviewed | — | — |
-| src/shenbi/pipeline/truth_index.py | unreviewed | — | — |
-| src/shenbi/pipeline/truth_io.py | unreviewed | — | — |
-| src/shenbi/pipeline/volume_align.py | unreviewed | — | — |
-| src/shenbi/pipeline/write_safety.py | unreviewed | — | — |
+| src/shenbi/paths.py | deep-read | zone-reports/Z1.a.md#paths.py | Z 初审 |
+| src/shenbi/phase_runner.py | deep-read | zone-reports/Z1.a.md#phase_runner.py | Z 初审 |
+| src/shenbi/pipeline/__init__.py | deep-read | zone-reports/Z3.a.md#__init__.py | Z 初审 |
+| src/shenbi/pipeline/_shared.py | deep-read | zone-reports/Z3.a.md#_shared.py | Z 初审 |
+| src/shenbi/pipeline/audit_context_cache.py | deep-read | zone-reports/Z3.a.md#audit_context_cache.py | Z 初审 |
+| src/shenbi/pipeline/audit_layer.py | deep-read | zone-reports/Z3.a.md#audit_layer.py | Z 初审 |
+| src/shenbi/pipeline/chapter_loop.py | deep-read | zone-reports/Z3.a.md#chapter_loop.py | Z 初审 |
+| src/shenbi/pipeline/checkpoint.py | deep-read | zone-reports/Z3.a.md#checkpoint.py | Z 初审 |
+| src/shenbi/pipeline/cli.py | deep-read | zone-reports/Z3.a.md#cli.py | Z 初审 |
+| src/shenbi/pipeline/closure.py | deep-read | zone-reports/Z3.a.md#closure.py | Z 初审 |
+| src/shenbi/pipeline/context_assemble.py | deep-read | zone-reports/Z3.a.md#context_assemble.py | Z 初审 |
+| src/shenbi/pipeline/context_curation.py | deep-read | zone-reports/Z3.a.md#context_curation.py | Z 初审 |
+| src/shenbi/pipeline/crash_recovery.py | deep-read | zone-reports/Z3.a.md#crash_recovery.py | Z 初审 |
+| src/shenbi/pipeline/dispatch_helper.py | deep-read | zone-reports/Z3.a.md#dispatch_helper.py | Z 初审 |
+| src/shenbi/pipeline/error_handler.py | deep-read | zone-reports/Z3.a.md#error_handler.py | Z 初审 |
+| src/shenbi/pipeline/filelock_utils.py | deep-read | zone-reports/Z3.a.md#filelock_utils.py | Z 初审 |
+| src/shenbi/pipeline/genesis.py | deep-read | zone-reports/Z3.a.md#genesis.py | Z 初审 |
+| src/shenbi/pipeline/hook_planting.py | deep-read | zone-reports/Z3.a.md#hook_planting.py | Z 初审 |
+| src/shenbi/pipeline/llm_output_integrity.py | deep-read | zone-reports/Z3.a.md#llm_output_integrity.py | Z 初审 |
+| src/shenbi/pipeline/machine.py | deep-read | zone-reports/Z3.a.md#machine.py | Z 初审 |
+| src/shenbi/pipeline/parallel_dispatch.py | deep-read | zone-reports/Z3.a.md#parallel_dispatch.py | Z 初审 |
+| src/shenbi/pipeline/plan_skeleton.py | deep-read | zone-reports/Z3.a.md#plan_skeleton.py | Z 初审 |
+| src/shenbi/pipeline/review_checklist.py | deep-read | zone-reports/Z3.a.md#review_checklist.py | Z 初审 |
+| src/shenbi/pipeline/revision_router.py | deep-read | zone-reports/Z3.a.md#revision_router.py | Z 初审 |
+| src/shenbi/pipeline/scr_extractor.py | deep-read | zone-reports/Z3.a.md#scr_extractor.py | Z 初审 |
+| src/shenbi/pipeline/seed_parser.py | deep-read | zone-reports/Z3.a.md#seed_parser.py | Z 初审 |
+| src/shenbi/pipeline/snapshot_diff.py | deep-read | zone-reports/Z3.a.md#snapshot_diff.py | Z 初审 |
+| src/shenbi/pipeline/state.py | deep-read | zone-reports/Z3.a.md#state.py | Z 初审 |
+| src/shenbi/pipeline/state_heal.py | deep-read | zone-reports/Z3.a.md#state_heal.py | Z 初审 |
+| src/shenbi/pipeline/transitions.py | deep-read | zone-reports/Z3.a.md#transitions.py | Z 初审 |
+| src/shenbi/pipeline/triggers.py | deep-read | zone-reports/Z3.a.md#triggers.py | Z 初审 |
+| src/shenbi/pipeline/truth_embed.py | deep-read | zone-reports/Z3.a.md#truth_embed.py | Z 初审 |
+| src/shenbi/pipeline/truth_index.py | deep-read | zone-reports/Z3.a.md#truth_index.py | Z 初审 |
+| src/shenbi/pipeline/truth_io.py | deep-read | zone-reports/Z3.a.md#truth_io.py | Z 初审 |
+| src/shenbi/pipeline/volume_align.py | deep-read | zone-reports/Z3.a.md#volume_align.py | Z 初审 |
+| src/shenbi/pipeline/write_safety.py | deep-read | zone-reports/Z3.a.md#write_safety.py | Z 初审 |
 | src/shenbi/plugins/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/plugins/generate.py | deep-read | zone-reports/Z6.a.md#generate.py | Z6 初审 |
-| src/shenbi/py.typed | unreviewed | — | — |
+| src/shenbi/py.typed | deep-read | zone-reports/Z1.a.md#py.typed | Z 初审 |
 | src/shenbi/records/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/records/drift.py | deep-read | zone-reports/Z6.a.md#drift.py | Z6 初审 |
 | src/shenbi/records/parser.py | deep-read | zone-reports/Z6.a.md#parser.py | Z6 初审 |
-| src/shenbi/recovery.py | unreviewed | — | — |
-| src/shenbi/safe_write.py | unreviewed | — | — |
-| src/shenbi/scoring.py | unreviewed | — | — |
+| src/shenbi/recovery.py | deep-read | zone-reports/Z1.a.md#recovery.py | Z 初审 |
+| src/shenbi/safe_write.py | deep-read | zone-reports/Z1.a.md#safe_write.py | Z 初审 |
+| src/shenbi/scoring.py | deep-read | zone-reports/Z1.a.md#scoring.py | Z 初审 |
 | src/shenbi/skill_utils/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/skill_utils/calibration/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/skill_utils/calibration/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
@@ -1803,8 +1803,8 @@
 | src/shenbi/skill_utils/trope_detection/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/skill_utils/trope_detection/__main__.py | deep-read | zone-reports/Z6.a.md#__main__.py | Z6 初审 |
 | src/shenbi/skill_utils/trope_detection/match_tropes.py | deep-read | zone-reports/Z6.a.md#match_tropes.py | Z6 初审 |
-| src/shenbi/status.py | unreviewed | — | — |
-| src/shenbi/sync_contracts.py | unreviewed | — | — |
+| src/shenbi/status.py | deep-read | zone-reports/Z1.a.md#status.py | Z 初审 |
+| src/shenbi/sync_contracts.py | deep-read | zone-reports/Z1.a.md#sync_contracts.py | Z 初审 |
 | src/shenbi/text/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
 | src/shenbi/text/cjk.py | deep-read | zone-reports/Z6.a.md#cjk.py | Z6 初审 |
 | src/shenbi/trace/__init__.py | deep-read | zone-reports/Z6.a.md#__init__.py | Z6 初审 |
