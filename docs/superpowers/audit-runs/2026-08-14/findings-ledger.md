@@ -211,3 +211,17 @@
 | F522 | resonance_trend.md 写侧（`_build_resonance_trend_row` 无 header 7 列行）与 `compute_drift.parse_trend`（要求 header 行含维度名）格式不兼容 → parse_trend 恒返回空，volume-decline 检测永不触发 | 格式兼容性（跨区：Z6/skill_utils） | P2 | 见 Z5.review2.md#F522 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F523 | `_diff_records` 对无 id 记录按 `str(None)` 键合并：id-less 记录的新增/删除在 record 级 diff 中静默掩盖 | 边界/错误处理 | P2 | 见 Z5.review2.md#F523 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F524 | `audit_writes` 内部 `_declared_patterns` 不带 chapter 调 `derive_output_files` → 全部 chapter-parametric 写模式被 genesis 过滤（resolve_or_skip→None）→ declared=[] → 所有章节文件判"未声明写入"假阳性 GATE_FAIL（确定性，非边角） | 审计正确性 | P2 | 见 Z5.review2.md#F524 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F345 | 并行审计波完全绕过 G3（scoring independence）——6 个 audit skill 均 requires_independent=True | 契约违反 | P1 | 见 Z3.review3.md#F345 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F346 | truth_index._HOOK_ID_RE 不匹配生产带连字符 hook id（MH-001/H-N01）→ master hooks 从 Route A 检索静默缺失 | error | P2 | 见 Z3.review3.md#F346 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F347 | 生产 hook 数据格式与上下文"伏笔债务简报"解析全错位：简报恒"(无)" | error | P2 | 见 Z3.review3.md#F347 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F348 | SharedAuditContext 缓存注入与审计契约 reads 错位——缓存对预期目标近乎死线 | optimization | P2 | 见 Z3.review3.md#F348 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F349 | MODIFY 派生的 truth re-dispatch 无重试预算/无升级：持续失败时每次 step 迭代重复重发 | error | P2 | 见 Z3.review3.md#F349 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F350 | 每章无条件创建 chapter-N-pre-rev.md 备份（即使 route=no-revision 无 revision 发生） | optimization | M | 见 Z3.review3.md#F350 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F351 | API JSON 模式未传 response_format，依赖提示词合规 + 回退解析（非合规输出先失败一次再重试） | error | M | 见 Z3.review3.md#F351 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F352 | dispatch_skill 的 timeout 形参死代码（三条路径均用 _compute_dispatch_timeout） | optimization | M | 见 Z3.review3.md#F352 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F440 | g0.py G0.3/G0.12 的 jload ValueError 未捕获 → gate_G0 崩溃（F431 家族在 g0.py 的 2 处漏网） | error | P2 | 见 Z4.review3.md#F440 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F441 | G0.14 deps.json 为合法非 dict JSON → AttributeError 崩溃（json.loads 直读后未校验即 .get） | error | P2 | 见 Z4.review3.md#F441 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F442 | g4_length_normalizing 未实现 SKILL.md 压缩双底线（≥25% 原始长度）→ 过度压缩静默通过 | error | P2 | 见 Z4.review3.md#F442 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F443 | g1.check_fields_exist 死代码：仅测试引用，gate_G1 与生产均未接线（B.4 字段软检查未生效） | dead-wire | P2 | 见 Z4.review3.md#F443 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F444 | G3.3 output_files 读取层级与 progress.json 实际结构不匹配 → G3.3 恒 SKIP，G2 复查死路（测试用非生产形状掩盖） | error | P1 | 见 Z4.review3.md#F444 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F445 | shared.unimplemented() 无调用方（死代码） | dead-wire | M | 见 Z4.review3.md#F445 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
