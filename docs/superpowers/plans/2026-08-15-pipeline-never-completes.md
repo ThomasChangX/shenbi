@@ -113,16 +113,6 @@ def test_kr_subranges_excluded_negative_acceptance(tmp_path):
         assert is_volume_boundary(ch, proj)
 
 
-def test_english_formats_regression():
-    """回归护栏：既有英文格式解析行为不变（parser 单元，非 skill 场景）。"""
-    text = "## Volume 1\n\nChapter End: 15\n\n## Volume 2\n\nChapters 16-35\n"
-    assert read_volume_boundaries(_fake_proj(tmp_text=text) if False else Path("/nonexistent")) == set() if False else None
-    # 上行占位不可执行——直接用文本级：英文路径经 read_volume_boundaries 需项目布局，
-    # 用 tmp 项目承载：
-```
-
-（注：最后一个测试在 Step 2 实际写为——）
-
 ```python
 def test_english_formats_regression(tmp_path):
     """回归护栏：既有英文格式解析行为不变（END_RE 全文优先、命中即短路
@@ -843,6 +833,8 @@ def _build_skill_prompt(
 
 ```python
 # executor.py dispatch()（:161-162）与 dispatch_with_write_audit()（:242）：
+# （dispatch() 有 keyword-only chapter 形参；dispatch_with_write_audit() 无——
+#  那里去掉 `if chapter is None:` 守卫直接三行式：path_ctx 解析 → chapter 取 ctx → 回落 extract）
 
     from shenbi.contracts.paths import parse_path_context
 
@@ -911,7 +903,7 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 ```bash
 mkdir -p tests/fixtures/snapshot-dir
 ls novel-output/xinghuo-ranqiong/snapshots/*.md | head -2 | xargs -I{} cp {} tests/fixtures/snapshot-dir/
-ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬全量 51 个 ~10MB）
+ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬全量 52 个 ~10MB）
 ```
 
 - [ ] **Step 1: 写失败测试**
@@ -1264,30 +1256,41 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
 # 接线级测试（追加到 tests/pipeline/test_closure_context.py）：
 
 def test_escalation_genesis_wiring(tmp_path, monkeypatch):
-    """F3B5 接线：chapter=None 的 escalation 派发 prompt 含 genesis 哨兵行。"""
+    """F3B5 接线：chapter=None 的 escalation 派发传 genesis 哨兵 ctx（行注入在
+    dispatch_skill 入口——mock 断言 kwarg 侧，非 prompt 侧）。"""
+    from shenbi.contracts.paths import PathContext
     from shenbi.pipeline import revision_router as rr
 
     captured = {}
-    monkeypatch.setattr(
-        rr, "dispatch_skill",
-        lambda skill, pd, prompt, **kw: captured.update(prompt=prompt) or type("R", (), {"success": True})(),
-    )
+    def fake(skill, pd, prompt, **kw):
+        captured.update(kw)
+        return type("R", (), {"success": True})()
+    monkeypatch.setattr(rr, "dispatch_skill", fake)
     assert rr.dispatch_escalation(tmp_path, None, "ctx") is True
-    assert "[path-context] escalation=genesis" in captured["prompt"]
+    assert captured.get("path_context") == PathContext(escalation="genesis")
 
 
 def test_anchor_curate_wiring(tmp_path, monkeypatch):
-    """F380 接线：genesis step 16 的派发 prompt 含 anchor=1（AC-001 哨兵）。"""
+    """F380 接线：genesis step 16 的派发传 anchor ctx（kwarg 侧断言；其余步骤不传）。"""
+    from shenbi.contracts.paths import PathContext
     from shenbi.pipeline import genesis as gs
+    from shenbi.pipeline.state import PipelineState
 
-    prompts = []
-    monkeypatch.setattr(
-        gs, "dispatch_skill",
-        lambda skill, pd, prompt, **kw: prompts.append((skill, prompt)) or type("R", (), {"success": True})(),
-    )
-    # 驱动 genesis step 16 派发路径（以 run_genesis_step 的 step 16 分支或其派发函数为准）
-    # 断言：anchor-curate 步骤的 prompt 含 "[path-context] anchor=1"，
-    # 且其余步骤 prompt 不含该行（条件注入，非全局拼接）。
+    captured: list[tuple[str, dict]] = []
+    def fake(skill, pd, prompt, **kw):
+        captured.append((skill, kw))
+        return type("R", (), {"success": True})()
+    monkeypatch.setattr(gs, "dispatch_skill", fake)
+    monkeypatch.setattr(gs, "run_gate_g4", lambda *a, **k: {"status": "PASS"})
+    monkeypatch.setattr(gs, "_update_indexes", lambda *a, **k: None)  # anchor-curate 在 _INDEX_UPDATE_SKILLS（genesis.py:103）
+
+    state = PipelineState.default(str(tmp_path))
+    state.genesis.current_step = 16  # step 16 = shenbi-anchor-curate（genesis.py:78）
+    gs.run_genesis_step(state, tmp_path)
+    anchor_calls = [kw for skill, kw in captured if skill == "shenbi-anchor-curate"]
+    assert anchor_calls and anchor_calls[0].get("path_context") == PathContext(anchor=1)
+    others = [kw for skill, kw in captured if skill != "shenbi-anchor-curate"]
+    assert all(kw.get("path_context") is None for kw in others)  # 条件注入，非全局拼接
 ```
 
 （anchor 测试的驱动入口以 genesis.py step 16 派发结构为准——若为内联 dispatch 则提取 `_dispatch_genesis_step(step, project_dir)` 后测；**注入必须条件化于 anchor-curate 步骤**，不得全局拼进每个 genesis prompt。）
@@ -1736,15 +1739,44 @@ def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) ->
 ```
 
 ```python
-# cli.py cmd_review REJECT 分支（:528-531 之后、clear_checkpoint 之前）追加调用：
+# cli.py cmd_review —— REJECT 的 _apply_reject_redo **唯一调用点**：
+# 在既有 feedback 读取（cli.py:533-535）之后、clear_checkpoint（:537）之前：
 
-            elif decision == ReviewDecision.REJECT:
-                from shenbi.pipeline.checkpoint import clear_staging
+            feedback = None
+            if args.feedback:
+                feedback = Path(args.feedback).read_text(encoding="utf-8")
 
-                clear_staging(project_dir)
+            if decision == ReviewDecision.REJECT:
+                _apply_reject_redo(state, cp, feedback=feedback)  # 游标作用于 cp 快照
+            clear_checkpoint(state, decision)
 ```
 
-（顺序：redo 游标在 clear_checkpoint 之前作用于 cp 快照；BOOK_CLOSURE 的既有转移逻辑不动。）
+（REJECT elif 内仍先 `clear_staging(project_dir)`（现状 :528-531 不动）；redo 在 clear_checkpoint 前；BOOK_CLOSURE 的既有转移逻辑不动。**接线级测试**（否则 helper 是死代码——plan 审查 R5-C1）：
+
+```python
+def test_cmd_review_reject_wired(tmp_path, monkeypatch):
+    """F340 接线：cmd_review REJECT 路径真实调用 _apply_reject_redo。"""
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.machine import set_checkpoint
+    from shenbi.pipeline.state import CheckpointType, PipelineState
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    state = PipelineState.default(str(proj))
+    state.genesis.current_step = 17
+    set_checkpoint(state, CheckpointType.GENESIS_COMPLETE)
+
+    saved = {}
+    monkeypatch.setattr(cli_mod, "save_state", lambda pd, st: saved.setdefault("step", st.genesis.current_step))
+    monkeypatch.setattr(cli_mod, "emit_json", lambda payload: None)
+    monkeypatch.setattr(cli_mod, "load_state", lambda pd: state)
+    # args/argparse 以 cmd_review 实际入口驱动（decision="reject"）；断言：
+    rc = cli_mod.cmd_review(_Args(decision="reject", feedback=None, project_dir=str(proj)))
+    assert rc in (0, None)
+    assert state.genesis.current_step == 16  # redo 游标真实生效（经 cmd_review 路径）
+```
+
+（`_Args` 为轻量 argparse.Namespace 替身；cmd_review 的实际参数面/加载路径以 cli.py 为准——若经 `main()` 子命令入口则 monkeypatch 入口层。断言核心是「不经 helper 直调、走 cmd_review 后游标回退」。）
 
 ```python
 # cli.py _orchestrate_to_checkpoint —— 函数体包一层（缩进整体函数体）：
