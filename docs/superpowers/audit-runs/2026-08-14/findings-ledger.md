@@ -128,7 +128,7 @@
 | F429 | G1.4 在 gate 内写 .bak（AGENTS.md 纯验证契约偏离） | contract | P2 | 见 Z4.review.md#F429 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F430 | g4_foreshadowing_track G4.ft.changes 判定过松：正文出现"操作"一词即 PASS | error | P2 | 见 Z4.review.md#F430 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F324 | 生产 volume_map 中文格式与全部解析器不匹配：卷边界系统、closure 转换、卷上下文、计划骨架全线静默失效 | error | P0 | 见 Z3.review.md#F324 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F325 | step 16 revision 双重门控矛盾：`_any_audit_has_findings` 扫描旧式审计文件名，BLOCKING 路由后 revision 仍被跳过（审计 BLOCKING 永不修复） | error | P1 | 见 Z3.review2.md（误报，已撤销）| 复核发现：group contract writes 声明旧式路径、磁盘 722 旧式审计文件、BLOCKING 必命中 | 实证 | 误报撤销 | — | deep-read | false-positive |
+| F325 | step 16 revision 双重门控矛盾（_any_audit_has_findings 扫描旧式名 vs 生产旧式名真实存在）——误报已撤销 | error | P1 | 见 Z3.review2.md | 复核反证：group contract writes 即旧式路径、磁盘 722 审计文件全旧式名、BLOCKING 必被裸子串命中 → revision 会执行 | load_contract 实证 | 误报撤销 | — | deep-read | false-positive |
 | F326 | 并行 post-draft 违反 write_safety WRITE_SHARED 串行不变量：lifecycle 与 state-settling 并发写 truth/pending_hooks.md（lost-update 竞态） | error | P1 | 见 Z3.review.md#F326 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F327 | §6.3 决策树未接线：decide_revision 无生产调用；route_chapter_revision 忽略 blocking；resonance floor 仅 log 不决策 | error | P2 | 见 Z3.review.md#F327 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F328 | CONDITIONAL_STEPS 从未被迭代（intent-management/drift-guidance/snapshot-manage 每章门控死代码）+ 自适应触发死簇 | optimization | P2 | 见 Z3.review.md#F328 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -269,7 +269,7 @@
 | F640 | materialize_progress 的输入契约（INIT/MARK_DONE 事件）在生产中零生产者 → 任何调用都静默用"全 pending"视图覆盖真实 progress.json（数据丢失 + 错误结果） | dead-wire + 数据损坏 | P1 | 见 Z6.review5.md#F640 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F641 | records `_values_equal` 布尔比较孔：YAML 布尔 `true` 与 md 表 `"true"` 比较 → 假 drift（block ship） | 边界/比较缺陷 | P2 | 见 Z6.review5.md#F641 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F642 | check_opening_similarity 比较的是 META 指令块而非正文开头：真实章节对 (45,46) 相似度 0.627 > 0.6 阈值 → F602 一旦接线即假阳性触发 opening-variation 指令 | 统计口径（F634 同根第三消费方） | P2 | 见 Z6.review5.md#F642 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F364 | atexit 紧急清理在每次正常进程退出时无条件清空 staging/——人审通过的 plan/truth 永不被提交，pipeline 卡死于 chapter-planning 循环 | error | P1 | 见 Z3.review5.md#F364 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F364 | atexit 紧急清理在每次正常进程退出时无条件清空 staging/——人审通过的 plan/truth 永不被提交，pipeline 卡死于 chapter-planning 循环 | error | P0 | 见 Z3.review5.md#F364 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F365 | STATE_SETTLE MODIFY 重跑不重设 checkpoint：重跑结果悬空不提交、重审门被静默跳过（`_advance` 的 STATE_SETTLE 分支本身即死代码） | error | P2 | 见 Z3.review5.md#F365 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F366 | 5 个 PipelineConfig 死旋钮零消费者：genesis_review_required / volume_boundary_review_required / style_learning_interval / context_budget_override / snapshot_retention_chapters | optimization | P2 | 见 Z3.review5.md#F366 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F367 | step 2 chapter-planning 的 context assembly 恒读不存在的当章 plan → 每章恒失败走 minimal fallback + 一次无效 curation | error | M | 见 Z3.review5.md#F367 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
