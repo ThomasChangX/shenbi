@@ -761,7 +761,7 @@
 | F1114 | outline-example.md:7 目标字数 100000（10 万）vs goal-prompt.md:3,71 / concepts.md:39 "20 万字"（20 万）——同星火燃穹字量不一致 | error | M | 见 zone-reports/Z9.md#F1114 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1115 | specs/INDEX.md:80 "97 个已完成 spec" vs 实际 98 个 spec .md 文件（90 顶层 + 8 子目录）；:4 "已归档 99" vs 100 总文件/91 顶层条目（F0-04 精确化） | error | M | 见 zone-reports/Z9.md#F1115 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1116 | command-to-give.md:1 引用 `docs/superpowers/plans/2026-06-11-test-framework.md`，该 plan 已归档至 `plans/archive/`（路径断链，F0-05 同族） | error | M | 见 zone-reports/Z9.md#F1116 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F1300 | 5 章正文被 revision 摘要整体覆写（ch2/9/12/44/55）——交付物级数据损坏 | 数据损坏（D4 产物侧） | P0 | 见 zone-reports/Z11.md#F1300 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1300 | 5 章正文被 revision 摘要整体覆写（ch2/9/12/44/55）——交付物级数据损坏 | 数据损坏（D4 产物侧） | P0 | 见 zone-reports/Z11.md#F1300 + Z11.review.md（G6 复查：正文残留 grep `山风裹着铁锈味` 实为 2 文件——chapter-2-continuity.md + chapter-2-resonance.md，初审报告只列前者） | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1301 | 章节头契约零符合：56/56 无 `# Chapter N:` 头 | 显式契约违反 | P1 | 见 zone-reports/Z11.md#F1301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1302 | 6 章无 META 块 + ch40 用 `## META` YAML 替代 `<!--META-BEGIN-->` | 显式契约违反 | P1 | 见 zone-reports/Z11.md#F1302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1303 | DEBUG_USE_MANUAL_CREATE.md 暴露手动创建路径：decisions.json 的"Extra data"来源 | 写路径绕过（Z11-01 根因之一） | P1 | 见 zone-reports/Z11.md#F1303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
