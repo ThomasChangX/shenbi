@@ -847,9 +847,10 @@ def _build_skill_prompt(
     from shenbi.contracts.paths import parse_path_context
 
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
-    if chapter is None:
-        chapter = extract_chapter(prompt)
+    if chapter is None:  # kwarg 优先（显式 chapter= 调用方不受 prompt 行影响）
+        chapter = path_ctx.chapter if path_ctx is not None else None
+        if chapter is None:
+            chapter = extract_chapter(prompt)
     # derive_input_files(skill, chapter=chapter, ...) → 加 ctx=path_ctx
     # derive_output_files(skill, chapter=chapter, ...) → 加 ctx=path_ctx
     # _audit_watch_paths(skill, chapter, ...) → 加 ctx=path_ctx（write-audit 盲区，
@@ -1154,7 +1155,7 @@ def test_closure_prompt_build_all_steps(tmp_path):
             step.skill, proj, prompt, ctx.chapter if ctx else None, path_context=ctx
         )
         assert outs, f"step {step.step_num} produced no output paths"
-        assert all("N" not in o.replace("NNN", "") or "-N" not in o for o in outs), outs
+        assert all("-N" not in o and "NNN" not in o for o in outs), outs  # 无未解析占位符
 
 
 def test_escalation_genesis_sentinel(tmp_path):
@@ -1255,8 +1256,41 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
         # Genesis escalation: book-level sentinel (spec #6 F3B5) — resolves
         # audits/escalation-N-report.md to the genesis artifact name.
         path_ctx = PathContext(escalation="genesis")
-    disp = dispatch_skill("shenbi-escalation-review", project_dir, prompt, path_context=path_ctx)
+    disp = dispatch_skill(ESCALATION_SKILL, project_dir, prompt, path_context=path_ctx)
+    # （ESCALATION_SKILL 为该模块既有常量，勿硬编码技能名）
 ```
+
+```python
+# 接线级测试（追加到 tests/pipeline/test_closure_context.py）：
+
+def test_escalation_genesis_wiring(tmp_path, monkeypatch):
+    """F3B5 接线：chapter=None 的 escalation 派发 prompt 含 genesis 哨兵行。"""
+    from shenbi.pipeline import revision_router as rr
+
+    captured = {}
+    monkeypatch.setattr(
+        rr, "dispatch_skill",
+        lambda skill, pd, prompt, **kw: captured.update(prompt=prompt) or type("R", (), {"success": True})(),
+    )
+    assert rr.dispatch_escalation(tmp_path, None, "ctx") is True
+    assert "[path-context] escalation=genesis" in captured["prompt"]
+
+
+def test_anchor_curate_wiring(tmp_path, monkeypatch):
+    """F380 接线：genesis step 16 的派发 prompt 含 anchor=1（AC-001 哨兵）。"""
+    from shenbi.pipeline import genesis as gs
+
+    prompts = []
+    monkeypatch.setattr(
+        gs, "dispatch_skill",
+        lambda skill, pd, prompt, **kw: prompts.append((skill, prompt)) or type("R", (), {"success": True})(),
+    )
+    # 驱动 genesis step 16 派发路径（以 run_genesis_step 的 step 16 分支或其派发函数为准）
+    # 断言：anchor-curate 步骤的 prompt 含 "[path-context] anchor=1"，
+    # 且其余步骤 prompt 不含该行（条件注入，非全局拼接）。
+```
+
+（anchor 测试的驱动入口以 genesis.py step 16 派发结构为准——若为内联 dispatch 则提取 `_dispatch_genesis_step(step, project_dir)` 后测；**注入必须条件化于 anchor-curate 步骤**，不得全局拼进每个 genesis prompt。）
 
 ```python
 # genesis.py anchor-curate 派发点（step 16 的 dispatch 调用，genesis.py:302 一带）：
@@ -1695,7 +1729,7 @@ def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) ->
         # 重跑当章**修订**而非整章（plan 审查 R2-I4：整章回滚会重复触发 prev_ch
         # 卷边界 fan-out 且 chapter_states 残留；modify_feedback 单发会被 N+1 章
         # 首步错吃）。经 DERIVED_TRUTH_MAP 新增条目 + feedback 入队：
-        _queue_re_dispatches(state, cp)  # 命中新增的 PER_CHAPTER 条目
+        _queue_re_dispatches(state, cp, feedback=feedback)  # 命中新增的 PER_CHAPTER 条目
     elif cp.type == CheckpointType.ESCALATION:
         _reset_retry_budget(state, cp)  # failing step re-runs with fresh budget
     # BOOK_CLOSURE: handled by the existing transition below.
@@ -1708,7 +1742,6 @@ def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) ->
                 from shenbi.pipeline.checkpoint import clear_staging
 
                 clear_staging(project_dir)
-                _apply_reject_redo(state, cp)  # 移到下方既有 feedback 读取之后调用（传 feedback）
 ```
 
 （顺序：redo 游标在 clear_checkpoint 之前作用于 cp 快照；BOOK_CLOSURE 的既有转移逻辑不动。）
@@ -1772,6 +1805,7 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
         # auto 已提交 staging：镜像串行分支 _advance 尾部的完成判定（chapter_loop.py:1121-1123）——
         # 并行 settling 分支停在 step 8/16，无条件补章会跳过 9-16 步（分组审计/修订路由/快照/drift）
         if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            # 防御性镜像（上游 :2693-2694 已查同一条件，此处通常不触发）
             return _complete_chapter(state, chapter)  # 2 参签名（chapter_loop.py:896）
         return False  # 下一轮编排跑 step 9+
     # review_required：保持原 set_checkpoint(STATE_SETTLE, ...) 路径
