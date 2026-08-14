@@ -125,14 +125,20 @@ def test_english_formats_regression():
 
 ```python
 def test_english_formats_regression(tmp_path):
-    """回归护栏：既有英文格式解析行为不变（parser 单元，非 skill 场景）。"""
-    proj = tmp_path / "en"
-    (proj / "outline").mkdir(parents=True)
-    (proj / "outline" / "volume_map.md").write_text(
-        "## Volume 1\n\nChapter End: 15\n\n## Volume 2\n\nChapters 16-35\n",
-        encoding="utf-8",
+    """回归护栏：既有英文格式解析行为不变（END_RE 全文优先、命中即短路
+    RANGE_RE——两格式混排时只取 END 结果，这是现状语义，本 task 不改）。"""
+    end_only = tmp_path / "en1"
+    (end_only / "outline").mkdir(parents=True)
+    (end_only / "outline" / "volume_map.md").write_text(
+        "## Volume 1\n\nChapter End: 15\n", encoding="utf-8"
     )
-    assert read_volume_boundaries(proj) == {15, 35}
+    assert read_volume_boundaries(end_only) == {15}
+    range_only = tmp_path / "en2"
+    (range_only / "outline").mkdir(parents=True)
+    (range_only / "outline" / "volume_map.md").write_text(
+        "## Volume 1\n\nChapters 16-35\n", encoding="utf-8"
+    )
+    assert read_volume_boundaries(range_only) == {35}
 ```
 
 - [ ] **Step 3: 跑测试确认失败**
@@ -313,6 +319,8 @@ def update_total_chapters(project_dir: Path) -> int:
     return new_total
 ```
 
+（malformed novel.json 防御：函数体包 `try: data = json.loads(...) except (json.JSONDecodeError, ValueError): return 0`——保留 cli 旧实现的护栏语义。）
+
 ```python
 # genesis.py —— 成功块（:352 _update_indexes 之后、retry_counts.pop 之前）：
 
@@ -372,10 +380,53 @@ def _update_total_chapters(state: PipelineState) -> None:
     update_total_chapters(Path(state.project_dir))
 ```
 
-- [ ] **Step 4: 跑测试确认通过 + 全 pipeline 测试回归**
+- [ ] **Step 4: 跑测试确认通过 + 全 pipeline 测试回归（含 unit/pipeline）**
 
-Run: `uv run pytest tests/pipeline/test_total_chapters.py tests/pipeline/ -v`
-Expected: 新 4 passed；既有 pipeline 套件零回归
+Run: `uv run pytest tests/pipeline/test_total_chapters.py tests/pipeline/ tests/unit/pipeline/test_triggers.py -v`
+Expected: 新 4 passed；**既有测试迁移**（见 Step 3b）后零回归
+
+- [ ] **Step 3b: 既有测试迁移（同 task 内完成）**
+
+`tests/unit/pipeline/test_triggers.py:496-553` 的 `TestTotalChaptersRecompute` 断言被删除的 `_count_total_chapters` 求和语义（`章节数: 10+15+12`）——spec R2 明确统一为 max(boundaries) 口径，旧断言随之失效：
+- 删除 `test_count_total_chapters_from_volume_map` 等 3 个直引 `_count_total_chapters` 的测试
+- `test_update_total_chapters_updates_novel_json` 改写为委托语义：构造 boundaries 场景（如 `Chapter End: 18`）断言 `novel.json.total_chapters == 18`
+- 类 docstring 注明「2026-08-15 R2 统一口径：sum(章节数) → max(boundaries)」
+
+- [ ] **Step 4b: 真实接线测试（heal 钩子在 orchestrate/genesis 的实际位置）**
+
+```python
+def test_heal_wired_in_orchestrate(monkeypatch, tmp_path):
+    """I9: heal 的 5 行插桩真实生效（非仅内联复现）——驱动 _orchestrate_to_checkpoint。"""
+    import shutil as _sh
+
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    proj = tmp_path / "proj"
+    (proj / "outline").mkdir(parents=True)
+    _sh.copy(FIXTURE, proj / "outline" / "volume_map.md")
+    (proj / "novel.json").write_text(json.dumps({"title": "x"}), encoding="utf-8")
+
+    state = PipelineState.default(str(proj))
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 57
+    state.chapter_loop.step_index = 0
+
+    calls = {}
+    monkeypatch.setattr(
+        "shenbi.pipeline.chapter_loop.run_chapter_step",
+        lambda *a, **k: calls.setdefault("run", 0) or None,
+    )
+    # check_triggers 需在 heal 之后拿到的 total==100 下被调用（heal 生效的观测点）
+    monkeypatch.setattr(
+        "shenbi.pipeline.triggers.check_triggers",
+        lambda st, ch, total: calls.setdefault("total_seen", total) or _Noop(),
+    )
+    cli_mod._orchestrate_to_checkpoint(state, proj)
+    assert calls.get("total_seen") == 100  # heal 在守卫前写入
+```
+
+（`check_triggers` patch 目标以 cli 的实际 import 路径为准；`_Noop` 为带 `any_triggered()->False`/`book_closure=False` 属性的哑对象。genesis 钩子接线以 `grep -n "genesis_finalize_volume_map" src/shenbi/pipeline/genesis.py` 命中调用点为静态验收。）
 
 - [ ] **Step 5: Commit**
 
@@ -655,7 +706,7 @@ def test_run_triggered_skills_wires_context_and_g4_paths(tmp_path, monkeypatch):
     from shenbi.pipeline.triggers import TriggerResult
 
     result = TriggerResult()
-    result.arc_cycle = True
+    result.l2_distill = True  # 字段名已核对 triggers.py:139（无 arc_cycle）
     ok = run_triggered_skills(state, proj, 60, result)
     assert ok is True
 
@@ -667,7 +718,7 @@ def test_run_triggered_skills_wires_context_and_g4_paths(tmp_path, monkeypatch):
     assert ("shenbi-memory-distill", ["truth/arcs/arc-5.md"]) in g4
 ```
 
-（`TriggerResult` 字段名以 `triggers.py` 实际定义为准——实现时先读 `class TriggerResult` 再定 `arc_cycle` 字段名；测试断言不变。）
+（`run_gate_g3` 的 patch 目标是 `shenbi.pipeline.dispatch_helper.run_gate_g3`——triggers 在循环体内 `from ... import run_gate_g3` 延迟导入，patch 源模块属性即生效；本测试只开 `l2_distill`（无 requires_g3 步骤）可不 patch。）
 
 ```python
 def test_derive_input_files_per_family():
@@ -686,6 +737,23 @@ def test_derive_output_files_per_family():
     ctx = build_trigger_context(60, {15, 35, 55, 75, 100})
     writes = derive_output_files("shenbi-score-arc", chapter=60, ctx=ctx)
     assert "audits/arc-5-score.md" in writes
+
+
+def test_trigger_flow_prompt_lists_arc5_paths(tmp_path, monkeypatch):
+    """M19：R4 验收「Files to create 列 arc-5」——触发流全链（prompt 构建）断言。"""
+    from shenbi.pipeline import triggers as trg
+    from shenbi.pipeline.dispatch_helper import _build_skill_prompt
+    from shenbi.contracts.paths import build_trigger_context, format_path_context
+
+    proj = _mk_project(tmp_path)
+    ctx = build_trigger_context(60, read_volume_boundaries(proj))
+    prompt = f"Execute shenbi-score-arc for chapter 60. Project dir: {proj}\n{format_path_context(ctx)}"
+    system, user, outs = _build_skill_prompt(
+        "shenbi-score-arc", proj, prompt, 60, path_context=ctx
+    )
+    assert "audits/arc-5-score.md" in outs
+    assert "arc-60" not in user
+    assert "truth/arcs/arc-5.md" in user  # 读路径同样经 ctx（I5）
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -763,6 +831,13 @@ def _build_skill_prompt(
 （API/IDE 两处把 `path_ctx` 透传给 `_build_skill_prompt(..., path_context=path_ctx)`；子进程路由 :1853 只需 chapter 修正——契约解析发生在子进程内，由 executor 侧同款 parse 接住。）
 
 ```python
+# dispatch_helper.py :581 reads 循环同步接 ctx（I5：否则 arc 读路径仍解析成
+# arc-60.md → "[binary or unreadable]" 垃圾注入 prompt）：
+
+        resolved = resolve_or_skip_ctx(read_path, chapter, path_context)
+```
+
+```python
 # executor.py dispatch()（:161-162）与 dispatch_with_write_audit()（:242）：
 
     from shenbi.contracts.paths import parse_path_context
@@ -771,8 +846,10 @@ def _build_skill_prompt(
     chapter = path_ctx.chapter if path_ctx is not None else None
     if chapter is None:
         chapter = extract_chapter(prompt)
-    # derive_input_files(skill, chapter=chapter, ...) 全部改为
-    # derive_input_files(skill, chapter=chapter, ctx=path_ctx, ...)
+    # derive_input_files(skill, chapter=chapter, ...) → 加 ctx=path_ctx
+    # derive_output_files(skill, chapter=chapter, ...) → 加 ctx=path_ctx
+    # _audit_watch_paths(skill, chapter, ...) → 加 ctx=path_ctx（write-audit 盲区，
+    #   spec R4 点名 executor.py:220-225）
 ```
 
 ```python
@@ -824,6 +901,13 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 - Consumes: T3 `PathContext`（step 10 NNN→最终章号）
 - Produces: `g4_generic_generative` 目录分支（snapshot 类：存在+≥1 文件+manifest 命名条目；非 snapshot：存在+≥1 文件）；`_closure_snapshot_dir(project_dir: Path) -> str`
 
+- [ ] **Step 0: 建 snapshot fixture**
+
+```bash
+mkdir -p tests/fixtures/snapshot-dir && cp novel-output/xinghuo-ranqiong/snapshots/*.md tests/fixtures/snapshot-dir/ | head -3 || true
+ls tests/fixtures/snapshot-dir | wc -l   # ≥1 真实快照产物
+```
+
 - [ ] **Step 1: 写失败测试**
 
 ```python
@@ -835,7 +919,8 @@ from pathlib import Path
 
 from shenbi.gates.g4.generic import g4_generic_generative
 
-_PROD_SNAP = Path("novel-output/xinghuo-ranqiong/snapshots")
+# fixture：生产 snapshots/（crash_recovery 真实产物）拷贝至 tests/fixtures/snapshot-dir/
+_SNAP_FIXTURE = Path(__file__).resolve().parent.parent / "fixtures" / "snapshot-dir"
 
 
 def _result(raw: str) -> dict:
@@ -846,7 +931,7 @@ def test_dir_with_files_and_manifest_passes(tmp_path):
     d = tmp_path / "snapshots" / "chapter-100"
     d.mkdir(parents=True)
     # 真实快照产物拷贝（生产 snapshots/ 为 crash_recovery 平铺真实产物）
-    srcs = sorted(_PROD_SNAP.glob("*.md"))[:2]
+    srcs = sorted(_SNAP_FIXTURE.glob("*.md"))[:2]
     for s in srcs:
         shutil.copy(s, d / s.name)
     (d / "manifest.json").write_text('{"files": []}', encoding="utf-8")
@@ -857,10 +942,10 @@ def test_dir_with_files_and_manifest_passes(tmp_path):
 def test_snapshot_dir_without_manifest_fails(tmp_path):
     d = tmp_path / "snapshots" / "chapter-100"
     d.mkdir(parents=True)
-    shutil.copy(sorted(_PROD_SNAP.glob("*.md"))[0], d / "snap.md")
+    shutil.copy(sorted(_SNAP_FIXTURE.glob("*.md"))[0], d / "snap.md")
     r = _result(g4_generic_generative([str(d)]))
     assert r["status"] == "FAIL"
-    assert any("manifest_missing" in m for m in r.get("issues", r.get("missing", [])))
+    assert any("manifest_missing" in m for m in r["must_fix"])  # fail() 实际键（gates/shared.py:125-135）
 
 
 def test_characters_dir_no_manifest_required(tmp_path):
@@ -893,7 +978,9 @@ def test_closure_snapshot_dir_resolution(tmp_path):
     assert _closure_snapshot_dir(proj) == "snapshots/chapter-100/"
 ```
 
-（断言键名以 `fail()`/`passed()` helper 实际返回结构为准——实现时先读 `gates/shared.py` 再校正测试断言键。）
+（断言键已核对：`fail()` 返回 `gate/status/timestamp/checks/blocked_action/must_fix`——gates/shared.py:125-135。）
+
+**fixture 真实性（I10，G0.9 边界裁定）**：目录内容文件从生产 `novel-output/xinghuo-ranqiong/snapshots/`（crash_recovery 真实产物）拷贝至 `tests/fixtures/snapshot-dir/`（禁 CWD 相对路径直读生产目录）；`manifest.json` 由测试按钉死的契约文件名构造——**裁定理由**：目录检查器是框架门禁代码，其单测的 manifest 是门内部输入而非 skill 产物场景断言（G0.9 管 scenario 输入须为真实 skill 输出）；真实 snapshot-manage 格式的目录 fixture 属 #26 接线验收（届时由真实技能运行产出）。此裁定记入 spec-deviations。
 
 - [ ] **Step 2: 跑测试确认失败**
 
@@ -935,11 +1022,12 @@ Expected: FAIL — 目录走 `read_text` → `read_error`；`_closure_snapshot_d
 ```
 
 ```python
-# closure.py 新增 helper + _resolve_closure_g4_path 接入：
+# closure.py 新增 helper + _resolve_closure_g4_path 接入（模块头部 import
+# PathContext from shenbi.contracts.paths）：
 
 def _closure_snapshot_dir(project_dir: Path) -> str:
     """Final-chapter snapshot dir, NNN resolved from novel.json total (spec #6 R3)."""
-    from shenbi.contracts.paths import resolve_contract_path
+    from shenbi.contracts.paths import PathContext, resolve_contract_path
     from shenbi.pipeline.cli import _read_total_chapters
 
     total = _read_total_chapters(project_dir)
@@ -974,11 +1062,12 @@ Expected: 5 passed；契约 lints 绿；generate 幂等（diff 为空）
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/generic.py src/shenbi/pipeline/closure.py skills/shenbi-snapshot-manage/SKILL.md docs/skills deps.json tests/pipeline/test_g4_directory.py
+git add src/shenbi/gates/g4/generic.py src/shenbi/pipeline/closure.py skills/shenbi-snapshot-manage/SKILL.md tests/fixtures/snapshot-dir tests/pipeline/test_g4_directory.py
+# + just generate 的实际产出（git status 查看，禁手改内容）
 git commit -m "fix: parameterized G4 directory checker + contract-aligned closure snapshot path (F371) — manifest pinned in skill contract"
 ```
 
-（`git add` 的生成物路径以 `just generate` 实际改动为准。）
+（`git add` 的生成物路径以 `just generate`（= `uv run shenbi-sync-contracts`）后的 `git status` 实际产出为准——不预设路径清单。）
 
 ---
 
@@ -1067,12 +1156,12 @@ def test_anchor_curate_sentinel(tmp_path):
     from shenbi.contracts.paths import resolve_contract_path
 
     assert (
-        resolve_contract_path("truth/anchors/AC-NNN.md", None, PathContext(anchor=1))
-        == "truth/anchors/AC-001.md"
+        resolve_contract_path("benchmarks/anchors/AC-NNN.md", None, PathContext(anchor=1))
+        == "benchmarks/anchors/AC-001.md"  # 契约前缀已核对 anchor-curate SKILL.md:10
     )
 ```
 
-（`truth/anchors/` 前缀以 anchor-curate SKILL 契约实际 writes 为准——实现时读契约替换。）
+（anchor 前缀已按契约订正为 `benchmarks/anchors/`——anchor-curate SKILL.md:10 与 genesis.py:78 一致。）
 
 - [ ] **Step 2: 跑测试确认失败**
 
@@ -1154,7 +1243,7 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
 ```
 
 ```python
-# genesis.py anchor-curate 派发点（step 16，:78 一带的 dispatch 调用）：
+# genesis.py anchor-curate 派发点（step 16 的 dispatch 调用，genesis.py:302 一带）：
 #   path_context=PathContext(anchor=1)  # AC-NNN → AC-001.md（genesis 表哨兵）
 # （可选跳过路径保留时：跳过必须 log.info("anchor_curate_skipped", reason=...)）
 ```
@@ -1226,16 +1315,14 @@ def test_bridges_aggregate_all_five_sections():
     assert 26 in activations   # vol-1 表
 
 
-def test_vol1_bridge_surfaces_at_26_not_30_for_vol2():
+def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
     b = read_bridges(TEXT)
     at26 = bridges_for_chapter(b, 26)
     at30 = bridges_for_chapter(b, 30)
     at36 = bridges_for_chapter(b, 36)
-    assert any("梵天铭文" in s for s in at26)      # vol-1 行（激活 26-28 → min 26）
-    assert not any("第36章" in s for s in at30) or True  # vol-2 行最早 33（36-3）才浮现
-    assert at36 and any(s for s in at36)           # vol-2 @36 出现
-    vol2_at30 = [s for s in at30 if "废弃设施" in s or "列塔尼亚" in s]
-    assert not vol2_at30                            # vol-2 行 @30 不出现
+    assert any("梵天铭文" in s for s in at26)      # vol-1 行（激活 26-28 → min 26，紧凑区间）
+    assert not any("废弃设施" in s or "师徒信任" in s for s in at30)  # vol-2 行 @30 不出现
+    assert any("废弃设施" in s for s in at36)      # vol-2 行（激活 36/37/46-48）@36 出现
 
 
 def test_sequel_rows_excluded():
@@ -1247,20 +1334,30 @@ def test_sequel_rows_excluded():
             assert "星际探索飞船" not in s
 
 
-def test_volume_context_bilingual(_mk=None):
-    """验收：卷上下文块在中文项目非空（真实卷名）。"""
+def test_volume_context_bilingual(tmp_path):
+    """验收：卷上下文块在中文项目非空（真实卷名，后缀剥离）。"""
     from shenbi.pipeline._shared import _resolve_volume_at_runtime
-    import tempfile
 
-    with tempfile.TemporaryDirectory() as td:
-        proj = Path(td)
-        (proj / "outline").mkdir()
-        (proj / "outline" / "volume_map.md").write_text(TEXT, encoding="utf-8")
-        got = _resolve_volume_at_runtime(proj, 20)
-        assert got is not None
-        name, start, end = got
-        assert name == "第二卷：铁与火"  # 真实卷头名，非 "Volume 2"
-        assert (start, end) == (16, 35)
+    proj = tmp_path / "proj"
+    (proj / "outline").mkdir()
+    (proj / "outline" / "volume_map.md").write_text(TEXT, encoding="utf-8")
+    got = _resolve_volume_at_runtime(proj, 20)
+    assert got is not None
+    name, start, end = got
+    assert name == "第二卷：铁与火"  # 真实卷头名（（第16-35章）后缀已剥），非 "Volume 2"
+    assert (start, end) == (16, 35)
+
+
+def test_context_assemble_volume_block_end_to_end(tmp_path):
+    """M20：卷上下文块的消费端到端（中文项目块非空，Objective 冒号在粗体外可匹配）。"""
+    from shenbi.pipeline.context_assemble import _volume_context_block
+
+    proj = tmp_path / "proj"
+    (proj / "outline").mkdir()
+    (proj / "outline" / "volume_map.md").write_text(TEXT, encoding="utf-8")
+    block = _volume_context_block(TEXT, 20)  # 函数名/签名以 context_assemble.py:226-240 实际为准
+    assert block and "第二卷" in "".join(block) if isinstance(block, list) else block
+    assert "铁与火" in (block if isinstance(block, str) else "".join(block))
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -1276,19 +1373,24 @@ Expected: FAIL — ImportError（read_chapter_node 等不存在）；`_resolve_v
 
 log = get_logger(__name__)
 
-_CN_NODE_ROW_RE_TMPL = r"^\|\s*(?:第\s*{ch}\s*章|{ch})\s*\|([^|]+)\|([^|]+)\|"
+_CN_NODE_ROW_RE_TMPL = r"^[ \t]*\|\s*第\s*{ch}\s*章\s*\|([^|]+)\|([^|]+)\|"
 _BRIDGE_HEADS = ("### 跨卷桥接", "## Cross-Volume Bridges")
 _BRIDGE_ROW_RE = re.compile(
-    r"^\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|"
+    r"^[ \t]*\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|"
 )
 _THIS_BOOK_VOL_RE = re.compile(r"^第\d+卷$")
-_ACT_RANGE_RE = re.compile(r"第\s*(\d+)\s*(?:[-–—~～]\s*第\s*(\d+)\s*)?章")
+# 紧凑区间 `第26-28章`（无第二个「第」）与全形 `第A章 - 第B章` 都要匹配——
+# 生产两形并存（volume_map.md:65/167 实证），第二个「第」必须可选。
+_ACT_RANGE_RE = re.compile(r"第\s*(\d+)\s*(?:[-–—~～]\s*(?:第\s*)?(\d+)\s*)?章")
 
 
 def read_chapter_node(volume_map_text: str, chapter: int) -> dict[str, str] | None:
-    """Extract {role, content} from the `| 第N章 | role | content |` node row
-    (also legacy bare `| N |`). Bridge-table `| 1 |` rows have >3 columns of
-    unrelated shape and are excluded by the 3-column capture."""
+    """Extract {role, content} from the `| 第N章 | role | content |` node row.
+    Rows are indented (nested under `- **章节节点**:`) — leading whitespace
+    tolerated. The bare-`| N |` alternative is deliberately NOT offered: it
+    matches bridge-table `| 1 |` rows (the R6 garbage bug) — legacy English
+    maps use `| 5 |` flush-left rows which the 第-less form would need; if an
+    English map must be supported, scope by table header, not by row shape."""
     m = re.search(_CN_NODE_ROW_RE_TMPL.format(ch=chapter), volume_map_text, re.MULTILINE)
     if m:
         return {"role": m.group(1).strip(), "content": m.group(2).strip()}
@@ -1358,7 +1460,9 @@ def _volume_display_name(text: str, index: int) -> str | None:
     heads = list(_CN_VOL_HEAD_RE.finditer(text))
     if 0 < index <= len(heads):
         line_end = text.find("\n", heads[index - 1].start())
-        return text[heads[index - 1].start() + 3 : line_end].strip().lstrip("# ").strip()
+        raw = text[heads[index - 1].start() + 3 : line_end].strip().lstrip("# ").strip()
+        # `（第A-B章）` 后缀是生产巧合非卷名——剥掉（plan 审查 I8）
+        return re.sub(r"[（(][^）)]*[）)]\s*$", "", raw).strip()
     return None
 ```
 
@@ -1529,7 +1633,7 @@ def _reset_retry_budget(state: PipelineState, cp) -> None:
     state.closure_retry_counts.clear()
 
 
-def _apply_reject_redo(state: PipelineState, cp) -> None:
+def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) -> None:
     """REJECT = redo the step that raised the checkpoint (spec #6 F340).
     Full CheckpointType coverage; BOOK_CLOSURE keeps its existing transition."""
     if cp.type == CheckpointType.CHAPTER_MEMO:
@@ -1542,9 +1646,12 @@ def _apply_reject_redo(state: PipelineState, cp) -> None:
     elif cp.type == CheckpointType.VOLUME_BOUNDARY:
         state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
     elif cp.type == CheckpointType.PER_CHAPTER:
-        if cp.chapter is not None:
-            state.chapter_loop.current_chapter = cp.chapter  # re-run that chapter
-        state.chapter_loop.step_index = 0
+        # 重跑当章**评审**而非整章（plan 审查 I7：整章回滚会使 orchestrate 守卫
+        # 对 prev_ch 重复触发卷边界 fan-out，且 chapter_states 残留 complete 状态）——
+        # 复用 MODIFY 的 _queue_re_dispatches 机制携 feedback 重派评审产物。
+        if feedback:
+            state.chapter_loop.modify_feedback = feedback
+        _queue_re_dispatches(state, cp)
     elif cp.type == CheckpointType.ESCALATION:
         _reset_retry_budget(state, cp)  # failing step re-runs with fresh budget
     # BOOK_CLOSURE: handled by the existing transition below.
@@ -1557,7 +1664,7 @@ def _apply_reject_redo(state: PipelineState, cp) -> None:
                 from shenbi.pipeline.checkpoint import clear_staging
 
                 clear_staging(project_dir)
-                _apply_reject_redo(state, cp)
+                _apply_reject_redo(state, cp, feedback=getattr(args, "feedback", None) and Path(args.feedback).read_text(encoding="utf-8"))
 ```
 
 （顺序：redo 游标在 clear_checkpoint 之前作用于 cp 快照；BOOK_CLOSURE 的既有转移逻辑不动。）
@@ -1614,7 +1721,7 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     return True
 ```
 
-调用点（并行 settling 处）：`if _auto_settle_parallel(state, project_dir, chapter): return True`（或继续流程，与原 fall-through 语义一致——以 2690-2715 实际控制流为准），删除无条件 `set_checkpoint(STATE_SETTLE)` 于 auto 场景。
+调用点（并行 settling 处）：`_auto_settle_parallel(state, project_dir, chapter)` 返回后**继续**原控制流（`return False` 语义——auto 提交后落到章节完成检查，与串行分支 fall-through 一致；不提前 return True 暂停 next），删除 auto 场景的无条件 `set_checkpoint(STATE_SETTLE)`。
 
 - [ ] **Step 4: 跑测试确认通过 + 回归**
 
@@ -1666,3 +1773,5 @@ git commit -m "docs(spec): #6 acceptance sweep recorded — H1 boundaries {15,35
 1. **Spec coverage**：R1→T1；R2（双写点+heal+收敛）→T2；R3（检查器+契约+characters/）→T5；R4（表+四消费者+通道）→T3/T4；R5（ctx+closure 表+F3B5/F380）→T6；R6（三消费方+全段聚合+续作谓词+卷上下文）→T7；F340/F341/F304→T8；回归→T9。验收覆盖表 13 行全落 task。F313 由 T6（step 6 ctx）+T4（`_resolve_closure_g4_path` 接表）双覆盖。
 2. **Placeholder scan**：T2/R2-(i) 与 T4 的 TriggerResult 字段名、T8 的 `_auto_settle_parallel` 提取、T5 的 fail() 返回键——均标注「以实际代码为准，实现时先读再写」，非 TBD：断言目标已定，仅键名待核对（实现轮第一步即读源码校正，属核对非设计留白）。
 3. **Type consistency**：`PathContext` 字段在 T3 定义后 T4/T5/T6 引用一致（chapter/arc/stratum/volume/anchor/escalation）；`update_total_chapters(project_dir: Path) -> int` 在 T2 定义、cli/triggers 委托签名一致；`_closure_snapshot_dir` 在 T5 定义、T6 引用。
+
+**Plan 审查第 1 轮修订（4C/8I/8M 全修，2026-08-15）**：T7 桥接区间正则补可选第二「第」（紧凑形 `第26-28章` 实证）；T7 节点行正则容缩进并弃裸 `| N |` 备选（桥接表垃圾）；T1 英文回归期望改两独立单格式（END_RE 命中即短路 RANGE_RE 是现状语义）；T2 增 Step 3b 迁移 `TestTotalChaptersRecompute`（sum→max 语义换代）+ Step 4b orchestrate 真实接线测试 + JSONDecodeError 护栏；T4 reads 循环接 ctx + `_audit_watch_paths`/`derive_output_files` 点名 + TriggerResult 字段钉 `l2_distill` + 触发流 prompt 全链断言；T5 断言键钉 `must_fix` + fixture 入 tests/fixtures/snapshot-dir + manifest G0.9 边界裁定；T6 anchor 前缀钉 `benchmarks/anchors/`；T7 卷名剥后缀 + 消费端到端测试；T8 PER_CHAPTER 改 `_queue_re_dispatches` 机制（避触发重复 fan-out）+ `_auto_settle_parallel` 返回后继续控制流；Self-Review F313 归属订正为 T6（T4 无 closure 文件）。
