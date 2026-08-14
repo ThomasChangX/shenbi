@@ -557,3 +557,12 @@
 | T814 | **calibration README 过期**："No anchors are authored yet"与 27 个锚点现状矛盾；README schema 要求"Never invented or hand-crafted"，与锚点实际手写矛盾 | error | M | 见 thread-reports/T8.md#T814 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T815 | **G0.14 双重实现漂移**：lock-tool-hashes.sh（无 CRLF 规范化、无 sort by relative path）vs g0.py check_calibration_integrity（有 CRLF 规范化、有 sort）vs test_g0_calibration_hash.py _compute_combined（镜像 gate）——Windows CRLF checkout 下重新 lock 会产生与 gate 不一致的哈希 → G0.14 假 FAIL | error | P2 | 见 thread-reports/T8.md#T815 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T816 | **chapter-draft-example.md 身份漂移**：同一文件被 139 处 scenario 引用为 chapter 5/6/7/8/10/15…（互相矛盾），audit-report-example.md 自述"第1章"；文件自身 H1 在第1章与第2章之间漂移（ch2-draft 标题"第2章"vs example 标题"毕业即失业与穿越即负债"） | error | P2 | 见 thread-reports/T8.md#T816 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1101 | mutmut 按仓库配置结构性不可运行；基线文档归因错误 | error | P2 | 见 thread-reports/T11.md#T1101 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1102 | mutation-score.txt 非基线；`just mutate-check`/compare_mutation_score.py 恒 exit 2 死工具 | error | P2 | 见 thread-reports/T11.md#T1102 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1103 | 突变分数下界 59.6%（exceptions 41.1% / logging 58.6% / shared 63.3%），未达宣称 P-3 80% | error | P2 | 见 thread-reports/T11.md#T1103 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1104 | `[tool.mutmut] paths_to_mutate` 弃用（mutmut 3.6 应 `source_paths`） | error | M | 见 thread-reports/T11.md#T1104 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1105 | G0.8/G0.9/G0.9c 只扫 `scenario.md`，`scenario-pressure.md` 免疫——6 个压力场景 5 个含同款非 fixture 路径引用 | error | P2 | 见 thread-reports/T11.md#T1105 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1106 | 压力场景计数错误（简报 7 个 vs 实际 6 个）+ 场景非自包含（需手工构造虚构项目）、无 runner、无自动化执行证据 | error | M | 见 thread-reports/T11.md#T1106 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1107 | `tests/benchmark/` 空洞（仅 `__init__.py`）；唯一 benchmark 测试是 `1+1` 冒烟；`norecursedirs "tests/benchmarks"`（复数）指向不存在目录 | error | P2 | 见 thread-reports/T11.md#T1107 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1108 | gate-outputs 差分基线陈旧（2026-06-15）且无 enforcement；G6/G7 基线因 round-001 目录消失而不可再生 | error | P2 | 见 thread-reports/T11.md#T1108 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1109 | `tests/golden/` 空洞确认（README 声称 10-20 章，目录仅 README；P1.8 验收"≥10 章人工评分"未实现；0 消费方） | error | P2 | 见 thread-reports/T11.md#T1109 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
