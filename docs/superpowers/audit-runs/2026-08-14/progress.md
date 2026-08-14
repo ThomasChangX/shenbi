@@ -42,3 +42,7 @@
 ### 2026-08-14 会话 1（续 2）
 - Z3.review2 迟到通知核验：F325 撤销 / F305 降回 P2 已生效；发现 F343/F344（M 级）漏录 → 补录台账（行 177-178），final-report 统计 761→763（M 155→157，P2 483→481 顺带修正，verified 635→637）
 - 复核实测：pipeline/cli.py:294-296 传 int 0 vs genesis.py:246 传 None（F343）；write_safety.py:24-25 注释 vs chapter_loop.py:187 lifecycle 并发路径（F344）
+
+### 2026-08-14 会话 1（续 3）
+- Z4.review3 迟到通知核验：F440-F445 全部已登记（F440/F441 merged-into-F431；F442/F443/F445 verified；F444 P1 specced）
+- 发现 F444（P1）台账标 specced 但无 spec 引用 → 补 gate-effectiveness-design.md R9（G3.3 output_files 层级错位恒 SKIP，含 F419/F431 家族 except 附带修复）

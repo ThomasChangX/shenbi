@@ -37,6 +37,10 @@
 - 证据：phase_runner.py:216 G4 第 3 参传 round_dir，T2 输出在 `<round-dir>/project-output/` → 11 个 rp.read checker 恒 not_found → T2 永久阻塞
 - 修复：传 project-output；**验收：T2 相位机全技能 G4 PASS**
 
+## R9 · G3.3 output_files 层级错位恒 SKIP（F444, P1；同族 R1/R2）
+- 证据：g3.py:151-153 `skills.get(skill,{}).get("output_files",[])` 在 skill 层读，全部生产 progress 写入方均在 test_type 层（codex.py:40-46 / materialize.py:66-67 / run_gate_g3 伪造无 skills 键；g_reconcile.py:36-40 按 `[skill][test_type]` 解析同一结构）→ "G3.3 Output files passed G2" 复查在所有已知生产形状下恒 SKIP；tests/unit/gates/test_g3.py:118/220 用非生产形状（skill 层 output_files）钉死代码路径，掩盖死路
+- 修复：改读 `skills.get(skill,{}).get(test_type or "generative",{}).get("output_files",[])`；测试改用生产形状；**附带**：修复后 gate_G2 对非 dict JSON 抛的 ValueError（F419/F431 家族）将穿透 g3.py:188 except（仅 JSONDecodeError/OSError）→ 一并加 ValueError；**验收：生产形状 progress + output_files → G3.3 实际执行（非 SKIP）**
+
 ## 补充（同批次）
 - **F402（P1）**：g4_length_normalizing 用未解析路径计字数（:29 解析 pf vs :35 用原始 fp）→ rd+相对路径崩溃；改 `word_count_md(pf)` + 补回归测试
 - **F158（P1）**：phase_runner phase 参数未净化拼接进状态文件路径（load_state/save_state `f"{phase}.json"`）→ `../` 穿越写出 round_dir；净化 phase 参数（白名单或路径安全校验）
