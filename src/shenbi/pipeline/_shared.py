@@ -21,6 +21,7 @@ __all__ = [
     "_BRIDGE_ACTIVATION_WINDOW",
     "_END_RE",
     "_RANGE_RE",
+    "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
     "read_volume_boundaries",
 ]
@@ -40,6 +41,35 @@ _RANGE_RE = re.compile(
     r"(?:chapters?|ch)\s*(\d+)\s*[-\u2013\u2014~\u301c]\s*(\d+)",
     re.IGNORECASE,
 )
+
+# Chinese volume format (production): volume header `## 第N卷：{卷名}` with the
+# volume-level range line `**章节范围**: 第A章 - 第M章（共K章）`. KR-level lines
+# are list-dash-prefixed (`- **章节范围**`) and excluded by the line-start anchor;
+# the `| 段 | 章节范围 |` tension-table column never matches the bolded pattern.
+_CN_VOL_HEAD_RE = re.compile(
+    r"^##\s*第[0-9一二三四五六七八九十百]+卷\s*[：:]",
+    re.MULTILINE,
+)
+_CN_VOL_RANGE_LINE_RE = re.compile(
+    r"^\*\*章节范围\*\*.*?第\s*(\d+)\s*章\s*[-\u2013\u2014~\u301c]\s*第\s*(\d+)\s*章",
+    re.MULTILINE,
+)
+
+
+def _read_cn_volume_boundaries(text: str) -> set[int]:
+    """Volume-scoped Chinese parse: per ``## 第N卷:`` section, only the first
+    line-start ``**章节范围**`` range line counts (its end chapter M).
+    """
+    boundaries: set[int] = set()
+    for m in _CN_VOL_HEAD_RE.finditer(text):
+        section = text[m.end() :]
+        nxt = _CN_VOL_HEAD_RE.search(section)
+        if nxt:
+            section = section[: nxt.start()]
+        rm = _CN_VOL_RANGE_LINE_RE.search(section)
+        if rm:
+            boundaries.add(int(rm.group(2)))
+    return boundaries
 
 
 def read_volume_boundaries(project_dir: Path | str) -> set[int]:
@@ -70,6 +100,10 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
     if not boundaries:
         for m in _RANGE_RE.finditer(text):
             boundaries.add(int(m.group(2)))
+
+    # Chinese volume-scoped fallback (production format, spec #6 R1).
+    if not boundaries:
+        boundaries = _read_cn_volume_boundaries(text)
 
     return boundaries
 
