@@ -25,6 +25,7 @@ __all__ = [
     "_RANGE_RE",
     "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
+    "read_total_chapters",
     "read_volume_boundaries",
     "update_total_chapters",
 ]
@@ -115,6 +116,19 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
         boundaries = _read_cn_volume_boundaries(text)
 
     return boundaries
+
+
+def read_total_chapters(project_dir: Path) -> int:
+    """Read novel.json.total_chapters (0 when absent/malformed/not yet set)."""
+    novel_path = project_dir / "novel.json"
+    if not novel_path.exists():
+        return 0
+    try:
+        data = json.loads(novel_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError):
+        return 0
+    total = data.get("total_chapters", 0)
+    return int(total) if isinstance(total, (int, float)) else 0
 
 
 def update_total_chapters(project_dir: Path) -> int:

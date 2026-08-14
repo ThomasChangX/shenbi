@@ -33,6 +33,22 @@ def g4_generic_generative(
         if not p.exists():
             mf.append(f"G4.gen.not_found:{fp_path}")
             continue
+        if p.is_dir():
+            # Directory outputs (spec #6 R3): snapshot-family dirs require a
+            # manifest-named entry (filename authority: snapshot-manage SKILL
+            # contract); non-snapshot dirs (characters/) check existence +
+            # content only. Pure read-only validation.
+            entries = [e for e in p.iterdir() if e.is_file()]
+            if not entries:
+                mf.append(f"G4.gen.dir_empty:{fp_path}")
+                continue
+            if "snapshot" in fp_path.replace("\\", "/").lower() and not any(
+                "manifest" in e.name.lower() for e in entries
+            ):
+                mf.append(f"G4.gen.manifest_missing:{fp_path}")
+                continue
+            c.append({"id": f"G4.gen.dir.{Path(fp_path).name}", "s": "PASS", "files": len(entries)})
+            continue
         if p.stat().st_size == 0:
             mf.append(f"G4.gen.empty:{fp_path}")
             continue

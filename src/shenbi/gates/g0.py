@@ -13,6 +13,12 @@ log = get_logger(__name__)
 MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/outline-example.md": "outline-example.md",
     "tests/fixtures/volume-map-xinghuo.md": "novel-output/xinghuo-ranqiong/outline/volume_map.md",
+    "tests/fixtures/snapshot-dir/chapter-005-20260715T232231.md": (
+        "novel-output/xinghuo-ranqiong/snapshots/chapter-005-20260715T232231.md"
+    ),
+    "tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md": (
+        "novel-output/xinghuo-ranqiong/snapshots/chapter-006-20260715T234925.md"
+    ),
 }
 
 

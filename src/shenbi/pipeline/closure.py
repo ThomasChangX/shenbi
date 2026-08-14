@@ -112,7 +112,7 @@ CLOSURE_STEPS: list[ClosureStep] = [
     ClosureStep(
         10,
         "shenbi-snapshot-manage",
-        "final-snapshot/",
+        "snapshots/chapter-NNN/",  # contract-aligned (was final-snapshot/, spec #6 R3)
     ),
 ]
 
@@ -145,6 +145,21 @@ def _current_volume(project_dir: Path) -> int:
     return len(boundaries) if boundaries else 1
 
 
+def _closure_snapshot_dir(project_dir: Path) -> str:
+    """Final-chapter snapshot dir, NNN resolved from novel.json total (spec #6 R3).
+
+    Returns "" when the total is unknown — G4 then receives no file (SKIP),
+    never a fabricated chapter-000 directory.
+    """
+    from shenbi.contracts.paths import PathContext, resolve_contract_path
+    from shenbi.pipeline._shared import read_total_chapters
+
+    total = read_total_chapters(project_dir)
+    if total <= 0:
+        return ""
+    return resolve_contract_path("snapshots/chapter-NNN/", total, PathContext(chapter=total))
+
+
 def _resolve_closure_g4_path(step: ClosureStep, project_dir: Path) -> str:
     """Resolve the output path for G4 validation, substituting N (I5).
 
@@ -153,6 +168,8 @@ def _resolve_closure_g4_path(step: ClosureStep, project_dir: Path) -> str:
     """
     if not step.output_path:
         return ""
+    if step.step_num == 10:
+        return _closure_snapshot_dir(project_dir)  # dir contract path (spec #6 R3)
     if "N" in step.output_path:
         vol = _current_volume(project_dir)
         return resolve_volume_path(step.output_path, vol)
@@ -290,7 +307,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
         set_checkpoint(
             state,
             CheckpointType.BOOK_CLOSURE,
-            artifact="final-snapshot/",
+            artifact=_closure_snapshot_dir(project_dir),
             context=(
                 "Review final book before completion. Check: all hooks "
                 "RESOLVED, protagonist arc complete, three-layer conflicts "

@@ -132,16 +132,10 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
 
 
 def _read_total_chapters(project_dir: Path) -> int:
-    """Read total_chapters from novel.json (0 when not yet determined)."""
-    novel_path = project_dir / "novel.json"
-    if not novel_path.exists():
-        return 0
-    try:
-        data = json.loads(novel_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, ValueError):
-        return 0
-    total = data.get("total_chapters", 0)
-    return int(total) if isinstance(total, (int, float)) else 0
+    """Delegate to _shared.read_total_chapters (single source, spec #6 R2/R3)."""
+    from shenbi.pipeline._shared import read_total_chapters
+
+    return read_total_chapters(project_dir)
 
 
 def _update_total_chapters(project_dir: Path) -> int:

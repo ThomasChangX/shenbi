@@ -15,6 +15,8 @@ contract:
   writes:
   - file: snapshots/chapter-NNN/*
     mode: create_or_overwrite
+  - file: snapshots/chapter-NNN/manifest.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -28,7 +30,7 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/*.md, characters/**/*.md, world/*.md, outline/*.md, plans/chapter-N-plan.md, style/style_profile.md, chapters/chapter-N.md
-- **Writes:** snapshots/chapter-NNN/*
+- **Writes:** snapshots/chapter-NNN/*, snapshots/chapter-NNN/manifest.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
