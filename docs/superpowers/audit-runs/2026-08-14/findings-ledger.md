@@ -741,3 +741,24 @@
 | F1114 | outline-example.md:7 目标字数 100000（10 万）vs goal-prompt.md:3,71 / concepts.md:39 "20 万字"（20 万）——同星火燃穹字量不一致 | error | M | 见 zone-reports/Z9.md#F1114 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1115 | specs/INDEX.md:80 "97 个已完成 spec" vs 实际 98 个 spec .md 文件（90 顶层 + 8 子目录）；:4 "已归档 99" vs 100 总文件/91 顶层条目（F0-04 精确化） | error | M | 见 zone-reports/Z9.md#F1115 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1116 | command-to-give.md:1 引用 `docs/superpowers/plans/2026-06-11-test-framework.md`，该 plan 已归档至 `plans/archive/`（路径断链，F0-05 同族） | error | M | 见 zone-reports/Z9.md#F1116 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1300 | 5 章正文被 revision 摘要整体覆写（ch2/9/12/44/55）——交付物级数据损坏 | 数据损坏（D4 产物侧） | P0 | 见 zone-reports/Z11.md#F1300 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1301 | 章节头契约零符合：56/56 无 `# Chapter N:` 头 | 显式契约违反 | P1 | 见 zone-reports/Z11.md#F1301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1302 | 6 章无 META 块 + ch40 用 `## META` YAML 替代 `<!--META-BEGIN-->` | 显式契约违反 | P1 | 见 zone-reports/Z11.md#F1302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1303 | DEBUG_USE_MANUAL_CREATE.md 暴露手动创建路径：decisions.json 的"Extra data"来源 | 写路径绕过（Z11-01 根因之一） | P1 | 见 zone-reports/Z11.md#F1303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1304 | Z11-01 根因确认：83/145 decisions.json 无效，成因=写路径绕过 + G4 从未收到 .json | 校验洞（根因级） | P1 | 见 zone-reports/Z11.md#F1304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1305 | 57/145 可解析但 schema 违反：producer 模板零 schema 编码 | schema 违反（producer 侧） | P1 | 见 zone-reports/Z11.md#F1305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1306 | revision-decisions 触发 34/56 但 `_ensure_revision_decisions_exists` 兜底写入的"minimal"文件仍违反 schema | 边界/死代码 | P2 | 见 zone-reports/Z11.md#F1306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1307 | 根 `truth/`（bridge_tracker.md + character_matrix.md）与 truth-files.yaml 三源分裂 | 契约/信源断裂 | P1 | 见 zone-reports/Z11.md#F1307 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1308 | staging truth 与正式 truth 内容不一致（pending_hooks 9886 vs 4171） | 数据漂移 | P2 | 见 zone-reports/Z11.md#F1308 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1309 | progress.json 内容空壳：仅 scorer 字段，无任何进度 | 显式契约违反（F640 生产实证） | P1 | 见 zone-reports/Z11.md#F1309 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1310 | pipeline 永不完成状态实证：closure=pending、closure_step=0、total_chapters 缺位 | 显式契约违反（簇 1 实证） | P1 | 见 zone-reports/Z11.md#F1310 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1311 | audit_reports 状态记录与磁盘 117 个审计文件脱节（resonance+review-summary 全缺） | 状态/产物不一致 | P2 | 见 zone-reports/Z11.md#F1311 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1312 | 双 resonance gate-marker：`G4-review-resonance-generative.json` 为验证运行写入的污染 marker | 报告冗余/污染 | P2 | 见 zone-reports/Z11.md#F1312 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1313 | token ledger 缺席：cost/token-ledger.jsonl 不存在，F302 死接线预测验证 | 数据缺失（F302 实证） | P1 | 见 zone-reports/Z11.md#F1313 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1314 | audits 722 无内容重复，但 texture 维度配置=true 而磁盘 0 文件 + sensitivity 双发（F329 实证） | 边界/优化 | P2 | 见 zone-reports/Z11.md#F1314 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1315 | ch56 审计不完整：6/13 维缺失（dialogue/motivation/resonance/review-summary/sensitivity/world-rules）+ ch56 无 audit_reports 记录 | 边界 | P2 | 见 zone-reports/Z11.md#F1315 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1316 | config-change-log.jsonl 单条无操作条目（old=true/new=true）且时间戳晚于运行结束 | 日志异常 | P2 | 见 zone-reports/Z11.md#F1316 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1317 | write-audit/trace.jsonl 记录与 GATE_FAIL 语义一致但 root truth 残留仍落盘 | 边界 | P2 | 见 zone-reports/Z11.md#F1317 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1318 | .hypothesis "Examples ARE committed" 声明失效：43 个 example 全未跟踪（F861 复验+计数漂移） | 契约违反（声明 vs 现实） | M | 见 zone-reports/Z11.md#F1318 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1320 | DEBUG_USE_MANUAL_CREATE.md 计数漂移（1226 vs 1229；marker 21 vs 22；snapshots 52 vs 51） | 文案 | M | 见 zone-reports/Z11.md#F1320 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1321 | plan-decisions 全部滞留 staging（55 个），plans/ 零 decisions；ch54 缺 plan-decisions | 契约不一致 + 产物滞留（T1-05 实证） | P2 | 见 zone-reports/Z11.md#F1321 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
