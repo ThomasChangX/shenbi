@@ -741,6 +741,9 @@
 | F1017 | 缺陷证据格式引用缺失/死引用：review-character 空白引用；review-pacing 引用不存在的 skills/_shared/REVIEW_EVIDENCE.md | error | P2 | 见 zone-reports/Z8-c.md#F1017 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1018 | 多处 "spec §X.Y" 引用无命名文档，唯一可匹配文档为归档 plan（positive-quality-gates） | error | P2 | 见 zone-reports/Z8-c.md#F1018 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1022 | shenbi-state-settling/truth-files-reference.md 文件清单过期不完整（遗漏 9 个契约中 truth 文件）且"增量更新"原则与 replace-mode 冲突 | error | P2 | 见 zone-reports/Z8-c.md#F1022 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1019 | shenbi-score-volume 铁律 3 "从 book_spine.md (L5) 读 themes/master hooks" 行号引用过期：L5 是 frontmatter 结束符，themes 实际在 ~L17-21、master hooks 在 ~L31-42 | docs | M | 见 zone-reports/Z8-c.md#F1019 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1020 | shenbi-chapter-pattern 熵计算输出模板 "第A-Ⓣ章" 全角符号误用（Ⓣ 应为半角 T） | docs | M | 见 zone-reports/Z8-c.md#F1020 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1021 | shenbi-book-spine-init HARD-GATE 语句重复（"（worldbuilding + character + story-architecture + volume-outlining）完成后、逐章循环开始前执行。"同一分句重复两次） | docs | M | 见 zone-reports/Z8-c.md#F1021 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1100 | D2 漂移：deterministic spec :18 引用 `2026-06-22-positive-quality-gates.md:7`，实际文件为 `...-gates-design.md`（缺 `-design` 后缀），且 :7 非分层表（分层表在 :63） | error | P2 | 见 zone-reports/Z9.md#F1100 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1101 | D2 漂移：deterministic spec :102 引用 `dispatch_helper.py:1030-1037` 为 append_dedup caller-责任文档，实际该注释在 :1059-1065 | error | P2 | 见 zone-reports/Z9.md#F1101 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1102 | output-side spec :52 声称 "genre circle 加 review-character"，但 GENRE_ACTIVATION_MATRIX（audit_layer.py:44-53）无 character 键（character 属 core-circle） | error | M | 见 zone-reports/Z9.md#F1102 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
