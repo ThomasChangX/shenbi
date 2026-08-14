@@ -145,31 +145,10 @@ def _read_total_chapters(project_dir: Path) -> int:
 
 
 def _update_total_chapters(project_dir: Path) -> int:
-    """Re-read volume_map.md and update novel.json.total_chapters.
+    """Delegate to _shared.update_total_chapters (single source, spec #6 R2)."""
+    from shenbi.pipeline._shared import update_total_chapters
 
-    Called after volume-boundary expansion so the chapter-loop termination
-    check reflects the revised count (spec \u00a74.2 [I3], \u00a76.5). Returns the
-    new total, or 0 when the volume map cannot be read.
-    """
-    from shenbi.pipeline._shared import read_volume_boundaries
-
-    boundaries = read_volume_boundaries(project_dir)
-    if not boundaries:
-        return 0
-    new_total = max(boundaries)
-    novel_path = project_dir / "novel.json"
-    if not novel_path.exists():
-        return 0
-    try:
-        data = json.loads(novel_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, ValueError):
-        return 0
-    data["total_chapters"] = new_total
-    from shenbi.safe_write import safe_write
-
-    safe_write(novel_path, json.dumps(data, indent=2, ensure_ascii=False))
-    log.info("total_chapters_updated", total_chapters=new_total)
-    return new_total
+    return update_total_chapters(project_dir)
 
 
 def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
@@ -216,6 +195,13 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
             cl = state.chapter_loop
             if cl.step_index == 0 and cl.current_chapter > 1:
                 total = _read_total_chapters(project_dir)
+                if total <= 0:
+                    # Mid-book heal (spec #6 R2): in-flight projects past
+                    # genesis never re-run the step-6 hook — recompute before
+                    # the guard or the self-lock persists (56-chapter case).
+                    from shenbi.pipeline._shared import update_total_chapters
+
+                    total = update_total_chapters(project_dir)
                 if total > 0:
                     prev_ch = cl.current_chapter - 1
                     result = check_triggers(state, prev_ch, total)

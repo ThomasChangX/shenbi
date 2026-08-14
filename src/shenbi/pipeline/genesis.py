@@ -267,6 +267,21 @@ def _handle_failure(
     return True
 
 
+def genesis_finalize_volume_map(project_dir: Path) -> int:
+    """Deterministic total_chapters fixtation hook (spec #6 R2).
+
+    Runs at genesis step-6 success: no LLM involvement, no later genesis step
+    rewrites volume_map (GENESIS_STEPS verified). Delegates to the single
+    write-point in _shared.update_total_chapters.
+    """
+    from shenbi.pipeline._shared import update_total_chapters
+
+    total = update_total_chapters(project_dir)
+    if total:
+        log.info("genesis_total_chapters_fixed", total_chapters=total)
+    return total
+
+
 def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     """Execute the next genesis step.
 
@@ -350,6 +365,8 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Success: refresh retrieval indexes, reset retries, advance cursor.
     if step.skill in _INDEX_UPDATE_SKILLS:
         _update_indexes(project_dir, step.skill)
+    if step.skill == "shenbi-volume-outlining":  # step 6: volume map landed (R2)
+        genesis_finalize_volume_map(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
     state.genesis.skills_done.append(step.skill)
     return _advance(state, step_idx)

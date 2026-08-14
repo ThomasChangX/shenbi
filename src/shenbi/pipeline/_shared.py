@@ -1,10 +1,10 @@
 """Volume-map domain shared symbols (Cluster 1 cyclic-import refactor leaf module).
 
-Leaf module: depends only on stdlib (re/pathlib), imports no pipeline cycle
-member (triggers/context_assemble/plan_skeleton/dispatch_helper). The original
-4-node cycle (triggers -> dispatch_helper -> plan_skeleton -> context_assemble
--> triggers) had its back-edge (context_assemble -> triggers) broken by sinking
-the shared volume-map symbols here.
+Leaf module: depends only on stdlib (re/pathlib/json) plus safe_write, imports
+no pipeline cycle member (triggers/context_assemble/plan_skeleton/dispatch_helper).
+The original 4-node cycle (triggers -> dispatch_helper -> plan_skeleton ->
+context_assemble -> triggers) had its back-edge (context_assemble -> triggers)
+broken by sinking the shared volume-map symbols here.
 
 Migrated from: triggers.py (read_volume_boundaries/VOLUME_MAP_PATH/_END_RE/
 _RANGE_RE) + context_assemble.py (_BRIDGE_ACTIVATION_WINDOW/
@@ -13,6 +13,7 @@ _resolve_volume_at_runtime). Behavior unchanged (spec §3.2).
 
 from __future__ import annotations
 
+import json
 import re
 from pathlib import Path
 
@@ -24,6 +25,7 @@ __all__ = [
     "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
     "read_volume_boundaries",
+    "update_total_chapters",
 ]
 
 #: Bridge activation window: chapters before activation to start surfacing bridges.
@@ -112,6 +114,32 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
         boundaries = _read_cn_volume_boundaries(text)
 
     return boundaries
+
+
+def update_total_chapters(project_dir: Path) -> int:
+    """Recompute novel.json.total_chapters := max(read_volume_boundaries()).
+
+    Single write-point semantics for the genesis step-6 hook, mid-book heal,
+    and volume-boundary resume (spec #6 R2). Returns the new total, or 0 when
+    no boundaries parse or novel.json is absent/malformed.
+    """
+    boundaries = read_volume_boundaries(project_dir)
+    if not boundaries:
+        return 0
+    new_total = max(boundaries)
+    novel_path = project_dir / "novel.json"
+    if not novel_path.exists():
+        return 0
+    try:
+        data = json.loads(novel_path.read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError):
+        return 0
+    if data.get("total_chapters") != new_total:
+        data["total_chapters"] = new_total
+        from shenbi.safe_write import safe_write
+
+        safe_write(novel_path, json.dumps(data, ensure_ascii=False, indent=2))
+    return new_total
 
 
 def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, int, int] | None:
