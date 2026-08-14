@@ -1,0 +1,313 @@
+> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟡 P2 | **方法:** systematic-debugging 四阶段
+> **系列:** 2026-08-14 全项目审查（补齐 spec 8/8） | **依赖:** 全部子 spec | **范围:** 全仓库 | **核心洞察:** 287 条 P2 为各家族扩展实例/边界/错误处理/死代码/漂移，按家族统一修复模式批量处置（与 M 批量 spec 同构）
+
+# P2 批量 spec（按区分节）
+
+## 统一修复模式（按家族）
+- **F431 家族（jload ValueError/内层形状崩溃）**：except 元组加 ValueError/TypeError + isinstance 守卫（F440/F441/F459/F460/F465/F470/F471/F477/F485/F488/F489/F493/F497/F4A3 等 merged 实例随 F431 修复）
+- **采样截断家族**：检查语义站点读全文（F494/F496/F499/F4A5 随主条目）
+- **契约漂移/未声明读写**：frontmatter 对齐正文（随 z8-contract-drift spec）
+- **死代码/半接线**：删除或接线（随 tooling-gate-chain / T14 接线矩阵）
+- **路径/参数错位**：改传正确目录/参数（随 gate-effectiveness R3/R8/R9）
+- **错误处理边界**：补 try/except 与结构化信封
+- **验收**：家族主条目修复后对应实例回归测试全过；`just check` 全绿
+
+## Z1-整体层（3 条）
+- **F0-03** gate 文档漂移：overview.md:55 "八道门"、gates.md:3 "8 validation gates"、README "8 道" vs CLI 实际 11 gate（G0-G7+G_TRANSITION+G_DISPATCH+G_RECONCILE），活跃文档 0 引用额外 gate
+- **F0-05** command-to-give.md:48 引用已删除脚本 tests/dispatch-subagent.sh（0f68102 PR-22 删除 shim），执行者照做会失败
+- **F0-06** python 版本三元不一致：requires-python>=3.11 vs mypy python_version=3.12 vs basedpyright pythonVersion=3.11
+## Z1（26 条）
+- **F112** RoundPaths.repo() 无任何调用方（死代码）
+- **F113** phase_runner cmd_pre_skill 的 ContractError 静默吞错：契约损坏时无日志降级为空 reads/writes
+- **F114** phase_runner.run_gate 不捕获 subprocess.TimeoutExpired：60s 门超时 → 状态机 traceback 崩溃而非 FAIL 降级
+- **F116** phase_runner cmd_post_skill 对 G2 FAIL 不阻断（仅记录），与 dispatcher/executor G2 FAIL→return 1 及 command-to-give "G2 失败 = 输出不合格" 冲突
+- **F117** sync_contracts.load_all_contracts 静默跳过 ContractError 技能 → expected_outputs/DAG/index 静默缺失，verify_bijection 同源盲区无法发现
+- **F118** scoring `--phase` 参数被解析但从未使用（死参数）；`--tier` 仅 T1 分支有实际逻辑
+- **F119** safe_write stale-takeover 固定 1 秒退避后无条件 unlink，可破坏活跃锁互斥；flock 失败路径 fd 泄漏
+- **F120** scoring check_gate_markers 的 G4/G6 标记名用 test_type 后缀，gates/cli.py 只写 "-generative" 标记（G4 bug-hunt/clean 分支不写标记）→ 非 generative 评分 + --round-dir 必误报 MARKER_MISSING
+- **F121** phase_runner cmd_post_skill rglob 回退 `[:20]` 静默截断 + 不过滤非输出 .md
+- **F122** phase_runner cmd_pre_score 不追加 step，其余 5 个命令均记录 → phase-state 审计历史不完整
+- **F123** capability_fs.CapabilityFS 无任何生产接线：支柱五"读 provenance 运行时兜底"仅测试消费，模块为生产死代码
+- **F124** phase_runner CLI 无位置参数校验：缺参 → IndexError traceback；flag 被解析为位置参数
+- **F125** command-to-give.md:48 引用不存在的 tests/dispatch-subagent.sh：PR-20 迁移后执行协议断链
+- **F128** phase_runner cmd_post_score 只校验 JSON 语法不校验结构：垃圾 scores 文件（`[]`/`"hello"`/`{"foo":1}`）推进状态机到 SCORED/FINALIZED，注释 "malformed must abort" 未落实
+- **F129** scoring --gate-only 模式 `--type` 尾参 IndexError（:303 无长度守卫，对照 :300 gate_type 有守卫；flag 命名与主路径 --test-type 不一致）
+- **F133** safe_write O_EXCL 释放路径 close(fd)→unlink(lockfile) 非原子：stale-takeover 后释放者 unlink 删除新持有者锁 → 双写者并发丢失更新（与 F108/F119 同区域第三独立缺陷站点）
+- **F134** scoring validate_scores 对空 dimensions rubric 静默放行 → 不可解析 rubric 产出静默 0 分（FAIL）而非 REJECT
+- **F135** scoring validate_scores 对 NaN 分数放行：`{"1": NaN}` 通过 0-100 校验 → final_score NaN 静默
+- **F137** phase_runner cmd_post_skill 经 derive_output_files/derive_file_type 静默吞 ContractError：契约损坏 → G2 SKIP + G4 空文件 vacuous PASS → 相位无校验推进、无日志
+- **F141** scoring validate_scores 对 bool 分数放行：scores.json 中 `true`/`false` 静默按 1/0 计分（isinstance 把 bool 当 int）
+- **F144** phase_runner `load_state` 对 phase-state 文件无形状/类型校验：损坏或非 dict 的状态文件 → 未捕获 JSONDecodeError/KeyError/TypeError 裸 traceback，与其余命令的结构化错误信封不一致
+- **F148** phase_runner cmd_post_skill 对契约声明但磁盘缺失/为空的输出静默丢弃（无日志）：技能未产出任何文件时 G2 SKIP + G4 空文件 vacuous PASS + PASS marker → 相位以 OK 推进
+- **F149** scoring filter_dimensions_by_test_type 对"无维度数字"的排除 scope 静默 no-op：规范 _template rubric 自身的 `Prose/narrative quality \
+- **F150** phase_runner run_gate("G2") 不传 project_dir → G2.7 重要章节 ceiling 判定在相位机路径恒失效（executor 传 REPO_ROOT 亦错）
+- **F156** phase_runner/executor 双路径对混合输出施加单一 derive_file_type：file_type="decisions" 时 G2 decisions 分支整体跳过 .md → 主章 .md 仅过 G2.1-2.3（存在/非空/UTF-8），文档化 G2.4-G2.12 内容校验（字数 G2.6、重要章节 ceiling G2.7、格式 G2.8/2.9、frontmatter G2.5）在管线路径静默不执行
+- **F161** RoundPaths.write() 无任何生产调用方（死代码）：F112 只覆盖了 repo()/backup()，write() 为同一家族第三个遗漏成员
+## Z2（43 条）
+- **F202** contracts/registry.py REGISTRY + load_skill_contract 生产无消费者（仅测试用）
+- **F203** schemas/deps.py DepsDoc + phase_of 未接线；sync_contracts 仍用 json.loads 解析 deps.json
+- **F204** schemas/novel.py NovelConfig 声称 g6 consumer，g6 未 import
+- **F205** schemas/scores.py ScoreReport 声称 g5 consumer，无生产 import
+- **F206** schemas/state.py ProgressDoc/SummaryDoc 从未被加载验证（C3 修复无生效面）
+- **F207** skills/_scoring_base.py ScoreReport + score_arc/stratum/volume 评分契约 dead-wire（M3 修复未接线）
+- **F210** hooks.py 的 SKILL.md 行号引用漂移（超出 ±5）
+- **F211** executor.py SHENBI_G1_SKIP_READS 环境特性零测试覆盖
+- **F212** executor.py run_g1/run_g2 不检查 returncode，stdout 非 JSON 时裸 JSONDecodeError
+- **F213** dispatcher/modes/codex.py 单次 codex exec、无重试/429/finish_reason/并行上限（仅 pipeline 路径有）
+- **F215** codex.py 用 `\{[^{}]*\}` 提取首个"无嵌套花括号"JSON 片段
+- **F217** pacing_design.py CONSTELLATION 区间三处不一致（docstring 20-30 / 代码 15-35 / SKILL.md 15-25）
+- **F219** executor.py 对 ContractError 静默 fail-open：registry 缺失 → 空 inputs → G1 空集真空 PASS → 无上下文派发
+- **F220** ownership.py OWNERSHIP 矩阵仅 6 条参考条目（docstring 自述「支柱一续」），其余技能落 file-level 检查
+- **F221** GenreConfig 缺 tropeInventory 字段且未编码 SKILL.md 规则 1「顶层字段数=8」；SKILL.md/fixture/OWNERSHIP 四源冲突
+- **F222** SHENBI_G1_SKIP_READS 三处实现/消费语义分叉（executor/g1/dispatch_helper），executor 侧零测试
+- **F223** codex.py 协议边界 JSON 处理无防护：shenbi-score stdout 双解析 + final_score 缺省静默 0 + 损坏 progress.json 裸 JSONDecodeError
+- **F224** G3.3「output files passed G2」全仓无生产者 → 永久 SKIP；codex.py _record_completion 写 progress["skills"][skill][test_type]={score,status} 无 output_files 键
+- **F225** 独立 dispatcher（codex 模式）不消费 contract read_fields：Layer B 字段过滤仅 pipeline 生效
+- **F228** derive_output_files/G2 不展开 writes/updates 中的 glob → 9 技能 G2.1 恒失败
+- **F229** derive_file_type 单一 file_type 批处理与异构输出不兼容：(a) chapter 型技能非散文输出误套章节规则；(b) decisions 型技能 .md 散文静默漏套 G2.6-2.10
+- **F230** fields.py `_filter_json` 不做规范化（裸 `k in fields`），与 `_filter_md` 的 canonical rule 不一致——复核轮"md 与 json 同构"断言为误
+- **F231** genre-config 消费侧引用 povMode/sensitivityFlags，但模型/fixture/SKILL.md 规则表/OWNERSHIP 全源无此键——review_checklist 恒空默认、review-group-character 字段过滤恒 escape hatch
+- **F233** ownership.py record_create 的 write_keys 从不校验新增记录键集——plant 可写任意键，_HOOK_KEYS_NEW_RECORD 声明 dead
+- **F234** 整文件删除 owned 文件零违规——check_write_ownership 忽略 FileChange.status
+- **F236** audit/write_audit.py `_matches_declared` 不 fnmatch 声明为 glob 的写入（`truth/*.md` 等 9 技能）→ glob 写入恒判"未声明写入"
+- **F237** compute_file_change 对 added JSON 文件返回空 changed_top_keys → field 级 OWNERSHIP 键集校验对新建文件整体旁路
+- **F238** audit_writes 对 malformed `## hooks` YAML 裸抛 ScannerError/ValueError → dispatcher 审计链崩溃，"崩溃仍审计"保证失效
+- **F239** derive_file_type truth/decisions 分类 glob 盲区：精确字符串交集，`truth/*.md`/`snapshots/chapter-NNN/*` 写者被误归 "chapter"
+- **F240** extract_chapter 仅识别英文 "chapter N"：中文 prompt（框架主语言）→ chapter=None → N/NNN 输出全部丢弃 → standalone G2 整体静默跳过
+- **F241** genre_config 规则 1 approval.decision 缺失/空值时静默 PASS；禁用 非 list / 替换建议 非 dict 时对应规则静默跳过
+- **F242** OWNERSHIP 矩阵 2/6 条目指向 DEPRECATED 技能（plant/track），生产写者 foreshadowing-lifecycle 无条目 → pending_hooks.md 记录级写保护对生产路径空转
+- **F243** 独立 dispatcher 无独立评分者：PR-20 把原 shell 的"独立评分 subagent 派发（G3.4 wrapper）"改为"生成器自评"
+- **F244** G1.4 的 .bak 由 INPUTS 创建、G2.11 对 truth OUTPUTS diff → 输出非输入的 truth-updater G2.11 永不触发
+- **F248** pacing_design.from_markdown 解析失真：chapter_sequence 恒空使「不连续 3 章同类型」规则在 g4 门路径死代码；scene_types 固定词表子串扫描致 g4 误拒/虚增
+- **F249** executor.run_g2 把 PROJECT_DIR（shenbi 仓库根）当 G2 project_dir 传入 → _is_important_chapter 恒 False → 重要章 4500-10000 字被 G2.7 误拒
+- **F250** 独立 dispatcher codex 模式不注入技能定义：codex agent 仅有裸 prompt（无 SKILL.md/契约/rubric），无法产出契约一致输出
+- **F254** executor.run_g1/run_g2 与 codex.dispatch_codex 的 shenbi-score 子进程均无 timeout（仅 codex exec 有 600s）→ standalone 路径门/评分子进程挂起时无限阻塞
+- **F255** derive_file_type 的 REPORT 分支先于 truth 交集返回 → kind=report 且写 truth 概念文件的技能被归 "report"，G2.11 truth 只增不删保护对其静默失效
+- **F260** `_changed_top_keys` 对**新增 null 值键**返回空变更集 → field 级 OWNERSHIP 键集校验对 `{"key": null}` 新增旁路
+- **F262** read_fields 声明与生产者模板系统性漂移（7 文件/5 技能）——含 F218 部分丢弃实锤（book_strata/arc-N「未解决悬置」被静默丢弃）+ F231 同类全漏实例（0/N → 恒 escape hatch）
+- **F266** write_semantics 校验面整体未接线：`mode` 值自由形式无词表校验（拼写错误静默通过）、`append_dedup`/`merge_prose` 声明无框架实现（dispatch_helper 显式 NOT branched、g4 无 checker）、且与 truth 模板 `update_mode:` 词表双轨并行
+- **F269** `_changed_top_keys` 的 JSONDecodeError 路径：owned JSON（genre-config.json）被覆写为非法 JSON 时 field 级键集校验静默旁路（F237/F260 家族的第三个触发面）
+## Z3（52 条）
+- **F305** 审计严重度裸子串检测（"BLOCKING"/"FAIL"）产生误报
+- **F306** audit_context_cache 读错 volume_map 路径 + 章节号子串匹配缺陷
+- **F308** compact_pipeline_state / _archive_chapter_state 死代码（Plan 17 10d 未勾选 TODO 从未接线）
+- **F309** _validate_state_consistency / _heal_current_step 死代码（注释声称 cli.py resume 调用，实际无调用方）
+- **F310** volume_align.py 死模块（与 chapter_loop._check_volume_map_alignment 重复，无生产调用方）
+- **F311** scr_extractor 缓存永不失效：revision 改写章节后 SCR 持续陈旧
+- **F314** bridge 激活窗口包含已激活桥（chapter >= activation - 3 未排除 past-activation）
+- **F315** _merge_step_result / _apply_step_outputs 为 no-op 死线（"单写者合并"实际什么都不做）
+- **F316** revision_router.collect_audit_issues 读原始 glob 无聚合去重（F10 先例未修复）
+- **F317** error_handler 常量与配置耦合：MAX_DISPATCH_RETRIES/MAX_AUDIT_RETRIES 死常量；dispatch 重试上限绑定 max_revision_retries（配置放大隐患）
+- **F319** cmd_review MODIFY 对 PER_CHAPTER 检查点无回滚语义，feedback 泄漏到下一章
+- **F327** §6.3 决策树未接线：decide_revision 无生产调用；route_chapter_revision 忽略 blocking；resonance floor 仅 log 不决策
+- **F328** CONDITIONAL_STEPS 从未被迭代（intent-management/drift-guidance/snapshot-manage 每章门控死代码）+ 自适应触发死簇
+- **F330** cmd_resume 忽略 `_verify_truth_integrity` 返回值——"fail fast"文档声称未兑现
+- **F331** 并行 post-draft 的 G4 失败只 log 不重试/不升级（与串行语义不一致），lifecycle G4 失败输出被静默接受
+- **F332** state.token_usage 不进 to_dict/from_dict——token 汇总跨进程/跨 save 丢失
+- **F333** genesis G4 auto 模式开关语义错位（per_chapter_review_enabled 兼任 genesis 严格度开关）+ 章数口径不一致
+- **F335** audit_context_cache 用补零章节文件名（chapter-001.md），生产为不补零 → chapter_text 恒空
+- **F336** state.to_dict/from_dict 丢失 step_timings（F332 同根不同面）
+- **F337** check_triggers 在 total_chapters=0 时 book_closure 恒 True（chapter >= 0），仅被调用方守卫掩盖
+- **F338** 审计级联跳过（Spec 8 Fix 8）无数据源：并行波不写 per-skill audit_results → _should_skip_audit 恒 False
+- **F339** 并行波审计信号失真且无消费方：blocking_found 由 consolidate(stdout) 计算（API 路径恒 0）、audit_reports 记录不存在的 group-*.md、review-summary.md 恒报 0 问题
+- **F342** volume_snapshot_pending / add_audit_result / increment_retry / reset_retry 生产死代码
+- **F346** truth_index._HOOK_ID_RE 不匹配生产带连字符 hook id（MH-001/H-N01）→ master hooks 从 Route A 检索静默缺失
+- **F347** 生产 hook 数据格式与上下文"伏笔债务简报"解析全错位：简报恒"(无)"
+- **F348** SharedAuditContext 缓存注入与审计契约 reads 错位——缓存对预期目标近乎死线
+- **F349** MODIFY 派生的 truth re-dispatch 无重试预算/无升级：持续失败时每次 step 迭代重复重发
+- **F355** 确定性策展层输出死线：context/chapter-N-curated.md 无任何 skill 读取（9 节分层编排生产无效）
+- **F356** curate_context P 分层渲染失效：章节 plan 与全部 route 条目落入 P7，P1/P3-P6 恒 "(未产出)"
+- **F357** SharedAuditContext 的 style_profile 以幽灵路径 truth/style_profile.md 注入（style 内容重复进入每个审计 prompt）
+- **F358** linguistic drift ESCALATE 被吞：DriftEscalationError 在 pipeline-linguistic-drift-check 的 except Exception 中仅 log；drift 指令文件无消费者
+- **F359** Route A 检索条目无实体内容（仅 "[category] id from file" 标签），entity 事实从不进入上下文
+- **F360** chapter_loop._maybe_rebuild_truth_index 只 build 不落盘（周期索引重建无效，日志误导）
+- **F365** STATE_SETTLE MODIFY 重跑不重设 checkpoint：重跑结果悬空不提交、重审门被静默跳过（`_advance` 的 STATE_SETTLE 分支本身即死代码）
+- **F366** 5 个 PipelineConfig 死旋钮零消费者：genesis_review_required / volume_boundary_review_required / style_learning_interval / context_budget_override / snapshot_retention_chapters
+- **F372** `_style_profile_is_stale` 章节计数被 pre-revision 备份文件污染：`chapter-*.md` glob 计入 `chapter-N-pre-rev.md` → style-learning 自愈触发提前/误触发
+- **F374** write_safety 将 shenbi-review-resonance 分类为 READ_ONLY_AUDIT，但其契约 updates 写 truth/audit_drift.md + truth/resonance_trend.md → 并行审计波在无串行保护下并发写 truth 文件（模块自述的 WRITE_SHARED 串行不变量被违反）
+- **F375** API 路径多文件输出部分缺失仍返回成功（missing 仅 log.error，DispatchResult 恒 True）→ state-settling 等 6 文件技能的残缺输出被静默接受
+- **F378** context/volume-N-complete.json 全仓无写入方 → `_check_volume_completion` 恒 False → 软失败升级链恒触发 volume_objective_missed 信号；`last_trigger_failure` 写后无消费者
+- **F381** state_heal._heal_revision_counts 把未修订章节的 revision_count 抬到 ≥1：`_ensure_revision_decisions_exists` 对 NO_REVISION 路由也写回退文件，heal 误将其当作"发生过修订"
+- **F382** progress.json 物化层半接线：pipeline 从不写 trace 事件（safe_write 未传 round_dir/trace_action），每 5 步 materialize 把 progress.json 重建为"全 pending"视图，resume 时 staleness 检查空转
+- **F383** IDE 派发路径输出无 `### FILE:` 标记时，整段 stdout 被写入每一个输出文件（codex 已安装 → 当前环境 IDE 路径激活下的潜伏数据损坏点）
+- **F384** bge-large-zh SentenceTransformer 模型在每次 embed/检索调用中重复加载：genesis 每步全量重嵌（每 hook/rule 一次全新模型加载）+ 每章 context assembly 两次加载
+- **F385** dispatch_skill 第三路由（legacy `shenbi-dispatch` 子进程）为必失败死端：internal 模式硬拒 + uses_staging 被忽略
+- **F386** 软失败升级路径派发 escalation-review 但不设 ESCALATION checkpoint——升级从不暂停、escalation 报告成为孤儿
+- **F387** genre 波与 group 波文件级重复不止 sensitivity：worldRules/motivation/dialogue/texture 四维每章重复审计并覆盖 group 波产物（F329 的完整版）
+- **F388** `_audit_context_coverage` 死函数：docstring 声称"pipeline resume 初始化时调用"（spec §3.1 的 77% 上下文覆盖缺口检测），cli 从未接线
+- **F391** API/IDE 派发路径完全跳过 G1 input-readiness 门禁：缺失契约 reads 静默丢弃、无失败语义——模块 docstring 声称的 "G1/G2 经 dispatcher 内部执行" 仅 legacy 子进程路径成立
+- **F392** decisions JSON 恢复失败的 ValueError 穿透 dispatch→CLI：API/IDE 路径裸 traceback、无 checkpoint、无 JSON 结果（F304 同族、异常源不同）
+- **F393** review_checklist._extract_hook_deliverables 仅读 frontmatter hooks：生产 hook 数据在 body 表格 → 注入每个审计 prompt 的 "hook_deliverables" 恒空（F347 同根、新消费面）
+- **F396** check_genre_config_drift 的 _WARNING_RE 与两个生产写入方格式零交集：spec §6.6 genre-config 运行时更新触发恒 False，`config.genre_config_update_on_drift`（默认 True）全路径无功能效果
+- **F399** `next` 命令在审批过渡型检查点后静默跳过相位转换/延迟动作：GENESIS_COMPLETE approve 后 `next` 恒报 OK 无进展；VOLUME_BOUNDARY approve 后 `next` 不派发延迟快照、不更新 total_chapters
+## Z4（67 条）
+- **F400** G2.12 无 file_type 守卫 → JSON/清单文件误报"截断"WARN（D1-03 根因核实）
+- **F403** CLI G4 无 round_dir 时 ValueError 崩溃，破坏 JSON/退出码契约
+- **F405** G4_CHECKER_SKILLS 注册表过期：漏 9 个专用 checker
+- **F406** G0.3/G0.6/G7.5 使用遗留目录名 skill-output（真实布局 novel-output / project-output）
+- **F407** G0 无 seed 时早退 → 全部环境检查被跳过，gate 空转 PASS
+- **F409** G1 空输入 → PASS（G1.0 SKIP 空转）
+- **F415** g4/chapter_drafting.py:73 引用 SKILL.md:125，实际规则在 140（漂移 15 行）
+- **F418** g0_config_coherence 的 threshold_mismatch / floor_too_low 检测在真实调用路径永不触发
+- **F420** G6 在 novel.json / genre-config.json 损坏时崩溃（无 try/except）
+- **F421** G_RECONCILE / G_DISPATCH / G_TRANSITION 对非对象 progress.json 崩溃
+- **F422** cli.py G1 非 JSON 参数静默转空 → 零校验 PASS（丢失 gate 自身逗号拆分回退）
+- **F423** G0.7 引用已迁移的 tests/scoring.py → 每次带 seed 的 G0 恒 WARN
+- **F424** g4_chapter_drafting 用遗留目录名 "skill-output" 找 genre-config → 真实布局下疲劳词表恒用默认
+- **F425** G7.6 依赖遗留 skill-output → 真实布局恒 SKIP（pending truth 检测失效）
+- **F426** g4_genre_config 未用 resolve_input_path → 相对路径+无 rd 静默 CWD 回退
+- **F427** g4_chapter_revision 未解析路径（raw Path(fp)）→ rd+相对路径误报 invalid_json
+- **F428** G3.2 阈值分叉：total_score 直读路径用 acceptance.t1(94)，rubric/维度回退路径硬编码 90
+- **F429** G1.4 在 gate 内写 .bak（AGENTS.md 纯验证契约偏离）
+- **F430** g4_foreshadowing_track G4.ft.changes 判定过松：正文出现"操作"一词即 PASS
+- **F433** g4_chapter_drafting 主角在场检查用坏掉的 project_root（skill-output 爬升）而非已传入的 project_dir → 生产布局恒用默认名 ["林烽","他"]，检查形同虚设或误报
+- **F434** g4_state_settling 参数 agent 名单用单字符子串匹配（"冷"/"光"）→ 真实 fixture 误报 FAIL
+- **F435** G0.12 exempt_skills 读取后从未使用 + 注释声称的 "no skill returns UNIMPLEMENTED" 校验未实现（G0.12 恒 PASS 空转）
+- **F437** G5.5 用 except Exception → WARN 吞掉 G4 重跑的一切异常（含 gate 崩溃）→ G4 回归检查 fail-open
+- **F439** g4_style_polishing 字数比检查死路：其输入 .bak 只由 G1.4 为 BACKUP_SKILLS（truth updaters）创建，style-polishing 不在其中 → G4.sp.word_ratio 永不执行
+- **F440** g0.py G0.3/G0.12 的 jload ValueError 未捕获 → gate_G0 崩溃（F431 家族在 g0.py 的 2 处漏网）
+- **F441** G0.14 deps.json 为合法非 dict JSON → AttributeError 崩溃（json.loads 直读后未校验即 .get）
+- **F442** g4_length_normalizing 未实现 SKILL.md 压缩双底线（≥25% 原始长度）→ 过度压缩静默通过
+- **F443** g1.check_fields_exist 死代码：仅测试引用，gate_G1 与生产均未接线（B.4 字段软检查未生效）
+- **F446** count_transition_words 转折词计数双向偏离 SKILL 契约：然而→0、然后/显然→计入
+- **F447** G4.chapter-drafting 的 transition/fatigue 计数把 PRE/POST 元区块计入（与 G4.meta、word_count_md 剥离行为不一致）→ 真实章节近阈值/越阈值误报
+- **F448** check_chapter_title 只识别阿拉伯数字章节号，中文数字"第一章"漏检（SKILL.md 明示禁止）
+- **F449** G_RECONCILE 状态字面量 "DONE" 与全部生产 progress 形状不匹配 → GR.1 恒死；GR.2 在 F401 修复（剥离 -scores）后仍恒 FAIL
+- **F450** G6.7 hook 解析器与真实 pending_hooks.md 格式不匹配 → 真实项目恒 low_hook_density:0.0 FAIL，生命周期/超距检查死路
+- **F451** g6_checks check_pacing / check_style_consistency 元区块剥离正则缺 `# ` 与 `<!--META` 边界 → 正文被吞 → 章节误分类/风格指标失真
+- **F452** G4.cd.chapter_end_hook 评估的是文件末尾 POST_WRITE_SELF_CHECK 元文本而非叙事结尾
+- **F453** G2.7 重要章豁免（volume_map/plan 标注 → ceiling 10000）在全部自动化调用路径死路：project_dir 未接线 → >4500 字重要章恒误报 FAIL
+- **F454** G_TRANSITION GT.1/GT.3 对生产 progress 形状语义漂移：round-exec 形状恒真空 PASS、materialize 形状恒 FAIL
+- **F457** G6.5/G6.10 对话占比用「对话段数 / 总字数」而非「对话字数 / 总字数」→ dialogue 分类死路、对白范围判定失真
+- **F460** json.loads/jload 后内层形状未校验 → AttributeError 崩溃（G0.3 chapter_word / G0.cc auditDimensions / G5.1 t1_scores 条目 / G4 _check_adjacent_budget 相邻文件）
+- **F461** g4_chapter_drafting protagonist_presence / scene_concreteness 未剥离 PRE/POST 元区块（F447 家族剩余消费方）→ 边缘章节主角在场/视觉场景误判
+- **F462** G3.2 评分提取键与 shenbi-score 规范输出形状不匹配（total_score/score vs final_score/dimensions）→ 规范形状报告 score=0 恒 FAIL；F428 的"直读 94 阈值"路径在生产形状下不可达
+- **F463** G3.2 全量扫描 t1-reports 不按 skill_name 过滤 + rubric 加权回退用 gate 技能 rubric 评估其它技能报告（跨技能互扰）
+- **F464** t1-reports 生产命名 `*-scores-subagent.json`（codex.py）与 gate 消费模式 `*-scores.json`/find_report 不匹配 → G5.1 兜底恒 no_report FAIL、G0.10 计数恒 0（F432 第二根因）、GR.1/GR.2 在 F401 修复后仍失败（-subagent 后缀）、G7.14/15 空转
+- **F465** F460 家族新增 4 实例：内层形状未校验 → AttributeError 崩溃（G7.1/G7.1b t1_scores、G_RECONCILE skills、character_design archetype_sources 元素、foreshadowing_plant hooks 元素）
+- **F466** G4.cd.content_uniqueness 在 G6.3 调用形状（rd=项目目录，g6.py:86-93）下静默跳过 —— Path(rd)/"project-output"/"chapters" 不存在 → T3 逐章 G4 中内容唯一性检查不执行且无 SKIP 记录
+- **F467** chapter_planning 节号分隔符不一致：sections 计数接受 `## 5、`/`## 5：`，s5/s7 提取正则仅认英文句点 `## 5\.` → 合法格式下 s5_choice 误 WARN、s7_hook_ops 误 FAIL
+- **F468** G3.2 的 `threshold = 90` 在循环内赋值泄漏到后续报告 → 同一报告因扫描顺序不同得到 PASS/FAIL 不同判定（F428 同根因的第二机制）
+- **F469** shenbi-chapter-revision 的 composite 把 g4_decisions 接进 "existing"（md）槽 → DecisionsDoc schema/P2.5 校验对该技能 decisions.json 永不执行，schema 违规静默 PASS
+- **F471** gate_manifest 的 "gates" 键为合法列表时 `setdefault` AttributeError 崩溃（F460/F465 家族内层形状新实例；gate_manifest 0% 覆盖）
+- **F472** cli.py bughunt/clean 分支不转发 rd → 相对路径报告恒 resolve_input_path ValueError 崩溃（F403 家族独立实例）
+- **F473** G6.11 卷边界检查在真实项目上恒发 7 条 must_fix：跨卷伏笔表格单元格被解析为"幽灵卷" + no_ending_hook 评估的是文件尾部元区块而非叙事结尾 + 规划中未写卷恒 FAIL
+- **F474** G6.4 时间线日期提取对单章内非时序日期引用（截止日/当前日混排）误报 timeline_regression——真实项目 2 条 FAIL
+- **F475** G0.3/G6.1 的 chapter_word.default 读取是死特性（GenreConfig 契约与真实配置均无此键）且 default=0 时 ZeroDivisionError 崩溃
+- **F476** G4.chapter-planning 仅实现 SKILL 声明 8 条"可自动检查"规则中的 2 条（段完整性/chapter_role），缺 6 条（段标题精确性/优先级来源声明/章尾改变数/hook 账列名/hook 操作有效性强制/沉默检测）
+- **F477** G_RECONCILE GR.2 对 skills[skill] 非 dict 值无守卫 → AttributeError 崩溃（GR.1 有守卫、GR.2 遗漏——F465 家族第 6 实例）
+- **F483** g4_chapter_drafting 主角名单硬编码阳性代词"他"且从不加"她" → 女性主角作品主角在场检查误报 FAIL
+- **F484** g3_independence 对畸形 agent_trace 静默 fail-open：agent_trace 非 dict 时同源评分检测被跳过 → G3.4 独立性保证在坏数据下失效（F408 家族之外的独立机制）
+- **F485** F460/F465 家族第 5 批未枚举实例：5 处 json 加载后内层形状未校验 → TypeError/AttributeError 崩溃（g3.5 / g_dispatch / g5 / g7 / g6）
+- **F487** g4_chapter_drafting `_load_protagonist_names` 主角名双重追加 → 主角在场计数翻倍（正常路径 fail-open）
+- **F488** g_transition GT.1 `remaining_{phase}` 为标量时 `len()` TypeError 崩溃（F460/F465/F485 家族新实例）
+- **F489** g6.py novel.json `target_word_count`/`target_words` 为字符串 → `-(-x // y)` TypeError 崩溃（F475/F485 家族相邻实例）
+- **F491** g4_worldbuilding 地点计数双重缺陷：`## 地点[：:]?` 可选冒号吞掉"## 地点构建汇总"汇总节 + numbered_loc 优先分支把任意 `## N.` 标题当地点数 → SKILL 模板合规输出误报 `G4.locations.count` FAIL
+- **F493** jload/json.loads 内层形状家族第 6 批：4 处未枚举实例 → AttributeError 崩溃（g3.3 skills 值 / g0.14 _calibration_hashes / g5.1 t2-phases / g6.1 t3-pipelines）
+- **F494** G6.4 时间线检查只读每章前 5000 字符 → 章节后半段的时间线回归完全漏报（check_pacing 却读全文，采样口径不一致）
+- **F496** G6.8 幽灵角色检测与口头禅匹配只读每章前 5000 字符 → 章节后半段角色/口头禅漏检漏报（F494 采样截断家族第二消费方）
+- **F497** G5.1/G6.1 的 t2-phases/t3-pipelines **条目值**非 dict → AttributeError 崩溃（F493 内层形状家族第二层未枚举实例）
+- **F499** F494/F496 采样截断家族剩余 2 个消费方：G6.9 章节扫描（[:3000]）与 G5.3 术语一致性采样（[:3000]）只读每文件前 3000 字符 → 章节尾部规则违反/术语混用漏检
+## Z5（26 条）
+- **F500** scoring_bridge 双评员一致性/塌缩检测 dead-wire：validate_dual_scorer/check_single_scorer_collapse 无生产调用方（spec §5.5 补丁2/3 运行时零执行）
+- **F501** escalation_bridge dead-wire：parse_resonance_scores/run_escalation_check 无生产调用；resonance_trend.md 写而不读（chapter_loop 直连 check_escalation）
+- **F502** FileChange.status Literal 定义在 contracts/ownership.py:22 而非 enums.py（enums.py:1 明示"所有 Literal 必须从此处 import"）
+- **F503** write_audit._declared_patterns 宽 except Exception 吞错：derive_output_files 意外异常 → declared=[] → 未声明写入假阳性 GATE_FAIL
+- **F504** ledger.record() 对 usage 值裸 int() 强转，非 int 可强转值 ValueError 崩 hot path（违反"must never crash the pipeline"）
+- **F506** report._try_avg_g3_score 把任意 **/*score*.json 的任意顶层 0-100 数值当 G3 分求平均，CPQ 指标名实不符
+- **F508** d1-06-coverage-gaps.txt 被 collect-only 覆写 coverage.xml 污染（16.08%），Z 区维度 8 依据失效
+- **F514** d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实
+- **F515** `_matches_declared` 不匹配契约原生 glob 写模式（`truth/*.md`）→ 已声明写被误报"未声明写入"
+- **F517** `audit_writes` 将 pending_hooks 专属解析无差别应用于全部 watched .md：非 truth .md 含 `## 活跃伏笔` 表 → 假 drift GATE_FAIL；含 `## hooks` 节 → ValueError/YAMLError 崩审计链
+- **F519** `TokenLedger.record` 写侧（mkdir/open/f.write）无 OSError 防御：文件系统错误崩 API dispatch hot path（API 成功后、输出写入前）→ 丢 LLM 输出并失败该步
+- **F520** tenacity 重试失败 attempt 的 token 消耗不记账：仅最终成功 attempt 的 usage 落账 → 429/5xx/timeout 重试成本被少计
+- **F521** `estimate_prompt_tokens` CJK 判定范围仅 0x4E00-0x9FFF：中文标点/全角/扩展 A 按 ASCII 4 chars/token 计 → 中文 prompt 系统性低估 token，上下文告警阈值提前量被侵蚀
+- **F522** resonance_trend.md 写侧（`_build_resonance_trend_row` 无 header 7 列行）与 `compute_drift.parse_trend`（要求 header 行含维度名）格式不兼容 → parse_trend 恒返回空，volume-decline 检测永不触发
+- **F523** `_diff_records` 对无 id 记录按 `str(None)` 键合并：id-less 记录的新增/删除在 record 级 diff 中静默掩盖
+- **F525** `TokenLedger.summarize`/`iter_records` 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约
+- **F526** `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规
+- **F527** `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键
+- **F528** `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc
+- **F529** `detect_cross_section_drift` 单向（md→YAML）：YAML 权威记录在派生表中缺失时不报 drift，判据 12"派生表必须与 YAML 一致"反方向不一致静默放行（跨区 records/，被 Z5 write_audit 消费）
+- **F533** `TokenLedger.iter_records` 对无效 UTF-8 账本行抛 UnicodeDecodeError 崩 `shenbi-cost report`：read_text 无防护，违反模块"corrupt line is skipped, never crashing the report"契约
+- **F534** `_changed_top_keys` 对 JSONDecodeError 静默返回 ()：OWNERSHIP JSON 文件被写成无效 JSON（数据损坏形态）→ field 级审计零违规
+- **F535** `parse_markdown_table` 表头缺 id 列 → md_rows 恒空 → drift 检测静默放行（畸形派生表 = "一致"）
+- **F536** "未声明写入"检测在真实接线下不可达：快照面=声明写入面，技能写声明外文件（越权的基本形态）永不进入审计；test_write_audit.py:79-87 手工构造 post dict 掩盖该盲区
+- **F537** `_changed_top_keys` 的 `.get()` 把"缺失键"与"null 值键"归并为同一信号：OWNERSHIP field 文件新增 null 值键 / 删除 null 值键 → 键集变化零检测 → field 级审计静默放行
+- **F538** `snapshot_tree` 对非 UTF-8 watched 文件抛 UnicodeDecodeError 崩审计链：pre-snapshot（executor.py:244）崩 → dispatch 未启动即中止；post-snapshot（:264）崩 → finally 异常替换 dispatch 结果
+## Z6（29 条）
+- **F603** records drift 只检 md→YAML 方向：YAML 新增 hook 未同步派生表不报 drift
+- **F607** 同包双 baseline 路径分裂：baseline.py 写 style/ vs linguistic_drift.py 读 context/；术语表也分裂
+- **F609** replay 撕裂行/签名断链静默截断且无日志（改写文件不可追踪）
+- **F610** recall_overdue_hooks 对缺 id hook 直接 KeyError，单条坏记录使整批崩溃
+- **F615** TraceWriter 对撕裂尾部 JSONDecodeError 裸崩溃（replay 自愈 vs writer 不自愈不对称）
+- **F616** parser._parse_body 静默丢弃非 dict YAML 条目：权威记录视图缺行 → 潜在 drift 误报/漏报
+- **F617** linguistic_drift.py 两个告警函数无生产调用方：计划承诺的 >3σ second-tier 告警与内容循环检测未接线
+- **F619** compute_stats CLI `--output` 缺参时 IndexError 裸崩溃
+- **F622** recall_overdue_hooks 对 str 类型 last_reinforced/max_distance TypeError 崩溃（F610 之外的独立类型失败模式）
+- **F625** versioning.migrate_to_current 缺迁移函数时 `_identity` 回退 → while 循环永不前进 → 无限循环挂死
+- **F626** check_linguistic_drift_trigger（第 4 漂移触发点）死导出：HARD/ESCALATE 从未接入 drift-guidance
+- **F627** parse_trend 无表结束条件：header 之后所有含 "
+- **F630** revision_router.DEFAULT_RESONANCE_FLOOR=50 与单源阈值 65 漂移（E11 缺陷类复活）
+- **F632** linguistic_drift severity 阶梯硬编码 30/50/100 与 thresholds.py 单源阈值重复且不一致风险（"single source of truth" 声明被违反）
+- **F636** detect_drift 把任意指标 0→正值映射为 6.0x 偏差 → 基线为 0 的指标首次出现即触发 is_drift=True（severity≥WARN）
+- **F641** records `_values_equal` 布尔比较孔：YAML 布尔 `true` 与 md 表 `"true"` 比较 → 假 drift（block ship）
+- **F642** check_opening_similarity 比较的是 META 指令块而非正文开头：真实章节对 (45,46) 相似度 0.627 > 0.6 阈值 → F602 一旦接线即假阳性触发 opening-variation 指令
+- **F644** compute_ngrams 未剔除标点 → n-gram 风格指纹被标点对/标点串主导（真实 chapter-1 top bigram 为 `。他` 与 `——`）
+- **F646** AUDIT_SAFETY_MATRIX 维度集与真实 genre-config auditDimensions 漂移（6 vs 10 维）：motivation/foreshadowing/sensitivity/worldRules 可无 rationale 禁用且 G0 无信号
+- **F647** records drift.py `by_id` 对重复 id / 缺失 id 静默塌缩：权威 YAML 中重复 hook id 只保留最后一条，派生表与"错误的那条"比较 → 漏报或误报 drift 且无任何告警
+- **F649** check_opening_similarity/check_window_redundancy 用 SequenceMatcher.ratio() 默认 autojunk → 相似度随参数顺序不对称（0.57 vs 0.637），近阈值分类不稳定；F642 跨三轮之争的根源
+- **F650** TraceWriter 信任尾部签名不做链校验：可解析但签名无效的尾部（篡改/坏写）静默链上新事件，下次 replay 把新合法事件与坏尾部一起截断删除——静默数据丢失（F615 的另一失败模式）
+- **F651** records parser yaml.safe_load 对重复键静默 last-wins（`state: A` + `state: B` → B，无错误无告警）→ 权威记录源静默损坏，drift 与错误值比较
+- **F654** compute_drift `_try_float` docstring 承诺"非有限数值返回 None"，实际 nan/inf/1e999 透传 → 趋势表出现 nan 单元格时序列被静默污染（smooth 全 nan、σ 统计全 nan、单调 run 中断）
+- **F655** records `detect_cross_section_drift` 对"缺失键"无空值语义：`rec.get(key)` 返回 None 且 `_values_equal(None, '')` 恒 False → 派生表空单元格/多余列在 YAML 记录省略该字段时恒报假 drift
+- **F660** parse_markdown_table 无表头表静默整表丢行（首行分隔行被当表头 → 数据行无 id 全部丢弃，drift 检查空转）
+- **F662** materialize `_as_float` 对 str 分数静默置 0.0（同模块 `_as_int` 却接受 str）——MARK_DONE score 为字符串时分数被静默抹零
+- **F664** 审计链对 records.parser 的 yaml.YAMLError 无防护：坏 YAML 的 post .md 使 `dispatch_with_write_audit` 的 finally 块整次审计崩溃（写越权/drift 门禁被旁路、成功 dispatch 的 rc 被异常取代、无 write-audit.jsonl 记录）
+- **F665** drift-guidance skill §11.8 "卷级目标未达成"触发器在 compute_drift 未实现：SKILL.md 指示 LLM 读取 volume_score_trend.md 并从 drift_detection 获得卷级目标漂移信号，但 CLI 无该输入参数、无该 DriftKind、无 objective_achieved 解析
+## Z7（17 条）
+- **F704** tests/golden/ 空洞 + baselines/gate-outputs 陈旧且无 enforcement（T1108/T1109 同源确认）
+- **F705** lock-tool-hashes.sh 的 `_tool_hashes` 为死数据：96 键中 66 个已过期，且无任何 enforcement
+- **F706** test_g6.py:559-571 / test_g5.py:229-241 monkeypatch `jload` 触发 JSONDecodeError 测"不崩溃"，但断言仅 FAIL，未验证 JSON 合法
+- **F707** test_g4_escalation_review.py / test_g4_score_checkers.py 用字符串子串断言 JSON（`'"status": "PASS"' in result`），脆且测不到结构
+- **F708** test_retry.py 断言 `stop_reason is None` 于成功流，与实现语义可能不符（脆弱耦合）
+- **F709** test_docs_accuracy.py 四个 "File not yet created" skip 恒真恒跳（stale）
+- **F710** tests/unit/pipeline/test_context_assemble.py:163-169 / test_truth_embed.py:119-127 skip 为 masking（sentence_transformers 已装，降级路径永不可测）
+- **F711** test_chapter_loop.py / test_chapter_loop_full.py 大量 `# review-resonance`/步骤索引注释与真实表错位，索引文档漂移
+- **F712** test_state_machine_heal.py 对 MagicMock state 调 `_heal_current_step` 仅验证状态赋值，未覆盖真实状态对象序列化
+- **F713** test_docs_accuracy.py:82-104 三处 `if not doc_path.exists(): skip("File not yet created")` 已成死条件（文件存在），应删除
+- **F714** test_g4_signatures.py 断言 `"skill" in data or "status" in data`（or 短路弱断言）
+- **F715** tests/unit/gates/test_g7.py:178-204 test_g715 注释声称"audit_warnings 写回 summary.json"，但断言"summary.json 未被写"——注释与断言矛盾（G7 纯度变更未同步注释）
+- **F716** test_phase_runner.py 大量 `monkeypatch.setattr(phase_runner, "run_gate", ...)` 仅测状态机，G5/G2/G4 真子进程集成只靠 test_gate_cli.py（慢且部分跳过）
+- **F717** tests/unit/gates/g4/test_all_skills_parametrized.py 的 `test_returns_string_for_empty_file_list` 等 12 断言全部用空输入，只证明"不崩溃"，不证明业务规则
+- **F718** tests/unit/pipeline/test_e2e.py / test_cli.py 用 `_run` 直接调 `main(argv)`，未走真实 CLI 入口（argparse/exit 路径）
+- **F719** tests/unit/test_pytest_framework.py 的 `test_unit_marker_works`/`test_integration_marker_works` 为恒真冒烟（`assert True`）
+- **F720** tests/unit/skill_utils/test_calibration.py / test_confidence_routing_integration.py 只测 `calibrate_confidence` 单个 HitRate 组合，未覆盖 anchor 命中率驱动的真实校准数据来源
+## Z9（4 条）
+- **F1100** D2 漂移：deterministic spec :18 引用 `2026-06-22-positive-quality-gates.md:7`，实际文件为 `...-gates-design.md`（缺 `-design` 后缀），且 :7 非分层表（分层表在 :63）
+- **F1101** D2 漂移：deterministic spec :102 引用 `dispatch_helper.py:1030-1037` 为 append_dedup caller-责任文档，实际该注释在 :1059-1065
+- **F1104** basedpyright-overrides.md:7,58 描述 `src/shenbi/skill_utils` executionEnvironment + "mirrors mypy ignore_errors = true for skill_utils"——实际 pyproject basedpyright 仅有 tests env，mypy overrides 无 skill_utils 条目
+- **F1113** README.md:45 `just pipeline-init outline-example.md ./my-novel --auto` 不可执行——justfile pipeline-init recipe 不接受/不转发 `--auto`，just 报错
+## Z11（1 条）
+- **F1306** revision-decisions 触发 34/56 但 `_ensure_revision_decisions_exists` 兜底写入的"minimal"文件仍违反 schema
+## 线程（11 条）
+- **T303** 4 个 group skill 正文手写 `## Contract` 块与 frontmatter 双源漂移（含字段声明永不生效）
+- **T304** `check_fields_exist`（G1 字段漂移 WARN）为死代码：无生产调用，D21 播种机制为其服务的假设不成立
+- **T305** `filter_to_fields` 对非 md/json 扩展名静默跳过：不过滤、matched=True、无 WARN（latent）
+- **T401** usage 载荷形状/类型脆弱：缺 total_tokens / None 值 / dict 形状 → AttributeError/TypeError 崩计量热路径（API 成功后、输出写盘前）→ 丢 LLM 输出
+- **T402** shenbi-cost 报告零自动化消费：账本数据 write-only，成本观测纯人工 CLI
+- **T403** parallel 接线 state 的聚合非原子性 + F505 联动：F302 修复方向（Z5.review4 建议"全部调用方传 state"）在并行波上会激活共享 dict 竞态与跨实例 append 交错
+- **T404** iter_records/summarize 静默跳过损坏行，报告无跳过计数：成本报告把不完整账本当完整展示
+- **T6-01** record_gate_result 对 pipeline-manifest.json 的读-改-写锁是进程内 threading.Lock：phase_runner cmd_post_skill 在 pipeline WriteLock 之外写 manifest → 跨进程 lost-update（F253/F3A4 家族第 4 实例站点）
+- **T6-02** `_executor_config_cache` 惰性初始化 check-then-act 竞态：并行审计波首批 7-9 线程并发首调 → N 个重复缓存条目（沙箱复现 8 线程→8 条目）
+- **T6-03** write_safety 分类是名字启发式：26 个 shenbi-review-* 中 2 个契约有 updates（resonance + arc-payoff）→ `assert_parallelizable` 保证建立在错误谓词上（F374 现行实例，arc-payoff 潜伏扩展）
+- **T6-04** truth_io `_path_lock` 键未规范化（相对/绝对/symlink 拼写→不同锁）：同文件写者可并发绕过串行化（latent）
+## 其他（8 条）
+- **D1-03** G2.12 对文件清单输入报 WARN "may be truncated"（Z8.files 2047 字节清单被截断校验？）
+- **F3A0** `_build_skill_prompt` 的 "Files to create" 清单跳过全部通配输出路径，而 shenbi-character-design 的 G4 无条件要求 major/minor 子目录 ≥3/≥2 文件——genesis step 3 与卷边界 expand 触发步 G4 缺口
+- **F3A8** `_check_content_size_guard` 新旧内容比混用"字符数 vs 字节数"：中文章节 revision 缩改（保留 <60% 原文）被误拦截 → 重试循环/静默不应用
+- **F3A9** `_build_hook_debt_briefing` 对 frontmatter hooks 中缺 `id` 键的条目直接 KeyError → 单条坏数据使整章 curated 文档（P1-P7+多样性+债务简报）不产出
+- **F3AC** 并行 post-draft 中 foreshadowing-lifecycle dispatch 失败被吞：仅 state-settling 失败升级，lifecycle 失败 log 后照常 `add_step_done`+推进，hook 更新静默丢失且不可重试
+- **F4A0** G6.9 数值规则合规检查约束侧失效：关键词↔约束错配（str(val) 命中共享上下文中更早的数字子串）+ 真实 rules.md 散文格式零约束 + 仅"人/个"单位 + 前 10 条上限 → 现实项目数值规则违反静默漏检
+- **F4A3** G1 glob 展开双重缺陷：相对 glob 按 CWD 解析忽略 round_dir（与 resolve_input_path rd 语义不一致）+ compute_backup_targets 在展开前计算 → in-place 技能 glob 输入下 .bak 永不创建且误标 "not in-place skill"
+- **F4A5** G6.4 check_continuity 知识引入扫描（g6_checks.py:52）用 `[:3000]` 截断：intro_map 实体首次引入与 future_knowledge 检测只基于每章前 3000 字符（对照同函数 :30 时间线扫描 [:5000] 亦只被 F494 点名、F499 枚举 G6.9/G5.3 两处）——章节后部首次出现的实体不登记、后部提前引用漏报 future_knowledge（F494 家族第三实例，同函数第二采样点）

@@ -172,3 +172,9 @@
 - 全仓 status/state/classification 键字面量扫描：5 个唯一词表外值——PLANTED（T9-01）/done（T9-01）/not_implemented（T9-01）/pending（T9-01）/PASSED（status.py 自身豁免文件）；degraded（truth_embed.py:247 三元表达式跨行，T9-01/F3B1 已覆盖）
 - **结论：status 词表家族枚举完整，零新遗漏，无新增 finding**
 - 后续审核 7 项全部完成（F431/采样截断/内层形状/门禁形状/fixture 断链/registry↔磁盘/status 词表）
+
+### 2026-08-14 会话 1（续 30）——spec 覆盖补齐（人类要求：所有 finding 都进 spec）
+- 发现阶段 5 spec 产出仅覆盖 10 簇代表条目：P1 74/118 无落点、P2 440/496 无落点、M 90/166 无落点、optimization 无专门 spec
+- 补齐 8 份 spec：fixture-authenticity（76）/decisions-chain（49）/z11-output-contracts（12）/truth-write-path（6）/security-injection（6）/z8-contract-drift（74）/tooling-gate-chain（53）/p2-batch（287）；M 批量 spec 补 Z7-Z11 逐条（44）
+- **覆盖闭合验证：786/786 findings 100% 被 spec 引用（P0 5/5、P1 118/118、P2 496/496、M 166/166）**
+- INDEX 登记 #18-#25，活跃 spec 15→23
