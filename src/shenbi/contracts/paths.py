@@ -64,7 +64,7 @@ def parse_path_context(prompt: str) -> PathContext | None:
             if "=" in tok:
                 k, v = tok.split("=", 1)
                 if k in _CTX_KEYS:
-                    kv[k] = int(v) if v.isdigit() else v
+                    kv[k] = int(v) if v.isdecimal() else v  # isdecimal: "²" is isdigit-only
         if kv:
             return PathContext(**kv)  # type: ignore[arg-type]
     return None
@@ -96,10 +96,17 @@ def resolve_contract_path(path: str, chapter: int | None, ctx: PathContext | Non
             key = m.group(1)
             val = getattr(ctx, key)
             if val is not None:
-                return _FAMILY_N.sub(f"{key}-{val}", path, count=1)
+                # Callable replacement: a str sentinel containing backslash
+                # sequences must not be expanded as a re template.
+                path = _FAMILY_N.sub(lambda _m: f"{key}-{val}", path, count=1)
+                # Co-occurring bare N/NNN still need chapter semantics — delegate
+                # (raises UnresolvedPathError when chapter is None, matching the
+                # legacy resolve_or_skip filter instead of passing placeholders
+                # through).
+                return resolve_chapter_path(path, chapter)
         if ctx.anchor is not None and _AC_ANCHOR.search(path):
             pad = f"{ctx.anchor:03d}" if isinstance(ctx.anchor, int) else str(ctx.anchor)
-            return path.replace("AC-NNN", f"AC-{pad}")
+            return resolve_chapter_path(path.replace("AC-NNN", f"AC-{pad}"), chapter)
     return resolve_chapter_path(path, chapter)
 
 

@@ -80,3 +80,28 @@ def test_str_sentinels():
         resolve_contract_path("benchmarks/anchors/AC-NNN.md", None, ctx2)
         == "benchmarks/anchors/AC-001.md"
     )
+
+
+def test_hardening_backreference_and_mixed_placeholders():
+    """T3 review minors: str sentinel backslash safety + co-occurring bare N/NNN."""
+    ctx = PathContext(escalation=r"\1x", chapter=None)
+    assert (
+        resolve_contract_path("audits/escalation-N-report.md", None, ctx)
+        == "audits/escalation-\\1x-report.md"  # literal, not template-expanded
+    )
+    # family resolved + leftover bare N with chapter -> chapter semantics
+    ctx2 = PathContext(arc=5, chapter=7)
+    assert resolve_contract_path("truth/arcs/arc-N/ch-N.md", 7, ctx2) == "truth/arcs/arc-5/ch-7.md"
+    # family resolved + leftover NNN with chapter=None -> raises (filtered by
+    # resolve_or_skip_ctx), NOT passed through
+    ctx3 = PathContext(arc=5)
+    from shenbi.contracts.paths import resolve_or_skip_ctx
+
+    assert resolve_or_skip_ctx("truth/arcs/arc-N/ch-NNN.md", None, ctx3) is None
+
+
+def test_hardening_superscript_digits_not_int():
+    from shenbi.contracts.paths import parse_path_context
+
+    ctx = parse_path_context("[path-context] chapter=²")
+    assert ctx is not None and ctx.chapter == "²"  # str sentinel, no ValueError
