@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-08-13
-> **活跃 spec 数**：3 | **已归档**：99（见 `archive/`）
+> **最后更新**：2026-08-14
+> **活跃 spec 数**：14 | **已归档**：99（见 `archive/`）
 
 仅列待执行 spec；已完成/合并的 spec 已移至 `archive/`，不在此重复。
 按推荐执行顺序排列；执行序列号见各 spec 文件名日期前缀。
@@ -93,3 +93,72 @@ P0 阻塞修复 (#19) ◄── 07-19 一致性与韧性集群（19 spec，全�
 - **遗留（superpowers 前）**（`2026-06-08` ×2）— shenbi 设计 v1、test-plan 设计
 
 > 技术细节查各 archive spec 正文，不在此复述。
+
+### #6 · 全项目审查执行：pipeline 永不完成（P0 簇）
+
+- **文件**：`2026-08-14-pipeline-never-completes-design.md`
+- **系列**：2026-08-14 全项目审查（总纲 #5 的执行产出，子 spec 1/10）
+- **状态**：Design
+- **优先级**：🟥 Critical（5 个独立根因使长篇小说 pipeline 永不进入 CLOSURE；生产 56 章实证）
+- **方法**：`systematic-debugging` 四阶段
+- **内容**：volume_map 中文格式 vs 英文解析器（F324）/ total_chapters 写点自锁（F353）/ closure 目录 G4（F371）/ N 占位 G4（F373）/ closure prompt-build（F379）+ 相关 F340/F341/F303/F304
+
+### #7 · 全项目审查执行：数据丢失簇（P0）
+
+- **文件**：`2026-08-14-data-loss-cluster-design.md`
+- **状态**：Design | **优先级**：🟥 Critical
+- **内容**：append_dedup no-op（F397，chapter_summaries 仅 2/56 章）/ atexit 清 staging（F364）/ materialize 覆盖（F640）/ 并行写竞态（F326）
+
+### #8 · 全项目审查执行：门禁有效性（P1）
+
+- **文件**：`2026-08-14-gate-effectiveness-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：G3.4 伪造 scorer（F408）/ 并行波无 G3（F345）/ 门序回归（F227）/ GR.2 masking（F401）/ P2.5 空串（F404）/ disabled 维度（F216）/ G7.1b（F432）/ G4 目录参（F163）/ F402/F158
+
+### #9 · 全项目审查执行：契约单一信源（P1）
+
+- **文件**：`2026-08-14-contract-single-source-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：deps.json 缺 5 skill（F0-02）/ 契约模型 dead-wire（F201）/ 字段过滤（F218）/ rubric 过滤 no-op（F115）
+
+### #10 · 全项目审查执行：审计链失效（P1）
+
+- **文件**：`2026-08-14-audit-chain-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：快照根错位（F513）/ N 占位不一致（F247）/ declared 无 chapter（F524）/ 路径绕过（F512）/ deleted 零拦截（F507）
+
+### #11 · 全项目审查执行：drift 链失效（P1）
+
+- **文件**：`2026-08-14-drift-chain-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：baseline 零调用（F602）/ off-by-one（F601）/ 门控（F612）/ 吞异常（F620）/ 判据 12 格式（F637）
+
+### #12 · 全项目审查执行：成本计量（P0/P1）
+
+- **文件**：`2026-08-14-cost-ledger-design.md`
+- **状态**：Design | **优先级**：🟥 Critical（TokenLedger 少计，决策表 P0 例）
+- **内容**：TokenLedger 接线不全（F302）/ 注入缓解 no-op（F300）
+
+### #13 · 全项目审查执行：配置治理（P1/P2）
+
+- **文件**：`2026-08-14-config-governance-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：4 个绕过向量（F611/F631/F643/F666）+ F606/F638/F635/F614
+
+### #14 · 全项目审查执行：确定性助手统计（P2）
+
+- **文件**：`2026-08-14-stats-determinism-design.md`
+- **状态**：Design | **优先级**：🟡 Medium
+- **内容**：标点双计/引号恒 0/熵分母/TTR/排比截断/双实现分叉等 21 子项
+
+### #15 · 全项目审查执行：依赖供应链（P1）
+
+- **文件**：`2026-08-14-deps-supply-chain-design.md`
+- **状态**：Design | **优先级**：🟠 High
+- **内容**：dev group 含 sentence-transformers 致降级路径测试 masking（D1-01）；Z11-01 decisions.json 无效产物
+
+### #16 · 全项目审查执行：M 级批量（98 条）
+
+- **文件**：`2026-08-14-minor-findings-batch-design.md`
+- **状态**：Design | **优先级**：⚪ Low（批量）
+- **内容**：全仓库 M 级文案/命名/格式/过期注释按区分节批量清理

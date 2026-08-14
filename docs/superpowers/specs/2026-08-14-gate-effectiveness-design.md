@@ -1,0 +1,42 @@
+> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** src/shenbi/gates/ + dispatcher/ + pipeline/ | **核心洞察:** G3.4 独立性门被伪造证据击穿 + 门序回归使 G1/G2 空转
+
+# 门禁有效性（G3/G2/门序）
+
+## R1 · run_gate_g3 伪造 scorer 证据（F408, P1；从属 F214/F3AF）
+- 证据：dispatch_helper.py:1921-1945 在 progress.json 缺失时写入伪造 `current_scorer_agent: pipeline-g3-scorer-<uuid>` + `scoring_history` → G3.4 fail-closed 恒 PASS
+- 影响：G3 全路径零真实校验（与 F345 并行波无 G3 叠加 → G3.4 显式契约静默满足）
+- 修复：删除伪造写入，缺证据时如实 FAIL；**验收：空 progress 目录 G3 FAIL**
+
+## R2 · 并行审计波绕过 G3（F345, P1）
+- 证据：6 个 audit skill requires_independent=True，串行路径 chapter_loop.py:2907-2917 跑 G3，并行波（parallel_dispatch）零 G3 调用
+- 修复：并行波接入 G3 或显式声明审计 skill 独立性由其他机制保证；**验收：并行波审计后 gate-manifest 含 G3 记录**
+
+## R3 · executor 门序回归（F227, P1；从属 F246）
+- 证据：executor.py:190-199 在 dispatch_codex 之前跑 G1/G2（校验尚不存在的输出）；原 shell 版注释 "the skill execution happened earlier"（git show 99f91f0）
+- 影响：文档化 first-novel 流程第一步即失败；fresh round G1/G2 恒 FAIL
+- 修复：G2 移至执行后（或仅校验预存在输出）；**验收：fresh round worldbuilding 派发 PASS**
+
+## R4 · GR.2 -scores 后缀误报（F401, P1）
+- 证据：g_reconcile.py:52-62 不剥离 `-scores` 后缀 → 生产命名 `<skill>-generative-scores.json` 恒误报 FAIL；测试 docstring 自认规避（masking）
+- 修复：`stem.removesuffix("-scores")` + 删除测试规避注释；**验收：生产命名 + progress DONE → PASS**
+
+## R5 · P2.5 rationale 空串绕过（F404, P1；从属 F458/F232）
+- 证据：decisions.py:30-45 `has = rationale is not None`——空串 `""` 视为已提供 → manual_override + "" 通过 REQUIRED
+- 修复：`has = bool(rationale and rationale.strip())`；**验收：空串 rationale → REJECT**
+
+## R6 · genre_config disabled 维度空 customRules 跳过（F216, P1）
+- 证据：genre_config.py:94 `if disabled and self.custom_rules:`——customRules 空时整段跳过
+- 修复：`if disabled:` 逐维度要求 rule 命中；**验收：disabled dim + 空 rules → REJECT**
+
+## R7 · G7.1b ALL_SKILLS 反向覆盖（F432, P1）
+- 证据：ALL_SKILLS=74 vs t1-skill 69，5 个无脚手架技能（group-*/lifecycle）永不 FAIL 反转
+- 修复：反向覆盖以脚手架全集为准或补脚手架；**验收：满分 round G7.1b PASS**
+
+## R8 · phase_runner G4 目录参错位（F163, P1）
+- 证据：phase_runner.py:216 G4 第 3 参传 round_dir，T2 输出在 `<round-dir>/project-output/` → 11 个 rp.read checker 恒 not_found → T2 永久阻塞
+- 修复：传 project-output；**验收：T2 相位机全技能 G4 PASS**
+
+## 补充（同批次）
+- **F402（P1）**：g4_length_normalizing 用未解析路径计字数（:29 解析 pf vs :35 用原始 fp）→ rd+相对路径崩溃；改 `word_count_md(pf)` + 补回归测试
+- **F158（P1）**：phase_runner phase 参数未净化拼接进状态文件路径（load_state/save_state `f"{phase}.json"`）→ `../` 穿越写出 round_dir；净化 phase 参数（白名单或路径安全校验）
