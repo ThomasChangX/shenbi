@@ -59,11 +59,15 @@ _CN_VOL_RANGE_LINE_RE = re.compile(
 def _read_cn_volume_boundaries(text: str) -> set[int]:
     """Volume-scoped Chinese parse: per ``## 第N卷:`` section, only the first
     line-start ``**章节范围**`` range line counts (its end chapter M).
+
+    Volume header requires the colon; sections are cut at the next ``##``-level
+    header so trailing summary sections cannot donate a stray range line to
+    the last volume.
     """
     boundaries: set[int] = set()
     for m in _CN_VOL_HEAD_RE.finditer(text):
         section = text[m.end() :]
-        nxt = _CN_VOL_HEAD_RE.search(section)
+        nxt = re.search(r"^##\s", section, re.MULTILINE)
         if nxt:
             section = section[: nxt.start()]
         rm = _CN_VOL_RANGE_LINE_RE.search(section)
@@ -79,6 +83,8 @@ def read_volume_boundaries(project_dir: Path | str) -> set[int]:
 
     1. Section with ``Chapter End: N`` (or ``End: N``).
     2. ``Chapters N-M`` range notation.
+    3. Chinese volume-scoped fallback (``## 第N卷:`` + volume-level
+       ``**章节范围**: 第N章 - 第M章``) when the English formats yield nothing.
 
     Returns an empty set if the file does not exist or cannot be parsed.
     """
