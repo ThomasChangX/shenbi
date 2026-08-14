@@ -747,7 +747,7 @@
 | F1303 | DEBUG_USE_MANUAL_CREATE.md 暴露手动创建路径：decisions.json 的"Extra data"来源 | 写路径绕过（Z11-01 根因之一） | P1 | 见 zone-reports/Z11.md#F1303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1304 | Z11-01 根因确认：83/145 decisions.json 无效，成因=写路径绕过 + G4 从未收到 .json | 校验洞（根因级） | P1 | 见 zone-reports/Z11.md#F1304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1305 | 57/145 可解析但 schema 违反：producer 模板零 schema 编码 | schema 违反（producer 侧） | P1 | 见 zone-reports/Z11.md#F1305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F1306 | revision-decisions 触发 34/56 但 `_ensure_revision_decisions_exists` 兜底写入的"minimal"文件仍违反 schema | 边界/死代码 | P2 | 见 zone-reports/Z11.md#F1306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1306 | revision-decisions 触发 34/56 但 `_ensure_revision_decisions_exists` 兜底写入的"minimal"文件仍违反 schema | 边界/死代码 | P2 | 见 zone-reports/Z11.md#F1306 + Z11.review.md（G6 复查：10/34 无效，ch40 合法剔除） | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1307 | 根 `truth/`（bridge_tracker.md + character_matrix.md）与 truth-files.yaml 三源分裂 | 契约/信源断裂 | P1 | 见 zone-reports/Z11.md#F1307 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1308 | staging truth 与正式 truth 内容不一致（pending_hooks 9886 vs 4171） | 数据漂移 | P2 | 见 zone-reports/Z11.md#F1308 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1309 | progress.json 内容空壳：仅 scorer 字段，无任何进度 | 显式契约违反（F640 生产实证） | P1 | 见 zone-reports/Z11.md#F1309 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -760,5 +760,5 @@
 | F1316 | config-change-log.jsonl 单条无操作条目（old=true/new=true）且时间戳晚于运行结束 | 日志异常 | P2 | 见 zone-reports/Z11.md#F1316 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1317 | write-audit/trace.jsonl 记录与 GATE_FAIL 语义一致但 root truth 残留仍落盘 | 边界 | P2 | 见 zone-reports/Z11.md#F1317 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1318 | .hypothesis "Examples ARE committed" 声明失效：43 个 example 全未跟踪（F861 复验+计数漂移） | 契约违反（声明 vs 现实） | M | 见 zone-reports/Z11.md#F1318 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F1320 | DEBUG_USE_MANUAL_CREATE.md 计数漂移（1226 vs 1229；marker 21 vs 22；snapshots 52 vs 51） | 文案 | M | 见 zone-reports/Z11.md#F1320 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1320 | DEBUG_USE_MANUAL_CREATE.md 计数漂移（1226 vs 1229；marker 21 vs 22；snapshots 52 vs 51） | 文案 | M | 见 zone-reports/Z11.md#F1320 + Z11.review.md（G6 复查：staging 119 非漂移项，漂移在顶层） | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1321 | plan-decisions 全部滞留 staging（55 个），plans/ 零 decisions；ch54 缺 plan-decisions | 契约不一致 + 产物滞留（T1-05 实证） | P2 | 见 zone-reports/Z11.md#F1321 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
