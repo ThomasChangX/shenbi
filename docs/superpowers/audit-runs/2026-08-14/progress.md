@@ -84,3 +84,6 @@
 - Z6.review8 迟到通知核验：F647/F648 已登记（P2；F648 specced stats-determinism），锚点 2/2，无漏录
 - F642 裁定：review8 第三次重放确认 raw 0.6267/剥离 0.5700，review6 的 0.637 裁定无效 → 台账注记更新（review5/review7/review8 三票一致）
 - 收敛观察：Z6 稳定在"新发现均 P2 潜伏"区间（收敛曲线末段 3→2），复核 agent 建议评估收敛目标改为"无 P0/P1"——与人类已给 Z2/Z3/Z4/Z6 的判据一致，无需新裁决
+
+### 2026-08-14 会话 1（续 13）
+- Z1.review12 迟到通知核验：F158（P1 specced，gate-effectiveness 补充条目——phase 路径穿越）与 F159（M）已登记；发现 F160 漏录（cli_utils.emit_json BrokenPipeError，M）→ 补录，台账 770→771（M 160→161）

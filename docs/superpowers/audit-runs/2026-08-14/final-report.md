@@ -21,11 +21,11 @@
 | P0 | 5 | F324 volume_map 解析 / F397 append_dedup 数据丢失 / F364 atexit 清 staging / F302 TokenLedger 少计 / F1300 章节被摘要覆写 |
 | P1 | 118 | 门禁击穿（G3.4 伪造/门序回归/GR.2 masking）、审计链失效、drift 链失效、注入链、fixtures 56% mock、契约断裂 |
 | P2 | 486 | 边界/错误处理/统计错误/死代码/漂移 |
-| M | 160 | 文案/命名/格式/过期注释 |
+| M | 161 | 文案/命名/格式/过期注释 |
 | false-positive | 1 | F325（复核反证撤销） |
 | merged | 35 | 同根因去重合并 |
 
-**总 findings: 770**（644 verified + 90 specced + 35 merged + 1 FP）
+**总 findings: 771**（644 verified + 90 specced + 35 merged + 1 FP）
 
 ## 3. 核心根因簇（10 簇，详见 phase4-root-cause-clusters.md）
 
@@ -54,7 +54,7 @@
 
 - 12 份 spec（1 总纲 + 10 子 spec + 1 M 批量）→ `docs/superpowers/specs/2026-08-14-*-design.md`
 - INDEX 登记 14 活跃 spec（#6-#16 新增）
-- 台账：coverage-ledger（G1 通过）/ findings-ledger（770）/ meta-audit.md（G6 通过）
+- 台账：coverage-ledger（G1 通过）/ findings-ledger（771）/ meta-audit.md（G6 通过）
 - 中间产物：phase4-root-cause-clusters.md / d1/ 基线 12 项扫描 / zone-reports 50+ / thread-reports 15
 
 ## 6. 遗留风险（诚实声明）
