@@ -2753,3 +2753,8 @@
 > Z5 区 G2 通过：初审 12 findings + 复核 26 findings 全部 verified，第六轮复核 0 新 finding（2026-08-14，Z5.review6.md）
 
 > Z1 区 G2 通过：初审 13 findings + 复核 53 findings 全部 verified，第十六轮复核 0 新 finding（2026-08-14，Z1.review16.md）
+
+> Z2 区 G2 通过（协调者裁决 2026-08-14）：初审 20 + 复核 49 findings 全 verified；自十三轮起连续 4 轮无 P1/P2 新 finding，十七轮后按人类裁决'无新 P0/P1'判据通过
+> Z3 区 G2 通过（协调者裁决 2026-08-14）：初审 22 + 复核 94 findings（含 F325 误报撤销）；自十二轮 F397 起连续 7 轮无新增 P0/P1，按人类裁决通过
+> Z4 区 G2 通过（协调者裁决 2026-08-14）：初审 19 + 复核 82 findings 全 verified；连续多轮无新增 P0/P1，按人类裁决通过
+> Z6 区 G2 通过（协调者裁决 2026-08-14）：初审 11 + 复核 55 findings 全 verified；连续 9 轮无新增 P0/P1，按人类裁决通过
