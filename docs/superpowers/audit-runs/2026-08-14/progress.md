@@ -149,3 +149,10 @@
   - 代码构造 dict（g5.py:135 char_data、g6.py:199 char_voice 等）——构造即 dict，安全
   - 受控仓库文件（executor_config.toml/deps.json）——T6-02/F493/F497 已覆盖
 - **结论：内层形状家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 26）——后续审核：门禁调用参数形状全仓核对
+- 22 个 gate 调用点逐一核对：
+  - pipeline 路径 8 个（triggers/chapter_loop/audit_layer/closure/genesis 的 run_gate_g3/g4）：全部与既有 finding 对应（F373 N 路径、F408/F3AF 伪造 scorer、F345 并行波无 G3、F3AC 并行失败吞、T1-01 g4_files 无 .json、F379/F371 closure、F380/F3B5 genesis）
+  - gates/cli.py 9 个入口：参数与签名逐一匹配（G0-G7/G_TRANSITION/G_DISPATCH/G_RECONCILE；G7(round_dir) 单参正确；G2 第 4 参 pd=arg(3) 可传；G4 project_dir=rd 显式传）
+  - phase_runner 侧：F150（G2 缺 pd）/F163（G4 第 3 参 round_dir）已覆盖
+- **结论：门禁调用形状枚举完整，零新遗漏，无新增 finding**
