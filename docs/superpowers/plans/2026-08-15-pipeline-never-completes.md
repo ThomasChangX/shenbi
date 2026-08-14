@@ -1036,6 +1036,8 @@ def _closure_snapshot_dir(project_dir: Path) -> str:
     from shenbi.pipeline.cli import _read_total_chapters
 
     total = _read_total_chapters(project_dir)
+    if total <= 0:
+        return ""  # total 未知时不校验（G4 收空串=跳过），不产 chapter-000 假目录
     return resolve_contract_path("snapshots/chapter-NNN/", total, PathContext(chapter=total))
 ```
 
@@ -1066,8 +1068,9 @@ Expected: 5 passed；契约 lints 绿
 
 幂等验证（双跑哈希一致，非中途 git diff——task 中途树本来就不干净）：
 ```bash
-just generate && find tests/tiers docs -name 'deps.json' -newer /dev/null 2>/dev/null | head -1 >/dev/null; H1=$(git status --porcelain | sort | md5)
-just generate && H2=$(git status --porcelain | sort | md5)
+H1=$(find tests docs -name deps.json -exec md5 -q {} + | sort | md5; git diff | md5)
+just generate
+H2=$(find tests docs -name deps.json -exec md5 -q {} + | sort | md5; git diff | md5)
 [ "$H1" = "$H2" ] && echo IDEMPOTENT
 ```
 Expected: IDEMPOTENT
@@ -1333,6 +1336,7 @@ def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
     at26 = bridges_for_chapter(b, 26)
     at30 = bridges_for_chapter(b, 30)
     at36 = bridges_for_chapter(b, 36)
+    at40 = bridges_for_chapter(b, 40)
     assert any("梵天铭文" in s for s in at26)      # vol-1 行（激活 26-28 → min 26，紧凑区间）
     # vol-2 段真实行（volume_map.md:165-168）：操纵战争的铁证（激活36）/科恩·怀特曼（37）/札记（46-48）/反攻反击（36-38）
     assert not any("操纵战争的铁证" in s or "科恩·怀特曼" in s for s in at30)  # @30 不出现（30 < 36-3）
@@ -1341,11 +1345,12 @@ def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
 
 
 def test_sequel_rows_excluded():
-    """验收（负）：续作行（带入卷《星火燃穹》续作）不入任何章上下文。"""
+    """验收（负）：续作行（带入卷《星火燃穹》续作）被谓词直接排除（非因未到激活窗而空转）。"""
     b = read_bridges(TEXT)
+    assert all(b.target_volume != "《星火燃穹》续作" for b in b)
+    assert not any("续作" in b.target_volume for b in b)
     for ch in range(1, 11):
         for s in bridges_for_chapter(b, ch):
-            assert "续作" not in s
             assert "星际探索飞船" not in s
 
 
@@ -1476,7 +1481,7 @@ def _volume_display_name(text: str, index: int) -> str | None:
     heads = list(_CN_VOL_HEAD_RE.finditer(text))
     if 0 < index <= len(heads):
         line_end = text.find("\n", heads[index - 1].start())
-        raw = text[heads[index - 1].start() + 3 : line_end].strip().lstrip("# ").strip()
+        raw = text[heads[index - 1].start() : line_end].lstrip("#").strip()  # 不假设 "## " 精确 3 字符
         # `（第A-B章）` 后缀是生产巧合非卷名——剥掉（plan 审查 I8）
         return re.sub(r"[（(][^）)]*[）)]\s*$", "", raw).strip()
     return None
@@ -1643,9 +1648,14 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
     ],
 }
 
-# _queue_re_dispatches 入队 dict 追加 "feedback": feedback 键；
-# _execute_pending_re_dispatches 的 prompt 尾部追加
-# f"\n\nHuman review feedback (incorporate these changes): {d.get('feedback')}"
+# _queue_re_dispatches 签名扩为 (state, cp, feedback: str | None = None)，
+# 入队 dict 追加 "feedback": feedback 键；_apply_reject_redo 的 PER_CHAPTER 分支
+# 转发 feedback：_queue_re_dispatches(state, cp, feedback=feedback)
+# _execute_pending_re_dispatches 的 prompt 追加改为**条件式**（MODIFY 队列无
+# feedback 键，无条件拼接会把字面 None 渲进 prompt）：
+#   fb = d.get("feedback")
+#   if fb:
+#       prompt += f"\n\nHuman review feedback (incorporate these changes): {fb}"
 # （不写 modify_feedback——单发消费会被下一章首步错吃，plan 审查 R2-I4）
 
 # cli.py 新增模块级（cmd_review 前）：
@@ -1698,7 +1708,7 @@ def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) ->
                 from shenbi.pipeline.checkpoint import clear_staging
 
                 clear_staging(project_dir)
-                _apply_reject_redo(state, cp, feedback=getattr(args, "feedback", None) and Path(args.feedback).read_text(encoding="utf-8"))
+                _apply_reject_redo(state, cp)  # 移到下方既有 feedback 读取之后调用（传 feedback）
 ```
 
 （顺序：redo 游标在 clear_checkpoint 之前作用于 cp 快照；BOOK_CLOSURE 的既有转移逻辑不动。）
@@ -1759,13 +1769,14 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
 
 ```python
     if _auto_settle_parallel(state, project_dir, chapter):
-        # auto 已提交 staging：走章节完成检查（与串行分支 fall-through 同语义），
-        # 不提前 return True（暂停 next），也不落进下方通用 dispatch 路径重派 lifecycle 步骤
-        return _complete_chapter(state, project_dir, chapter)
+        # auto 已提交 staging：镜像串行分支 _advance 尾部的完成判定（chapter_loop.py:1121-1123）——
+        # 并行 settling 分支停在 step 8/16，无条件补章会跳过 9-16 步（分组审计/修订路由/快照/drift）
+        if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+            return _complete_chapter(state, chapter)  # 2 参签名（chapter_loop.py:896）
+        return False  # 下一轮编排跑 step 9+
     # review_required：保持原 set_checkpoint(STATE_SETTLE, ...) 路径
 ```
 
-（`_complete_chapter` 为该分支现有的章节完成处理函数——以 2690-2715 实际控制流核对调用名；若原分支是内联逻辑则按此语义内联。）
 
 - [ ] **Step 4: 跑测试确认通过 + 回归**
 
