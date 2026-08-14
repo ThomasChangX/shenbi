@@ -174,6 +174,8 @@
 | F340 | cmd_review 的 REJECT 未实现 spec §2.7 重做/回退语义（全类型缺失）；genesis-complete reject 后 pipeline 卡死 | error | P1 | 见 Z3.review2.md#F340 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F341 | --auto 模式下并行 post-draft 仍每章无条件设 STATE_SETTLE checkpoint（state_settle_review_required 未检查）→ 自动化运行每章必停 | error | P1 | 见 Z3.review2.md#F341 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F342 | volume_snapshot_pending / add_audit_result / increment_retry / reset_retry 生产死代码 | optimization | P2 | 见 Z3.review2.md#F342 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F343 | cli closure 失败路径 dispatch_escalation 传 int 0 而非 None → escalation prompt 报 "chapter 0"（对照 genesis.py:246 用 None） | error | M | 见 Z3.review2.md#F343 | 复核实测：pipeline/cli.py:294-296 传 0、revision_router.py:153 分支确认 | 见报告 | 见报告 | deep-read | verified |
+| F344 | write_safety._WRITE_SHARED_SKILLS 注释漂移（foreshadowing-track → 实际并发为 foreshadowing-lifecycle，MERGE-1 未更新） | docs | M | 见 Z3.review2.md#F344 | 复核实测：write_safety.py:24-25 注释 vs chapter_loop.py:187 并发路径 | 见报告 | 见报告 | deep-read | verified |
 | F431 | jload 的 ValueError（合法但非 dict 的 JSON）在 G1.6/G3.x/G5.1/G7.x/read_genre_config/gate_manifest 未捕获 → 多门崩溃（F419/F421 家族扩展） | error | P2 | 见 Z4.review2.md#F431 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F432 | G7.1b 反向覆盖以 ALL_SKILLS(74) 为全集，5 个无 T1 scaffold 的 group/lifecycle 技能永不可达 → 完整 round 的 G7 恒 FAIL；G0.10/G_DISPATCH 同根因 | error | P1 | 见 Z4.review2.md#F432 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F433 | g4_chapter_drafting 主角在场检查用坏掉的 project_root（skill-output 爬升）而非已传入的 project_dir → 生产布局恒用默认名 ["林烽","他"]，检查形同虚设或误报 | error | P2 | 见 Z4.review2.md#F433 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |

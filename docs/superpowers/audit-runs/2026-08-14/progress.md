@@ -38,3 +38,7 @@
 ### 2026-08-14 会话 1（续）
 - 完成: 阶段 2 补全（Z7-Z11 初审，发现 56% fixtures mock）；阶段 3 线程 T1-T15 全部（98 findings）；阶段 4 聚类校准；阶段 5 12 spec + INDEX；阶段 6 G1/G6 通过 + final-report
 - 下一步: **G7 人类裁决**——汇报 final-report 摘要，等待指示（结束 / 继续某簇 / 追加审查）
+
+### 2026-08-14 会话 1（续 2）
+- Z3.review2 迟到通知核验：F325 撤销 / F305 降回 P2 已生效；发现 F343/F344（M 级）漏录 → 补录台账（行 177-178），final-report 统计 761→763（M 155→157，P2 483→481 顺带修正，verified 635→637）
+- 复核实测：pipeline/cli.py:294-296 传 int 0 vs genesis.py:246 传 None（F343）；write_safety.py:24-25 注释 vs chapter_loop.py:187 lifecycle 并发路径（F344）
