@@ -22,14 +22,14 @@
 | .hypothesis/examples/.gitkeep | unreviewed | — | — |
 | .pre-commit-config.yaml | unreviewed | — | — |
 | .yamllint | unreviewed | — | — |
-| .zcode/plans/plan-sess_ca133467-377d-4c1d-a764-f74af1c16924.md | unreviewed | — | — |
-| AGENTS.md | unreviewed | — | — |
-| CHANGELOG.md | unreviewed | — | — |
-| CODE_OF_CONDUCT.md | unreviewed | — | — |
-| CONTRIBUTING.md | unreviewed | — | — |
-| LICENSE | unreviewed | — | — |
-| README.md | unreviewed | — | — |
-| SECURITY.md | unreviewed | — | — |
+| .zcode/plans/plan-sess_ca133467-377d-4c1d-a764-f74af1c16924.md | deep-read | zone-reports/Z9.md#plan-sess_ca133467-377d-4c1d-a764-f74af1c16924.md | Z9 初审 |
+| AGENTS.md | deep-read | zone-reports/Z9.md#AGENTS.md | Z9 初审 |
+| CHANGELOG.md | deep-read | zone-reports/Z9.md#CHANGELOG.md | Z9 初审 |
+| CODE_OF_CONDUCT.md | deep-read | zone-reports/Z9.md#CODE_OF_CONDUCT.md | Z9 初审 |
+| CONTRIBUTING.md | deep-read | zone-reports/Z9.md#CONTRIBUTING.md | Z9 初审 |
+| LICENSE | deep-read | zone-reports/Z9.md#LICENSE | Z9 初审 |
+| README.md | deep-read | zone-reports/Z9.md#README.md | Z9 初审 |
+| SECURITY.md | deep-read | zone-reports/Z9.md#SECURITY.md | Z9 初审 |
 | benchmarks/anchors/AC-001.md | unreviewed | — | — |
 | benchmarks/anchors/AC-002.md | unreviewed | — | — |
 | benchmarks/anchors/AC-003.md | unreviewed | — | — |
@@ -42,212 +42,212 @@
 | benchmarks/anchors/AC-010.md | unreviewed | — | — |
 | benchmarks/anchors/AC-011.md | unreviewed | — | — |
 | cliff.toml | unreviewed | — | — |
-| command-to-give.md | unreviewed | — | — |
-| docs/_shared-evidence-template/REVIEW_EVIDENCE.md | unreviewed | — | — |
-| docs/adr/0000-template.md | unreviewed | — | — |
-| docs/adr/0001-pyproject-uv.md | unreviewed | — | — |
-| docs/adr/0002-ruff-strict.md | unreviewed | — | — |
-| docs/adr/0003-mypy-basedpyright-dual.md | unreviewed | — | — |
-| docs/adr/0004-pytest-framework.md | unreviewed | — | — |
-| docs/adr/0005-structlog.md | unreviewed | — | — |
-| docs/adr/0006-typed-exceptions.md | unreviewed | — | — |
-| docs/adr/0007-adr-process.md | unreviewed | — | — |
-| docs/adr/0008-validate-gate-modularization.md | unreviewed | — | — |
-| docs/adr/0009-dispatcher-python-rewrite.md | unreviewed | — | — |
-| docs/adr/index.md | unreviewed | — | — |
-| docs/api/exceptions.md | unreviewed | — | — |
-| docs/api/logging.md | unreviewed | — | — |
-| docs/architecture/overview.md | unreviewed | — | — |
-| docs/basedpyright-overrides.md | unreviewed | — | — |
-| docs/framework/chapter-file-format.md | unreviewed | — | — |
-| docs/framework/decisions-schema.md | unreviewed | — | — |
-| docs/framework/dependency-dag.json | unreviewed | — | — |
-| docs/framework/dispatcher.md | unreviewed | — | — |
-| docs/framework/gates.md | unreviewed | — | — |
-| docs/framework/logging.md | unreviewed | — | — |
-| docs/framework/scoring.md | unreviewed | — | — |
-| docs/framework/truth-files.index.json | unreviewed | — | — |
-| docs/framework/truth-files.yaml | unreviewed | — | — |
-| docs/getting-started/concepts.md | unreviewed | — | — |
-| docs/getting-started/first-novel.md | unreviewed | — | — |
-| docs/getting-started/installation.md | unreviewed | — | — |
-| docs/index.md | unreviewed | — | — |
-| docs/roadmap.md | unreviewed | — | — |
-| docs/skills/index.md | unreviewed | — | — |
-| docs/superpowers/full-project-audit-prompt.md | unreviewed | — | — |
-| docs/superpowers/plans/INDEX.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-08-phase1-core-pipeline.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-08-phases-2-through-5.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-11-gate-system-implementation.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-11-test-framework.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-13-test-integrity-hardening.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-14-p-1.a-foundation-metadata.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-14-p-1.b-pytest-ci-precommit.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-14-p-1.c-structlog-exceptions-adrs.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-14-p-1.d-refactor-cleanup-extras.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-01-src-layout.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-02-pr-fraud.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-03-tooling.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-04-testing.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-05-ci-supply-chain.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-06-enterprise.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-15-p-1.e-07-docs-config.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-16-test-coverage-completion.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-21-consistency-single-source.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-22-positive-quality-gates.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave1-helpers.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave2-memory.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave3-scoring.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave4-loop-approval.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar1.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar2-gates.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar3-cjk.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar4-tierA.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar4-tierB.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar5-property.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar6-docs-lint.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-01-documentation-redesign.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-root-cause-fixes.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave1-foundation.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave2-retrieval.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave3-orchestrators.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave4-skill-integration.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave5-integration.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-02-pipeline-coverage-matrix.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-06-pipeline-phase1-defect-fix.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-07-clean-context-handoff.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-07-pipeline-performance-redesign.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-08-contract-consistency-infrastructure.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-09-ci-optimization.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-16-p0-blocking-fixes.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-01-truth-file-and-state-accumulation-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-02-output-validation-and-format-enforcement-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-06-llm-context-engineering-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-09-dispatch-safety-and-file-integrity-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-10-content-planning-and-deliverable-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-11-data-storage-optimization-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-14-skill-contract-and-description-quality-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-15-content-quality-gates-and-review-optimization-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-16-output-structural-integrity-beyond-json-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-18-pipeline-architecture-optimization-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-07-19-19-end-to-end-validation-protocol-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-08-02-inference-control-audit-plan.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.md | unreviewed | — | — |
-| docs/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1.md | unreviewed | — | — |
-| docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md | unreviewed | — | — |
-| docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md | unreviewed | — | — |
-| docs/superpowers/specs/2026-08-13-full-project-audit-prompt-design.md | unreviewed | — | — |
-| docs/superpowers/specs/INDEX.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-08-shenbi-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-11-test-gate-system-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-11-test-plan-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-13-test-integrity-hardening-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-14-p-1-foundation-hygiene-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/01-pr-fraud.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/02-structural-layout.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/04-testing-foundation.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/05-ci-supply-chain.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/07-docs-config-drift.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/README.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/REVIEW-LOG.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-16-test-coverage-completion-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-21-consistency-single-source-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-22-positive-quality-gates-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-29-pipeline-runner-design-notes.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-06-30-contract-enforcement-and-production-wiring-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-01-documentation-redesign-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-02-novel-pipeline-root-cause-fixes-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-06-pipeline-phase1-defect-fix-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-07-clean-context-handoff-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-08-contract-consistency-infrastructure-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-09-ci-optimization-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-consolidate-gate-markers-manifest-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-consolidate-review-checklist-static-fields-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-consolidate-snapshot-differential-storage-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-end-to-end-validation-after-fixes-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-chapter-content-looping-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-chapter-size-time-uncorrelated-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-chapter-title-degradation-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-character-archive-completeness-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-context-assembly-persistence-gap-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-cross-chapter-template-duplication-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-decisions-json-corruption-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-hook-system-bifurcation-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-json-nonstandard-format-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-missing-revision-decisions-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-pipeline-state-stale-data-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-plan-content-mismatch-and-factual-errors-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-progressive-prose-collapse-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-protagonist-disappearance-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-resonance-g4-format-mismatch-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-resonance-score-null-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-review-summary-all-identical-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-revision-overwrite-chapter-content-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-revision-system-failure-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-seven-chapters-zero-prose-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-snapshot-bloat-lockfile-budget-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-snapshot-coverage-gaps-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-staging-residue-cleanup-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-state-machine-current-step-corruption-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-state-settling-timeout-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-static-review-checklist-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-style-learning-never-updated-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-truth-file-overwrite-pattern-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-improve-meta-block-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-improve-pipeline-observability-metrics-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-reduce-token-waste-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-17-restore-progress-tracking-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-graceful-shutdown-crash-recovery-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-parallelize-pipeline-steps-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-pipeline-runtime-optimizations-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-pipeline-step-reorganization-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-18-structured-chapter-representation-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-01-truth-file-and-state-accumulation-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-02-output-validation-and-format-enforcement-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-03-pipeline-cost-and-token-accounting-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-06-llm-context-engineering-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-09-dispatch-safety-and-file-integrity-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-10-content-planning-and-deliverable-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-11-data-storage-optimization-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-14-skill-contract-and-description-quality-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-15-content-quality-gates-and-review-optimization-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-16-output-structural-integrity-beyond-json-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-18-pipeline-architecture-optimization-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-07-19-19-end-to-end-validation-protocol-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-01-eliminate-existing-warnings-plan.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-01-inference-control-audit-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-01-pipeline-read-write-consistency-audit-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md | unreviewed | — | — |
-| docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md | unreviewed | — | — |
+| command-to-give.md | deep-read | zone-reports/Z9.md#command-to-give.md | Z9 初审 |
+| docs/_shared-evidence-template/REVIEW_EVIDENCE.md | deep-read | zone-reports/Z9.md#REVIEW_EVIDENCE.md | Z9 初审 |
+| docs/adr/0000-template.md | deep-read | zone-reports/Z9.md#0000-template.md | Z9 初审 |
+| docs/adr/0001-pyproject-uv.md | deep-read | zone-reports/Z9.md#0001-pyproject-uv.md | Z9 初审 |
+| docs/adr/0002-ruff-strict.md | deep-read | zone-reports/Z9.md#0002-ruff-strict.md | Z9 初审 |
+| docs/adr/0003-mypy-basedpyright-dual.md | deep-read | zone-reports/Z9.md#0003-mypy-basedpyright-dual.md | Z9 初审 |
+| docs/adr/0004-pytest-framework.md | deep-read | zone-reports/Z9.md#0004-pytest-framework.md | Z9 初审 |
+| docs/adr/0005-structlog.md | deep-read | zone-reports/Z9.md#0005-structlog.md | Z9 初审 |
+| docs/adr/0006-typed-exceptions.md | deep-read | zone-reports/Z9.md#0006-typed-exceptions.md | Z9 初审 |
+| docs/adr/0007-adr-process.md | deep-read | zone-reports/Z9.md#0007-adr-process.md | Z9 初审 |
+| docs/adr/0008-validate-gate-modularization.md | deep-read | zone-reports/Z9.md#0008-validate-gate-modularization.md | Z9 初审 |
+| docs/adr/0009-dispatcher-python-rewrite.md | deep-read | zone-reports/Z9.md#0009-dispatcher-python-rewrite.md | Z9 初审 |
+| docs/adr/index.md | deep-read | zone-reports/Z9.md#index.md | Z9 初审 |
+| docs/api/exceptions.md | deep-read | zone-reports/Z9.md#exceptions.md | Z9 初审 |
+| docs/api/logging.md | deep-read | zone-reports/Z9.md#logging.md | Z9 初审 |
+| docs/architecture/overview.md | deep-read | zone-reports/Z9.md#overview.md | Z9 初审 |
+| docs/basedpyright-overrides.md | deep-read | zone-reports/Z9.md#basedpyright-overrides.md | Z9 初审 |
+| docs/framework/chapter-file-format.md | deep-read | zone-reports/Z9.md#chapter-file-format.md | Z9 初审 |
+| docs/framework/decisions-schema.md | deep-read | zone-reports/Z9.md#decisions-schema.md | Z9 初审 |
+| docs/framework/dependency-dag.json | deep-read | zone-reports/Z9.md#dependency-dag.json | Z9 初审 |
+| docs/framework/dispatcher.md | deep-read | zone-reports/Z9.md#dispatcher.md | Z9 初审 |
+| docs/framework/gates.md | deep-read | zone-reports/Z9.md#gates.md | Z9 初审 |
+| docs/framework/logging.md | deep-read | zone-reports/Z9.md#logging.md | Z9 初审 |
+| docs/framework/scoring.md | deep-read | zone-reports/Z9.md#scoring.md | Z9 初审 |
+| docs/framework/truth-files.index.json | deep-read | zone-reports/Z9.md#truth-files.index.json | Z9 初审 |
+| docs/framework/truth-files.yaml | deep-read | zone-reports/Z9.md#truth-files.yaml | Z9 初审 |
+| docs/getting-started/concepts.md | deep-read | zone-reports/Z9.md#concepts.md | Z9 初审 |
+| docs/getting-started/first-novel.md | deep-read | zone-reports/Z9.md#first-novel.md | Z9 初审 |
+| docs/getting-started/installation.md | deep-read | zone-reports/Z9.md#installation.md | Z9 初审 |
+| docs/index.md | deep-read | zone-reports/Z9.md#index.md | Z9 初审 |
+| docs/roadmap.md | deep-read | zone-reports/Z9.md#roadmap.md | Z9 初审 |
+| docs/skills/index.md | deep-read | zone-reports/Z9.md#index.md | Z9 初审 |
+| docs/superpowers/full-project-audit-prompt.md | deep-read | zone-reports/Z9.md#full-project-audit-prompt.md | Z9 初审 |
+| docs/superpowers/plans/INDEX.md | deep-read | zone-reports/Z9.md#INDEX.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-08-phase1-core-pipeline.md | deep-read | zone-reports/Z9.md#2026-06-08-phase1-core-pipeline.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-08-phases-2-through-5.md | deep-read | zone-reports/Z9.md#2026-06-08-phases-2-through-5.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-11-gate-system-implementation.md | deep-read | zone-reports/Z9.md#2026-06-11-gate-system-implementation.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-11-test-framework.md | deep-read | zone-reports/Z9.md#2026-06-11-test-framework.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-13-test-integrity-hardening.md | deep-read | zone-reports/Z9.md#2026-06-13-test-integrity-hardening.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-14-p-1.a-foundation-metadata.md | deep-read | zone-reports/Z9.md#2026-06-14-p-1.a-foundation-metadata.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-14-p-1.b-pytest-ci-precommit.md | deep-read | zone-reports/Z9.md#2026-06-14-p-1.b-pytest-ci-precommit.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-14-p-1.c-structlog-exceptions-adrs.md | deep-read | zone-reports/Z9.md#2026-06-14-p-1.c-structlog-exceptions-adrs.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-14-p-1.d-refactor-cleanup-extras.md | deep-read | zone-reports/Z9.md#2026-06-14-p-1.d-refactor-cleanup-extras.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-01-src-layout.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-01-src-layout.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-02-pr-fraud.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-02-pr-fraud.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-03-tooling.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-03-tooling.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-04-testing.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-04-testing.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-05-ci-supply-chain.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-05-ci-supply-chain.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-06-enterprise.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-06-enterprise.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-15-p-1.e-07-docs-config.md | deep-read | zone-reports/Z9.md#2026-06-15-p-1.e-07-docs-config.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-16-test-coverage-completion.md | deep-read | zone-reports/Z9.md#2026-06-16-test-coverage-completion.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-21-consistency-single-source.md | deep-read | zone-reports/Z9.md#2026-06-21-consistency-single-source.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-22-positive-quality-gates.md | deep-read | zone-reports/Z9.md#2026-06-22-positive-quality-gates.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave1-helpers.md | deep-read | zone-reports/Z9.md#2026-06-28-hierarchical-system-wave1-helpers.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave2-memory.md | deep-read | zone-reports/Z9.md#2026-06-28-hierarchical-system-wave2-memory.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave3-scoring.md | deep-read | zone-reports/Z9.md#2026-06-28-hierarchical-system-wave3-scoring.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-28-hierarchical-system-wave4-loop-approval.md | deep-read | zone-reports/Z9.md#2026-06-28-hierarchical-system-wave4-loop-approval.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar1.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar1.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar2-gates.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar2-gates.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar3-cjk.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar3-cjk.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar4-tierA.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar4-tierA.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar4-tierB.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar4-tierB.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar5-property.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar5-property.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar6-docs-lint.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-pillar6-docs-lint.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-01-documentation-redesign.md | deep-read | zone-reports/Z9.md#2026-07-01-documentation-redesign.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-root-cause-fixes.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-root-cause-fixes.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave1-foundation.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-wave1-foundation.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave2-retrieval.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-wave2-retrieval.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave3-orchestrators.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-wave3-orchestrators.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave4-skill-integration.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-wave4-skill-integration.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-novel-pipeline-wave5-integration.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-wave5-integration.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-02-pipeline-coverage-matrix.md | deep-read | zone-reports/Z9.md#2026-07-02-pipeline-coverage-matrix.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-06-pipeline-phase1-defect-fix.md | deep-read | zone-reports/Z9.md#2026-07-06-pipeline-phase1-defect-fix.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-07-clean-context-handoff.md | deep-read | zone-reports/Z9.md#2026-07-07-clean-context-handoff.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-07-pipeline-performance-redesign.md | deep-read | zone-reports/Z9.md#2026-07-07-pipeline-performance-redesign.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-08-contract-consistency-infrastructure.md | deep-read | zone-reports/Z9.md#2026-07-08-contract-consistency-infrastructure.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-09-ci-optimization.md | deep-read | zone-reports/Z9.md#2026-07-09-ci-optimization.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-16-p0-blocking-fixes.md | deep-read | zone-reports/Z9.md#2026-07-16-p0-blocking-fixes.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-01-truth-file-and-state-accumulation-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-01-truth-file-and-state-accumulation-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-02-output-validation-and-format-enforcement-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-02-output-validation-and-format-enforcement-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-03-pipeline-cost-and-token-accounting-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-04-configuration-coherence-and-threshold-governance-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-05-semantic-index-population-and-parser-coherence-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-06-llm-context-engineering-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-06-llm-context-engineering-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-08-concurrent-dispatch-and-state-safety-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-09-dispatch-safety-and-file-integrity-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-09-dispatch-safety-and-file-integrity-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-10-content-planning-and-deliverable-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-10-content-planning-and-deliverable-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-11-data-storage-optimization-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-11-data-storage-optimization-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-14-skill-contract-and-description-quality-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-14-skill-contract-and-description-quality-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-15-content-quality-gates-and-review-optimization-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-15-content-quality-gates-and-review-optimization-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-16-output-structural-integrity-beyond-json-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-16-output-structural-integrity-beyond-json-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-17-pipeline-infrastructure-and-resilience-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-18-pipeline-architecture-optimization-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-18-pipeline-architecture-optimization-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-07-19-19-end-to-end-validation-protocol-plan.md | deep-read | zone-reports/Z9.md#2026-07-19-19-end-to-end-validation-protocol-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-08-02-inference-control-audit-plan.md | deep-read | zone-reports/Z9.md#2026-08-02-inference-control-audit-plan.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor.md | deep-read | zone-reports/Z9.md#2026-08-02-issue24-cyclic-import-refactor.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.md | deep-read | zone-reports/Z9.md#2026-08-02-pr20-followup-dependabot-and-embeddings-ci.md | Z9 初审 |
+| docs/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1.md | deep-read | zone-reports/Z9.md#2026-08-02-token-efficiency-master-p0-p1.md | Z9 初审 |
+| docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md | deep-read | zone-reports/Z9.md#2026-08-01-deterministic-skill-replacement-audit-design.md | Z9 初审 |
+| docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md | deep-read | zone-reports/Z9.md#2026-08-01-output-side-waste-audit-design.md | Z9 初审 |
+| docs/superpowers/specs/2026-08-13-full-project-audit-prompt-design.md | deep-read | zone-reports/Z9.md#2026-08-13-full-project-audit-prompt-design.md | Z9 初审 |
+| docs/superpowers/specs/INDEX.md | deep-read | zone-reports/Z9.md#INDEX.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-08-shenbi-design.md | deep-read | zone-reports/Z9.md#2026-06-08-shenbi-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-11-test-gate-system-design.md | deep-read | zone-reports/Z9.md#2026-06-11-test-gate-system-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-11-test-plan-design.md | deep-read | zone-reports/Z9.md#2026-06-11-test-plan-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-13-test-integrity-hardening-design.md | deep-read | zone-reports/Z9.md#2026-06-13-test-integrity-hardening-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-14-p-1-foundation-hygiene-design.md | deep-read | zone-reports/Z9.md#2026-06-14-p-1-foundation-hygiene-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/01-pr-fraud.md | deep-read | zone-reports/Z9.md#01-pr-fraud.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/02-structural-layout.md | deep-read | zone-reports/Z9.md#02-structural-layout.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation.md | deep-read | zone-reports/Z9.md#03-tooling-invalidation.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/04-testing-foundation.md | deep-read | zone-reports/Z9.md#04-testing-foundation.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/05-ci-supply-chain.md | deep-read | zone-reports/Z9.md#05-ci-supply-chain.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish.md | deep-read | zone-reports/Z9.md#06-enterprise-and-polish.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/07-docs-config-drift.md | deep-read | zone-reports/Z9.md#07-docs-config-drift.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/08-p0-plan-patches.md | deep-read | zone-reports/Z9.md#08-p0-plan-patches.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/README.md | deep-read | zone-reports/Z9.md#README.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/REVIEW-LOG.md | deep-read | zone-reports/Z9.md#REVIEW-LOG.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-16-test-coverage-completion-design.md | deep-read | zone-reports/Z9.md#2026-06-16-test-coverage-completion-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-21-consistency-single-source-design.md | deep-read | zone-reports/Z9.md#2026-06-21-consistency-single-source-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-22-positive-quality-gates-design.md | deep-read | zone-reports/Z9.md#2026-06-22-positive-quality-gates-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md | deep-read | zone-reports/Z9.md#2026-06-28-hierarchical-memory-scoring-system-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md | deep-read | zone-reports/Z9.md#2026-06-29-contract-single-source-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-29-pipeline-runner-design-notes.md | deep-read | zone-reports/Z9.md#2026-06-29-pipeline-runner-design-notes.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-06-30-contract-enforcement-and-production-wiring-design.md | deep-read | zone-reports/Z9.md#2026-06-30-contract-enforcement-and-production-wiring-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-01-documentation-redesign-design.md | deep-read | zone-reports/Z9.md#2026-07-01-documentation-redesign-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md | deep-read | zone-reports/Z9.md#2026-07-01-novel-pipeline-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-02-novel-pipeline-root-cause-fixes-design.md | deep-read | zone-reports/Z9.md#2026-07-02-novel-pipeline-root-cause-fixes-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-06-pipeline-phase1-defect-fix-design.md | deep-read | zone-reports/Z9.md#2026-07-06-pipeline-phase1-defect-fix-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-07-clean-context-handoff-design.md | deep-read | zone-reports/Z9.md#2026-07-07-clean-context-handoff-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-07-pipeline-performance-redesign.md | deep-read | zone-reports/Z9.md#2026-07-07-pipeline-performance-redesign.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-08-contract-consistency-infrastructure-design.md | deep-read | zone-reports/Z9.md#2026-07-08-contract-consistency-infrastructure-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-09-ci-optimization-design.md | deep-read | zone-reports/Z9.md#2026-07-09-ci-optimization-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md | deep-read | zone-reports/Z9.md#2026-07-16-pipeline-maturity-and-bp-fixes-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-consolidate-gate-markers-manifest-design.md | deep-read | zone-reports/Z9.md#2026-07-17-consolidate-gate-markers-manifest-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-consolidate-review-checklist-static-fields-design.md | deep-read | zone-reports/Z9.md#2026-07-17-consolidate-review-checklist-static-fields-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-consolidate-snapshot-differential-storage-design.md | deep-read | zone-reports/Z9.md#2026-07-17-consolidate-snapshot-differential-storage-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-end-to-end-validation-after-fixes-design.md | deep-read | zone-reports/Z9.md#2026-07-17-end-to-end-validation-after-fixes-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-chapter-content-looping-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-chapter-content-looping-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-chapter-size-time-uncorrelated-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-chapter-size-time-uncorrelated-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-chapter-title-degradation-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-chapter-title-degradation-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-character-archive-completeness-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-character-archive-completeness-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-context-assembly-persistence-gap-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-context-assembly-persistence-gap-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-cross-chapter-template-duplication-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-cross-chapter-template-duplication-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-decisions-json-corruption-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-decisions-json-corruption-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-hook-system-bifurcation-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-hook-system-bifurcation-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-json-nonstandard-format-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-json-nonstandard-format-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-missing-revision-decisions-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-missing-revision-decisions-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-pipeline-state-stale-data-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-pipeline-state-stale-data-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-plan-content-mismatch-and-factual-errors-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-plan-content-mismatch-and-factual-errors-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-progressive-prose-collapse-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-progressive-prose-collapse-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-protagonist-disappearance-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-protagonist-disappearance-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-resonance-g4-format-mismatch-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-resonance-g4-format-mismatch-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-resonance-score-null-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-resonance-score-null-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-review-summary-all-identical-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-review-summary-all-identical-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-revision-overwrite-chapter-content-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-revision-overwrite-chapter-content-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-revision-system-failure-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-revision-system-failure-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-seven-chapters-zero-prose-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-seven-chapters-zero-prose-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-snapshot-bloat-lockfile-budget-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-snapshot-bloat-lockfile-budget-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-snapshot-coverage-gaps-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-snapshot-coverage-gaps-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-staging-residue-cleanup-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-staging-residue-cleanup-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-state-machine-current-step-corruption-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-state-machine-current-step-corruption-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-state-settling-timeout-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-state-settling-timeout-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-static-review-checklist-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-static-review-checklist-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-style-learning-never-updated-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-style-learning-never-updated-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-truth-file-overwrite-pattern-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-truth-file-overwrite-pattern-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design.md | deep-read | zone-reports/Z9.md#2026-07-17-fix-volume-map-not-consumed-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-improve-meta-block-design.md | deep-read | zone-reports/Z9.md#2026-07-17-improve-meta-block-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-improve-pipeline-observability-metrics-design.md | deep-read | zone-reports/Z9.md#2026-07-17-improve-pipeline-observability-metrics-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-reduce-token-waste-design.md | deep-read | zone-reports/Z9.md#2026-07-17-reduce-token-waste-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-17-restore-progress-tracking-design.md | deep-read | zone-reports/Z9.md#2026-07-17-restore-progress-tracking-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-graceful-shutdown-crash-recovery-design.md | deep-read | zone-reports/Z9.md#2026-07-18-graceful-shutdown-crash-recovery-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.md | deep-read | zone-reports/Z9.md#2026-07-18-optimize-llm-context-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-parallelize-pipeline-steps-design.md | deep-read | zone-reports/Z9.md#2026-07-18-parallelize-pipeline-steps-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-pipeline-runtime-optimizations-design.md | deep-read | zone-reports/Z9.md#2026-07-18-pipeline-runtime-optimizations-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-pipeline-step-reorganization-design.md | deep-read | zone-reports/Z9.md#2026-07-18-pipeline-step-reorganization-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-18-structured-chapter-representation-design.md | deep-read | zone-reports/Z9.md#2026-07-18-structured-chapter-representation-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-01-truth-file-and-state-accumulation-design.md | deep-read | zone-reports/Z9.md#2026-07-19-01-truth-file-and-state-accumulation-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-02-output-validation-and-format-enforcement-design.md | deep-read | zone-reports/Z9.md#2026-07-19-02-output-validation-and-format-enforcement-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-03-pipeline-cost-and-token-accounting-design.md | deep-read | zone-reports/Z9.md#2026-07-19-03-pipeline-cost-and-token-accounting-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-design.md | deep-read | zone-reports/Z9.md#2026-07-19-04-configuration-coherence-and-threshold-governance-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md | deep-read | zone-reports/Z9.md#2026-07-19-05-semantic-index-population-and-parser-coherence-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-06-llm-context-engineering-design.md | deep-read | zone-reports/Z9.md#2026-07-19-06-llm-context-engineering-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.md | deep-read | zone-reports/Z9.md#2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-design.md | deep-read | zone-reports/Z9.md#2026-07-19-08-concurrent-dispatch-and-state-safety-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-09-dispatch-safety-and-file-integrity-design.md | deep-read | zone-reports/Z9.md#2026-07-19-09-dispatch-safety-and-file-integrity-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-10-content-planning-and-deliverable-design.md | deep-read | zone-reports/Z9.md#2026-07-19-10-content-planning-and-deliverable-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-11-data-storage-optimization-design.md | deep-read | zone-reports/Z9.md#2026-07-19-11-data-storage-optimization-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-design.md | deep-read | zone-reports/Z9.md#2026-07-19-12-state-counter-integrity-and-telemetry-wiring-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md | deep-read | zone-reports/Z9.md#2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-14-skill-contract-and-description-quality-design.md | deep-read | zone-reports/Z9.md#2026-07-19-14-skill-contract-and-description-quality-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-15-content-quality-gates-and-review-optimization-design.md | deep-read | zone-reports/Z9.md#2026-07-19-15-content-quality-gates-and-review-optimization-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-16-output-structural-integrity-beyond-json-design.md | deep-read | zone-reports/Z9.md#2026-07-19-16-output-structural-integrity-beyond-json-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-design.md | deep-read | zone-reports/Z9.md#2026-07-19-17-pipeline-infrastructure-and-resilience-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-18-pipeline-architecture-optimization-design.md | deep-read | zone-reports/Z9.md#2026-07-19-18-pipeline-architecture-optimization-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-07-19-19-end-to-end-validation-protocol-design.md | deep-read | zone-reports/Z9.md#2026-07-19-19-end-to-end-validation-protocol-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-01-eliminate-existing-warnings-plan.md | deep-read | zone-reports/Z9.md#2026-08-01-eliminate-existing-warnings-plan.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-01-inference-control-audit-design.md | deep-read | zone-reports/Z9.md#2026-08-01-inference-control-audit-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-01-pipeline-read-write-consistency-audit-design.md | deep-read | zone-reports/Z9.md#2026-08-01-pipeline-read-write-consistency-audit-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design.md | deep-read | zone-reports/Z9.md#2026-08-01-pr23-debugging-postmortem-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md | deep-read | zone-reports/Z9.md#2026-08-02-issue24-cyclic-import-refactor-design.md | Z9 初审 |
+| docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md | deep-read | zone-reports/Z9.md#2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md | Z9 初审 |
 | executor_config.toml | unreviewed | — | — |
-| goal-prompt.md | unreviewed | — | — |
+| goal-prompt.md | deep-read | zone-reports/Z9.md#goal-prompt.md | Z9 初审 |
 | justfile | unreviewed | — | — |
 | mkdocs.yml | unreviewed | — | — |
 | novel-output/test-validation/characters/protagonist.md | unreviewed | — | — |
@@ -1510,111 +1510,111 @@
 | novel-output/xinghuo-ranqiong/world/power_system.md | unreviewed | — | — |
 | novel-output/xinghuo-ranqiong/world/rules.md | unreviewed | — | — |
 | novel-output/xinghuo-ranqiong/world/story_bible.md | unreviewed | — | — |
-| outline-example.md | unreviewed | — | — |
+| outline-example.md | deep-read | zone-reports/Z9.md#outline-example.md | Z9 初审 |
 | plugins/master.json | unreviewed | — | — |
 | pyproject.toml | unreviewed | — | — |
 | run_pipeline.sh | unreviewed | — | — |
 | scripts/lint_contract_fields.py | unreviewed | — | — |
-| skills/shenbi-anchor-curate/SKILL.md | unreviewed | — | — |
-| skills/shenbi-anti-detect/SKILL.md | unreviewed | — | — |
-| skills/shenbi-book-spine-init/SKILL.md | unreviewed | — | — |
-| skills/shenbi-canon-import/SKILL.md | unreviewed | — | — |
-| skills/shenbi-chapter-drafting/.gitkeep | unreviewed | — | — |
-| skills/shenbi-chapter-drafting/SKILL.md | unreviewed | — | — |
-| skills/shenbi-chapter-drafting/anti-ai-reference.md | unreviewed | — | — |
-| skills/shenbi-chapter-pattern/SKILL.md | unreviewed | — | — |
-| skills/shenbi-chapter-planning/.gitkeep | unreviewed | — | — |
-| skills/shenbi-chapter-planning/SKILL.md | unreviewed | — | — |
-| skills/shenbi-chapter-revision/.gitkeep | unreviewed | — | — |
-| skills/shenbi-chapter-revision/SKILL.md | unreviewed | — | — |
-| skills/shenbi-chapter-revision/revision-modes.md | unreviewed | — | — |
-| skills/shenbi-character-design/.gitkeep | unreviewed | — | — |
-| skills/shenbi-character-design/SKILL.md | unreviewed | — | — |
-| skills/shenbi-character-extraction/SKILL.md | unreviewed | — | — |
-| skills/shenbi-context-composing/.gitkeep | unreviewed | — | — |
-| skills/shenbi-context-composing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-drift-guidance/SKILL.md | unreviewed | — | — |
-| skills/shenbi-escalation-review/SKILL.md | unreviewed | — | — |
-| skills/shenbi-faction-builder/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-lifecycle/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-plant/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-plant/hook-types.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-recall/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-resolve/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-resolve/chase-power.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-track/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foreshadowing-track/lifecycle-states.md | unreviewed | — | — |
-| skills/shenbi-foundation-review/SKILL.md | unreviewed | — | — |
-| skills/shenbi-foundation-review/scoring-rubric.md | unreviewed | — | — |
-| skills/shenbi-genre-config/SKILL.md | unreviewed | — | — |
-| skills/shenbi-import-analysis/SKILL.md | unreviewed | — | — |
-| skills/shenbi-intent-management/SKILL.md | unreviewed | — | — |
-| skills/shenbi-length-normalizing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-location-builder/SKILL.md | unreviewed | — | — |
-| skills/shenbi-market-radar/SKILL.md | unreviewed | — | — |
-| skills/shenbi-memory-distill/SKILL.md | unreviewed | — | — |
-| skills/shenbi-pacing-design/SKILL.md | unreviewed | — | — |
-| skills/shenbi-plot-thread-weaver/SKILL.md | unreviewed | — | — |
-| skills/shenbi-power-system/SKILL.md | unreviewed | — | — |
-| skills/shenbi-relationship-map/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-anti-ai/.gitkeep | unreviewed | — | — |
-| skills/shenbi-review-anti-ai/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-anti-ai/checklist.md | unreviewed | — | — |
-| skills/shenbi-review-arc-payoff/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-character/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-character/ooc-dimensions.md | unreviewed | — | — |
-| skills/shenbi-review-continuity/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-dialogue/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-era/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-era/era-reference.md | unreviewed | — | — |
-| skills/shenbi-review-fanfic/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-fanfic/fanfic-modes.md | unreviewed | — | — |
-| skills/shenbi-review-foreshadowing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-foreshadowing/hook-lifecycle.md | unreviewed | — | — |
-| skills/shenbi-review-group-character/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-group-craft/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-group-factual/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-group-plan/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-highpoint/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-long-span/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-long-span/ngram-methodology.md | unreviewed | — | — |
-| skills/shenbi-review-memo-compliance/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-motivation/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-pacing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-pov/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-reader-pull/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-resonance/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-sensitivity/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-sensitivity/sensitive-words.md | unreviewed | — | — |
-| skills/shenbi-review-spinoff/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-spinoff/spinoff-violations.md | unreviewed | — | — |
-| skills/shenbi-review-texture/SKILL.md | unreviewed | — | — |
-| skills/shenbi-review-world-rules/SKILL.md | unreviewed | — | — |
-| skills/shenbi-score-arc/SKILL.md | unreviewed | — | — |
-| skills/shenbi-score-stratum/SKILL.md | unreviewed | — | — |
-| skills/shenbi-score-volume/SKILL.md | unreviewed | — | — |
-| skills/shenbi-sequel-writing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-short-drafting/SKILL.md | unreviewed | — | — |
-| skills/shenbi-short-outline/SKILL.md | unreviewed | — | — |
-| skills/shenbi-short-packaging/SKILL.md | unreviewed | — | — |
-| skills/shenbi-snapshot-manage/SKILL.md | unreviewed | — | — |
-| skills/shenbi-state-settling/.gitkeep | unreviewed | — | — |
-| skills/shenbi-state-settling/SKILL.md | unreviewed | — | — |
-| skills/shenbi-state-settling/truth-files-reference.md | unreviewed | — | — |
-| skills/shenbi-story-architecture/.gitkeep | unreviewed | — | — |
-| skills/shenbi-story-architecture/SKILL.md | unreviewed | — | — |
-| skills/shenbi-style-learning/SKILL.md | unreviewed | — | — |
-| skills/shenbi-style-polishing/SKILL.md | unreviewed | — | — |
-| skills/shenbi-truth-sync/SKILL.md | unreviewed | — | — |
-| skills/shenbi-volume-consolidation/SKILL.md | unreviewed | — | — |
-| skills/shenbi-volume-outlining/SKILL.md | unreviewed | — | — |
-| skills/shenbi-world-extraction/SKILL.md | unreviewed | — | — |
-| skills/shenbi-worldbuilding/.gitkeep | unreviewed | — | — |
-| skills/shenbi-worldbuilding/SKILL.md | unreviewed | — | — |
-| skills/shenbi-writing-skills/.gitkeep | unreviewed | — | — |
-| skills/shenbi-writing-skills/SKILL.md | unreviewed | — | — |
-| skills/using-shenbi/.gitkeep | unreviewed | — | — |
-| skills/using-shenbi/SKILL.md | unreviewed | — | — |
+| skills/shenbi-anchor-curate/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-anti-detect/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-book-spine-init/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-canon-import/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-chapter-drafting/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-chapter-drafting/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-chapter-drafting/anti-ai-reference.md | deep-read | zone-reports/Z8.md#anti-ai-reference.md | Z8 初审 |
+| skills/shenbi-chapter-pattern/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-chapter-planning/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-chapter-planning/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-chapter-revision/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-chapter-revision/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-chapter-revision/revision-modes.md | deep-read | zone-reports/Z8.md#revision-modes.md | Z8 初审 |
+| skills/shenbi-character-design/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-character-design/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-character-extraction/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-context-composing/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-context-composing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-drift-guidance/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-escalation-review/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-faction-builder/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-lifecycle/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-plant/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-plant/hook-types.md | deep-read | zone-reports/Z8.md#hook-types.md | Z8 初审 |
+| skills/shenbi-foreshadowing-recall/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-resolve/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-resolve/chase-power.md | deep-read | zone-reports/Z8.md#chase-power.md | Z8 初审 |
+| skills/shenbi-foreshadowing-track/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foreshadowing-track/lifecycle-states.md | deep-read | zone-reports/Z8.md#lifecycle-states.md | Z8 初审 |
+| skills/shenbi-foundation-review/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-foundation-review/scoring-rubric.md | deep-read | zone-reports/Z8.md#scoring-rubric.md | Z8 初审 |
+| skills/shenbi-genre-config/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-import-analysis/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-intent-management/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-length-normalizing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-location-builder/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-market-radar/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-memory-distill/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-pacing-design/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-plot-thread-weaver/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-power-system/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-relationship-map/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-anti-ai/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-review-anti-ai/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-anti-ai/checklist.md | deep-read | zone-reports/Z8.md#checklist.md | Z8 初审 |
+| skills/shenbi-review-arc-payoff/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-character/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-character/ooc-dimensions.md | deep-read | zone-reports/Z8.md#ooc-dimensions.md | Z8 初审 |
+| skills/shenbi-review-continuity/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-dialogue/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-era/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-era/era-reference.md | deep-read | zone-reports/Z8.md#era-reference.md | Z8 初审 |
+| skills/shenbi-review-fanfic/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-fanfic/fanfic-modes.md | deep-read | zone-reports/Z8.md#fanfic-modes.md | Z8 初审 |
+| skills/shenbi-review-foreshadowing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-foreshadowing/hook-lifecycle.md | deep-read | zone-reports/Z8.md#hook-lifecycle.md | Z8 初审 |
+| skills/shenbi-review-group-character/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-group-craft/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-group-factual/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-group-plan/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-highpoint/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-long-span/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-long-span/ngram-methodology.md | deep-read | zone-reports/Z8.md#ngram-methodology.md | Z8 初审 |
+| skills/shenbi-review-memo-compliance/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-motivation/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-pacing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-pov/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-reader-pull/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-resonance/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-sensitivity/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-sensitivity/sensitive-words.md | deep-read | zone-reports/Z8.md#sensitive-words.md | Z8 初审 |
+| skills/shenbi-review-spinoff/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-spinoff/spinoff-violations.md | deep-read | zone-reports/Z8.md#spinoff-violations.md | Z8 初审 |
+| skills/shenbi-review-texture/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-review-world-rules/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-score-arc/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-score-stratum/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-score-volume/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-sequel-writing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-short-drafting/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-short-outline/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-short-packaging/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-snapshot-manage/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-state-settling/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-state-settling/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-state-settling/truth-files-reference.md | deep-read | zone-reports/Z8.md#truth-files-reference.md | Z8 初审 |
+| skills/shenbi-story-architecture/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-story-architecture/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-style-learning/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-style-polishing/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-truth-sync/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-volume-consolidation/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-volume-outlining/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-world-extraction/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-worldbuilding/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-worldbuilding/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/shenbi-writing-skills/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/shenbi-writing-skills/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
+| skills/using-shenbi/.gitkeep | deep-read | zone-reports/Z8.md#.gitkeep | Z8 初审 |
+| skills/using-shenbi/SKILL.md | deep-read | zone-reports/Z8.md#SKILL.md | Z8 初审 |
 | src/shenbi/__init__.py | deep-read | zone-reports/Z1.a.md#__init__.py | Z 初审 |
 | src/shenbi/audit/__init__.py | deep-read | zone-reports/Z5.a.md#__init__.py | Z5 初审 |
 | src/shenbi/audit/_shared.py | deep-read | zone-reports/Z5.a.md#_shared.py | Z5 初审 |
