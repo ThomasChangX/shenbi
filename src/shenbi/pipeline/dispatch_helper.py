@@ -36,7 +36,13 @@ from tenacity import (
 )
 
 from shenbi.contracts.fields import filter_to_fields
-from shenbi.contracts.paths import extract_chapter, resolve_chapter_path, resolve_or_skip
+from shenbi.contracts.paths import (
+    PathContext,
+    extract_chapter,
+    parse_path_context,
+    resolve_contract_path,
+    resolve_or_skip_ctx,
+)
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.exceptions import DispatchWriteFailureError
@@ -520,6 +526,7 @@ def _build_skill_prompt(
     uses_staging: bool = False,
     shared_context: Any = None,
     json_mode: bool = False,
+    path_context: PathContext | None = None,
 ) -> tuple[str, str, list[str]]:
     """Build a complete execution prompt for a skill.
 
@@ -542,6 +549,9 @@ def _build_skill_prompt(
         json_mode: If True, output format instructions request JSON
             (SkillOutput schema) instead of ### FILE: markers. Used by the
             API dispatch path with ``response_format={"type": "json_object"}``.
+        path_context: Optional per-family placeholder context (spec #6 R4).
+            When provided, reads/writes resolve arc/stratum/volume/chapter
+            families from it instead of the bare chapter number.
     """
     from shenbi.contracts.legacy import ContractError, load_contract
 
@@ -577,8 +587,9 @@ def _build_skill_prompt(
             read_path = read_path_entry
             fields = []
 
-        # Resolve chapter placeholders before glob expansion
-        resolved = resolve_or_skip(read_path, chapter)
+        # Resolve chapter placeholders before glob expansion (ctx-aware,
+        # spec #6 R4b: arc/stratum/volume reads must not resolve as chapter).
+        resolved = resolve_or_skip_ctx(read_path, chapter, path_context)
         if resolved is None:
             continue  # unresolvable placeholder (genesis) — skip this read
 
@@ -653,9 +664,9 @@ def _build_skill_prompt(
     # Collect output paths
     output_paths: list[str] = []
     for write_path in contract.get("writes", []):
-        output_paths.append(resolve_chapter_path(write_path, chapter))
+        output_paths.append(resolve_contract_path(write_path, chapter, path_context))
     for update_path in contract.get("updates", []):
-        output_paths.append(resolve_chapter_path(update_path, chapter))
+        output_paths.append(resolve_contract_path(update_path, chapter, path_context))
 
     # When uses_staging is True, prefix all output paths with staging/
     if uses_staging:
@@ -1501,7 +1512,13 @@ def _dispatch_via_api(
     """
     from openai import OpenAI
 
-    chapter = extract_chapter(prompt)
+    path_ctx = parse_path_context(prompt)
+    chapter = path_ctx.chapter if path_ctx is not None else None
+    if chapter is None:
+        path_ctx = parse_path_context(prompt)
+    chapter = path_ctx.chapter if path_ctx is not None else None
+    if chapter is None:
+        chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -1510,6 +1527,7 @@ def _dispatch_via_api(
             chapter,
             uses_staging=uses_staging,
             shared_context=shared_context,
+            path_context=path_ctx,
             json_mode=True,
         )
     except Exception as exc:
@@ -1705,7 +1723,10 @@ def _dispatch_via_ide(
     Builds a complete prompt, spawns the IDE agent, parses the multi-file
     response, and writes per-file output to the project directory.
     """
-    chapter = extract_chapter(prompt)
+    path_ctx = parse_path_context(prompt)
+    chapter = path_ctx.chapter if path_ctx is not None else None
+    if chapter is None:
+        chapter = extract_chapter(prompt)
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -1714,6 +1735,7 @@ def _dispatch_via_ide(
             chapter,
             uses_staging=uses_staging,
             shared_context=shared_context,
+            path_context=path_ctx,
         )
     except Exception as exc:
         return DispatchResult(False, -1, "", f"Prompt build failed: {exc}")
@@ -1850,7 +1872,10 @@ def dispatch_skill(
     patterns = list(skip_reads or [])
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
-    chapter = extract_chapter(prompt)
+    path_ctx = parse_path_context(prompt)
+    chapter = path_ctx.chapter if path_ctx is not None else None
+    if chapter is None:
+        chapter = extract_chapter(prompt)
     chapter_path = pd / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
     cli_timeout = _compute_dispatch_timeout(skill, chapter_path)
 

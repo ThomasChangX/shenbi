@@ -16,7 +16,12 @@ from typing import Any
 from shenbi.audit._shared import derive_output_files
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts import OutputKind
-from shenbi.contracts.paths import extract_chapter, resolve_or_skip
+from shenbi.contracts.paths import (
+    PathContext,
+    extract_chapter,
+    parse_path_context,
+    resolve_or_skip_ctx,
+)
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
 
@@ -87,7 +92,10 @@ def derive_file_type(skill: str) -> str:
 
 
 def derive_input_files(
-    skill: str, chapter: int | None = None, round_dir: Path | None = None
+    skill: str,
+    chapter: int | None = None,
+    round_dir: Path | None = None,
+    ctx: PathContext | None = None,
 ) -> list[str]:
     """Return the skill's contract reads, resolving chapter placeholders.
     When *chapter* is provided, N/NNN placeholders are resolved.
@@ -99,7 +107,7 @@ def derive_input_files(
         paths = [
             rp
             for p in load_contract(skill)["reads"]
-            if (rp := resolve_or_skip(p, chapter)) is not None
+            if (rp := resolve_or_skip_ctx(p, chapter, ctx)) is not None
         ]
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
@@ -158,10 +166,13 @@ def dispatch(
     """Main dispatch entry point."""
     agent_id = generate_agent_id(round_dir, skill, test_type)
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)
-    if chapter is None:
-        chapter = extract_chapter(prompt)
+    path_ctx = parse_path_context(prompt)
+    if chapter is None:  # kwarg precedence: explicit chapter= wins over prompt line
+        chapter = path_ctx.chapter if path_ctx is not None else None
+        if chapter is None:
+            chapter = extract_chapter(prompt)
     file_type = derive_file_type(skill)
-    input_files = derive_input_files(skill, chapter, round_dir)
+    input_files = derive_input_files(skill, chapter, round_dir, ctx=path_ctx)
 
     # Optionally skip reads marked as optional (ramp-up / late-produced files).
     skip_raw = os.environ.get("SHENBI_G1_SKIP_READS", "")
@@ -193,7 +204,7 @@ def dispatch(
         return 1
     log.info("gate_passed", gate="G1")
 
-    output_files = derive_output_files(skill, chapter, round_dir)
+    output_files = derive_output_files(skill, chapter, round_dir, ctx=path_ctx)
     is_pipeline = (round_dir / "pipeline-state.json").exists()
     if not is_pipeline:
         if output_files:
@@ -217,10 +228,12 @@ def dispatch(
     return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
 
 
-def _audit_watch_paths(skill: str, chapter: int | None = None) -> list[str]:
+def _audit_watch_paths(
+    skill: str, chapter: int | None = None, ctx: PathContext | None = None
+) -> list[str]:
     """Audit watch surface: the skill contract writes+updates (project-relative)."""
     try:
-        return derive_output_files(skill, chapter)
+        return derive_output_files(skill, chapter, ctx=ctx)
     except ContractError:
         return []
 
@@ -239,8 +252,11 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
 
     from shenbi.audit.write_audit import audit_writes
 
-    chapter = extract_chapter(prompt)
-    watch = _audit_watch_paths(skill, chapter)
+    path_ctx = parse_path_context(prompt)
+    chapter = path_ctx.chapter if path_ctx is not None else None
+    if chapter is None:
+        chapter = extract_chapter(prompt)
+    watch = _audit_watch_paths(skill, chapter, ctx=path_ctx)
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
     # + audit so write overreach is caught even on failure paths.

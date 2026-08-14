@@ -517,11 +517,27 @@ def run_triggered_skills(
         flags=[f for f in dir(result) if not f.startswith("_") and getattr(result, f)],
     )
 
+    # Cross-route context carrier (spec #6 R4b): per-family N semantics shared
+    # by the dispatch prompt, the G4 path check, and the subprocess resolvers.
+    from shenbi.contracts.paths import (
+        build_trigger_context,
+        format_path_context,
+        resolve_contract_path,
+    )
+
+    boundaries = read_volume_boundaries(project_dir)
+    ctx = build_trigger_context(chapter, boundaries)
+    ctx_line = format_path_context(ctx)
+
     for step in steps:
         mode_hint = f" Mode: {step.mode}." if step.mode else ""
         prompt = (
             f"Execute {step.skill} for chapter {chapter}.{mode_hint} Project dir: {project_dir}"
         )
+        if ctx_line:
+            # Machine-generated prefix; the executing LLM sees it as an echo of
+            # the Files-to-create list (spec #6 R4b visibility ruling).
+            prompt = f"{prompt}\n{ctx_line}"
 
         disp = dispatch_skill(step.skill, project_dir, prompt)
         if not disp.success:
@@ -546,7 +562,7 @@ def run_triggered_skills(
             }
             return False
 
-        g4_file = step.output_path if step.output_path else ""
+        g4_file = resolve_contract_path(step.output_path, chapter, ctx) if step.output_path else ""
         g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
         if not _gate_passed(g4):
             log.error(
