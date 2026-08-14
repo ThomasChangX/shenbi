@@ -485,6 +485,11 @@
 | T7-04 | LLM 元叙述 + 未闭合代码栅栏泄漏进 truth 文件；后写完整性检查只覆盖章节/审计，truth 文件从不检查 | error | P2 | 见 thread-reports/T7.md#T7-04 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T7-05 | `update_mode:` frontmatter 契约"写一次、读零次、生产全缺" | error | P2 | 见 thread-reports/T7.md#T7-05 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T7-06 | state-settling SKILL.md 内部契约自相矛盾：frontmatter 声明 current_state/particle_ledger/subplot_board 为 append_dedup（累积），正文声明为 replace（快照）——F397 修复必须先裁决权威语义，否则按 frontmatter 路由修复会破坏快照文件 | error | P1 | 见 thread-reports/T7.md#T7-06 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T6-01 | record_gate_result 对 pipeline-manifest.json 的读-改-写锁是进程内 threading.Lock：phase_runner cmd_post_skill 在 pipeline WriteLock 之外写 manifest → 跨进程 lost-update（F253/F3A4 家族第 4 实例站点） | error | P2 | 见 thread-reports/T6.md#T6-01 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T6-02 | `_executor_config_cache` 惰性初始化 check-then-act 竞态：并行审计波首批 7-9 线程并发首调 → N 个重复缓存条目（沙箱复现 8 线程→8 条目） | error | P2 | 见 thread-reports/T6.md#T6-02 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T6-03 | write_safety 分类是名字启发式：26 个 shenbi-review-* 中 2 个契约有 updates（resonance + arc-payoff）→ `assert_parallelizable` 保证建立在错误谓词上（F374 现行实例，arc-payoff 潜伏扩展） | error | P2 | 见 thread-reports/T6.md#T6-03 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T6-04 | truth_io `_path_lock` 键未规范化（相对/绝对/symlink 拼写→不同锁）：同文件写者可并发绕过串行化（latent） | error | P2 | 见 thread-reports/T6.md#T6-04 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T6-05 | safe_write 两锁路径互斥粒度不对称：flock=目录级（同目录不同文件也串行，拖慢并行波）、O_EXCL 回退=文件级（正确性已由 F154 覆盖，性能/一致性观察） | optimization | M | 见 thread-reports/T6.md#T6-05 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T1001 | D1 行号订正在归档 spec 中再次漂移（4 处关键引用偏离实际代码 7-22 行） | error | P2 | 见 thread-reports/T10.md#T1001 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T1002 | INDEX:91 "PR #20 torch-bump 处置（待 #3 follow-up）" 注记过期 | error | M | 见 thread-reports/T10.md#T1002 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T1-01 | pipeline 模式下 decisions.json 无任何门校验：G2 整门跳过 + G4 文件列表不含 .json → G4.dec 恒 SKIP "no files"，门恒 PASS | 校验洞（根因级） | P1 | 见 thread-reports/T1.md#T1-01 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
