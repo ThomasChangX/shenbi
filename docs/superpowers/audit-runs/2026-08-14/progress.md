@@ -161,3 +161,8 @@
 - 576 个 fixtures 前缀引用：磁盘 0 缺失（G0.9 路径前缀面健康）
 - 97 个项目内路径引用（drafts/config/truth/characters/snapshots/plans/import/world/chapters/audits 前缀）：59 个唯一缺失路径——逐项归类全部落在既有 finding 内：T806（18 空目录：world/characters/chapters/import/audits）、T807/F750（证据不可达：drafts/chapter-N.md、qidian-fatigue-list、snapshots/chapter-030、import/analysis 02/04、characters/protagonist）、F815（import-analysis 链断）、T813（truth/ 命名断裂：pending_hooks/audit_drift/resonance_trend）、F910/T1-05（plans/ 零 decisions）
 - **结论：断链家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 28）——后续审核：truth-files registry ↔ 磁盘清单核对
+- registry（docs/framework/truth-files.yaml concepts）声明 truth 18 项（含 parametric arcs/arc-N）vs 真实项目磁盘 13 项
+- 差异：registry 有磁盘无（drift_guidance=F1001、volume_summaries/parent_canon/arc_payoff_trend/volume_score_trend/book_strata 等卷级趋势= F389/F639 家族已覆盖）
+- **新遗漏 1 条**：truth/state_snapshot-pre-rev.md（git tracked、07-17 旧版管线 pre-revision 快照、src 0 引用、registry 未登记）→ 登记 F1322（M，F1307 三源分裂家族第 3 实例），台账 785→786（M 166）
