@@ -44,3 +44,4 @@
 ## 补充（同批次）
 - **F402（P1）**：g4_length_normalizing 用未解析路径计字数（:29 解析 pf vs :35 用原始 fp）→ rd+相对路径崩溃；改 `word_count_md(pf)` + 补回归测试
 - **F158（P1）**：phase_runner phase 参数未净化拼接进状态文件路径（load_state/save_state `f"{phase}.json"`）→ `../` 穿越写出 round_dir；净化 phase 参数（白名单或路径安全校验）
+- **F417（记录条目）**：Z4 覆盖率缺口处置汇总（tests/unit/gates 无 test_gate_manifest.py / test_memory_distill.py，gate_manifest 0% 覆盖——随 F431/F471 家族修复补测试）
