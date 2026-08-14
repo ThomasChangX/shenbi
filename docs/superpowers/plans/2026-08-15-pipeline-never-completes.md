@@ -113,7 +113,6 @@ def test_kr_subranges_excluded_negative_acceptance(tmp_path):
         assert is_volume_boundary(ch, proj)
 
 
-```python
 def test_english_formats_regression(tmp_path):
     """回归护栏：既有英文格式解析行为不变（END_RE 全文优先、命中即短路
     RANGE_RE——两格式混排时只取 END 结果，这是现状语义，本 task 不改）。"""
@@ -902,8 +901,11 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 
 ```bash
 mkdir -p tests/fixtures/snapshot-dir
-ls novel-output/xinghuo-ranqiong/snapshots/*.md | head -2 | xargs -I{} cp {} tests/fixtures/snapshot-dir/
+ls novel-output/xinghuo-ranqiong/snapshots/*.md | sort | head -2 | xargs -I{} cp {} tests/fixtures/snapshot-dir/
 ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬全量 52 个 ~10MB）
+# 两个文件是源精确副本 → 各自登记 MIRROR_MAP（g0.py）：
+#   "tests/fixtures/snapshot-dir/<name>": "novel-output/xinghuo-ranqiong/snapshots/<name>"
+# （sort 固定取哪两个，镜像条目才可预写）
 ```
 
 - [ ] **Step 1: 写失败测试**
@@ -1285,12 +1287,17 @@ def test_anchor_curate_wiring(tmp_path, monkeypatch):
     monkeypatch.setattr(gs, "_update_indexes", lambda *a, **k: None)  # anchor-curate 在 _INDEX_UPDATE_SKILLS（genesis.py:103）
 
     state = PipelineState.default(str(tmp_path))
-    state.genesis.current_step = 16  # step 16 = shenbi-anchor-curate（genesis.py:78）
+    state.genesis.current_step = 15  # 0 基游标：GENESIS_STEPS[15] = step 16 anchor-curate（genesis.py:77-79, :279-283）
     gs.run_genesis_step(state, tmp_path)
     anchor_calls = [kw for skill, kw in captured if skill == "shenbi-anchor-curate"]
     assert anchor_calls and anchor_calls[0].get("path_context") == PathContext(anchor=1)
-    others = [kw for skill, kw in captured if skill != "shenbi-anchor-curate"]
-    assert all(kw.get("path_context") is None for kw in others)  # 条件注入，非全局拼接
+
+    captured.clear()
+    state2 = PipelineState.default(str(tmp_path))
+    state2.genesis.current_step = 14  # 相邻非 anchor 步（step 15）
+    gs.run_genesis_step(state2, tmp_path)
+    non_anchor = [kw for skill, kw in captured if skill != "shenbi-anchor-curate"]
+    assert non_anchor and all(kw.get("path_context") is None for kw in non_anchor)  # 条件注入，非全局拼接
 ```
 
 （anchor 测试的驱动入口以 genesis.py step 16 派发结构为准——若为内联 dispatch 则提取 `_dispatch_genesis_step(step, project_dir)` 后测；**注入必须条件化于 anchor-curate 步骤**，不得全局拼进每个 genesis prompt。）
