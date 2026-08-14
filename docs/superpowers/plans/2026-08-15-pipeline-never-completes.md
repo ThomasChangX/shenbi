@@ -412,21 +412,31 @@ def test_heal_wired_in_orchestrate(monkeypatch, tmp_path):
     state.chapter_loop.current_chapter = 57
     state.chapter_loop.step_index = 0
 
+    class _Noop:
+        book_closure = False
+        def any_triggered(self):
+            return False
+
     calls = {}
-    monkeypatch.setattr(
-        "shenbi.pipeline.chapter_loop.run_chapter_step",
-        lambda *a, **k: calls.setdefault("run", 0) or None,
-    )
-    # check_triggers 需在 heal 之后拿到的 total==100 下被调用（heal 生效的观测点）
-    monkeypatch.setattr(
-        "shenbi.pipeline.triggers.check_triggers",
-        lambda st, ch, total: calls.setdefault("total_seen", total) or _Noop(),
-    )
+
+    def fake_run(*a, **k):
+        calls["run"] = calls.get("run", 0) + 1
+        return True  # True = 到达检查点，编排返回（防 while True 死循环）
+
+    def fake_check(st, ch, total):
+        calls["total_seen"] = total
+        return _Noop()
+
+    monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_chapter_step", fake_run)
+    monkeypatch.setattr("shenbi.pipeline.triggers.check_triggers", fake_check)
     cli_mod._orchestrate_to_checkpoint(state, proj)
     assert calls.get("total_seen") == 100  # heal 在守卫前写入
+    assert calls.get("run", 0) >= 1
 ```
 
-（`check_triggers` patch 目标以 cli 的实际 import 路径为准；`_Noop` 为带 `any_triggered()->False`/`book_closure=False` 属性的哑对象。genesis 钩子接线以 `grep -n "genesis_finalize_volume_map" src/shenbi/pipeline/genesis.py` 命中调用点为静态验收。）
+（patch 目标已核对：cli.py:193 在 `_orchestrate_to_checkpoint` 内延迟 `from ... import check_triggers`，patch `shenbi.pipeline.triggers.check_triggers` 生效。genesis 钩子接线以 `grep -n "genesis_finalize_volume_map" src/shenbi/pipeline/genesis.py` 命中调用点为静态验收。）
+
+（步骤执行顺序：1 → 2 → 3 → 3b → 4 → 4b → 5。）
 
 - [ ] **Step 5: Commit**
 
@@ -690,17 +700,11 @@ def test_run_triggered_skills_wires_context_and_g4_paths(tmp_path, monkeypatch):
 
     monkeypatch.setattr(triggers, "dispatch_skill", fake_dispatch)
     monkeypatch.setattr(triggers, "run_gate_g4", fake_g4)
-    monkeypatch.setattr(triggers, "run_gate_g3", lambda *a, **k: {"status": "PASS"})
 
     state = PipelineState.default(str(proj))
-    # 直接驱动：arc 族步骤在 ch=60 触发（绕过 check_triggers 的构造复杂度）
-    from shenbi.pipeline.triggers import TRIGGER_STEPS
-
-    arc_steps = [s for s in TRIGGER_STEPS if s.category == "l2_distill" and s.mode == "L2"]
-    ok = run_triggered_skills(state, proj, 60, arc_steps, flags_override=None) if False else None
 ```
 
-（注：`run_triggered_skills` 现签名 `(state, project_dir, chapter, result: TriggerResult)`——按实际签名驱动；Step 1 实际写为构造 `TriggerResult`：）
+（`run_triggered_skills` 现签名 `(state, project_dir, chapter, result: TriggerResult)`——构造 `TriggerResult` 驱动：）
 
 ```python
     from shenbi.pipeline.triggers import TriggerResult
@@ -904,8 +908,9 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 - [ ] **Step 0: 建 snapshot fixture**
 
 ```bash
-mkdir -p tests/fixtures/snapshot-dir && cp novel-output/xinghuo-ranqiong/snapshots/*.md tests/fixtures/snapshot-dir/ | head -3 || true
-ls tests/fixtures/snapshot-dir | wc -l   # ≥1 真实快照产物
+mkdir -p tests/fixtures/snapshot-dir
+ls novel-output/xinghuo-ranqiong/snapshots/*.md | head -2 | xargs -I{} cp {} tests/fixtures/snapshot-dir/
+ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬全量 51 个 ~10MB）
 ```
 
 - [ ] **Step 1: 写失败测试**
@@ -1056,8 +1061,16 @@ just generate && just lint-contracts
 
 - [ ] **Step 4: 跑测试确认通过 + 契约门禁**
 
-Run: `uv run pytest tests/pipeline/test_g4_directory.py -v && just lint-contracts && just generate && git diff --exit-code`
-Expected: 5 passed；契约 lints 绿；generate 幂等（diff 为空）
+Run: `uv run pytest tests/pipeline/test_g4_directory.py -v && just lint-contracts`
+Expected: 5 passed；契约 lints 绿
+
+幂等验证（双跑哈希一致，非中途 git diff——task 中途树本来就不干净）：
+```bash
+just generate && find tests/tiers docs -name 'deps.json' -newer /dev/null 2>/dev/null | head -1 >/dev/null; H1=$(git status --porcelain | sort | md5)
+just generate && H2=$(git status --porcelain | sort | md5)
+[ "$H1" = "$H2" ] && echo IDEMPOTENT
+```
+Expected: IDEMPOTENT
 
 - [ ] **Step 5: Commit**
 
@@ -1321,8 +1334,10 @@ def test_vol1_bridge_surfaces_at_26_vol2_at_36_not_30():
     at30 = bridges_for_chapter(b, 30)
     at36 = bridges_for_chapter(b, 36)
     assert any("梵天铭文" in s for s in at26)      # vol-1 行（激活 26-28 → min 26，紧凑区间）
-    assert not any("废弃设施" in s or "师徒信任" in s for s in at30)  # vol-2 行 @30 不出现
-    assert any("废弃设施" in s for s in at36)      # vol-2 行（激活 36/37/46-48）@36 出现
+    # vol-2 段真实行（volume_map.md:165-168）：操纵战争的铁证（激活36）/科恩·怀特曼（37）/札记（46-48）/反攻反击（36-38）
+    assert not any("操纵战争的铁证" in s or "科恩·怀特曼" in s for s in at30)  # @30 不出现（30 < 36-3）
+    assert any("操纵战争的铁证" in s for s in at36)   # @36 出现
+    assert any("科恩·怀特曼" in s for s in at40)      # @40 出现（40 ≥ 37-3）
 
 
 def test_sequel_rows_excluded():
@@ -1350,14 +1365,14 @@ def test_volume_context_bilingual(tmp_path):
 
 def test_context_assemble_volume_block_end_to_end(tmp_path):
     """M20：卷上下文块的消费端到端（中文项目块非空，Objective 冒号在粗体外可匹配）。"""
-    from shenbi.pipeline.context_assemble import _volume_context_block
+    from shenbi.pipeline.context_assemble import _load_volume_context
 
     proj = tmp_path / "proj"
     (proj / "outline").mkdir()
     (proj / "outline" / "volume_map.md").write_text(TEXT, encoding="utf-8")
-    block = _volume_context_block(TEXT, 20)  # 函数名/签名以 context_assemble.py:226-240 实际为准
-    assert block and "第二卷" in "".join(block) if isinstance(block, list) else block
-    assert "铁与火" in (block if isinstance(block, str) else "".join(block))
+    block = _load_volume_context(proj, 20)  # 实际函数（context_assemble.py:202）
+    text = block if isinstance(block, str) else "".join(block)
+    assert "第二卷" in text and "铁与火" in text
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -1376,7 +1391,8 @@ log = get_logger(__name__)
 _CN_NODE_ROW_RE_TMPL = r"^[ \t]*\|\s*第\s*{ch}\s*章\s*\|([^|]+)\|([^|]+)\|"
 _BRIDGE_HEADS = ("### 跨卷桥接", "## Cross-Volume Bridges")
 _BRIDGE_ROW_RE = re.compile(
-    r"^[ \t]*\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|"
+    r"^[ \t]*\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|",
+    re.MULTILINE,  # split 段首是 \n\n，无 MULTILINE 则 ^ 只锚段首 → 0 行命中（plan 审查 R2-C1 实证）
 )
 _THIS_BOOK_VOL_RE = re.compile(r"^第\d+卷$")
 # 紧凑区间 `第26-28章`（无第二个「第」）与全形 `第A章 - 第B章` 都要匹配——
@@ -1485,7 +1501,7 @@ def _volume_display_name(text: str, index: int) -> str | None:
 - [ ] **Step 4: 跑测试确认通过 + 消费方回归**
 
 Run: `uv run pytest tests/pipeline/test_cn_extract.py tests/pipeline/ -v`
-Expected: 新 5 passed；pipeline 套件零回归
+Expected: 新 6 passed；pipeline 套件零回归
 
 - [ ] **Step 5: Commit**
 
@@ -1612,6 +1628,26 @@ Expected: FAIL — `_apply_reject_redo`/`_auto_settle_parallel` 不存在；orch
 - [ ] **Step 3: 实现**
 
 ```python
+# cli.py DERIVED_TRUTH_MAP（:58-66）新增条目（PER_CHAPTER reject-redo 的队列源）：
+
+DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
+    CheckpointType.CHAPTER_MEMO.value: [
+        ("shenbi-pacing-design", "Re-sync pacing design after chapter-plan modify"),
+    ],
+    CheckpointType.STATE_SETTLE.value: [
+        ("shenbi-relationship-map", "Re-sync relationship map after truth modify"),
+        ("shenbi-foreshadowing-resolve", "Re-solve foreshadowing after truth modify"),
+    ],
+    CheckpointType.PER_CHAPTER.value: [
+        ("shenbi-chapter-revision", "Revise rejected chapter with feedback"),
+    ],
+}
+
+# _queue_re_dispatches 入队 dict 追加 "feedback": feedback 键；
+# _execute_pending_re_dispatches 的 prompt 尾部追加
+# f"\n\nHuman review feedback (incorporate these changes): {d.get('feedback')}"
+# （不写 modify_feedback——单发消费会被下一章首步错吃，plan 审查 R2-I4）
+
 # cli.py 新增模块级（cmd_review 前）：
 
 def _reset_retry_budget(state: PipelineState, cp) -> None:
@@ -1646,12 +1682,10 @@ def _apply_reject_redo(state: PipelineState, cp, feedback: str | None = None) ->
     elif cp.type == CheckpointType.VOLUME_BOUNDARY:
         state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
     elif cp.type == CheckpointType.PER_CHAPTER:
-        # 重跑当章**评审**而非整章（plan 审查 I7：整章回滚会使 orchestrate 守卫
-        # 对 prev_ch 重复触发卷边界 fan-out，且 chapter_states 残留 complete 状态）——
-        # 复用 MODIFY 的 _queue_re_dispatches 机制携 feedback 重派评审产物。
-        if feedback:
-            state.chapter_loop.modify_feedback = feedback
-        _queue_re_dispatches(state, cp)
+        # 重跑当章**修订**而非整章（plan 审查 R2-I4：整章回滚会重复触发 prev_ch
+        # 卷边界 fan-out 且 chapter_states 残留；modify_feedback 单发会被 N+1 章
+        # 首步错吃）。经 DERIVED_TRUTH_MAP 新增条目 + feedback 入队：
+        _queue_re_dispatches(state, cp)  # 命中新增的 PER_CHAPTER 条目
     elif cp.type == CheckpointType.ESCALATION:
         _reset_retry_budget(state, cp)  # failing step re-runs with fresh budget
     # BOOK_CLOSURE: handled by the existing transition below.
@@ -1721,7 +1755,17 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
     return True
 ```
 
-调用点（并行 settling 处）：`_auto_settle_parallel(state, project_dir, chapter)` 返回后**继续**原控制流（`return False` 语义——auto 提交后落到章节完成检查，与串行分支 fall-through 一致；不提前 return True 暂停 next），删除 auto 场景的无条件 `set_checkpoint(STATE_SETTLE)`。
+调用点（并行 settling 处，替换原无条件 set_checkpoint 块）：
+
+```python
+    if _auto_settle_parallel(state, project_dir, chapter):
+        # auto 已提交 staging：走章节完成检查（与串行分支 fall-through 同语义），
+        # 不提前 return True（暂停 next），也不落进下方通用 dispatch 路径重派 lifecycle 步骤
+        return _complete_chapter(state, project_dir, chapter)
+    # review_required：保持原 set_checkpoint(STATE_SETTLE, ...) 路径
+```
+
+（`_complete_chapter` 为该分支现有的章节完成处理函数——以 2690-2715 实际控制流核对调用名；若原分支是内联逻辑则按此语义内联。）
 
 - [ ] **Step 4: 跑测试确认通过 + 回归**
 
