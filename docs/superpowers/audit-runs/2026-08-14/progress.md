@@ -142,3 +142,10 @@
 ### 2026-08-14 会话 1（续 24）——后续审核：采样截断家族系统枚举
 - 全仓内容采样截断候选 27 处逐一核对：既有覆盖（F494 g6_checks:30 [:5000]、F496 g6.py:198/208、F499 g6.py:259 + g5.py:191、F642/F649 linguistic_drift [:300]、F656 compute_stats [:20]）+ 数量上限类无害（[:3]/[:6]/[:8]/[:15]/[:20] 文件数采样）+ 上下文注入性能预算类不立案（audit_context_cache/review_checklist/g2 截断为显式预算设计）
 - **新遗漏 1 条**：G6.4 check_continuity 知识引入扫描 g6_checks.py:52 [:3000]（intro_map/future_knowledge 只读前 3000 字符，F494 只点名 :30 时间线扫描）→ 登记 F4A5（P2，F494 家族第三实例），台账 784→785（P2 496）
+
+### 2026-08-14 会话 1（续 25）——后续审核：内层形状家族系统枚举
+- 全仓 118 个 .keys()/.items()/嵌套 .get/双索引候选逐一核对：
+  - JSON 数据源内层访问全部与既有 finding 对应：F431 家族（jload 语义保证顶层 dict）+ F460/F465/F485/F488/F489/F493/F497（各内层形状崩溃点）+ F640/F666/F3A3/F266（materialize/config/state 形状面）+ F449（GR.2 死路）+ F475（chapter_word）
+  - 代码构造 dict（g5.py:135 char_data、g6.py:199 char_voice 等）——构造即 dict，安全
+  - 受控仓库文件（executor_config.toml/deps.json）——T6-02/F493/F497 已覆盖
+- **结论：内层形状家族枚举完整，零新遗漏，无新增 finding**
