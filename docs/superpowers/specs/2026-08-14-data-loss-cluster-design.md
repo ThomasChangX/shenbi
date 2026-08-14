@@ -23,3 +23,7 @@
 - 证据：chapter_loop.py:2405-2419 ThreadPoolExecutor 并发 dispatch lifecycle + state-settling，两者契约均更新 `truth/pending_hooks.md`，未走 write_safety WRITE_SHARED 串行
 - 从属：F505（TokenLedger 锁无效）、F3A4（integrity 无锁）、F253（非原子读改写）
 - 修复：pending_hooks.md 写路径收敛到 write_truth_file(upsert) 或串行化；**验收：并发测试无 lost-update**
+
+## R5 · 章节正文被 revision 摘要覆写（F1300, P0，Z11 新发现）
+- 证据：novel-output/xinghuo-ranqiong 的 ch2/9/12/44/55.md 仅含 "Here's a summary of the revision" 摘要（ch55 仅 104B）；ch2 正文不可恢复（snapshots 自 ch5 起、git 历史仅摘要版）；当前 size-guard + pre-rev backup 防御为 2026-08-02 后加入，运行期无保护
+- 修复：revision 写路径强制摘要检测（摘要模式 → 拒绝落盘或保留原文件）+ 落盘前备份；**验收：revision 不再覆写正文**
