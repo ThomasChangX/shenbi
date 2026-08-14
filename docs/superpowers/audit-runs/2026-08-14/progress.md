@@ -138,3 +138,7 @@
 - G7 批准后续审核的执行项 1：全仓 json 加载调用点系统枚举（Z4.review6 建议的"家族全仓枚举"）
 - 结果：src/shenbi 全仓 115 个 JSON 加载调用点（jload/json.loads/json.load）；27 个 jload 调用点 except 缺 ValueError 或无可达 except——逐一与既有 finding 对应（F419/F420/F421/F426/F431/F440/F441/F459/F460/F465/F470/F471/F475/F485/F488/F489/F493/F497），唯一无 try 的 g_reconcile.py:33 = F421
 - **结论：F431 家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 24）——后续审核：采样截断家族系统枚举
+- 全仓内容采样截断候选 27 处逐一核对：既有覆盖（F494 g6_checks:30 [:5000]、F496 g6.py:198/208、F499 g6.py:259 + g5.py:191、F642/F649 linguistic_drift [:300]、F656 compute_stats [:20]）+ 数量上限类无害（[:3]/[:6]/[:8]/[:15]/[:20] 文件数采样）+ 上下文注入性能预算类不立案（audit_context_cache/review_checklist/g2 截断为显式预算设计）
+- **新遗漏 1 条**：G6.4 check_continuity 知识引入扫描 g6_checks.py:52 [:3000]（intro_map/future_knowledge 只读前 3000 字符，F494 只点名 :30 时间线扫描）→ 登记 F4A5（P2，F494 家族第三实例），台账 784→785（P2 496）
