@@ -163,7 +163,7 @@
 | F628 | segment_sentences 与 segment_paragraphs 句数口径不一致（"；" 只计入段落句数）→ 同一报告自相矛盾 | error | P2 | 见 Z6.review2.md#F628 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F629 | revision_routing.verify_preservation 无生产调用方：§5.3 再生保留校验器实现+测试但未接线，保留保障仅靠 LLM prompt | dead code | P2 | 见 Z6.review2.md#F629 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F513 | 写审计快照根错位：`dispatch_with_write_audit` 快照 `PROJECT_DIR`（框架仓库根）而非 `round_dir` | 接线错误 | P1 | 见 Z5.review.md#F513 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
-| F514 | d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实 | 审计工件质量 | P2 | 见 Z5.review.md#F514 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-D1-02 |
+| F514 | d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实 | 审计工件质量 | P2 | 见 Z5.review.md#F514 | 根因同 D1-02（addopts 全局 --cov） | 协调者 01:23 已重生成真实版（d1/coverage.xml line-rate 0.8728 + d1-06 1448 行） | 已解决（勿再引用旧状态，Z5.review2 确认工件与真实覆盖一致） | deep-read | merged-into-D1-02 |
 | F515 | `_matches_declared` 不匹配契约原生 glob 写模式（`truth/*.md`）→ 已声明写被误报"未声明写入" | 审计正确性 | P2 | 见 Z5.review.md#F515 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F516 | 初审误判 snapshot.py:43-45 为"无 `*` 写入"死代码：契约实际存在 glob 写模式 | 初审覆盖处置错误 | M | 见 Z5.review.md#F516 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F335 | audit_context_cache 用补零章节文件名（chapter-001.md），生产为不补零 → chapter_text 恒空 | error | P2 | 见 Z3.review2.md#F335 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
