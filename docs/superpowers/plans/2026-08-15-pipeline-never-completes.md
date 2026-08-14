@@ -133,7 +133,7 @@ def test_english_formats_regression(tmp_path):
 - [ ] **Step 3: 跑测试确认失败**
 
 Run: `uv run pytest tests/pipeline/test_volume_map_cn.py -v`
-Expected: FAIL — `_read_cn_boundaries_exact_set_on_real_fixture` ImportError；via_project_layout 得 `set()` 断言失败
+Expected: FAIL — 模块级 ImportError 使 4 个测试整批失败（`_read_cn_volume_boundaries` 尚不存在）
 
 - [ ] **Step 4: 实现**
 
@@ -201,7 +201,7 @@ git commit -m "fix: parse Chinese volume-map boundaries volume-scoped (F324) —
 - Modify: `src/shenbi/pipeline/genesis.py:350-356`（step-6 成功钩子）
 - Modify: `src/shenbi/pipeline/cli.py:147-172,215-221`（收敛 + heal）
 - Modify: `src/shenbi/pipeline/triggers.py:363-395`（收敛，删 `_count_total_chapters`——先 grep 调用方确认仅 triggers._update_total_chapters）
-- Test: `tests/pipeline/test_total_chapters.py`
+- Test: `tests/pipeline/test_total_chapters.py`；Modify: `tests/unit/pipeline/test_triggers.py`（Step 3b 迁移）
 
 **Interfaces:**
 - Consumes: T1 `read_volume_boundaries`
@@ -430,7 +430,7 @@ def test_heal_wired_in_orchestrate(monkeypatch, tmp_path):
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/pipeline/_shared.py src/shenbi/pipeline/genesis.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/triggers.py tests/pipeline/test_total_chapters.py
+git add src/shenbi/pipeline/_shared.py src/shenbi/pipeline/genesis.py src/shenbi/pipeline/cli.py src/shenbi/pipeline/triggers.py tests/pipeline/test_total_chapters.py tests/unit/pipeline/test_triggers.py
 git commit -m "fix: unify total_chapters to max(boundaries) with genesis hook + mid-book heal (F353) — breaks write-point self-lock"
 ```
 
@@ -691,11 +691,6 @@ def test_run_triggered_skills_wires_context_and_g4_paths(tmp_path, monkeypatch):
     monkeypatch.setattr(triggers, "run_gate_g4", fake_g4)
 
     state = PipelineState.default(str(proj))
-```
-
-（`run_triggered_skills` 现签名 `(state, project_dir, chapter, result: TriggerResult)`——构造 `TriggerResult` 驱动：）
-
-```python
     from shenbi.pipeline.triggers import TriggerResult
 
     result = TriggerResult()
@@ -891,6 +886,7 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 - Modify: `src/shenbi/gates/g4/generic.py:33-42`（目录分支）
 - Modify: `src/shenbi/pipeline/closure.py:112-116,148-159,293`（step 10 路径 + artifact）
 - Modify: `skills/shenbi-snapshot-manage/SKILL.md`（manifest 钉契约）+ `just generate`
+- Modify: `src/shenbi/gates/g0.py`（MIRROR_MAP 登记 2 个快照 fixture）
 - Test: `tests/pipeline/test_g4_directory.py`
 
 **Interfaces:**
@@ -903,9 +899,10 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 mkdir -p tests/fixtures/snapshot-dir
 ls novel-output/xinghuo-ranqiong/snapshots/*.md | sort | head -2 | xargs -I{} cp {} tests/fixtures/snapshot-dir/
 ls tests/fixtures/snapshot-dir | wc -l   # == 2（测试只用 [:2]/[0]，不搬全量 52 个 ~10MB）
-# 两个文件是源精确副本 → 各自登记 MIRROR_MAP（g0.py）：
-#   "tests/fixtures/snapshot-dir/<name>": "novel-output/xinghuo-ranqiong/snapshots/<name>"
-# （sort 固定取哪两个，镜像条目才可预写）
+# 两个文件是源精确副本 → 预写 MIRROR_MAP（g0.py）条目（排序已定，名字可预写）：
+#   "tests/fixtures/snapshot-dir/chapter-005-20260715T232231.md": "novel-output/xinghuo-ranqiong/snapshots/chapter-005-20260715T232231.md"
+#   "tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md": "novel-output/xinghuo-ranqiong/snapshots/chapter-006-20260715T234925.md"
+# （执行时以实际 sort | head -2 输出为准核对；不符则更新条目名）
 ```
 
 - [ ] **Step 1: 写失败测试**
@@ -1073,12 +1070,12 @@ Expected: IDEMPOTENT
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/gates/g4/generic.py src/shenbi/pipeline/closure.py skills/shenbi-snapshot-manage/SKILL.md tests/fixtures/snapshot-dir tests/pipeline/test_g4_directory.py
+git add src/shenbi/gates/g4/generic.py src/shenbi/gates/g0.py src/shenbi/pipeline/closure.py skills/shenbi-snapshot-manage/SKILL.md tests/fixtures/snapshot-dir tests/pipeline/test_g4_directory.py
 # + just generate 的实际产出（git status 查看，禁手改内容）
 git commit -m "fix: parameterized G4 directory checker + contract-aligned closure snapshot path (F371) — manifest pinned in skill contract"
 ```
 
-（`git add` 的生成物路径以 `just generate`（= `uv run shenbi-sync-contracts`）后的 `git status` 实际产出为准——不预设路径清单。）
+（`git add` 的生成物路径以 `just generate`（= `uv run shenbi-sync-contracts`）后的 `git status` 实际产出为准——不预设路径清单。幂等片段的 `md5 -q` 为 darwin 形；Linux 贡献者用 `md5sum` 等价替换。）
 
 ---
 
@@ -1328,6 +1325,7 @@ git commit -m "fix: explicit per-step closure path context + genesis sentinels (
 
 **Files:**
 - Modify: `src/shenbi/pipeline/_shared.py`（`read_chapter_node`/`read_bridges`/`bridges_for_chapter` + 卷名双语）
+- Modify: `tests/unit/pipeline/test_context_assemble.py`、`tests/unit/pipeline/test_plan_skeleton.py`（Step 3b 英文格式迁移）
 - Modify: `src/shenbi/pipeline/chapter_loop.py:2182-2188`
 - Modify: `src/shenbi/pipeline/plan_skeleton.py:197-220`
 - Modify: `src/shenbi/pipeline/context_assemble.py:226-270`
@@ -1547,15 +1545,21 @@ def _volume_display_name(text: str, index: int) -> str | None:
 #   `^##\s*第…卷`（_CN_VOL_HEAD_RE 复用）与 `^\*\*Objective\*\*\s*[：:]`（冒号粗体外）
 ```
 
-- [ ] **Step 4: 跑测试确认通过 + 消费方回归**
+- [ ] **Step 3b: 既有英文格式测试迁移（同 task 内完成）**
 
-Run: `uv run pytest tests/pipeline/test_cn_extract.py tests/pipeline/ -v`
-Expected: 新 6 passed；pipeline 套件零回归
+`tests/unit/pipeline/test_context_assemble.py` 的 `test_load_volume_context_includes_chapter_node`（节点行 `| 1 | opening | …`）与 `test_load_volume_context_returns_bridge_info_when_near_activation`（英文桥接行 `| V1-B1 | … | Ch 26 |`）、`tests/unit/pipeline/test_plan_skeleton.py` :49-50/:69-71（骨架节点与 `V1-B1`/`Brahmi` 桥接断言）——T7 重写后英文行解析为 None/[]：
+- 4 处 fixture 文本改为中文行形（`| 第1章 | 开场 | …`、`| 1 | 钩子 | 物品 | 第2卷 | 第26章 | 已种植 |`），断言语义不变
+- 若需保留英文格式护栏，为 `read_chapter_node` 的英文表行支持加显式测试**仅当**实现选择支持英文行形（本 plan 默认不支持——docstring 已声明；英文遗留由 #16/#25 批量处置）
+
+- [ ] **Step 4: 跑测试确认通过 + 消费方回归（含 unit/pipeline）**
+
+Run: `uv run pytest tests/pipeline/test_cn_extract.py tests/pipeline/ tests/unit/pipeline/test_context_assemble.py tests/unit/pipeline/test_plan_skeleton.py -v`
+Expected: 新 6 passed；迁移后零回归
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/pipeline/_shared.py src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/plan_skeleton.py src/shenbi/pipeline/context_assemble.py tests/pipeline/test_cn_extract.py
+git add src/shenbi/pipeline/_shared.py src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/plan_skeleton.py src/shenbi/pipeline/context_assemble.py tests/pipeline/test_cn_extract.py tests/unit/pipeline/test_context_assemble.py tests/unit/pipeline/test_plan_skeleton.py
 git commit -m "fix: shared Chinese node/bridge/volume-context extraction, three consumers deduped (R6) — all-section aggregation, sequel rows excluded"
 ```
 
@@ -1701,6 +1705,9 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
 #   if fb:
 #       prompt += f"\n\nHuman review feedback (incorporate these changes): {fb}"
 # （不写 modify_feedback——单发消费会被下一章首步错吃，plan 审查 R2-I4）
+# 注：该条目对 MODIFY 路径同样生效（cmd_review MODIFY 无条件 _queue_re_dispatches，
+# cli.py:554）——PER_CHAPTER 的 MODIFY 也会队列 chapter-revision 重派，属合理语义
+# （人工改了评审产物 → 重派修订对齐），在 T8 测试中补一条断言覆盖。
 
 # cli.py 新增模块级（cmd_review 前）：
 
