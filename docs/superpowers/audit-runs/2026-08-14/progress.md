@@ -87,3 +87,8 @@
 
 ### 2026-08-14 会话 1（续 13）
 - Z1.review12 迟到通知核验：F158（P1 specced，gate-effectiveness 补充条目——phase 路径穿越）与 F159（M）已登记；发现 F160 漏录（cli_utils.emit_json BrokenPipeError，M）→ 补录，台账 770→771（M 160→161）
+
+### 2026-08-14 会话 1（续 14）
+- Z6.review9 迟到通知核验：F649-F652 已登记；发现 F653 漏录（parse_markdown_table 空行不终止表）→ 补录，台账 771→772（P2 486→487）
+- **F642 裁定第四次反转（F649 终结之争）**：SequenceMatcher.ratio() 参数顺序不对称（autojunk）——生产顺序 0.6367（review6 真值）、交换顺序 0.570（review5/7/8 伪影）、autojunk=False 0.77；review8"裁定否定 review6"不成立；F642 修复需剥离 META + 对称化 + 阈值重标定三者并施。方法论教训：多轮同法复现同一数字仍可能是伪影（记录为反 rationalization 案例）
+- 复核 agent 建议：收敛判定改"无 P0/P1"或对争议数字跨轮方法交叉审查——与人类已给判据一致
