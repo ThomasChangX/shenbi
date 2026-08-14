@@ -883,7 +883,7 @@ git commit -m "fix: wire per-family N context through trigger dispatch/G4/derive
 **复杂度: infra** · **test_kind: tdd_red_green** · **层级: T1**
 
 **Files:**
-- Modify: `src/shenbi/gates/g4/generic.py:33-42`（目录分支）
+- Modify: `src/shenbi/gates/g4/generic.py:31-42`（目录分支：exists 检查在 :33，size 在 :36——插在 exists 通过之后、read_text 之前）
 - Modify: `src/shenbi/pipeline/closure.py:112-116,148-159,293`（step 10 路径 + artifact）
 - Modify: `skills/shenbi-snapshot-manage/SKILL.md`（manifest 钉契约）+ `just generate`
 - Modify: `src/shenbi/gates/g0.py`（MIRROR_MAP 登记 2 个快照 fixture）
@@ -987,7 +987,7 @@ Expected: FAIL — 目录走 `read_text` → `read_error`；`_closure_snapshot_d
 - [ ] **Step 3: 实现**
 
 ```python
-# generic.py 循环内（:36 `if not p.exists()` 之后、read_text 之前）插目录分支：
+# generic.py 循环内（exists 检查 :33 之后、read_text 之前）插目录分支：
 
         if p.is_dir():
             entries = [e for e in p.iterdir() if e.is_file()]
@@ -1603,6 +1603,23 @@ def test_reject_genesis_complete_rolls_back_cursor():
     cp = state.pending_checkpoint
     _apply_reject_redo(state, cp)
     assert state.genesis.current_step == 16
+
+
+def test_modify_per_chapter_also_queues_revision():
+    """注记兑现：PER_CHAPTER 的 MODIFY 同样队列 chapter-revision 重派（合理语义）。"""
+    from shenbi.pipeline.cli import _apply_reject_redo  # noqa: F401 —— MODIFY 路径经 cmd_review
+    from shenbi.pipeline.machine import set_checkpoint
+    from shenbi.pipeline.state import CheckpointType, PipelineState
+
+    state = PipelineState.default("/tmp/proj")
+    set_checkpoint(state, CheckpointType.PER_CHAPTER, chapter=5)
+    from shenbi.pipeline.cli import _queue_re_dispatches
+
+    _queue_re_dispatches(state, state.pending_checkpoint, feedback="改紧节奏")
+    assert any(
+        d["skill"] == "shenbi-chapter-revision" and d.get("feedback") == "改紧节奏"
+        for d in state.pending_re_dispatches
+    )
 
 
 def test_reject_escalation_resets_retry_budget():
