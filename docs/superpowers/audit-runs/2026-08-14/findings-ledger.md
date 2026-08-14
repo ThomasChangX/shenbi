@@ -105,6 +105,8 @@
 | F107 | G_TRANSITION/G_DISPATCH/G_RECONCILE 未接入 phase_runner 状态机，仅 CLI 手动入口 + 各自单测 | optimization | P2 | 见 Z1.a.md#F107 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F108 | safe_write 两处并发缺陷：mkstemp 在锁获取后、try 块外 → mkstemp 失败锁泄漏；stale-takeover unlink 后 O_EXCL 竞态 FileExistsError 未捕获 | error | P2 | 见 Z1.a.md#F108 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F109 | sync_contracts.verify_bijection 用 assert 做一致性守卫，python -O 下整函数失效 | optimization | P2 | 见 Z1.a.md#F109 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F110 | exceptions.py RegistryStaleError 消息 "1 source files changed" 语法错误（单数名词 + 复数 files，未区分单复数）；test_exceptions.py:64 断言同款文案 | docs | M | 见 Z1.a.md#F110 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F111 | __init__.py docstring "forwarder until PR-19/PR-20" 过期：gates/cli.py、dispatcher/cli.py、executor.py 均为真实实现（PR-19/20 早已落地） | docs | M | 见 Z1.a.md#F111 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F112 | RoundPaths.repo() 无任何调用方（死代码） | optimization | P2 | 见 Z1.a.md#F112 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F113 | phase_runner cmd_pre_skill 的 ContractError 静默吞错：契约损坏时无日志降级为空 reads/writes | error | P2 | 见 Z1.a.md#F113 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F612 | 3 层干预把 severity 阶梯全部门控在 `is_drift`：绝对阈值（>30/>50/>100）在 baseline 被污染时永不可达 | error | P1 | 见 Z6.review.md#F612 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
@@ -160,6 +162,7 @@
 | F624 | plugins/master.json skills 清单与 skills/ 目录漂移（59 vs 74，15 个 skill 未列）+ generate.py 无任何 skills 校验 → 静默不发布 | doc drift | P2 | 见 Z6.review2.md#F624 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F0-02 |
 | F625 | versioning.migrate_to_current 缺迁移函数时 `_identity` 回退 → while 循环永不前进 → 无限循环挂死 | error | P2 | 见 Z6.review2.md#F625 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F626 | check_linguistic_drift_trigger（第 4 漂移触发点）死导出：HARD/ESCALATE 从未接入 drift-guidance | dead code | P2 | 见 Z6.review2.md#F626 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F627 | parse_trend 无表结束条件：header 之后所有含 "|" 的行（含文件后部第二张表/附录）并入序列 → 假 drift（潜伏，真实文件单表） | error | P2 | 见 Z6.review2.md#F627 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F628 | segment_sentences 与 segment_paragraphs 句数口径不一致（"；" 只计入段落句数）→ 同一报告自相矛盾 | error | P2 | 见 Z6.review2.md#F628 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F629 | revision_routing.verify_preservation 无生产调用方：§5.3 再生保留校验器实现+测试但未接线，保留保障仅靠 LLM prompt | dead code | P2 | 见 Z6.review2.md#F629 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F513 | 写审计快照根错位：`dispatch_with_write_audit` 快照 `PROJECT_DIR`（框架仓库根）而非 `round_dir` | 接线错误 | P1 | 见 Z5.review.md#F513 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
