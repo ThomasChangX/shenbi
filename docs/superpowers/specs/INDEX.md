@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-15
-> **活跃 spec 数**：23
+> **活跃 spec 数**：24
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -14,10 +14,10 @@
 
 - **文件**：`2026-08-14-pipeline-never-completes-design.md`
 - **系列**：2026-08-14 全项目审查（总纲 #5 的执行产出，子 spec 1/10）
-- **状态**：Design
-- **优先级**：🟥 Critical（5 个独立根因使长篇小说 pipeline 永不进入 CLOSURE；生产 56 章实证）
+- **状态**：Design（Revised 2026-08-15 · SDD 阶段 3 设计审查 4C/4I/6M 全修）
+- **优先级**：🟥 Critical（5 个独立根因使长篇小说 pipeline 永不进入 CLOSURE；生产 100 章规划实证）
 - **方法**：`systematic-debugging` 四阶段
-- **内容**：volume_map 中文格式 vs 英文解析器（F324）/ total_chapters 写点自锁（F353）/ closure 目录 G4（F371）/ N 占位 G4（F373）/ closure prompt-build（F379）+ 相关 F340/F341/F303/F304
+- **内容**：volume_map 中文格式 vs 英文解析器（F324）/ total_chapters 写点自锁（F353）/ closure 目录 G4（F371）/ N 占位 G4（F373）/ closure prompt-build（F379）+ R6 节点桥接中文提取 + F340/F341/F304 + 从属 F313/F380/F3B5/F245。**F303 已拆至 #26**。修订要点：R1 卷级作用域+负面验收（边界集=={15,35,55,75,100}）、R2 total=100 修正（max(boundaries) 规划总章数，非已写 56）、R3 目录校验+契约对齐（gates/g4）、R4 per-step N 语义表（arc=chapter//12/stratum=//36/volume=卷索引）、R5 显式路径解析上下文
 
 ### #7 · 全项目审查执行：数据丢失簇（P0）
 
@@ -165,6 +165,17 @@
 - **文件**：`2026-08-14-p2-batch-design.md`
 - **状态**：Design | **优先级**：🟡 P2（批量）
 - **内容**：287 条 P2 按区批量处置，家族统一修复模式（F431 崩溃族/采样截断/契约漂移/死代码/路径参数/错误处理）
+
+### #26 · 全项目审查执行：快照子系统接线（自 #6 拆分）
+
+- **文件**：`2026-08-15-snapshot-subsystem-wiring-design.md`
+- **系列**：2026-08-14 全项目审查（自 #6 拆分：设计审查裁决三路设计决策无法一行方向化）
+- **状态**：Design
+- **优先级**：🟠 P1
+- **方法**：`systematic-debugging` 四阶段
+- **依赖**：无（与 #6 的 closure step 10 契约对齐有衔接面，见各自内容字段）
+- **内容**：快照子系统三机制并存零接线（F303）：chapter_loop 差分三件套死代码 / crash_recovery 平行实现 / cli rollback deferred；三路裁决（接线 / 收敛后接线 / 移除）+ 按路径定稿验收
+- **对应 plan**：❌ 未写
 
 ---
 
