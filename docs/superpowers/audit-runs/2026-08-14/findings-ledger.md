@@ -230,7 +230,7 @@
 | F639 | compute_drift CLI 对缺失趋势文件静默跳过并 exit 0（误判"无漂移"）；真实项目缺 arc_payoff/volume 趋势文件 → CLI 只跑半个检测；`--write-audit-drift` 向 drift-guidance 单一写者拥有的 audit_drift.md 追加无协调 | 边界/CLI | P2 | 见 Z6.review4.md#F639 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F525 | `TokenLedger.summarize`/`iter_records` 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约 | 错误处理/边界 | P2 | 见 Z5.review3.md#F525 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F526 | `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规 | 审计正确性 | P2 | 见 Z5.review3.md#F526 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | P2 | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | P2 | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F233 |
 | F528 | `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc | 错误处理 | P2 | 见 Z5.review3.md#F528 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F530 | `parse_resonance_scores` 的 `val > 0` 过滤丢弃合法 0 分（dead-wire 桥上下文，无现行生产影响） | 边界/语义 | M | 见 Z5.review3.md#F530 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F353 | novel.json.total_chapters 无任何正常流写入点（自锁死循环）——F324 修复后 pipeline 仍永不完成 | error | P1 | 见 Z3.review4.md#F353 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -257,7 +257,7 @@
 | F531 | 无 state 的 dispatch 调用路径（genesis/closure/triggers/audit_layer/parallel/CLI）TokenLedger 零落账：`_record_token_usage` 以 `if state:` 为闸门，project_dir 可用也不写 → 大部分 pipeline API 成本系统性缺失 | 计量缺口 | P2 | 见 Z5.review4.md#F531 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F302 |
 | F532 | `TokenLedger.record` 的 chapter 字段恒为 0：`getattr(state, "chapter", 0)` 在 PipelineState（无 .chapter 属性，真实字段是 chapter_loop.current_chapter）上恒返回 0 → summarize by_chapter 全部坍缩到 "0" 桶 → report "Per-chapter average cost" 恒等于总成本 | 展示指标失真 | P2 | 见 Z5.review4.md#F532 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F302 |
 | F533 | `TokenLedger.iter_records` 对无效 UTF-8 账本行抛 UnicodeDecodeError 崩 `shenbi-cost report`：read_text 无防护，违反模块"corrupt line is skipped, never crashing the report"契约 | 错误处理/契约违反 | P2 | 见 Z5.review4.md#F533 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F534 | `_changed_top_keys` 对 JSONDecodeError 静默返回 ()：OWNERSHIP JSON 文件被写成无效 JSON（数据损坏形态）→ field 级审计零违规 | 审计正确性 | P2 | 见 Z5.review4.md#F534 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F534 | `_changed_top_keys` 对 JSONDecodeError 静默返回 ()：OWNERSHIP JSON 文件被写成无效 JSON（数据损坏形态）→ field 级审计零违规 | 审计正确性 | P2 | 见 Z5.review4.md#F534 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F269 |
 | F535 | `parse_markdown_table` 表头缺 id 列 → md_rows 恒空 → drift 检测静默放行（畸形派生表 = "一致"） | 审计健壮性 | P2 | 见 Z5.review4.md#F535 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F536 | "未声明写入"检测在真实接线下不可达：快照面=声明写入面，技能写声明外文件（越权的基本形态）永不进入审计；test_write_audit.py:79-87 手工构造 post dict 掩盖该盲区 | 审计完整性/接线 | P2 | 见 Z5.review4.md#F536 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F134 | scoring validate_scores 对空 dimensions rubric 静默放行 → 不可解析 rubric 产出静默 0 分（FAIL）而非 REJECT | error | P2 | 见 Z1.review4.md#F134 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -279,7 +279,7 @@
 | F235 | dispatch_with_write_audit 审计面错位：快照 PROJECT_DIR（shenbi 仓库根）而非 round_dir/project_dir —— 成功派发返回 rc=2 GATE_FAIL + 写越权审计对真实写入盲区 | 漏报（功能错误/审计失效） | P1 | 见 Z2.review3.md#F235 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F513 |
 | F236 | audit/write_audit.py `_matches_declared` 不 fnmatch 声明为 glob 的写入（`truth/*.md` 等 9 技能）→ glob 写入恒判"未声明写入" | 漏报（跨区：audit/ 被 executor 审计链消费） | P2 | 见 Z2.review3.md#F236 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F237 | compute_file_change 对 added JSON 文件返回空 changed_top_keys → field 级 OWNERSHIP 键集校验对新建文件整体旁路 | 漏报（审计盲区，F233 field 级孪生） | P2 | 见 Z2.review3.md#F237 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F537 | `_changed_top_keys` 的 `.get()` 把"缺失键"与"null 值键"归并为同一信号：OWNERSHIP field 文件新增 null 值键 / 删除 null 值键 → 键集变化零检测 → field 级审计静默放行 | 审计正确性 | P2 | 见 Z5.review5.md#F537 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F537 | `_changed_top_keys` 的 `.get()` 把"缺失键"与"null 值键"归并为同一信号：OWNERSHIP field 文件新增 null 值键 / 删除 null 值键 → 键集变化零检测 → field 级审计静默放行 | 审计正确性 | P2 | 见 Z5.review5.md#F537 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F260 |
 | F538 | `snapshot_tree` 对非 UTF-8 watched 文件抛 UnicodeDecodeError 崩审计链：pre-snapshot（executor.py:244）崩 → dispatch 未启动即中止；post-snapshot（:264）崩 → finally 异常替换 dispatch 结果 | 错误处理/健壮性 | P2 | 见 Z5.review5.md#F538 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F643 | 治理链对"键缺失"的默认语义自相矛盾：G0 视缺失为启用（`get(dim, True)`）、audit_layer 视缺失为禁用（`get(dim_key, False)`）→ 从 auditDimensions 移除关键维度（或置空对象）静默停用审计且两道治理同时失明 | 治理绕过（F611/F631/F638 同族第四向量） | P2 | 见 Z6.review6.md#F643 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F140 | `shenbi-score` CLI 成功路径恒 exit 1：main() 返回 dict → 控制台脚本 `sys.exit(dict)` → 违反 command-to-give.md 文档化退出码契约（0=成功），且 codex 模式自动评分路径永远"失败" | error | **P1** | 见 Z1.review5.md#F140 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -466,3 +466,5 @@
 | F3B3 | GENESIS_COMPLETE MODIFY 的 modify_feedback 被存进 chapter_loop 字段但 genesis 从不消费——重跑不带人审反馈，残留反馈随后泄漏进 chapter-loop 首次 dispatch | error | M | 见 Z3.review19.md#F3B3 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3B4 | cmd_backfill_context 无任何 ReadLock/WriteLock——与并发管线写 context 文件竞态（对照其余全部命令持锁） | error | M | 见 Z3.review19.md#F3B4 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3B5 | genesis 失败升级路径 dispatch_escalation(project_dir, None, ...) 在 API/IDE 派发路径恒失败：escalation-review 契约 writes 含 N 占位，chapter=None 抛 UnresolvedPathError → genesis 升级报告永不产出（"N-paths filtered by executor" 注释对 API/IDE 不成立） | error | P2 | 见 Z3.review19.md#F3B5 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F3B6 | `register_emergency_handlers` 每章重复注册 atexit 钩子 + `reset_emergency_state` 注释声称移除钩子但从未 unregister → 钩子累积、退出时 N 次清理、current_step 嵌套污染 | error | P2 | 见 Z3.review20.md#F3B6 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F3B7 | atexit `_emergency_cleanup` 在 WriteLock 释放后无锁写 pipeline-state.json + clear_staging → 与并发 `pipeline next/review` 的锁保护写形成竞态 | error | P2 | 见 Z3.review20.md#F3B7 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
