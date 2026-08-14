@@ -75,9 +75,8 @@ DRIFT_THRESHOLD = 3
 AUDIT_DRIFT_PATH = "truth/audit_drift.md"
 
 # Re-imported from _shared: read_volume_boundaries (used internally by
-# is_volume_boundary) + VOLUME_MAP_PATH (used by _count_total_chapters).
-# Volume-map parsing domain was extracted to _shared to break the Cluster 1
-# cycle (context_assemble -> triggers back-edge).
+# is_volume_boundary). Volume-map parsing domain was extracted to _shared to
+# break the Cluster 1 cycle (context_assemble -> triggers back-edge).
 from shenbi.pipeline._shared import read_volume_boundaries
 
 
@@ -365,6 +364,11 @@ def _update_total_chapters(state: PipelineState) -> None:
     update_total_chapters(Path(state.project_dir))
 
 
+# ---------------------------------------------------------------------------
+# Public API: check_triggers
+# ---------------------------------------------------------------------------
+
+
 def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> TriggerResult:
     """Determine which triggers fire after *chapter* (spec section 6.4-6.6).
 
@@ -418,6 +422,10 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
     return r
 
 
+# Execution order helper
+# ---------------------------------------------------------------------------
+
+
 def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
     """Return the ordered list of skills to execute for *result*.
 
@@ -454,10 +462,18 @@ def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
     return [step for step in TRIGGER_STEPS if step.category in active_flags]
 
 
+# Gate result helper
+# ---------------------------------------------------------------------------
+
+
 def _gate_passed(result: dict[str, Any]) -> bool:
     """True iff a gate result dict reports PASS or SKIP."""
     status = str(result.get("status", ""))
     return status in (GateStatus.PASS, GateStatus.SKIP)
+
+
+# Execution
+# ---------------------------------------------------------------------------
 
 
 def run_triggered_skills(

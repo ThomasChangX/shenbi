@@ -1,6 +1,7 @@
 """Volume-map domain shared symbols (Cluster 1 cyclic-import refactor leaf module).
 
-Leaf module: depends only on stdlib (re/pathlib/json) plus safe_write, imports
+Leaf module: depends only on stdlib (re/pathlib/json) plus safe_write and the
+base logger, imports
 no pipeline cycle member (triggers/context_assemble/plan_skeleton/dispatch_helper).
 The original 4-node cycle (triggers -> dispatch_helper -> plan_skeleton ->
 context_assemble -> triggers) had its back-edge (context_assemble -> triggers)
@@ -136,8 +137,10 @@ def update_total_chapters(project_dir: Path) -> int:
         return 0
     if data.get("total_chapters") != new_total:
         data["total_chapters"] = new_total
+        from shenbi.logging import get_logger
         from shenbi.safe_write import safe_write
 
+        get_logger(__name__).info("total_chapters_updated", total_chapters=new_total)
         safe_write(novel_path, json.dumps(data, ensure_ascii=False, indent=2))
     return new_total
 

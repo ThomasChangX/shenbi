@@ -44,7 +44,9 @@ def test_genesis_finalize_hook(tmp_path):
 
 def test_update_idempotent_and_no_boundaries(tmp_path):
     proj = _mk_project(tmp_path, with_total=True)
+    before = (proj / "novel.json").read_bytes()
     assert update_total_chapters(proj) == 100  # idempotent: same value, no rewrite
+    assert (proj / "novel.json").read_bytes() == before  # byte-identical: no write
     empty = tmp_path / "empty"
     (empty / "outline").mkdir(parents=True)
     (empty / "novel.json").write_text("{}", encoding="utf-8")
