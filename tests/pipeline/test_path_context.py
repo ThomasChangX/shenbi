@@ -1,0 +1,82 @@
+"""R4a: per-family N-placeholder semantics + [path-context] line (F245/F373)."""
+
+import pytest
+
+from shenbi.contracts.paths import (
+    PathContext,
+    UnresolvedPathError,
+    build_trigger_context,
+    format_path_context,
+    parse_path_context,
+    resolve_contract_path,
+)
+
+
+def test_arc_family_uses_arc_not_chapter():
+    """Acceptance: at ch 60 the arc path resolves to arc-5 (60//12), not arc-60."""
+    ctx = build_trigger_context(60, {15, 35, 55, 75, 100})
+    assert resolve_contract_path("truth/arcs/arc-N.md", 60, ctx) == "truth/arcs/arc-5.md"
+    assert resolve_contract_path("audits/arc-N-score.md", 60, ctx) == "audits/arc-5-score.md"
+
+
+def test_stratum_and_volume_families():
+    ctx = build_trigger_context(55, {15, 35, 55, 75, 100})
+    assert (
+        resolve_contract_path("audits/stratum-N-score.md", 55, ctx) == "audits/stratum-1-score.md"
+    )  # 55//36
+    assert (
+        resolve_contract_path("audits/volume-N-score.md", 55, ctx) == "audits/volume-3-score.md"
+    )  # count(<=55)
+
+
+def test_volume_count_is_not_len_boundaries():
+    """Mid-book divergence from len(boundaries): only equal at the final volume."""
+    ctx = build_trigger_context(56, {15, 35, 55, 75, 100})
+    assert (
+        resolve_contract_path("audits/volume-N-payoff.md", 56, ctx) == "audits/volume-3-payoff.md"
+    )
+
+
+def test_chapter_family_and_bare_nnn_fallback():
+    ctx = PathContext(chapter=100)
+    assert (
+        resolve_contract_path("audits/chapter-N-long-span.md", 100, ctx)
+        == "audits/chapter-100-long-span.md"
+    )
+    assert resolve_contract_path("snapshots/chapter-NNN/", 100, ctx) == "snapshots/chapter-100/"
+
+
+def test_no_ctx_falls_back_to_chapter_semantics():
+    """Fallback: without ctx, byte-identical legacy behavior."""
+    assert resolve_contract_path("audits/arc-N-score.md", 60, None) == "audits/arc-60-score.md"
+
+
+def test_no_ctx_unresolved_raises():
+    with pytest.raises(UnresolvedPathError):
+        resolve_contract_path("truth/arcs/arc-N.md", None, None)
+
+
+def test_roundtrip_format_parse():
+    ctx = build_trigger_context(60, {15, 35, 55, 75, 100})
+    line = format_path_context(ctx)
+    assert line == "[path-context] chapter=60 arc=5 stratum=1 volume=3"
+    parsed = parse_path_context(f"Execute skill for chapter 60.\n{line}")
+    assert parsed == ctx
+
+
+def test_parse_absent_returns_none():
+    assert parse_path_context("Execute skill for chapter 60. Project dir: /x") is None
+
+
+def test_str_sentinels():
+    """F3B5/F380: escalation book sentinel, anchor zero-pad."""
+    ctx = PathContext(escalation="genesis")
+    assert (
+        resolve_contract_path("audits/escalation-N-report.md", None, ctx)
+        == "audits/escalation-genesis-report.md"
+    )
+    ctx2 = PathContext(anchor=1)
+    assert (
+        resolve_contract_path("benchmarks/anchors/AC-NNN.md", None, ctx2)
+        == "benchmarks/anchors/AC-001.md"
+    )

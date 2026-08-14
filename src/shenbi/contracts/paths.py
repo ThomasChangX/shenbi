@@ -11,6 +11,7 @@ only replaces N at separator boundaries.
 
 from __future__ import annotations
 import re
+from dataclasses import dataclass
 
 
 class UnresolvedPathError(ValueError):
@@ -19,6 +20,97 @@ class UnresolvedPathError(ValueError):
 
 _BOUND_N = re.compile(r"(?<=[-/])N(?=[-./]|$)")
 _NNN = "NNN"
+
+PATH_CONTEXT_PREFIX = "[path-context]"
+
+# Family-prefixed N: arc-N / stratum-N / volume-N / chapter-N / escalation-N
+_FAMILY_N = re.compile(r"(?<=[-/])(arc|stratum|volume|chapter|escalation)-N(?=[-./]|$)")
+_AC_ANCHOR = re.compile(r"(?<=[-/])AC-NNN(?=[-./]|$)")
+_CTX_KEYS = ("chapter", "arc", "stratum", "volume", "anchor", "escalation")
+
+
+@dataclass(frozen=True)
+class PathContext:
+    """Per-family placeholder values carried alongside (or inside, via the
+    ``[path-context]`` prompt line) a dispatch.
+
+    ``int | str`` sentinel fields allow book-level markers (e.g.
+    ``escalation="genesis"`` resolves ``escalation-N-report.md`` to the genesis
+    artifact name; ``anchor=1`` resolves ``AC-NNN.md`` to ``AC-001.md``).
+    """
+
+    chapter: int | None = None
+    arc: int | None = None
+    stratum: int | None = None
+    volume: int | None = None
+    anchor: int | str | None = None
+    escalation: int | str | None = None
+
+
+def format_path_context(ctx: PathContext) -> str:
+    """Render the cross-route carrier line (empty when ctx carries no values)."""
+    parts = [f"{k}={getattr(ctx, k)}" for k in _CTX_KEYS if getattr(ctx, k) is not None]
+    return f"{PATH_CONTEXT_PREFIX} " + " ".join(parts) if parts else ""
+
+
+def parse_path_context(prompt: str) -> PathContext | None:
+    """Parse the first ``[path-context]`` line of a prompt; None when absent."""
+    for line in prompt.splitlines():
+        s = line.strip()
+        if not s.startswith(PATH_CONTEXT_PREFIX):
+            continue
+        kv: dict[str, int | str] = {}
+        for tok in s[len(PATH_CONTEXT_PREFIX) :].split():
+            if "=" in tok:
+                k, v = tok.split("=", 1)
+                if k in _CTX_KEYS:
+                    kv[k] = int(v) if v.isdigit() else v
+        if kv:
+            return PathContext(**kv)  # type: ignore[arg-type]
+    return None
+
+
+def build_trigger_context(chapter: int, boundaries: set[int]) -> PathContext:
+    """Trigger-fan-out context (memory-distill SKILL: arc N = chapter // 12;
+    stratum N = chapter // 36; volume N = count(boundaries <= chapter) — NOT
+    len(boundaries), which only agrees at the final volume's end chapter).
+    """
+    return PathContext(
+        chapter=chapter,
+        arc=chapter // 12,
+        stratum=chapter // 36,
+        volume=sum(1 for b in boundaries if b <= chapter),
+    )
+
+
+def resolve_contract_path(path: str, chapter: int | None, ctx: PathContext | None = None) -> str:
+    """Resolve N/NNN with per-family semantics when *ctx* is present.
+
+    Family-prefixed N resolves from ctx's family value; AC-NNN from ctx.anchor
+    (int -> %03d, str -> literal); everything else falls back to chapter
+    semantics (legacy resolve_chapter_path behavior unchanged).
+    """
+    if ctx is not None:
+        m = _FAMILY_N.search(path)
+        if m:
+            key = m.group(1)
+            val = getattr(ctx, key)
+            if val is not None:
+                return _FAMILY_N.sub(f"{key}-{val}", path, count=1)
+        if ctx.anchor is not None and _AC_ANCHOR.search(path):
+            pad = f"{ctx.anchor:03d}" if isinstance(ctx.anchor, int) else str(ctx.anchor)
+            return path.replace("AC-NNN", f"AC-{pad}")
+    return resolve_chapter_path(path, chapter)
+
+
+def resolve_or_skip_ctx(
+    path: str, chapter: int | None, ctx: PathContext | None = None
+) -> str | None:
+    """resolve_contract_path with the resolve_or_skip genesis-mode filter."""
+    try:
+        return resolve_contract_path(path, chapter, ctx)
+    except UnresolvedPathError:
+        return None
 
 
 def _bounded_replace_n(path: str, value: int) -> str:
