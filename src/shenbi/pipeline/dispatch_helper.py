@@ -587,8 +587,9 @@ def _build_skill_prompt(
             read_path = read_path_entry
             fields = []
 
-        # Resolve chapter placeholders before glob expansion (ctx-aware,
-        # spec #6 R4b: arc/stratum/volume reads must not resolve as chapter).
+        # Resolve placeholders before glob expansion (ctx-aware, spec #6
+        # R4b): resolve_or_skip_ctx routes arc/stratum/volume families via
+        # path_context and filters unresolvable placeholders.
         resolved = resolve_or_skip_ctx(read_path, chapter, path_context)
         if resolved is None:
             continue  # unresolvable placeholder (genesis) — skip this read
@@ -1513,9 +1514,6 @@ def _dispatch_via_api(
     from openai import OpenAI
 
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
-    if chapter is None:
-        path_ctx = parse_path_context(prompt)
     chapter = path_ctx.chapter if path_ctx is not None else None
     if chapter is None:
         chapter = extract_chapter(prompt)

@@ -97,7 +97,7 @@ def derive_input_files(
     round_dir: Path | None = None,
     ctx: PathContext | None = None,
 ) -> list[str]:
-    """Return the skill's contract reads, resolving chapter placeholders.
+    """Return the skill's contract reads, resolving placeholders (chapter or PathContext).
     When *chapter* is provided, N/NNN placeholders are resolved.
     Paths with unresolvable placeholders (genesis mode) are skipped via
     resolve_or_skip → None → filtered. When *round_dir* is provided,
