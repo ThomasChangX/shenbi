@@ -25,7 +25,7 @@
 | false-positive | 1 | F325（复核反证撤销） |
 | merged | 35 | 同根因去重合并 |
 
-**总 findings: 771**（644 verified + 90 specced + 35 merged + 1 FP）
+**总 findings: 771**（645 verified + 90 specced + 35 merged + 1 FP）
 
 ## 3. 核心根因簇（10 簇，详见 phase4-root-cause-clusters.md）
 
