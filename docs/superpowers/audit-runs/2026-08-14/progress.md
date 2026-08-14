@@ -166,3 +166,9 @@
 - registry（docs/framework/truth-files.yaml concepts）声明 truth 18 项（含 parametric arcs/arc-N）vs 真实项目磁盘 13 项
 - 差异：registry 有磁盘无（drift_guidance=F1001、volume_summaries/parent_canon/arc_payoff_trend/volume_score_trend/book_strata 等卷级趋势= F389/F639 家族已覆盖）
 - **新遗漏 1 条**：truth/state_snapshot-pre-rev.md（git tracked、07-17 旧版管线 pre-revision 快照、src 0 引用、registry 未登记）→ 登记 F1322（M，F1307 三源分裂家族第 3 实例），台账 785→786（M 166）
+
+### 2026-08-14 会话 1（续 29）——后续审核：status 字面量词表全仓核对
+- lint_status_strings 实跑 0 违规 exit 0（T9-01 盲区确认）
+- 全仓 status/state/classification 键字面量扫描：5 个唯一词表外值——PLANTED（T9-01）/done（T9-01）/not_implemented（T9-01）/pending（T9-01）/PASSED（status.py 自身豁免文件）；degraded（truth_embed.py:247 三元表达式跨行，T9-01/F3B1 已覆盖）
+- **结论：status 词表家族枚举完整，零新遗漏，无新增 finding**
+- 后续审核 7 项全部完成（F431/采样截断/内层形状/门禁形状/fixture 断链/registry↔磁盘/status 词表）
