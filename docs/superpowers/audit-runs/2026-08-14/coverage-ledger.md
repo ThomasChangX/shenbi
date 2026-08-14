@@ -1815,914 +1815,914 @@
 | src/shenbi/trace/replay.py | deep-read | zone-reports/Z6.a.md#replay.py | Z6 初审 |
 | src/shenbi/trace/versioning.py | deep-read | zone-reports/Z6.a.md#versioning.py | Z6 初审 |
 | src/shenbi/trace/writer.py | deep-read | zone-reports/Z6.a.md#writer.py | Z6 初审 |
-| tests/ARCHIVE-MIGRATED.md | unreviewed | — | — |
-| tests/__init__.py | unreviewed | — | — |
-| tests/baselines/.gitkeep | unreviewed | — | — |
-| tests/baselines/gate-outputs/G0.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G2-chapter.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G2-internal.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G2-truth.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G4-genre_config.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G6.json | unreviewed | — | — |
-| tests/baselines/gate-outputs/G7.json | unreviewed | — | — |
-| tests/baselines/mutation-score.txt | unreviewed | — | — |
-| tests/baselines/pending_hooks.parse.json | unreviewed | — | — |
-| tests/benchmark/.gitkeep | unreviewed | — | — |
-| tests/benchmark/__init__.py | unreviewed | — | — |
-| tests/conftest.py | unreviewed | — | — |
-| tests/contracts/__init__.py | unreviewed | — | — |
-| tests/contracts/test_cjk_normalization.py | unreviewed | — | — |
-| tests/coverage/.gitkeep | unreviewed | — | — |
-| tests/fixtures/.gitkeep | unreviewed | — | — |
-| tests/fixtures/arc-example.md | unreviewed | — | — |
-| tests/fixtures/audit-report-example.md | unreviewed | — | — |
-| tests/fixtures/audits/.gitkeep | unreviewed | — | — |
-| tests/fixtures/author-intent-example.md | unreviewed | — | — |
-| tests/fixtures/book-spine-example.md | unreviewed | — | — |
-| tests/fixtures/book-strata-example.md | unreviewed | — | — |
-| tests/fixtures/calibration/.gitkeep | unreviewed | — | — |
-| tests/fixtures/calibration/README.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/弧情感交付/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/弧情感交付/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/弧情感交付/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/期待债务结算/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/期待债务结算/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/期待债务结算/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/线索收束/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/线索收束/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/线索收束/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/角色弧推进/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/角色弧推进/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/arc-payoff/角色弧推进/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/场景临场感/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/场景临场感/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/场景临场感/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/情感落地/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/情感落地/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/情感落地/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/文笔质感/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/文笔质感/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/文笔质感/mid.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/读者回报/high.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/读者回报/low.md | unreviewed | — | — |
-| tests/fixtures/calibration/resonance/读者回报/mid.md | unreviewed | — | — |
-| tests/fixtures/canary-3-chapter-seed.md | unreviewed | — | — |
-| tests/fixtures/chapter-10-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-2-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-3-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-4-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-5-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-6-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-7-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-7-example.md | unreviewed | — | — |
-| tests/fixtures/chapter-8-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-8-example.md | unreviewed | — | — |
-| tests/fixtures/chapter-9-draft.md | unreviewed | — | — |
-| tests/fixtures/chapter-9-example.md | unreviewed | — | — |
-| tests/fixtures/chapter-draft-example.md | unreviewed | — | — |
-| tests/fixtures/chapter-plan-example.md | unreviewed | — | — |
-| tests/fixtures/chapter-summaries-example.md | unreviewed | — | — |
-| tests/fixtures/chapters/.gitkeep | unreviewed | — | — |
-| tests/fixtures/character-profile-example.md | unreviewed | — | — |
-| tests/fixtures/characters/.gitkeep | unreviewed | — | — |
-| tests/fixtures/characters/supporting/.gitkeep | unreviewed | — | — |
-| tests/fixtures/config/.gitkeep | unreviewed | — | — |
-| tests/fixtures/config/platform-rules/.gitkeep | unreviewed | — | — |
-| tests/fixtures/consolidation/.gitkeep | unreviewed | — | — |
-| tests/fixtures/consolidation/volume-1/.gitkeep | unreviewed | — | — |
-| tests/fixtures/drafts/.gitkeep | unreviewed | — | — |
-| tests/fixtures/genre-config-example.json | unreviewed | — | — |
-| tests/fixtures/import/.gitkeep | unreviewed | — | — |
-| tests/fixtures/import/analysis/.gitkeep | unreviewed | — | — |
-| tests/fixtures/import/analysis/03_world.md | unreviewed | — | — |
-| tests/fixtures/import/canon/.gitkeep | unreviewed | — | — |
-| tests/fixtures/import/packaging/.gitkeep | unreviewed | — | — |
-| tests/fixtures/market-data-example.md | unreviewed | — | — |
-| tests/fixtures/market-data/qidian-urban-fantasy-2026-06.md | unreviewed | — | — |
-| tests/fixtures/mlc-config.json | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example.md | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example/chapter-1.md | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example/chapter-2.md | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example/chapter-3.md | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example/chapter-4.md | unreviewed | — | — |
-| tests/fixtures/multi-chapter-example/chapter-5.md | unreviewed | — | — |
-| tests/fixtures/novel-example.json | unreviewed | — | — |
-| tests/fixtures/outline-example.md | unreviewed | — | — |
-| tests/fixtures/parent-canon-example.md | unreviewed | — | — |
-| tests/fixtures/pending-hooks-example.md | unreviewed | — | — |
-| tests/fixtures/pending-hooks-init.md | unreviewed | — | — |
-| tests/fixtures/report-example.txt | unreviewed | — | — |
-| tests/fixtures/samples/.gitkeep | unreviewed | — | — |
-| tests/fixtures/samples/reference-texts/.gitkeep | unreviewed | — | — |
-| tests/fixtures/sensitive_words.txt | unreviewed | — | — |
-| tests/fixtures/short-story-map-example.md | unreviewed | — | — |
-| tests/fixtures/skill-triggering-prompts/.gitkeep | unreviewed | — | — |
-| tests/fixtures/snapshots/.gitkeep | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/.gitkeep | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/manifest.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/truth/chapter_summaries.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/truth/character_matrix.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/truth/current_state.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/truth/emotional_arcs.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-025/truth/pending_hooks.md | unreviewed | — | — |
-| tests/fixtures/snapshots/chapter-030/.gitkeep | unreviewed | — | — |
-| tests/fixtures/snapshots/pre-chapter-25/.gitkeep | unreviewed | — | — |
-| tests/fixtures/source/.gitkeep | unreviewed | — | — |
-| tests/fixtures/stop_words_zh.txt | unreviewed | — | — |
-| tests/fixtures/story/.gitkeep | unreviewed | — | — |
-| tests/fixtures/story/volumes/.gitkeep | unreviewed | — | — |
-| tests/fixtures/style-profile-example.md | unreviewed | — | — |
-| tests/fixtures/truth-chapter_summaries.md | unreviewed | — | — |
-| tests/fixtures/truth-character_matrix.md | unreviewed | — | — |
-| tests/fixtures/truth-current_state.md | unreviewed | — | — |
-| tests/fixtures/truth-emotional_arcs.md | unreviewed | — | — |
-| tests/fixtures/truth-particle_ledger.md | unreviewed | — | — |
-| tests/fixtures/truth-pending_hooks.md | unreviewed | — | — |
-| tests/fixtures/truth/.gitkeep | unreviewed | — | — |
-| tests/fixtures/truth/character_profiles/.gitkeep | unreviewed | — | — |
-| tests/fixtures/truth/source_material/.gitkeep | unreviewed | — | — |
-| tests/fixtures/volume-summary-example.md | unreviewed | — | — |
-| tests/fixtures/world-locations-example.md | unreviewed | — | — |
-| tests/fixtures/world-power-system-example.md | unreviewed | — | — |
-| tests/fixtures/world-rules-example.md | unreviewed | — | — |
-| tests/fixtures/world-story-bible-example.md | unreviewed | — | — |
-| tests/fixtures/world/.gitkeep | unreviewed | — | — |
-| tests/fixtures/world/factions/.gitkeep | unreviewed | — | — |
-| tests/fixtures/world/locations/.gitkeep | unreviewed | — | — |
-| tests/gates/__init__.py | unreviewed | — | — |
-| tests/gates/g4/__init__.py | unreviewed | — | — |
-| tests/gates/g4/test_hook_fulfillment.py | unreviewed | — | — |
-| tests/gates/g4/test_title_check.py | unreviewed | — | — |
-| tests/gates/test_gate_manifest.py | unreviewed | — | — |
-| tests/golden/README.md | unreviewed | — | — |
-| tests/integration/.gitkeep | unreviewed | — | — |
-| tests/integration/__init__.py | unreviewed | — | — |
-| tests/integration/test_doc_links.py | unreviewed | — | — |
-| tests/integration/test_docs_accuracy.py | unreviewed | — | — |
-| tests/integration/test_gate_cli.py | unreviewed | — | — |
-| tests/lock-tool-hashes.sh | unreviewed | — | — |
-| tests/pipeline/__init__.py | unreviewed | — | — |
-| tests/pipeline/test_audit_cascading.py | unreviewed | — | — |
-| tests/pipeline/test_audit_context_cache.py | unreviewed | — | — |
-| tests/pipeline/test_budgeted_truncate.py | unreviewed | — | — |
-| tests/pipeline/test_chapter_steps_restructured.py | unreviewed | — | — |
-| tests/pipeline/test_crash_recovery.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_autogen_strip.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_cap_raise.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_finish_reason.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_glob.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_keys.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_ledger.py | unreviewed | — | — |
-| tests/pipeline/test_dispatch_helper_xml.py | unreviewed | — | — |
-| tests/pipeline/test_executor_config.py | unreviewed | — | — |
-| tests/pipeline/test_linguistic_drift.py | unreviewed | — | — |
-| tests/pipeline/test_parallel_dispatch_backoff.py | unreviewed | — | — |
-| tests/pipeline/test_parallel_steps.py | unreviewed | — | — |
-| tests/pipeline/test_retry.py | unreviewed | — | — |
-| tests/pipeline/test_review_checklist.py | unreviewed | — | — |
-| tests/pipeline/test_scr_extractor.py | unreviewed | — | — |
-| tests/pipeline/test_snapshot_diff.py | unreviewed | — | — |
-| tests/pipeline/test_state_machine_heal.py | unreviewed | — | — |
-| tests/pipeline/test_title_gate_integration.py | unreviewed | — | — |
-| tests/pipeline/test_volume_align.py | unreviewed | — | — |
-| tests/pressure-tests/prompts/.gitkeep | unreviewed | — | — |
-| tests/pressure-tests/prompts/audit-skipping-pressure.md | unreviewed | — | — |
-| tests/pressure-tests/prompts/chapter-writing-pressure.md | unreviewed | — | — |
-| tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md | unreviewed | — | — |
-| tests/pressure-tests/prompts/import-shortcut-pressure.md | unreviewed | — | — |
-| tests/pressure-tests/prompts/snapshot-skip-pressure.md | unreviewed | — | — |
-| tests/pressure-tests/prompts/state-drift-pressure.md | unreviewed | — | — |
-| tests/property/.gitkeep | unreviewed | — | — |
-| tests/property/__init__.py | unreviewed | — | — |
-| tests/property/cjk/__init__.py | unreviewed | — | — |
-| tests/property/cjk/test_cjk_properties.py | unreviewed | — | — |
-| tests/property/cjk/test_g612_embedded_properties.py | unreviewed | — | — |
-| tests/property/cjk/test_punct_properties.py | unreviewed | — | — |
-| tests/property/cjk/test_tokenize_frozen.py | unreviewed | — | — |
-| tests/property/contracts/__init__.py | unreviewed | — | — |
-| tests/property/contracts/test_registry_consistency.py | unreviewed | — | — |
-| tests/property/drift/__init__.py | unreviewed | — | — |
-| tests/property/drift/test_drift_properties.py | unreviewed | — | — |
-| tests/property/gates/__init__.py | unreviewed | — | — |
-| tests/property/gates/test_capability_fs_properties.py | unreviewed | — | — |
-| tests/property/gates/test_g34_independence_properties.py | unreviewed | — | — |
-| tests/property/gates/test_gate_invariants.py | unreviewed | — | — |
-| tests/property/stats/__init__.py | unreviewed | — | — |
-| tests/property/stats/test_entropy_properties.py | unreviewed | — | — |
-| tests/property/stats/test_percentile_properties.py | unreviewed | — | — |
-| tests/property/trace/__init__.py | unreviewed | — | — |
-| tests/property/trace/test_chain_invariants.py | unreviewed | — | — |
-| tests/regenerate-baselines.sh | unreviewed | — | — |
-| tests/round-exec.sh | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase2-character-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase2-continuity-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase2-pacing-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase3-foreshadowing-lifecycle.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase3-plant-track-resolve.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase3-volume-consolidation.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4-dialogue-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4-memo-compliance-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4-reader-pull-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-era-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-fanfic-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-highpoint-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-long-span-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-memo-compliance-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-motivation-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-pov-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-reader-pull-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-texture-bug.md | unreviewed | — | — |
-| tests/skill-behavior/review-catches-bug/phase4b-world-rules-bug.md | unreviewed | — | — |
-| tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md | unreviewed | — | — |
-| tests/skill-behavior/revision-fixes-issue/phase4b-revision-mode-routing.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase2-character-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase2-continuity-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase2-foreshadowing-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase2-polishing-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase3-foreshadowing-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase3-intent-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase3-snapshot-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase3-truth-sync-trigger.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase4-management-triggers.md | unreviewed | — | — |
-| tests/skill-triggering/prompts/phase4b-audit-triggers.md | unreviewed | — | — |
-| tests/test-gates.sh | unreviewed | — | — |
-| tests/tiers/acceptance.json | unreviewed | — | — |
-| tests/tiers/deps.json | unreviewed | — | — |
-| tests/tiers/g4-exemptions.json | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/_template/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anchor-curate/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-anti-detect/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-book-spine-init/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-canon-import/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-drafting/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-pattern/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-planning/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario-phase4b-revision-routing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-chapter-revision/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-design/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-character-extraction/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-context-composing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-drift-guidance/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-escalation-review/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-faction-builder/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-plant/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-recall/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario-plant-track-resolve.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foreshadowing-track/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-foundation-review/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-genre-config/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-import-analysis/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-intent-management/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-length-normalizing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-location-builder/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-market-radar/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-memory-distill/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-pacing-design/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-plot-thread-weaver/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-power-system/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-relationship-map/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-anti-ai/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-arc-payoff/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/input/scenario-phase2-character.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-character/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/input/scenario-phase2-continuity.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-continuity/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario-phase4-dialogue.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-dialogue/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/input/scenario-phase4b-era.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-era/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/input/scenario-phase4b-fanfic.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-fanfic/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-lifecycle.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-phase2-foreshadowing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-foreshadowing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/input/scenario-phase4b-highpoint.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-highpoint/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/input/scenario-phase4b-long-span.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-long-span/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-phase4-memo.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-memo-compliance/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/input/scenario-phase4b-motivation.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-motivation/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/input/scenario-phase2-pacing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pacing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/input/scenario-phase4b-pov.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-pov/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-phase4-reader-pull.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-reader-pull/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-resonance/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-sensitivity/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-spinoff/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/input/scenario-phase4b-texture.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-texture/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/input/scenario-phase4b-world-rules.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-review-world-rules/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-score-arc/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-score-stratum/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-score-volume/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-sequel-writing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-drafting/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-outline/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-short-packaging/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-snapshot-manage/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/input/scenario-pressure.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-state-settling/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-story-architecture/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-learning/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/input/scenario-phase2-polishing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-style-polishing/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-truth-sync/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario-phase3-volume-consolidation.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-consolidation/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-volume-outlining/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-world-extraction/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/shenbi-writing-skills/rubric.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-character.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-continuity.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-foreshadowing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-polishing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-foreshadowing.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-intent.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-snapshot.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-truth-sync.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase4-management.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase4b-audit.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/clean/expected/expected-output.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/clean/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/generative/input/scenario.md | unreviewed | — | — |
-| tests/tiers/t1-skill/using-shenbi/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/architecture/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/architecture/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/audit/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/audit/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/drafting/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/drafting/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/foundation/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/foundation/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/genesis/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/genesis/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/import/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/import/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/management/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/management/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/planning/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/planning/rubric.md | unreviewed | — | — |
-| tests/tiers/t2-phase/short-story/input/seed.md | unreviewed | — | — |
-| tests/tiers/t2-phase/short-story/rubric.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/import-form/input/seed.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/import-form/rubric.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/long-form/input/seed.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/long-form/rubric.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/short-form/input/seed.md | unreviewed | — | — |
-| tests/tiers/t3-pipeline/short-form/rubric.md | unreviewed | — | — |
-| tests/unit/.gitkeep | unreviewed | — | — |
-| tests/unit/__init__.py | unreviewed | — | — |
-| tests/unit/audit/__init__.py | unreviewed | — | — |
-| tests/unit/audit/test_record.py | unreviewed | — | — |
-| tests/unit/audit/test_snapshot.py | unreviewed | — | — |
-| tests/unit/audit/test_write_audit.py | unreviewed | — | — |
-| tests/unit/config/__init__.py | unreviewed | — | — |
-| tests/unit/config/test_config_coherence.py | unreviewed | — | — |
-| tests/unit/config/test_production_config_coherence.py | unreviewed | — | — |
-| tests/unit/config/test_thresholds.py | unreviewed | — | — |
-| tests/unit/conftest.py | unreviewed | — | — |
-| tests/unit/contract/__init__.py | unreviewed | — | — |
-| tests/unit/contract/test_dict_reads.py | unreviewed | — | — |
-| tests/unit/contracts/__init__.py | unreviewed | — | — |
-| tests/unit/contracts/schemas/test_decisions.py | unreviewed | — | — |
-| tests/unit/contracts/schemas/test_deps.py | unreviewed | — | — |
-| tests/unit/contracts/schemas/test_hooks.py | unreviewed | — | — |
-| tests/unit/contracts/schemas/test_novel_scores_state.py | unreviewed | — | — |
-| tests/unit/contracts/schemas/test_registry.py | unreviewed | — | — |
-| tests/unit/contracts/test_base.py | unreviewed | — | — |
-| tests/unit/contracts/test_canaries.py | unreviewed | — | — |
-| tests/unit/contracts/test_enums.py | unreviewed | — | — |
-| tests/unit/contracts/test_fields.py | unreviewed | — | — |
-| tests/unit/contracts/test_foreshadowing_resolve_contract.py | unreviewed | — | — |
-| tests/unit/contracts/test_genre_config_contract.py | unreviewed | — | — |
-| tests/unit/contracts/test_graph.py | unreviewed | — | — |
-| tests/unit/contracts/test_ownership.py | unreviewed | — | — |
-| tests/unit/contracts/test_pacing_design_contract.py | unreviewed | — | — |
-| tests/unit/contracts/test_paths.py | unreviewed | — | — |
-| tests/unit/contracts/test_registry.py | unreviewed | — | — |
-| tests/unit/contracts/test_registry_pipeline_producers.py | unreviewed | — | — |
-| tests/unit/contracts/test_scoring_contracts.py | unreviewed | — | — |
-| tests/unit/contracts/test_thresholds.py | unreviewed | — | — |
-| tests/unit/cost/test_estimate.py | unreviewed | — | — |
-| tests/unit/cost/test_ledger.py | unreviewed | — | — |
-| tests/unit/cost/test_pricing.py | unreviewed | — | — |
-| tests/unit/cost/test_report.py | unreviewed | — | — |
-| tests/unit/dispatcher/__init__.py | unreviewed | — | — |
-| tests/unit/dispatcher/test_codex_mark_done.py | unreviewed | — | — |
-| tests/unit/dispatcher/test_executor_audit.py | unreviewed | — | — |
-| tests/unit/dispatcher/test_executor_no_codex_api.py | unreviewed | — | — |
-| tests/unit/dispatcher/test_read_provenance_honest.py | unreviewed | — | — |
-| tests/unit/gates/__init__.py | unreviewed | — | — |
-| tests/unit/gates/conftest.py | unreviewed | — | — |
-| tests/unit/gates/g4/__init__.py | unreviewed | — | — |
-| tests/unit/gates/g4/conftest.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_all_skills_parametrized.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_anti_detect.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_chapter_drafting.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_chapter_planning.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_chapter_planning_role.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_chapter_revision.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_character_design.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_context_composing.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_decisions_validator.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_faction_builder.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_foreshadowing_plant.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_foreshadowing_plant_regression.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_foreshadowing_track.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_generic.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_genre_config.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_length_normalizing.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_location_builder.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_pacing_design.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_plot_thread_weaver.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_post_write_integrity.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_power_system.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_relationship_map.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_review_arc_payoff.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_review_resonance.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_state_settling.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_story_architecture.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_style_polishing.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_volume_outlining.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_worldbuilding.py | unreviewed | — | — |
-| tests/unit/gates/g4/test_worldbuilding_unchanged.py | unreviewed | — | — |
-| tests/unit/gates/test_g0.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_calibration_hash.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_config_coherence.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_dynamic_count.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_independence.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_purity.py | unreviewed | — | — |
-| tests/unit/gates/test_g0_skill_contract.py | unreviewed | — | — |
-| tests/unit/gates/test_g1.py | unreviewed | — | — |
-| tests/unit/gates/test_g1_backup.py | unreviewed | — | — |
-| tests/unit/gates/test_g1_fields.py | unreviewed | — | — |
-| tests/unit/gates/test_g2.py | unreviewed | — | — |
-| tests/unit/gates/test_g3.py | unreviewed | — | — |
-| tests/unit/gates/test_g4_decisions.py | unreviewed | — | — |
-| tests/unit/gates/test_g4_escalation_review.py | unreviewed | — | — |
-| tests/unit/gates/test_g4_score_checkers.py | unreviewed | — | — |
-| tests/unit/gates/test_g4_signatures.py | unreviewed | — | — |
-| tests/unit/gates/test_g5.py | unreviewed | — | — |
-| tests/unit/gates/test_g5_coverage.py | unreviewed | — | — |
-| tests/unit/gates/test_g6.py | unreviewed | — | — |
-| tests/unit/gates/test_g6_checks.py | unreviewed | — | — |
-| tests/unit/gates/test_g7.py | unreviewed | — | — |
-| tests/unit/gates/test_g7_trace.py | unreviewed | — | — |
-| tests/unit/gates/test_g_dispatch.py | unreviewed | — | — |
-| tests/unit/gates/test_g_reconcile.py | unreviewed | — | — |
-| tests/unit/gates/test_g_transition.py | unreviewed | — | — |
-| tests/unit/gates/test_pre_write_check_overlap.py | unreviewed | — | — |
-| tests/unit/gates/test_shared.py | unreviewed | — | — |
-| tests/unit/orchestration/test_bridges.py | unreviewed | — | — |
-| tests/unit/phase_runner/__init__.py | unreviewed | — | — |
-| tests/unit/phase_runner/test_run_gate_uses_cli_module.py | unreviewed | — | — |
-| tests/unit/pipeline/__init__.py | unreviewed | — | — |
-| tests/unit/pipeline/conftest.py | unreviewed | — | — |
-| tests/unit/pipeline/test_adaptive_triggers.py | unreviewed | — | — |
-| tests/unit/pipeline/test_audit_layer.py | unreviewed | — | — |
-| tests/unit/pipeline/test_bridge_tracker.py | unreviewed | — | — |
-| tests/unit/pipeline/test_chapter_loop.py | unreviewed | — | — |
-| tests/unit/pipeline/test_chapter_loop_full.py | unreviewed | — | — |
-| tests/unit/pipeline/test_checkpoint.py | unreviewed | — | — |
-| tests/unit/pipeline/test_cli.py | unreviewed | — | — |
-| tests/unit/pipeline/test_cli_rollback_removed.py | unreviewed | — | — |
-| tests/unit/pipeline/test_closure.py | unreviewed | — | — |
-| tests/unit/pipeline/test_context_assemble.py | unreviewed | — | — |
-| tests/unit/pipeline/test_context_audit.py | unreviewed | — | — |
-| tests/unit/pipeline/test_context_curation.py | unreviewed | — | — |
-| tests/unit/pipeline/test_context_persistence.py | unreviewed | — | — |
-| tests/unit/pipeline/test_dispatch_helper.py | unreviewed | — | — |
-| tests/unit/pipeline/test_dispatch_usage_capture.py | unreviewed | — | — |
-| tests/unit/pipeline/test_dispatch_write_semantics.py | unreviewed | — | — |
-| tests/unit/pipeline/test_drift_intervention.py | unreviewed | — | — |
-| tests/unit/pipeline/test_e2e.py | unreviewed | — | — |
-| tests/unit/pipeline/test_error_handler.py | unreviewed | — | — |
-| tests/unit/pipeline/test_field_filtering.py | unreviewed | — | — |
-| tests/unit/pipeline/test_filelock_utils.py | unreviewed | — | — |
-| tests/unit/pipeline/test_final_review_fixes.py | unreviewed | — | — |
-| tests/unit/pipeline/test_full_flows.py | unreviewed | — | — |
-| tests/unit/pipeline/test_g4_classification.py | unreviewed | — | — |
-| tests/unit/pipeline/test_g4_feedback.py | unreviewed | — | — |
-| tests/unit/pipeline/test_genesis.py | unreviewed | — | — |
-| tests/unit/pipeline/test_genesis_to_loop.py | unreviewed | — | — |
-| tests/unit/pipeline/test_hook_planting.py | unreviewed | — | — |
-| tests/unit/pipeline/test_last_snapshot.py | unreviewed | — | — |
-| tests/unit/pipeline/test_llm_output_integrity.py | unreviewed | — | — |
-| tests/unit/pipeline/test_machine.py | unreviewed | — | — |
-| tests/unit/pipeline/test_parallel_dispatch.py | unreviewed | — | — |
-| tests/unit/pipeline/test_parallel_dispatch_safety.py | unreviewed | — | — |
-| tests/unit/pipeline/test_plan_skeleton.py | unreviewed | — | — |
-| tests/unit/pipeline/test_resonance_persistence.py | unreviewed | — | — |
-| tests/unit/pipeline/test_retry_budget.py | unreviewed | — | — |
-| tests/unit/pipeline/test_review_checklist.py | unreviewed | — | — |
-| tests/unit/pipeline/test_revision_count.py | unreviewed | — | — |
-| tests/unit/pipeline/test_revision_decisions_fallback.py | unreviewed | — | — |
-| tests/unit/pipeline/test_revision_router.py | unreviewed | — | — |
-| tests/unit/pipeline/test_revision_safety.py | unreviewed | — | — |
-| tests/unit/pipeline/test_seed_parser.py | unreviewed | — | — |
-| tests/unit/pipeline/test_skill_integration.py | unreviewed | — | — |
-| tests/unit/pipeline/test_snapshot_coverage.py | unreviewed | — | — |
-| tests/unit/pipeline/test_snapshot_pruning.py | unreviewed | — | — |
-| tests/unit/pipeline/test_soft_fail_escalation.py | unreviewed | — | — |
-| tests/unit/pipeline/test_staging_cleanup.py | unreviewed | — | — |
-| tests/unit/pipeline/test_staging_commit.py | unreviewed | — | — |
-| tests/unit/pipeline/test_state.py | unreviewed | — | — |
-| tests/unit/pipeline/test_state_concurrency.py | unreviewed | — | — |
-| tests/unit/pipeline/test_state_heal.py | unreviewed | — | — |
-| tests/unit/pipeline/test_style_learning_self_heal.py | unreviewed | — | — |
-| tests/unit/pipeline/test_transitions.py | unreviewed | — | — |
-| tests/unit/pipeline/test_triggers.py | unreviewed | — | — |
-| tests/unit/pipeline/test_truth_embed.py | unreviewed | — | — |
-| tests/unit/pipeline/test_truth_index.py | unreviewed | — | — |
-| tests/unit/pipeline/test_truth_index_population.py | unreviewed | — | — |
-| tests/unit/pipeline/test_truth_io.py | unreviewed | — | — |
-| tests/unit/records/__init__.py | unreviewed | — | — |
-| tests/unit/records/test_drift.py | unreviewed | — | — |
-| tests/unit/records/test_golden_parse.py | unreviewed | — | — |
-| tests/unit/records/test_parser.py | unreviewed | — | — |
-| tests/unit/skill_utils/__init__.py | unreviewed | — | — |
-| tests/unit/skill_utils/drift_detection/__init__.py | unreviewed | — | — |
-| tests/unit/skill_utils/drift_detection/test_linguistic_drift.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_calibration.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_compute_pattern.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_compute_stats.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_confidence_routing_integration.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_drift_detection.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_drift_triggers_integration.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_escalation.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_foreshadowing_recall.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_revision_routing.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_routing.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_trope_detection.py | unreviewed | — | — |
-| tests/unit/skill_utils/test_volume_drift_macro.py | unreviewed | — | — |
-| tests/unit/test_capability_fs.py | unreviewed | — | — |
-| tests/unit/test_contract.py | unreviewed | — | — |
-| tests/unit/test_coverage_thresholds.py | unreviewed | — | — |
-| tests/unit/test_dispatcher_executor.py | unreviewed | — | — |
-| tests/unit/test_dispatcher_modes.py | unreviewed | — | — |
-| tests/unit/test_error_guidance.py | unreviewed | — | — |
-| tests/unit/test_exceptions.py | unreviewed | — | — |
-| tests/unit/test_gates_cli.py | unreviewed | — | — |
-| tests/unit/test_generate_autocheck_docs.py | unreviewed | — | — |
-| tests/unit/test_lint_contracts.py | unreviewed | — | — |
-| tests/unit/test_lint_no_forbid_with_computed_field.py | unreviewed | — | — |
-| tests/unit/test_lint_no_fs_mutation.py | unreviewed | — | — |
-| tests/unit/test_lint_repo_consistency.py | unreviewed | — | — |
-| tests/unit/test_lint_status_strings.py | unreviewed | — | — |
-| tests/unit/test_logging.py | unreviewed | — | — |
-| tests/unit/test_migrate_contract.py | unreviewed | — | — |
-| tests/unit/test_phase_runner.py | unreviewed | — | — |
-| tests/unit/test_phase_runner_property.py | unreviewed | — | — |
-| tests/unit/test_plugins_generate.py | unreviewed | — | — |
-| tests/unit/test_pricing_fail_loud.py | unreviewed | — | — |
-| tests/unit/test_pytest_framework.py | unreviewed | — | — |
-| tests/unit/test_recovery.py | unreviewed | — | — |
-| tests/unit/test_round_paths.py | unreviewed | — | — |
-| tests/unit/test_safe_write.py | unreviewed | — | — |
-| tests/unit/test_scoring.py | unreviewed | — | — |
-| tests/unit/test_scoring_anti_collapse.py | unreviewed | — | — |
-| tests/unit/test_scoring_property.py | unreviewed | — | — |
-| tests/unit/test_status.py | unreviewed | — | — |
-| tests/unit/test_sync_contracts.py | unreviewed | — | — |
-| tests/unit/test_test_density.py | unreviewed | — | — |
-| tests/unit/text/__init__.py | unreviewed | — | — |
-| tests/unit/text/test_cjk.py | unreviewed | — | — |
-| tests/unit/tools/__init__.py | unreviewed | — | — |
-| tests/unit/tools/test_audit_skill_descriptions.py | unreviewed | — | — |
-| tests/unit/tools/test_lint_contract_graph.py | unreviewed | — | — |
-| tests/unit/trace/__init__.py | unreviewed | — | — |
-| tests/unit/trace/test_compaction.py | unreviewed | — | — |
-| tests/unit/trace/test_event.py | unreviewed | — | — |
-| tests/unit/trace/test_materialize.py | unreviewed | — | — |
-| tests/unit/trace/test_migrate.py | unreviewed | — | — |
-| tests/unit/trace/test_replay.py | unreviewed | — | — |
-| tests/unit/trace/test_versioning.py | unreviewed | — | — |
-| tests/unit/trace/test_writer.py | unreviewed | — | — |
+| tests/ARCHIVE-MIGRATED.md | deep-read | zone-reports/Z7.md#ARCHIVE-MIGRATED.md | Z7 初审 |
+| tests/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/baselines/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/baselines/gate-outputs/G0.json | deep-read | zone-reports/Z7.md#G0.json | Z7 初审 |
+| tests/baselines/gate-outputs/G2-chapter.json | deep-read | zone-reports/Z7.md#G2-chapter.json | Z7 初审 |
+| tests/baselines/gate-outputs/G2-internal.json | deep-read | zone-reports/Z7.md#G2-internal.json | Z7 初审 |
+| tests/baselines/gate-outputs/G2-truth.json | deep-read | zone-reports/Z7.md#G2-truth.json | Z7 初审 |
+| tests/baselines/gate-outputs/G4-genre_config.json | deep-read | zone-reports/Z7.md#G4-genre_config.json | Z7 初审 |
+| tests/baselines/gate-outputs/G6.json | deep-read | zone-reports/Z7.md#G6.json | Z7 初审 |
+| tests/baselines/gate-outputs/G7.json | deep-read | zone-reports/Z7.md#G7.json | Z7 初审 |
+| tests/baselines/mutation-score.txt | deep-read | zone-reports/Z7.md#mutation-score.txt | Z7 初审 |
+| tests/baselines/pending_hooks.parse.json | deep-read | zone-reports/Z7.md#pending_hooks.parse.json | Z7 初审 |
+| tests/benchmark/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/benchmark/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/conftest.py | deep-read | zone-reports/Z7.md#conftest.py | Z7 初审 |
+| tests/contracts/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/contracts/test_cjk_normalization.py | deep-read | zone-reports/Z7.md#test_cjk_normalization.py | Z7 初审 |
+| tests/coverage/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/arc-example.md | deep-read | zone-reports/Z7.md#arc-example.md | Z7 初审 |
+| tests/fixtures/audit-report-example.md | deep-read | zone-reports/Z7.md#audit-report-example.md | Z7 初审 |
+| tests/fixtures/audits/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/author-intent-example.md | deep-read | zone-reports/Z7.md#author-intent-example.md | Z7 初审 |
+| tests/fixtures/book-spine-example.md | deep-read | zone-reports/Z7.md#book-spine-example.md | Z7 初审 |
+| tests/fixtures/book-strata-example.md | deep-read | zone-reports/Z7.md#book-strata-example.md | Z7 初审 |
+| tests/fixtures/calibration/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/calibration/README.md | deep-read | zone-reports/Z7.md#README.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/伏笔兑现质量/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/弧情感交付/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/弧情感交付/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/弧情感交付/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/期待债务结算/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/期待债务结算/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/期待债务结算/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/线索收束/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/线索收束/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/线索收束/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/角色弧推进/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/角色弧推进/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/arc-payoff/角色弧推进/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/场景临场感/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/场景临场感/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/场景临场感/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/情感落地/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/情感落地/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/情感落地/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/文笔质感/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/文笔质感/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/文笔质感/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/读者回报/high.md | deep-read | zone-reports/Z7.md#high.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/读者回报/low.md | deep-read | zone-reports/Z7.md#low.md | Z7 初审 |
+| tests/fixtures/calibration/resonance/读者回报/mid.md | deep-read | zone-reports/Z7.md#mid.md | Z7 初审 |
+| tests/fixtures/canary-3-chapter-seed.md | deep-read | zone-reports/Z7.md#canary-3-chapter-seed.md | Z7 初审 |
+| tests/fixtures/chapter-10-draft.md | deep-read | zone-reports/Z7.md#chapter-10-draft.md | Z7 初审 |
+| tests/fixtures/chapter-2-draft.md | deep-read | zone-reports/Z7.md#chapter-2-draft.md | Z7 初审 |
+| tests/fixtures/chapter-3-draft.md | deep-read | zone-reports/Z7.md#chapter-3-draft.md | Z7 初审 |
+| tests/fixtures/chapter-4-draft.md | deep-read | zone-reports/Z7.md#chapter-4-draft.md | Z7 初审 |
+| tests/fixtures/chapter-5-draft.md | deep-read | zone-reports/Z7.md#chapter-5-draft.md | Z7 初审 |
+| tests/fixtures/chapter-6-draft.md | deep-read | zone-reports/Z7.md#chapter-6-draft.md | Z7 初审 |
+| tests/fixtures/chapter-7-draft.md | deep-read | zone-reports/Z7.md#chapter-7-draft.md | Z7 初审 |
+| tests/fixtures/chapter-7-example.md | deep-read | zone-reports/Z7.md#chapter-7-example.md | Z7 初审 |
+| tests/fixtures/chapter-8-draft.md | deep-read | zone-reports/Z7.md#chapter-8-draft.md | Z7 初审 |
+| tests/fixtures/chapter-8-example.md | deep-read | zone-reports/Z7.md#chapter-8-example.md | Z7 初审 |
+| tests/fixtures/chapter-9-draft.md | deep-read | zone-reports/Z7.md#chapter-9-draft.md | Z7 初审 |
+| tests/fixtures/chapter-9-example.md | deep-read | zone-reports/Z7.md#chapter-9-example.md | Z7 初审 |
+| tests/fixtures/chapter-draft-example.md | deep-read | zone-reports/Z7.md#chapter-draft-example.md | Z7 初审 |
+| tests/fixtures/chapter-plan-example.md | deep-read | zone-reports/Z7.md#chapter-plan-example.md | Z7 初审 |
+| tests/fixtures/chapter-summaries-example.md | deep-read | zone-reports/Z7.md#chapter-summaries-example.md | Z7 初审 |
+| tests/fixtures/chapters/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/character-profile-example.md | deep-read | zone-reports/Z7.md#character-profile-example.md | Z7 初审 |
+| tests/fixtures/characters/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/characters/supporting/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/config/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/config/platform-rules/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/consolidation/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/consolidation/volume-1/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/drafts/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/genre-config-example.json | deep-read | zone-reports/Z7.md#genre-config-example.json | Z7 初审 |
+| tests/fixtures/import/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/import/analysis/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/import/analysis/03_world.md | deep-read | zone-reports/Z7.md#03_world.md | Z7 初审 |
+| tests/fixtures/import/canon/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/import/packaging/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/market-data-example.md | deep-read | zone-reports/Z7.md#market-data-example.md | Z7 初审 |
+| tests/fixtures/market-data/qidian-urban-fantasy-2026-06.md | deep-read | zone-reports/Z7.md#qidian-urban-fantasy-2026-06.md | Z7 初审 |
+| tests/fixtures/mlc-config.json | deep-read | zone-reports/Z7.md#mlc-config.json | Z7 初审 |
+| tests/fixtures/multi-chapter-example.md | deep-read | zone-reports/Z7.md#multi-chapter-example.md | Z7 初审 |
+| tests/fixtures/multi-chapter-example/chapter-1.md | deep-read | zone-reports/Z7.md#chapter-1.md | Z7 初审 |
+| tests/fixtures/multi-chapter-example/chapter-2.md | deep-read | zone-reports/Z7.md#chapter-2.md | Z7 初审 |
+| tests/fixtures/multi-chapter-example/chapter-3.md | deep-read | zone-reports/Z7.md#chapter-3.md | Z7 初审 |
+| tests/fixtures/multi-chapter-example/chapter-4.md | deep-read | zone-reports/Z7.md#chapter-4.md | Z7 初审 |
+| tests/fixtures/multi-chapter-example/chapter-5.md | deep-read | zone-reports/Z7.md#chapter-5.md | Z7 初审 |
+| tests/fixtures/novel-example.json | deep-read | zone-reports/Z7.md#novel-example.json | Z7 初审 |
+| tests/fixtures/outline-example.md | deep-read | zone-reports/Z7.md#outline-example.md | Z7 初审 |
+| tests/fixtures/parent-canon-example.md | deep-read | zone-reports/Z7.md#parent-canon-example.md | Z7 初审 |
+| tests/fixtures/pending-hooks-example.md | deep-read | zone-reports/Z7.md#pending-hooks-example.md | Z7 初审 |
+| tests/fixtures/pending-hooks-init.md | deep-read | zone-reports/Z7.md#pending-hooks-init.md | Z7 初审 |
+| tests/fixtures/report-example.txt | deep-read | zone-reports/Z7.md#report-example.txt | Z7 初审 |
+| tests/fixtures/samples/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/samples/reference-texts/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/sensitive_words.txt | deep-read | zone-reports/Z7.md#sensitive_words.txt | Z7 初审 |
+| tests/fixtures/short-story-map-example.md | deep-read | zone-reports/Z7.md#short-story-map-example.md | Z7 初审 |
+| tests/fixtures/skill-triggering-prompts/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/snapshots/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/manifest.md | deep-read | zone-reports/Z7.md#manifest.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/truth/chapter_summaries.md | deep-read | zone-reports/Z7.md#chapter_summaries.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/truth/character_matrix.md | deep-read | zone-reports/Z7.md#character_matrix.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/truth/current_state.md | deep-read | zone-reports/Z7.md#current_state.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/truth/emotional_arcs.md | deep-read | zone-reports/Z7.md#emotional_arcs.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-025/truth/pending_hooks.md | deep-read | zone-reports/Z7.md#pending_hooks.md | Z7 初审 |
+| tests/fixtures/snapshots/chapter-030/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/snapshots/pre-chapter-25/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/source/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/stop_words_zh.txt | deep-read | zone-reports/Z7.md#stop_words_zh.txt | Z7 初审 |
+| tests/fixtures/story/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/story/volumes/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/style-profile-example.md | deep-read | zone-reports/Z7.md#style-profile-example.md | Z7 初审 |
+| tests/fixtures/truth-chapter_summaries.md | deep-read | zone-reports/Z7.md#truth-chapter_summaries.md | Z7 初审 |
+| tests/fixtures/truth-character_matrix.md | deep-read | zone-reports/Z7.md#truth-character_matrix.md | Z7 初审 |
+| tests/fixtures/truth-current_state.md | deep-read | zone-reports/Z7.md#truth-current_state.md | Z7 初审 |
+| tests/fixtures/truth-emotional_arcs.md | deep-read | zone-reports/Z7.md#truth-emotional_arcs.md | Z7 初审 |
+| tests/fixtures/truth-particle_ledger.md | deep-read | zone-reports/Z7.md#truth-particle_ledger.md | Z7 初审 |
+| tests/fixtures/truth-pending_hooks.md | deep-read | zone-reports/Z7.md#truth-pending_hooks.md | Z7 初审 |
+| tests/fixtures/truth/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/truth/character_profiles/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/truth/source_material/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/volume-summary-example.md | deep-read | zone-reports/Z7.md#volume-summary-example.md | Z7 初审 |
+| tests/fixtures/world-locations-example.md | deep-read | zone-reports/Z7.md#world-locations-example.md | Z7 初审 |
+| tests/fixtures/world-power-system-example.md | deep-read | zone-reports/Z7.md#world-power-system-example.md | Z7 初审 |
+| tests/fixtures/world-rules-example.md | deep-read | zone-reports/Z7.md#world-rules-example.md | Z7 初审 |
+| tests/fixtures/world-story-bible-example.md | deep-read | zone-reports/Z7.md#world-story-bible-example.md | Z7 初审 |
+| tests/fixtures/world/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/world/factions/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/fixtures/world/locations/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/gates/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/gates/g4/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/gates/g4/test_hook_fulfillment.py | deep-read | zone-reports/Z7.md#test_hook_fulfillment.py | Z7 初审 |
+| tests/gates/g4/test_title_check.py | deep-read | zone-reports/Z7.md#test_title_check.py | Z7 初审 |
+| tests/gates/test_gate_manifest.py | deep-read | zone-reports/Z7.md#test_gate_manifest.py | Z7 初审 |
+| tests/golden/README.md | deep-read | zone-reports/Z7.md#README.md | Z7 初审 |
+| tests/integration/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/integration/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/integration/test_doc_links.py | deep-read | zone-reports/Z7.md#test_doc_links.py | Z7 初审 |
+| tests/integration/test_docs_accuracy.py | deep-read | zone-reports/Z7.md#test_docs_accuracy.py | Z7 初审 |
+| tests/integration/test_gate_cli.py | deep-read | zone-reports/Z7.md#test_gate_cli.py | Z7 初审 |
+| tests/lock-tool-hashes.sh | deep-read | zone-reports/Z7.md#lock-tool-hashes.sh | Z7 初审 |
+| tests/pipeline/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/pipeline/test_audit_cascading.py | deep-read | zone-reports/Z7.md#test_audit_cascading.py | Z7 初审 |
+| tests/pipeline/test_audit_context_cache.py | deep-read | zone-reports/Z7.md#test_audit_context_cache.py | Z7 初审 |
+| tests/pipeline/test_budgeted_truncate.py | deep-read | zone-reports/Z7.md#test_budgeted_truncate.py | Z7 初审 |
+| tests/pipeline/test_chapter_steps_restructured.py | deep-read | zone-reports/Z7.md#test_chapter_steps_restructured.py | Z7 初审 |
+| tests/pipeline/test_crash_recovery.py | deep-read | zone-reports/Z7.md#test_crash_recovery.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_autogen_strip.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_autogen_strip.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_cap_raise.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_cap_raise.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_finish_reason.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_finish_reason.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_glob.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_glob.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_keys.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_keys.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_ledger.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_ledger.py | Z7 初审 |
+| tests/pipeline/test_dispatch_helper_xml.py | deep-read | zone-reports/Z7.md#test_dispatch_helper_xml.py | Z7 初审 |
+| tests/pipeline/test_executor_config.py | deep-read | zone-reports/Z7.md#test_executor_config.py | Z7 初审 |
+| tests/pipeline/test_linguistic_drift.py | deep-read | zone-reports/Z7.md#test_linguistic_drift.py | Z7 初审 |
+| tests/pipeline/test_parallel_dispatch_backoff.py | deep-read | zone-reports/Z7.md#test_parallel_dispatch_backoff.py | Z7 初审 |
+| tests/pipeline/test_parallel_steps.py | deep-read | zone-reports/Z7.md#test_parallel_steps.py | Z7 初审 |
+| tests/pipeline/test_retry.py | deep-read | zone-reports/Z7.md#test_retry.py | Z7 初审 |
+| tests/pipeline/test_review_checklist.py | deep-read | zone-reports/Z7.md#test_review_checklist.py | Z7 初审 |
+| tests/pipeline/test_scr_extractor.py | deep-read | zone-reports/Z7.md#test_scr_extractor.py | Z7 初审 |
+| tests/pipeline/test_snapshot_diff.py | deep-read | zone-reports/Z7.md#test_snapshot_diff.py | Z7 初审 |
+| tests/pipeline/test_state_machine_heal.py | deep-read | zone-reports/Z7.md#test_state_machine_heal.py | Z7 初审 |
+| tests/pipeline/test_title_gate_integration.py | deep-read | zone-reports/Z7.md#test_title_gate_integration.py | Z7 初审 |
+| tests/pipeline/test_volume_align.py | deep-read | zone-reports/Z7.md#test_volume_align.py | Z7 初审 |
+| tests/pressure-tests/prompts/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/pressure-tests/prompts/audit-skipping-pressure.md | deep-read | zone-reports/Z7.md#audit-skipping-pressure.md | Z7 初审 |
+| tests/pressure-tests/prompts/chapter-writing-pressure.md | deep-read | zone-reports/Z7.md#chapter-writing-pressure.md | Z7 初审 |
+| tests/pressure-tests/prompts/foreshadowing-fatigue-pressure.md | deep-read | zone-reports/Z7.md#foreshadowing-fatigue-pressure.md | Z7 初审 |
+| tests/pressure-tests/prompts/import-shortcut-pressure.md | deep-read | zone-reports/Z7.md#import-shortcut-pressure.md | Z7 初审 |
+| tests/pressure-tests/prompts/snapshot-skip-pressure.md | deep-read | zone-reports/Z7.md#snapshot-skip-pressure.md | Z7 初审 |
+| tests/pressure-tests/prompts/state-drift-pressure.md | deep-read | zone-reports/Z7.md#state-drift-pressure.md | Z7 初审 |
+| tests/property/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/property/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/cjk/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/cjk/test_cjk_properties.py | deep-read | zone-reports/Z7.md#test_cjk_properties.py | Z7 初审 |
+| tests/property/cjk/test_g612_embedded_properties.py | deep-read | zone-reports/Z7.md#test_g612_embedded_properties.py | Z7 初审 |
+| tests/property/cjk/test_punct_properties.py | deep-read | zone-reports/Z7.md#test_punct_properties.py | Z7 初审 |
+| tests/property/cjk/test_tokenize_frozen.py | deep-read | zone-reports/Z7.md#test_tokenize_frozen.py | Z7 初审 |
+| tests/property/contracts/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/contracts/test_registry_consistency.py | deep-read | zone-reports/Z7.md#test_registry_consistency.py | Z7 初审 |
+| tests/property/drift/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/drift/test_drift_properties.py | deep-read | zone-reports/Z7.md#test_drift_properties.py | Z7 初审 |
+| tests/property/gates/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/gates/test_capability_fs_properties.py | deep-read | zone-reports/Z7.md#test_capability_fs_properties.py | Z7 初审 |
+| tests/property/gates/test_g34_independence_properties.py | deep-read | zone-reports/Z7.md#test_g34_independence_properties.py | Z7 初审 |
+| tests/property/gates/test_gate_invariants.py | deep-read | zone-reports/Z7.md#test_gate_invariants.py | Z7 初审 |
+| tests/property/stats/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/stats/test_entropy_properties.py | deep-read | zone-reports/Z7.md#test_entropy_properties.py | Z7 初审 |
+| tests/property/stats/test_percentile_properties.py | deep-read | zone-reports/Z7.md#test_percentile_properties.py | Z7 初审 |
+| tests/property/trace/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/property/trace/test_chain_invariants.py | deep-read | zone-reports/Z7.md#test_chain_invariants.py | Z7 初审 |
+| tests/regenerate-baselines.sh | deep-read | zone-reports/Z7.md#regenerate-baselines.sh | Z7 初审 |
+| tests/round-exec.sh | deep-read | zone-reports/Z7.md#round-exec.sh | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase2-character-bug.md | deep-read | zone-reports/Z7.md#phase2-character-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase2-continuity-bug.md | deep-read | zone-reports/Z7.md#phase2-continuity-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase2-foreshadowing-bug.md | deep-read | zone-reports/Z7.md#phase2-foreshadowing-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase2-pacing-bug.md | deep-read | zone-reports/Z7.md#phase2-pacing-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase3-foreshadowing-lifecycle.md | deep-read | zone-reports/Z7.md#phase3-foreshadowing-lifecycle.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase3-plant-track-resolve.md | deep-read | zone-reports/Z7.md#phase3-plant-track-resolve.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase3-volume-consolidation.md | deep-read | zone-reports/Z7.md#phase3-volume-consolidation.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4-dialogue-bug.md | deep-read | zone-reports/Z7.md#phase4-dialogue-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4-memo-compliance-bug.md | deep-read | zone-reports/Z7.md#phase4-memo-compliance-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4-reader-pull-bug.md | deep-read | zone-reports/Z7.md#phase4-reader-pull-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-era-bug.md | deep-read | zone-reports/Z7.md#phase4b-era-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-fanfic-bug.md | deep-read | zone-reports/Z7.md#phase4b-fanfic-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-highpoint-bug.md | deep-read | zone-reports/Z7.md#phase4b-highpoint-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-long-span-bug.md | deep-read | zone-reports/Z7.md#phase4b-long-span-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-memo-compliance-bug.md | deep-read | zone-reports/Z7.md#phase4b-memo-compliance-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-motivation-bug.md | deep-read | zone-reports/Z7.md#phase4b-motivation-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-pov-bug.md | deep-read | zone-reports/Z7.md#phase4b-pov-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-reader-pull-bug.md | deep-read | zone-reports/Z7.md#phase4b-reader-pull-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-texture-bug.md | deep-read | zone-reports/Z7.md#phase4b-texture-bug.md | Z7 初审 |
+| tests/skill-behavior/review-catches-bug/phase4b-world-rules-bug.md | deep-read | zone-reports/Z7.md#phase4b-world-rules-bug.md | Z7 初审 |
+| tests/skill-behavior/revision-fixes-issue/phase2-polishing-fix.md | deep-read | zone-reports/Z7.md#phase2-polishing-fix.md | Z7 初审 |
+| tests/skill-behavior/revision-fixes-issue/phase4b-revision-mode-routing.md | deep-read | zone-reports/Z7.md#phase4b-revision-mode-routing.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase2-character-trigger.md | deep-read | zone-reports/Z7.md#phase2-character-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase2-continuity-trigger.md | deep-read | zone-reports/Z7.md#phase2-continuity-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase2-foreshadowing-trigger.md | deep-read | zone-reports/Z7.md#phase2-foreshadowing-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase2-polishing-trigger.md | deep-read | zone-reports/Z7.md#phase2-polishing-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase3-foreshadowing-trigger.md | deep-read | zone-reports/Z7.md#phase3-foreshadowing-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase3-intent-trigger.md | deep-read | zone-reports/Z7.md#phase3-intent-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase3-snapshot-trigger.md | deep-read | zone-reports/Z7.md#phase3-snapshot-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase3-truth-sync-trigger.md | deep-read | zone-reports/Z7.md#phase3-truth-sync-trigger.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase4-management-triggers.md | deep-read | zone-reports/Z7.md#phase4-management-triggers.md | Z7 初审 |
+| tests/skill-triggering/prompts/phase4b-audit-triggers.md | deep-read | zone-reports/Z7.md#phase4b-audit-triggers.md | Z7 初审 |
+| tests/test-gates.sh | deep-read | zone-reports/Z7.md#test-gates.sh | Z7 初审 |
+| tests/tiers/acceptance.json | deep-read | zone-reports/Z7.md#acceptance.json | Z7 初审 |
+| tests/tiers/deps.json | deep-read | zone-reports/Z7.md#deps.json | Z7 初审 |
+| tests/tiers/g4-exemptions.json | deep-read | zone-reports/Z7.md#g4-exemptions.json | Z7 初审 |
+| tests/tiers/t1-skill/_template/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/_template/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/_template/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/_template/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/_template/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/_template/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anchor-curate/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-anti-detect/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-book-spine-init/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-canon-import/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-drafting/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-pattern/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-planning/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario-phase4b-revision-routing.md | deep-read | zone-reports/Z7.md#scenario-phase4b-revision-routing.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-chapter-revision/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-design/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-character-extraction/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-context-composing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-drift-guidance/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-escalation-review/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-faction-builder/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-plant/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-recall/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-resolve/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario-plant-track-resolve.md | deep-read | zone-reports/Z7.md#scenario-plant-track-resolve.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foreshadowing-track/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-foundation-review/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-genre-config/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-import-analysis/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-intent-management/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-length-normalizing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-location-builder/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-market-radar/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-memory-distill/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-pacing-design/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-plot-thread-weaver/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-power-system/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-relationship-map/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-anti-ai/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-arc-payoff/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/input/scenario-phase2-character.md | deep-read | zone-reports/Z7.md#scenario-phase2-character.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-character/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/input/scenario-phase2-continuity.md | deep-read | zone-reports/Z7.md#scenario-phase2-continuity.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-continuity/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario-phase4-dialogue.md | deep-read | zone-reports/Z7.md#scenario-phase4-dialogue.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-dialogue/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/input/scenario-phase4b-era.md | deep-read | zone-reports/Z7.md#scenario-phase4b-era.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-era/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/input/scenario-phase4b-fanfic.md | deep-read | zone-reports/Z7.md#scenario-phase4b-fanfic.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-fanfic/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-lifecycle.md | deep-read | zone-reports/Z7.md#scenario-lifecycle.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario-phase2-foreshadowing.md | deep-read | zone-reports/Z7.md#scenario-phase2-foreshadowing.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-foreshadowing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/input/scenario-phase4b-highpoint.md | deep-read | zone-reports/Z7.md#scenario-phase4b-highpoint.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-highpoint/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/input/scenario-phase4b-long-span.md | deep-read | zone-reports/Z7.md#scenario-phase4b-long-span.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-long-span/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-phase4-memo.md | deep-read | zone-reports/Z7.md#scenario-phase4-memo.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-memo-compliance/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/input/scenario-phase4b-motivation.md | deep-read | zone-reports/Z7.md#scenario-phase4b-motivation.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-motivation/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/input/scenario-phase2-pacing.md | deep-read | zone-reports/Z7.md#scenario-phase2-pacing.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pacing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/input/scenario-phase4b-pov.md | deep-read | zone-reports/Z7.md#scenario-phase4b-pov.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-pov/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-phase4-reader-pull.md | deep-read | zone-reports/Z7.md#scenario-phase4-reader-pull.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-reader-pull/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-resonance/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-sensitivity/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-spinoff/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/input/scenario-phase4b-texture.md | deep-read | zone-reports/Z7.md#scenario-phase4b-texture.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-texture/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/input/scenario-phase4b-world-rules.md | deep-read | zone-reports/Z7.md#scenario-phase4b-world-rules.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-review-world-rules/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-score-arc/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-score-stratum/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-score-volume/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-sequel-writing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-drafting/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-outline/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-short-packaging/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-snapshot-manage/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/input/scenario-pressure.md | deep-read | zone-reports/Z7.md#scenario-pressure.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-state-settling/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-story-architecture/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-learning/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/input/scenario-phase2-polishing.md | deep-read | zone-reports/Z7.md#scenario-phase2-polishing.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-style-polishing/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-truth-sync/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario-phase3-volume-consolidation.md | deep-read | zone-reports/Z7.md#scenario-phase3-volume-consolidation.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-consolidation/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-volume-outlining/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-world-extraction/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/shenbi-writing-skills/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-character.md | deep-read | zone-reports/Z7.md#routing-phase2-character.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-continuity.md | deep-read | zone-reports/Z7.md#routing-phase2-continuity.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-foreshadowing.md | deep-read | zone-reports/Z7.md#routing-phase2-foreshadowing.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase2-polishing.md | deep-read | zone-reports/Z7.md#routing-phase2-polishing.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-foreshadowing.md | deep-read | zone-reports/Z7.md#routing-phase3-foreshadowing.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-intent.md | deep-read | zone-reports/Z7.md#routing-phase3-intent.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-snapshot.md | deep-read | zone-reports/Z7.md#routing-phase3-snapshot.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase3-truth-sync.md | deep-read | zone-reports/Z7.md#routing-phase3-truth-sync.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase4-management.md | deep-read | zone-reports/Z7.md#routing-phase4-management.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/routing-phase4b-audit.md | deep-read | zone-reports/Z7.md#routing-phase4b-audit.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/bug-hunt/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/clean/expected/expected-output.md | deep-read | zone-reports/Z7.md#expected-output.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/clean/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/generative/input/scenario.md | deep-read | zone-reports/Z7.md#scenario.md | Z7 初审 |
+| tests/tiers/t1-skill/using-shenbi/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/architecture/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/architecture/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/audit/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/audit/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/drafting/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/drafting/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/foundation/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/foundation/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/genesis/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/genesis/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/import/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/import/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/management/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/management/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/planning/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/planning/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t2-phase/short-story/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t2-phase/short-story/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t3-pipeline/import-form/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t3-pipeline/import-form/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t3-pipeline/long-form/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t3-pipeline/long-form/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/tiers/t3-pipeline/short-form/input/seed.md | deep-read | zone-reports/Z7.md#seed.md | Z7 初审 |
+| tests/tiers/t3-pipeline/short-form/rubric.md | deep-read | zone-reports/Z7.md#rubric.md | Z7 初审 |
+| tests/unit/.gitkeep | deep-read | zone-reports/Z7.md#.gitkeep | Z7 初审 |
+| tests/unit/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/audit/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/audit/test_record.py | deep-read | zone-reports/Z7.md#test_record.py | Z7 初审 |
+| tests/unit/audit/test_snapshot.py | deep-read | zone-reports/Z7.md#test_snapshot.py | Z7 初审 |
+| tests/unit/audit/test_write_audit.py | deep-read | zone-reports/Z7.md#test_write_audit.py | Z7 初审 |
+| tests/unit/config/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/config/test_config_coherence.py | deep-read | zone-reports/Z7.md#test_config_coherence.py | Z7 初审 |
+| tests/unit/config/test_production_config_coherence.py | deep-read | zone-reports/Z7.md#test_production_config_coherence.py | Z7 初审 |
+| tests/unit/config/test_thresholds.py | deep-read | zone-reports/Z7.md#test_thresholds.py | Z7 初审 |
+| tests/unit/conftest.py | deep-read | zone-reports/Z7.md#conftest.py | Z7 初审 |
+| tests/unit/contract/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/contract/test_dict_reads.py | deep-read | zone-reports/Z7.md#test_dict_reads.py | Z7 初审 |
+| tests/unit/contracts/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/contracts/schemas/test_decisions.py | deep-read | zone-reports/Z7.md#test_decisions.py | Z7 初审 |
+| tests/unit/contracts/schemas/test_deps.py | deep-read | zone-reports/Z7.md#test_deps.py | Z7 初审 |
+| tests/unit/contracts/schemas/test_hooks.py | deep-read | zone-reports/Z7.md#test_hooks.py | Z7 初审 |
+| tests/unit/contracts/schemas/test_novel_scores_state.py | deep-read | zone-reports/Z7.md#test_novel_scores_state.py | Z7 初审 |
+| tests/unit/contracts/schemas/test_registry.py | deep-read | zone-reports/Z7.md#test_registry.py | Z7 初审 |
+| tests/unit/contracts/test_base.py | deep-read | zone-reports/Z7.md#test_base.py | Z7 初审 |
+| tests/unit/contracts/test_canaries.py | deep-read | zone-reports/Z7.md#test_canaries.py | Z7 初审 |
+| tests/unit/contracts/test_enums.py | deep-read | zone-reports/Z7.md#test_enums.py | Z7 初审 |
+| tests/unit/contracts/test_fields.py | deep-read | zone-reports/Z7.md#test_fields.py | Z7 初审 |
+| tests/unit/contracts/test_foreshadowing_resolve_contract.py | deep-read | zone-reports/Z7.md#test_foreshadowing_resolve_contract.py | Z7 初审 |
+| tests/unit/contracts/test_genre_config_contract.py | deep-read | zone-reports/Z7.md#test_genre_config_contract.py | Z7 初审 |
+| tests/unit/contracts/test_graph.py | deep-read | zone-reports/Z7.md#test_graph.py | Z7 初审 |
+| tests/unit/contracts/test_ownership.py | deep-read | zone-reports/Z7.md#test_ownership.py | Z7 初审 |
+| tests/unit/contracts/test_pacing_design_contract.py | deep-read | zone-reports/Z7.md#test_pacing_design_contract.py | Z7 初审 |
+| tests/unit/contracts/test_paths.py | deep-read | zone-reports/Z7.md#test_paths.py | Z7 初审 |
+| tests/unit/contracts/test_registry.py | deep-read | zone-reports/Z7.md#test_registry.py | Z7 初审 |
+| tests/unit/contracts/test_registry_pipeline_producers.py | deep-read | zone-reports/Z7.md#test_registry_pipeline_producers.py | Z7 初审 |
+| tests/unit/contracts/test_scoring_contracts.py | deep-read | zone-reports/Z7.md#test_scoring_contracts.py | Z7 初审 |
+| tests/unit/contracts/test_thresholds.py | deep-read | zone-reports/Z7.md#test_thresholds.py | Z7 初审 |
+| tests/unit/cost/test_estimate.py | deep-read | zone-reports/Z7.md#test_estimate.py | Z7 初审 |
+| tests/unit/cost/test_ledger.py | deep-read | zone-reports/Z7.md#test_ledger.py | Z7 初审 |
+| tests/unit/cost/test_pricing.py | deep-read | zone-reports/Z7.md#test_pricing.py | Z7 初审 |
+| tests/unit/cost/test_report.py | deep-read | zone-reports/Z7.md#test_report.py | Z7 初审 |
+| tests/unit/dispatcher/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/dispatcher/test_codex_mark_done.py | deep-read | zone-reports/Z7.md#test_codex_mark_done.py | Z7 初审 |
+| tests/unit/dispatcher/test_executor_audit.py | deep-read | zone-reports/Z7.md#test_executor_audit.py | Z7 初审 |
+| tests/unit/dispatcher/test_executor_no_codex_api.py | deep-read | zone-reports/Z7.md#test_executor_no_codex_api.py | Z7 初审 |
+| tests/unit/dispatcher/test_read_provenance_honest.py | deep-read | zone-reports/Z7.md#test_read_provenance_honest.py | Z7 初审 |
+| tests/unit/gates/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/gates/conftest.py | deep-read | zone-reports/Z7.md#conftest.py | Z7 初审 |
+| tests/unit/gates/g4/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/gates/g4/conftest.py | deep-read | zone-reports/Z7.md#conftest.py | Z7 初审 |
+| tests/unit/gates/g4/test_all_skills_parametrized.py | deep-read | zone-reports/Z7.md#test_all_skills_parametrized.py | Z7 初审 |
+| tests/unit/gates/g4/test_anti_detect.py | deep-read | zone-reports/Z7.md#test_anti_detect.py | Z7 初审 |
+| tests/unit/gates/g4/test_chapter_drafting.py | deep-read | zone-reports/Z7.md#test_chapter_drafting.py | Z7 初审 |
+| tests/unit/gates/g4/test_chapter_planning.py | deep-read | zone-reports/Z7.md#test_chapter_planning.py | Z7 初审 |
+| tests/unit/gates/g4/test_chapter_planning_role.py | deep-read | zone-reports/Z7.md#test_chapter_planning_role.py | Z7 初审 |
+| tests/unit/gates/g4/test_chapter_revision.py | deep-read | zone-reports/Z7.md#test_chapter_revision.py | Z7 初审 |
+| tests/unit/gates/g4/test_character_design.py | deep-read | zone-reports/Z7.md#test_character_design.py | Z7 初审 |
+| tests/unit/gates/g4/test_context_composing.py | deep-read | zone-reports/Z7.md#test_context_composing.py | Z7 初审 |
+| tests/unit/gates/g4/test_decisions_validator.py | deep-read | zone-reports/Z7.md#test_decisions_validator.py | Z7 初审 |
+| tests/unit/gates/g4/test_faction_builder.py | deep-read | zone-reports/Z7.md#test_faction_builder.py | Z7 初审 |
+| tests/unit/gates/g4/test_foreshadowing_plant.py | deep-read | zone-reports/Z7.md#test_foreshadowing_plant.py | Z7 初审 |
+| tests/unit/gates/g4/test_foreshadowing_plant_regression.py | deep-read | zone-reports/Z7.md#test_foreshadowing_plant_regression.py | Z7 初审 |
+| tests/unit/gates/g4/test_foreshadowing_track.py | deep-read | zone-reports/Z7.md#test_foreshadowing_track.py | Z7 初审 |
+| tests/unit/gates/g4/test_generic.py | deep-read | zone-reports/Z7.md#test_generic.py | Z7 初审 |
+| tests/unit/gates/g4/test_genre_config.py | deep-read | zone-reports/Z7.md#test_genre_config.py | Z7 初审 |
+| tests/unit/gates/g4/test_length_normalizing.py | deep-read | zone-reports/Z7.md#test_length_normalizing.py | Z7 初审 |
+| tests/unit/gates/g4/test_location_builder.py | deep-read | zone-reports/Z7.md#test_location_builder.py | Z7 初审 |
+| tests/unit/gates/g4/test_pacing_design.py | deep-read | zone-reports/Z7.md#test_pacing_design.py | Z7 初审 |
+| tests/unit/gates/g4/test_plot_thread_weaver.py | deep-read | zone-reports/Z7.md#test_plot_thread_weaver.py | Z7 初审 |
+| tests/unit/gates/g4/test_post_write_integrity.py | deep-read | zone-reports/Z7.md#test_post_write_integrity.py | Z7 初审 |
+| tests/unit/gates/g4/test_power_system.py | deep-read | zone-reports/Z7.md#test_power_system.py | Z7 初审 |
+| tests/unit/gates/g4/test_relationship_map.py | deep-read | zone-reports/Z7.md#test_relationship_map.py | Z7 初审 |
+| tests/unit/gates/g4/test_review_arc_payoff.py | deep-read | zone-reports/Z7.md#test_review_arc_payoff.py | Z7 初审 |
+| tests/unit/gates/g4/test_review_resonance.py | deep-read | zone-reports/Z7.md#test_review_resonance.py | Z7 初审 |
+| tests/unit/gates/g4/test_state_settling.py | deep-read | zone-reports/Z7.md#test_state_settling.py | Z7 初审 |
+| tests/unit/gates/g4/test_story_architecture.py | deep-read | zone-reports/Z7.md#test_story_architecture.py | Z7 初审 |
+| tests/unit/gates/g4/test_style_polishing.py | deep-read | zone-reports/Z7.md#test_style_polishing.py | Z7 初审 |
+| tests/unit/gates/g4/test_volume_outlining.py | deep-read | zone-reports/Z7.md#test_volume_outlining.py | Z7 初审 |
+| tests/unit/gates/g4/test_worldbuilding.py | deep-read | zone-reports/Z7.md#test_worldbuilding.py | Z7 初审 |
+| tests/unit/gates/g4/test_worldbuilding_unchanged.py | deep-read | zone-reports/Z7.md#test_worldbuilding_unchanged.py | Z7 初审 |
+| tests/unit/gates/test_g0.py | deep-read | zone-reports/Z7.md#test_g0.py | Z7 初审 |
+| tests/unit/gates/test_g0_calibration_hash.py | deep-read | zone-reports/Z7.md#test_g0_calibration_hash.py | Z7 初审 |
+| tests/unit/gates/test_g0_config_coherence.py | deep-read | zone-reports/Z7.md#test_g0_config_coherence.py | Z7 初审 |
+| tests/unit/gates/test_g0_dynamic_count.py | deep-read | zone-reports/Z7.md#test_g0_dynamic_count.py | Z7 初审 |
+| tests/unit/gates/test_g0_independence.py | deep-read | zone-reports/Z7.md#test_g0_independence.py | Z7 初审 |
+| tests/unit/gates/test_g0_purity.py | deep-read | zone-reports/Z7.md#test_g0_purity.py | Z7 初审 |
+| tests/unit/gates/test_g0_skill_contract.py | deep-read | zone-reports/Z7.md#test_g0_skill_contract.py | Z7 初审 |
+| tests/unit/gates/test_g1.py | deep-read | zone-reports/Z7.md#test_g1.py | Z7 初审 |
+| tests/unit/gates/test_g1_backup.py | deep-read | zone-reports/Z7.md#test_g1_backup.py | Z7 初审 |
+| tests/unit/gates/test_g1_fields.py | deep-read | zone-reports/Z7.md#test_g1_fields.py | Z7 初审 |
+| tests/unit/gates/test_g2.py | deep-read | zone-reports/Z7.md#test_g2.py | Z7 初审 |
+| tests/unit/gates/test_g3.py | deep-read | zone-reports/Z7.md#test_g3.py | Z7 初审 |
+| tests/unit/gates/test_g4_decisions.py | deep-read | zone-reports/Z7.md#test_g4_decisions.py | Z7 初审 |
+| tests/unit/gates/test_g4_escalation_review.py | deep-read | zone-reports/Z7.md#test_g4_escalation_review.py | Z7 初审 |
+| tests/unit/gates/test_g4_score_checkers.py | deep-read | zone-reports/Z7.md#test_g4_score_checkers.py | Z7 初审 |
+| tests/unit/gates/test_g4_signatures.py | deep-read | zone-reports/Z7.md#test_g4_signatures.py | Z7 初审 |
+| tests/unit/gates/test_g5.py | deep-read | zone-reports/Z7.md#test_g5.py | Z7 初审 |
+| tests/unit/gates/test_g5_coverage.py | deep-read | zone-reports/Z7.md#test_g5_coverage.py | Z7 初审 |
+| tests/unit/gates/test_g6.py | deep-read | zone-reports/Z7.md#test_g6.py | Z7 初审 |
+| tests/unit/gates/test_g6_checks.py | deep-read | zone-reports/Z7.md#test_g6_checks.py | Z7 初审 |
+| tests/unit/gates/test_g7.py | deep-read | zone-reports/Z7.md#test_g7.py | Z7 初审 |
+| tests/unit/gates/test_g7_trace.py | deep-read | zone-reports/Z7.md#test_g7_trace.py | Z7 初审 |
+| tests/unit/gates/test_g_dispatch.py | deep-read | zone-reports/Z7.md#test_g_dispatch.py | Z7 初审 |
+| tests/unit/gates/test_g_reconcile.py | deep-read | zone-reports/Z7.md#test_g_reconcile.py | Z7 初审 |
+| tests/unit/gates/test_g_transition.py | deep-read | zone-reports/Z7.md#test_g_transition.py | Z7 初审 |
+| tests/unit/gates/test_pre_write_check_overlap.py | deep-read | zone-reports/Z7.md#test_pre_write_check_overlap.py | Z7 初审 |
+| tests/unit/gates/test_shared.py | deep-read | zone-reports/Z7.md#test_shared.py | Z7 初审 |
+| tests/unit/orchestration/test_bridges.py | deep-read | zone-reports/Z7.md#test_bridges.py | Z7 初审 |
+| tests/unit/phase_runner/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/phase_runner/test_run_gate_uses_cli_module.py | deep-read | zone-reports/Z7.md#test_run_gate_uses_cli_module.py | Z7 初审 |
+| tests/unit/pipeline/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/pipeline/conftest.py | deep-read | zone-reports/Z7.md#conftest.py | Z7 初审 |
+| tests/unit/pipeline/test_adaptive_triggers.py | deep-read | zone-reports/Z7.md#test_adaptive_triggers.py | Z7 初审 |
+| tests/unit/pipeline/test_audit_layer.py | deep-read | zone-reports/Z7.md#test_audit_layer.py | Z7 初审 |
+| tests/unit/pipeline/test_bridge_tracker.py | deep-read | zone-reports/Z7.md#test_bridge_tracker.py | Z7 初审 |
+| tests/unit/pipeline/test_chapter_loop.py | deep-read | zone-reports/Z7.md#test_chapter_loop.py | Z7 初审 |
+| tests/unit/pipeline/test_chapter_loop_full.py | deep-read | zone-reports/Z7.md#test_chapter_loop_full.py | Z7 初审 |
+| tests/unit/pipeline/test_checkpoint.py | deep-read | zone-reports/Z7.md#test_checkpoint.py | Z7 初审 |
+| tests/unit/pipeline/test_cli.py | deep-read | zone-reports/Z7.md#test_cli.py | Z7 初审 |
+| tests/unit/pipeline/test_cli_rollback_removed.py | deep-read | zone-reports/Z7.md#test_cli_rollback_removed.py | Z7 初审 |
+| tests/unit/pipeline/test_closure.py | deep-read | zone-reports/Z7.md#test_closure.py | Z7 初审 |
+| tests/unit/pipeline/test_context_assemble.py | deep-read | zone-reports/Z7.md#test_context_assemble.py | Z7 初审 |
+| tests/unit/pipeline/test_context_audit.py | deep-read | zone-reports/Z7.md#test_context_audit.py | Z7 初审 |
+| tests/unit/pipeline/test_context_curation.py | deep-read | zone-reports/Z7.md#test_context_curation.py | Z7 初审 |
+| tests/unit/pipeline/test_context_persistence.py | deep-read | zone-reports/Z7.md#test_context_persistence.py | Z7 初审 |
+| tests/unit/pipeline/test_dispatch_helper.py | deep-read | zone-reports/Z7.md#test_dispatch_helper.py | Z7 初审 |
+| tests/unit/pipeline/test_dispatch_usage_capture.py | deep-read | zone-reports/Z7.md#test_dispatch_usage_capture.py | Z7 初审 |
+| tests/unit/pipeline/test_dispatch_write_semantics.py | deep-read | zone-reports/Z7.md#test_dispatch_write_semantics.py | Z7 初审 |
+| tests/unit/pipeline/test_drift_intervention.py | deep-read | zone-reports/Z7.md#test_drift_intervention.py | Z7 初审 |
+| tests/unit/pipeline/test_e2e.py | deep-read | zone-reports/Z7.md#test_e2e.py | Z7 初审 |
+| tests/unit/pipeline/test_error_handler.py | deep-read | zone-reports/Z7.md#test_error_handler.py | Z7 初审 |
+| tests/unit/pipeline/test_field_filtering.py | deep-read | zone-reports/Z7.md#test_field_filtering.py | Z7 初审 |
+| tests/unit/pipeline/test_filelock_utils.py | deep-read | zone-reports/Z7.md#test_filelock_utils.py | Z7 初审 |
+| tests/unit/pipeline/test_final_review_fixes.py | deep-read | zone-reports/Z7.md#test_final_review_fixes.py | Z7 初审 |
+| tests/unit/pipeline/test_full_flows.py | deep-read | zone-reports/Z7.md#test_full_flows.py | Z7 初审 |
+| tests/unit/pipeline/test_g4_classification.py | deep-read | zone-reports/Z7.md#test_g4_classification.py | Z7 初审 |
+| tests/unit/pipeline/test_g4_feedback.py | deep-read | zone-reports/Z7.md#test_g4_feedback.py | Z7 初审 |
+| tests/unit/pipeline/test_genesis.py | deep-read | zone-reports/Z7.md#test_genesis.py | Z7 初审 |
+| tests/unit/pipeline/test_genesis_to_loop.py | deep-read | zone-reports/Z7.md#test_genesis_to_loop.py | Z7 初审 |
+| tests/unit/pipeline/test_hook_planting.py | deep-read | zone-reports/Z7.md#test_hook_planting.py | Z7 初审 |
+| tests/unit/pipeline/test_last_snapshot.py | deep-read | zone-reports/Z7.md#test_last_snapshot.py | Z7 初审 |
+| tests/unit/pipeline/test_llm_output_integrity.py | deep-read | zone-reports/Z7.md#test_llm_output_integrity.py | Z7 初审 |
+| tests/unit/pipeline/test_machine.py | deep-read | zone-reports/Z7.md#test_machine.py | Z7 初审 |
+| tests/unit/pipeline/test_parallel_dispatch.py | deep-read | zone-reports/Z7.md#test_parallel_dispatch.py | Z7 初审 |
+| tests/unit/pipeline/test_parallel_dispatch_safety.py | deep-read | zone-reports/Z7.md#test_parallel_dispatch_safety.py | Z7 初审 |
+| tests/unit/pipeline/test_plan_skeleton.py | deep-read | zone-reports/Z7.md#test_plan_skeleton.py | Z7 初审 |
+| tests/unit/pipeline/test_resonance_persistence.py | deep-read | zone-reports/Z7.md#test_resonance_persistence.py | Z7 初审 |
+| tests/unit/pipeline/test_retry_budget.py | deep-read | zone-reports/Z7.md#test_retry_budget.py | Z7 初审 |
+| tests/unit/pipeline/test_review_checklist.py | deep-read | zone-reports/Z7.md#test_review_checklist.py | Z7 初审 |
+| tests/unit/pipeline/test_revision_count.py | deep-read | zone-reports/Z7.md#test_revision_count.py | Z7 初审 |
+| tests/unit/pipeline/test_revision_decisions_fallback.py | deep-read | zone-reports/Z7.md#test_revision_decisions_fallback.py | Z7 初审 |
+| tests/unit/pipeline/test_revision_router.py | deep-read | zone-reports/Z7.md#test_revision_router.py | Z7 初审 |
+| tests/unit/pipeline/test_revision_safety.py | deep-read | zone-reports/Z7.md#test_revision_safety.py | Z7 初审 |
+| tests/unit/pipeline/test_seed_parser.py | deep-read | zone-reports/Z7.md#test_seed_parser.py | Z7 初审 |
+| tests/unit/pipeline/test_skill_integration.py | deep-read | zone-reports/Z7.md#test_skill_integration.py | Z7 初审 |
+| tests/unit/pipeline/test_snapshot_coverage.py | deep-read | zone-reports/Z7.md#test_snapshot_coverage.py | Z7 初审 |
+| tests/unit/pipeline/test_snapshot_pruning.py | deep-read | zone-reports/Z7.md#test_snapshot_pruning.py | Z7 初审 |
+| tests/unit/pipeline/test_soft_fail_escalation.py | deep-read | zone-reports/Z7.md#test_soft_fail_escalation.py | Z7 初审 |
+| tests/unit/pipeline/test_staging_cleanup.py | deep-read | zone-reports/Z7.md#test_staging_cleanup.py | Z7 初审 |
+| tests/unit/pipeline/test_staging_commit.py | deep-read | zone-reports/Z7.md#test_staging_commit.py | Z7 初审 |
+| tests/unit/pipeline/test_state.py | deep-read | zone-reports/Z7.md#test_state.py | Z7 初审 |
+| tests/unit/pipeline/test_state_concurrency.py | deep-read | zone-reports/Z7.md#test_state_concurrency.py | Z7 初审 |
+| tests/unit/pipeline/test_state_heal.py | deep-read | zone-reports/Z7.md#test_state_heal.py | Z7 初审 |
+| tests/unit/pipeline/test_style_learning_self_heal.py | deep-read | zone-reports/Z7.md#test_style_learning_self_heal.py | Z7 初审 |
+| tests/unit/pipeline/test_transitions.py | deep-read | zone-reports/Z7.md#test_transitions.py | Z7 初审 |
+| tests/unit/pipeline/test_triggers.py | deep-read | zone-reports/Z7.md#test_triggers.py | Z7 初审 |
+| tests/unit/pipeline/test_truth_embed.py | deep-read | zone-reports/Z7.md#test_truth_embed.py | Z7 初审 |
+| tests/unit/pipeline/test_truth_index.py | deep-read | zone-reports/Z7.md#test_truth_index.py | Z7 初审 |
+| tests/unit/pipeline/test_truth_index_population.py | deep-read | zone-reports/Z7.md#test_truth_index_population.py | Z7 初审 |
+| tests/unit/pipeline/test_truth_io.py | deep-read | zone-reports/Z7.md#test_truth_io.py | Z7 初审 |
+| tests/unit/records/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/records/test_drift.py | deep-read | zone-reports/Z7.md#test_drift.py | Z7 初审 |
+| tests/unit/records/test_golden_parse.py | deep-read | zone-reports/Z7.md#test_golden_parse.py | Z7 初审 |
+| tests/unit/records/test_parser.py | deep-read | zone-reports/Z7.md#test_parser.py | Z7 初审 |
+| tests/unit/skill_utils/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/skill_utils/drift_detection/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/skill_utils/drift_detection/test_linguistic_drift.py | deep-read | zone-reports/Z7.md#test_linguistic_drift.py | Z7 初审 |
+| tests/unit/skill_utils/test_calibration.py | deep-read | zone-reports/Z7.md#test_calibration.py | Z7 初审 |
+| tests/unit/skill_utils/test_compute_pattern.py | deep-read | zone-reports/Z7.md#test_compute_pattern.py | Z7 初审 |
+| tests/unit/skill_utils/test_compute_stats.py | deep-read | zone-reports/Z7.md#test_compute_stats.py | Z7 初审 |
+| tests/unit/skill_utils/test_confidence_routing_integration.py | deep-read | zone-reports/Z7.md#test_confidence_routing_integration.py | Z7 初审 |
+| tests/unit/skill_utils/test_drift_detection.py | deep-read | zone-reports/Z7.md#test_drift_detection.py | Z7 初审 |
+| tests/unit/skill_utils/test_drift_triggers_integration.py | deep-read | zone-reports/Z7.md#test_drift_triggers_integration.py | Z7 初审 |
+| tests/unit/skill_utils/test_escalation.py | deep-read | zone-reports/Z7.md#test_escalation.py | Z7 初审 |
+| tests/unit/skill_utils/test_foreshadowing_recall.py | deep-read | zone-reports/Z7.md#test_foreshadowing_recall.py | Z7 初审 |
+| tests/unit/skill_utils/test_revision_routing.py | deep-read | zone-reports/Z7.md#test_revision_routing.py | Z7 初审 |
+| tests/unit/skill_utils/test_routing.py | deep-read | zone-reports/Z7.md#test_routing.py | Z7 初审 |
+| tests/unit/skill_utils/test_trope_detection.py | deep-read | zone-reports/Z7.md#test_trope_detection.py | Z7 初审 |
+| tests/unit/skill_utils/test_volume_drift_macro.py | deep-read | zone-reports/Z7.md#test_volume_drift_macro.py | Z7 初审 |
+| tests/unit/test_capability_fs.py | deep-read | zone-reports/Z7.md#test_capability_fs.py | Z7 初审 |
+| tests/unit/test_contract.py | deep-read | zone-reports/Z7.md#test_contract.py | Z7 初审 |
+| tests/unit/test_coverage_thresholds.py | deep-read | zone-reports/Z7.md#test_coverage_thresholds.py | Z7 初审 |
+| tests/unit/test_dispatcher_executor.py | deep-read | zone-reports/Z7.md#test_dispatcher_executor.py | Z7 初审 |
+| tests/unit/test_dispatcher_modes.py | deep-read | zone-reports/Z7.md#test_dispatcher_modes.py | Z7 初审 |
+| tests/unit/test_error_guidance.py | deep-read | zone-reports/Z7.md#test_error_guidance.py | Z7 初审 |
+| tests/unit/test_exceptions.py | deep-read | zone-reports/Z7.md#test_exceptions.py | Z7 初审 |
+| tests/unit/test_gates_cli.py | deep-read | zone-reports/Z7.md#test_gates_cli.py | Z7 初审 |
+| tests/unit/test_generate_autocheck_docs.py | deep-read | zone-reports/Z7.md#test_generate_autocheck_docs.py | Z7 初审 |
+| tests/unit/test_lint_contracts.py | deep-read | zone-reports/Z7.md#test_lint_contracts.py | Z7 初审 |
+| tests/unit/test_lint_no_forbid_with_computed_field.py | deep-read | zone-reports/Z7.md#test_lint_no_forbid_with_computed_field.py | Z7 初审 |
+| tests/unit/test_lint_no_fs_mutation.py | deep-read | zone-reports/Z7.md#test_lint_no_fs_mutation.py | Z7 初审 |
+| tests/unit/test_lint_repo_consistency.py | deep-read | zone-reports/Z7.md#test_lint_repo_consistency.py | Z7 初审 |
+| tests/unit/test_lint_status_strings.py | deep-read | zone-reports/Z7.md#test_lint_status_strings.py | Z7 初审 |
+| tests/unit/test_logging.py | deep-read | zone-reports/Z7.md#test_logging.py | Z7 初审 |
+| tests/unit/test_migrate_contract.py | deep-read | zone-reports/Z7.md#test_migrate_contract.py | Z7 初审 |
+| tests/unit/test_phase_runner.py | deep-read | zone-reports/Z7.md#test_phase_runner.py | Z7 初审 |
+| tests/unit/test_phase_runner_property.py | deep-read | zone-reports/Z7.md#test_phase_runner_property.py | Z7 初审 |
+| tests/unit/test_plugins_generate.py | deep-read | zone-reports/Z7.md#test_plugins_generate.py | Z7 初审 |
+| tests/unit/test_pricing_fail_loud.py | deep-read | zone-reports/Z7.md#test_pricing_fail_loud.py | Z7 初审 |
+| tests/unit/test_pytest_framework.py | deep-read | zone-reports/Z7.md#test_pytest_framework.py | Z7 初审 |
+| tests/unit/test_recovery.py | deep-read | zone-reports/Z7.md#test_recovery.py | Z7 初审 |
+| tests/unit/test_round_paths.py | deep-read | zone-reports/Z7.md#test_round_paths.py | Z7 初审 |
+| tests/unit/test_safe_write.py | deep-read | zone-reports/Z7.md#test_safe_write.py | Z7 初审 |
+| tests/unit/test_scoring.py | deep-read | zone-reports/Z7.md#test_scoring.py | Z7 初审 |
+| tests/unit/test_scoring_anti_collapse.py | deep-read | zone-reports/Z7.md#test_scoring_anti_collapse.py | Z7 初审 |
+| tests/unit/test_scoring_property.py | deep-read | zone-reports/Z7.md#test_scoring_property.py | Z7 初审 |
+| tests/unit/test_status.py | deep-read | zone-reports/Z7.md#test_status.py | Z7 初审 |
+| tests/unit/test_sync_contracts.py | deep-read | zone-reports/Z7.md#test_sync_contracts.py | Z7 初审 |
+| tests/unit/test_test_density.py | deep-read | zone-reports/Z7.md#test_test_density.py | Z7 初审 |
+| tests/unit/text/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/text/test_cjk.py | deep-read | zone-reports/Z7.md#test_cjk.py | Z7 初审 |
+| tests/unit/tools/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/tools/test_audit_skill_descriptions.py | deep-read | zone-reports/Z7.md#test_audit_skill_descriptions.py | Z7 初审 |
+| tests/unit/tools/test_lint_contract_graph.py | deep-read | zone-reports/Z7.md#test_lint_contract_graph.py | Z7 初审 |
+| tests/unit/trace/__init__.py | deep-read | zone-reports/Z7.md#__init__.py | Z7 初审 |
+| tests/unit/trace/test_compaction.py | deep-read | zone-reports/Z7.md#test_compaction.py | Z7 初审 |
+| tests/unit/trace/test_event.py | deep-read | zone-reports/Z7.md#test_event.py | Z7 初审 |
+| tests/unit/trace/test_materialize.py | deep-read | zone-reports/Z7.md#test_materialize.py | Z7 初审 |
+| tests/unit/trace/test_migrate.py | deep-read | zone-reports/Z7.md#test_migrate.py | Z7 初审 |
+| tests/unit/trace/test_replay.py | deep-read | zone-reports/Z7.md#test_replay.py | Z7 初审 |
+| tests/unit/trace/test_versioning.py | deep-read | zone-reports/Z7.md#test_versioning.py | Z7 初审 |
+| tests/unit/trace/test_writer.py | deep-read | zone-reports/Z7.md#test_writer.py | Z7 初审 |
 | tools/__init__.py | unreviewed | — | — |
 | tools/audit-skill-descriptions.py | unreviewed | — | — |
 | tools/check_fixture_mirror.py | unreviewed | — | — |
