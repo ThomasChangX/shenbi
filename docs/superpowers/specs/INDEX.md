@@ -14,7 +14,7 @@
 
 - **文件**：`2026-08-14-pipeline-never-completes-design.md`
 - **系列**：2026-08-14 全项目审查（总纲 #5 的执行产出，子 spec 1/10）
-- **状态**：Design（Revised 2026-08-15 · SDD 阶段 3 设计审查 4C/4I/6M 全修）
+- **状态**：Design（Revised 2026-08-15 · SDD 阶段 3 设计审查 4 轮收敛：R1 卷级作用域+负面验收 / R2 total=100+在途 heal / R3 参数化目录校验 / R4 per-step N 语义表+三消费者+[path-context] 跨路由通道 / R5 显式解析上下文 / R6 三消费方+全桥接段聚合 / F340 重试计数重置 / F341 全守卫体镜像 / F304 捕获定位）
 - **优先级**：🟥 Critical（5 个独立根因使长篇小说 pipeline 永不进入 CLOSURE；生产 100 章规划实证）
 - **方法**：`systematic-debugging` 四阶段
 - **内容**：volume_map 中文格式 vs 英文解析器（F324）/ total_chapters 写点自锁（F353）/ closure 目录 G4（F371）/ N 占位 G4（F373）/ closure prompt-build（F379）+ R6 节点桥接中文提取 + F340/F341/F304 + 从属 F313/F380/F3B5/F245。**F303 已拆至 #26**。修订要点：R1 卷级作用域+负面验收（边界集=={15,35,55,75,100}）、R2 total=100 修正（max(boundaries) 规划总章数，非已写 56）、R3 目录校验+契约对齐（gates/g4）、R4 per-step N 语义表（arc=chapter//12/stratum=//36/volume=卷索引）、R5 显式路径解析上下文
