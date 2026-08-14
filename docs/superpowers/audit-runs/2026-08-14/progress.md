@@ -66,3 +66,7 @@
 ### 2026-08-14 会话 1（续 8）
 - Z6.review5 迟到通知核验：F640-F642 全部已登记（F640 P1 specced；F641/F642 P2 verified），锚点 3/3，无漏录
 - **G7 待裁决项补充证据**：data-loss spec R3/R4 亦按 P0 编写（F640 "materialize_progress 零生产者→覆盖 progress.json"、F326 "并行 post-draft 写竞态"），台账两者均 P1；Z6.review5 复核 agent 对 F640 注明"触发即破坏，建议升 P0 条件已注明"（零生产者 + 无条件 safe_write 覆盖真实 progress.json = 数据丢失 + 错误结果；steps_done%5==0 即触发）。与续 6 记录的簇 1/簇 2 P0 标注问题同源，统一待 G7 裁决
+
+### 2026-08-14 会话 1（续 9）
+- Z6.review6 迟到通知核验：F643 已登记（P2 specced，config-governance spec 统一修复条目）；F601 软异议（可辩 P2）不影响裁决（P1 维持）；F642 证据勘误已同步台账（META 剥离后 (45,46) 仍 0.637>0.6，剥离 META 不足以修复，需重新标定）
+- F640 补充证据：compact/migrate_from_progress 零生产调用（F640 证据中 migrate.py:30 实为死路径），Tier A 整体未接线——已并入 F640
