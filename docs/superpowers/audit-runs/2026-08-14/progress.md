@@ -46,3 +46,7 @@
 ### 2026-08-14 会话 1（续 3）
 - Z4.review3 迟到通知核验：F440-F445 全部已登记（F440/F441 merged-into-F431；F442/F443/F445 verified；F444 P1 specced）
 - 发现 F444（P1）台账标 specced 但无 spec 引用 → 补 gate-effectiveness-design.md R9（G3.3 output_files 层级错位恒 SKIP，含 F419/F431 家族 except 附带修复）
+
+### 2026-08-14 会话 1（续 4）
+- Z5.review3 迟到通知核验：F525/F526/F527/F528/F530 已登记（F527 merged-into-F233 正确）；发现 F529 漏录（跨区 records/ 单向 drift 检测）→ 补录，台账 763→764（P2 481→482）
+- F524 P1 异议已满足（台账提前升级 P1 + specced）；F514 维持 resolved

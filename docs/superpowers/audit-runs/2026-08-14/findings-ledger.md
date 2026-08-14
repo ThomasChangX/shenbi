@@ -234,6 +234,7 @@
 | F526 | `_changed_top_keys` 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规 | 审计正确性 | P2 | 见 Z5.review3.md#F526 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F527 | `check_write_ownership` record_create 分支不校验新记录的键集：`_HOOK_KEYS_NEW_RECORD`（16 键白名单）为死配置，plant 新增记录可携带任意未授权键 | 审计完整性/死配置 | P2 | 见 Z5.review3.md#F527 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F233 |
 | F528 | `record_audit_outcome` 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 `dispatch_with_write_audit` 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc | 错误处理 | P2 | 见 Z5.review3.md#F528 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F529 | `detect_cross_section_drift` 单向（md→YAML）：YAML 权威记录在派生表中缺失时不报 drift，判据 12"派生表必须与 YAML 一致"反方向不一致静默放行（跨区 records/，被 Z5 write_audit 消费） | 审计完整性 | P2 | 见 Z5.review3.md#F529 | 复核实测：records/drift.py:80-93 只遍历 md_rows.items()，YAML-only id 零检测；实证 YAML 含 h1+h2、md 表仅 h1 → issues=[] | 见报告 | 见报告 | deep-read | verified |
 | F530 | `parse_resonance_scores` 的 `val > 0` 过滤丢弃合法 0 分（dead-wire 桥上下文，无现行生产影响） | 边界/语义 | M | 见 Z5.review3.md#F530 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F353 | novel.json.total_chapters 无任何正常流写入点（自锁死循环）——F324 修复后 pipeline 仍永不完成 | error | P1 | 见 Z3.review4.md#F353 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F354 | 并行审计波静默吞掉 dispatch 失败：全部审计失败仍标记完成并推进（对照串行 _handle_failure 重试/升级） | error | P1 | 见 Z3.review4.md#F354 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
