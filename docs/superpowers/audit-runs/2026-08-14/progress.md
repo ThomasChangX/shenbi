@@ -8,7 +8,7 @@
 | 3 线程 | done | T1-T15 全部完成：98 线程 findings（T1×8 T2×5 T3×5 T4×4 T5×5 T6×5 T7×6 T8×16 T9×11 T10×2 T11×9 T12×6 T13×6 T14×7 T15×8）；关键：T1-01 decisions 零门校验、T301 字段过滤死码、T501 tenacity 死码、T8 56% fixtures mock、T9-01 lint 白名单洞、T12-01/02 注入链 |
 | 4 聚类校准 | done | 去重 35 条 merged；F364 校准升 P0（Z3 补复核确认）；抽查 40/40 通过；根因簇图 10 簇 |
 | 5 spec 产出 | in_progress | 1 总纲 + N 子 spec + M 批量 |
-| 6 覆盖证明+裁决 | pending | — |
+| 6 覆盖证明+裁决 | done | G1 通过（0 unreviewed）；G6 meta-audit 228 ok / 0 fake；final-report 产出；**等待 G7 人类裁决** |
 ## 抽样种子登记（阶段 0 生成，禁止事后修改）
 - D2 漂移抽样清单 (seed=20260814，活跃文档引用全验；归档 spec 引用归 T10/T15；高风险文档 AGENTS/架构/契约/gates 由 Z9 全查):
       - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:36 → error_handler.py:36-37
@@ -34,3 +34,7 @@
 - 完成: 阶段 1 整体层审查——8 维度全部有结论；8 findings (F0-01~08) 录入（skills 计数漂移 / deps.json 契约缺 5 skill / gate 文档漂移 / INDEX 计数 / dispatch-subagent 引用 / py 版本三元不一致 / SECURITY weekly 声明 / coverage 注释漂移）
 - 下一步: 阶段 2——Z5/Z6 复核收敛 → Z1-Z4 收报告核实 → Z7-Z11 派发
 - 待核实 findings: F500-F512 (Z5), F601-F611 (Z6) 已核实 verified；Z5-01 (novel-output decisions.json 83/145 无效) 待 Z11 深查
+
+### 2026-08-14 会话 1（续）
+- 完成: 阶段 2 补全（Z7-Z11 初审，发现 56% fixtures mock）；阶段 3 线程 T1-T15 全部（98 findings）；阶段 4 聚类校准；阶段 5 12 spec + INDEX；阶段 6 G1/G6 通过 + final-report
+- 下一步: **G7 人类裁决**——汇报 final-report 摘要，等待指示（结束 / 继续某簇 / 追加审查）
