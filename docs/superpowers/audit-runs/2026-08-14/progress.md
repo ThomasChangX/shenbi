@@ -62,3 +62,7 @@
 ### 2026-08-14 会话 1（续 7）
 - Z4.review4 迟到通知核验：F446-F455 全部已登记（9×P2 + 1×M，全 verified），锚点 10/10，无漏录
 - F444 证据修正同步：review4 证明 output_files 键在任何生产 progress 形状都不存在（非 review3 的 "test_type 层" 说法）→ 已更新 gate-effectiveness-design.md R9 证据行
+
+### 2026-08-14 会话 1（续 8）
+- Z6.review5 迟到通知核验：F640-F642 全部已登记（F640 P1 specced；F641/F642 P2 verified），锚点 3/3，无漏录
+- **G7 待裁决项补充证据**：data-loss spec R3/R4 亦按 P0 编写（F640 "materialize_progress 零生产者→覆盖 progress.json"、F326 "并行 post-draft 写竞态"），台账两者均 P1；Z6.review5 复核 agent 对 F640 注明"触发即破坏，建议升 P0 条件已注明"（零生产者 + 无条件 safe_write 覆盖真实 progress.json = 数据丢失 + 错误结果；steps_done%5==0 即触发）。与续 6 记录的簇 1/簇 2 P0 标注问题同源，统一待 G7 裁决
