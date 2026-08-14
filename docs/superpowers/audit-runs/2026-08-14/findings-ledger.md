@@ -588,6 +588,7 @@
 | F1203 | ci.yml quality job 对 macOS 全 job `continue-on-error: true`，macOS 矩阵失败不阻断 CI | error | M | 见 zone-reports/Z10.md#F1203 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1204 | run_pipeline.sh 将 `$PROJECT_DIR` 插值进 `python3 -c "…"` 双引号串 → `'`/`"`/`$()`/反引号命令注入（= 已知 T12-03，Z10 侧确认 + 精确定位） | security | P2 | 见 zone-reports/Z10.md#F1204 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1206 | run_pipeline.sh 绕过 `pipeline review` CLI 直接改写 pipeline-state.json（step_index+1、retry_counts 清零）→ 状态机不变量由外部脚本篡改 | error | P2 | 见 zone-reports/Z10.md#F1206 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F1205 | run_pipeline.sh 错误自动放行启发式 `grep -q "escalation\|gate\|dispatch"` 过宽：真实门禁失败消息含 "gate" 即被 auto-approve，绕过 checkpoint 人工/门禁决策 | error | P2 | 见 zone-reports/Z10.md#F1205 | 复核实测：run_pipeline.sh:88-91 三关键词均为 pipeline 输出高频词 | 见报告 | 见报告 | deep-read | verified |
 | F1207 | codeql.yml 无 pull_request 触发 → 根 SECURITY.md:21 "CodeQL static analysis runs on every PR and weekly" 的 "every PR" 声明不成立（F0-07 家族第二半） | error | P2 | 见 zone-reports/Z10.md#F1207 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1208 | changelog 双机制漂移：release.yml 用 `git log` 平铺生成 release notes，cliff.toml + `just changelog`（git-cliff）未接入发布流程 | error | P2 | 见 zone-reports/Z10.md#F1208 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F1209 | dependabot.yml:5 与 embeddings-smoke.yml:7 引用已移入 archive 的 spec 路径（`docs/superpowers/specs/…` 应为 `…/specs/archive/…`） | error | M | 见 zone-reports/Z10.md#F1209 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |

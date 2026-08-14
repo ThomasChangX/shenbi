@@ -101,3 +101,7 @@
 ### 2026-08-14 会话 1（续 16）
 - T6 迟到通知核验：**T6-01~T6-05 五条全部漏录**（T 系列唯一缺失线程）→ 补录（P2×4 + M×1），台账 772→777（P2 487→491，M 161→162，verified 646→651）
 - pickle 边界不存在（全仓 0 命中）、并发原语清单、F326 契约级新证据（docstring "Zero data conflict" 与 state-settling updates 矛盾）——均已记录
+
+### 2026-08-14 会话 1（续 17）
+- Z10 迟到通知核验：F1200-F1219 中 19 条已登记；发现 F1205 漏录（run_pipeline.sh auto-approve 关键词过宽）→ 补录，台账 777→778（P2 491→492）
+- Z10 关键澄清已记录：benchmarks/anchors 非空洞（11 个 AC 锚点被运行时消费，真正空洞是 tests/benchmark/）；T201 家族新增 lint_contract_graph 实例（F1200）；F1202 codex-plugin diff 空转；F0-07 家族两半（F1207 新 + F1215 已知）
