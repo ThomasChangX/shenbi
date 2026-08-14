@@ -502,3 +502,35 @@
 | T1506 | dispatch_helper zcode 半迁移残留：auto-detect 已 revert 但 IDE CLI 路径仍列 zcode + "requires separate testing"/"future zcode usage-report" 注释 | error | M | 见 thread-reports/T15.md#T1506 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T1507 | `contracts/legacy.py` 命名残留：文件名 legacy 实为当前单源契约加载器（docstring 自述） | error | M | 见 thread-reports/T15.md#T1507 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | T1508 | 归档文档 broken links：2026-06-15-p-1.e-06-enterprise.md → 0001/0002/0009-ADR 链接失效；ci-optimization-design.md → `file.md`；eliminate-existing-warnings-plan.md → `../nonexistent-test-link.md` | error | M | 见 thread-reports/T15.md#T1508 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T401 | usage 载荷形状/类型脆弱：缺 total_tokens / None 值 / dict 形状 → AttributeError/TypeError 崩计量热路径（API 成功后、输出写盘前）→ 丢 LLM 输出 | error | P2 | 见 thread-reports/T4.md#T401 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T402 | shenbi-cost 报告零自动化消费：账本数据 write-only，成本观测纯人工 CLI | error | P2 | 见 thread-reports/T4.md#T402 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T403 | parallel 接线 state 的聚合非原子性 + F505 联动：F302 修复方向（Z5.review4 建议"全部调用方传 state"）在并行波上会激活共享 dict 竞态与跨实例 append 交错 | error | P2 | 见 thread-reports/T4.md#T403 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T404 | iter_records/summarize 静默跳过损坏行，报告无跳过计数：成本报告把不完整账本当完整展示 | error | P2 | 见 thread-reports/T4.md#T404 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-01 | lint_status_strings 对"词表外发明值"全盲：6+ 站点在 status/state 键上发射 `STATUS_STRING_LITERALS` 之外的状态值，CI/预提交门禁全绿 | error | P1 | 见 thread-reports/T9.md#T9-01 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-02 | "s" 键通道 186 处裸 GateStatus 字面量完全绕 lint；同键双轨（g4 枚举成员 vs 其余裸串） | error | P2 | 见 thread-reports/T9.md#T9-02 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-03 | ChapterState.status 无类型字段 3 拼写漂移（pending/complete/settling_failed）；progress.json 同键承载第二套词表（pending/done/skip） | error | P2 | 见 thread-reports/T9.md#T9-03 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-04 | Severity 词表 5 套互斥值集并存；enums.py Severity 为死表且与 4 套活词表值集冲突（F208 扩展） | error | P2 | 见 thread-reports/T9.md#T9-04 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-05 | Verdict 词表 4 套互斥值集并存；enums.py Verdict 死表与活词表值集不相交（F208 扩展） | error | P2 | 见 thread-reports/T9.md#T9-05 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-06 | 16 处裸字符串 status/state 比较 + 6 处 require_state 裸列表替代枚举成员（lint 洞 H4） | error | P2 | 见 thread-reports/T9.md#T9-06 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-07 | HookState 枚举 + parse_hook_state 已存在，但 4 个使用点全部裸字面量绕过；g6.py 双大小写比较并把 ARCHIVED/EXPIRED 终态误计为 unresolved | error | P2 | 见 thread-reports/T9.md#T9-07 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-08 | lint 形态盲区：Call 关键字参数与属性赋值发射完全不可见（F209/F164 站点同时逃逸 lint） | error | P2 | 见 thread-reports/T9.md#T9-08 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-09 | ActorRole 发射端 2 处裸字面量绕过已定义枚举（safe_write.py:134、audit/record.py:46） | error | P2 | 见 thread-reports/T9.md#T9-09 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-10 | trace action 名称无词表（6+ 裸串）；MARK_DONE 生产零发射，与 chapter_loop.py:680 注释背离，materialize 重放路径事件源缺失 | error | P2 | 见 thread-reports/T9.md#T9-10 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T9-11 | 双"单一信源"声明分裂：enums.py 与 status.py 各自声称全框架唯一词表，互不引用、词汇集不相交；enums.py 头注释「所有 Literal 必须从此处 import」已被 6+ 处违反 | error | P2 | 见 thread-reports/T9.md#T9-11 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-01 | `<document name="{fname}">` 属性注入：LLM 可控制文件名（通配符写契约）含 `"` 字符 → 逃逸文档 wrapper 属性 → prompt 注入（与 F300 内容侧 no-op 同 wrapper 的另一条未修复向量） | error | P1 | 见 thread-reports/T12.md#T12-01 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-02 | 持久化 prompt 注入链端到端可达 + codex（workspace-write）路径可直改 project_dir 内状态/门禁/评分文件：pipeline-state.json、gate markers、progress/scores 完整性击穿，且该路径无写审计（F512） | error | P1 | 见 thread-reports/T12.md#T12-02 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-03 | run_pipeline.sh 与 tests/round-exec.sh 将目录参数插值进 `python3 -c "…"` 双引号 shell 串 → `'`/`"`/`$()`/反引号 均可注入任意命令（命令注入；Z10 区确认 + 新实例） | error | P2 | 见 thread-reports/T12.md#T12-03 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-04 | codex/zcode 子进程全量继承父环境：SHENBI_LLM_API_KEY（T1 路径）/CI token 等凭证可达 workspace-write 通用编码 agent；与 T12-02 注入链叠加构成凭证外泄路径 | error | P2 | 见 thread-reports/T12.md#T12-04 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-05 | 写路径穿越防御脆弱隐式：`relative_to` 词法不归一化 `..`（拦截仅靠 wildcard 正则形态）；symlink 目录逃逸（声明目录为 symlink 时契约校验通过的写落盘到 link 目标）；safe_write 零规范化 | error | P2 | 见 thread-reports/T12.md#T12-05 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T12-06 | 按名拼接的防御缺失：`skills/{skill}/SKILL.md` 与 `load_contract(skill)` 无 skill 名词法校验（当前调用方全为硬编码配置，未来不可信 skill 名 → 任意仓库文件读入 system prompt + 契约混淆）；plugins/generate.py `REPO_ROOT / config["output"]` 允许 `..` | error | P2 | 见 thread-reports/T12.md#T12-06 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1301 | pytest-asyncio 声明于 dev group 但全仓零异步测试（休眠插件） | error | P2 | 见 thread-reports/T13.md#T1301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1302 | pytest-ordering 声明但零使用，且 0.6（2019）无人维护 | error | P2 | 见 thread-reports/T13.md#T1302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1303 | numpy 为核心依赖但其全部引用点仅在 Route B 可选路径执行 | error | P2 | 见 thread-reports/T13.md#T1303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1304 | dev group 的 setuptools 无任何运行时消费者（冗余直接声明） | error | P2 | 见 thread-reports/T13.md#T1304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1305 | plugins/master.json version=0.2.0 与 pyproject version=0.1.0 漂移，无同步机制 | error | M | 见 thread-reports/T13.md#T1305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T1306 | pyproject.toml:11 pydantic 注释"P-1 不用；为 P0 schemas 准备"已过期 | error | M | 见 thread-reports/T13.md#T1306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T501 | tenacity 重试层在生产路径为死代码：`_is_retryable` 只认裸 httpx 异常，openai SDK 异常永不命中（429/5xx/timeout 零重试 + 测试掩盖） | error | P1 | 见 thread-reports/T5.md#T501 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T502 | ESCALATION 解决不清零 durable 重试预算：升级后首个再失败确定性 raise 未捕获 RetryExhaustedError（F304 崩溃的第二触发源 + machine.py 契约假） | error | P1 | 见 thread-reports/T5.md#T502 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T503 | pipeline 级重试无退避、无失败分类：串行/closure 立即连发 ≤3 次全量 dispatch，429 风暴与 content_filter 等不可重试失败被同等放大 | error | P2 | 见 thread-reports/T5.md#T503 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T504 | 写失败重试反馈 dead-wire：`build_retry_feedback`/RETRY_WRITE_CONFIRMATION 进 `DispatchResult.stderr`，无编排方读 stderr 注入重试 prompt → 写失败盲重试 ×3 | error | P2 | 见 thread-reports/T5.md#T504 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| T505 | finish_reason 处理仅 API 路径实现：IDE/legacy 无截断检测（cap-raise 保护缺失），finish_reason=None 时截断不可检测 | error | P2 | 见 thread-reports/T5.md#T505 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
