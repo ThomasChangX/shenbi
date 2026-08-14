@@ -18,10 +18,10 @@
 | F502 | FileChange.status Literal 定义在 contracts/ownership.py:22 而非 enums.py（enums.py:1 明示"所有 Literal 必须从此处 import"） | error | P2 | src/shenbi/contracts/ownership.py:22; src/shenbi/contracts/enums.py:1 | 枚举单一信源契约被违反 | read 两文件确认 | 词表分裂风险 | 移入 enums.py | deep-read | verified |
 | F503 | write_audit._declared_patterns 宽 except Exception 吞错：derive_output_files 意外异常 → declared=[] → 未声明写入假阳性 GATE_FAIL | error | P2 | src/shenbi/audit/write_audit.py:25-26 | 吞错掩盖真实异常类别 | read 确认 except Exception: return [] | 假阳性阻断 pipeline | 仅捕获 ContractError | deep-read | verified |
 | F504 | ledger.record() 对 usage 值裸 int() 强转，非 int 可强转值 ValueError 崩 hot path（违反"must never crash the pipeline"） | error | P2 | src/shenbi/cost/ledger.py:73-75 | 强转无防御 | read 确认 int(usage.get(...,0)) | 计量热路径可崩 | _safe_int 兜底 | deep-read | verified |
-| F505 | TokenLedger._write_lock 每实例一把，dispatch_helper 每次 record 新建实例 → 跨实例并发 append 可交错（iter_records 跳过损坏行=丢计量） | error | P2 | src/shenbi/cost/ledger.py:57; dispatch_helper.py:1333 | 锁作用域与实例生命周期不匹配 | read 确认锁在 __init__ 内 | 并发写丢计量 | 进程级锁/filelock | deep-read | verified |
+| F505 | TokenLedger._write_lock 每实例一把，dispatch_helper 每次 record 新建实例 → 跨实例并发 append 可交错（iter_records 跳过损坏行=丢计量） | error | P2 | src/shenbi/cost/ledger.py:57; dispatch_helper.py:1333 | 锁作用域与实例生命周期不匹配 | read 确认锁在 __init__ 内 | 并发写丢计量 | 进程级锁/filelock | deep-read | merged-into-F326 |
 | F506 | report._try_avg_g3_score 把任意 **/*score*.json 的任意顶层 0-100 数值当 G3 分求平均，CPQ 指标名实不符 | error | P2 | src/shenbi/cost/report.py:18-35,74-79 | 启发式无 schema 过滤 | read 确认 glob 无 schema 校验 | 展示指标失真 | 按 rubric/schema 过滤 | deep-read | verified |
 | F507 | 写所有权审计对 deleted 状态零拦截（status=deleted 不触发 record/field 维度）→ 技能删除自身声明写入文件可静默过审 | error | P2 | src/shenbi/audit/write_audit.py:48-64; ownership.py:101-136 | deleted 分支无检查 | read 确认无 deleted 检查路径 | 数据丢失路径可过审 | 补 deleted 检查 | deep-read | verified |
-| F508 | d1-06-coverage-gaps.txt 被 collect-only 覆写 coverage.xml 污染（16.08%），Z 区维度 8 依据失效 | error | P2 | d1-baseline.md; d1-11-collect-only-full.log | 审计工件自身被 addopts 全局 --cov 污染（D1-02 同根因） | 协调者已重生成真实 85.16% 版本并更正 | 审计工具链被误导 | 已修复（重提取 7123 行） | deep-read | verified |
+| F508 | d1-06-coverage-gaps.txt 被 collect-only 覆写 coverage.xml 污染（16.08%），Z 区维度 8 依据失效 | error | P2 | d1-baseline.md; d1-11-collect-only-full.log | 审计工件自身被 addopts 全局 --cov 污染（D1-02 同根因） | 协调者已重生成真实 85.16% 版本并更正 | 审计工具链被误导 | 已修复（重提取 7123 行） | deep-read | merged-into-D1-02 |
 | F509 | compute_file_change 对 pre==post（含 None,None）报 status="modified" 幻影条目 | error | M | src/shenbi/audit/snapshot.py:103-104 | 无 pre==post 特判 | read 确认 | 语义瑕疵，不影响判定 | 加 pre is None and post is None 特判 | deep-read | verified |
 | F510 | report.main() 尾部 return 2 不可达（subparsers required 仅 report）；print() 在 CLI 入口（AGENTS.md No print 边缘） | error | M | src/shenbi/cost/report.py:90-97 | 死代码 | read 确认 subparsers required | 死代码 | 删除 | deep-read | verified |
 | F511 | 归档 spec 文档行号漂移（write_audit.py:31 lazy import 实际在 :22 等，历史态描述） | error | M | specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md:183 | 历史文档未随重构更新 | read 确认 | 历史文档误导 | 归档文档订正或标注 | deep-read | verified |
@@ -50,7 +50,7 @@
 | F211 | executor.py SHENBI_G1_SKIP_READS 环境特性零测试覆盖 | optimization | P2 | 见 Z2.a.md#F211 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F212 | executor.py run_g1/run_g2 不检查 returncode，stdout 非 JSON 时裸 JSONDecodeError | error | P2 | 见 Z2.a.md#F212 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F213 | dispatcher/modes/codex.py 单次 codex exec、无重试/429/finish_reason/并行上限（仅 pipeline 路径有） | optimization | P2 | 见 Z2.a.md#F213 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F214 | codex.py _record_completion 不记录 current_scorer_agent；G3.4 fail-closed 与 pipeline 伪造 scorer 并存 | error | P1 | 见 Z2.a.md#F214 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F214 | codex.py _record_completion 不记录 current_scorer_agent；G3.4 fail-closed 与 pipeline 伪造 scorer 并存 | error | P1 | 见 Z2.a.md#F214 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F408 |
 | F215 | codex.py 用 `\{[^{}]*\}` 提取首个"无嵌套花括号"JSON 片段 | error | P2 | 见 Z2.a.md#F215 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F216 | genre_config.py `_disabled_dimensions_have_rules` 在 customRules 为空时跳过检查 → G4 校验洞 | error | P1 | 见 Z2.a.md#F216 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F217 | pacing_design.py CONSTELLATION 区间三处不一致（docstring 20-30 / 代码 15-35 / SKILL.md 15-25） | error | P2 | 见 Z2.a.md#F217 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
@@ -69,7 +69,7 @@
 | F309 | _validate_state_consistency / _heal_current_step 死代码（注释声称 cli.py resume 调用，实际无调用方） | error | P2 | 见 Z3.a.md#F309 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F310 | volume_align.py 死模块（与 chapter_loop._check_volume_map_alignment 重复，无生产调用方） | optimization | P2 | 见 Z3.a.md#F310 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F311 | scr_extractor 缓存永不失效：revision 改写章节后 SCR 持续陈旧 | error | P2 | 见 Z3.a.md#F311 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F312 | truth_io.upsert_yaml 模式序列化丢弃 markdown body（潜在数据丢失；当前无生产调用方） | error | P2 | 见 Z3.a.md#F312 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F312 | truth_io.upsert_yaml 模式序列化丢弃 markdown body（潜在数据丢失；当前无生产调用方） | error | P2 | 见 Z3.a.md#F312 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F397 |
 | F313 | closure step 6 G4 目标路径用卷号替换 N（应为章号）——closure 正常路径 G4 校验错误文件 | error | P1 | 见 Z3.a.md#F313 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F314 | bridge 激活窗口包含已激活桥（chapter >= activation - 3 未排除 past-activation） | optimization | P2 | 见 Z3.a.md#F314 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F315 | _merge_step_result / _apply_step_outputs 为 no-op 死线（"单写者合并"实际什么都不做） | optimization | P2 | 见 Z3.a.md#F315 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
@@ -115,13 +115,13 @@
 | F617 | linguistic_drift.py 两个告警函数无生产调用方：计划承诺的 >3σ second-tier 告警与内容循环检测未接线 | dead code | P2 | 见 Z6.review.md#F617 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F618 | compute_stats RHETORICAL 正则字典死代码（定义从未使用，且与 detect_rhetoric 实际实现重复且不一致） | dead code | P2 | 见 Z6.review.md#F618 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F619 | compute_stats CLI `--output` 缺参时 IndexError 裸崩溃 | error | P2 | 见 Z6.review.md#F619 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F419 | G1.2 / G2.4 对合法非对象 JSON 崩溃（jload ValueError 未捕获） | error | P2 | 见 Z4.review.md#F419 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F420 | G6 在 novel.json / genre-config.json 损坏时崩溃（无 try/except） | error | P2 | 见 Z4.review.md#F420 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F421 | G_RECONCILE / G_DISPATCH / G_TRANSITION 对非对象 progress.json 崩溃 | error | P2 | 见 Z4.review.md#F421 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F419 | G1.2 / G2.4 对合法非对象 JSON 崩溃（jload ValueError 未捕获） | error | P2 | 见 Z4.review.md#F419 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F420 | G6 在 novel.json / genre-config.json 损坏时崩溃（无 try/except） | error | P2 | 见 Z4.review.md#F420 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F421 | G_RECONCILE / G_DISPATCH / G_TRANSITION 对非对象 progress.json 崩溃 | error | P2 | 见 Z4.review.md#F421 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F422 | cli.py G1 非 JSON 参数静默转空 → 零校验 PASS（丢失 gate 自身逗号拆分回退） | error | P2 | 见 Z4.review.md#F422 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F423 | G0.7 引用已迁移的 tests/scoring.py → 每次带 seed 的 G0 恒 WARN | error | P2 | 见 Z4.review.md#F423 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F424 | g4_chapter_drafting 用遗留目录名 "skill-output" 找 genre-config → 真实布局下疲劳词表恒用默认 | error | P2 | 见 Z4.review.md#F424 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
-| F425 | G7.6 依赖遗留 skill-output → 真实布局恒 SKIP（pending truth 检测失效） | error | P2 | 见 Z4.review.md#F425 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
+| F424 | g4_chapter_drafting 用遗留目录名 "skill-output" 找 genre-config → 真实布局下疲劳词表恒用默认 | error | P2 | 见 Z4.review.md#F424 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F406 |
+| F425 | G7.6 依赖遗留 skill-output → 真实布局恒 SKIP（pending truth 检测失效） | error | P2 | 见 Z4.review.md#F425 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F406 |
 | F426 | g4_genre_config 未用 resolve_input_path → 相对路径+无 rd 静默 CWD 回退 | error | P2 | 见 Z4.review.md#F426 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F427 | g4_chapter_revision 未解析路径（raw Path(fp)）→ rd+相对路径误报 invalid_json | error | P2 | 见 Z4.review.md#F427 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
 | F428 | G3.2 阈值分叉：total_score 直读路径用 acceptance.t1(94)，rubric/维度回退路径硬编码 90 | error | P2 | 见 Z4.review.md#F428 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | open |
@@ -157,13 +157,13 @@
 | F621 | compute_pattern 熵对词表外 pattern 只算分母不算分子 → 互异章节被评"严重单调" | error | P2 | 见 Z6.review2.md#F621 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F622 | recall_overdue_hooks 对 str 类型 last_reinforced/max_distance TypeError 崩溃（F610 之外的独立类型失败模式） | error | P2 | 见 Z6.review2.md#F622 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F623 | AI_MARKERS "不是…而是" 用单省略号字符字面量 → 真实文本"不是……而是"（双字符）恒不命中 | error | P2 | 见 Z6.review2.md#F623 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F624 | plugins/master.json skills 清单与 skills/ 目录漂移（59 vs 74，15 个 skill 未列）+ generate.py 无任何 skills 校验 → 静默不发布 | doc drift | P2 | 见 Z6.review2.md#F624 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F624 | plugins/master.json skills 清单与 skills/ 目录漂移（59 vs 74，15 个 skill 未列）+ generate.py 无任何 skills 校验 → 静默不发布 | doc drift | P2 | 见 Z6.review2.md#F624 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F0-02 |
 | F625 | versioning.migrate_to_current 缺迁移函数时 `_identity` 回退 → while 循环永不前进 → 无限循环挂死 | error | P2 | 见 Z6.review2.md#F625 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F626 | check_linguistic_drift_trigger（第 4 漂移触发点）死导出：HARD/ESCALATE 从未接入 drift-guidance | dead code | P2 | 见 Z6.review2.md#F626 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F628 | segment_sentences 与 segment_paragraphs 句数口径不一致（"；" 只计入段落句数）→ 同一报告自相矛盾 | error | P2 | 见 Z6.review2.md#F628 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F629 | revision_routing.verify_preservation 无生产调用方：§5.3 再生保留校验器实现+测试但未接线，保留保障仅靠 LLM prompt | dead code | P2 | 见 Z6.review2.md#F629 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F513 | 写审计快照根错位：`dispatch_with_write_audit` 快照 `PROJECT_DIR`（框架仓库根）而非 `round_dir` | 接线错误 | P1 | 见 Z5.review.md#F513 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F514 | d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实 | 审计工件质量 | P2 | 见 Z5.review.md#F514 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F514 | d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实 | 审计工件质量 | P2 | 见 Z5.review.md#F514 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-D1-02 |
 | F515 | `_matches_declared` 不匹配契约原生 glob 写模式（`truth/*.md`）→ 已声明写被误报"未声明写入" | 审计正确性 | P2 | 见 Z5.review.md#F515 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F516 | 初审误判 snapshot.py:43-45 为"无 `*` 写入"死代码：契约实际存在 glob 写模式 | 初审覆盖处置错误 | M | 见 Z5.review.md#F516 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F335 | audit_context_cache 用补零章节文件名（chapter-001.md），生产为不补零 → chapter_text 恒空 | error | P2 | 见 Z3.review2.md#F335 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -193,7 +193,7 @@
 | F229 | derive_file_type 单一 file_type 批处理与异构输出不兼容：(a) chapter 型技能非散文输出误套章节规则；(b) decisions 型技能 .md 散文静默漏套 G2.6-2.10 | 漏报（校验洞+误拒） | P2 | 见 Z2.review2.md#F229 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F230 | fields.py `_filter_json` 不做规范化（裸 `k in fields`），与 `_filter_md` 的 canonical rule 不一致——复核轮"md 与 json 同构"断言为误 | 漏报（一致性缺陷） | P2 | 见 Z2.review2.md#F230 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F231 | genre-config 消费侧引用 povMode/sensitivityFlags，但模型/fixture/SKILL.md 规则表/OWNERSHIP 全源无此键——review_checklist 恒空默认、review-group-character 字段过滤恒 escape hatch | 漏报（契约-消费漂移） | P2 | 见 Z2.review2.md#F231 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F232 | decisions.py P2.5 rationale 空串/纯空白绕过 REQUIRED 规则 | 漏报（校验洞） | P2 | 见 Z2.review2.md#F232 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F232 | decisions.py P2.5 rationale 空串/纯空白绕过 REQUIRED 规则 | 漏报（校验洞） | P2 | 见 Z2.review2.md#F232 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F404 |
 | F233 | ownership.py record_create 的 write_keys 从不校验新增记录键集——plant 可写任意键，_HOOK_KEYS_NEW_RECORD 声明 dead | 漏报（审计盲区） | P2 | 见 Z2.review2.md#F233 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F234 | 整文件删除 owned 文件零违规——check_write_ownership 忽略 FileChange.status | 漏报（审计盲区） | P2 | 见 Z2.review2.md#F234 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F630 | revision_router.DEFAULT_RESONANCE_FLOOR=50 与单源阈值 65 漂移（E11 缺陷类复活） | 跨文件状态一致性 | P2 | 见 Z6.review3.md#F630 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -219,8 +219,8 @@
 | F350 | 每章无条件创建 chapter-N-pre-rev.md 备份（即使 route=no-revision 无 revision 发生） | optimization | M | 见 Z3.review3.md#F350 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F351 | API JSON 模式未传 response_format，依赖提示词合规 + 回退解析（非合规输出先失败一次再重试） | error | M | 见 Z3.review3.md#F351 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F352 | dispatch_skill 的 timeout 形参死代码（三条路径均用 _compute_dispatch_timeout） | optimization | M | 见 Z3.review3.md#F352 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F440 | g0.py G0.3/G0.12 的 jload ValueError 未捕获 → gate_G0 崩溃（F431 家族在 g0.py 的 2 处漏网） | error | P2 | 见 Z4.review3.md#F440 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F441 | G0.14 deps.json 为合法非 dict JSON → AttributeError 崩溃（json.loads 直读后未校验即 .get） | error | P2 | 见 Z4.review3.md#F441 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F440 | g0.py G0.3/G0.12 的 jload ValueError 未捕获 → gate_G0 崩溃（F431 家族在 g0.py 的 2 处漏网） | error | P2 | 见 Z4.review3.md#F440 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F441 | G0.14 deps.json 为合法非 dict JSON → AttributeError 崩溃（json.loads 直读后未校验即 .get） | error | P2 | 见 Z4.review3.md#F441 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F442 | g4_length_normalizing 未实现 SKILL.md 压缩双底线（≥25% 原始长度）→ 过度压缩静默通过 | error | P2 | 见 Z4.review3.md#F442 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F443 | g1.check_fields_exist 死代码：仅测试引用，gate_G1 与生产均未接线（B.4 字段软检查未生效） | dead-wire | P2 | 见 Z4.review3.md#F443 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F444 | G3.3 output_files 读取层级与 progress.json 实际结构不匹配 → G3.3 恒 SKIP，G2 复查死路（测试用非生产形状掩盖） | error | P1 | 见 Z4.review3.md#F444 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -254,8 +254,8 @@
 | F453 | G2.7 重要章豁免（volume_map/plan 标注 → ceiling 10000）在全部自动化调用路径死路：project_dir 未接线 → >4500 字重要章恒误报 FAIL | error | P2 | 见 Z4.review4.md#F453 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F454 | G_TRANSITION GT.1/GT.3 对生产 progress 形状语义漂移：round-exec 形状恒真空 PASS、materialize 形状恒 FAIL | error | P2 | 见 Z4.review4.md#F454 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F455 | g4_generic_generative docstring 声称校验 frontmatter，代码未实现 | docs | M | 见 Z4.review4.md#F455 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F531 | 无 state 的 dispatch 调用路径（genesis/closure/triggers/audit_layer/parallel/CLI）TokenLedger 零落账：`_record_token_usage` 以 `if state:` 为闸门，project_dir 可用也不写 → 大部分 pipeline API 成本系统性缺失 | 计量缺口 | P2 | 见 Z5.review4.md#F531 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F532 | `TokenLedger.record` 的 chapter 字段恒为 0：`getattr(state, "chapter", 0)` 在 PipelineState（无 .chapter 属性，真实字段是 chapter_loop.current_chapter）上恒返回 0 → summarize by_chapter 全部坍缩到 "0" 桶 → report "Per-chapter average cost" 恒等于总成本 | 展示指标失真 | P2 | 见 Z5.review4.md#F532 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F531 | 无 state 的 dispatch 调用路径（genesis/closure/triggers/audit_layer/parallel/CLI）TokenLedger 零落账：`_record_token_usage` 以 `if state:` 为闸门，project_dir 可用也不写 → 大部分 pipeline API 成本系统性缺失 | 计量缺口 | P2 | 见 Z5.review4.md#F531 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F302 |
+| F532 | `TokenLedger.record` 的 chapter 字段恒为 0：`getattr(state, "chapter", 0)` 在 PipelineState（无 .chapter 属性，真实字段是 chapter_loop.current_chapter）上恒返回 0 → summarize by_chapter 全部坍缩到 "0" 桶 → report "Per-chapter average cost" 恒等于总成本 | 展示指标失真 | P2 | 见 Z5.review4.md#F532 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F302 |
 | F533 | `TokenLedger.iter_records` 对无效 UTF-8 账本行抛 UnicodeDecodeError 崩 `shenbi-cost report`：read_text 无防护，违反模块"corrupt line is skipped, never crashing the report"契约 | 错误处理/契约违反 | P2 | 见 Z5.review4.md#F533 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F534 | `_changed_top_keys` 对 JSONDecodeError 静默返回 ()：OWNERSHIP JSON 文件被写成无效 JSON（数据损坏形态）→ field 级审计零违规 | 审计正确性 | P2 | 见 Z5.review4.md#F534 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F535 | `parse_markdown_table` 表头缺 id 列 → md_rows 恒空 → drift 检测静默放行（畸形派生表 = "一致"） | 审计健壮性 | P2 | 见 Z5.review4.md#F535 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -276,7 +276,7 @@
 | F368 | hook_planting._append_to_pending_hooks 以 frontmatter-only 覆写 pending_hooks.md——接线即破坏生产 body 表格格式 | error | M | 见 Z3.review5.md#F368 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F369 | cmd_init 对缺失 seed 文件未捕获 FileNotFoundError → 裸 traceback 而非 emit_json ERROR | error | M | 见 Z3.review5.md#F369 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F370 | API 路径解析出的 SkillOutput.decisions 字段从不落盘（JSON 模式 decisions 侧车静默丢弃） | error | M | 见 Z3.review5.md#F370 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F235 | dispatch_with_write_audit 审计面错位：快照 PROJECT_DIR（shenbi 仓库根）而非 round_dir/project_dir —— 成功派发返回 rc=2 GATE_FAIL + 写越权审计对真实写入盲区 | 漏报（功能错误/审计失效） | P1 | 见 Z2.review3.md#F235 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F235 | dispatch_with_write_audit 审计面错位：快照 PROJECT_DIR（shenbi 仓库根）而非 round_dir/project_dir —— 成功派发返回 rc=2 GATE_FAIL + 写越权审计对真实写入盲区 | 漏报（功能错误/审计失效） | P1 | 见 Z2.review3.md#F235 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F513 |
 | F236 | audit/write_audit.py `_matches_declared` 不 fnmatch 声明为 glob 的写入（`truth/*.md` 等 9 技能）→ glob 写入恒判"未声明写入" | 漏报（跨区：audit/ 被 executor 审计链消费） | P2 | 见 Z2.review3.md#F236 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F237 | compute_file_change 对 added JSON 文件返回空 changed_top_keys → field 级 OWNERSHIP 键集校验对新建文件整体旁路 | 漏报（审计盲区，F233 field 级孪生） | P2 | 见 Z2.review3.md#F237 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F537 | `_changed_top_keys` 的 `.get()` 把"缺失键"与"null 值键"归并为同一信号：OWNERSHIP field 文件新增 null 值键 / 删除 null 值键 → 键集变化零检测 → field 级审计静默放行 | 审计正确性 | P2 | 见 Z5.review5.md#F537 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -298,9 +298,9 @@
 | F144 | phase_runner `load_state` 对 phase-state 文件无形状/类型校验：损坏或非 dict 的状态文件 → 未捕获 JSONDecodeError/KeyError/TypeError 裸 traceback，与其余命令的结构化错误信封不一致 | error | P2 | 见 Z1.review6.md#F144 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F456 | G6 章节目录按字典序排序（chapter-10 < chapter-2）→ G6.4 时间线回归漏报、future_knowledge 语义错乱、G6.5 连续分类与 G6.8/G6.10 采样错章 | error | P2 | 见 Z4.review5.md#F456 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F457 | G6.5/G6.10 对话占比用「对话段数 / 总字数」而非「对话字数 / 总字数」→ dialogue 分类死路、对白范围判定失真 | error | P2 | 见 Z4.review5.md#F457 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F458 | DecisionsDoc Adjustment.rationale 空串绕过 P2.5 REQUIRED（F404 家族第二实例） | error | P1 | 见 Z4.review5.md#F458 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F459 | g4_worldbuilding novel.json / genre-config.json 的 jload ValueError 未捕获 → 合法非 dict JSON 崩溃（F431 家族漏网 2 处） | error | P2 | 见 Z4.review5.md#F459 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F460 | json.loads/jload 后内层形状未校验 → AttributeError 崩溃（G0.3 chapter_word / G0.cc auditDimensions / G5.1 t1_scores 条目 / G4 _check_adjacent_budget 相邻文件） | error | P2 | 见 Z4.review5.md#F460 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F458 | DecisionsDoc Adjustment.rationale 空串绕过 P2.5 REQUIRED（F404 家族第二实例） | error | P1 | 见 Z4.review5.md#F458 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F404 |
+| F459 | g4_worldbuilding novel.json / genre-config.json 的 jload ValueError 未捕获 → 合法非 dict JSON 崩溃（F431 家族漏网 2 处） | error | P2 | 见 Z4.review5.md#F459 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F460 | json.loads/jload 后内层形状未校验 → AttributeError 崩溃（G0.3 chapter_word / G0.cc auditDimensions / G5.1 t1_scores 条目 / G4 _check_adjacent_budget 相邻文件） | error | P2 | 见 Z4.review5.md#F460 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F461 | g4_chapter_drafting protagonist_presence / scene_concreteness 未剥离 PRE/POST 元区块（F447 家族剩余消费方）→ 边缘章节主角在场/视觉场景误判 | error | P2 | 见 Z4.review5.md#F461 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F373 | run_triggered_skills 的 G4 校验用未解析 N 占位路径（dispatch 写盘为解析后章号路径）→ 5 个 N 型触发步骤 G4 恒 not_found，周期/卷边界触发必进 ESCALATION | error | P1 | 见 Z3.review7.md#F373 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F374 | write_safety 将 shenbi-review-resonance 分类为 READ_ONLY_AUDIT，但其契约 updates 写 truth/audit_drift.md + truth/resonance_trend.md → 并行审计波在无串行保护下并发写 truth 文件（模块自述的 WRITE_SHARED 串行不变量被违反） | error | P2 | 见 Z3.review7.md#F374 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -309,7 +309,7 @@
 | F377 | check_audit_completeness 的 VERDICT_MARKERS 含通用词 "通过"，no_verdict 检查几乎永不触发 | error | M | 见 Z3.review7.md#F377 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F378 | context/volume-N-complete.json 全仓无写入方 → `_check_volume_completion` 恒 False → 软失败升级链恒触发 volume_objective_missed 信号；`last_trigger_failure` 写后无消费者 | error | P2 | 见 Z3.review7.md#F378 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F245 | contracts/paths.py N 占位符语义碰撞：arc-N/volume-N/stratum-N/escalation-N/AC-NNN 一律按章节号解析或丢弃；resolve_volume_path 除 closure 外零消费 → pipeline 卷/弧技能 dispatch 崩 UnresolvedPathError | 漏报（正常路径功能错误，跨区） | P2 | 见 Z2.review5.md#F245 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F246 | dispatch_skill legacy 回退默认路由到 shenbi-dispatch → pipeline 默认路径继承 standalone 全部缺陷（F227 门序 + F235 审计 rc=2）→ pipeline genesis 在无 API key/无 codex 环境无法完成 | 漏报（接线缺陷，跨区放大） | P2 | 见 Z2.review5.md#F246 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F246 | dispatch_skill legacy 回退默认路由到 shenbi-dispatch → pipeline 默认路径继承 standalone 全部缺陷（F227 门序 + F235 审计 rc=2）→ pipeline genesis 在无 API key/无 codex 环境无法完成 | 漏报（接线缺陷，跨区放大） | P2 | 见 Z2.review5.md#F246 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F227 |
 | F145 | phase_runner `load_deps()` 无任何错误处理：deps.json 损坏/缺失 → cmd_pre_score / cmd_finalize 裸 traceback，而同一文件的两个兄弟消费者（g5.py / scoring.py）均有守卫 | error | **M** | 见 Z1.review7.md#F145 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F146 | scoring.check_gate_markers t2 分支对 deps.json 仅 exists() 守卫：文件存在但损坏 → 未捕获 JSONDecodeError 裸 traceback（同族 F145 只覆盖了 phase_runner.load_deps，scoring 侧损坏场景漏掉） | error | **M** | 见 Z1.review8.md#F146 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F147 | sync_contracts.main() 的 deps.json 读取（:195）与 load_registry（:165）均无守卫：损坏/缺失 → 裸 traceback（本文件前七轮仅 F109/F117/F130 覆盖，加载边界未覆盖） | error | **M** | 见 Z1.review8.md#F147 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -333,7 +333,7 @@
 | F462 | G3.2 评分提取键与 shenbi-score 规范输出形状不匹配（total_score/score vs final_score/dimensions）→ 规范形状报告 score=0 恒 FAIL；F428 的"直读 94 阈值"路径在生产形状下不可达 | error | P2 | 见 Z4.review6.md#F462 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F463 | G3.2 全量扫描 t1-reports 不按 skill_name 过滤 + rubric 加权回退用 gate 技能 rubric 评估其它技能报告（跨技能互扰） | error | P2 | 见 Z4.review6.md#F463 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F464 | t1-reports 生产命名 `*-scores-subagent.json`（codex.py）与 gate 消费模式 `*-scores.json`/find_report 不匹配 → G5.1 兜底恒 no_report FAIL、G0.10 计数恒 0（F432 第二根因）、GR.1/GR.2 在 F401 修复后仍失败（-subagent 后缀）、G7.14/15 空转 | error | P2 | 见 Z4.review6.md#F464 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F465 | F460 家族新增 4 实例：内层形状未校验 → AttributeError 崩溃（G7.1/G7.1b t1_scores、G_RECONCILE skills、character_design archetype_sources 元素、foreshadowing_plant hooks 元素） | error | P2 | 见 Z4.review6.md#F465 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F465 | F460 家族新增 4 实例：内层形状未校验 → AttributeError 崩溃（G7.1/G7.1b t1_scores、G_RECONCILE skills、character_design archetype_sources 元素、foreshadowing_plant hooks 元素） | error | P2 | 见 Z4.review6.md#F465 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F466 | G4.cd.content_uniqueness 在 G6.3 调用形状（rd=项目目录，g6.py:86-93）下静默跳过 —— Path(rd)/"project-output"/"chapters" 不存在 → T3 逐章 G4 中内容唯一性检查不执行且无 SKIP 记录 | error | P2 | 见 Z4.review6.md#F466 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F467 | chapter_planning 节号分隔符不一致：sections 计数接受 `## 5、`/`## 5：`，s5/s7 提取正则仅认英文句点 `## 5\.` → 合法格式下 s5_choice 误 WARN、s7_hook_ops 误 FAIL | error | P2 | 见 Z4.review6.md#F467 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F250 | 独立 dispatcher codex 模式不注入技能定义：codex agent 仅有裸 prompt（无 SKILL.md/契约/rubric），无法产出契约一致输出 | 漏报（正常路径功能缺陷，F227 掩盖） | P2 | 见 Z2.review7.md#F250 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -342,7 +342,7 @@
 | F386 | 软失败升级路径派发 escalation-review 但不设 ESCALATION checkpoint——升级从不暂停、escalation 报告成为孤儿 | error | P2 | 见 Z3.review9.md#F386 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F387 | genre 波与 group 波文件级重复不止 sensitivity：worldRules/motivation/dialogue/texture 四维每章重复审计并覆盖 group 波产物（F329 的完整版） | optimization | P2 | 见 Z3.review9.md#F387 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F388 | `_audit_context_coverage` 死函数：docstring 声称"pipeline resume 初始化时调用"（spec §3.1 的 77% 上下文覆盖缺口检测），cli 从未接线 | error | P2 | 见 Z3.review9.md#F388 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F389 | linguistic drift 数据源侧全链路 inert：`style/linguistic_baseline.json` 唯一写入方 `establish_baseline` 全仓 0 调用方 → 每章 drift 检查恒 "no baseline" 返回 None → spec §3.4 三级干预（WARN/HARD/ESCALATE）与 DriftEscalationError 生产不可达 | error | P2 | 见 Z3.review9.md#F389 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F389 | linguistic drift 数据源侧全链路 inert：`style/linguistic_baseline.json` 唯一写入方 `establish_baseline` 全仓 0 调用方 → 每章 drift 检查恒 "no baseline" 返回 None → spec §3.4 三级干预（WARN/HARD/ESCALATE）与 DriftEscalationError 生产不可达 | error | P2 | 见 Z3.review9.md#F389 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F602 |
 | F390 | cmd_review `--feedback` 文件缺失时误报 "project not found" | error | M | 见 Z3.review9.md#F390 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F154 | safe_write flock 主路径与 O_EXCL 回退路径互不感知对方锁原语：flock 持有者与 lockfile 持有者可并发写同一目标（第四处并发缺陷站点，前九轮只覆盖原语内竞态） | error | **M** | 见 Z1.review10.md#F154 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F155 | scoring.check_scorer_agreement 对 NaN 分数误报 agreed=True；flag_score_collapse 对单维度误报 all_identical（两函数数值边界缺陷；函数当前 dead（Z5 F500），接线前必须先修） | error | **M** | 见 Z1.review10.md#F155 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -350,8 +350,8 @@
 | F648 | compute_stats.compute_percentiles 小样本（n=2）百分位倒挂：P75/P95 取到最小值而 P50 取最大值（P75 < P50，数学上不可能） | 统计口径边界 | P2 | 见 Z6.review8.md#F648 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F468 | G3.2 的 `threshold = 90` 在循环内赋值泄漏到后续报告 → 同一报告因扫描顺序不同得到 PASS/FAIL 不同判定（F428 同根因的第二机制） | error | P2 | 见 Z4.review7.md#F468 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F469 | shenbi-chapter-revision 的 composite 把 g4_decisions 接进 "existing"（md）槽 → DecisionsDoc schema/P2.5 校验对该技能 decisions.json 永不执行，schema 违规静默 PASS | error | P2 | 见 Z4.review7.md#F469 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F470 | jload ValueError 家族剩余 3 实例：g3.py:97（acceptance.json）、g3.py:102（逐报告）、g5.py:67（逐报告）→ gate_G3/gate_G5 对合法非 dict JSON 崩溃（F431 枚举仍不全） | error | P2 | 见 Z4.review7.md#F470 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F471 | gate_manifest 的 "gates" 键为合法列表时 `setdefault` AttributeError 崩溃（F460/F465 家族内层形状新实例；gate_manifest 0% 覆盖） | error | P2 | 见 Z4.review7.md#F471 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F470 | jload ValueError 家族剩余 3 实例：g3.py:97（acceptance.json）、g3.py:102（逐报告）、g5.py:67（逐报告）→ gate_G3/gate_G5 对合法非 dict JSON 崩溃（F431 枚举仍不全） | error | P2 | 见 Z4.review7.md#F470 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F471 | gate_manifest 的 "gates" 键为合法列表时 `setdefault` AttributeError 崩溃（F460/F465 家族内层形状新实例；gate_manifest 0% 覆盖） | error | P2 | 见 Z4.review7.md#F471 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F472 | cli.py bughunt/clean 分支不转发 rd → 相对路径报告恒 resolve_input_path ValueError 崩溃（F403 家族独立实例） | error | P2 | 见 Z4.review7.md#F472 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F391 | API/IDE 派发路径完全跳过 G1 input-readiness 门禁：缺失契约 reads 静默丢弃、无失败语义——模块 docstring 声称的 "G1/G2 经 dispatcher 内部执行" 仅 legacy 子进程路径成立 | error | P2 | 见 Z3.review10.md#F391 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F392 | decisions JSON 恢复失败的 ValueError 穿透 dispatch→CLI：API/IDE 路径裸 traceback、无 checkpoint、无 JSON 结果（F304 同族、异常源不同） | error | P2 | 见 Z3.review10.md#F392 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -374,7 +374,7 @@
 | F474 | G6.4 时间线日期提取对单章内非时序日期引用（截止日/当前日混排）误报 timeline_regression——真实项目 2 条 FAIL | error | P2 | 见 Z4.review8.md#F474 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F475 | G0.3/G6.1 的 chapter_word.default 读取是死特性（GenreConfig 契约与真实配置均无此键）且 default=0 时 ZeroDivisionError 崩溃 | error | P2 | 见 Z4.review8.md#F475 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F476 | G4.chapter-planning 仅实现 SKILL 声明 8 条"可自动检查"规则中的 2 条（段完整性/chapter_role），缺 6 条（段标题精确性/优先级来源声明/章尾改变数/hook 账列名/hook 操作有效性强制/沉默检测） | error | P2 | 见 Z4.review8.md#F476 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F477 | G_RECONCILE GR.2 对 skills[skill] 非 dict 值无守卫 → AttributeError 崩溃（GR.1 有守卫、GR.2 遗漏——F465 家族第 6 实例） | error | P2 | 见 Z4.review8.md#F477 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F477 | G_RECONCILE GR.2 对 skills[skill] 非 dict 值无守卫 → AttributeError 崩溃（GR.1 有守卫、GR.2 遗漏——F465 家族第 6 实例） | error | P2 | 见 Z4.review8.md#F477 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F478 | 12 个 UNIMPLEMENTED 子检查 stub（G0.5/G7.2/7.3/7.4/7.8/GR.3/GR.4/GT.2/GT.4/GT.5/GD.2/GD.3）→ 对应门声明的部分校验目标未实现而门仍 PASS | coverage | M | 见 Z4.review8.md#F478 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F479 | g4_worldbuilding story_bible 注释 "prose density < 5%" 与代码方向相反（代码检查 bullet_density > 5% FAIL，SKILL 要求散文） | docs | M | 见 Z4.review8.md#F479 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F480 | g4_generic_bughunt/clean 的 `if not mf or all(not x.startswith(...))` 死条件（mf 只含本家族前缀条目，all(...) 恒假 → 条件退化为 `not mf`） | dead-wire | M | 见 Z4.review8.md#F480 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -386,7 +386,7 @@
 | F654 | compute_drift `_try_float` docstring 承诺"非有限数值返回 None"，实际 nan/inf/1e999 透传 → 趋势表出现 nan 单元格时序列被静默污染（smooth 全 nan、σ 统计全 nan、单调 run 中断） | 边界/文档↔代码漂移 | P2 | 见 Z6.review10.md#F654 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F655 | records `detect_cross_section_drift` 对"缺失键"无空值语义：`rec.get(key)` 返回 None 且 `_values_equal(None, '')` 恒 False → 派生表空单元格/多余列在 YAML 记录省略该字段时恒报假 drift | 比较语义/边界 | P2 | 见 Z6.review10.md#F655 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F484 | g3_independence 对畸形 agent_trace 静默 fail-open：agent_trace 非 dict 时同源评分检测被跳过 → G3.4 独立性保证在坏数据下失效（F408 家族之外的独立机制） | error | P2 | 见 Z4.review9.md#F484 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F485 | F460/F465 家族第 5 批未枚举实例：5 处 json 加载后内层形状未校验 → TypeError/AttributeError 崩溃（g3.5 / g_dispatch / g5 / g7 / g6） | error | P2 | 见 Z4.review9.md#F485 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F485 | F460/F465 家族第 5 批未枚举实例：5 处 json 加载后内层形状未校验 → TypeError/AttributeError 崩溃（g3.5 / g_dispatch / g5 / g7 / g6） | error | P2 | 见 Z4.review9.md#F485 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F486 | g4_plot_thread_weaver G4.pt.lines 检查语义缺口：6 标签 OR 匹配且 "## A" 为子串 → 仅单线（如只有 "## A"）即 PASS，A/B/C 三线缺失检测失效 | optimization | M | 见 Z4.review9.md#F486 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F256 | g2.py G2.10/G2.12 注释声明 "chapter files only"，代码对全部 file_type 无条件生效——truth 文件占位符行误拒 + JSON 系统性假 WARN | 漏报（注释↔代码漂移） | M | 见 Z2.review10.md#F256 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F257 | executor.dispatch 的 `chapter` 关键字参数全仓零调用方（死参数）；dispatch_with_write_audit 另行独立二次 extract_chapter | 漏报（死参数/未接线） | M | 见 Z2.review10.md#F257 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -396,8 +396,8 @@
 | F161 | RoundPaths.write() 无任何生产调用方（死代码）：F112 只覆盖了 repo()/backup()，write() 为同一家族第三个遗漏成员 | dead-wire/未接线 | **P2** | 见 Z1.review13.md#F161 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F162 | phase_runner cmd_post_skill 冗余调用 configure_logging()：与 main() 重复配置，为六命令中唯一命令内再配置站点 | dead-wire/冗余 | **M** | 见 Z1.review13.md#F162 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F487 | g4_chapter_drafting `_load_protagonist_names` 主角名双重追加 → 主角在场计数翻倍（正常路径 fail-open） | error | P2 | 见 Z4.review10.md#F487 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F488 | g_transition GT.1 `remaining_{phase}` 为标量时 `len()` TypeError 崩溃（F460/F465/F485 家族新实例） | error | P2 | 见 Z4.review10.md#F488 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F489 | g6.py novel.json `target_word_count`/`target_words` 为字符串 → `-(-x // y)` TypeError 崩溃（F475/F485 家族相邻实例） | error | P2 | 见 Z4.review10.md#F489 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F488 | g_transition GT.1 `remaining_{phase}` 为标量时 `len()` TypeError 崩溃（F460/F465/F485 家族新实例） | error | P2 | 见 Z4.review10.md#F488 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
+| F489 | g6.py novel.json `target_word_count`/`target_words` 为字符串 → `-(-x // y)` TypeError 崩溃（F475/F485 家族相邻实例） | error | P2 | 见 Z4.review10.md#F489 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F490 | g4_chapter_revision 返回的 `checks` 槽是字符串列表而非 dict 列表（GateResult 契约偏离，F414 同返回语句的第二个键） | contract | M | 见 Z4.review10.md#F490 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F656 | detect_rhetoric「排比」对句子 `[:20]` 截断后比长度：连续 ≥20 字长句截断后长度全等 → 恒判"平行"；真实 chapter-1 排比=53，其中 40 个（75%）是截断伪影 | 统计口径 | P2 | 见 Z6.review11.md#F656 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F657 | compute_drift.main 卷级检测丢弃 human_overridden 排除标志：章节级排除、卷级不排除 → 被人工覆盖的卷降分仍触发 VOLUME_DECLINE | 边界/统计口径 | P2 | 见 Z6.review11.md#F657 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -419,7 +419,7 @@
 | F165 | phase_runner/`__init__` docstring 宣称 "T2/T3 phase state machine" 与实现不符：G5 只认 t2-phases（t3 名恒 FAIL "unknown phase"），pre_score/finalize 只读 `deps["t2-phases"]`，command-to-give.md:126 明示 "T3 不使用 phase-runner.py" → phase_runner 实际 T2-only，"T2/T3" 承诺为假 | doc↔code drift | **M** | 见 Z1.review15.md#F165 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F166 | phase_runner cmd_pre_skill 的 skill 参数未净化直接拼接路径：`PROJECT / "skills" / skill / "SKILL.md"` 与 load_contract 内部 `SKILLS / skill / "SKILL.md"` 均可穿越 skills/ 目录做任意路径存在性探测、并把技能目录外任意位置放置的 SKILL.md 解析为契约（F158 只覆盖了 phase 参数的写侧穿越，skill 参数读侧站点前十四轮完全未提及） | error | **M** | 见 Z1.review15.md#F166 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F660 | parse_markdown_table 无表头表静默整表丢行（首行分隔行被当表头 → 数据行无 id 全部丢弃，drift 检查空转） | error | P2 | src/shenbi/records/parser.py（见 Z6.review12.md#F660） | 无表头表解析缺陷 | 运行复现 | drift 检查空转 | 表头检测修正 | deep-read | verified |
-| F493 | jload/json.loads 内层形状家族第 6 批：4 处未枚举实例 → AttributeError 崩溃（g3.3 skills 值 / g0.14 _calibration_hashes / g5.1 t2-phases / g6.1 t3-pipelines） | error | P2 | 见 Z4.review12.md#F493 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F493 | jload/json.loads 内层形状家族第 6 批：4 处未枚举实例 → AttributeError 崩溃（g3.3 skills 值 / g0.14 _calibration_hashes / g5.1 t2-phases / g6.1 t3-pipelines） | error | P2 | 见 Z4.review12.md#F493 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F494 | G6.4 时间线检查只读每章前 5000 字符 → 章节后半段的时间线回归完全漏报（check_pacing 却读全文，采样口径不一致） | error | P2 | 见 Z4.review12.md#F494 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F495 | review_arc_payoff / review_resonance 的 file+line 证据正则被时间/比例/日期形态满足 → 无文件引用证据的报告 false PASS（fail-open 启发式） | docs | M | 见 Z4.review12.md#F495 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3A5 | `cmd_chapters` 按字符串键排序章节状态：`chapter_states.items()` 字典序使 "10" 排在 "2" 之前，chapters JSON 数组非数字序 | error | M | 见 Z3.review15.md#F3A5 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -429,7 +429,7 @@
 | F661 | `_short_chain_chars` 正则无左锚：长句尾部可充当"短句"入链、被长句打断的短句链整体丢失 → short_sentence_chain_density 在真实章节上系统性偏差（ch46 上正则 0 vs 正确语义 57） | 统计口径（F633/F656 同族） | P2 | 见 Z6.review13.md#F661 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F662 | materialize `_as_float` 对 str 分数静默置 0.0（同模块 `_as_int` 却接受 str）——MARK_DONE score 为字符串时分数被静默抹零 | 边界/错误处理（F640 同族、潜伏） | P2 | 见 Z6.review13.md#F662 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F496 | G6.8 幽灵角色检测与口头禅匹配只读每章前 5000 字符 → 章节后半段角色/口头禅漏检漏报（F494 采样截断家族第二消费方） | error | P2 | 见 Z4.review13.md#F496 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F497 | G5.1/G6.1 的 t2-phases/t3-pipelines **条目值**非 dict → AttributeError 崩溃（F493 内层形状家族第二层未枚举实例） | error | P2 | 见 Z4.review13.md#F497 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F497 | G5.1/G6.1 的 t2-phases/t3-pipelines **条目值**非 dict → AttributeError 崩溃（F493 内层形状家族第二层未枚举实例） | error | P2 | 见 Z4.review13.md#F497 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F431 |
 | F663 | compute_ttr 空输入早退分支输出 schema 不一致：缺 `content_ttr` 与 `total_chars` 键（正常路径两者恒有）→ 全标点/空语料的 ttr 报告缺键，下游 JSON 消费方 KeyError | 边界/schema 不一致 | P2 | 见 Z6.review14.md#F663 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3A8 | `_check_content_size_guard` 新旧内容比混用"字符数 vs 字节数"：中文章节 revision 缩改（保留 <60% 原文）被误拦截 → 重试循环/静默不应用 | error | P2 | 见 Z3.review16.md#F3A8 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3A9 | `_build_hook_debt_briefing` 对 frontmatter hooks 中缺 `id` 键的条目直接 KeyError → 单条坏数据使整章 curated 文档（P1-P7+多样性+债务简报）不产出 | error | P2 | 见 Z3.review16.md#F3A9 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
@@ -451,7 +451,7 @@
 | F269 | `_changed_top_keys` 的 JSONDecodeError 路径：owned JSON（genre-config.json）被覆写为非法 JSON 时 field 级键集校验静默旁路（F237/F260 家族的第三个触发面） | 漏报（审计盲区，根因 Z5 audit/snapshot.py，被 Z2 executor 审计链消费） | M | 见 Z2.review16.md#F269 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F666 | 整键 auditDimensions 设标量 falsy（`false`/`0`/`null`/`""`）：Rule 1 绕过（键无点）+ G0 `check_config_coherence` AttributeError 崩溃（g0.py except 子句不兜 AttributeError）+ `get_active_genre_audits` 返回 [] 全部 genre 审计静默停用 | 治理绕过（F611/F631/F638/F643 同族第四向量）+ 门禁崩溃 | P2 | 见 Z6.review16.md#F666 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F4A0 | G6.9 数值规则合规检查约束侧失效：关键词↔约束错配（str(val) 命中共享上下文中更早的数字子串）+ 真实 rules.md 散文格式零约束 + 仅"人/个"单位 + 前 10 条上限 → 现实项目数值规则违反静默漏检 | error | P2 | 见 Z4.review15.md#F4A0 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
-| F3AF | run_gate_g3 在 progress.json 缺失时预写伪造评分证据（current_scorer_agent/g2_passed），G3.4 fail-closed 独立性检查恒 PASS——G3 门在全部调用路径（含串行 genesis/closure）以自证证据通过，与 F345 叠加后 G3 全路径零真实校验 | error | P1 | 见 Z3.review18.md#F3AF | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
+| F3AF | run_gate_g3 在 progress.json 缺失时预写伪造评分证据（current_scorer_agent/g2_passed），G3.4 fail-closed 独立性检查恒 PASS——G3 门在全部调用路径（含串行 genesis/closure）以自证证据通过，与 F345 叠加后 G3 全路径零真实校验 | error | P1 | 见 Z3.review18.md#F3AF | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | merged-into-F408 |
 | F3B0 | check_audit_line_refs 的 `_LINE_REF_RE` 仅匹配英文 `L(\d+)` 行号格式，生产 15/722 审计文件用「第N行」中文格式 → G4.av.stale_line_ref 对这些审计静默失效（格式契约断裂，F324/F396/F389 同族） | error | M | 见 Z3.review18.md#F3B0 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F3B1 | truth_embed main() 的 emit_json 用裸字面量 "degraded" 作 status 值（非 CommandStatus 成员），违反 spec D3 类型化信封约定（F3AE 同族、独立实例） | error | M | 见 Z3.review18.md#F3B1 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F270 | `record_audit_outcome` 的 write-audit.jsonl ledger 写入无防护：round_dir 只读/磁盘故障时 finally 块裸抛，掩盖 dispatch 异常且审计记录丢失（F238 的 record 层孪生，故障面=文件系统） | 漏报（错误处理缺陷，F238 家族新触发面） | M | 见 Z2.review17.md#F270 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
