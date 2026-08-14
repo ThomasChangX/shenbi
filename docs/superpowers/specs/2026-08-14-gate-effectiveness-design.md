@@ -38,7 +38,7 @@
 - 修复：传 project-output；**验收：T2 相位机全技能 G4 PASS**
 
 ## R9 · G3.3 output_files 层级错位恒 SKIP（F444, P1；同族 R1/R2）
-- 证据：g3.py:151-153 `skills.get(skill,{}).get("output_files",[])` 在 skill 层读，全部生产 progress 写入方均在 test_type 层（codex.py:40-46 / materialize.py:66-67 / run_gate_g3 伪造无 skills 键；g_reconcile.py:36-40 按 `[skill][test_type]` 解析同一结构）→ "G3.3 Output files passed G2" 复查在所有已知生产形状下恒 SKIP；tests/unit/gates/test_g3.py:118/220 用非生产形状（skill 层 output_files）钉死代码路径，掩盖死路
+- 证据：g3.py:151-153 `skills.get(skill,{}).get("output_files",[])` 在 skill 层读，而全部生产 progress 写入方均**不含 output_files 键**（codex.py:44 只写 score/status、materialize.py 只写 status/score、round-exec.sh 写空 skills、run_gate_g3 伪造无 skills 键；g_reconcile.py:36-40 按 `[skill][test_type]` 解析同一结构；Z4.review4 修正 review3 的 "test_type 层" 说法）→ "G3.3 Output files passed G2" 复查在所有已知生产形状下恒 SKIP；tests/unit/gates/test_g3.py:118/220 用非生产形状（skill 层 output_files）钉死代码路径，掩盖死路
 - 修复：改读 `skills.get(skill,{}).get(test_type or "generative",{}).get("output_files",[])`；测试改用生产形状；**附带**：修复后 gate_G2 对非 dict JSON 抛的 ValueError（F419/F431 家族）将穿透 g3.py:188 except（仅 JSONDecodeError/OSError）→ 一并加 ValueError；**验收：生产形状 progress + output_files → G3.3 实际执行（非 SKIP）**
 
 ## 补充（同批次）

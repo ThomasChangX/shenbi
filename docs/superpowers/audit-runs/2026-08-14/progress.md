@@ -58,3 +58,7 @@
 ### 2026-08-14 会话 1（续 6）
 - Z3.review4 迟到通知核验：F353-F363 全部已登记（P1×2: F353/F354 specced；P2×6: F355-F360；M×3: F361-F363），锚点 11/11，与通知一致，无漏录
 - **发现严重度标注不一致（G7 待裁决）**：阶段 4 产物把簇 1（pipeline 永不完成）标 "P0 族/5 独立根因"（phase4-root-cause-clusters.md:5-9、pipeline-never-completes-design.md R1-R5 各标 P0、final-report:32 "P0×5"），簇 2 标 "P0×4"（final-report:33）；但台账仅 F324/F397/F364/F1300 为 P0，簇 1 的 F353/F371/F373/F379 与簇 2 的 F640/F326 均为 P1。Z3.review4:204 复核 agent 明确把 F353 升级留待阶段 4 处置，阶段 4 未在台账落实升级 → 待 G7 裁决：P0 簇标注是"批次优先级"还是"成员级升级"
+
+### 2026-08-14 会话 1（续 7）
+- Z4.review4 迟到通知核验：F446-F455 全部已登记（9×P2 + 1×M，全 verified），锚点 10/10，无漏录
+- F444 证据修正同步：review4 证明 output_files 键在任何生产 progress 形状都不存在（非 review3 的 "test_type 层" 说法）→ 已更新 gate-effectiveness-design.md R9 证据行
