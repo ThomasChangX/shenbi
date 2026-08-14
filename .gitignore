@@ -25,6 +25,9 @@ __pycache__/
 # Superpowers SDD workflow cache
 .superpowers/
 
+# ZCode session state (per-session plan files, working state not deliverables)
+.zcode/
+
 # Benchmark output (empty dir placeholder)
 .benchmarks/
 
