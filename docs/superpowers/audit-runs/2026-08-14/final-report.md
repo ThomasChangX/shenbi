@@ -19,7 +19,7 @@
 | 严重度 | 数量 | 说明 |
 |---|---|---|
 | P0 | 5 | F324 volume_map 解析 / F397 append_dedup 数据丢失 / F364 atexit 清 staging / F302 TokenLedger 少计 / F1300 章节被摘要覆写 |
-| P1 | 116 | 门禁击穿（G3.4 伪造/门序回归/GR.2 masking）、审计链失效、drift 链失效、注入链、fixtures 56% mock、契约断裂 |
+| P1 | 118 | 门禁击穿（G3.4 伪造/门序回归/GR.2 masking）、审计链失效、drift 链失效、注入链、fixtures 56% mock、契约断裂 |
 | P2 | 483 | 边界/错误处理/统计错误/死代码/漂移 |
 | M | 155 | 文案/命名/格式/过期注释 |
 | false-positive | 1 | F325（复核反证撤销） |
