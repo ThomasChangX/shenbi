@@ -156,3 +156,8 @@
   - gates/cli.py 9 个入口：参数与签名逐一匹配（G0-G7/G_TRANSITION/G_DISPATCH/G_RECONCILE；G7(round_dir) 单参正确；G2 第 4 参 pd=arg(3) 可传；G4 project_dir=rd 显式传）
   - phase_runner 侧：F150（G2 缺 pd）/F163（G4 第 3 参 round_dir）已覆盖
 - **结论：门禁调用形状枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 27）——后续审核：scenario↔fixture 断链系统化重扫
+- 576 个 fixtures 前缀引用：磁盘 0 缺失（G0.9 路径前缀面健康）
+- 97 个项目内路径引用（drafts/config/truth/characters/snapshots/plans/import/world/chapters/audits 前缀）：59 个唯一缺失路径——逐项归类全部落在既有 finding 内：T806（18 空目录：world/characters/chapters/import/audits）、T807/F750（证据不可达：drafts/chapter-N.md、qidian-fatigue-list、snapshots/chapter-030、import/analysis 02/04、characters/protagonist）、F815（import-analysis 链断）、T813（truth/ 命名断裂：pending_hooks/audit_drift/resonance_trend）、F910/T1-05（plans/ 零 decisions）
+- **结论：断链家族枚举完整，零新遗漏，无新增 finding**
