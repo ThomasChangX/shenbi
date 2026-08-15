@@ -38,6 +38,7 @@ from tenacity import (
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import (
     PathContext,
+    format_path_context,
     extract_chapter,
     parse_path_context,
     resolve_contract_path,
@@ -1819,6 +1820,7 @@ def dispatch_skill(
     uses_staging: bool = False,
     shared_context: Any = None,
     state: Any = None,
+    path_context: PathContext | None = None,
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
@@ -1840,8 +1842,16 @@ def dispatch_skill(
             Passed through to _build_skill_prompt so auditors skip re-reading
             common files from disk.
         state: Optional PipelineState for token usage accumulation (Task 7).
+        path_context: Optional per-family placeholder context (spec #6 R5).
+            When provided, the ``[path-context]`` carrier line is appended to
+            the prompt (visible to the executing LLM as a machine-generated
+            echo of the Files-to-create list) and reaches all three routes.
     """
     pd = Path(project_dir)
+    if path_context is not None:
+        line = format_path_context(path_context)
+        if line:
+            prompt = f"{prompt}\n{line}"
 
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):

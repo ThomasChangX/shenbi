@@ -22,6 +22,7 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+from shenbi.contracts.paths import PathContext
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import (
     dispatch_skill,
@@ -314,7 +315,10 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
             f"Fix these issues in your new output."
         )
 
-    result = dispatch_skill(step.skill, project_dir, prompt)
+    step_ctx = (
+        PathContext(anchor=1) if step.skill == "shenbi-anchor-curate" else None
+    )  # F380 (spec #6): AC-NNN -> AC-001.md genesis sentinel, conditional on this step
+    result = dispatch_skill(step.skill, project_dir, prompt, path_context=step_ctx)
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
         if hasattr(result, "stderr") and result.stderr:

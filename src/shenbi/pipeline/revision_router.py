@@ -20,6 +20,7 @@ from enum import StrEnum
 from pathlib import Path
 from typing import Any
 
+from shenbi.contracts.paths import PathContext
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill
 
@@ -157,7 +158,12 @@ def dispatch_escalation(project_dir: Path | str, chapter: int | None, context: s
     )
     if context:
         prompt += f" Context: {context}"
-    result = dispatch_skill(ESCALATION_SKILL, project_dir, prompt)
+    path_ctx = None
+    if chapter is None:
+        # Genesis escalation (spec #6 F3B5): book-level sentinel resolves
+        # audits/escalation-N-report.md to the genesis artifact name.
+        path_ctx = PathContext(escalation="genesis")
+    result = dispatch_skill(ESCALATION_SKILL, project_dir, prompt, path_context=path_ctx)
     if not result.success:
         log.error(
             "escalation_dispatch_failed",

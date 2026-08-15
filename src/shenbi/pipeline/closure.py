@@ -17,7 +17,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from shenbi.contracts.paths import resolve_volume_path
+from shenbi.contracts.paths import PathContext, resolve_contract_path, resolve_volume_path
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import (
     dispatch_skill,
@@ -145,6 +145,24 @@ def _current_volume(project_dir: Path) -> int:
     return len(boundaries) if boundaries else 1
 
 
+def _closure_step_context(step: ClosureStep, project_dir: Path) -> PathContext | None:
+    """Per-step closure context (spec #6 R5): 2 -> final arc, 4/5 -> volume,
+    6 -> final chapter (F313), 10 -> final chapter (NNN dir).
+    """
+    from shenbi.pipeline._shared import read_total_chapters
+
+    total = read_total_chapters(project_dir)
+    if not total:
+        return None
+    if step.step_num in (4, 5):
+        return PathContext(chapter=total, volume=len(read_volume_boundaries(project_dir)))
+    if step.step_num == 2:
+        return PathContext(chapter=total, arc=total // 12)
+    if step.step_num in (6, 10):
+        return PathContext(chapter=total)
+    return None
+
+
 def _closure_snapshot_dir(project_dir: Path) -> str:
     """Final-chapter snapshot dir, NNN resolved from novel.json total (spec #6 R3).
 
@@ -170,6 +188,11 @@ def _resolve_closure_g4_path(step: ClosureStep, project_dir: Path) -> str:
         return ""
     if step.step_num == 10:
         return _closure_snapshot_dir(project_dir)  # dir contract path (spec #6 R3)
+    ctx = _closure_step_context(step, project_dir)
+    if ctx is not None and "N" in step.output_path:
+        # Per-family semantics (spec #6 R4/R5): step 6 resolves by chapter
+        # (F313), not the blanket volume substitution below.
+        return resolve_contract_path(step.output_path, ctx.chapter, ctx)
     if "N" in step.output_path:
         vol = _current_volume(project_dir)
         return resolve_volume_path(step.output_path, vol)
@@ -262,12 +285,13 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     prompt = (
         f"Execute {step.skill} for book closure (step {step.step_num}). Project dir: {project_dir}"
     )
+    step_ctx = _closure_step_context(step, project_dir)
 
     # Dispatch.
     # Dispatch + gate with retry loop (I2): retries on dispatch/gate failure
     # up to max_revision_retries, then returns False for escalation.
     while True:
-        disp = dispatch_skill(step.skill, project_dir, prompt)
+        disp = dispatch_skill(step.skill, project_dir, prompt, path_context=step_ctx)
         if not disp.success:
             if _handle_closure_failure(state, step, "dispatch"):
                 continue
