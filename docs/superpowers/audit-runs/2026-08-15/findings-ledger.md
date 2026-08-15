@@ -786,3 +786,14 @@
 | T807 | 20 chapters 数字断链 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
 | T808 | rhythm_principles 身份错配 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
 | T809 | 四链传导使测试绿灯不构成生产行为验证（fixture 失真→场景空转→测试假阳性→契约虚设） | 漏报 | P1 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T901 | 双唯一信源并立：36 域中仅 9 域在两个单源文件内，27 散落 12 文件 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T902 | Verdict 双活词表：enums.Verdict 零 src 消费者，真实第二词表硬编码于 checker | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T903 | severity 概念六词表并立；revision-decisions 生产 21.1% severity 值越一切词表（F211 量化扩展） | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T904 | GateOutcome.status 重复定义 GateStatus 域且缺 UNIMPLEMENTED | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T905 | lint_status_strings 三重覆盖洞：面内拦截目标空集+越表逃逸率 100%+s 键/面外/CWD 三盲区 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T906 | progress.json 的 skill status 域（pending/done/skip）无任何枚举定义 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T907 | ChapterState.status 无词表自由串且 complete/completed 同族异形 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T908 | 未实现三形态（UNIMPLEMENTED/not_implemented/unimplemented）+ CommandStatus 域外值 degraded | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T909 | 审批决定双词表（approve/modify/reject vs approved/rejected）+ content_preservation/verdict status 无主域 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T910 | 修订 mode 生产越表：reconstruction/no_op 不在任一词表且 G4 不校验 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| T911 | novel.json status 无主域、src 无读写方 | 漏报 | M | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
