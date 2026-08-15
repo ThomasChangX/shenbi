@@ -477,15 +477,19 @@
 | F135 | --chapter 非整数裸崩 | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
 | F136 | gate_markers_verified 空转记 true | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
 | F137 | applicability 缺格默认 Yes | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
-| F967 | F967 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F968 | F968 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F969 | F969 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F970 | F970 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F971 | F971 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F972 | F972 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F973 | F973 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F974 | F974 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
-| F975 | F975 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F967 | plans/INDEX.md 归档计数漂移（上轮 F1106 复发）：66/63 声称 vs 磁盘 68 个 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F968 | 归档 plan 的 spec 引用批量路径漂移：32 个按原路径不存在（全部可在 specs/archive 按 basename 找到，0 真死链） | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F969 | 上轮 final-report.md 统计未随晚到补录同步（781 vs 786 内部自相矛盾） | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F970 | 上轮 coverage-ledger 1008 行报告锚点指向不存在报告（Z7.md/Z8.md 拆分后未回写） | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F971 | final-report 覆盖率数值与归档工件不一致（85.16% vs coverage.xml 0.8728） | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F972 | 上轮 findings-ledger 行格式缺陷：15 行仅 10 列 + F417 占位 + 未转义管道错位 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F973 | 上轮 zones 清单记账缺口：并集 2755 vs table-A 2738 差 17 项未归类 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F974 | 归档 plan 完成状态未回填：68 份中 63 份复选框全未勾 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F975 | 本轮分区清单缺口：Z9-c.files 漏登 d1/coverage.xml | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F976 | 上轮 F140（P1）断链复现：shenbi-score 成功路径恒 exit 1（console script 对非 int 返回值；协调者实跑复现 95 分 PASS excellent 退出码 1 + stderr 混入 dict repr） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
+| F977 | 上轮 T501（P1）断链复现：tenacity 重试层对 openai SDK 异常永不触发（_is_retryable 仅 httpx 两分支；issubclass 双 False 协调者复算） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
+| F978 | 跨轮 ID 命名空间碰撞：上轮与本轮 F 编号重叠 72/123（同 ID 不同 finding） | 漏报 | P2 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
+| F979 | 本轮 ledger F967-F975 标题列未转录（title=ID 占位）——本批已回填 | 漏报 | M | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
 | F224 | Layer B 字段级 reads 过滤全链路断裂：唯一生产调用点是不可达死代码（dd1fc62 回归） | error | P1 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | verified |
 | F225 | write_semantics `key` meta 全仓零消费者（18 处声明为死数据） | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
 | F226 | `no_op_behavior: skip_write` 从未被消费：docstring 声称 honoring 但 skip_paths 无任何调用方传入 | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
@@ -696,3 +700,11 @@
 | T1505 | 悬空清理托付：specs #16/#25 并不含 _shared.py 清理项 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
 | T1506 | canonical loader 仍名 legacy.py + 已删 contract.py 的 re-export shim 残留 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
 | T1507 | 分支卫生（3 squash-merge 未删远程+10 dependabot 未 triage）+ INDEX 计数 66/68/63 三处漂移 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T101 | file_type=decisions 使 chapter-drafting/short-drafting 的 .md 主产物静默绕过 G2 全部章节质量检查（derive_file_type 按技能整体推导 + g2.py:84 无条件 continue 且注释假设不成立；实测违规章节文件 decisions 模式整体 PASS）（协调者代码亲核） | 漏报 | P0 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | verified |
+| T102 | staging commit 丢 sidecar：plan/state-settling 的 decisions sidecar 永远滞留 staging，auto-commit 模式被 clear_staging 无条件删除（cli.py:597 抽验） | 漏报 | P1 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | verified |
+| T103 | G4 调用面断裂补全（F434 未列）：output_path 单文件 + state-settling glob(*.md) 设计使 4 类真实 producer 的 decisions 在 pipeline G4 零覆盖 | 漏报 | P1 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
+| T105 | context-decisions 断产+静默落空：chapter-drafting 唯一活跃 reads 声明的上游被确定性 curation 替代 0 产出（真实树 0 文件协调者验证），读取落空 _resolve_read_path 静默返回空无日志 | 漏报 | P1 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | verified |
+| T104 | G2/G4 判定分歧 15 例：raw_decode 截断恢复使 G2 比 G4 多放行 15/145 坏文件；拼接检测对无-$schema 第二对象盲区 | 漏报 | P2 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
+| T106 | 声明四源断链：schema 文档 7 技能 / truth-files.yaml 7 文件 / SKILL writes 5 声明 / 实产 4 类 145 个互不一致 + 下游 reads 声明率 2/7 | 漏报 | P2 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
+| T107 | AGENTS.md decisions 条款漂移 | 漏报 | P2 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
+| T108 | P2.5 错误消息漏 medium | 漏报 | M | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
