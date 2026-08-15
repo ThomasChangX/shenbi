@@ -583,7 +583,7 @@
 | F381 | 卷目标未知默认 True 吞掉 | 漏报 | M | 见 Z3-review-r3 | 见 zone-reports/Z3-review-r3.md | 见 Z3-review-r3 | 见 Z3-review-r3 | 见 Z3-review-r3 | Z3 复核r3 | open |
 | F445 | 对 F414 的修正：SHORT_MAP 缺的不是 9 个而是 11 个——漏了 shenbi-review-arc-payoff 与 shenbi-review-resonance | 修正 | P2 | 见 Z4-review-r1 | 见 zone-reports/Z4-review-r1.md | 见 Z4-review-r1 | 见 Z4-review-r1 | 见 Z4-review-r1 | Z4 复核r1 | open |
 | F447 | 对 F402 的补充证据：状态词表 lint 只拦截"词表内"字面量，HARD_FAIL 因越表而逃逸——status 单源门禁盲区 | error | P2 | 见 Z4-review-r1 | 见 zone-reports/Z4-review-r1.md | 见 Z4-review-r1 | 见 Z4-review-r1 | 见 Z4-review-r1 | Z4 复核r1 | open |
-| F463 | 评分前置 marker 的 bug-hunt/clean 命名族无写方：shenbi-score --test-type bug-hunt|clean 结构性 MARKER_MISSING exit 3（推翻初审 Z4.md:68 非缺陷判断） | 漏报 | P1 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | verified |
+| F463 | 评分前置 marker 的 bug-hunt/clean 命名族无写方：shenbi-score --test-type bug-hunt\|clean 结构性 MARKER_MISSING exit 3（推翻初审 Z4.md:68 非缺陷判断） | 漏报 | P1 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | verified |
 | F464 | summary.json t1_scores 全仓零填充写方：G7.1b 反向覆盖在框架产出轮上恒 FAIL（74 missing，叠加 F424 ALL_SKILLS 含 meta skill 结构性不可 PASS） | 漏报 | P1 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | verified |
 | F465 | G7.14 glob 漏 codex 命名族（-scores-subagent.json，V5 差分实证；F458 同族第 4 读方） | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
 | F466 | GT.3 gate_blockers 唯一写方恒 []——死检查 | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
