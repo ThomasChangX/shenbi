@@ -86,3 +86,18 @@ def test_english_node_regression():
     """
     en = "## Volume 1\n\n| 5 | opening | hero awakens |\n"
     assert read_chapter_node(en, 5) is None
+
+
+def test_english_objective_format_not_matched():
+    """English `**Objective:**` (colon inside bold) is not matched by the R6
+    consumer (declared deferral to #16/#25) — negative regression.
+    """
+    import re
+
+    # cannot call _load_volume_context without full project; assert the regex shape
+    pat = re.compile(
+        r"## .+?.*?\n\*\*Objective\*\*\s*[：:]\s*(.+?)(?=\n##|\n###|\Z)",
+        re.DOTALL,
+    )
+    assert pat.search("## V1\n**Objective:** old english form\n") is None
+    assert pat.search("## 第一卷\n**Objective**: 中文形\n") is not None

@@ -194,6 +194,9 @@ def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, in
 # ---------------------------------------------------------------------------
 
 _CN_NODE_ROW_RE_TMPL = r"^[ \t]*\|\s*第\s*{ch}\s*章\s*\|([^|]+)\|([^|]+)\|"
+# The English head is kept for section splitting only: legacy 4-column
+# `| V1-B1 | content | Ch N |` rows do NOT match _BRIDGE_ROW_RE (6-column,
+# numeric first cell) — English row support is deferred to specs #16/#25.
 _BRIDGE_HEADS = ("### 跨卷桥接", "## Cross-Volume Bridges")
 _BRIDGE_ROW_RE = re.compile(
     r"^[ \t]*\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|",

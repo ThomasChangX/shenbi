@@ -71,7 +71,8 @@ def test_skeleton_returns_empty_on_missing_volume_map(tmp_path: Path):
 
 def test_skeleton_section_7_includes_pending_bridges(project_with_volume_map: Path):
     skeleton = generate_plan_skeleton(project_with_volume_map, chapter=25)
-    assert "V1-B1" in skeleton or "Brahmi" in skeleton
+    assert "Brahmi" in skeleton
+    assert "第2卷 桥接" in skeleton
 
 
 def test_skeleton_marks_prefilled_sections_as_editable_context(project_with_volume_map: Path):
