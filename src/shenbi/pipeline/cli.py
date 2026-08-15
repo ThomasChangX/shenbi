@@ -85,7 +85,10 @@ def _queue_re_dispatches(
     entries = DERIVED_TRUTH_MAP.get(cp.type.value, [])
     for skill, _ in entries:
         # Avoid duplicate entries for the same skill.
-        already = any(d.get("skill") == skill for d in state.pending_re_dispatches)
+        already = any(
+            d.get("skill") == skill and d.get("chapter") == cp.chapter
+            for d in state.pending_re_dispatches
+        )
         if not already:
             state.pending_re_dispatches.append(
                 {
@@ -309,9 +312,18 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
 
     except RetryExhaustedError as exc:
         log.error("retry_budget_exhausted_escalation", error=str(exc))
+        # Carry the chapter so a later REJECT can reset this step's budget
+        # (chapter-less ESCALATION would make _reset_retry_budget a no-op —
+        # the exact re-exhaustion trap it exists to prevent).
+        esc_chapter = (
+            state.chapter_loop.current_chapter
+            if state.phase == PipelinePhase.CHAPTER_LOOP
+            else None
+        )
         set_checkpoint(
             state,
             CheckpointType.ESCALATION,
+            chapter=esc_chapter,
             context=f"Retry budget exhausted: {exc}",
         )
 
@@ -515,16 +527,16 @@ def _reset_retry_budget(state: PipelineState, cp: CheckpointData) -> None:
     clears retry_counts on ESCALATION resolution but NOT retry_budget_consumed).
     """
     ch = cp.chapter
-    if ch is not None:
-        prefix = f"ch{ch}-"
-        state.chapter_loop.retry_counts = {
-            k: v for k, v in state.chapter_loop.retry_counts.items() if not k.startswith(prefix)
-        }
-        state.chapter_loop.retry_budget_consumed = {
-            k: v
-            for k, v in state.chapter_loop.retry_budget_consumed.items()
-            if not k.startswith(prefix)
-        }
+    # chapter-less ESCALATION ("ch") clears ALL chapter-scoped budgets
+    prefix = f"ch{ch}-" if ch is not None else "ch"
+    state.chapter_loop.retry_counts = {
+        k: v for k, v in state.chapter_loop.retry_counts.items() if not k.startswith(prefix)
+    }
+    state.chapter_loop.retry_budget_consumed = {
+        k: v
+        for k, v in state.chapter_loop.retry_budget_consumed.items()
+        if not k.startswith(prefix)
+    }
     state.genesis.retry_counts.clear()
     state.closure_retry_counts.clear()
 

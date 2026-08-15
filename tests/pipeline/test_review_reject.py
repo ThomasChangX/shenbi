@@ -142,3 +142,40 @@ def test_cmd_review_reject_wired(tmp_path, monkeypatch):
     rc = cli_mod.cmd_review(args)
     assert rc in (0, None)
     assert state.genesis.current_step == 16  # redo cursor via the real path
+
+
+def test_f304_checkpoint_carries_chapter_and_reject_resets(tmp_path, monkeypatch):
+    """I1 interplay: F304's ESCALATION carries the chapter (chapter-loop phase)
+    so a REJECT resets that step's durable budget; a chapter-less fallback
+    clears all chapter-scoped budgets.
+    """
+    from shenbi.pipeline import cli as cli_mod
+    from shenbi.pipeline.state import PipelinePhase
+
+    state = _state()
+    state.project_dir = str(tmp_path)
+    state.phase = PipelinePhase.CHAPTER_LOOP
+    state.chapter_loop.current_chapter = 57
+    state.chapter_loop.retry_budget_consumed["ch57-x"] = 99
+
+    def boom(*a, **k):
+        raise RetryExhaustedError("budget gone")
+
+    monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_chapter_step", boom)
+    monkeypatch.setattr("shenbi.pipeline.genesis.run_genesis_step", boom)
+    monkeypatch.setattr("shenbi.pipeline.closure.run_closure_step", boom)
+    cli_mod._orchestrate_to_checkpoint(state, tmp_path)
+    assert state.pending_checkpoint.chapter == 57
+
+    from shenbi.pipeline.cli import _apply_reject_redo
+
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert "ch57-x" not in state.chapter_loop.retry_budget_consumed
+
+    # chapter-less fallback clears everything chapter-scoped
+    state2 = _state()
+    state2.chapter_loop.retry_budget_consumed["ch3-a"] = 5
+    state2.chapter_loop.retry_budget_consumed["ch9-b"] = 6
+    set_checkpoint(state2, CheckpointType.ESCALATION)  # no chapter
+    _apply_reject_redo(state2, state2.pending_checkpoint)
+    assert state2.chapter_loop.retry_budget_consumed == {}
