@@ -569,3 +569,6 @@
 | F772 | F777（P1）降级讨论：零消费者死文件的契约违反——维持 P1 记录张力 | severity-dispute | P1 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
 | F891 | SharedAuditContext 缓存 4 字段中 2 个经幻影路径/键错位 100% 失效 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
 | F895 | truth-files.yaml "pipeline-written files" 节登记不全：progress.json / config-change-log.jsonl / gate-markers/* 实产未注册 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| T1001 | D1 行号订正在归档 spec 中再次漂移（第三次，较上轮恶化 +22→+43 行，PR #42 dispatch_helper +61 行所致）；修复动作在、修复效果失效 | 部分回归 | P2 | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
+| T1002 | INDEX:91 torch "待 #3 follow-up" 注记过期——已由 PR #42（ac46663）重建 INDEX 时顺带移除，grep torch=0 命中 | 修复确认 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | closed（顺带修复） |
+| T1003 | F860 台账文本"12 patch"与磁盘 13 patch 不符（17 失败计数精确无误，纯清点笔误） | 文档漂移 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
