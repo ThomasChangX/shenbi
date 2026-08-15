@@ -280,6 +280,7 @@
 | F522 | warn extra= 载荷 stdlib 丢失/structlog 嵌套 | error | P2 | 见 zone-reports/Z5-review-r1.md | 见 Z5-review-r1 | 见 Z5-review-r1 | 见 Z5-review-r1 | Z5 复核r1 | open |
 | F523 | 未知模型上下文上限乐观回退，告警失火 | error | P2 | 见 zone-reports/Z5-review-r1.md | 见 Z5-review-r1 | 见 Z5-review-r1 | 见 Z5-review-r1 | Z5 复核r1 | open |
 | F524 | parse_trend 第三消费者表头契约与写入侧互斥，解析恒空 | error | P2 | 见 zone-reports/Z5-review-r1.md | 见 Z5-review-r1 | 见 Z5-review-r1 | 见 Z5-review-r1 | Z5 复核r1 | open |
+| F525 | TokenLedger 读路径构造即创建 cost/ 目录：读操作带 FS 副作用，且 cost 为普通文件时读路径直接崩溃 | error | P2 | 见 Z5-review-r2 | 见 zone-reports/Z5-review-r2.md | 见 Z5-review-r2 | 见 Z5-review-r2 | 见 Z5-review-r2 | Z5 复核r2 | open |
 | F834 | using-shenbi 元技能触发映射路由到 8 个本区 DEPRECATED skill 且 4 个 group-* 替代者零触发行；DEPRECATED 正文仍自称"默认激活/每章必查" | deps | P1 | 见 Z8-b 报告 | 见 zone-reports/Z8-b.md | 见 Z8-b | 见 Z8-b | 见 Z8-b | Z8-b 初审 | open |
 | F835 | 4 个 review-group-* 的 description 全部描述"做什么/怎么调度"，无 "Use when" 触发条件 | error | P1 | 见 Z8-b 报告 | 见 zone-reports/Z8-b.md | 见 Z8-b | 见 Z8-b | 见 Z8-b | Z8-b 初审 | open |
 | F836 | memory-distill L4/L5 流程读取的 author_intent / book_spine / world/rules 均未声明 reads → L5 书脊滚动复核在 dispatch 契约下拿不到输入（盲写风险） | error | P1 | 见 Z8-b 报告 | 见 zone-reports/Z8-b.md | 见 Z8-b | 见 Z8-b | 见 Z8-b | Z8-b 初审 | open |
