@@ -664,3 +664,10 @@
 | T1107 | hypothesis 反例库 43+ 文件未提交，与 .gitignore 声明相反（协调者抽核：examples/ 44 文件仅 .gitkeep 被跟踪） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1108 | pipeline 无离线可执行模式，运行时主路径无法免计费审计（internal 硬拒绝无 LLM、replay 是签名校验非派发 stub）（预授权立案） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1109 | G0.5 权重和校验永久 UNIMPLEMENTED，2026-06 基线曾以硬编码假 PASS 掩盖 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1301 | D1⑨ 漏洞审计检查对象错位：uvx pip-audit 审计的是临时环境 29 包而非项目依赖集，基线无漏洞结论无效（false assurance）（协调者核实 d1-09 log:3） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | verified |
+| T1302 | pymdown-extensions 11.0 已知 ReDoS 漏洞（CVE-2026-67422，修复 11.0.1）——mkdocs.yml 未启用四个受影响扩展，当前配置不可达 | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1303 | CI 安全审计与 SBOM 系统性排除 docs 组：mkdocs 栈 26 包在 Security 门和发布 SBOM 之外（security.yml:13 --group dev；T1302 漏检直接成因）（协调者核实） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | verified |
+| T1304 | GPL 家族许可证混入 dev 工具链（yamllint GPL-3.0 直接依赖、chardet LGPL 传递）+ 上轮无 GPL 结论事实错误（wheel 仅打包 src 分发面无传染） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1305 | 未使用/错位依赖 4+1 项零处置回归（pytest-asyncio/pytest-ordering/setuptools 等） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1306 | plugins/master.json 0.2.0 vs pyproject 0.1.0 版本双源漂移持续 | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1307 | pydantic 注释过期（持续） | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
