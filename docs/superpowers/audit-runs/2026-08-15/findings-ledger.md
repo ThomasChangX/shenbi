@@ -441,3 +441,12 @@
 | F126 | scoring CLI 三重文档↔实现漂移：usage 承诺 T1 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F127 | __init__.py docstring 子模块清单过期程度远超 F117 所述：仅列 6 项，实际顶层 .py 13 + 子包 13 | error | M | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F128 | load_rubric 无节作用域：全文件任何 ` | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
+| F967 | F967 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F968 | F968 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F969 | F969 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F970 | F970 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F971 | F971 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F972 | F972 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F973 | F973 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F974 | F974 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F975 | F975 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
