@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-15
-> **活跃 plan 数**：1 | **已归档**：65（见 `archive/`）
+> **活跃 plan 数**：0 | **已归档**：66（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-08-15-pipeline-never-completes.md** · spec [`#6`](../specs/INDEX.md)（🟥 Critical，SDD 阶段 4 产出）· 9 task 全 infra（协调者亲实现）· **✅ ready**
+暂无活跃 plan。活跃 spec 执行队列见 [`specs/INDEX.md`](../specs/INDEX.md)；最近完成：#6 pipeline-never-completes（PR #42，2026-08-15）。
 
 ## 待执行的 spec → plan 映射
 
