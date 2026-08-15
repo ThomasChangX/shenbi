@@ -17,7 +17,9 @@ def test_audit_passes_on_allowed_genre_key_change(
 ) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(
-        ex, "derive_output_files", lambda s, chapter=None, round_dir=None: ["genre-config.json"]
+        ex,
+        "derive_output_files",
+        lambda s, chapter=None, round_dir=None, ctx=None: ["genre-config.json"],
     )  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
     cfg.write_text(json.dumps(_cfg()), encoding="utf-8")
@@ -39,7 +41,9 @@ def test_audit_blocks_on_undeclared_genre_key(
 ) -> None:
     monkeypatch.setattr(ex, "PROJECT_DIR", tmp_path)  # type: ignore[attr-defined]
     monkeypatch.setattr(
-        ex, "derive_output_files", lambda s, chapter=None, round_dir=None: ["genre-config.json"]
+        ex,
+        "derive_output_files",
+        lambda s, chapter=None, round_dir=None, ctx=None: ["genre-config.json"],
     )  # type: ignore[attr-defined]
     cfg = tmp_path / "genre-config.json"
     cfg.write_text(json.dumps(_cfg()), encoding="utf-8")

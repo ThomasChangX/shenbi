@@ -179,3 +179,28 @@ def test_f304_checkpoint_carries_chapter_and_reject_resets(tmp_path, monkeypatch
     set_checkpoint(state2, CheckpointType.ESCALATION)  # no chapter
     _apply_reject_redo(state2, state2.pending_checkpoint)
     assert state2.chapter_loop.retry_budget_consumed == {}
+
+
+def test_reject_cursor_rollback_chapter_memo_and_state_settle():
+    from shenbi.pipeline.cli import _apply_reject_redo
+
+    state = _state()
+    state.chapter_loop.step_index = 4
+    set_checkpoint(state, CheckpointType.CHAPTER_MEMO, chapter=3)
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert state.chapter_loop.step_index == 1
+
+    set_checkpoint(state, CheckpointType.STATE_SETTLE, chapter=3)
+    state.chapter_loop.step_index = 9
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert state.chapter_loop.step_index == 7
+
+
+def test_reject_volume_boundary_rearms_trigger_fanout():
+    from shenbi.pipeline.cli import _apply_reject_redo
+
+    state = _state()
+    state.chapter_loop.step_index = 5
+    set_checkpoint(state, CheckpointType.VOLUME_BOUNDARY, chapter=55)
+    _apply_reject_redo(state, state.pending_checkpoint)
+    assert state.chapter_loop.step_index == 0

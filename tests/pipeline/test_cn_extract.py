@@ -6,6 +6,7 @@ Real fixture driven (tests/fixtures/volume-map-xinghuo.md, G0.9/G0.11).
 from pathlib import Path
 
 from shenbi.pipeline._shared import (
+    BridgeRow,
     _resolve_volume_at_runtime,
     bridges_for_chapter,
     read_bridges,
@@ -101,3 +102,15 @@ def test_english_objective_format_not_matched():
     )
     assert pat.search("## V1\n**Objective:** old english form\n") is None
     assert pat.search("## 第一卷\n**Objective**: 中文形\n") is not None
+
+
+def test_bridges_window_boundary_inclusive():
+    """Chapter == activation - window surfaces (>= is inclusive)."""
+    b = [BridgeRow("钩子", "物品", "第2卷", 10, "已种植")]
+    assert len(bridges_for_chapter(b, 7)) == 1  # 10 - 3 = 7: boundary is inclusive
+    assert len(bridges_for_chapter(b, 6)) == 0  # below window
+
+
+def test_chapter_node_multidigit_and_spaced():
+    text = "  | 第 56 章 | 高潮 | 终局对决 |\n"
+    assert read_chapter_node(text, 56) == {"role": "高潮", "content": "终局对决"}

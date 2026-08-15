@@ -105,3 +105,20 @@ def test_hardening_superscript_digits_not_int():
 
     ctx = parse_path_context("[path-context] chapter=²")
     assert ctx is not None and ctx.chapter == "²"  # str sentinel, no ValueError
+
+
+def test_parse_multiple_context_lines_first_wins():
+    from shenbi.contracts.paths import parse_path_context
+
+    ctx = parse_path_context("[path-context] chapter=1\n[path-context] chapter=2")
+    assert ctx is not None and ctx.chapter == 1
+
+
+def test_format_empty_context_returns_empty_string():
+    assert format_path_context(PathContext()) == ""
+
+
+def test_family_missing_in_ctx_falls_back_to_chapter():
+    """Ctx present but the family field is None -> chapter semantics for it."""
+    ctx = PathContext(chapter=9)  # no arc field
+    assert resolve_contract_path("truth/arcs/arc-N.md", 9, ctx) == "truth/arcs/arc-9.md"

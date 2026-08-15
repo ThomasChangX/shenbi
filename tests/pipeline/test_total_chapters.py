@@ -105,3 +105,20 @@ def test_heal_wired_in_orchestrate(tmp_path, monkeypatch):
     cli_mod._orchestrate_to_checkpoint(state, proj)
     assert calls.get("total_seen") == 100  # heal wrote it before the guard
     assert calls.get("run", 0) >= 1
+
+
+def test_update_malformed_novel_json_returns_zero(tmp_path):
+    proj = tmp_path / "proj"
+    (proj / "outline").mkdir(parents=True)
+    shutil.copy(FIXTURE, proj / "outline" / "volume_map.md")
+    (proj / "novel.json").write_text("{broken", encoding="utf-8")
+    assert update_total_chapters(proj) == 0
+
+
+def test_read_total_non_int_returns_zero(tmp_path):
+    from shenbi.pipeline._shared import read_total_chapters
+
+    proj = tmp_path / "proj"
+    proj.mkdir()
+    (proj / "novel.json").write_text('{"total_chapters": "many"}', encoding="utf-8")
+    assert read_total_chapters(proj) == 0
