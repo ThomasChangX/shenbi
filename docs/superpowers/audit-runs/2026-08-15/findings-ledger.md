@@ -387,6 +387,13 @@
 | F1027 | lint_status_strings.py | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1028 | CODEOWNERS | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1029 | AC-003.md | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1030 | README 快速开始 --auto 例子实跑即报错（just pipeline-init 不透传 flag） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1031 | just 全部 recipe 参数插值不做 shell 引用：dispatch 的自然语言 prompt 含 ;/$()/空格 即执行任意命令或拆散 argv（AGENTS.md 文档化标准入口） | 漏报 | P1 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | verified |
+| F1032 | pipeline-init/review 的 just 表达式拼接 flag 值无引号——含空格 feedback 必致 argparse 失败 | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1033 | 技能计数四文档漂移（59/67/69/69 vs 磁盘 74）（=F904/F906/F007 同域，阶段 4 合并） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1034 | command-to-give.md:48 引用已删除的 tests/dispatch-subagent.sh（=F461 双重发现，阶段 4 合并） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1035 | run_pipeline.sh :26/:70-79 无守卫命令在 set -e 下静默死（FATAL 分支不可达） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1036 | pre-push-check.sh:74 计数管道零命中即崩整钩 | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
 | F901 | 执行协议引用已删除的 dispatch 脚本 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F902 | README pipeline-init 示例命令实测失败 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F903 | "G0.13 工具哈希阻断"承诺已静默失效 | security | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
