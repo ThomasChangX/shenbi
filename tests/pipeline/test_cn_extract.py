@@ -89,19 +89,21 @@ def test_english_node_regression():
     assert read_chapter_node(en, 5) is None
 
 
-def test_english_objective_format_not_matched():
-    """English `**Objective:**` (colon inside bold) is not matched by the R6
-    consumer (declared deferral to #16/#25) — negative regression.
+def test_objective_bilingual_both_forms(tmp_path):
+    """Both `**Objective:**` (English) and `**Objective**:` (Chinese) parse —
+    exercises the REAL _load_volume_context, not a regex copy.
     """
-    import re
+    from shenbi.pipeline.context_assemble import _load_volume_context
 
-    # cannot call _load_volume_context without full project; assert the regex shape
-    pat = re.compile(
-        r"## .+?.*?\n\*\*Objective\*\*\s*[：:]\s*(.+?)(?=\n##|\n###|\Z)",
-        re.DOTALL,
-    )
-    assert pat.search("## V1\n**Objective:** old english form\n") is None
-    assert pat.search("## 第一卷\n**Objective**: 中文形\n") is not None
+    for i, obj_line in enumerate(("**Objective:** English form\n", "**Objective**: 中文形\n")):
+        proj = tmp_path / f"p{i}"
+        (proj / "outline").mkdir(parents=True)
+        (proj / "outline" / "volume_map.md").write_text(
+            "## 第一卷：测试（第1-5章）\n" + obj_line + "\n**章节范围**: 第1章 - 第5章\n",
+            encoding="utf-8",
+        )
+        block = _load_volume_context(proj, 3)
+        assert "English form" in block or "中文形" in block
 
 
 def test_bridges_window_boundary_inclusive():

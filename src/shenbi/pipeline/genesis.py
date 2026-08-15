@@ -269,7 +269,7 @@ def _handle_failure(
 
 
 def genesis_finalize_volume_map(project_dir: Path) -> int:
-    """Deterministic total_chapters fixtation hook (spec #6 R2).
+    """Deterministic total_chapters fixation hook (spec #6 R2).
 
     Runs at genesis step-6 success: no LLM involvement, no later genesis step
     rewrites volume_map (GENESIS_STEPS verified). Delegates to the single

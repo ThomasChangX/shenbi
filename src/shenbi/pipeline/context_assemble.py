@@ -234,9 +234,9 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
 
     # Extract volume objective
     vol_pattern = re.compile(
-        rf"## {re.escape(current_volume)}.*?\n\*\*Objective\*\*\s*[：:]\s*(.+?)(?=\n##|\n###|\Z)",
+        rf"## {re.escape(current_volume)}.*?\n(?:\*\*Objective[：:]\*\*|\*\*Objective\*\*\s*[：:])\s*(.+?)(?=\n##|\n###|\Z)",
         re.DOTALL,
-    )  # colon OUTSIDE bold for the Chinese template (spec #6 R6)
+    )  # bilingual: English `**Objective:**` and Chinese `**Objective**:` (spec #6 R6)
     vol_match = vol_pattern.search(volume_map_text)
     if vol_match:
         parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
@@ -252,7 +252,7 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
     pending_bridges = bridges_for_chapter(read_bridges(volume_map_text), chapter)
     if pending_bridges:
         parts.append("**Pending Cross-Volume Bridges:**")
-        parts.extend(f"- **{s}" for s in pending_bridges)
+        parts.extend(f"- {s}" for s in pending_bridges)
         parts.append("")
 
     return "\n".join(parts)
