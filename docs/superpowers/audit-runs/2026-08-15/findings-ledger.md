@@ -33,7 +33,7 @@
 | F609 | compute_punctuation 复刻 cjk.py 已修复的逐字计数 bug（——/…… 双倍）且引号缺 CJK 弯引号 | error | P2 | src/shenbi/skill_utils/style_learning/compute_stats.py:27,226 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
 | F610 | read_chapters 裸 except Exception 静默吞读错误 | error | P2 | src/shenbi/skill_utils/style_learning/compute_stats.py:320-326 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
 | F611 | RHETORICAL 正则死代码 + TRANSITION_WORDS 重复项 | error/dead-code | M | src/shenbi/skill_utils/style_learning/compute_stats.py:37-41,54 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
-| F601 | 引号 token 只能匹配空引号对，真实引号恒计数 0 | error | P1 | src/shenbi/text/cjk.py:54 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | verified |
+| F601 | 引号 token 只能匹配空引号对，真实引号恒计数 0（裁决补落账：Z6-r1 降 P2 接受，续6 记录未落账，G601 发现） | error | P2| src/shenbi/text/cjk.py:54 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | verified |
 | F615 | tokenize 污染 jieba 全局词典（隐藏跨调用状态） | error/纯函数性 | P2 | src/shenbi/text/cjk.py:100-104 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
 | F619 | compact 绕过 safe_write 的 flock 锁协议 | error/并发 | P2 | src/shenbi/trace/compaction.py:50-56 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
 | F614 | "round" 字段在 project_dir 输入下恒为 "???"，日期名截断 | error | M | src/shenbi/trace/materialize.py:81 | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | 见 zone-reports/Z6.md | Z6 初审 | open |
@@ -114,7 +114,7 @@
 | F512 | [report.py:97] 不可达 return 2 | error | M | report.py:97 | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | Z5 初审 | open |
 | F513 | [escalation_bridge.py:20-21] val>0 丢 0 分 | error | M | escalation_bridge.py:20-21 | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | Z5 初审 | open |
 | F514 | [ownership.py:22+enums.py:1] FileChange.status 等 Literal 未入 enums 单一词表（enum 声明"所有 Literal 必须从此处 import"与实践漂移） | error | P2 | ownership.py:22+enums.py:1 | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | 见 zone-reports/Z5.md | Z5 初审 | open |
-| F401 | [g4/chapter_revision.py] checker 忽略 rd/project_dir，标准相对路径调用即假 FAIL | error | P1 | g4/chapter_revision.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | verified |
+| F401 | [g4/chapter_revision.py] checker 忽略 rd/project_dir，标准相对路径调用即假 FAIL（裁决补落账：Z4-r1 降 P2 接受，续7 记录未落账，G601 发现） | error | P2| g4/chapter_revision.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | verified |
 | F402 | [g4/chapter_revision.py] 返回未声明的 status "HARD_FAIL"（违反 status 单源契约） | error | P2 | g4/chapter_revision.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
 | F403 | [g1/g2/g3/g5/g6/g7/g_reconcile] jload ValueError（合法 JSON 非对象）未被捕获 → traceback 崩溃（8 处） | error | P2 | g1/g2/g3/g5/g6/g7/g_reconcile | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
 | F404 | [g6_checks.py] 对白指标数的是正则匹配次数不是字符数（系统性低估 ~5x+） | error | P2 | g6_checks.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
@@ -145,7 +145,7 @@
 | F429 | [g6.py] G6.12 缺敏感词表时 SKIP 但备注 "round INCOMPLETE" | error | M | g6.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
 | F430 | [g4/genre_config.py] 仅校验 fps[0]，其余文件静默忽略 | error | M | g4/genre_config.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
 | F431 | [contracts/schemas/decisions.py] P2.5 消息漏提 medium 也强制 rationale（跨区备注） | error | M | contracts/schemas/decisions.py | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | 见 zone-reports/Z4.md | Z4 初审 | open |
-| F201 | 字段级 reads 部分匹配时静默丢弃缺失声明字段（违反 AGENTS.md escape-hatch 契约） | error | P1 | contracts/fields.py:59-64; pipeline/dispatch_helper.py:605 | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | Z2 初审 | verified |
+| F201 | 字段级 reads 部分匹配时静默丢弃缺失声明字段（违反 AGENTS.md escape-hatch 契约）（裁决补落账：Z2-r1 降 P2 接受，续6 记录未落账，G601 发现） | error | P2| contracts/fields.py:59-64; pipeline/dispatch_helper.py:605 | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | Z2 初审 | verified |
 | F202 | genre-config 禁用维度 + 空 customRules 绕过规则 7 校验（G4 洞） | error | P1 | contracts/skills/genre_config.py:93-94; skills/shenbi-genre-config/SKILL.md:300 | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | Z2 初审 | verified |
 | F203 | codex 输出 JSON 提取正则取最内层扁平对象，嵌套 scores 解析错误 | error | P1 | dispatcher/modes/codex.py:75 | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | Z2 初审 | verified |
 | F204 | run_g1/run_g2 对子进程 stdout 无守卫 json.loads，崩溃时丢失 stderr 上下文 | error | P2 | dispatcher/executor.py:127,147 | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | 见 zone-reports/Z2.md | Z2 初审 | open |
@@ -241,7 +241,7 @@
 | F827 | chapter_summaries 节名分裂 | 漏报 | P2 | 见 Z8-review-r2 | 见 zone-reports/Z8-review-r2.md | 见 Z8-review-r2 | 见 Z8-review-r2 | 见 Z8-review-r2 | Z8 复核r2 | open |
 | F828 | append_dedup 运行时零接线系统化：18 个 updates 目标不在所属技能 reads，API 路由下盲覆写（裁决维持 P1 + 阶段 4 与 F360 P0 根因合并；P0 边界注记：state-settling 6 truth 文件与 arc-payoff 双文件数据丢失级） | 漏报 | P1 | 见 Z8-review-r2 | 见 zone-reports/Z8-review-r2.md | 见 Z8-review-r2 | 见 Z8-review-r2 | 见 Z8-review-r2 | Z8 复核r2 | verified |
 | F829 | DOT 省略正文强制步骤 | 漏报 | M | 见 Z8-review-r2 | 见 zone-reports/Z8-review-r2.md | 见 Z8-review-r2 | 见 Z8-review-r2 | 见 Z8-review-r2 | Z8 复核r2 | open |
-| F340 | 修订步条件门控扫描旧版审计文件名族：group-* 审计报 BLOCKING 时 chapter-revision 被静默跳过 | error | P0 | 见 Z3-review-r1.md | 见 zone-reports/Z3-review-r1.md | 见 Z3-review-r1 | 见 Z3-review-r1 | 见 Z3-review-r1 | Z3 复核r1 | verified |
+| F340 | 修订步条件门控扫描旧版审计文件名族：group-* 审计报 BLOCKING 时 chapter-revision 被静默跳过（裁决修正补落账：Z3-r2 MR1 推翻 P0 升级→P2，续7 记录未落账，G601 发现） | error | P2| 见 Z3-review-r1.md | 见 zone-reports/Z3-review-r1.md | 见 Z3-review-r1 | 见 Z3-review-r1 | 见 Z3-review-r1 | Z3 复核r1 | verified |
 | F341 | 审计级联缺数据生产者：audit_results 键族无 `passed`/`hard_failures` 形状，`_get_audit_history` 恒空；group-* 短名也不在 CORE/CASCADABLE 词表（F303 的第三层死因 + 修复方向修正） | error | P1 | 见 Z3-review-r1.md | 见 zone-reports/Z3-review-r1.md | 见 Z3-review-r1 | 见 Z3-review-r1 | 见 Z3-review-r1 | Z3 复核r1 | verified |
 | F342 | 共享审计上下文 style_profile 注入键路径错误：`truth/style_profile.md` vs 实际 `style/style_profile.md` | error | P2 | 见 Z3-review-r1.md | 见 zone-reports/Z3-review-r1.md | 见 Z3-review-r1 | 见 Z3-review-r1 | 见 Z3-review-r1 | Z3 复核r1 | open |
 | F343 | `_load_genre_config_cached` 死函数且路径错误：读 `config/genre-config.json`（实际在项目根） | deps | P2 | 见 Z3-review-r1.md | 见 zone-reports/Z3-review-r1.md | 见 Z3-review-r1 | 见 Z3-review-r1 | 见 Z3-review-r1 | Z3 复核r1 | open |
@@ -778,3 +778,7 @@
 | T909 | 审批决定双词表（approve/modify/reject vs approved/rejected）+ content_preservation/verdict status 无主域 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
 | T910 | 修订 mode 生产越表：reconstruction/no_op 不在任一词表且 G4 不校验 | 漏报 | P2 | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
 | T911 | novel.json status 无主域、src 无读写方 | 漏报 | M | 见 T9 报告 | 见 thread-reports/T9.md | 见 T9 报告 | 见 T9 报告 | 见 T9 报告 | T9 线程 | open |
+| G601 | 裁决落账缺口 4 项（F340 P0→P2、F201/F601/F401 P1→P2，续6/续7 记录未落账）——影响终态机械计数；本批已补落 | meta-audit | P1 | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | G6 深核 | open |
+| G602 | Z7-d 字符数标为字节系统性错误 ×2 | meta-audit | M | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | G6 深核 | open |
+| G603 | F1174 全部夸大为 30/35 | meta-audit | M | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | G6 深核 | open |
+| G604 | F1103 route 分布不可机械复现 | meta-audit | M | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | 见 g6-meta-audit.md | G6 深核 | open |
