@@ -727,3 +727,10 @@
 | T106 | 声明四源断链：schema 文档 7 技能 / truth-files.yaml 7 文件 / SKILL writes 5 声明 / 实产 4 类 145 个互不一致 + 下游 reads 声明率 2/7 | 漏报 | P2 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
 | T107 | AGENTS.md decisions 条款漂移 | 漏报 | P2 | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
 | T108 | P2.5 错误消息漏 medium | 漏报 | M | 见 T1 报告 | 见 thread-reports/T1.md | 见 T1 报告 | 见 T1 报告 | 见 T1 报告 | T1 线程 | open |
+| T301 | G1 预警死线：check_fields_exist 定义于 g1.py:102 但全仓零调用（协调者 grep 证实仅注释引用）——声明字段缺失的前置预警从未运行 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T302 | 双匹配语义未统一（extract_h2_sections exact vs lint normalize lower） | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T303 | AGENTS.md 示例字段自身零命中即漂移源 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T304 | 模板自愈环被 replace 写方首写即毁（机制根因） | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T305 | 非 md/json 扩展静默直通不过滤 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T306 | 注入无过滤标注 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T307 | T1 dispatch 面（shenbi-dispatch→codex exec）无任何 reads 注入、结构性无过滤 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
