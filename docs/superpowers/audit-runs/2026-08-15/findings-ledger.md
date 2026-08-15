@@ -506,7 +506,7 @@
 | F974 | 归档 plan 完成状态未回填：68 份中 63 份复选框全未勾 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F975 | 本轮分区清单缺口：Z9-c.files 漏登 d1/coverage.xml | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F976 | 上轮 F140（P1）断链复现：shenbi-score 成功路径恒 exit 1（console script 对非 int 返回值；协调者实跑复现 95 分 PASS excellent 退出码 1 + stderr 混入 dict repr） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
-| F977 | 上轮 T501（P1）断链复现：tenacity 重试层对 openai SDK 异常永不触发（_is_retryable 仅 httpx 两分支；issubclass 双 False 协调者复算） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
+| F977 | 上轮 T501（P1）断链复现：tenacity 重试层对 openai SDK 异常永不触发（_is_retryable 仅 httpx 两分支；issubclass 双 False 协调者复算）（T506 事实修正：openai SDK 默认 max_retries=2 隐式兜底存在，零重试表述修正为 tenacity 层永不触发但 SDK 层 2 次；机制与修复必要性不变） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
 | F978 | 跨轮 ID 命名空间碰撞：上轮与本轮 F 编号重叠 72/123（同 ID 不同 finding） | 漏报 | P2 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
 | F979 | 本轮 ledger F967-F975 标题列未转录（title=ID 占位）——本批已回填 | 漏报 | M | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
 | F224 | Layer B 字段级 reads 过滤全链路断裂：唯一生产调用点是不可达死代码（dd1fc62 回归） | error | P1 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | verified |
@@ -748,3 +748,32 @@
 | T408 | 跨实例无效假锁（F525 同族） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
 | T409 | spec R1 验收无集成护栏——dead-wire 两次复发的根因 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
 | T410 | retry 盲区（失败尝试 usage 丢弃） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T506 | openai SDK 默认 max_retries=2 实测存在——F977 零重试表述修正；tenacity 死层修复不加约束会放大为 27 请求/任务（协调者 inspect.signature 证实 default=2 且 dispatch_helper 未覆写） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | verified |
+| T507 | 传输层三套退避互不协调（SDK 隐式/tenacity 死层/parallel 外层） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T508 | audit_retry_count 无任何重置路径：ESCALATION 解决后首个再 BLOCKING 立即再升级永不再尝试 revision——与 machine.py all per-phase retry counters are reset 契约矛盾（协调者 grep 证实零重置） | 漏报 | P1 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | verified |
+| T509 | 截断 ### FILE: 输出实测被解析器静默接受并落盘 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T510 | 串行三层零退避重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T511 | scoring 路径无界重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T512 | 确定性失败无跨层失败分类——单步最多 6 次全价 LLM 调用验证必然失败结局 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T513 | 上轮 T503/T504/T505 断链重立（实质） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T514 | RETRY_JITTER=2.0 量级合规但为全仓唯一显式 jitter | 漏报 | M | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T601 | 并行审计波 _append_integrity_findings 无锁读改写：同章并发审计互相覆盖 .integrity-findings-NN.jsonl，G4 检查面静默丢失（实跑 5/5；协调者代码核验 :1039 零锁） | 漏报 | P1 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | verified |
+| T602 | TokenLedger 每实例新建锁=零互斥死锁原语 + state.token_usage += 绕过实例锁（潜伏态） | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | open |
+| T603 | safe_write M5 回退 1s 后无条件夺存活锁，互斥破坏（实跑复现；Windows/网络 FS 面） | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | open |
+| T604 | _emergency_cleanup 无 one-shot latch——优雅关机确定性双执行（实跑复现） | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | open |
+| T605 | WriteLock 纯建议性：emergency cleanup/backfill-context/init 前段/legacy worker 绕过——pipeline-state.json 跨进程静默丢更新（双进程实跑复现；协调者核验 crash_recovery/backfill 零锁引用） | 漏报 | P1 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | verified |
+| T606 | cmd_init check-then-act 三段式跨锁分裂 | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | open |
+| T607 | genre 缓存键缺 project_dir（死代码）+ 锁注册表无界增长 | 漏报 | M | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | open |
+| T701 | dict upsert 整文件结构坍缩：frontmatter/H2/表格/散文全灭（数据丢失级，/tmp 实测） | 漏报 | P1 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T702 | 表行键=首格首 token（\S+）：含空格/CJK 键整族互删——| 第 1 章 |+| 第 2 章 | 被 upsert 全删（数据丢失级；truth_io.py:209/219 正则协调者核验） | 漏报 | P1 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | verified |
+| T703 | _upsert_by_key 静默丢弃无键新记录（与既有无键记录保留策略不对称） | 漏报 | P1 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T704 | compute_drift 裸 append 非幂等（16 写点唯一例外） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T705 | 3 个 upsert 原语生产 0 调用——有键的没接线、接线的没键（F360 机制层根因） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T706 | YAML 解析失败→[] 回退→整文件坍缩重写（hook_planting 为生产活路径） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T707 | restore_from_snapshot 零调用 + cmd_rollback 桩——快照只写不还 | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T708 | 部分恢复混合态（snapshot 只写不还的后果面） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T709 | truth_io 锁仅进程内而技能 helper 子进程绕过 WriteLock | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T710 | T7 报告其余 P2 项 A（见 thread-reports/T7.md 明细） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T711 | T7 报告其余 P2 项 B（见 thread-reports/T7.md 明细） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T712 | T7 报告其余 P2 项 C（见 thread-reports/T7.md 明细） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T713 | M 级项（见 thread-reports/T7.md 明细） | 漏报 | M | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |

@@ -260,3 +260,11 @@
 - 接线率: API 路径调用点 3/13≈23%；IDE/legacy 子进程 0%；生产 novel-output 零 ledger（F1115 复认）
 - 修复形状建议（重要 spec 输入）: 在 _dispatch_via_api:1583 记录点去 state 门控直接落账——一处改动接通 13/13 API 调用点，比全调用点传 state 小一个数量级，绕开子进程硬边界
 - 累计（机械重算）: F=641 T=80 D=4 总=725
+
+### 2026-08-16 会话 2（续 15 · T5/T6/T7 三线程交付）
+- 完成: T5 重试经济（T506-T514 共 9：P1×1+P2×6+M×2）+ T6 并发安全（T601-T607 共 7：P1×2+P2×4+M×1）+ T7 truth 写路径幂等（T701-T713 共 13：P1×3+P2×8+M×2）转录
+- P1 亲核: T508（grep 零重置路径）、T601（:1039 零锁读改写）、T605（crash_recovery/backfill 零锁引用）、T702（truth_io.py:209/219 \S+ 首 token 正则逐字）；T701/T703 数据丢失级实测证据审阅
+- F977 事实修正（T506）: openai SDK 默认 max_retries=2 存在（inspect.signature 证实 default=2 且未覆写）——零重试→tenacity 层永不触发但 SDK 层 2 次兜底；F531 影响面精化（API 路由 trace.jsonl 无并发写者，仅 legacy 路由）
+- T7 机制层根因金句: 有键的没接线、接线的没键——3 个 upsert 原语生产 0 调用、活写路径全无键盲覆写
+- T6 正面: 无 pickle 面（全部子进程边界为 argv+stdout JSON 文本协议）；T5 最大问题: 确定性失败无跨层分类，单步最多 6 次全价调用验证必然失败
+- 累计（机械重算）: F=641 T=109 D=4 总=754
