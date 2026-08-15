@@ -777,3 +777,12 @@
 | T711 | T7 报告其余 P2 项 B（见 thread-reports/T7.md 明细） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
 | T712 | T7 报告其余 P2 项 C（见 thread-reports/T7.md 明细） | 漏报 | P2 | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
 | T713 | M 级项（见 thread-reports/T7.md 明细） | 漏报 | M | 见 T7 报告 | 见 thread-reports/T7.md | 见 T7 报告 | 见 T7 报告 | 见 T7 报告 | T7 线程 | open |
+| T801 | G0.9 契约主体 fixture 真实性零执法：门只验 scenario 路径前缀不验存在性/内容/来源——声称 exclusively real、执法零检查（协调者核验 g0_purity 路径白名单+grep provenance 空） | 漏报 | P1 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | verified |
+| T802 | 4 个 fixture 内嵌 G0.9 note 自我豁免 + frontmatter 虚构 generated_by 声称（且 YAML 非法） | 漏报 | P1 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T803 | G0.11 覆盖 4/91 且缺侧静默跳过 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T804 | 26 个被场景消费 fixture 完全无来源（76.9% C 类中的引用子集） | 漏报 | P1 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T805 | 锚点 schema 无 source 字段+循环定义 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T806 | import fixture 引文行号虚构（ch12 全文仅 22 行 vs 引 L120-128） | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T807 | 20 chapters 数字断链 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T808 | rhythm_principles 身份错配 | 漏报 | P2 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
+| T809 | 四链传导使测试绿灯不构成生产行为验证（fixture 失真→场景空转→测试假阳性→契约虚设） | 漏报 | P1 | 见 T8 报告 | 见 thread-reports/T8.md | 见 T8 报告 | 见 T8 报告 | 见 T8 报告 | T8 线程 | open |
