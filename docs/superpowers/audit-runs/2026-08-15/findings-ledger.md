@@ -370,7 +370,7 @@
 | F1010 | compare_mutation_score.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1011 | audit-skill-descriptions.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1012 | check_fixture_mirror.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1013 | run_pipeline.sh | security | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1013 | run_pipeline.sh（T1205 证据升级：括号平衡前提可执行任意 Python；P2 维持=本地自攻击威胁模型） | security | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1014 | run_pipeline.sh | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1015 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1016 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
@@ -619,3 +619,10 @@
 | T1001 | D1 行号订正在归档 spec 中再次漂移（第三次，较上轮恶化 +22→+43 行，PR #42 dispatch_helper +61 行所致）；修复动作在、修复效果失效 | 部分回归 | P2 | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
 | T1002 | INDEX:91 torch "待 #3 follow-up" 注记过期——已由 PR #42（ac46663）重建 INDEX 时顺带移除，grep torch=0 命中 | 修复确认 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | closed（顺带修复） |
 | T1003 | F860 台账文本"12 patch"与磁盘 13 patch 不符（17 失败计数精确无误，纯清点笔误） | 文档漂移 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
+| T1201 | 审计报告决策解析器无作用域 first-match：被审章节文本经证据引用伪造 G4 判定与共振分数（协调者独立 PoC 复现：真实判定阻断→gate 记 v=通过 PASS） | security | P1 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | verified |
+| T1202 | [path-context] carrier 行首行优先 vs 机器行末尾追加的优先级倒置：反馈通道内容可覆盖机器上下文重定向占位符读写 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1203 | run_pipeline.sh STATUS/PHASE 被 agent stderr 日志预览污染（崩溃路径无机器状态行） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1204 | symlink 重定向契约写逃出 project_dir（真实 _write_parsed_outputs 实证，上轮 T12-05 首证） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1205 | F1013 证据升级实证：run_pipeline.sh 的 PROJECT_DIR 插值可执行任意 Python 代码（括号平衡前提）+ 朴素注入静默失败 + 同模式脚本清单 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1206 | document name 属性注入全链实证（上轮 T12-01 未修，wildcard 接受含引号文件名） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1207 | env 全量继承使 SHENBI_LLM_API_KEY 可达 workspace-write codex 子进程（上轮 T12-04 未修复核） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
