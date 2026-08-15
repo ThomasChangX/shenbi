@@ -394,6 +394,12 @@
 | F1034 | command-to-give.md:48 引用已删除的 tests/dispatch-subagent.sh（=F461 双重发现，阶段 4 合并） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
 | F1035 | run_pipeline.sh :26/:70-79 无守卫命令在 set -e 下静默死（FATAL 分支不可达） | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
 | F1036 | pre-push-check.sh:74 计数管道零命中即崩整钩 | 漏报 | P2 | 见 Z10-review-r1 | 见 zone-reports/Z10-review-r1.md | 见 Z10-review-r1 | 见 Z10-review-r1 | 见 Z10-review-r1 | Z10 复核r1 | open |
+| F1037 | 覆盖率阈值自述漂移：文档 78/85 vs 实际配置 80/89 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1038 | pre-push hook 配置齐全但文档安装命令不激活 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1039 | just clean 删跟踪文件 .gitkeep | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1040 | 全局 addopts --cov + fail_under=85 使部分 pytest 运行（just test/test-file）测试全过也假失败退出非零（机制链安装版源码取证+现存 21.92% 产物实证，协调者抽验） | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1041 | SBOM dev 组口径过度包含 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1042 | mkdocs 条件门 ref 失败静默跳过 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
 | F901 | 执行协议引用已删除的 dispatch 脚本 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F902 | README pipeline-init 示例命令实测失败 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F903 | "G0.13 工具哈希阻断"承诺已静默失效 | security | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
