@@ -1,0 +1,180 @@
+# 审计进度 — 2026-08-14
+## 阶段状态机
+| 阶段 | 状态 | 轮次历史 |
+|---|---|---|
+| 0 清点与基线 | done | D1 ①-⑫ 全部运行并归档；3 findings (D1-01~03) |
+| 1 整体层审查 | done | 8 维度全部有结论；8 findings F0-01~08 |
+| 2 分区深度审查 | done | 全部区 G2 通过（人类裁决：无新 P0/P1 判据）；Z1/Z5 字面收敛；ledger 465 findings | 轮次历史：Z1(13→9→5→6→4→6→1→2→6→2→3→2→2→…) Z2(20→6→8→3→7→1→2→3→2→…) Z3(22→11→10→8→11→7→5→1→3→…) Z4(19→12→9→6→10→6→3→11→3→…) Z5(12→4→8→6→6→2→0✓收敛) Z6(11→8→10→7→3→3→1→3→2→5→2→…)；F325 误报撤销；P0×1(F324)、P1×25+（含 F397 append_dedup 数据丢失贴 P0）；Z7-Z11 待派发 |
+| 3 线程 | done | T1-T15 全部完成：98 线程 findings（T1×8 T2×5 T3×5 T4×4 T5×5 T6×5 T7×6 T8×16 T9×11 T10×2 T11×9 T12×6 T13×6 T14×7 T15×8）；关键：T1-01 decisions 零门校验、T301 字段过滤死码、T501 tenacity 死码、T8 56% fixtures mock、T9-01 lint 白名单洞、T12-01/02 注入链 |
+| 4 聚类校准 | done | 去重 35 条 merged；F364 校准升 P0（Z3 补复核确认）；抽查 40/40 通过；根因簇图 10 簇 |
+| 5 spec 产出 | done | 12 份 spec（总纲 + 10 子 spec + M 批量）+ INDEX 登记（活跃 14、已归档 99）；G5 核对通过 |
+| 6 覆盖证明+裁决 | done | G1 通过（0 unreviewed）；G6 meta-audit 228 ok / 0 fake；final-report 产出；**等待 G7 人类裁决** |
+## 抽样种子登记（阶段 0 生成，禁止事后修改）
+- D2 漂移抽样清单 (seed=20260814，活跃文档引用全验；归档 spec 引用归 T10/T15；高风险文档 AGENTS/架构/契约/gates 由 Z9 全查):
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:36 → error_handler.py:36-37
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:37 → error_handler.py:40-57
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:38 → error_handler.py:60-81
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:51 → chapter_loop.py:203-244
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:52 → audit_layer.py:44-53
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:66 → skills/shenbi-chapter-revision/SKILL.md:9-10
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:67 → revision_router.py:199
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:68 → parallel_dispatch.py:189-249
+      - docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:116 → revision_router.py:199
+      - docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md:18 → 2026-06-22-positive-quality-gates.md:7
+      - docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md:44 → 2026-07-19-01-truth-file-and-state-accumulation-design.md:42
+      - docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md:102 → dispatch_helper.py:1030-1037
+      - docs/superpowers/specs/INDEX.md:32 → error_handler.py:36-37
+      - docs/superpowers/specs/INDEX.md:32 → parallel_dispatch.py:189-249
+      - docs/superpowers/specs/INDEX.md:32 → revision_router.py:199
+      - docs/framework/chapter-file-format.md:48 → src/shenbi/gates/shared.py:120-121
+- 阶段 4 抽查: seed=20260814，从已 verified findings 中按 (id_hash % 100) < 10 抽取 ≥10%（规则固定：按 ledger 行序 hash，禁止事后挑选）
+- G6 meta-audit: seed=20260814，≥20% per-file 报告条目，按区成层（每区≥1条；Z3/Z4/Z5/Z11 与低置信度文件必抽；区内按 path 确定性 hash 排序取前 k 条；k = max(1, round(n*0.20))；Z7 共 182 条、Z8 20、Z9 43、Z11 256 等按上表）
+## 会话日志（追加式）
+### 2026-08-14 会话 1
+- 完成: 阶段 1 整体层审查——8 维度全部有结论；8 findings (F0-01~08) 录入（skills 计数漂移 / deps.json 契约缺 5 skill / gate 文档漂移 / INDEX 计数 / dispatch-subagent 引用 / py 版本三元不一致 / SECURITY weekly 声明 / coverage 注释漂移）
+- 下一步: 阶段 2——Z5/Z6 复核收敛 → Z1-Z4 收报告核实 → Z7-Z11 派发
+- 待核实 findings: F500-F512 (Z5), F601-F611 (Z6) 已核实 verified；Z5-01 (novel-output decisions.json 83/145 无效) 待 Z11 深查
+
+### 2026-08-14 会话 1（续）
+- 完成: 阶段 2 补全（Z7-Z11 初审，发现 56% fixtures mock）；阶段 3 线程 T1-T15 全部（98 findings）；阶段 4 聚类校准；阶段 5 12 spec + INDEX；阶段 6 G1/G6 通过 + final-report
+- 下一步: **G7 人类裁决**——汇报 final-report 摘要，等待指示（结束 / 继续某簇 / 追加审查）
+
+### 2026-08-14 会话 1（续 2）
+- Z3.review2 迟到通知核验：F325 撤销 / F305 降回 P2 已生效；发现 F343/F344（M 级）漏录 → 补录台账（行 177-178），final-report 统计 761→763（M 155→157，P2 483→481 顺带修正，verified 635→637）
+- 复核实测：pipeline/cli.py:294-296 传 int 0 vs genesis.py:246 传 None（F343）；write_safety.py:24-25 注释 vs chapter_loop.py:187 lifecycle 并发路径（F344）
+
+### 2026-08-14 会话 1（续 3）
+- Z4.review3 迟到通知核验：F440-F445 全部已登记（F440/F441 merged-into-F431；F442/F443/F445 verified；F444 P1 specced）
+- 发现 F444（P1）台账标 specced 但无 spec 引用 → 补 gate-effectiveness-design.md R9（G3.3 output_files 层级错位恒 SKIP，含 F419/F431 家族 except 附带修复）
+
+### 2026-08-14 会话 1（续 4）
+- Z5.review3 迟到通知核验：F525/F526/F527/F528/F530 已登记（F527 merged-into-F233 正确）；发现 F529 漏录（跨区 records/ 单向 drift 检测）→ 补录，台账 763→764（P2 481→482）
+- F524 P1 异议已满足（台账提前升级 P1 + specced）；F514 维持 resolved
+
+### 2026-08-14 会话 1（续 5）
+- Z1.review3 通知核验：F128-F133 六条全部漏录（台账 0 条）→ 补录（P2×3: F128/F129/F133；M×3: F130/F131/F132），台账 764→770（P2 482→485，M 157→160，verified 638→644）
+- F109 M→P2 异议确认已生效；F115 P1 维持；R1 对 F105 的 "G5.3 静默 SKIP" 事实修正（真实为 PASS）已记录于报告 §3
+
+### 2026-08-14 会话 1（续 6）
+- Z3.review4 迟到通知核验：F353-F363 全部已登记（P1×2: F353/F354 specced；P2×6: F355-F360；M×3: F361-F363），锚点 11/11，与通知一致，无漏录
+- **发现严重度标注不一致（G7 待裁决）**：阶段 4 产物把簇 1（pipeline 永不完成）标 "P0 族/5 独立根因"（phase4-root-cause-clusters.md:5-9、pipeline-never-completes-design.md R1-R5 各标 P0、final-report:32 "P0×5"），簇 2 标 "P0×4"（final-report:33）；但台账仅 F324/F397/F364/F1300 为 P0，簇 1 的 F353/F371/F373/F379 与簇 2 的 F640/F326 均为 P1。Z3.review4:204 复核 agent 明确把 F353 升级留待阶段 4 处置，阶段 4 未在台账落实升级 → 待 G7 裁决：P0 簇标注是"批次优先级"还是"成员级升级"
+
+### 2026-08-14 会话 1（续 7）
+- Z4.review4 迟到通知核验：F446-F455 全部已登记（9×P2 + 1×M，全 verified），锚点 10/10，无漏录
+- F444 证据修正同步：review4 证明 output_files 键在任何生产 progress 形状都不存在（非 review3 的 "test_type 层" 说法）→ 已更新 gate-effectiveness-design.md R9 证据行
+
+### 2026-08-14 会话 1（续 8）
+- Z6.review5 迟到通知核验：F640-F642 全部已登记（F640 P1 specced；F641/F642 P2 verified），锚点 3/3，无漏录
+- **G7 待裁决项补充证据**：data-loss spec R3/R4 亦按 P0 编写（F640 "materialize_progress 零生产者→覆盖 progress.json"、F326 "并行 post-draft 写竞态"），台账两者均 P1；Z6.review5 复核 agent 对 F640 注明"触发即破坏，建议升 P0 条件已注明"（零生产者 + 无条件 safe_write 覆盖真实 progress.json = 数据丢失 + 错误结果；steps_done%5==0 即触发）。与续 6 记录的簇 1/簇 2 P0 标注问题同源，统一待 G7 裁决
+
+### 2026-08-14 会话 1（续 9）
+- Z6.review6 迟到通知核验：F643 已登记（P2 specced，config-governance spec 统一修复条目）；F601 软异议（可辩 P2）不影响裁决（P1 维持）；F642 证据勘误已同步台账（META 剥离后 (45,46) 仍 0.637>0.6，剥离 META 不足以修复，需重新标定）
+- F640 补充证据：compact/migrate_from_progress 零生产调用（F640 证据中 migrate.py:30 实为死路径），Tier A 整体未接线——已并入 F640
+
+### 2026-08-14 会话 1（续 10）
+- Z1.review9 迟到通知核验：F148-F153 全部已登记；发现 F149 行登记时漏严重度列（P2 缺失，类别 error 后直接接证据列）→ 修复为 13 列标准格式（P2 就位），台账 P2 485→486，final-report 同步
+- 注：F149 标题内嵌 `\ |` 会误导按固定索引 split("|") 的统计脚本，已用精确严重度模式核对（P0×5/P1×118/P2×486/M×160/总770）
+
+### 2026-08-14 会话 1（续 11）
+- Z6.review7 迟到通知核验：F644-F646 全部已登记（P2；F645 specced stats-determinism），锚点 3/3，无漏录
+- F642 勘误反勘误：review6 的 "剥离 META 后 0.637>0.6" 被 review7 反驳（同法剥离 0.570 与 review5 一致；前 200 字符 0.865 表明正文开头模板化）→ 台账注记更新为 review7 最终结论（修复需剥离 META + 阈值重标定并施）
+- 跨区观察（sensitivity 双轮重复派发）建议 Z3 核查——已记录
+
+### 2026-08-14 会话 1（续 12）
+- Z6.review8 迟到通知核验：F647/F648 已登记（P2；F648 specced stats-determinism），锚点 2/2，无漏录
+- F642 裁定：review8 第三次重放确认 raw 0.6267/剥离 0.5700，review6 的 0.637 裁定无效 → 台账注记更新（review5/review7/review8 三票一致）
+- 收敛观察：Z6 稳定在"新发现均 P2 潜伏"区间（收敛曲线末段 3→2），复核 agent 建议评估收敛目标改为"无 P0/P1"——与人类已给 Z2/Z3/Z4/Z6 的判据一致，无需新裁决
+
+### 2026-08-14 会话 1（续 13）
+- Z1.review12 迟到通知核验：F158（P1 specced，gate-effectiveness 补充条目——phase 路径穿越）与 F159（M）已登记；发现 F160 漏录（cli_utils.emit_json BrokenPipeError，M）→ 补录，台账 770→771（M 160→161）
+
+### 2026-08-14 会话 1（续 14）
+- Z6.review9 迟到通知核验：F649-F652 已登记；发现 F653 漏录（parse_markdown_table 空行不终止表）→ 补录，台账 771→772（P2 486→487）
+- **F642 裁定第四次反转（F649 终结之争）**：SequenceMatcher.ratio() 参数顺序不对称（autojunk）——生产顺序 0.6367（review6 真值）、交换顺序 0.570（review5/7/8 伪影）、autojunk=False 0.77；review8"裁定否定 review6"不成立；F642 修复需剥离 META + 对称化 + 阈值重标定三者并施。方法论教训：多轮同法复现同一数字仍可能是伪影（记录为反 rationalization 案例）
+- 复核 agent 建议：收敛判定改"无 P0/P1"或对争议数字跨轮方法交叉审查——与人类已给判据一致
+
+### 2026-08-14 会话 1（续 15）
+- phase4-spotcheck 迟到通知核验：40/40 通过（证据充分 40/结论准确 40/失败 0）；三对跨区重复已合并（F527→F233、F534→F269、F537→F260）
+- **G7 待裁决项第 3 项（新增）**：抽查报告指出 F269(Z2,M)≡F534(Z5,P2)、F260(Z2,M)≡F537(Z5,P2) 两对合并后严重度口径不一致（主条目保留 M，被合并方为 P2，Z5 为审计链所有者区判定更权威）——抽查报告自称"记录性，非升级依据"，未擅自改严重度，待 G7 统一
+- 低置信 P1 边界观察（F228/F245/F498/F146）已按先例维持原判；F326 证据行瑕疵（lifecycle 保守默认归类）已记录
+
+### 2026-08-14 会话 1（续 16）
+- T6 迟到通知核验：**T6-01~T6-05 五条全部漏录**（T 系列唯一缺失线程）→ 补录（P2×4 + M×1），台账 772→777（P2 487→491，M 161→162，verified 646→651）
+- pickle 边界不存在（全仓 0 命中）、并发原语清单、F326 契约级新证据（docstring "Zero data conflict" 与 state-settling updates 矛盾）——均已记录
+
+### 2026-08-14 会话 1（续 17）
+- Z10 迟到通知核验：F1200-F1219 中 19 条已登记；发现 F1205 漏录（run_pipeline.sh auto-approve 关键词过宽）→ 补录，台账 777→778（P2 491→492）
+- Z10 关键澄清已记录：benchmarks/anchors 非空洞（11 个 AC 锚点被运行时消费，真正空洞是 tests/benchmark/）；T201 家族新增 lint_contract_graph 实例（F1200）；F1202 codex-plugin diff 空转；F0-07 家族两半（F1207 新 + F1215 已知）
+
+### 2026-08-14 会话 1（续 18）
+- Z8-c 迟到通知核验：F1000-F1022 中 20 条已登记；发现 F1019/F1020/F1021（M×3）漏录 → 补录，台账 778→781（M 162→165）
+- 确定性替换候选 12 组（C1-C12，交 T14）与 F1004 跨区去重提示（deprecated skill 接线横跨 Z1-Z4）已记录
+
+### 2026-08-14 会话 1（续 19）
+- G6 meta-audit 迟到通知核验：meta-audit.md（22:20）存在，样本级 ok 228 / fake 0 / coverage-gap 0 / 覆盖空洞 0
+- finding 级子声称 2 条（F1306 7→10、F1320 121→119）已在台账注记（此前已处理）；F1300 grep 修正（1→2 文件）本轮补注记；Z7-b F759 措辞瑕疵（两组×3 模板）建议 phase 4 修正已记录
+- G6 通过确认：初审报告整体为真实 deep-read，无整篇橡皮图章
+
+### 2026-08-14 会话 1（续 20）——全量编号完整性扫描
+- 目标轮执行全量编号完整性扫描（对照全部 zone-reports/thread-reports 标题行 × 台账 ID）：
+  - 发现并补录 3 条漏录：F627（Z6.review2 P2，parse_trend 无表结束条件）、F110/F111（Z1.a 初审 M×2，文案语法/过期注释）
+  - 其余候选全部澄清：F1319（Z11 核验通过条目非 finding）、F915/F922（编号未使用）、F3A0-F3B7/F4A0-F4A4 系正则误报（行格式正常）
+- 终态：台账 784 数据行 = P0×5 / P1×118 / P2×493 / M×167 + F417('—')；785 唯一 ID 零重复；final-report 同步 781→784
+- **完整性扫描结论：零遗漏**（所有报告的 finding 标题均已在台账）
+
+### 2026-08-14 会话 1（续 21）——G7 前最终归档一致性
+- spec↔台账↔final-report 三方交叉验证：P0 清单 5/5 一致；gate-effectiveness 全部 R 条目与台账一致；唯一差异 = 已记录的 G7 待裁决项 2（簇 1/簇 2 P0 标注）
+- 补登总纲：`2026-08-14-full-project-audit-design.md` 未在 specs/INDEX 登记（F1105 所指，Z9 提示 phase 5 应补登）→ 已补登为 #17（catalog，父条目），活跃 spec 数 14→15
+
+### 2026-08-14 会话 1（续 22）——G7 人类裁决已收到并落地
+- **G7 裁决（2026-08-14，人类授权批准）**：
+  1. 主裁决：批准 G7 完成审计收尾，并继续后续审核工作
+  2. 簇 1/簇 2 严重度标注：**维持 P1（"P0 簇"= 批次优先级标签）**——F353/F371/F373/F379/F640/F326 六条 finding 级严重度维持 §8.1 判定（P1），spec/final-report 的簇标注解释为批次标签
+  3. 跨区合并严重度：**统一升 P2**——F269（M→P2）、F260（M→P2），与被合并方 F534/F537（P2）口径一致
+- 台账终态：784 findings = P0×5 / P1×118 / P2×495 / M×165
+- 后续：按主裁决继续审核工作（家族类 finding 系统枚举等）
+
+### 2026-08-14 会话 1（续 23）——后续审核：F431 家族系统枚举
+- G7 批准后续审核的执行项 1：全仓 json 加载调用点系统枚举（Z4.review6 建议的"家族全仓枚举"）
+- 结果：src/shenbi 全仓 115 个 JSON 加载调用点（jload/json.loads/json.load）；27 个 jload 调用点 except 缺 ValueError 或无可达 except——逐一与既有 finding 对应（F419/F420/F421/F426/F431/F440/F441/F459/F460/F465/F470/F471/F475/F485/F488/F489/F493/F497），唯一无 try 的 g_reconcile.py:33 = F421
+- **结论：F431 家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 24）——后续审核：采样截断家族系统枚举
+- 全仓内容采样截断候选 27 处逐一核对：既有覆盖（F494 g6_checks:30 [:5000]、F496 g6.py:198/208、F499 g6.py:259 + g5.py:191、F642/F649 linguistic_drift [:300]、F656 compute_stats [:20]）+ 数量上限类无害（[:3]/[:6]/[:8]/[:15]/[:20] 文件数采样）+ 上下文注入性能预算类不立案（audit_context_cache/review_checklist/g2 截断为显式预算设计）
+- **新遗漏 1 条**：G6.4 check_continuity 知识引入扫描 g6_checks.py:52 [:3000]（intro_map/future_knowledge 只读前 3000 字符，F494 只点名 :30 时间线扫描）→ 登记 F4A5（P2，F494 家族第三实例），台账 784→785（P2 496）
+
+### 2026-08-14 会话 1（续 25）——后续审核：内层形状家族系统枚举
+- 全仓 118 个 .keys()/.items()/嵌套 .get/双索引候选逐一核对：
+  - JSON 数据源内层访问全部与既有 finding 对应：F431 家族（jload 语义保证顶层 dict）+ F460/F465/F485/F488/F489/F493/F497（各内层形状崩溃点）+ F640/F666/F3A3/F266（materialize/config/state 形状面）+ F449（GR.2 死路）+ F475（chapter_word）
+  - 代码构造 dict（g5.py:135 char_data、g6.py:199 char_voice 等）——构造即 dict，安全
+  - 受控仓库文件（executor_config.toml/deps.json）——T6-02/F493/F497 已覆盖
+- **结论：内层形状家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 26）——后续审核：门禁调用参数形状全仓核对
+- 22 个 gate 调用点逐一核对：
+  - pipeline 路径 8 个（triggers/chapter_loop/audit_layer/closure/genesis 的 run_gate_g3/g4）：全部与既有 finding 对应（F373 N 路径、F408/F3AF 伪造 scorer、F345 并行波无 G3、F3AC 并行失败吞、T1-01 g4_files 无 .json、F379/F371 closure、F380/F3B5 genesis）
+  - gates/cli.py 9 个入口：参数与签名逐一匹配（G0-G7/G_TRANSITION/G_DISPATCH/G_RECONCILE；G7(round_dir) 单参正确；G2 第 4 参 pd=arg(3) 可传；G4 project_dir=rd 显式传）
+  - phase_runner 侧：F150（G2 缺 pd）/F163（G4 第 3 参 round_dir）已覆盖
+- **结论：门禁调用形状枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 27）——后续审核：scenario↔fixture 断链系统化重扫
+- 576 个 fixtures 前缀引用：磁盘 0 缺失（G0.9 路径前缀面健康）
+- 97 个项目内路径引用（drafts/config/truth/characters/snapshots/plans/import/world/chapters/audits 前缀）：59 个唯一缺失路径——逐项归类全部落在既有 finding 内：T806（18 空目录：world/characters/chapters/import/audits）、T807/F750（证据不可达：drafts/chapter-N.md、qidian-fatigue-list、snapshots/chapter-030、import/analysis 02/04、characters/protagonist）、F815（import-analysis 链断）、T813（truth/ 命名断裂：pending_hooks/audit_drift/resonance_trend）、F910/T1-05（plans/ 零 decisions）
+- **结论：断链家族枚举完整，零新遗漏，无新增 finding**
+
+### 2026-08-14 会话 1（续 28）——后续审核：truth-files registry ↔ 磁盘清单核对
+- registry（docs/framework/truth-files.yaml concepts）声明 truth 18 项（含 parametric arcs/arc-N）vs 真实项目磁盘 13 项
+- 差异：registry 有磁盘无（drift_guidance=F1001、volume_summaries/parent_canon/arc_payoff_trend/volume_score_trend/book_strata 等卷级趋势= F389/F639 家族已覆盖）
+- **新遗漏 1 条**：truth/state_snapshot-pre-rev.md（git tracked、07-17 旧版管线 pre-revision 快照、src 0 引用、registry 未登记）→ 登记 F1322（M，F1307 三源分裂家族第 3 实例），台账 785→786（M 166）
+
+### 2026-08-14 会话 1（续 29）——后续审核：status 字面量词表全仓核对
+- lint_status_strings 实跑 0 违规 exit 0（T9-01 盲区确认）
+- 全仓 status/state/classification 键字面量扫描：5 个唯一词表外值——PLANTED（T9-01）/done（T9-01）/not_implemented（T9-01）/pending（T9-01）/PASSED（status.py 自身豁免文件）；degraded（truth_embed.py:247 三元表达式跨行，T9-01/F3B1 已覆盖）
+- **结论：status 词表家族枚举完整，零新遗漏，无新增 finding**
+- 后续审核 7 项全部完成（F431/采样截断/内层形状/门禁形状/fixture 断链/registry↔磁盘/status 词表）
+
+### 2026-08-14 会话 1（续 30）——spec 覆盖补齐（人类要求：所有 finding 都进 spec）
+- 发现阶段 5 spec 产出仅覆盖 10 簇代表条目：P1 74/118 无落点、P2 440/496 无落点、M 90/166 无落点、optimization 无专门 spec
+- 补齐 8 份 spec：fixture-authenticity（76）/decisions-chain（49）/z11-output-contracts（12）/truth-write-path（6）/security-injection（6）/z8-contract-drift（74）/tooling-gate-chain（53）/p2-batch（287）；M 批量 spec 补 Z7-Z11 逐条（44）
+- **覆盖闭合验证：786/786 findings 100% 被 spec 引用（P0 5/5、P1 118/118、P2 496/496、M 166/166）**
+- INDEX 登记 #18-#25，活跃 spec 15→23

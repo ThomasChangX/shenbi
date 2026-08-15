@@ -231,9 +231,14 @@ class TestRetryAndEscalation:
         run_genesis_step(state, tmp_path)
         assert state.genesis.retry_counts["shenbi-worldbuilding"] == 1
 
+    @patch("shenbi.pipeline.revision_router.dispatch_skill")
     @patch("shenbi.pipeline.genesis.dispatch_skill")
-    def test_escalation_after_max_retries(self, mock_disp, tmp_path):
+    def test_escalation_after_max_retries(self, mock_disp, mock_esc, tmp_path):
+        # mock_esc: escalation dispatch (revision_router). Pre-F3B5-fix this
+        # dispatch failed fast at prompt build (the bug); now it builds fine,
+        # so the escalation skill must be patched to keep the unit hermetic.
         mock_disp.return_value = DispatchResult(False, 1, "", "err")
+        mock_esc.return_value = DispatchResult(True, 0, "{}", "")
         state = PipelineState.default(str(tmp_path))
         state.genesis.state = GenesisState.IN_PROGRESS
         state.config.max_revision_retries = 3

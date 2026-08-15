@@ -57,6 +57,14 @@ plugins:
             docstring_style: google
   - social: {}
 
+# Audit-run working artifacts (findings ledger / zone reports) are git-tracked
+# provenance evidence, not published site pages: nav never listed them and no
+# published page links into them. Their prose contains bracket sequences
+# (e.g. skills[skill][test_type]) that the autorefs extension misparses as
+# cross-reference links — 363-warning strict-build breakage (2026-08-15).
+exclude_docs: |
+  superpowers/audit-runs/
+
 nav:
   - 首页 / Home: index.md
   - 快速开始 / Getting Started:

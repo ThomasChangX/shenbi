@@ -41,7 +41,6 @@ has been propagated >= :data:`DRIFT_THRESHOLD` times and
 
 from __future__ import annotations
 
-import json
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -54,7 +53,6 @@ from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
-from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -77,10 +75,9 @@ DRIFT_THRESHOLD = 3
 AUDIT_DRIFT_PATH = "truth/audit_drift.md"
 
 # Re-imported from _shared: read_volume_boundaries (used internally by
-# is_volume_boundary) + VOLUME_MAP_PATH (used by _count_total_chapters).
-# Volume-map parsing domain was extracted to _shared to break the Cluster 1
-# cycle (context_assemble -> triggers back-edge).
-from shenbi.pipeline._shared import VOLUME_MAP_PATH, read_volume_boundaries
+# is_volume_boundary). Volume-map parsing domain was extracted to _shared to
+# break the Cluster 1 cycle (context_assemble -> triggers back-edge).
+from shenbi.pipeline._shared import read_volume_boundaries
 
 
 # ---------------------------------------------------------------------------
@@ -360,40 +357,11 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
 # ---------------------------------------------------------------------------
 
 
-def _count_total_chapters(project_dir: Path) -> int:
-    """Parse volume_map.md and sum all volume chapter counts."""
-    vmap = project_dir / VOLUME_MAP_PATH  # outline/volume_map.md
-    if not vmap.exists():
-        return 0
-    text = vmap.read_text(encoding="utf-8")
-
-    total = 0
-    for m in re.finditer(r"(?:章节数|Chapters?)\s*:\s*(\d+)", text):
-        total += int(m.group(1))
-    return total if total > 0 else 0
-
-
 def _update_total_chapters(state: PipelineState) -> None:
-    """Recompute novel.json.total_chapters from volume_map.md.
+    """Delegate to _shared.update_total_chapters (single source, spec #6 R2)."""
+    from shenbi.pipeline._shared import update_total_chapters
 
-    Called after volume boundary expansion to ensure the chapter-loop
-    termination condition is accurate.
-    """
-    project_dir = Path(state.project_dir)
-    new_total = _count_total_chapters(project_dir)
-    if new_total < 1:
-        return
-
-    novel_json = project_dir / "novel.json"
-    if not novel_json.exists():
-        return
-
-    data = json.loads(novel_json.read_text(encoding="utf-8"))
-    old_total = data.get("total_chapters", 0)
-    if new_total != old_total:
-        data["total_chapters"] = new_total
-        safe_write(novel_json, json.dumps(data, ensure_ascii=False, indent=2))
-        log.info("total_chapters_updated", old=old_total, new=new_total)
+    update_total_chapters(Path(state.project_dir))
 
 
 # ---------------------------------------------------------------------------
@@ -454,7 +422,6 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
     return r
 
 
-# ---------------------------------------------------------------------------
 # Execution order helper
 # ---------------------------------------------------------------------------
 
@@ -495,7 +462,6 @@ def get_trigger_steps(result: TriggerResult) -> list[TriggerStep]:
     return [step for step in TRIGGER_STEPS if step.category in active_flags]
 
 
-# ---------------------------------------------------------------------------
 # Gate result helper
 # ---------------------------------------------------------------------------
 
@@ -506,7 +472,6 @@ def _gate_passed(result: dict[str, Any]) -> bool:
     return status in (GateStatus.PASS, GateStatus.SKIP)
 
 
-# ---------------------------------------------------------------------------
 # Execution
 # ---------------------------------------------------------------------------
 
@@ -552,11 +517,27 @@ def run_triggered_skills(
         flags=[f for f in dir(result) if not f.startswith("_") and getattr(result, f)],
     )
 
+    # Cross-route context carrier (spec #6 R4b): per-family N semantics shared
+    # by the dispatch prompt, the G4 path check, and the subprocess resolvers.
+    from shenbi.contracts.paths import (
+        build_trigger_context,
+        format_path_context,
+        resolve_contract_path,
+    )
+
+    boundaries = read_volume_boundaries(project_dir)
+    ctx = build_trigger_context(chapter, boundaries)
+    ctx_line = format_path_context(ctx)
+
     for step in steps:
         mode_hint = f" Mode: {step.mode}." if step.mode else ""
         prompt = (
             f"Execute {step.skill} for chapter {chapter}.{mode_hint} Project dir: {project_dir}"
         )
+        if ctx_line:
+            # Machine-generated prefix; the executing LLM sees it as an echo of
+            # the Files-to-create list (spec #6 R4b visibility ruling).
+            prompt = f"{prompt}\n{ctx_line}"
 
         disp = dispatch_skill(step.skill, project_dir, prompt)
         if not disp.success:
@@ -581,7 +562,7 @@ def run_triggered_skills(
             }
             return False
 
-        g4_file = step.output_path if step.output_path else ""
+        g4_file = resolve_contract_path(step.output_path, chapter, ctx) if step.output_path else ""
         g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
         if not _gate_passed(g4):
             log.error(

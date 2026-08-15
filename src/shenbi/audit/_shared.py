@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from shenbi.contracts import ContractError, load_contract
-from shenbi.contracts.paths import resolve_or_skip
+from shenbi.contracts.paths import PathContext, resolve_or_skip_ctx
 
 __all__ = ["AuditResult", "derive_output_files"]
 
@@ -36,9 +36,12 @@ class AuditResult:
 
 
 def derive_output_files(
-    skill: str, chapter: int | None = None, round_dir: Path | None = None
+    skill: str,
+    chapter: int | None = None,
+    round_dir: Path | None = None,
+    ctx: PathContext | None = None,
 ) -> list[str]:
-    """Return the skill's contract writes+updates, resolving chapter placeholders.
+    """Return the skill's contract writes+updates, resolving placeholders (chapter or PathContext).
     When *chapter* is provided, N/NNN placeholders are resolved.
     Paths with unresolvable placeholders (genesis mode) are skipped via
     resolve_or_skip -> None -> filtered. When *round_dir* is provided,
@@ -49,7 +52,7 @@ def derive_output_files(
         paths = [
             rp
             for p in [*c["writes"], *c["updates"]]
-            if (rp := resolve_or_skip(p, chapter)) is not None
+            if (rp := resolve_or_skip_ctx(p, chapter, ctx)) is not None
         ]
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]

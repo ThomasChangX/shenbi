@@ -493,55 +493,25 @@ class TestRunTriggeredSkills:
 
 
 # ---------------------------------------------------------------------------
-# Total chapters recompute (A1): _count_total_chapters and _update_total_chapters
+# Total chapters recompute (R2, 2026-08-15): unified to _shared.update_total_chapters
+# := max(read_volume_boundaries()) — supersedes the sum(章节数) semantics.
 # ---------------------------------------------------------------------------
 
 
 class TestTotalChaptersRecompute:
-    """Tests _count_total_chapters and _update_total_chapters."""
-
-    def test_count_total_chapters_from_volume_map(self, tmp_path):
-        """Parse volume_map.md and sum per-volume chapter counts."""
-        from shenbi.pipeline.triggers import _count_total_chapters
-
-        vmap = tmp_path / "outline"
-        vmap.mkdir(parents=True)
-        (vmap / "volume_map.md").write_text(
-            "# Volume Map\n\n"
-            "## Volume 1\n章节数: 10\n\n"
-            "## Volume 2\n章节数: 15\n\n"
-            "## Volume 3\n章节数: 12\n"
-        )
-        assert _count_total_chapters(tmp_path) == 37
-
-    def test_count_total_chapters_english_labels(self, tmp_path):
-        """Also parses 'Chapters: N' labels."""
-        from shenbi.pipeline.triggers import _count_total_chapters
-
-        vmap = tmp_path / "outline"
-        vmap.mkdir(parents=True)
-        (vmap / "volume_map.md").write_text("## Volume 1\nChapters: 8\n## Volume 2\nChapters: 12\n")
-        assert _count_total_chapters(tmp_path) == 20
-
-    def test_count_total_chapters_missing_file(self, tmp_path):
-        """Missing volume_map.md → 0, no crash."""
-        from shenbi.pipeline.triggers import _count_total_chapters
-
-        assert _count_total_chapters(tmp_path) == 0
+    """Tests the delegated _update_total_chapters (max-boundaries semantics)."""
 
     def test_update_total_chapters_updates_novel_json(self, tmp_path):
-        """_update_total_chapters writes the new total to novel.json."""
+        """_update_total_chapters writes max(boundaries) to novel.json."""
         import json
 
         from shenbi.pipeline.state import PipelineState
         from shenbi.pipeline.triggers import _update_total_chapters
 
-        # Setup: volume_map with chapters
         vmap = tmp_path / "outline"
         vmap.mkdir(parents=True)
-        (vmap / "volume_map.md").write_text("## V1\n章节数: 10\n## V2\n章节数: 8\n")
+        (vmap / "volume_map.md").write_text("## V1\nChapter End: 18\n")
 
-        # Setup: novel.json with old total
         novel = {"total_chapters": 5, "title": "Test"}
         (tmp_path / "novel.json").write_text(json.dumps(novel))
 
@@ -551,6 +521,20 @@ class TestTotalChaptersRecompute:
         updated = json.loads((tmp_path / "novel.json").read_text())
         assert updated["total_chapters"] == 18
         assert updated["title"] == "Test"  # preserved
+
+    def test_update_total_chapters_no_boundaries_no_write(self, tmp_path):
+        """No parseable boundaries -> no write, no crash."""
+        import json
+
+        from shenbi.pipeline.state import PipelineState
+        from shenbi.pipeline.triggers import _update_total_chapters
+
+        (tmp_path / "outline").mkdir(parents=True)
+        (tmp_path / "novel.json").write_text(json.dumps({"total_chapters": 5}))
+        state = PipelineState.default(str(tmp_path))
+        _update_total_chapters(state)
+        updated = json.loads((tmp_path / "novel.json").read_text())
+        assert updated["total_chapters"] == 5  # unchanged
 
 
 # ---------------------------------------------------------------------------

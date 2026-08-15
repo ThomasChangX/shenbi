@@ -22,11 +22,9 @@ Section fully LLM-generated:
 
 from __future__ import annotations
 
-import re
 from pathlib import Path
 
 from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
-    _BRIDGE_ACTIVATION_WINDOW,
     _resolve_volume_at_runtime,
 )
 
@@ -195,29 +193,17 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 
 
 def _extract_chapter_node(volume_map_text: str, chapter: int) -> dict[str, str] | None:
-    """Extract {role, content} for a chapter from the volume_map table."""
-    pattern = re.compile(rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|")
-    m = pattern.search(volume_map_text)
-    if m:
-        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
-    return None
+    """Delegate to _shared.read_chapter_node (single source, spec #6 R6)."""
+    from shenbi.pipeline._shared import read_chapter_node
+
+    return read_chapter_node(volume_map_text, chapter)
 
 
 def _extract_pending_bridges(volume_map_text: str, chapter: int) -> list[str]:
-    """Return list of bridge descriptions near activation for this chapter."""
-    bridge_section = volume_map_text.split("## Cross-Volume Bridges")
-    if len(bridge_section) < 2:
-        return []
+    """Bridge descriptions near activation (ALL sections, spec #6 R6)."""
+    from shenbi.pipeline._shared import bridges_for_chapter, read_bridges
 
-    pattern = re.compile(r"\|\s*(V\d+-B\d+)\s*\|([^|]+)\|\s*(\d+)\s*\|")
-    bridges: list[str] = []
-    for m in pattern.finditer(bridge_section[1]):
-        bridge_id = m.group(1)
-        content = m.group(2).strip()
-        activation_ch = int(m.group(3))
-        if chapter >= activation_ch - _BRIDGE_ACTIVATION_WINDOW:
-            bridges.append(f"{bridge_id}: {content} (activates Ch {activation_ch})")
-    return bridges
+    return bridges_for_chapter(read_bridges(volume_map_text), chapter)
 
 
 def _empty_skeleton(chapter: int) -> str:

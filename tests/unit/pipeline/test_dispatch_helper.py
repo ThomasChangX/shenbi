@@ -722,13 +722,17 @@ class TestPlanSkeletonInjection:
         # ---- Arrange: set up project structure ----
         outline_dir = tmp_path / "outline"
         outline_dir.mkdir()
+        # CN row shape (2026-08-15, spec #6 R6 Step 3b migration)
         (outline_dir / "volume_map.md").write_text(
             """# Volume Map
-## Volume 1 (Ch 1-15)
-### Chapter Nodes
+## 第一卷（第1-15章）
+
+**章节范围**: 第1章 - 第15章
+
+### 章节节点
 | Ch | Role | Content |
 |----|------|---------|
-| 1 | opening | Test content |
+| 第1章 | opening | Test content |
 """,
             encoding="utf-8",
         )

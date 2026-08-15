@@ -253,39 +253,42 @@ def project_with_volume_map(tmp_path: Path) -> Path:
     outline_dir = tmp_path / "outline"
     outline_dir.mkdir()
     volume_map = outline_dir / "volume_map.md"
+    # CN row shapes (2026-08-15, spec #6 R6): node rows `| 第N章 |`, bridge
+    # tables `| # | content | kind | 第N卷 | 第A章 | status |`; volume headers
+    # `## 第N卷：{name}`; Objective colon OUTSIDE bold.
     volume_map.write_text("""# Volume Map
 
-## Volume 1: Awakening (Ch 1-15)
-**Objective:** Introduce protagonist Lin Feng and establish the cultivation world
+## 第一卷：Awakening（第1-15章）
+**Objective**: Introduce protagonist Lin Feng and establish the cultivation world
+
+**章节范围**: 第1章 - 第15章
 
 ### Key Results
 #### KR1: Foundation Building
-- Opening (Ch1-3): Lin Feng discovers spiritual roots
-- Progression (Ch4-7): Basic training at Qingyun Sect
-- Turn (Ch8-11): First crisis - sect invasion
-- Closing (Ch12-15): Resolution and advancement
 
-### Chapter Nodes
+### 章节节点
 | Ch | Role | Content |
 |----|------|---------|
-| 1 | opening | Lin Feng awakens in a mysterious cave with no memory |
-| 2 | progression | First encounter with cultivation elder Chen Weimin |
+| 第1章 | opening | Lin Feng awakens in a mysterious cave with no memory |
+| 第2章 | progression | First encounter with cultivation elder Chen Weimin |
 
-## Volume 2: Rising Storm (Ch 16-35)
-**Objective:** Expand the world, introduce political factions
+## 第二卷：Rising Storm（第16-35章）
+**Objective**: Expand the world, introduce political factions
 
-## Cross-Volume Bridges
-| Bridge ID | Content | Expected Activation Ch |
-|-----------|---------|----------------------|
-| V1-B1 | Brahmi inscription metal fragment | Ch 26 |
-| V1-B2 | Spirit beast egg prophecy | Ch 28 |
+**章节范围**: 第16章 - 第35章
+
+### 跨卷桥接
+| # | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 |
+|---|---------|------|--------|----------|---------|
+| 1 | Brahmi inscription metal fragment | 物品 | 第2卷 | 第26章 | 已种植 |
+| 2 | Spirit beast egg prophecy | 事件 | 第2卷 | 第28章 | 已种植 |
 """)
     return tmp_path
 
 
 def test_load_volume_context_returns_current_volume_info(project_with_volume_map: Path):
     result = _load_volume_context(project_with_volume_map, chapter=3)
-    assert "Volume 1" in result
+    assert "第一卷" in result
     assert "Awakening" in result
     assert "Lin Feng" in result
 
@@ -300,8 +303,8 @@ def test_load_volume_context_returns_bridge_info_when_near_activation(
     project_with_volume_map: Path,
 ):
     result = _load_volume_context(project_with_volume_map, chapter=25)
-    assert "V1-B1" in result
     assert "Brahmi inscription" in result
+    assert "第2卷 桥接" in result
 
 
 def test_load_volume_context_returns_empty_for_missing_volume_map(tmp_path: Path):

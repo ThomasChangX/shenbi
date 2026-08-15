@@ -24,8 +24,10 @@ from typing import Any
 
 from shenbi.logging import get_logger
 from shenbi.pipeline._shared import (  # pyright: ignore[reportPrivateUsage]
-    _BRIDGE_ACTIVATION_WINDOW,
     _resolve_volume_at_runtime,
+    bridges_for_chapter,
+    read_bridges,
+    read_chapter_node,
 )
 from shenbi.pipeline.truth_index import (
     build_index,
@@ -232,43 +234,26 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
 
     # Extract volume objective
     vol_pattern = re.compile(
-        rf"## {re.escape(current_volume)}.*?\n\*\*Objective:\*\*\s*(.+?)(?=\n##|\n###|\Z)",
+        rf"## {re.escape(current_volume)}.*?\n(?:\*\*Objective[：:]\*\*|\*\*Objective\*\*\s*[：:])\s*(.+?)(?=\n##|\n###|\Z)",
         re.DOTALL,
-    )
+    )  # bilingual: English `**Objective:**` and Chinese `**Objective**:` (spec #6 R6)
     vol_match = vol_pattern.search(volume_map_text)
     if vol_match:
         parts.append(f"**Volume Objective:** {vol_match.group(1).strip()}\n")
 
-    # Extract chapter node info
-    chapter_node_pattern = re.compile(
-        rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|",
-    )
-    node_match = chapter_node_pattern.search(volume_map_text)
-    if node_match:
-        role = node_match.group(1).strip()
-        content = node_match.group(2).strip()
-        parts.append(f"**Chapter Role:** {role}")
-        parts.append(f"**Expected Content:** {content}\n")
+    # Extract chapter node info (shared extractor, spec #6 R6 — Chinese rows,
+    # aggregated bridges; bare | N | rows no longer match bridge-table garbage)
+    node = read_chapter_node(volume_map_text, chapter)
+    if node:
+        parts.append(f"**Chapter Role:** {node['role']}")
+        parts.append(f"**Expected Content:** {node['content']}\n")
 
-    # Extract pending cross-volume bridges
-    bridge_section = volume_map_text.split("## Cross-Volume Bridges")
-    if len(bridge_section) > 1:
-        bridge_pattern = re.compile(
-            r"\|\s*(V\d+-B\d+)\s*\|([^|]+)\|\s*(?:Ch\s*)?(\d+)\s*\|",
-        )
-        pending_bridges: list[str] = []
-        for m in bridge_pattern.finditer(bridge_section[1]):
-            bridge_id = m.group(1)
-            bridge_content = m.group(2).strip()
-            activation_ch = int(m.group(3))
-            if chapter >= activation_ch - _BRIDGE_ACTIVATION_WINDOW:
-                pending_bridges.append(
-                    f"- **{bridge_id}** ({bridge_content}) activates Ch {activation_ch}"
-                )
-        if pending_bridges:
-            parts.append("**Pending Cross-Volume Bridges:**")
-            parts.extend(pending_bridges)
-            parts.append("")
+    # Extract pending cross-volume bridges (ALL sections, sequel rows excluded)
+    pending_bridges = bridges_for_chapter(read_bridges(volume_map_text), chapter)
+    if pending_bridges:
+        parts.append("**Pending Cross-Volume Bridges:**")
+        parts.extend(f"- {s}" for s in pending_bridges)
+        parts.append("")
 
     return "\n".join(parts)
 

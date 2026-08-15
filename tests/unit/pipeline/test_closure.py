@@ -225,7 +225,7 @@ class TestRunClosureStep:
         set_checkpoint(
             state,
             CheckpointType.BOOK_CLOSURE,
-            artifact="final-snapshot/",
+            artifact="snapshots/chapter-100/",
         )
 
         # While the checkpoint is pending, step 10 is blocked (no dispatch).

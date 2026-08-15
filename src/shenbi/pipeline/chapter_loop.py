@@ -893,6 +893,34 @@ def _check_world_file_freshness(project_dir: Path, chapter: int) -> None:
         )
 
 
+def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int) -> bool:
+    """--auto parallel post-draft settling (F341): when state-settle review is
+    not required, commit staging truth + clear staging, NO checkpoint.
+
+    Returns True when the auto-commit ran; False when a review is required
+    (caller raises the STATE_SETTLE checkpoint).
+    """
+    from shenbi.pipeline.checkpoint import STAGING_DIR, clear_staging
+
+    if state.config.state_settle_review_required:
+        return False
+    staging_truth = project_dir / STAGING_DIR / "truth"
+    if staging_truth.exists():
+        for src in staging_truth.glob("*.md"):
+            dst = project_dir / "truth" / src.name
+            dst.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(dst, src.read_bytes())
+        log.info(
+            "staging_auto_committed_state_settle",
+            chapter=chapter,
+            files=len(list(staging_truth.glob("*.md"))),
+        )
+    else:
+        log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
+    clear_staging(project_dir)
+    return True
+
+
 def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     """Advance to the next chapter, optionally setting a per-chapter checkpoint.
 
@@ -2180,12 +2208,10 @@ def _check_volume_map_alignment(project_dir: Path, chapter: int) -> None:
 
 
 def _extract_chapter_node_from_map(volume_map_text: str, chapter: int) -> dict[str, str] | None:
-    """Extract {role, content} from volume_map table row for a chapter."""
-    pattern = re.compile(rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|")
-    m = pattern.search(volume_map_text)
-    if m:
-        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
-    return None
+    """Delegate to _shared.read_chapter_node (single source, spec #6 R6)."""
+    from shenbi.pipeline._shared import read_chapter_node
+
+    return read_chapter_node(volume_map_text, chapter)
 
 
 def _extract_key_terms(text: str) -> list[str]:
@@ -2694,6 +2720,17 @@ def _run_chapter_step_impl(
             return _complete_chapter(state, chapter)
 
         # Raise state-settle checkpoint after both parallel steps complete.
+        # --auto (F341, spec #6): mirror the serial branch's full auto-commit
+        # body — staging commit + clear, NO checkpoint. Skipping only the
+        # checkpoint would strand state-settle writes in staging/ where the
+        # next resume's _cleanup_residual_staging wipes them (data-loss trap).
+        if _auto_settle_parallel(state, project_dir, chapter):
+            # auto committed: fall through to the chapter-completion check
+            # (mirrors the serial _advance tail; the pre-existing completion
+            # check above this block is normally the one that fires).
+            if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
+                return _complete_chapter(state, chapter)
+            return False
         settling_artifact = (
             resolve_chapter_path(settling_step.output_path, chapter)
             if settling_step.output_path

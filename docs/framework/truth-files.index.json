@@ -969,6 +969,13 @@
     ],
     "updates": []
   },
+  "snapshots/chapter-NNN/manifest.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-snapshot-manage"
+    ],
+    "updates": []
+  },
   "truth/particle_ledger.md": {
     "reads": [],
     "writes": [],

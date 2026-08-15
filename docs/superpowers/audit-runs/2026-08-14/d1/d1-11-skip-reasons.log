@@ -1,0 +1,78 @@
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+/Users/xiaotiac/Documents/GitHub/shenbi/.venv/lib/python3.11/site-packages/pytest_benchmark/logger.py:44: PytestBenchmarkWarning: Benchmarks are automatically disabled because xdist plugin is active.Benchmarks cannot be performed reliably in a parallelized environment.
+  warner(PytestBenchmarkWarning(text))
+bringing up nodes...
+bringing up nodes...
+
+........................................................................ [  2%]
+........................................................................ [  4%]
+........................................................................ [  7%]
+.......................................................s................ [  9%]
+........................................................................ [ 11%]
+........................................................................ [ 14%]
+........................................................................ [ 16%]
+........................................................................ [ 19%]
+......................................................................s. [ 21%]
+...s.......s......s..s....s.....s....ssss.........s..s.....s.ss........s [ 23%]
+..s...s....s....ss.ss..ss.s.ss.s..ss.s.s.ss..ss.ss...ss.ss..ss.s.s..ss.. [ 26%]
+.s....s.s...ss.s..s.s.s.ss....s.s....sss...sss..ss.s.s.ss.s...ssss.ss.s. [ 28%]
+ss..s.sss..ss..sss.s.ss.s.ss.s...s.s..s...s....s.ss.s.s....ss.s..s....ss [ 30%]
+s..s...ss....s..ss...ss....s.s.sss..ss.s.s.s......sss....s.....s....s..s [ 33%]
+........ssss......s......s.............................................. [ 35%]
+........................................................................ [ 38%]
+........................................................................ [ 40%]
+........................................................................ [ 42%]
+............................s......s.s....s.s......s..s.....ss....s...s. [ 45%]
+..s....s....s.s..s..s......ssss.s...s...s.s..s....s...s..s..s..s..s..s.. [ 47%]
+s.s..s.s...s..s......................................................... [ 49%]
+........................................................................ [ 52%]
+........................................................................ [ 54%]
+........................................................................ [ 57%]
+........................................................................ [ 59%]
+........................................................................ [ 61%]
+................................................................s....... [ 64%]
+.....sss....s......sss....s....s....s....s.......s.....s....s......s.... [ 66%]
+...s...s.....s......ss........s.......ss..........s..s....s............. [ 68%]
+......................................s................................. [ 71%]
+........................................................................ [ 73%]
+........................................................................ [ 76%]
+........................................................................ [ 78%]
+........................................................................ [ 80%]
+........................................................................ [ 83%]
+........................................................................ [ 85%]
+........................................................................ [ 87%]
+........................................................................ [ 90%]
+........................................................................ [ 92%]
+........................................................................ [ 95%]
+........................................................................ [ 97%]
+........................................................................ [ 99%]
+......                                                                   [100%]
+=========================== short test summary info ============================
+SKIPPED [1] tests/unit/pipeline/test_truth_embed.py:122: sentence_transformers installed; degradation path not testable
+SKIPPED [214] tests/integration/test_doc_links.py:36: markdown-link-check not installed (npm i -g markdown-link-check)
+SKIPPED [1] tests/unit/pipeline/test_context_assemble.py:167: sentence_transformers installed; degradation path not testable
+2814 passed, 216 skipped in 21.52s
+EXIT=0
