@@ -8,8 +8,8 @@
 | 阶段 | 状态 | 轮次历史 |
 |---|---|---|
 | 0 清点与基线 | done | D1 ①-⑫ 全跑（①全绿/⑧双零/⑨无漏洞/⑫锁一致）；findings D101-D104 |
-| 1 整体层审查 | in_progress | — |
-| 2 分区深度审查 | pending | — |
+| 1 整体层审查 | done | 9 维度全结论（phase1-overall.md）；findings F001-F007（P1×1 P2×4 M×2） |
+| 2 分区深度审查 | in_progress | — |
 | 3 线程 | pending | — |
 | 4 聚类校准 | pending | — |
 | 5 spec 产出 | pending | — |
