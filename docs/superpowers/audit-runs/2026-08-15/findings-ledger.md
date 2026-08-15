@@ -583,6 +583,15 @@
 | F381 | 卷目标未知默认 True 吞掉 | 漏报 | M | 见 Z3-review-r3 | 见 zone-reports/Z3-review-r3.md | 见 Z3-review-r3 | 见 Z3-review-r3 | 见 Z3-review-r3 | Z3 复核r3 | open |
 | F445 | 对 F414 的修正：SHORT_MAP 缺的不是 9 个而是 11 个——漏了 shenbi-review-arc-payoff 与 shenbi-review-resonance | 修正 | P2 | 见 Z4-review-r1 | 见 zone-reports/Z4-review-r1.md | 见 Z4-review-r1 | 见 Z4-review-r1 | 见 Z4-review-r1 | Z4 复核r1 | open |
 | F447 | 对 F402 的补充证据：状态词表 lint 只拦截"词表内"字面量，HARD_FAIL 因越表而逃逸——status 单源门禁盲区 | error | P2 | 见 Z4-review-r1 | 见 zone-reports/Z4-review-r1.md | 见 Z4-review-r1 | 见 Z4-review-r1 | 见 Z4-review-r1 | Z4 复核r1 | open |
+| F463 | 评分前置 marker 的 bug-hunt/clean 命名族无写方：shenbi-score --test-type bug-hunt|clean 结构性 MARKER_MISSING exit 3（推翻初审 Z4.md:68 非缺陷判断） | 漏报 | P1 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | verified |
+| F464 | summary.json t1_scores 全仓零填充写方：G7.1b 反向覆盖在框架产出轮上恒 FAIL（74 missing，叠加 F424 ALL_SKILLS 含 meta skill 结构性不可 PASS） | 漏报 | P1 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | verified |
+| F465 | G7.14 glob 漏 codex 命名族（-scores-subagent.json，V5 差分实证；F458 同族第 4 读方） | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F466 | GT.3 gate_blockers 唯一写方恒 []——死检查 | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F467 | .gate-lock 全仓无写方 | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F468 | G1.6 scoring_history 空转 PASS | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F469 | materialize 12 键仅 4 键被消费——dead-data 清单（progress.json/summary.json 写而不读项） | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F470 | command-to-give.md:118 引用不存在的 summary finalized 键 + G7.16 vacuous 检查 | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
+| F471 | ProgressDoc/SummaryDoc 修复雏形零使用 | 漏报 | P2 | 见 Z4-review-r3 | 见 zone-reports/Z4-review-r3.md | 见 Z4-review-r3 | 见 Z4-review-r3 | 见 Z4-review-r3 | Z4 复核r3 | open |
 | F643 | audit_drift.md 写读格式契约断裂：触发器 6.6 正则对全部三种真实写方格式零匹配（=F375 双重发现；跨区注记：读方与两 SKILL 写方归属他区） | 漏报 | P1 | 见 Z6-review-r2 | 见 zone-reports/Z6-review-r2.md | 见 Z6-review-r2 | 见 Z6-review-r2 | 见 Z6-review-r2 | Z6 复核r2 | verified |
 | F644 | genre-config.json drift_detection 键零写入方——SYSTEM_TERMS MUST be config-driven 生产恒走 bootstrap 词表 | 漏报 | P2 | 见 Z6-review-r2 | 见 zone-reports/Z6-review-r2.md | 见 Z6-review-r2 | 见 Z6-review-r2 | 见 Z6-review-r2 | Z6 复核r2 | open |
 | F645 | thresholds.py 阈值单一信源契约被 linguistic_drift.py 硬编码绕过，且 system_term_density_warn/hard 常量全仓零消费者 | 漏报 | P2 | 见 Z6-review-r2 | 见 zone-reports/Z6-review-r2.md | 见 Z6-review-r2 | 见 Z6-review-r2 | 见 Z6-review-r2 | Z6 复核r2 | open |
