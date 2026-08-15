@@ -282,7 +282,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         rc = -1
     finally:
         post = snapshot_tree(PROJECT_DIR, watch)
-        result = audit_writes(skill, pre, post)
+        result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
         audit_ok = record_audit_outcome(round_dir, skill, result)
         if not audit_ok and rc == 0:
             rc = 2  # GATE_FAIL: write overreach or drift
