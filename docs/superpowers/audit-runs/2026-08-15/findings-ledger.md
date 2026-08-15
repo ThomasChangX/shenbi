@@ -501,3 +501,24 @@
 | F448 | 初审未做"调用面文件集"对账：四份注册表中的两份（G5_CHECKER_GLOBS、SHORT_MAP↔checkers）与"每个 checker 实际收到什么文件"均无漂移门禁 | error | P2 | 见 Z4-review-r1 | 见 zone-reports/Z4-review-r1.md | 见 Z4-review-r1 | 见 Z4-review-r1 | 见 Z4-review-r1 | Z4 复核r1 | open |
 | F529 | `_matches_declared` 从不 fnmatch 裸 glob 契约模式：10 技能 11 条 `*` 契约的合法写入全部误判"未声明写入"→ rc=2 阻断（真实生产数据 3 次 GATE_FAIL 实证） | error | P0 | 见 Z5-review-r3 | 见 zone-reports/Z5-review-r3.md | 见 Z5-review-r3 | 见 Z5-review-r3 | 见 Z5-review-r3 | Z5 复核r3 | verified |
 | F530 | state.token_usage 不入 checkpoint（to_dict/from_dict 均无该字段）: resume 后 print_token_summary 只报 post-resume 用量，与 ledger 累计永久分歧 | error | P2 | 见 Z5-review-r3 | 见 zone-reports/Z5-review-r3.md | 见 Z5-review-r3 | 见 Z5-review-r3 | 见 Z5-review-r3 | Z5 复核r3 | open |
+| F765 | book_spine_init G4 检查器零测试引用，77% 覆盖率为 import 虚高 | error | P2 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F766 | contracts/skills 三个语义校验器验证分支零覆盖（34%/38%/40%） | error | P2 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F767 | F716 弱断言清点不完整：同类"PASS/FAIL 双收"另有 6 处 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F768 | Z7-a "三个代表性文件 96 tests collected" 未指名文件、不可复现 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F769 | doc_links 参数化计数随 docs/ 单调增长，"371 项"类计数自设计上过期 | error | P2 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F770 | pytest addopts 全局含 --cov：collect-only 也会重写 coverage 产物 | error | M | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
+| F886 | genesis-context/*.md 写后全仓零消费：种子实质内容在管道 genesis 阶段断流 | error | P1 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | verified |
+| F887 | GENESIS_STEPS 仍派发 DEPRECATED 的 shenbi-foreshadowing-plant；另有 3 处正文把 track/plant 当现行链路引用 | error | P1 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F888 | truth-files.yaml 孤儿概念 short/outline.md 与 short/package.md（零生产者、零消费者、零引用） | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F889 | sequel-writing Step 2 风格指纹上下文所需 style/style_profile.md 未声明 reads | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F890 | 快照双体系未对账：声明面 snapshots/chapter-NNN/*（sequel 读 / snapshot-manage 写）vs 磁盘面 D20 平文件 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F892 | escalation-review reads 仅覆盖自家触发 helper 六类信号源中的两类 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F893 | 5 个现行技能缺 DOT 流程图（含 4 个现行主力审计技能 group-*） | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F894 | 跨段重复立案与同缺陷异处置：F874 复制 F847 缺陷家族第 5 例；11 个 .gitkeep 三段仅 6 立案 5 放行 | error | M | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
+| F951 | command-to-give.md:1 引用已归档的 plan 路径（断链重扫命中） | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F952 | command-to-give.md:24 工具名 validate-gate.py 全仓不存在（F903 未涵盖的同行文件名漂移） | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F953 | command-to-give.md "第二步：确认进度" 为空节 | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F954 | plans/INDEX.md:23 三项附加过期：PR 范围、日期域、最近归档项 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F955 | prompt 设计 spec :226 预写审计目录 2026-08-13/（F943 未列的第三处同族漂移） | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F956 | F8/F9/F10 跨审计代 finding 编号命名空间复用 | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F957 | 文档断链 CI 防线（test_docs_accuracy.py）盲区：F901/F951 类断链可无感穿过 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
