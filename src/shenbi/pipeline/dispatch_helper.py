@@ -1278,7 +1278,7 @@ def _init_truth_templates(project_dir: Path) -> None:
 def _log_token_usage(
     response: Any,
     skill_name: str,
-    state: Any = None,
+    chapter: int | None = None,
     project_dir: Path | None = None,
 ) -> None:
     """Log token usage from API response or a bare usage object.
@@ -1289,6 +1289,13 @@ def _log_token_usage(
     The streaming path passes the bare usage object (``_call_llm_streaming_
     with_retry`` returns ``chunk.usage``), so the ``hasattr(response, "usage")``
     guard alone would skip it — handle both shapes.
+
+    C10 spec T1 (F301/F504): the durable ledger write below is no longer
+    gated on a ``state`` object being threaded through the call — 8 of the
+    13 production call sites dispatch without state, which left
+    cost/token-ledger.jsonl permanently empty. *chapter* is the on-the-spot
+    value parsed from path_ctx/extract_chapter (F505/T401), never
+    ``getattr(state, "chapter", 0)`` which was always 0.
     """
     # Form (b): bare Usage object (has prompt_tokens directly, no nested .usage).
     if hasattr(response, "prompt_tokens") and not hasattr(response, "usage"):
@@ -1307,60 +1314,59 @@ def _log_token_usage(
         total_tokens=usage.total_tokens,
     )
 
-    if state:
-        _record_token_usage(state, skill_name, usage, project_dir=project_dir)
+    _record_usage_to_ledger(skill_name, chapter, usage, project_dir)
 
 
-def _record_token_usage(
-    state: Any,
+def _record_usage_to_ledger(
     skill_name: str,
+    chapter: int | None,
     usage: Any,
-    project_dir: Path | None = None,
+    project_dir: Path | None,
 ) -> None:
-    """Accumulate token usage in pipeline state and persist to the ledger.
+    """Persist a usage object to the durable append-only ledger (C10 spec T1).
 
-    Spec §3.1: previously only mutated the in-memory state.token_usage dict —
-    the TokenLedger.record() write side was never wired, leaving
-    cost/token-ledger.jsonl permanently empty (dead-wire). Now also appends a
-    record when project_dir is available.
+    Fail-safe (spec risk section): the ledger is a hot-path side-effect of
+    dispatch — a missing project_dir or any write error is logged WARN and
+    skipped, never raising into the dispatch flow.
     """
-    if not hasattr(state, "token_usage"):
-        state.token_usage = {}
-
-    if skill_name not in state.token_usage:
-        state.token_usage[skill_name] = {
-            "prompt_tokens": 0,
-            "completion_tokens": 0,
-            "total_tokens": 0,
-            "calls": 0,
-        }
-
-    rec = state.token_usage[skill_name]
-    rec["prompt_tokens"] += usage.prompt_tokens
-    rec["completion_tokens"] += usage.completion_tokens
-    rec["total_tokens"] += usage.total_tokens
-    rec["calls"] += 1
-
-    # Spec §3.1 wire-up: persist this usage to the append-only ledger.
-    if project_dir is not None:
+    if project_dir is None:
+        log.warning("ledger_skip_no_project_dir", skill=skill_name)
+        return
+    try:
         TokenLedger(project_dir).record(
             skill_name,
-            getattr(state, "chapter", 0) or 0,
+            chapter or 0,
             {
                 "prompt_tokens": usage.prompt_tokens,
                 "completion_tokens": usage.completion_tokens,
                 "total_tokens": usage.total_tokens,
             },
         )
+    except Exception:
+        log.warning("ledger_record_failed", skill=skill_name, exc_info=True)
 
 
 def print_token_summary(state: Any) -> None:
-    """Print token usage summary at end of pipeline."""
-    if not hasattr(state, "token_usage") or not state.token_usage:
+    """Print token usage summary at end of pipeline.
+
+    C10 spec T1 option B / T2 (T403/F530): the durable ledger
+    (cost/token-ledger.jsonl) is the single source of truth. The former
+    undeclared ``state.token_usage`` in-memory dict never participated in
+    to_dict/from_dict/checkpoint (resume reset it to zero) and missed every
+    parallel-path dispatch (F301/F504), so this summary now reads the ledger
+    via ``state.project_dir``.
+    """
+    project_dir = getattr(state, "project_dir", None)
+    if not project_dir:
+        return
+
+    summary = TokenLedger(Path(project_dir)).summarize()
+    by_skill: dict[str, dict[str, int | float]] = summary.get("by_skill", {})
+    if not by_skill:
         return
 
     log.info("token_usage_summary_header", msg="Token usage by skill:")
-    for skill_name, rec in sorted(state.token_usage.items()):
+    for skill_name, rec in sorted(by_skill.items()):
         avg_prompt = rec["prompt_tokens"] / max(rec["calls"], 1)
         avg_completion = rec["completion_tokens"] / max(rec["calls"], 1)
         log.info(
@@ -1495,7 +1501,6 @@ def _dispatch_via_api(
     prompt: str,
     uses_staging: bool = False,
     shared_context: Any = None,
-    state: Any = None,
 ) -> DispatchResult:
     """Execute a skill via OpenAI-compatible API.
 
@@ -1504,13 +1509,16 @@ def _dispatch_via_api(
     - ``SHENBI_LLM_BASE_URL`` (default: https://api.deepseek.com/v1)
     - ``SHENBI_LLM_MODEL`` (default: deepseek-v4-flash)
 
+    Token metering (C10 spec T1): every call appends one durable row to
+    ``<project_dir>/cost/token-ledger.jsonl`` with the on-the-spot chapter —
+    no PipelineState required (8/13 call sites dispatch without one).
+
     Args:
         skill: The skill name to dispatch.
         project_dir: Path to the project directory.
         prompt: The prompt text to send to the skill.
         uses_staging: Whether to use staging directories for output paths.
         shared_context: Optional shared context object for prompt building.
-        state: Optional PipelineState for token usage accumulation (Task 7).
     """
     from openai import OpenAI
 
@@ -1575,12 +1583,12 @@ def _dispatch_via_api(
     if stop_reason:
         log.info("api_dispatch_early_stop", skill=skill, stop_reason=stop_reason)
 
-    # Dispatch-level token logging (Task 7 of Plan 18).
+    # Dispatch-level token logging (Task 7 of Plan 18; C10 spec T1 rewire).
     # Logs token usage when the provider includes usage in streaming responses
     # (via stream_options={"include_usage": True}). Falls back to pre-flight
     # heuristic (warn_if_over_budget) when usage is unavailable.
     if usage is not None:
-        _log_token_usage(usage, skill, state=state, project_dir=project_dir)
+        _log_token_usage(usage, skill, chapter=chapter, project_dir=project_dir)
 
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
@@ -1636,7 +1644,7 @@ def _dispatch_via_api(
 
         # Log cap-raised usage.
         if usage is not None:
-            _log_token_usage(usage, skill, state=state, project_dir=project_dir)
+            _log_token_usage(usage, skill, chapter=chapter, project_dir=project_dir)
 
         # After cap-raise, if STILL length → fail-fast (spec §5.1: max 1 resend).
         if finish_reason == "length":
@@ -1849,7 +1857,10 @@ def dispatch_skill(
         shared_context: Optional SharedAuditContext with pre-extracted fields.
             Passed through to _build_skill_prompt so auditors skip re-reading
             common files from disk.
-        state: Optional PipelineState for token usage accumulation (Task 7).
+        state: Optional PipelineState. No longer used for token accounting —
+            the durable ledger is written inside the API path regardless of
+            state (C10 spec T1). Threading it now only toggles instrumentation
+            diagnostics on the IDE/legacy routes.
         path_context: Optional per-family placeholder context (spec #6 R5).
             When provided, the ``[path-context]`` carrier line is appended to
             the prompt (visible to the executing LLM as a machine-generated
@@ -1864,7 +1875,7 @@ def dispatch_skill(
     # API path
     if os.environ.get(_ENV_LLM_API_KEY):
         return _dispatch_via_api(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context, state=state
+            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
         )
 
     # IDE CLI path
@@ -1901,6 +1912,14 @@ def dispatch_skill(
 
     rd = str(round_dir) if round_dir else str(project_dir)
     log.info("dispatch_start", skill=skill, test_type=test_type, round_dir=rd)
+    if state is not None:
+        # C10 spec T1: the legacy subprocess path receives state but cannot
+        # thread it anywhere — surface the drop instead of silently discarding.
+        log.warning(
+            "legacy_dispatch_state_uninstrumented",
+            skill=skill,
+            hint="legacy subprocess path records no token usage; cost evidence requires the API path (C10 spec T5)",
+        )
     env = os.environ.copy()
     if patterns:
         env[_G1_SKIP_ENV_VAR] = ",".join(patterns)
