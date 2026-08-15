@@ -450,3 +450,26 @@
 | F973 | F973 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F974 | F974 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F975 | F975 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
+| F224 | Layer B 字段级 reads 过滤全链路断裂：唯一生产调用点是不可达死代码（dd1fc62 回归） | error | P1 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | verified |
+| F225 | write_semantics `key` meta 全仓零消费者（18 处声明为死数据） | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
+| F226 | `no_op_behavior: skip_write` 从未被消费：docstring 声称 honoring 但 skip_paths 无任何调用方传入 | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
+| F227 | 字段声明指向不存在的键：review-group-character 声明 `fields: [povMode]`，genre-config.json 无此键 | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
+| F229 | FileOwnership.read_keys 零消费者，foundation-review 的 OWNERSHIP 条目完全装饰性 | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
+| F230 | PacingDesign.from_markdown 永不填充 chapter_sequence；G4 的 no_beat_data 分支不可达 | error | P2 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | open |
+| F630 | materialize_progress 周期性整体重建 progress.json，静默覆盖 dispatcher 与 G3 写入的键（记录覆盖） | error | P0 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | verified |
+| F629 | trace 事件对账：INIT/MARK_DONE 读而不写——materialize 的派生源在生产恒为空 | error | P1 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | verified |
+| F637 | Rule 1 临界维度禁用可被非-False 假值绕过（0 / "false" / None） | error | P1 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F631 | compact() 全仓库零生产调用方——compaction 机制死线 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F632 | migrate_from_progress() 零生产调用方——LEGACY 锚机制死线 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F633 | check_linguistic_drift_trigger（drift-guidance 第 4 触发器）零调用方——连测试都没有 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F634 | check_window_redundancy / frequency_divergence_alarms 零生产调用 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F635 | check_escalation 六触发器中 arc_score/stratum_axis_drift 两个生产不可达 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F636 | update_genre_config 零生产接线，与 docstring "Every change flows through" 声称不符 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F638 | recall.py docstring 引用断链：RAG 层 benchmarks/index/ 不存在 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F639 | gate_blockers 恒为 []：GT.3 检查空转 | error | P2 | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F640 | progress.json 的 test_cycle_phase / subagent_completion_count 写而不读 | error | M | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F641 | serialize_records / is_idempotent 零生产消费 | error | M | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F642 | text 模块半数导出零生产消费：count_words / tokenize / count_punctuation / PUNCTUATION_TOKENS | error | M | 见 Z6-review-r1 | 见 zone-reports/Z6-review-r1.md | 见 Z6-review-r1 | 见 Z6-review-r1 | 见 Z6-review-r1 | Z6 复核r1 | open |
+| F526 | snapshot_tree 文件读取零异常防护：非 UTF-8 / 目录 / TOCTOU 均使审计链崩溃（F517 同族、不同触发面） | error | P2 | 见 Z5-review-r2 | 见 zone-reports/Z5-review-r2.md | 见 Z5-review-r2 | 见 Z5-review-r2 | 见 Z5-review-r2 | Z5 复核r2 | open |
+| F527 | 契约字段写-only 词表：FileChange.status 在 src 零消费；AuditResult.skill、TokenUsageRecord.timestamp/.model 零读者 | error | M | 见 Z5-review-r2 | 见 zone-reports/Z5-review-r2.md | 见 Z5-review-r2 | 见 Z5-review-r2 | 见 Z5-review-r2 | Z5 复核r2 | open |
+| F528 | snapshot.py parametric-glob 展开分支生产不可达：docstring "重新展开使新增文件可见" 对 parametric 契约落空，跨章越权写结构性不可见 | error | P2 | 见 Z5-review-r2 | 见 zone-reports/Z5-review-r2.md | 见 Z5-review-r2 | 见 Z5-review-r2 | 见 Z5-review-r2 | Z5 复核r2 | open |
