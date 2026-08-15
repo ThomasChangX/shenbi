@@ -215,3 +215,9 @@
 - 六域全测: 热路径标注/内>0 内存（Route B 无单例 ~1.3GB/次）/I/O（单章审计波章节文件读 ×8）/启动（gates.cli 255ms）/复用（context 复用成立、token 台账不可审计）
 - 回写机制二次确认: T16 agent 也遇到 checklist 缓存回写并自行还原——与续 3 事故同源，阶段 4 立案线索加强
 - 累计（机械重算）: F=618 T=44 D=4 总=666
+
+### 2026-08-16 会话 2（续 8 · T15 交付）
+- 完成: T15 git 历史考古线程转录（T1501-T1507 共 7：P2×4+M×3）——T1504 抽验证实（1260 tracked/25M/119 staging 入库）
+- churn↔缺陷密度结论: 正向中相关（src 子集 Spearman ρ=0.529）；可操作信号在例外象限——高churn高密度（chapter_loop 28/18F、dispatch_helper 35/10F）优先拆分加固，低churn高密度（cli.py 13F、scoring.py 11F）复审看密度非活跃度
+- 正向: 无 revert-revert 震荡；凭证历史干净（7 类 pickaxe 补跑唯二命中均良性，T12 结论成立）
+- 累计（机械重算）: F=618 T=51 D=4 总=673

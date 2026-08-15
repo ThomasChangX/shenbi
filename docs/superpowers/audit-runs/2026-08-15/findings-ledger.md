@@ -689,3 +689,10 @@
 | T1613 | F215 量化增量证据 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
 | T1614 | F312 量化增量证据 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
 | T1615 | 累积 truth 全文注入=唯一随 N 超线性增长的 token 项（N×2→×4） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1501 | revert 丢失 g5 修复（dc6fc67），follow-up 承诺悬空 2 个月——pin 测试仍钉死，与 F708 P1 互证 | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1502 | 孤儿本地分支 docs/token-efficiency-p2-spec 携带 481 行独有 spec，main 零副本从未开 PR，spec 编号已被 main #6 占用 | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1503 | 快照子系统半迁移：同名双实现，差分版仅活在测试里（=F351 历史面） | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1504 | novel-output 22.7MB/1260 文件反忽略入库 main（52 个 ~320KB 快照+119 staging；staging 与顶层忽略规则对冲；协调者抽验证实 25M/119 staging） | git 考古 | P2 | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1505 | 悬空清理托付：specs #16/#25 并不含 _shared.py 清理项 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1506 | canonical loader 仍名 legacy.py + 已删 contract.py 的 re-export shim 残留 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
+| T1507 | 分支卫生（3 squash-merge 未删远程+10 dependabot 未 triage）+ INDEX 计数 66/68/63 三处漂移 | git 考古 | M | 见 T15 报告 | 见 thread-reports/T15.md | 见 T15 报告 | 见 T15 报告 | 见 T15 报告 | T15 线程 | open |
