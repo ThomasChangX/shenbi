@@ -72,6 +72,8 @@ concepts:
   # D20: pipeline writes timestamped flatfiles snapshots/chapter-NNN-*.md
   # (chapter_loop._snapshot_chapter_files); the fictional snapshots/chapter-NNN/
   # directory concept is deprecated. Register the real flatfile.
+  # (Superseded 2026-08-15, spec #6 R3: snapshots/chapter-NNN/manifest.json is
+  # now a real snapshot-manage contract write; see skills/shenbi-snapshot-manage.)
   - {name: snapshots/chapter-NNN-*.md, kind: snapshot, producer: pipeline}
   # pipeline-written files (no skill producer):
   - {name: snapshots/manifest.json, kind: snapshot, producer: pipeline}

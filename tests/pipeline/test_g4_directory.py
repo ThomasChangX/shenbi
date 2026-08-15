@@ -63,11 +63,7 @@ def test_closure_snapshot_dir_resolution(tmp_path):
     from shenbi.pipeline.closure import _closure_snapshot_dir
 
     proj = tmp_path / "proj"
-    (proj / "outline").mkdir(parents=True)
-    shutil.copy(
-        Path(__file__).resolve().parent.parent / "fixtures" / "volume-map-xinghuo.md",
-        proj / "outline" / "volume_map.md",
-    )
+    proj.mkdir()
     (proj / "novel.json").write_text(json.dumps({"total_chapters": 100}), encoding="utf-8")
     assert _closure_snapshot_dir(proj) == "snapshots/chapter-100/"
     # total unknown -> "" (G4 skips), never a fabricated chapter-000 dir

@@ -38,11 +38,15 @@ def g4_generic_generative(
             # manifest-named entry (filename authority: snapshot-manage SKILL
             # contract); non-snapshot dirs (characters/) check existence +
             # content only. Pure read-only validation.
-            entries = [e for e in p.iterdir() if e.is_file()]
+            try:
+                entries = [e for e in p.iterdir() if e.is_file()]
+            except OSError:
+                mf.append(f"G4.gen.read_error:{fp_path}")
+                continue
             if not entries:
                 mf.append(f"G4.gen.dir_empty:{fp_path}")
                 continue
-            if "snapshot" in fp_path.replace("\\", "/").lower() and not any(
+            if "snapshot" in str(p).replace("\\", "/").lower() and not any(
                 "manifest" in e.name.lower() for e in entries
             ):
                 mf.append(f"G4.gen.manifest_missing:{fp_path}")
