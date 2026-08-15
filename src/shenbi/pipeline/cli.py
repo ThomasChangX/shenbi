@@ -63,10 +63,20 @@ DERIVED_TRUTH_MAP: dict[str, list[tuple[str, str]]] = {
         ("shenbi-relationship-map", "Re-sync relationship map after truth modify"),
         ("shenbi-foreshadowing-resolve", "Re-solve foreshadowing after truth modify"),
     ],
+    # PER_CHAPTER reject-redo queues a revision re-dispatch (spec #6 F340):
+    # rolling the whole chapter back would re-fire prev-chapter volume-boundary
+    # fan-out and strand chapter_states; a targeted revision with feedback is
+    # the "redo the chapter review" semantics. Also applies to MODIFY (a human
+    # edit to the review artifact should propagate the same way).
+    CheckpointType.PER_CHAPTER.value: [
+        ("shenbi-chapter-revision", "Revise rejected chapter with feedback"),
+    ],
 }
 
 
-def _queue_re_dispatches(state: PipelineState, cp: CheckpointData) -> None:
+def _queue_re_dispatches(
+    state: PipelineState, cp: CheckpointData, feedback: str | None = None
+) -> None:
     """Queue re-dispatches for derived truth files after a modify decision.
 
     After ``modify``, skills that produce derived truth from the modified files
@@ -82,6 +92,7 @@ def _queue_re_dispatches(state: PipelineState, cp: CheckpointData) -> None:
                     "skill": skill,
                     "checkpoint_type": cp.type.value,
                     "chapter": cp.chapter,
+                    "feedback": feedback,
                 }
             )
             log.info("re_dispatch_queued", skill=skill, checkpoint=cp.type.value)
@@ -119,6 +130,9 @@ def _execute_pending_re_dispatches(state: PipelineState, project_dir: Path) -> b
         prompt = prompt_suffix
         if ch:
             prompt = f"[Chapter {ch}] {prompt_suffix}"
+        fb = entry.get("feedback")
+        if fb:  # conditional: MODIFY-queued entries have no feedback (never render None)
+            prompt += f"\n\nHuman review feedback (incorporate these changes): {fb}"
 
         result = dispatch_skill(skill, project_dir, prompt)
         if result.success:
@@ -152,70 +166,98 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     Dispatches to genesis / chapter-loop / closure step runners, and handles
     trigger execution + closure transition at the start of each new chapter.
     """
-    from shenbi.pipeline.chapter_loop import (
-        _cleanup_residual_staging,  # pyright: ignore[reportPrivateUsage]
-        _has_pending_staging_step,  # pyright: ignore[reportPrivateUsage]
-        run_chapter_step,
-    )
-    from shenbi.pipeline.closure import run_closure_step
-    from shenbi.pipeline.genesis import run_genesis_step
-    from shenbi.pipeline.transitions import (
-        transition_chapter_to_closure,
-        transition_closure_to_completed,
-    )
-    from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
+    # F304 (spec #6): RetryExhaustedError converts to an ESCALATION checkpoint
+    # instead of escaping — the caller's save_state then persists the budget
+    # trail (a top-level escape would skip save_state and the exhaustion
+    # storm repeats one full cycle after crash-resume).
+    from shenbi.exceptions import RetryExhaustedError
 
-    # Clean residual staging at pipeline resume to prevent stale file accumulation.
-    _cleanup_residual_staging(project_dir, has_pending_staging=_has_pending_staging_step(state))
+    try:
+        from shenbi.pipeline.chapter_loop import (
+            _cleanup_residual_staging,  # pyright: ignore[reportPrivateUsage]
+            _has_pending_staging_step,  # pyright: ignore[reportPrivateUsage]
+            run_chapter_step,
+        )
+        from shenbi.pipeline.closure import run_closure_step
+        from shenbi.pipeline.genesis import run_genesis_step
+        from shenbi.pipeline.transitions import (
+            transition_chapter_to_closure,
+            transition_closure_to_completed,
+        )
+        from shenbi.pipeline.triggers import check_triggers, run_triggered_skills
 
-    while True:
-        # Execute any pending re-dispatches queued by modify decisions (G4).
-        if _execute_pending_re_dispatches(state, project_dir):
-            save_state(project_dir, state)
+        # Clean residual staging at pipeline resume to prevent stale file accumulation.
+        _cleanup_residual_staging(project_dir, has_pending_staging=_has_pending_staging_step(state))
 
-        phase = state.phase
+        while True:
+            # Execute any pending re-dispatches queued by modify decisions (G4).
+            if _execute_pending_re_dispatches(state, project_dir):
+                save_state(project_dir, state)
 
-        if phase in (PipelinePhase.COMPLETED, PipelinePhase.FAILED):
-            return
+            phase = state.phase
 
-        if phase == PipelinePhase.GENESIS:
-            if run_genesis_step(state, project_dir):
+            if phase in (PipelinePhase.COMPLETED, PipelinePhase.FAILED):
                 return
-            # Save state after each genesis step so progress survives
-            # process interruption (timeout, crash, etc.).
-            save_state(project_dir, state)
 
-        elif phase == PipelinePhase.CHAPTER_LOOP:
-            cl = state.chapter_loop
-            if cl.step_index == 0 and cl.current_chapter > 1:
-                total = _read_total_chapters(project_dir)
-                if total <= 0:
-                    # Mid-book heal (spec #6 R2): in-flight projects past
-                    # genesis never re-run the step-6 hook — recompute before
-                    # the guard or the self-lock persists (56-chapter case).
-                    from shenbi.pipeline._shared import update_total_chapters
+            if phase == PipelinePhase.GENESIS:
+                if run_genesis_step(state, project_dir):
+                    return
+                # Save state after each genesis step so progress survives
+                # process interruption (timeout, crash, etc.).
+                save_state(project_dir, state)
 
-                    total = update_total_chapters(project_dir)
-                if total > 0:
-                    prev_ch = cl.current_chapter - 1
-                    result = check_triggers(state, prev_ch, total)
-                    if result.book_closure:
-                        result.book_closure = False
+            elif phase == PipelinePhase.CHAPTER_LOOP:
+                cl = state.chapter_loop
+                if cl.step_index == 0 and cl.current_chapter > 1:
+                    total = _read_total_chapters(project_dir)
+                    if total <= 0:
+                        # Mid-book heal (spec #6 R2): in-flight projects past
+                        # genesis never re-run the step-6 hook — recompute before
+                        # the guard or the self-lock persists (56-chapter case).
+                        from shenbi.pipeline._shared import update_total_chapters
+
+                        total = update_total_chapters(project_dir)
+                    if total > 0:
+                        prev_ch = cl.current_chapter - 1
+                        result = check_triggers(state, prev_ch, total)
+                        if result.book_closure:
+                            result.book_closure = False
+                            if result.any_triggered():
+                                ok = run_triggered_skills(state, project_dir, prev_ch, result)
+                                if not ok:
+                                    log.warning(
+                                        "triggered_skill_failed_before_closure",
+                                        chapter=prev_ch,
+                                    )
+                                    set_checkpoint(
+                                        state,
+                                        CheckpointType.ESCALATION,
+                                        chapter=prev_ch,
+                                        context=(
+                                            f"Triggered skill failed for chapter "
+                                            f"{prev_ch} before book closure"
+                                        ),
+                                    )
+                                    save_state(project_dir, state)
+                                    return
+                                if is_at_checkpoint(state):
+                                    cl.step_index = 1  # C1: prevent re-fire
+                                    save_state(project_dir, state)
+                                    return
+                            transition_chapter_to_closure(state)
+                            continue
                         if result.any_triggered():
                             ok = run_triggered_skills(state, project_dir, prev_ch, result)
                             if not ok:
                                 log.warning(
-                                    "triggered_skill_failed_before_closure",
+                                    "triggered_skill_failed",
                                     chapter=prev_ch,
                                 )
                                 set_checkpoint(
                                     state,
                                     CheckpointType.ESCALATION,
                                     chapter=prev_ch,
-                                    context=(
-                                        f"Triggered skill failed for chapter "
-                                        f"{prev_ch} before book closure"
-                                    ),
+                                    context=(f"Triggered skill failed for chapter {prev_ch}"),
                                 )
                                 save_state(project_dir, state)
                                 return
@@ -223,68 +265,55 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
                                 cl.step_index = 1  # C1: prevent re-fire
                                 save_state(project_dir, state)
                                 return
-                        transition_chapter_to_closure(state)
-                        continue
-                    if result.any_triggered():
-                        ok = run_triggered_skills(state, project_dir, prev_ch, result)
-                        if not ok:
-                            log.warning(
-                                "triggered_skill_failed",
-                                chapter=prev_ch,
-                            )
-                            set_checkpoint(
-                                state,
-                                CheckpointType.ESCALATION,
-                                chapter=prev_ch,
-                                context=(f"Triggered skill failed for chapter {prev_ch}"),
-                            )
-                            save_state(project_dir, state)
-                            return
-                        if is_at_checkpoint(state):
-                            cl.step_index = 1  # C1: prevent re-fire
-                            save_state(project_dir, state)
-                            return
 
-            if run_chapter_step(state, project_dir):
-                return
-            # Save state after each chapter step so progress survives
-            # process interruption (timeout, crash, etc.).
-            save_state(project_dir, state)
-
-        elif phase == PipelinePhase.CLOSURE:
-            # Closure runner returns True on any successful step (not just
-            # checkpoints), unlike genesis/chapter_loop which return False
-            # when a step merely advances. So we must inspect state to decide
-            # whether to stop.
-            if run_closure_step(state, project_dir):
-                if is_at_checkpoint(state):
-                    return  # book-closure checkpoint raised
-                if state.closure == ClosureState.COMPLETED:
-                    transition_closure_to_completed(state)
-                    return  # step 10 done, pipeline complete
-                # Step advanced without checkpoint: save state and continue.
+                if run_chapter_step(state, project_dir):
+                    return
+                # Save state after each chapter step so progress survives
+                # process interruption (timeout, crash, etc.).
                 save_state(project_dir, state)
-            else:
-                # Closure step failed. The closure runner has no internal
-                # retry logic, so raise an escalation checkpoint for human
-                # intervention rather than spinning on the same failing step.
-                # Dispatch escalation-review first, then set checkpoint.
-                from shenbi.pipeline.revision_router import dispatch_escalation
 
-                dispatch_escalation(
-                    project_dir,
-                    0,  # closure has no chapter context
-                    context=f"Closure step {state.closure_step + 1} failed",
-                )
-                set_checkpoint(
-                    state,
-                    CheckpointType.ESCALATION,
-                    context=f"Closure step {state.closure_step + 1} failed",
-                )
+            elif phase == PipelinePhase.CLOSURE:
+                # Closure runner returns True on any successful step (not just
+                # checkpoints), unlike genesis/chapter_loop which return False
+                # when a step merely advances. So we must inspect state to decide
+                # whether to stop.
+                if run_closure_step(state, project_dir):
+                    if is_at_checkpoint(state):
+                        return  # book-closure checkpoint raised
+                    if state.closure == ClosureState.COMPLETED:
+                        transition_closure_to_completed(state)
+                        return  # step 10 done, pipeline complete
+                    # Step advanced without checkpoint: save state and continue.
+                    save_state(project_dir, state)
+                else:
+                    # Closure step failed. The closure runner has no internal
+                    # retry logic, so raise an escalation checkpoint for human
+                    # intervention rather than spinning on the same failing step.
+                    # Dispatch escalation-review first, then set checkpoint.
+                    from shenbi.pipeline.revision_router import dispatch_escalation
+
+                    dispatch_escalation(
+                        project_dir,
+                        0,  # closure has no chapter context
+                        context=f"Closure step {state.closure_step + 1} failed",
+                    )
+                    set_checkpoint(
+                        state,
+                        CheckpointType.ESCALATION,
+                        context=f"Closure step {state.closure_step + 1} failed",
+                    )
+                    return
+
+            else:
                 return
 
-        else:
-            return
+    except RetryExhaustedError as exc:
+        log.error("retry_budget_exhausted_escalation", error=str(exc))
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            context=f"Retry budget exhausted: {exc}",
+        )
 
 
 def _emit_orchestration_result(state: PipelineState) -> None:
@@ -480,6 +509,51 @@ def cmd_status(args: argparse.Namespace) -> int:
     return 0
 
 
+def _reset_retry_budget(state: PipelineState, cp: CheckpointData) -> None:
+    """REJECT-redo: reset the producing step's retry counters (spec #6 F340) —
+    otherwise an ESCALATION redo re-exhausts immediately (clear_checkpoint
+    clears retry_counts on ESCALATION resolution but NOT retry_budget_consumed).
+    """
+    ch = cp.chapter
+    if ch is not None:
+        prefix = f"ch{ch}-"
+        state.chapter_loop.retry_counts = {
+            k: v for k, v in state.chapter_loop.retry_counts.items() if not k.startswith(prefix)
+        }
+        state.chapter_loop.retry_budget_consumed = {
+            k: v
+            for k, v in state.chapter_loop.retry_budget_consumed.items()
+            if not k.startswith(prefix)
+        }
+    state.genesis.retry_counts.clear()
+    state.closure_retry_counts.clear()
+
+
+def _apply_reject_redo(
+    state: PipelineState, cp: CheckpointData, feedback: str | None = None
+) -> None:
+    """REJECT = redo the step that raised the checkpoint (spec #6 F340).
+
+    Full CheckpointType coverage; BOOK_CLOSURE keeps its existing transition.
+    """
+    if cp.type == CheckpointType.CHAPTER_MEMO:
+        state.chapter_loop.step_index = 1
+    elif cp.type == CheckpointType.STATE_SETTLE:
+        state.chapter_loop.step_index = 7
+    elif cp.type == CheckpointType.GENESIS_COMPLETE:
+        state.genesis.current_step = max(0, state.genesis.current_step - 1)
+        state.genesis.retry_counts.clear()
+    elif cp.type == CheckpointType.VOLUME_BOUNDARY:
+        state.chapter_loop.step_index = 0  # next() re-runs the trigger fan-out
+    elif cp.type == CheckpointType.PER_CHAPTER:
+        # Redo the chapter REVISION (not the whole chapter — see the
+        # DERIVED_TRUTH_MAP note) with the reject feedback attached.
+        _queue_re_dispatches(state, cp, feedback=feedback)
+    elif cp.type == CheckpointType.ESCALATION:
+        _reset_retry_budget(state, cp)  # failing step re-runs with a fresh budget
+    # BOOK_CLOSURE: handled by the existing transition below.
+
+
 def cmd_review(args: argparse.Namespace) -> int:
     """Submit a review decision for the pending checkpoint.
 
@@ -514,6 +588,8 @@ def cmd_review(args: argparse.Namespace) -> int:
             if args.feedback:
                 feedback = Path(args.feedback).read_text(encoding="utf-8")
 
+            if decision == ReviewDecision.REJECT:
+                _apply_reject_redo(state, cp, feedback=feedback)  # acts on the cp snapshot
             clear_checkpoint(state, decision)
 
             # G4: On modify, queue re-dispatches for derived truth files
