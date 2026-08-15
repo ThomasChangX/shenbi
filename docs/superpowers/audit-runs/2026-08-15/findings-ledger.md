@@ -671,3 +671,6 @@
 | T1305 | 未使用/错位依赖 4+1 项零处置回归（pytest-asyncio/pytest-ordering/setuptools 等） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
 | T1306 | plugins/master.json 0.2.0 vs pyproject 0.1.0 版本双源漂移持续 | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
 | T1307 | pydantic 注释过期（持续） | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1440 | hook_planting 确定性替换是死代码，plant 三个活跃面仍 LLM dispatch | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
+| T1441 | anti-ai 检查清单与 G4 确定性检查构成双重体系：LLM 每章重算 G4 已算过的计数，且同名检查三套阈值不一致（与 F818 关联） | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
+| T1442 | 确定性统计 helper 五件套仍纯 prompt 级接线（compute_stats/compute_pattern/recall/calibration/review_resonance.routing），无程序强制 | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
