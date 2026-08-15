@@ -2180,12 +2180,10 @@ def _check_volume_map_alignment(project_dir: Path, chapter: int) -> None:
 
 
 def _extract_chapter_node_from_map(volume_map_text: str, chapter: int) -> dict[str, str] | None:
-    """Extract {role, content} from volume_map table row for a chapter."""
-    pattern = re.compile(rf"\|\s*{chapter}\s*\|([^|]+)\|([^|]+)\|")
-    m = pattern.search(volume_map_text)
-    if m:
-        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
-    return None
+    """Delegate to _shared.read_chapter_node (single source, spec #6 R6)."""
+    from shenbi.pipeline._shared import read_chapter_node
+
+    return read_chapter_node(volume_map_text, chapter)
 
 
 def _extract_key_terms(text: str) -> list[str]:

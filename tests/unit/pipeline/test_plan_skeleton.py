@@ -10,21 +10,24 @@ def project_with_volume_map(tmp_path: Path) -> Path:
     outline_dir = tmp_path / "outline"
     outline_dir.mkdir()
     volume_map = outline_dir / "volume_map.md"
+    # CN row shapes (2026-08-15, spec #6 R6 Step 3b migration)
     volume_map.write_text("""# Volume Map
 
-## Volume 1: Awakening (Ch 1-15)
-**Objective:** Introduce protagonist and establish cultivation world
+## 第一卷：Awakening（第1-15章）
+**Objective**: Introduce protagonist and establish cultivation world
 
-### Chapter Nodes
+**章节范围**: 第1章 - 第15章
+
+### 章节节点
 | Ch | Role | Content |
 |----|------|---------|
-| 1 | opening | Lin Feng awakens in cave |
-| 2 | progression | First encounter with elder |
+| 第1章 | opening | Lin Feng awakens in cave |
+| 第2章 | progression | First encounter with elder |
 
-## Cross-Volume Bridges
-| Bridge ID | Content | Expected Activation Ch |
-|-----------|---------|----------------------|
-| V1-B1 | Brahmi inscription | 26 |
+### 跨卷桥接
+| # | 钩子内容 | 类型 | 带入卷 | 预期激活章 | 当前状态 |
+|---|---------|------|--------|----------|---------|
+| 1 | Brahmi inscription | 物品 | 第2卷 | 第26章 | 已种植 |
 """)
     truth_dir = tmp_path / "truth"
     truth_dir.mkdir()

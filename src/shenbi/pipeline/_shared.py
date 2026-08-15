@@ -1,7 +1,7 @@
 """Volume-map domain shared symbols (Cluster 1 cyclic-import refactor leaf module).
 
-Leaf module: depends only on stdlib (re/pathlib/json) plus safe_write and the
-base logger, imports
+Leaf module: depends only on stdlib (re/pathlib/json/dataclasses) plus safe_write
+and the base logger, imports
 no pipeline cycle member (triggers/context_assemble/plan_skeleton/dispatch_helper).
 The original 4-node cycle (triggers -> dispatch_helper -> plan_skeleton ->
 context_assemble -> triggers) had its back-edge (context_assemble -> triggers)
@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import re
+from dataclasses import dataclass
 from pathlib import Path
 
 __all__ = [
@@ -23,8 +24,12 @@ __all__ = [
     "_BRIDGE_ACTIVATION_WINDOW",
     "_END_RE",
     "_RANGE_RE",
+    "BridgeRow",
     "_read_cn_volume_boundaries",
     "_resolve_volume_at_runtime",
+    "bridges_for_chapter",
+    "read_bridges",
+    "read_chapter_node",
     "read_total_chapters",
     "read_volume_boundaries",
     "update_total_chapters",
@@ -164,17 +169,108 @@ def _resolve_volume_at_runtime(project_dir: Path, chapter: int) -> tuple[str, in
 
     Parses volume_map.md via read_volume_boundaries() which
     returns a set of last-chapter numbers per volume. We build the
-    (start, end) ranges from that set.
+    (start, end) ranges from that set. The volume name is the real
+    ``## 第N卷:`` header when present (spec #6 R6), falling back to
+    ``Volume {i}``.
     """
     boundary_chapters = read_volume_boundaries(project_dir)
     if not boundary_chapters:
         return None
 
+    vm_text = (project_dir / VOLUME_MAP_PATH).read_text(encoding="utf-8")
     boundaries_sorted = sorted(boundary_chapters)
     prev_end = 0
     for i, end in enumerate(boundaries_sorted, 1):
         ch_start = prev_end + 1
         if ch_start <= chapter <= end:
-            return (f"Volume {i}", ch_start, end)
+            name = _volume_display_name(vm_text, i) or f"Volume {i}"
+            return (name, ch_start, end)
         prev_end = end
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Chapter-node / bridge / volume-name extraction (spec #6 R6).
+# ---------------------------------------------------------------------------
+
+_CN_NODE_ROW_RE_TMPL = r"^[ \t]*\|\s*第\s*{ch}\s*章\s*\|([^|]+)\|([^|]+)\|"
+_BRIDGE_HEADS = ("### 跨卷桥接", "## Cross-Volume Bridges")
+_BRIDGE_ROW_RE = re.compile(
+    r"^[ \t]*\|\s*\d+\s*\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]+)\|([^|]*)\|",
+    re.MULTILINE,  # sections start with "\n\n| # |..." — ^ must anchor per line
+)
+_THIS_BOOK_VOL_RE = re.compile(r"^第\d+卷$")
+# Compact ranges `第26-28章` (no second 第) and full form `第A章 - 第B章` both
+# occur in production — the second 第 must be optional.
+_ACT_RANGE_RE = re.compile(r"第\s*(\d+)\s*(?:[-\u2013\u2014~\u301c]\s*(?:第\s*)?(\d+)\s*)?章")
+
+
+def read_chapter_node(volume_map_text: str, chapter: int) -> dict[str, str] | None:
+    """Extract {role, content} from the ``| 第N章 | role | content |`` node row.
+
+    Rows are indented (nested under ``- **章节节点**:``) — leading whitespace
+    tolerated. The bare ``| N |`` alternative is deliberately NOT offered: it
+    matches bridge-table ``| 1 |`` rows (the R6 garbage bug). Legacy English
+    maps are deferred to the dead-code/legacy batch (specs #16/#25).
+    """
+    m = re.search(_CN_NODE_ROW_RE_TMPL.format(ch=chapter), volume_map_text, re.MULTILINE)
+    if m:
+        return {"role": m.group(1).strip(), "content": m.group(2).strip()}
+    return None
+
+
+@dataclass(frozen=True)
+class BridgeRow:
+    content: str
+    kind: str
+    target_volume: str
+    activation: int | None
+    status: str
+
+
+def read_bridges(volume_map_text: str) -> list[BridgeRow]:
+    """Aggregate bridge rows across ALL bridge sections (5 in production — one
+    per volume; the old split()[1] consumers only ever saw volume 1).
+
+    Rows whose 带入卷 is not ``第N卷`` (sequel markers like ``《…》续作``) are
+    skipped; non-numeric activation values skip with a WARN.
+    """
+    from shenbi.logging import get_logger
+
+    rows: list[BridgeRow] = []
+    for head in _BRIDGE_HEADS:
+        for section in volume_map_text.split(head)[1:]:
+            for m in _BRIDGE_ROW_RE.finditer(section):
+                content, kind, target, act_raw, status = (g.strip() for g in m.groups())
+                if not _THIS_BOOK_VOL_RE.match(target):
+                    continue  # sequel / non-volume row (spec #6 R6)
+                am = _ACT_RANGE_RE.search(act_raw)
+                if not am:
+                    get_logger(__name__).warning(
+                        "bridge_activation_non_numeric", target=target, raw=act_raw
+                    )
+                    continue
+                ends = [int(am.group(1))] + ([int(am.group(2))] if am.group(2) else [])
+                rows.append(BridgeRow(content, kind, target, min(ends), status))
+    return rows
+
+
+def bridges_for_chapter(
+    bridges: list[BridgeRow], chapter: int, window: int = _BRIDGE_ACTIVATION_WINDOW
+) -> list[str]:
+    return [
+        f"{b.target_volume} 桥接: {b.content} (activates Ch {b.activation})"
+        for b in bridges
+        if b.activation is not None and chapter >= b.activation - window
+    ]
+
+
+def _volume_display_name(text: str, index: int) -> str | None:
+    heads = list(_CN_VOL_HEAD_RE.finditer(text))
+    if 0 < index <= len(heads):
+        line_end = text.find("\n", heads[index - 1].start())
+        raw = text[heads[index - 1].start() : line_end].lstrip("#").strip()
+        # The `（第A-B章）` suffix is a production coincidence, not the volume
+        # name — strip it.
+        return re.sub(r"[（(][^）)]*[）)]\s*$", "", raw).strip()
     return None
