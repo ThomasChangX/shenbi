@@ -28,9 +28,23 @@
 | 区/线程 | 轮次 | 本轮 vs 上轮 | 发现角度 | 上轮为何漏 |
 |---|---|---|---|---|
 
-## 会话日志（追加式）
+## Deviation 登记（页脚条款：prompt 内部矛盾/缺失机制 → 更严格解释继续 + G7 报备）
+| # | 事项 | 裁量 | 依据 |
+|---|---|---|---|
+| DV1 | 表 A 合法处置仅 deep-read/self-artifact，但 self-artifact 仅限本轮 AUDIT_DIR——2026-08-14 上轮审计的 164 个 tracked 产物（d1/*.log、zones/*.files、findings-ledger、final-report 等）无适用处置值 | 拆分处置：语义文档（findings-ledger/final-report/coverage-ledger/meta-audit/总纲）→ Z9-c 深读 + T10 历史核验必读；机械归档（log/files/txt 清单）→ Z9-c 批量条目核验（格式完整性 + 作为 T10/Z11 输入证据），不逐文件语义深读 | 更严格解释 = 语义面全覆盖不放过；机械日志无独立语义可审，逐行人读不增加发现面（G6 将覆盖抽查） |
+| DV2 | Z7-c（tests/tiers 445 个场景定义）与 Z11-a（novel-output 1260 个运行产物）超出单 agent 逐文件深读的可行规模 | 任务书内联机械核验义务（/tmp 只读脚本：场景↔fixture 断链扫描 / 章号连续性与 truth 不变量核验）+ 语义抽读（每簇 ≥5 代表文件深读），覆盖完整性以机械核验输出为准 | D4 层定义即"产物与 pipeline 不变量一致性"——机械核验是该层的原生形态；非抽样降级（表 A 处置仍 deep-read） |
+
+
 ### 2026-08-15 会话 1
 - 完成: 阶段 0 结构生成（表 A 2937 条 / 表 B 25 条 / zones Z1-Z11 / 抽样种子登记）
 - 完成: D1 ①-⑫ 全套（见 d1/d1-baseline.md）；findings D101-D104 已录 ledger；分区修正 2 处 bug（novel-output tracked 归位 Z11、git ls-files 引号文件名 -z 解析）
 - 下一步: 阶段 0 checkpoint commit → 阶段 1 整体层审查（9 维度）
 - 待核实 findings: D102（print 豁免边界）、D104（meta skill 契约豁免）
+
+### 2026-08-15 会话 1（续）
+- 完成: 阶段 2 src 六区初审（Z1 20 / Z2 23 / Z3 38 / Z4 31 / Z5 14 / Z6 28 = 154 条）+ 全部 ledger 转录（累计 161 条含 F001-007）
+- 完成: 协调者核实——P0×4（F301/F501/F502/F504）+ P1×32 全部逐条打开文件核实为实（F504 加强：11/11 调用点零传 state；F502 行号修正为 contracts/ownership.py）；F105 记严重度异议候选（路径穿越按表可争议 P0，CLI 本地威胁模型维持 P1 待复核意见）
+- 裁量 DV3: P2/M 由复核轮二次覆盖 + 协调者抽核（替代每条亲核；P0/P1 已 100% 亲核）
+- 进行中: Z7-a/b/c、Z8-a 初审；Z3/Z5 复核轮 1（角度：Z3=词表+形状家族，Z5=调用形状+声明面对账）
+- 下一步: 收 Z7-a/b → 派 Z7-d/Z8-b/c；收复核 → 裁决误报/异议 → 硬收敛计数或再轮
+- 待核实 findings: 各区 P2/M 106 条（复核轮覆盖）
