@@ -338,3 +338,22 @@
 | AGENTS.md 结构树含已删除的 tests/rounds | error | error | P2 | 根因: b978d3c "remove round test infrastructure (superseded by pipeline)" 后未更新结构注释（运行时 round 目录可再生但 "Active + archived" 语义失效） | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | concepts.md 连续双水平线 | error | error | P2 | 根因: 删节残留 | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | 目标字数口径不一 | error | error | P2 | 根因: goal 快照写 20 万，种子文件为 10 万 | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
+| F867 | style-learning 输出模板编号/小节与真实产物及全部下游字段读不一致 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F868 | volume-consolidation 整文件覆写 volume_summaries 但 reads 不含该文件，追加语义下旧卷摘要丢失 | error | P0 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | verified |
+| F869 | state-settling frontmatter(append_dedup) 与正文(replace) 对 current_state/particle_ledger/subplot_board 写模式互相矛盾 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F870 | state-settling 正文指示写 characters/protagonist.md（契约外写，字段所有权属他人） | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F871 | score-volume 声明写 volume_score_trend 但正文零步骤零格式，dedup key=chapter 应为 volume | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F872 | score-stratum 声明 updates book_spine 但正文零说明（设计意图只存在于 triggers.py 注释） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F873 | using-shenbi 触发表路由 14 个 DEPRECATED 技能，默认审计列 3 个 DEPRECATED，且 0 处路由到 group-*/foreshadowing-lifecycle 后继 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F874 | review-sensitivity 缺陷证据格式段引用残缺（"必须遵循␣␣定义的四要素格式"缺指代对象） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F875 | volume-outlining 跨卷钩子数量（铁律≥1 vs EXACT≥3）与张力曲线铺垫段范围（10-20% vs 15-25%）自相矛盾 | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F876 | worldbuilding 声称初始化 11 个 truth files 实际列举 12 个；出现两个"## 铁律"节 | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F877 | shenbi-writing-skills description 含功能描述从句，违反自身与 AGENTS.md 契约 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F878 | using-shenbi description 含功能描述从句（较轻，偏 scope 阐述） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F879 | using-shenbi 引用不存在路径 docs/specs/2026-06-08-shenbi-design.md（实际已移至 archive） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F880 | style-polishing DOT 声明读 prohibitions 但 frontmatter genre-config fields 只有 fatigueWords（字段过滤后不可见） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F881 | short-drafting 写声明 short/short-N-decisions.json 但正文零描述（repo 通病，G4 中央校验兜底） | optimization | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F882 | state-settling mode-rules 节列出非本 skill 契约文件（resonance_trend/audit_drift），误导执行者越权写 | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F883 | volume-consolidation 执行步骤双"5"编号 + 两个冲突的"## 输出格式"模板 | error | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F884 | truth-sync 操作范围多章（N..M）但 reads 仅单章 parametric chapters/chapter-N.md | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F885 | score-arc/stratum/volume description 中英混排 + audit 技能评分刻度不统一（X/10 vs /100） | optimization | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
