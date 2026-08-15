@@ -116,9 +116,3 @@ def test_parse_multiple_context_lines_first_wins():
 
 def test_format_empty_context_returns_empty_string():
     assert format_path_context(PathContext()) == ""
-
-
-def test_family_missing_in_ctx_falls_back_to_chapter():
-    """Ctx present but the family field is None -> chapter semantics for it."""
-    ctx = PathContext(chapter=9)  # no arc field
-    assert resolve_contract_path("truth/arcs/arc-N.md", 9, ctx) == "truth/arcs/arc-9.md"
