@@ -522,3 +522,8 @@
 | F955 | prompt 设计 spec :226 预写审计目录 2026-08-13/（F943 未列的第三处同族漂移） | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
 | F956 | F8/F9/F10 跨审计代 finding 编号命名空间复用 | error | M | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
 | F957 | 文档断链 CI 防线（test_docs_accuracy.py）盲区：F901/F951 类断链可无感穿过 | error | P2 | 见 Z9-review-r1 | 见 zone-reports/Z9-review-r1.md | 见 Z9-review-r1 | 见 Z9-review-r1 | 见 Z9-review-r1 | Z9 复核r1 | open |
+| F231 | deps.json 技能账目三方漂移：磁盘 74 vs 账目 69 vs AGENTS.md 69，5 个生产技能漏账且无对账防线 | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
+| F232 | genre-config 契约模型"9 条可自动检查规则"只实现 7 条：approval 必填与顶层字段数=8 完全未编码，G4 放行无审批配置 | error | P1 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
+| F236 | registry.py docstring 指向已删除的 src/shenbi/contract.py（"未迁移返回 None（contract.py 仍负责）"） | error | M | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
+| F233 | fields 解析器对重复 H2 标题静默覆盖：过滤产物只保留最后一个同名节，无 WARN | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
+| F234 | extract_chapter 首匹配正则：prompt 提及多个章号时取最先出现者，路由错章 | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
