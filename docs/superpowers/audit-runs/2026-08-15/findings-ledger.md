@@ -433,7 +433,7 @@
 | F1101 | 5 章正文被修订技能摘要覆写丢失（不可恢复） | error | P0 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
 | F1102 | decisions.json 契约被静默违反：145 个中 88 个（61%）不合规 | error | P0 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
 | F1103 | state 死字段：revision_count 与 resonance_score 全程未写入 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
-| F1104 | chapter_summaries.md 仅覆盖 2/56 章（历史 finding 原样复现）（裁决降 P1：从未生成而非已生成丢失，同簇 F1310 P1/F1105 P2 一致性；根因 F360 维持 P0 含生产实证） | error | P1| 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
+| F1104 | chapter_summaries.md 仅覆盖 2/56 章（历史 finding 原样复现）（裁决降 P1：从未生成而非已生成丢失，同簇 F1310 P1/F1105 P2 一致性；根因 F360 维持 P0 含生产实证）（F1175 根因修正：快照实证已生成未落盘、部分可恢复——支持 P1 终裁） | error | P1| 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
 | F1105 | 趋势类 truth 同样覆盖坍缩：resonance_trend 1 行、audit_drift 1 章 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
 | F1106 | truth/state_snapshot-pre-rev.md 不在词表——静默同义词 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
 | F1107 | BLOCKING 汇总抑制：单项审计判 BLOCKING，review-summary 全部报 0 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
@@ -460,7 +460,7 @@
 | F1159 | 「Examples ARE committed」回归重放机制双重死亡：gitignore 压制使样本从未入库（CI/新克隆零重放），叠加上轮 F1318（M）未修 | error | P1 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
 | F1160 | .benchmarks 基准历史为单次冒烟 autosave：无真实性能基准套件，无跨运行可比性；与 tests/baselines/ 是两套无关体系 | optimization | P2 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
 | F1161 | 本地会话日志残留 Google OAuth 流完整 URL（一次性 state/nonce/code_challenge 参数），无清理策略 | security | M | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
-| F121 | T1 marker 读写协议错配：bug-hunt/clean 的 G4 marker 永不存在，marker 强制对 2/3 测试类型不可满足 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
+| F121 | T1 marker 读写协议错配：bug-hunt/clean 的 G4 marker 永不存在，marker 强制对 2/3 测试类型不可满足（裁决升 P1：F131 实跑证明 codex 生产路径恒传 test-type 必经死路） | error | P1| 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F122 | filter_dimensions_by_test_type 的 scope 号码抽取对区间只取端点："Shared audit (3-7)" → {3,7}，漏 4/5/6 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F123 | phase_runner main() 位置参数与 flag 共用 args 无解析器：缺位时 flag token 被绑定为 phase/skill 并写出垃圾状态文件 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F124 | cmd_post_score 对 malformed scores 文件裸抛 JSONDecodeError traceback——该检查正是为这个场景而写，却不结构化报错 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
@@ -468,6 +468,15 @@
 | F126 | scoring CLI 三重文档↔实现漂移：usage 承诺 T1 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F127 | __init__.py docstring 子模块清单过期程度远超 F117 所述：仅列 6 项，实际顶层 .py 13 + 子包 13 | error | M | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
 | F128 | load_rubric 无节作用域：全文件任何 ` | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | open |
+| F129 | T3/G6 marker 读写错配（F121 镜像面，probe 实证）（裁决升 P1：F131 证明生产路径必经——codex 模式每次 dispatch 恒传 test-type 而 bughunt/clean 分支从不写 marker，与 F463 互证） | 漏报 | P1 | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F130 | G3.2 读键与 scoring 输出形状错配：total_score/score/顶层数字键 vs 写方 final_score+嵌套 dimensions[]——规范评分报告（95 分 PASS excellent）实测被判 G3 FAIL | 漏报 | P2 | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F131 | F121 证据升级：dispatcher codex 模式对每次 dispatch 恒传 --round-dir+--test-type——marker 强制失效是 bug-hunt/clean dispatch 评分步骤必经死路（实跑 rc=3，推翻 r1 判 F121 P2 的前提） | 漏报 | P2 | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F132 | NaN/bool 穿透 validate——NaN 输出非 RFC JSON | 漏报 | P2 | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F133 | 零/负权重静默路径——实测 final_score=120 判 PASS (excellent) | 漏报 | P2 | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F134 | classify 硬编码 75/60 违背阈值单源 | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F135 | --chapter 非整数裸崩 | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F136 | gate_markers_verified 空转记 true | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
+| F137 | applicability 缺格默认 Yes | 漏报 | M | 见 Z1-review-r2 | 见 zone-reports/Z1-review-r2.md | 见 Z1-review-r2 | 见 Z1-review-r2 | 见 Z1-review-r2 | Z1 复核r2 | open |
 | F967 | F967 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F968 | F968 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F969 | F969 | error | P2 | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
@@ -573,6 +582,13 @@
 | F231 | deps.json 技能账目三方漂移：磁盘 74 vs 账目 69 vs AGENTS.md 69，5 个生产技能漏账且无对账防线 | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
 | F232 | genre-config 契约模型"9 条可自动检查规则"只实现 7 条：approval 必填与顶层字段数=8 完全未编码，G4 放行无审批配置 | error | P1 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
 | F236 | registry.py docstring 指向已删除的 src/shenbi/contract.py（"未迁移返回 None（contract.py 仍负责）"） | error | M | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
+| F237 | DecisionsDoc 键空间与真实生产者全面断裂：89 个样本仅 3 过 schema（44 非法 JSON + 42 违反 Literal/extra=forbid）；协调者全树复跑更强——145 个 decisions.json 仅 5 通过（83 解析失败+57 schema 违反）；schema 源头是测试内联字面量反推 | 漏报 | P1 | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | verified |
+| F238 | pending_hooks.md 真实表格格式 vs 消费端 frontmatter 解析假设——条件 resolve/召回升级对真实数据恒静默失效（正文 15 处 TRIGGERED 计数 0，协调者复跑证实） | 漏报 | P1 | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | verified |
+| F239 | Layer B 字段声明 19/35 对真实 truth 文件零命中 + 4 文件不存在（F227 系统化全貌） | 漏报 | P2 | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | open |
+| F240 | NovelConfig 与 seed_parser 生产代码 + 真实 novel.json 三方矛盾（genre str vs list 等 3 处） | 漏报 | P2 | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | open |
+| F241 | ProgressDoc 键空间 vs 真实 progress.json | 漏报 | M | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | open |
+| F242 | truth-files.yaml 唯一无 pattern/glob 覆盖的参数化概念 review-checklist-N.json（56 实例 resolves 全 False） | 漏报 | P2 | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | open |
+| F243 | OutputKind.EPHEMERAL 数据死值 | 漏报 | M | 见 Z2-review-r3 | 见 zone-reports/Z2-review-r3.md | 见 Z2-review-r3 | 见 Z2-review-r3 | 见 Z2-review-r3 | Z2 复核r3 | open |
 | F233 | fields 解析器对重复 H2 标题静默覆盖：过滤产物只保留最后一个同名节，无 WARN | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
 | F234 | extract_chapter 首匹配正则：prompt 提及多个章号时取最先出现者，路由错章 | error | P2 | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
 | F235 | g4_genre_config 诊断截断：ValidationError 只报告前 5 条（errors[:5]），其余静默丢弃 | error | M | 见 Z2-review-r2 | 见 zone-reports/Z2-review-r2.md | 见 Z2-review-r2 | 见 Z2-review-r2 | 见 Z2-review-r2 | Z2 复核r2 | open |
@@ -613,7 +629,7 @@
 | F772 | F777（P1）降级讨论：零消费者死文件的契约违反——维持 P1 记录张力 | severity-dispute | P1 | 见 Z7-review-r1 | 见 zone-reports/Z7-review-r1.md | 见 Z7-review-r1 | 见 Z7-review-r1 | 见 Z7-review-r1 | Z7 复核r1 | open |
 | F891 | SharedAuditContext 缓存 4 字段中 2 个经幻影路径/键错位 100% 失效 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
 | F895 | truth-files.yaml "pipeline-written files" 节登记不全：progress.json / config-change-log.jsonl / gate-markers/* 实产未注册 | error | P2 | 见 Z8-review-r1 | 见 zone-reports/Z8-review-r1.md | 见 Z8-review-r1 | 见 Z8-review-r1 | 见 Z8-review-r1 | Z8 复核r1 | open |
-| F1162 | 67 个生产产物内嵌 LLM 沙箱元叙述（只读沙箱无法写入请手动复制）污染 audits 全域 12 维度覆盖 35/56 章 + 2 章 resonance 分数自证手动计算（协调者独立复扫 44+ 量级证实） | 漏报 | P1 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | verified |
+| F1162 | 67 个生产产物内嵌 LLM 沙箱元叙述（只读沙箱无法写入请手动复制）污染 audits 全域 12 维度覆盖 35/56 章 + 2 章 resonance 分数自证手动计算（协调者独立复扫 44+ 量级证实）（F1171 权威复扫修正：实为 109 文件，r1 计数分层不可复现） | 漏报 | P1 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | verified |
 | F1163 | 时间戳编造倒挂 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
 | F1164 | ch35 唯一缺失 drafting-decisions | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
 | F1165 | 上轮 F1311 的 117 项脱节复现 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
@@ -622,6 +638,13 @@
 | F1168 | truth-index 停留 genesis 态 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
 | F1169 | patches 17 个回归例从未套用 | 漏报 | P2 | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
 | F1170 | 残留 0 字节 lockfile | 漏报 | M | 见 Z11-review-r1 | 见 zone-reports/Z11-review-r1.md | 见 Z11-review-r1 | 见 Z11-review-r1 | 见 Z11-review-r1 | Z11 复核r1 | open |
+| F1171 | F1162 权威复扫：全树元叙述污染实为 109 文件（audits 55+snapshots 37+staging 9+decisions 7+正文 ch35 1）——r1 报 67 且分层不可复现；扩展至正文交付物与快照二次嵌埋（协调者抽验 ch35:338 与 snapshots 证实） | 漏报 | P1 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | verified |
+| F1172 | ch51 resonance 手算 trend 五行三窗口两错值 + 超出阈值>5 断言为假（70-65=5 恰在边界带）——铁律3 违反的实际后果实证 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1173 | helper 可用性矛盾 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1174 | 35 章 verdict 重试无账 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1175 | ### FILE: 捕获模式（快照实证 state-settling 曾生成 8 truth 文件含 Ch5 摘要但未落盘） | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1176 | b 段清单缺口处置落账：1082 实为 1083（r1 加法笔误）；constants 1067=cache-ignored、patches 13=needs-review（F1169）、unicode 2+playwright 1=generated-excluded | 漏报 | M | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
+| F1177 | 上轮 verified 承接断链：F1301（P1 章节头 56/56 缺失）/F1302（P1 META 契约）/F1320（M DEBUG 计数漂移 1226 vs 1229）三条本轮零承接且盘上复现；F1315/F1316/F1317 部分承接无映射 | 漏报 | P2 | 见 Z11-review-r2 | 见 zone-reports/Z11-review-r2.md | 见 Z11-review-r2 | 见 Z11-review-r2 | 见 Z11-review-r2 | Z11 复核r2 | open |
 | T1001 | D1 行号订正在归档 spec 中再次漂移（第三次，较上轮恶化 +22→+43 行，PR #42 dispatch_helper +61 行所致）；修复动作在、修复效果失效 | 部分回归 | P2 | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
 | T1002 | INDEX:91 torch "待 #3 follow-up" 注记过期——已由 PR #42（ac46663）重建 INDEX 时顺带移除，grep torch=0 命中 | 修复确认 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | closed（顺带修复） |
 | T1003 | F860 台账文本"12 patch"与磁盘 13 patch 不符（17 失败计数精确无误，纯清点笔误） | 文档漂移 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |

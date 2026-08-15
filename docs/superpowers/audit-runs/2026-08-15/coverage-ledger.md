@@ -2962,8 +2962,8 @@
 | .claude/ | cache-ignored | — | 工具缓存（claude 会话态），.gitignore 已覆盖 |
 | .codegraph/ | cache-ignored | — | 工具缓存，.gitignore 已覆盖 |
 | .coverage | cache-ignored | — | 覆盖率数据文件，pytest --cov 可再生 |
-| .hypothesis/constants/ | cache-ignored | — | hypothesis 内部缓存 |
-| .hypothesis/patches/ | cache-ignored | — | hypothesis 内部缓存 |
+| .hypothesis/constants/（1067 文件） | cache-ignored | zone-reports/Z11-review-r2.md 专项 b | Z11-r2 机械核验；其中 28 文件为本审计窗口内本机测试活动写入（环境完整性备注，非审计 agent 所为） |
+| .hypothesis/patches/（13 文件） | audited | zone-reports/Z11-review-r2.md 专项 b + F1169 | 13 patch（17 discovered failure）needs-review；Z11-r2 机械核验 |
 | .hypothesis/unicode_data/ | cache-ignored | — | hypothesis 内部缓存 |
 | .mypy_cache/ | cache-ignored | — | mypy 缓存 |
 | .playwright-mcp/（除 console log 外） | cache-ignored | — | playwright 会话缓存（截图等），console log 已单列 audited |
