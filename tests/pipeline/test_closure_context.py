@@ -14,13 +14,6 @@ from shenbi.pipeline.closure import (
 FIXTURE = Path(__file__).resolve().parent.parent / "fixtures" / "volume-map-xinghuo.md"
 
 
-def _mk_project(tmp_path: Path) -> Path:
-    proj = tmp_path / "proj"
-    proj.mkdir()
-    (proj / "novel.json").write_text(json.dumps({"total_chapters": 100}), encoding="utf-8")
-    return proj
-
-
 def _mk_cn_project(tmp_path: Path) -> Path:
     proj = tmp_path / "cnproj"
     (proj / "outline").mkdir(parents=True)
@@ -86,7 +79,7 @@ def test_dispatch_skill_injects_context_line(tmp_path, monkeypatch):
     assert "[path-context] chapter=100 volume=5" in str(captured["prompt"])
 
 
-def test_escalation_genesis_sentinel(tmp_path):
+def test_escalation_genesis_sentinel():
     """F3B5: chapter=None escalation resolves to the genesis artifact name."""
     from shenbi.contracts.paths import resolve_contract_path
 
@@ -98,7 +91,7 @@ def test_escalation_genesis_sentinel(tmp_path):
     )
 
 
-def test_anchor_curate_sentinel(tmp_path):
+def test_anchor_curate_sentinel():
     """F380: AC-NNN resolves via anchor ctx (genesis table sentinel AC-001.md)."""
     from shenbi.contracts.paths import resolve_contract_path
 
