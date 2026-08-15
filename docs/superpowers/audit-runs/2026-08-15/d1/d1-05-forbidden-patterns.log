@@ -1,0 +1,18 @@
+=== bare except in src ===
+count=       0
+=== print( in src ===
+src/shenbi/cost/report.py:93:            print(f"error: project dir not found: {args.project_dir}", file=sys.stderr)
+src/shenbi/cost/report.py:95:        print(render_report(args.project_dir))
+src/shenbi/gates/g4/chapter_drafting.py:96:def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
+src/shenbi/gates/g4/chapter_drafting.py:265:                    this_fingerprint = _text_fingerprint(content)
+src/shenbi/gates/g4/chapter_drafting.py:272:                            other_fp = _text_fingerprint(other_content)
+src/shenbi/pipeline/cli.py:945:            print(f"  Backfilled context for chapter {ch}")
+src/shenbi/pipeline/cli.py:947:            print(f"  FAILED chapter {ch}: {e}", file=sys.stderr)
+src/shenbi/skill_utils/escalation/check.py:149:    print(
+src/shenbi/skill_utils/foreshadowing_recall/recall.py:61:    print(json.dumps(overdue))
+count=       5
+=== pickle ===
+=== TODO/FIXME/HACK in src ===
+src/shenbi/pipeline/chapter_loop.py:20:implements the audit layer, W3T5 implements revision routing. Clear TODO
+count=       1
+=== hardcoded /Users or /home ===

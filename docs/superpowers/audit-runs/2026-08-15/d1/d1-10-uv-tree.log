@@ -1,0 +1,217 @@
+Resolved 180 packages in 4ms
+shenbi v0.1.0
+├── jieba v0.42.1
+├── numpy v2.4.6
+├── openai v2.44.0
+│   ├── anyio v4.14.1
+│   │   ├── idna v3.18
+│   │   └── typing-extensions v4.15.0
+│   ├── distro v1.9.0
+│   ├── httpx v0.28.1
+│   │   ├── anyio v4.14.1 (*)
+│   │   ├── certifi v2026.5.20
+│   │   ├── httpcore v1.0.9
+│   │   │   ├── certifi v2026.5.20
+│   │   │   └── h11 v0.16.0
+│   │   └── idna v3.18
+│   ├── jiter v0.16.0
+│   ├── pydantic v2.13.4
+│   │   ├── annotated-types v0.7.0
+│   │   ├── pydantic-core v2.46.4
+│   │   │   └── typing-extensions v4.15.0
+│   │   ├── typing-extensions v4.15.0
+│   │   └── typing-inspection v0.4.2
+│   │       └── typing-extensions v4.15.0
+│   ├── sniffio v1.3.1
+│   ├── tqdm v4.68.3
+│   └── typing-extensions v4.15.0
+├── pydantic v2.13.4 (*)
+├── pyyaml v6.0.3
+├── structlog v26.1.0
+├── tenacity v9.1.4
+├── sentence-transformers v5.6.0 (extra: embeddings)
+│   ├── huggingface-hub v1.21.0
+│   │   ├── click v8.4.1
+│   │   ├── filelock v3.29.4
+│   │   ├── fsspec v2026.6.0
+│   │   ├── hf-xet v1.5.1
+│   │   ├── httpx v0.28.1 (*)
+│   │   ├── packaging v26.2
+│   │   ├── pyyaml v6.0.3
+│   │   ├── tqdm v4.68.3
+│   │   ├── typer v0.25.1
+│   │   │   ├── annotated-doc v0.0.4
+│   │   │   ├── click v8.4.1
+│   │   │   ├── rich v15.0.0
+│   │   │   │   ├── markdown-it-py v4.2.0
+│   │   │   │   │   ├── mdurl v0.1.2
+│   │   │   │   │   └── linkify-it-py v2.1.0 (extra: linkify)
+│   │   │   │   │       └── uc-micro-py v2.0.0
+│   │   │   │   └── pygments v2.20.0
+│   │   │   └── shellingham v1.5.4
+│   │   └── typing-extensions v4.15.0
+│   ├── numpy v2.4.6
+│   ├── scikit-learn v1.9.0
+│   │   ├── joblib v1.5.3
+│   │   ├── narwhals v2.23.0
+│   │   ├── numpy v2.4.6
+│   │   ├── scipy v1.17.1
+│   │   │   └── numpy v2.4.6
+│   │   └── threadpoolctl v3.6.0
+│   ├── scipy v1.17.1 (*)
+│   ├── torch v2.13.0
+│   │   ├── filelock v3.29.4
+│   │   ├── fsspec v2026.6.0
+│   │   ├── jinja2 v3.1.6
+│   │   │   └── markupsafe v3.0.3
+│   │   ├── networkx v3.6.1
+│   │   ├── setuptools v83.0.0
+│   │   ├── sympy v1.14.0
+│   │   │   └── mpmath v1.3.0
+│   │   └── typing-extensions v4.15.0
+│   ├── tqdm v4.68.3
+│   ├── transformers v5.12.1
+│   │   ├── huggingface-hub v1.21.0 (*)
+│   │   ├── numpy v2.4.6
+│   │   ├── packaging v26.2
+│   │   ├── pyyaml v6.0.3
+│   │   ├── regex v2026.6.28
+│   │   ├── safetensors v0.8.0
+│   │   ├── tokenizers v0.22.2
+│   │   │   └── huggingface-hub v1.21.0 (*)
+│   │   ├── tqdm v4.68.3
+│   │   └── typer v0.25.1 (*)
+│   └── typing-extensions v4.15.0
+├── basedpyright v1.39.7 (group: dev)
+│   └── nodejs-wheel-binaries v24.16.0
+├── coverage v7.14.1 (group: dev)
+├── cyclonedx-bom v7.3.0 (group: dev)
+│   ├── chardet v5.2.0
+│   ├── cyclonedx-python-lib[validation] v11.10.0
+│   │   ├── license-expression v30.4.4
+│   │   │   └── boolean-py v5.0
+│   │   ├── packageurl-python v0.17.6
+│   │   ├── py-serializable v2.1.0
+│   │   │   └── defusedxml v0.7.1
+│   │   ├── sortedcontainers v2.4.0
+│   │   ├── typing-extensions v4.15.0
+│   │   ├── jsonschema[format-nongpl] v4.26.0 (extra: validation)
+│   │   │   ├── attrs v26.1.0
+│   │   │   ├── jsonschema-specifications v2025.9.1
+│   │   │   │   └── referencing v0.37.0
+│   │   │   │       ├── attrs v26.1.0
+│   │   │   │       ├── rpds-py v2026.5.1
+│   │   │   │       └── typing-extensions v4.15.0
+│   │   │   ├── referencing v0.37.0 (*)
+│   │   │   ├── rpds-py v2026.5.1
+│   │   │   ├── fqdn v1.5.1 (extra: format-nongpl)
+│   │   │   ├── idna v3.18 (extra: format-nongpl)
+│   │   │   ├── isoduration v20.11.0 (extra: format-nongpl)
+│   │   │   │   └── arrow v1.4.0
+│   │   │   │       ├── python-dateutil v2.9.0.post0
+│   │   │   │       │   └── six v1.17.0
+│   │   │   │       └── tzdata v2026.2
+│   │   │   ├── jsonpointer v3.1.1 (extra: format-nongpl)
+│   │   │   ├── rfc3339-validator v0.1.4 (extra: format-nongpl)
+│   │   │   │   └── six v1.17.0
+│   │   │   ├── rfc3986-validator v0.1.1 (extra: format-nongpl)
+│   │   │   ├── rfc3987-syntax v1.1.0 (extra: format-nongpl)
+│   │   │   │   └── lark v1.3.1
+│   │   │   ├── uri-template v1.3.0 (extra: format-nongpl)
+│   │   │   └── webcolors v25.10.0 (extra: format-nongpl)
+│   │   ├── lxml v6.1.1 (extra: validation)
+│   │   └── referencing v0.37.0 (extra: validation) (*)
+│   ├── packageurl-python v0.17.6
+│   ├── packaging v26.2
+│   └── pip-requirements-parser v32.0.1
+│       ├── packaging v26.2
+│       └── pyparsing v3.3.2
+├── git-cliff v2.13.1 (group: dev)
+├── hypothesis v6.155.2 (group: dev)
+│   └── sortedcontainers v2.4.0
+├── mutmut v3.6.0 (group: dev)
+│   ├── click v8.4.1
+│   ├── coverage v7.14.1
+│   ├── libcst v1.8.6
+│   │   └── pyyaml v6.0.3
+│   ├── pytest v9.1.0
+│   │   ├── iniconfig v2.3.0
+│   │   ├── packaging v26.2
+│   │   ├── pluggy v1.6.0
+│   │   └── pygments v2.20.0
+│   ├── setproctitle v1.3.7
+│   └── textual v8.2.7
+│       ├── markdown-it-py[linkify] v4.2.0 (*)
+│       ├── mdit-py-plugins v0.6.1
+│       │   └── markdown-it-py v4.2.0 (*)
+│       ├── platformdirs v4.10.0
+│       ├── pygments v2.20.0
+│       ├── rich v15.0.0 (*)
+│       └── typing-extensions v4.15.0
+├── mypy v2.1.0 (group: dev)
+│   ├── ast-serialize v0.5.0
+│   ├── librt v0.11.0
+│   ├── mypy-extensions v1.1.0
+│   ├── pathspec v1.1.1
+│   └── typing-extensions v4.15.0
+├── pip-audit v2.10.1 (group: dev)
+│   ├── cachecontrol[filecache] v0.14.4
+│   │   ├── msgpack v1.2.1
+│   │   ├── requests v2.34.2
+│   │   │   ├── certifi v2026.5.20
+│   │   │   ├── charset-normalizer v3.4.7
+│   │   │   ├── idna v3.18
+│   │   │   └── urllib3 v2.7.0
+│   │   └── filelock v3.29.4 (extra: filecache)
+│   ├── cyclonedx-python-lib v11.10.0 (*)
+│   ├── packaging v26.2
+│   ├── pip-api v0.0.34
+│   │   └── pip v26.1.2
+│   ├── pip-requirements-parser v32.0.1 (*)
+│   ├── platformdirs v4.10.0
+│   ├── requests v2.34.2 (*)
+│   ├── rich v15.0.0 (*)
+│   ├── tomli v2.4.1
+│   └── tomli-w v1.2.0
+├── pre-commit v4.6.0 (group: dev)
+│   ├── cfgv v3.5.0
+│   ├── identify v2.6.19
+│   ├── nodeenv v1.10.0
+│   ├── pyyaml v6.0.3
+│   └── virtualenv v21.5.0
+│       ├── distlib v0.4.3
+│       ├── filelock v3.29.4
+│       ├── platformdirs v4.10.0
+│       └── python-discovery v1.4.2
+│           ├── filelock v3.29.4
+│           └── platformdirs v4.10.0
+├── pytest v9.1.0 (group: dev) (*)
+├── pytest-asyncio v1.4.0 (group: dev)
+│   ├── pytest v9.1.0 (*)
+│   └── typing-extensions v4.15.0
+├── pytest-benchmark v5.2.3 (group: dev)
+│   ├── py-cpuinfo v9.0.0
+│   └── pytest v9.1.0 (*)
+├── pytest-cov v7.1.0 (group: dev)
+│   ├── coverage[toml] v7.14.1
+│   ├── pluggy v1.6.0
+│   └── pytest v9.1.0 (*)
+├── pytest-ordering v0.6 (group: dev)
+│   └── pytest v9.1.0 (*)
+├── pytest-randomly v4.1.0 (group: dev)
+│   └── pytest v9.1.0 (*)
+├── pytest-timeout v2.4.0 (group: dev)
+│   └── pytest v9.1.0 (*)
+├── pytest-xdist v3.8.0 (group: dev)
+│   ├── execnet v2.1.2
+│   └── pytest v9.1.0 (*)
+├── ruff v0.15.17 (group: dev)
+├── sentence-transformers v5.6.0 (group: dev) (*)
+├── setuptools v83.0.0 (group: dev)
+├── types-pyyaml v6.0.12.20260518 (group: dev)
+└── yamllint v1.38.0 (group: dev)
+    ├── pathspec v1.1.1
+    └── pyyaml v6.0.3
+(*) Package tree already displayed
+Resolved 180 packages in 5ms
+shenbi v0.1.0

@@ -1,0 +1,17 @@
+=== G0 smoke (seed=20260814) ===
+{"gate": "G0", "status": "FAIL", "timestamp": "2026-08-15T05:29:46.086445+00:00", "checks": [{"id": "G0.1", "s": "FAIL", "r": "seed not found: 20260814"}], "blocked_action": "round_creation", "must_fix": ["G0.1"]}
+exit=0
+=== score --help ===
+[2m2026-08-15T05:29:46.275749Z[0m [[32m[1minfo     [0m] [1musage                         [0m [36mmessage[0m=[35m'Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]\n  scores.json format: {"1": 100, "2": 95, "3": 80, ...}\n  --kill-switch: force final score to 0 (any kill switch triggered)\n  --test-type: filter dimensions by applicability (renormalizes weights)\n  --tier T1|T2|T3 --phase <name>: enable gate checks before scoring\n  --gate-only <GATE> --files <f1,f2>: run gate check only, no scoring\n  Or: scoring.py <rubric.md> --interactive'[0m
+=== dispatch --help ===
+[2m2026-08-15T05:29:46.455683Z[0m [[32m[1minfo     [0m] [1musage                         [0m [36mmessage[0m=[35m'Usage: /Users/xiaotiac/Documents/GitHub/shenbi/.venv/bin/shenbi-dispatch <skill_name> <test_type> <round_dir> [prompt]'[0m
+=== phase --help ===
+[2m2026-08-15T05:29:46.639842Z[0m [[31m[1merror    [0m] [1mmissing_required_flag         [0m [36mflag[0m=[35m--round-dir[0m
+=== G2 smoke (real fixture) ===
+{"gate": "G2", "status": "PASS", "timestamp": "2026-08-15T05:29:47.011577+00:00", "checks": [{"id": "G2.1", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS"}, {"id": "G2.2", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS"}, {"id": "G2.3", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS"}, {"id": "G2.5", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS", "has_frontmatter": false, "required": false}, {"id": "G2.10", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS"}, {"id": "G2.12", "file": "tests/fixtures/chapter-2-draft.md", "s": "PASS"}]}
+exit=0
+=== G4 CLI smoke (expected contract error) ===
+  File "/Users/xiaotiac/Documents/GitHub/shenbi/src/shenbi/gates/g4/worldbuilding.py", line 29, in g4_worldbuilding
+    raise ValueError("round_dir or project_dir required for G4 RoundPaths checkers")
+ValueError: round_dir or project_dir required for G4 RoundPaths checkers
+exit=0

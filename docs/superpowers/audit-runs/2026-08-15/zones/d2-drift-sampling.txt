@@ -1,0 +1,1299 @@
+# D2 漂移抽样清单（阶段 0 预登记 · 固定规则：
+#   高风险文档 = docs/architecture/ + docs/framework/ + AGENTS.md + specs/INDEX.md -> 全部引用;
+#   其余 docs/**/*.md 与根级 *.md -> 按行序前 5 个 file:line 引用)
+# 合计登记引用数: 1048
+# Z11 tracked 部分（novel-output/truth/.hypothesis 等 git ls-files 条目）不参与 D2 漂移抽样
+
+## docs/framework/chapter-file-format.md [HIGH-RISK-FULL] (1 refs)
+  src/shenbi/gates/shared.py:120
+## docs/superpowers/audit-runs/2026-08-14/d1/d1-11-skip-summary.md [FIRST-5] (3 refs)
+  tests/integration/test_doc_links.py:36
+  tests/unit/pipeline/test_truth_embed.py:122
+  tests/unit/pipeline/test_context_assemble.py:167
+## docs/superpowers/audit-runs/2026-08-14/d1/d1-baseline.md [FIRST-5] (5 refs)
+  pipeline/cli.py:877
+  cost/report.py:93
+  skill_utils/foreshadowing_recall/recall.py:61
+  skill_utils/escalation/check.py:149
+  pyproject.toml:17
+## docs/superpowers/audit-runs/2026-08-14/findings-ledger.md [FIRST-5] (5 refs)
+  pyproject.toml:17
+  tests/unit/pipeline/test_truth_embed.py:122
+  test_context_assemble.py:167
+  pyproject.toml:420
+  AGENTS.md:19
+## docs/superpowers/audit-runs/2026-08-14/meta-audit.md [FIRST-5] (4 refs)
+  chapter_loop.py:2743
+  shared.py:120
+  SECURITY.md:20
+  checklist.md:36
+## docs/superpowers/audit-runs/2026-08-14/phase4-spotcheck-report.md [FIRST-5] (5 refs)
+  sync_contracts.py:40
+  scoring.py:205
+  executor.py:99
+  dispatch_helper.py:592
+  AGENTS.md:87
+## docs/superpowers/audit-runs/2026-08-14/progress.md [FIRST-5] (5 refs)
+  docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:36
+  error_handler.py:36
+  docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:37
+  error_handler.py:40
+  docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md:38
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T1.md [FIRST-5] (5 refs)
+  executor.py:197
+  truth-files.yaml:56
+  chapter_loop.py:1078
+  src/shenbi/pipeline/executor.py:197
+  src/shenbi/pipeline/chapter_loop.py:565
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T10.md [FIRST-5] (5 refs)
+  dispatch_helper.py:1333
+  cost/ledger.py:49
+  cost/report.py:40
+  dispatch_helper.py:1412
+  chapter_loop.py:3014
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T11.md [FIRST-5] (1 refs)
+  tests/unit/conftest.py:10
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T12.md [FIRST-5] (5 refs)
+  dispatch_helper.py:1735
+  dispatch_helper.py:1865
+  dispatch_helper.py:1905
+  phase_runner.py:87
+  executor.py:114
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T13.md [FIRST-5] (5 refs)
+  text/cjk.py:10
+  gates/g6.py:17
+  dispatch_helper.py:30
+  pipeline/truth_embed.py:185
+  pipeline/dispatch_helper.py:1502
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T14.md [FIRST-5] (5 refs)
+  chapter_loop.py:1001
+  chapter_loop.py:2001
+  revision_router.py:95
+  SKILL.md:51
+  SKILL.md:49
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T15.md [FIRST-5] (5 refs)
+  src/shenbi/gates/g5.py:153
+  tests/unit/gates/test_g5.py:139
+  dispatch_helper.py:1678
+  g5.py:275
+  g7.py:143
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T2.md [FIRST-5] (5 refs)
+  scripts/lint_contract_fields.py:1
+  .github/workflows/ci.yml:55
+  tools/pre-push-check.sh:27
+  .pre-commit-config.yaml:63
+  docs/framework/truth-files.yaml:89
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T3.md [FIRST-5] (5 refs)
+  AGENTS.md:82
+  AGENTS.md:82
+  src/shenbi/pipeline/dispatch_helper.py:38
+  src/shenbi/pipeline/dispatch_helper.py:592
+  executor.py:99
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T4.md [FIRST-5] (5 refs)
+  dispatch_helper.py:1399
+  dispatch_helper.py:1791
+  chapter_loop.py:1246
+  chapter_loop.py:2794
+  chapter_loop.py:2966
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T5.md [FIRST-5] (5 refs)
+  dispatch_helper.py:1441
+  paths.py:31
+  executor.py:251
+  config_coherence.py:113
+  dispatch_helper.py:1370
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T6.md [FIRST-5] (5 refs)
+  pipeline/parallel_dispatch.py:171
+  pipeline/chapter_loop.py:2405
+  parallel_dispatch.py:168
+  cost/ledger.py:57
+  pipeline/state.py:183
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T7.md [FIRST-5] (5 refs)
+  chapter_loop.py:3014
+  SKILL.md:161
+  chapter_loop.py:1076
+  cli.py:324
+  safe_write.py:58
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T8.md [FIRST-5] (5 refs)
+  AGENTS.md:97
+  scripts/lint_contract_fields.py:60
+  g0.py:13
+  src/shenbi/gates/g0.py:13
+  g0.py:95
+## docs/superpowers/audit-runs/2026-08-14/thread-reports/T9.md [FIRST-5] (5 refs)
+  status.py:17
+  base.py:29
+  chapter_revision.py:97
+  status.py:30
+  phase_runner.py:116
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.a.md [FIRST-5] (5 refs)
+  safe_write.py:71
+  sync_contracts.py:128
+  paths.py:31
+  scoring.py:362
+  scoring.py:415
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review.md [FIRST-5] (5 refs)
+  test_scoring.py:598
+  g5.py:115
+  gates/cli.py:126
+  sync_contracts.py:121
+  exceptions.py:57
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review10.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  error_guidance.py:24
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review11.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  test_scoring.py:598
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review12.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  error_guidance.py:24
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review13.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+  sync_contracts.py:121
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review14.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  error_guidance.py:24
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review15.md [FIRST-5] (5 refs)
+  scoring.py:88
+  command-to-give.md:64
+  scoring.py:463
+  command-to-give.md:57
+  gates/cli.py:118
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review16.md [FIRST-5] (5 refs)
+  rubric.md:38
+  scoring.py:88
+  rubric.md:43
+  command-to-give.md:64
+  scoring.py:463
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review2.md [FIRST-5] (5 refs)
+  test_phase_runner.py:668
+  gates/cli.py:126
+  sync_contracts.py:121
+  exceptions.py:57
+  test_exceptions.py:64
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review3.md [FIRST-5] (5 refs)
+  test_scoring.py:598
+  test_phase_runner.py:668
+  g5.py:115
+  gates/cli.py:131
+  sync_contracts.py:121
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review4.md [FIRST-5] (5 refs)
+  test_scoring.py:598
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+  sync_contracts.py:121
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review5.md [FIRST-5] (5 refs)
+  gates/shared.py:205
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+  sync_contracts.py:121
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review6.md [FIRST-5] (5 refs)
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+  sync_contracts.py:121
+  exceptions.py:57
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review7.md [FIRST-5] (5 refs)
+  g5.py:115
+  g5.py:202
+  gates/cli.py:131
+  sync_contracts.py:121
+  exceptions.py:57
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review8.md [FIRST-5] (5 refs)
+  error_guidance.py:24
+  test_scoring.py:598
+  g5.py:115
+  g5.py:202
+  scoring.py:361
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z1.review9.md [FIRST-5] (5 refs)
+  safe_write.py:105
+  g5.py:115
+  g5.py:202
+  sync_contracts.py:121
+  exceptions.py:57
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z10.md [FIRST-5] (5 refs)
+  tools/lint_contract_graph.py:7
+  ci.yml:53
+  .pre-commit-config.yaml:63
+  tools/pre-push-check.sh:27
+  tests/unit/tools/test_lint_contract_graph.py:4
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z11.md [FIRST-5] (5 refs)
+  ledger.py:23
+  parallel_dispatch.py:36
+  test_capability_fs_properties.py:16
+  novel-output/xinghuo-ranqiong/chapters/chapter-2.md:1
+  dispatch_helper.py:929
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z11.review.md [FIRST-5] (5 refs)
+  Z11.md:152
+  chapter_loop.py:1968
+  decisions-schema.md:56
+  Z11.md:235
+  Z11.md:118
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.a.md [FIRST-5] (5 refs)
+  AGENTS.md:87
+  pipeline/dispatch_helper.py:592
+  dispatch_helper.py:1367
+  parallel_dispatch.py:168
+  scoring.py:441
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review.md [FIRST-5] (5 refs)
+  AGENTS.md:87
+  test_skill_integration.py:188
+  sync_contracts.py:195
+  g6.py:51
+  route.py:41
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review10.md [FIRST-5] (5 refs)
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  test_skill_integration.py:188
+  g4/genre_config.py:13
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review11.md [FIRST-5] (5 refs)
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  test_skill_integration.py:188
+  g4/genre_config.py:13
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review12.md [FIRST-5] (5 refs)
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  test_skill_integration.py:188
+  g4/genre_config.py:13
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review13.md [FIRST-5] (5 refs)
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  registry.py:40
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review14.md [FIRST-5] (5 refs)
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  registry.py:40
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review15.md [FIRST-5] (5 refs)
+  test_skill_integration.py:188
+  genre_config.py:13
+  pacing_design.py:13
+  registry.py:40
+  deps.py:56
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review16.md [FIRST-5] (5 refs)
+  gates/cli.py:148
+  audit/snapshot.py:63
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review17.md [FIRST-5] (5 refs)
+  audit/record.py:36
+  g3.py:205
+  dispatch_helper.py:1934
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review2.md [FIRST-5] (5 refs)
+  chapter_planning.py:26
+  g4/chapter_planning.py:99
+  context_composing.py:24
+  g4/context_composing.py:74
+  volume_outlining.py:24
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review3.md [FIRST-5] (5 refs)
+  codex.py:62
+  g4/chapter_planning.py:99
+  context_composing.py:74
+  volume_outlining.py:59
+  sync_contracts.py:195
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review4.md [FIRST-5] (5 refs)
+  g4/chapter_planning.py:97
+  context_composing.py:74
+  volume_outlining.py:59
+  test_skill_integration.py:188
+  g4/genre_config.py:13
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review5.md [FIRST-5] (5 refs)
+  closure.py:158
+  dispatch_helper.py:1864
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review6.md [FIRST-5] (5 refs)
+  write_audit.py:22
+  executor.py:220
+  g2.py:382
+  codex.py:62
+  test_skill_integration.py:188
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review7.md [FIRST-5] (5 refs)
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+  g4/genre_config.py:13
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review8.md [FIRST-5] (5 refs)
+  gates/cli.py:148
+  g0.py:446
+  shared.py:157
+  g5.py:65
+  g_reconcile.py:41
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z2.review9.md [FIRST-5] (5 refs)
+  gates/cli.py:148
+  test_skill_integration.py:188
+  g4/chapter_planning.py:99
+  g4/context_composing.py:74
+  g4/volume_outlining.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.a.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/dispatch_helper.py:731
+  chapter_loop.py:2515
+  chapter_loop.py:2924
+  chapter_loop.py:2932
+  audit_layer.py:164
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review.md [FIRST-5] (5 refs)
+  chapter_loop.py:2932
+  chapter_loop.py:2794
+  cli.py:123
+  chapter_loop.py:1720
+  cli.py:823
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review10.md [FIRST-5] (5 refs)
+  volume_map.md:3
+  cli.py:219
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:348
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review11.md [FIRST-5] (5 refs)
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:748
+  triggers.py:623
+  cli.py:219
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review12.md [FIRST-5] (5 refs)
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:348
+  cli.py:748
+  triggers.py:623
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review13.md [FIRST-5] (5 refs)
+  cli.py:219
+  chapter_loop.py:1779
+  dispatch_helper.py:1044
+  chapter_loop.py:3014
+  crash_recovery.py:66
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review14.md [FIRST-5] (5 refs)
+  skills/shenbi-volume-outlining/SKILL.md:135
+  shenbi-story-architecture/SKILL.md:108
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:348
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review15.md [FIRST-5] (5 refs)
+  _shared.py:35
+  triggers.py:371
+  cli.py:219
+  dispatch_helper.py:655
+  chapter_loop.py:1779
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review16.md [FIRST-5] (5 refs)
+  cli.py:219
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:348
+  dispatch_helper.py:1127
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review17.md [FIRST-5] (5 refs)
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  dispatch_helper.py:734
+  chapter_loop.py:2515
+  chapter_loop.py:2799
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review18.md [FIRST-5] (5 refs)
+  cli.py:219
+  crash_recovery.py:66
+  cli.py:348
+  contracts/paths.py:28
+  dispatch_helper.py:1933
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review19.md [FIRST-5] (5 refs)
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  cli.py:348
+  genesis.py:244
+  revision_router.py:150
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review2.md [FIRST-5] (5 refs)
+  cli.py:219
+  dispatch_helper.py:731
+  chapter_loop.py:2515
+  chapter_loop.py:2794
+  cli.py:123
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review20.md [FIRST-5] (5 refs)
+  crash_recovery.py:66
+  chapter_loop.py:2508
+  crash_recovery.py:144
+  cli.py:324
+  cli.py:351
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review3.md [FIRST-5] (5 refs)
+  cli.py:219
+  chapter_loop.py:2702
+  chapter_loop.py:2907
+  dispatch_helper.py:731
+  chapter_loop.py:2515
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review4.md [FIRST-5] (5 refs)
+  cli.py:748
+  triggers.py:623
+  cli.py:219
+  dispatch_helper.py:734
+  chapter_loop.py:2515
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review5.md [FIRST-5] (5 refs)
+  crash_recovery.py:66
+  crash_recovery.py:144
+  cli.py:348
+  dispatch_helper.py:734
+  chapter_loop.py:2799
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review6.md [FIRST-5] (5 refs)
+  crash_recovery.py:66
+  cli.py:706
+  closure.py:148
+  dispatch_helper.py:734
+  chapter_loop.py:2799
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review7.md [FIRST-5] (5 refs)
+  crash_recovery.py:66
+  cli.py:348
+  dispatch_helper.py:734
+  chapter_loop.py:2799
+  dispatch_helper.py:1335
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review8.md [FIRST-5] (5 refs)
+  chapter_loop.py:2508
+  dispatch_helper.py:1833
+  dispatch_helper.py:734
+  chapter_loop.py:2799
+  dispatch_helper.py:1335
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z3.review9.md [FIRST-5] (5 refs)
+  chapter_loop.py:1779
+  crash_recovery.py:66
+  chapter_loop.py:2014
+  baseline.py:24
+  dispatch_helper.py:734
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.a.md [FIRST-5] (5 refs)
+  g0.py:665
+  review_resonance.py:64
+  g_dispatch.py:22
+  g_transition.py:22
+  src/shenbi/gates/g2.py:315
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review.md [FIRST-5] (5 refs)
+  g2.py:315
+  test_g_reconcile.py:7
+  docs/superpowers/plans/archive/2026-06-16-test-coverage-completion.md:791
+  length_normalizing.py:29
+  cli.py:113
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review10.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:33
+  AGENTS.md:70
+  dispatch_helper.py:1921
+  g7.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review11.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:30
+  AGENTS.md:70
+  dispatch_helper.py:1921
+  g7.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review12.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:33
+  AGENTS.md:70
+  g7.py:59
+  g3.py:150
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review13.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:33
+  AGENTS.md:70
+  dispatch_helper.py:1926
+  g7.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review14.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:30
+  AGENTS.md:70
+  g7.py:59
+  g3.py:150
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review15.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:33
+  AGENTS.md:70
+  g7.py:59
+  g3.py:150
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review16.md [FIRST-5] (5 refs)
+  g_reconcile.py:52
+  decisions.py:30
+  AGENTS.md:70
+  dispatch_helper.py:1927
+  g7.py:59
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review2.md [FIRST-5] (5 refs)
+  g2.py:315
+  length_normalizing.py:29
+  decisions.py:30
+  AGENTS.md:70
+  g7.py:66
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review3.md [FIRST-5] (5 refs)
+  g2.py:315
+  g_reconcile.py:52
+  materialize.py:66
+  codex.py:46
+  length_normalizing.py:29
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review4.md [FIRST-5] (5 refs)
+  g2.py:315
+  length_normalizing.py:29
+  cli.py:113
+  g0.py:195
+  g7.py:66
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review5.md [FIRST-5] (5 refs)
+  g2.py:315
+  length_normalizing.py:29
+  cli.py:113
+  decisions.py:33
+  AGENTS.md:70
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review6.md [FIRST-5] (5 refs)
+  g2.py:315
+  length_normalizing.py:29
+  cli.py:113
+  decisions.py:33
+  AGENTS.md:70
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review7.md [FIRST-5] (5 refs)
+  g2.py:315
+  test_g_reconcile.py:7
+  length_normalizing.py:29
+  cli.py:113
+  cli.py:107
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review8.md [FIRST-5] (5 refs)
+  g2.py:315
+  g_reconcile.py:52
+  length_normalizing.py:29
+  cli.py:113
+  contracts/schemas/decisions.py:30
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z4.review9.md [FIRST-5] (5 refs)
+  g2.py:315
+  g_reconcile.py:52
+  length_normalizing.py:29
+  cli.py:113
+  decisions.py:30
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.a.md [FIRST-5] (5 refs)
+  scoring_bridge.py:10
+  specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md:512
+  plans/archive/2026-06-28-hierarchical-system-wave4-loop-approval.md:543
+  escalation_bridge.py:10
+  chapter_loop.py:1001
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review.md [FIRST-5] (5 refs)
+  scoring_bridge.py:10
+  scoring.py:227
+  gates/g3.py:193
+  chapter_loop.py:1001
+  chapter_loop.py:1453
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review2.md [FIRST-5] (5 refs)
+  scoring.py:227
+  chapter_loop.py:1001
+  SKILL.md:9
+  chapter_loop.py:2873
+  contracts/enums.py:1
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review3.md [FIRST-5] (5 refs)
+  scoring.py:227
+  chapter_loop.py:1001
+  chapter_loop.py:1453
+  dispatch_helper.py:374
+  contracts/enums.py:1
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review4.md [FIRST-5] (5 refs)
+  scoring.py:227
+  scoring_bridge.py:7
+  chapter_loop.py:80
+  enums.py:1
+  ownership.py:22
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review5.md [FIRST-5] (5 refs)
+  scoring.py:227
+  scoring.py:228
+  chapter_loop.py:80
+  chapter_loop.py:644
+  dispatch_helper.py:374
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z5.review6.md [FIRST-5] (5 refs)
+  scoring.py:227
+  scoring_bridge.py:7
+  scoring.py:227
+  chapter_loop.py:1327
+  chapter_loop.py:1001
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.a.md [FIRST-5] (5 refs)
+  src/shenbi/skill_utils/drift_detection/linguistic_drift.py:215
+  src/shenbi/skill_utils/drift_detection/baseline.py:24
+  src/shenbi/pipeline/chapter_loop.py:2014
+  chapter_loop.py:2722
+  drift_detection/__init__.py:6
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review.md [FIRST-5] (5 refs)
+  chapter_loop.py:2022
+  baseline.py:24
+  __init__.py:6
+  chapter_loop.py:2014
+  drift.py:82
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review10.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  chapter_loop.py:2017
+  baseline.py:24
+  drift.py:82
+  write_audit.py:54
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review11.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  chapter_loop.py:2017
+  baseline.py:24
+  drift_detection/__init__.py:6
+  drift.py:82
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review12.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  chapter_loop.py:1994
+  baseline.py:24
+  chapter_loop.py:2014
+  drift.py:82
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review13.md [FIRST-5] (5 refs)
+  linguistic_drift.py:211
+  chapter_loop.py:2014
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2017
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review14.md [FIRST-5] (5 refs)
+  linguistic_drift.py:211
+  chapter_loop.py:2017
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2014
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review15.md [FIRST-5] (5 refs)
+  linguistic_drift.py:211
+  chapter_loop.py:2017
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2014
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review16.md [FIRST-5] (5 refs)
+  linguistic_drift.py:214
+  chapter_loop.py:2014
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2014
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review17.md [FIRST-5] (5 refs)
+  linguistic_drift.py:211
+  chapter_loop.py:2014
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2023
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review2.md [FIRST-5] (5 refs)
+  chapter_loop.py:2722
+  chapter_loop.py:2001
+  baseline.py:24
+  chapter_loop.py:2014
+  drift.py:82
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review3.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  chapter_loop.py:2014
+  drift.py:82
+  audit/write_audit.py:51
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review4.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  chapter_loop.py:2018
+  drift.py:82
+  write_audit.py:54
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review5.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  chapter_loop.py:2017
+  drift.py:82
+  audit/write_audit.py:51
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review6.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  drift_detection/__init__.py:6
+  chapter_loop.py:2017
+  drift.py:82
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review7.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  drift_detection/__init__.py:6
+  drift.py:82
+  record.py:24
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review8.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  baseline.py:24
+  drift_detection/__init__.py:6
+  drift.py:82
+  compute_stats.py:27
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z6.review9.md [FIRST-5] (5 refs)
+  linguistic_drift.py:215
+  chapter_loop.py:2017
+  baseline.py:24
+  drift.py:82
+  record.py:24
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z7-a.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/chapter_loop.py:237
+  dispatch_helper.py:126
+  cli.py:93
+  test_chapter_loop.py:457
+  tests/unit/pipeline/test_chapter_loop.py:457
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z7-b.md [FIRST-5] (1 refs)
+  test_scoring.py:520
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z7-c.md [FIRST-5] (5 refs)
+  AGENTS.md:97
+  g0_purity.py:33
+  scripts/lint_contract_fields.py:64
+  chapter-2.md:39
+  g0.py:64
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z7-d.md [FIRST-5] (5 refs)
+  src/shenbi/contracts/registry.py:17
+  cjk.py:23
+  cjk.py:58
+  cjk.py:77
+  src/shenbi/text/cjk.py:23
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z8-a.md [FIRST-5] (5 refs)
+  skills/shenbi-foreshadowing-lifecycle/SKILL.md:3
+  skills/shenbi-review-group-craft/SKILL.md:3
+  skills/shenbi-foreshadowing-lifecycle/SKILL.md:135
+  skills/shenbi-foreshadowing-lifecycle/SKILL.md:59
+  SKILL.md:24
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z8-b.md [FIRST-5] (5 refs)
+  executor_config.toml:17
+  chapter_loop.py:205
+  skills/shenbi-context-composing/SKILL.md:46
+  src/shenbi/pipeline/context_assemble.py:365
+  dispatch_helper.py:570
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z8-c.md [FIRST-5] (5 refs)
+  skills/shenbi-chapter-revision/SKILL.md:43
+  skills/shenbi-chapter-revision/revision-modes.md:3
+  src/shenbi/skill_utils/revision_routing/route.py:29
+  revision-modes.md:14
+  revision-modes.md:1
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/Z9.md [FIRST-5] (5 refs)
+  2026-06-22-positive-quality-gates.md:7
+  docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md:18
+  specs/archive/2026-06-22-positive-quality-gates-design.md:7
+  2026-06-22-positive-quality-gates-design.md:63
+  dispatch_helper.py:1030
+## docs/superpowers/audit-runs/2026-08-14/zone-reports/phase-1-overall.md [FIRST-5] (5 refs)
+  AGENTS.md:19
+  README.md:10
+  docs/skills/index.md:189
+  overview.md:55
+  gates.md:3
+## docs/superpowers/plans/archive/2026-06-13-test-integrity-hardening.md [FIRST-5] (4 refs)
+  tests/validate-gate.py:3548
+  tests/scoring.py:160
+  tests/validate-gate.py:3232
+  command-to-give.md:79
+## docs/superpowers/plans/archive/2026-06-15-p-1.e-01-src-layout.md [FIRST-5] (2 refs)
+  tests/unit/test_logging.py:23
+  tests/unit/test_exceptions.py:3
+## docs/superpowers/plans/archive/2026-06-15-p-1.e-02-pr-fraud.md [FIRST-5] (5 refs)
+  validate-gate.py:81
+  validate-gate.py:2805
+  validate-gate.py:185
+  validate-gate.py:2805
+  validate-gate.py:2805
+## docs/superpowers/plans/archive/2026-06-15-p-1.e-03-tooling.md [FIRST-5] (2 refs)
+  compute_pattern.py:175
+  compute_stats.py:395
+## docs/superpowers/plans/archive/2026-06-15-p-1.e-04-testing.md [FIRST-5] (1 refs)
+  03-tooling.md:447
+## docs/superpowers/plans/archive/2026-06-16-test-coverage-completion.md [FIRST-5] (5 refs)
+  src/shenbi/gates/shared.py:206
+  src/shenbi/gates/g0_purity.py:13
+  src/shenbi/gates/g0.py:36
+  src/shenbi/gates/g_reconcile.py:22
+  src/shenbi/gates/g_transition.py:21
+## docs/superpowers/plans/archive/2026-06-21-consistency-single-source.md [FIRST-5] (5 refs)
+  src/shenbi/gates/shared.py:82
+  src/shenbi/phase_runner.py:37
+  src/shenbi/dispatcher/executor.py:51
+  src/shenbi/phase_runner.py:110
+  tests/unit/test_dispatcher_executor.py:35
+## docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar2-gates.md [FIRST-5] (5 refs)
+  contract.py:34
+  src/shenbi/gates/g3.py:69
+  src/shenbi/gates/g5.py:39
+  g3.py:69
+  g5.py:39
+## docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar4-tierB.md [FIRST-5] (3 refs)
+  src/shenbi/dispatcher/modes/codex.py:28
+  gates/shared.py:24
+  codex.py:28
+## docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar5-property.md [FIRST-5] (5 refs)
+  pyproject.toml:10
+  style_learning/compute_stats.py:99
+  text/cjk.py:58
+  compute_stats.py:223
+  drift_detection/compute_drift.py:67
+## docs/superpowers/plans/archive/2026-06-29-contract-single-source-pillar6-docs-lint.md [FIRST-5] (1 refs)
+  pyproject.toml:322
+## docs/superpowers/plans/archive/2026-07-02-novel-pipeline-root-cause-fixes.md [FIRST-5] (1 refs)
+  src/shenbi/pipeline/audit_layer.py:40
+## docs/superpowers/plans/archive/2026-07-06-pipeline-phase1-defect-fix.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/audit_layer.py:36
+  src/shenbi/pipeline/state.py:88
+  src/shenbi/pipeline/state.py:142
+  src/shenbi/pipeline/state.py:196
+  src/shenbi/pipeline/state.py:88
+## docs/superpowers/plans/archive/2026-07-07-clean-context-handoff.md [FIRST-5] (5 refs)
+  src/shenbi/dispatcher/executor.py:31
+  src/shenbi/phase_runner.py:145
+  status.py:30
+  src/shenbi/pipeline/dispatch_helper.py:228
+  generic.py:187
+## docs/superpowers/plans/archive/2026-07-07-pipeline-performance-redesign.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/chapter_loop.py:413
+  src/shenbi/pipeline/dispatch_helper.py:115
+  dispatch_helper.py:457
+  path/file.md:8
+  path/file.md:8
+## docs/superpowers/plans/archive/2026-07-08-contract-consistency-infrastructure.md [FIRST-5] (5 refs)
+  g1.py:65
+  src/shenbi/gates/g2.py:64
+  test_g2.py:422
+  test_g2.py:422
+  src/shenbi/contracts/legacy.py:72
+## docs/superpowers/plans/archive/2026-07-16-p0-blocking-fixes.md [FIRST-5] (5 refs)
+  src/shenbi/phase_runner.py:54
+  src/shenbi/phase_runner.py:54
+  src/shenbi/scoring.py:295
+  scoring.py:332
+  scoring.py:303
+## docs/superpowers/plans/archive/2026-07-19-01-truth-file-and-state-accumulation-plan.md [FIRST-5] (5 refs)
+  chapter_loop.py:667
+  escalation_bridge.py:15
+  hook_planting.py:204
+  escalation_bridge.py:15
+  hook_planting.py:204
+## docs/superpowers/plans/archive/2026-07-19-02-output-validation-and-format-enforcement-plan.md [FIRST-5] (5 refs)
+  src/shenbi/gates/g4/generic.py:237
+  contracts/schemas/decisions.py:69
+  generic.py:237
+  decisions_validator.py:87
+  decisions_validator.py:87
+## docs/superpowers/plans/archive/2026-07-19-03-pipeline-cost-and-token-accounting-plan.md [FIRST-5] (2 refs)
+  src/shenbi/pipeline/dispatch_helper.py:431
+  pyproject.toml:55
+## docs/superpowers/plans/archive/2026-07-19-04-configuration-coherence-and-threshold-governance-plan.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/state.py:65
+  pipeline-state.json:2656
+  state.py:65
+  src/shenbi/pipeline/state.py:63
+  tests/unit/pipeline/test_state.py:46
+## docs/superpowers/plans/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-plan.md [FIRST-5] (5 refs)
+  src/shenbi/gates/g4/worldbuilding.py:88
+  gates/g4/worldbuilding.py:94
+  src/shenbi/pipeline/truth_index.py:30
+  src/shenbi/pipeline/truth_index.py:123
+  src/shenbi/pipeline/truth_index.py:165
+## docs/superpowers/plans/archive/2026-07-19-06-llm-context-engineering-plan.md [FIRST-5] (2 refs)
+  src/shenbi/pipeline/dispatch_helper.py:142
+  src/shenbi/pipeline/dispatch_helper.py:240
+## docs/superpowers/plans/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-plan.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/chapter_loop.py:566
+  context_assemble.py:209
+  src/shenbi/pipeline/chapter_loop.py:594
+  context_curation.py:81
+  src/shenbi/skill_utils/drift_detection/compute_drift.py:147
+## docs/superpowers/plans/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-plan.md [FIRST-5] (2 refs)
+  src/shenbi/pipeline/state.py:146
+  src/shenbi/pipeline/parallel_dispatch.py:1
+## docs/superpowers/plans/archive/2026-07-19-09-dispatch-safety-and-file-integrity-plan.md [FIRST-5] (2 refs)
+  checkpoint.py:59
+  checkpoint.py:59
+## docs/superpowers/plans/archive/2026-07-19-10-content-planning-and-deliverable-plan.md [FIRST-5] (4 refs)
+  src/shenbi/pipeline/context_assemble.py:44
+  gates/shared.py:120
+  src/shenbi/gates/shared.py:120
+  src/shenbi/gates/shared.py:120
+## docs/superpowers/plans/archive/2026-07-19-11-data-storage-optimization-plan.md [FIRST-5] (1 refs)
+  src/shenbi/pipeline/chapter_loop.py:903
+## docs/superpowers/plans/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-plan.md [FIRST-5] (5 refs)
+  chapter_loop.py:398
+  chapter_loop.py:456
+  src/shenbi/pipeline/state.py:133
+  state.py:179
+  state.py:269
+## docs/superpowers/plans/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-plan.md [FIRST-5] (5 refs)
+  src/shenbi/skill_utils/escalation/check.py:52
+  chapter_loop.py:870
+  state.py:107
+  chapter_loop.py:1305
+  chapter_loop.py:813
+## docs/superpowers/plans/archive/2026-07-19-14-skill-contract-and-description-quality-plan.md [FIRST-5] (4 refs)
+  src/shenbi/gates/g0.py:594
+  src/shenbi/contracts/legacy.py:142
+  src/shenbi/contracts/legacy.py:43
+  src/shenbi/pipeline/dispatch_helper.py:294
+## docs/superpowers/plans/archive/2026-07-19-15-content-quality-gates-and-review-optimization-plan.md [FIRST-5] (5 refs)
+  chapter_loop.py:414
+  cli.py:284
+  SKILL.md:125
+  chapter_loop.py:414
+  cli.py:284
+## docs/superpowers/plans/archive/2026-07-19-16-output-structural-integrity-beyond-json-plan.md [FIRST-5] (1 refs)
+  src/shenbi/pipeline/dispatch_helper.py:294
+## docs/superpowers/plans/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-plan.md [FIRST-5] (5 refs)
+  chapter_loop.py:510
+  dispatch_helper.py:47
+  chapter_loop.py:510
+  src/shenbi/phase_runner.py:54
+  src/shenbi/dispatcher/modes/codex.py:20
+## docs/superpowers/plans/archive/2026-07-19-18-pipeline-architecture-optimization-plan.md [FIRST-5] (5 refs)
+  chapter_loop.py:106
+  chapter_loop.py:1090
+  chapter_loop.py:106
+  chapter_loop.py:1090
+  chapter_loop.py:1186
+## docs/superpowers/plans/archive/2026-07-19-19-end-to-end-validation-protocol-plan.md [FIRST-5] (1 refs)
+  cli.py:443
+## docs/superpowers/plans/archive/2026-08-02-inference-control-audit-plan.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/dispatch_helper.py:1371
+  dispatch_helper.py:1371
+  dispatch_helper.py:1428
+  dispatch_helper.py:1515
+  tests/pipeline/test_retry.py:37
+## docs/superpowers/plans/archive/2026-08-02-issue24-cyclic-import-refactor.md [FIRST-5] (5 refs)
+  closure.py:30
+  chapter_loop.py:976
+  /cli.py:154
+  /triggers.py:360
+  /context_assemble.py:209
+## docs/superpowers/plans/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci.md [FIRST-5] (1 refs)
+  ci.yml:109
+## docs/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/dispatch_helper.py:544
+  dispatch_helper.py:548
+  tests/pipeline/test_audit_context_cache.py:40
+  dispatch_helper.py:1653
+  generic.py:285
+## docs/superpowers/plans/archive/2026-08-15-pipeline-never-completes.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/_shared.py:34
+  src/shenbi/gates/g0.py:13
+  src/shenbi/pipeline/genesis.py:350
+  src/shenbi/pipeline/cli.py:147
+  src/shenbi/pipeline/triggers.py:363
+## docs/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.md [FIRST-5] (3 refs)
+  2026-06-22-positive-quality-gates.md:7
+  2026-07-19-01-truth-file-and-state-accumulation-design.md:42
+  dispatch_helper.py:1030
+## docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md [FIRST-5] (5 refs)
+  error_handler.py:36
+  error_handler.py:40
+  error_handler.py:60
+  chapter_loop.py:203
+  audit_layer.py:44
+## docs/superpowers/specs/2026-08-14-audit-chain-design.md [FIRST-5] (1 refs)
+  executor.py:244
+## docs/superpowers/specs/2026-08-14-contract-single-source-design.md [FIRST-5] (1 refs)
+  AGENTS.md:87
+## docs/superpowers/specs/2026-08-14-cost-ledger-design.md [FIRST-5] (2 refs)
+  chapter_loop.py:2794
+  dispatch_helper.py:734
+## docs/superpowers/specs/2026-08-14-data-loss-cluster-design.md [FIRST-5] (3 refs)
+  dispatch_helper.py:1165
+  crash_recovery.py:66
+  chapter_loop.py:2405
+## docs/superpowers/specs/2026-08-14-decisions-chain-design.md [FIRST-5] (4 refs)
+  chapter_loop.py:565
+  dispatch_helper.py:725
+  modes/codex.py:61
+  pyproject.toml:11
+## docs/superpowers/specs/2026-08-14-deps-supply-chain-design.md [FIRST-5] (3 refs)
+  pyproject.toml:17
+  test_truth_embed.py:122
+  test_context_assemble.py:167
+## docs/superpowers/specs/2026-08-14-drift-chain-design.md [FIRST-5] (4 refs)
+  baseline.py:24
+  linguistic_drift.py:215
+  chapter_loop.py:2023
+  chapter_loop.py:2722
+## docs/superpowers/specs/2026-08-14-gate-effectiveness-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:1921
+  chapter_loop.py:2907
+  executor.py:190
+  g_reconcile.py:52
+  decisions.py:30
+## docs/superpowers/specs/2026-08-14-p2-batch-design.md [FIRST-5] (5 refs)
+  overview.md:55
+  gates.md:3
+  command-to-give.md:48
+  command-to-give.md:48
+  g4/chapter_drafting.py:73
+## docs/superpowers/specs/2026-08-14-tooling-gate-chain-design.md [FIRST-5] (5 refs)
+  AGENTS.md:84
+  SECURITY.md:21
+  SECURITY.md:20
+  safe_write.py:134
+  audit/record.py:46
+## docs/superpowers/specs/2026-08-14-z8-contract-drift-design.md [FIRST-5] (1 refs)
+  chapter_loop.py:1090
+## docs/superpowers/specs/2026-08-15-snapshot-subsystem-wiring-design.md [FIRST-5] (2 refs)
+  crash_recovery.py:154
+  chapter_loop.py:248
+## docs/superpowers/specs/INDEX.md [HIGH-RISK-FULL] (3 refs)
+  error_handler.py:36
+  parallel_dispatch.py:189
+  revision_router.py:199
+## docs/superpowers/specs/archive/2026-06-13-test-integrity-hardening-design.md [FIRST-5] (1 refs)
+  scoring.py:204
+## docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/01-pr-fraud.md [FIRST-5] (2 refs)
+  pyproject.toml:43
+  pyproject.toml:134
+## docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/02-structural-layout.md [FIRST-5] (4 refs)
+  pyproject.toml:52
+  pyproject.toml:203
+  pyproject.toml:43
+  pyproject.toml:54
+## docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/03-tooling-invalidation.md [FIRST-5] (5 refs)
+  pyproject.toml:118
+  pyproject.toml:157
+  pyproject.toml:209
+  tests/unit/test_coverage_thresholds.py:25
+  pyproject.toml:70
+## docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/05-ci-supply-chain.md [FIRST-5] (4 refs)
+  .github/workflows/ci.yml:23
+  .github/workflows/ci.yml:21
+  .pre-commit-config.yaml:43
+  pyproject.toml:8
+## docs/superpowers/specs/archive/2026-06-15-p-1.e-foundation-completion/06-enterprise-and-polish.md [FIRST-5] (3 refs)
+  pyproject.toml:6
+  pyproject.toml:17
+  .github/workflows/security.yml:14
+## docs/superpowers/specs/archive/2026-06-21-consistency-single-source-design.md [FIRST-5] (5 refs)
+  src/shenbi/dispatcher/executor.py:51
+  src/shenbi/phase_runner.py:111
+  tests/tiers/deps.json:107
+  src/shenbi/gates/g3.py:116
+  phase_runner.py:155
+## docs/superpowers/specs/archive/2026-06-28-hierarchical-memory-scoring-system-design.md [FIRST-5] (1 refs)
+  src/shenbi/gates/g0.py:419
+## docs/superpowers/specs/archive/2026-06-29-contract-single-source-design.md [FIRST-5] (5 refs)
+  codex.py:28
+  contract.py:34
+  executor.py:31
+  match_tropes.py:59
+  SKILL.md:110
+## docs/superpowers/specs/archive/2026-07-02-novel-pipeline-root-cause-fixes-design.md [FIRST-5] (5 refs)
+  context_assemble.py:153
+  machine.py:69
+  cli.py:348
+  cli.py:519
+  cli.py:111
+## docs/superpowers/specs/archive/2026-07-06-pipeline-phase1-defect-fix-design.md [FIRST-5] (3 refs)
+  chapter_loop.py:653
+  chapter_loop.py:653
+  chapter_loop.py:614
+## docs/superpowers/specs/archive/2026-07-07-clean-context-handoff-design.md [FIRST-5] (5 refs)
+  legacy.py:47
+  dispatch_helper.py:151
+  legacy.py:54
+  dispatch_helper.py:151
+  dispatch_helper.py:151
+## docs/superpowers/specs/archive/2026-07-08-contract-consistency-infrastructure-design.md [FIRST-5] (5 refs)
+  dispatcher/executor.py:66
+  pipeline/dispatch_helper.py:104
+  pipeline/chapter_loop.py:332
+  pipeline/closure.py:137
+  executor.py:63
+## docs/superpowers/specs/archive/2026-07-09-ci-optimization-design.md [FIRST-5] (5 refs)
+  ci.yml:23
+  ci.yml:111
+  ci.yml:54
+  ci.yml:19
+  ci.yml:105
+## docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/dispatch_helper.py:545
+  dispatch_helper.py:272
+  src/shenbi/phase_runner.py:54
+  src/shenbi/scoring.py:303
+  scoring.py:303
+## docs/superpowers/specs/archive/2026-07-17-consolidate-snapshot-differential-storage-design.md [FIRST-5] (2 refs)
+  chapter_loop.py:903
+  chapter_loop.py:903
+## docs/superpowers/specs/archive/2026-07-17-fix-chapter-title-degradation-design.md [FIRST-5] (1 refs)
+  SKILL.md:125
+## docs/superpowers/specs/archive/2026-07-17-fix-character-archive-completeness-design.md [FIRST-5] (1 refs)
+  dispatch_helper.py:294
+## docs/superpowers/specs/archive/2026-07-17-fix-context-assembly-persistence-gap-design.md [FIRST-5] (3 refs)
+  chapter_loop.py:128
+  context_assemble.py:209
+  context_curation.py:81
+## docs/superpowers/specs/archive/2026-07-17-fix-decisions-json-corruption-design.md [FIRST-5] (5 refs)
+  gates/g2.py:85
+  gates/g4/decisions_validator.py:53
+  decisions.py:69
+  dispatch_helper.py:294
+  dispatch_helper.py:294
+## docs/superpowers/specs/archive/2026-07-17-fix-progressive-prose-collapse-design.md [FIRST-5] (1 refs)
+  src/shenbi/skill_utils/drift_detection/compute_drift.py:86
+## docs/superpowers/specs/archive/2026-07-17-fix-resonance-g4-format-mismatch-design.md [FIRST-5] (1 refs)
+  gates/g4/review_resonance.py:28
+## docs/superpowers/specs/archive/2026-07-17-fix-resonance-score-null-design.md [FIRST-5] (1 refs)
+  chapter_loop.py:1427
+## docs/superpowers/specs/archive/2026-07-17-fix-revision-overwrite-chapter-content-design.md [FIRST-5] (5 refs)
+  skills/shenbi-chapter-revision/SKILL.md:105
+  dispatch_helper.py:294
+  dispatch_helper.py:316
+  dispatch_helper.py:195
+  SKILL.md:63
+## docs/superpowers/specs/archive/2026-07-17-fix-revision-system-failure-design.md [FIRST-5] (3 refs)
+  gates/g4/generic.py:237
+  SKILL.md:63
+  chapter_loop.py:1427
+## docs/superpowers/specs/archive/2026-07-17-fix-snapshot-coverage-gaps-design.md [FIRST-5] (2 refs)
+  chapter_loop.py:242
+  chapter_loop.py:903
+## docs/superpowers/specs/archive/2026-07-17-fix-staging-residue-cleanup-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:516
+  cli.py:317
+  chapter_loop.py:537
+  chapter_loop.py:516
+  chapter_loop.py:537
+## docs/superpowers/specs/archive/2026-07-17-fix-state-machine-current-step-corruption-design.md [FIRST-5] (3 refs)
+  chapter_loop.py:489
+  state.py:133
+  chapter_loop.py:489
+## docs/superpowers/specs/archive/2026-07-17-fix-volume-map-not-consumed-design.md [FIRST-5] (1 refs)
+  context_assemble.py:174
+## docs/superpowers/specs/archive/2026-07-17-improve-meta-block-design.md [FIRST-5] (5 refs)
+  skills/shenbi-chapter-drafting/SKILL.md:95
+  SKILL.md:129
+  src/shenbi/gates/shared.py:120
+  shared.py:120
+  SKILL.md:129
+## docs/superpowers/specs/archive/2026-07-17-improve-pipeline-observability-metrics-design.md [FIRST-5] (1 refs)
+  chapter_loop.py:1072
+## docs/superpowers/specs/archive/2026-07-17-restore-progress-tracking-design.md [FIRST-5] (2 refs)
+  trace/materialize.py:31
+  chapter_loop.py:443
+## docs/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.md [FIRST-5] (2 refs)
+  dispatch_helper.py:142
+  fields.py:44
+## docs/superpowers/specs/archive/2026-07-18-parallelize-pipeline-steps-design.md [FIRST-5] (1 refs)
+  safe_write.py:40
+## docs/superpowers/specs/archive/2026-07-18-pipeline-step-reorganization-design.md [FIRST-5] (1 refs)
+  chapter_loop.py:1183
+## docs/superpowers/specs/archive/2026-07-19-01-truth-file-and-state-accumulation-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:294
+  safe_write.py:108
+  dispatch_helper.py:294
+  src/shenbi/safe_write.py:108
+  hook_planting.py:204
+## docs/superpowers/specs/archive/2026-07-19-02-output-validation-and-format-enforcement-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:1243
+  chapter_loop.py:1286
+  generic.py:237
+  dispatch_helper.py:294
+  gates/g2.py:85
+## docs/superpowers/specs/archive/2026-07-19-03-pipeline-cost-and-token-accounting-design.md [FIRST-5] (1 refs)
+  dispatch_helper.py:432
+## docs/superpowers/specs/archive/2026-07-19-05-semantic-index-population-and-parser-coherence-design.md [FIRST-5] (5 refs)
+  gates/g4/worldbuilding.py:88
+  truth_index.py:32
+  gates/g4/worldbuilding.py:88
+  truth_index.py:32
+  truth_index.py:32
+## docs/superpowers/specs/archive/2026-07-19-06-llm-context-engineering-design.md [FIRST-5] (5 refs)
+  src/shenbi/pipeline/dispatch_helper.py:142
+  src/shenbi/pipeline/dispatch_helper.py:241
+  src/shenbi/pipeline/dispatch_helper.py:169
+  fields.py:44
+  dispatch_helper.py:142
+## docs/superpowers/specs/archive/2026-07-19-07-context-persistence-and-linguistic-drift-prevention-design.md [FIRST-5] (5 refs)
+  src/shenbi/skill_utils/drift_detection/compute_drift.py:86
+  chapter_loop.py:566
+  context_assemble.py:209
+  context_assemble.py:263
+  chapter_loop.py:594
+## docs/superpowers/specs/archive/2026-07-19-08-concurrent-dispatch-and-state-safety-design.md [FIRST-5] (2 refs)
+  chapter_loop.py:1090
+  src/shenbi/pipeline/chapter_loop.py:1090
+## docs/superpowers/specs/archive/2026-07-19-09-dispatch-safety-and-file-integrity-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:294
+  dispatch_helper.py:195
+  chapter_loop.py:516
+  cli.py:317
+  chapter_loop.py:537
+## docs/superpowers/specs/archive/2026-07-19-10-content-planning-and-deliverable-design.md [FIRST-5] (5 refs)
+  g2.py:289
+  g5.py:233
+  g6.py:300
+  g4/story_architecture.py:51
+  g4/volume_outlining.py:35
+## docs/superpowers/specs/archive/2026-07-19-11-data-storage-optimization-design.md [FIRST-5] (5 refs)
+  phase_runner.py:219
+  scoring.py:191
+  chapter_loop.py:903
+  phase_runner.py:219
+  gates/cli.py:121
+## docs/superpowers/specs/archive/2026-07-19-12-state-counter-integrity-and-telemetry-wiring-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:398
+  chapter_loop.py:398
+  chapter_loop.py:456
+  chapter_loop.py:1021
+  chapter_loop.py:903
+## docs/superpowers/specs/archive/2026-07-19-13-lifecycle-enforcement-and-retention-bounds-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:870
+  chapter_loop.py:960
+  chapter_loop.py:870
+  chapter_loop.py:870
+  chapter_loop.py:960
+## docs/superpowers/specs/archive/2026-07-19-15-content-quality-gates-and-review-optimization-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:414
+  cli.py:284
+  review_checklist.py:314
+  chapter_loop.py:414
+  cli.py:284
+## docs/superpowers/specs/archive/2026-07-19-17-pipeline-infrastructure-and-resilience-design.md [FIRST-5] (5 refs)
+  src/shenbi/phase_runner.py:54
+  src/shenbi/dispatcher/modes/codex.py:20
+  src/shenbi/pipeline/cli.py:783
+  src/shenbi/dispatcher/executor.py:164
+  contracts/fields.py:23
+## docs/superpowers/specs/archive/2026-07-19-18-pipeline-architecture-optimization-design.md [FIRST-5] (5 refs)
+  chapter_loop.py:106
+  chapter_loop.py:1182
+  chapter_loop.py:1090
+  chapter_loop.py:1182
+  chapter_loop.py:1090
+## docs/superpowers/specs/archive/2026-08-01-eliminate-existing-warnings-plan.md [FIRST-5] (3 refs)
+  tools/pre-push-check.sh:37
+  tools/pre-push-check.sh:37
+  src/shenbi/gates/g0.py:474
+## docs/superpowers/specs/archive/2026-08-01-inference-control-audit-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:196
+  executor_config.toml:3
+  dispatch_helper.py:209
+  dispatch_helper.py:1387
+  dispatch_helper.py:67
+## docs/superpowers/specs/archive/2026-08-01-pipeline-read-write-consistency-audit-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:210
+  dispatch_helper.py:194
+  dispatch_helper.py:139
+  dispatch_helper.py:354
+  dispatch_helper.py:669
+## docs/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design.md [FIRST-5] (2 refs)
+  src/shenbi/gates/g0.py:474
+  dispatch_helper.py:688
+## docs/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.md [FIRST-5] (5 refs)
+  dispatch_helper.py:57
+  triggers.py:55
+  triggers.py:645
+  dispatch_helper.py:689
+  plan_skeleton.py:32
+## docs/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.md [FIRST-5] (5 refs)
+  pyproject.toml:47
+  pyproject.toml:23
+  tests/unit/pipeline/test_truth_embed.py:119
+  tests/unit/pipeline/test_context_assemble.py:164
+  nightly.yml:18
+## docs/superpowers/specs/archive/2026-08-14-pipeline-never-completes-design.md [FIRST-5] (5 refs)
+  _shared.py:35
+  cli.py:219
+  cli.py:748
+  triggers.py:623
+  triggers.py:371

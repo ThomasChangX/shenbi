@@ -1,0 +1,6 @@
+=== runtime skip count (from just check run) ===
+2887 passed, 373 skipped
+=== static skip/xfail markers ===
+       2
+   1 tests/unit/test_safe_write.py
+   1 tests/unit/test_phase_runner_property.py
