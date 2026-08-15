@@ -738,3 +738,13 @@
 | T207 | 迁移表 CLASSIFICATION 自称 authoritative，与 frontmatter 漂移 18 格（2 kind+16 IO，11 技能），无对账 lint | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
 | T208 | 存在性双向 closure 零门禁（G0.15 只查 G4_CHECKER_SKILLS 单向；deps/index.md/REGISTRY 三源无门禁） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
 | T209 | 词表死条目全量清单增量 + dag_key 与 normalize_to_glob 两 canonicalizer 分歧（真实代码实测） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
+| T401 | 落账单点被 state 双重门控而记录点自身具备全部输入——传 state 是错误修复形状（E1 实验：传 state 后 chapter 仍=0；协调者逐字核验门控结构与 1520-1524 现场值） | 漏报 | P1 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | verified |
+| T402 | durable 消费端仅手动 CLI | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T403 | 内存 token_usage 永不持久化——resume 归零 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T404 | 未知 model 静默 $0 成本：_safe_estimate_cost 吞 ValueError，2M tokens 记 $0.0000（协调者逐字核验；P0 可上探注记，与 F1115 对齐定 P1） | 漏报 | P1 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | verified |
+| T405 | cost-per-quality-point 吞噬非 G3 分数 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T406 | per-chapter average 恒等于总成本 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T407 | 读路径 mkdir 副作用（F525 同族） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T408 | 跨实例无效假锁（F525 同族） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T409 | spec R1 验收无集成护栏——dead-wire 两次复发的根因 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
+| T410 | retry 盲区（失败尝试 usage 丢弃） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | open |
