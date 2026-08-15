@@ -674,3 +674,18 @@
 | T1440 | hook_planting 确定性替换是死代码，plant 三个活跃面仍 LLM dispatch | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
 | T1441 | anti-ai 检查清单与 G4 确定性检查构成双重体系：LLM 每章重算 G4 已算过的计数，且同名检查三套阈值不一致（与 F818 关联） | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
 | T1442 | 确定性统计 helper 五件套仍纯 prompt 级接线（compute_stats/compute_pattern/recall/calibration/review_resonance.routing），无程序强制 | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | open |
+| T1601 | 审计波上下文重复注入：8/10 派发各自内嵌全章文本，章节文本重复占每章 prompt 体量 29%（56 章已付 ~1.74M tok 冗余输入）（算术与注入机制协调者核验） | 性能 | P1 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | verified |
+| T1602 | 步骤 2（chapter-planning）误触发上下文装配+策展：计划文件尚不存在空跑装配+fallback 写盘，每章 2× Route B 网络停顿（双触发点行号协调者核验） | 性能 | P1 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | verified |
+| T1603 | Route B 无失败负缓存：每次装配重新实例化 SentenceTransformer 并重试 HF 下载，永久降级态每章 2×0.3-3.5s 停顿 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1604 | 门禁子进程 96% import 开销（gates.cli import 255ms，jieba 107.6ms 顶层拖入+12 门急加载） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1605 | truth-index.json 零读者+重建即弃 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1606 | 69 技能模板扫描 578ms/次无短路（_build_skill_prompt CPU 91% 是 registry YAML 重解析 26.5ms/派发） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1607 | 差分快照全量重哈希 O(N²) | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1608 | save_state 全量 dump O(N²) 写（pipeline-state.json 每步 132KB×16/章） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1609 | _load_previous_titles 全读前章 O(N²)（三规模线性实测） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1610 | integrity findings O(k²) 重写 | 性能 | M | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1611 | token 台账与 prompt 指纹不可审计（生产项目无 cost/ledger、无 trace，审计波与并行派发不传 state——与 F301/F504 互证） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1612 | _genre_config_cache 死代码且按章键控（永不命中+无上界） | 性能 | M | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1613 | F215 量化增量证据 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1614 | F312 量化增量证据 | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
+| T1615 | 累积 truth 全文注入=唯一随 N 超线性增长的 token 项（N×2→×4） | 性能 | P2 | 见 T16 报告 | 见 thread-reports/T16.md | 见 T16 报告 | 见 T16 报告 | 见 T16 报告 | T16 线程 | open |
