@@ -61,7 +61,7 @@
 - **F221** GenreConfig 缺 tropeInventory 字段且未编码 SKILL.md 规则 1「顶层字段数=8」；SKILL.md/fixture/OWNERSHIP 四源冲突
 - **F222** SHENBI_G1_SKIP_READS 三处实现/消费语义分叉（executor/g1/dispatch_helper），executor 侧零测试
 - **F223** codex.py 协议边界 JSON 处理无防护：shenbi-score stdout 双解析 + final_score 缺省静默 0 + 损坏 progress.json 裸 JSONDecodeError
-- **F224** G3.3「output files passed G2」全仓无生产者 → 永久 SKIP；codex.py _record_completion 写 progress["skills"][skill][test_type]={score,status} 无 output_files 键
+- **F224** G3.3「output files passed G2」全仓无生产者 → 永久 SKIP；codex.py _record_completion 写 `progress["skills"][skill][test_type]` = `{score,status}` 无 `output_files` 键
 - **F225** 独立 dispatcher（codex 模式）不消费 contract read_fields：Layer B 字段过滤仅 pipeline 生效
 - **F228** derive_output_files/G2 不展开 writes/updates 中的 glob → 9 技能 G2.1 恒失败
 - **F229** derive_file_type 单一 file_type 批处理与异构输出不兼容：(a) chapter 型技能非散文输出误套章节规则；(b) decisions 型技能 .md 散文静默漏套 G2.6-2.10
