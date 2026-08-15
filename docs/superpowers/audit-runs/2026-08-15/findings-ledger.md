@@ -626,3 +626,12 @@
 | T1205 | F1013 证据升级实证：run_pipeline.sh 的 PROJECT_DIR 插值可执行任意 Python 代码（括号平衡前提）+ 朴素注入静默失败 + 同模式脚本清单 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
 | T1206 | document name 属性注入全链实证（上轮 T12-01 未修，wildcard 接受含引号文件名） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
 | T1207 | env 全量继承使 SHENBI_LLM_API_KEY 可达 workspace-write codex 子进程（上轮 T12-04 未修复核） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1101 | 压力测试纯 prompt 无 harness——6 个 prompt md 零 CI/harness 引用，压力维度不可执行 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1102 | benchmark 设施配置齐全但零用例 + norecursedirs 拼写不匹配（benchmarks vs benchmark） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1103 | gate-outputs 基线无消费者、G6/G7 再生路径已死（tests/rounds 不存在） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1104 | mutmut 基线两个月未建立，且现行配置在 3.6.0 下因单文件 source_paths 复制出残缺 mutants/ 树必然空转（实测复现根因：venv editable .pth 令沙盒测试静默测回原仓库） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1105 | 两模块突变得分 35.1%/32.4% <50%，escalation 54% 突变体无测试触达 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1106 | golden 评估集空壳——README 承诺 10-20 章实际 0 文件 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1107 | hypothesis 反例库 43+ 文件未提交，与 .gitignore 声明相反（协调者抽核：examples/ 44 文件仅 .gitkeep 被跟踪） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1108 | pipeline 无离线可执行模式，运行时主路径无法免计费审计（internal 硬拒绝无 LLM、replay 是签名校验非派发 stub）（预授权立案） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
+| T1109 | G0.5 权重和校验永久 UNIMPLEMENTED，2026-06 基线曾以硬编码假 PASS 掩盖 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |

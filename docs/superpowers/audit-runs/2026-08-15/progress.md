@@ -159,3 +159,9 @@
 - 五域结论: 凭证泄露干净（D1⑧ 0 命中+宽模式 0+git pickaxe 仅测试占位符）；命令注入 Python 侧全收敛（shell=True/os.system/eval 全仓 0，8 subprocess 全 argv 形）；敏感落盘干净（key 只进 OpenAI client）
 - F1013 注记证据升级（T1205：任意 Python 代码执行实证，P2 维持=本地自攻击威胁模型）；F105/F308/上轮 T12-01/04/05 全部未修复（现状确认）
 - 累计: ledger 589 F + 10 T + 4 D（603 总）
+
+### 2026-08-16 会话 2（T11 交付）
+- 完成: T11 运行时核验线程转录（T1101-T1109 共 9 条全 P2）——抽核 2 条证实（norecursedirs 拼写不匹配、hypothesis 反例库 44 文件仅 .gitkeep 被跟踪）
+- 正向结论（无竞态/幂等/无 flaky/172×3 全过/snapshot_diff 5 passed）记录在案——运行时行为面干净，缺口集中在测试基础设施层（压力无 harness、benchmark 零用例、golden 空壳、mutmut 空转、反例库未提交、无离线模式）
+- 方法论副产品登记: 仓库 venv 的 editable .pth 令沙盒副本测试静默测回原仓库代码——后续任何沙盒测试线程必须先破 .pth
+- 累计: ledger 589 F + 19 T + 4 D（612 总）；P0×12 / P1×104 / P2×365 / M×131
