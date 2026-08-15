@@ -62,3 +62,10 @@
 - Z5 复核系统结论: 写审计三路由（API/IDE 无审计 + legacy 参数化双向失效 + watch⊆declared 结构性零真阳性）= 系统性失效簇，F501 是症状之一
 - 进行中: Z7-d/Z8-b/Z8-c/Z9-a/Z9-b/Z10（6 槽满）
 - 累计: ledger 272 条（P0×6: F301/F340/F501/F502/F504/F751）
+
+### 2026-08-15 会话 1（续 4）
+- 完成: Z8-c(19, F868 P0 verified)/Z9-a(19)/Z8-b(24)/Z7-d(15)/Z9-b(17)/Z10(29, F1001/F1003 verified)/Z11-a(19, F1101/F1102/F1104 三 P0 亲核证实) 转录
+- Z11-a P0 证据: ch55=104B 自引用占位符覆写正文、ch2=1035B；decisions 抽验 5/5 INVALID（JSON+Markdown 混杂）；chapter_summaries 覆盖 4 条 vs 145 产物文件
+- F873 verified（弃用技能双面路由残留）; F726 verified（=F303 互证）
+- 进行中: Z11-b/Z9-c 初审 + Z1/Z2/Z4/Z6 复核轮1（6 槽）
+- 累计: ledger 395 F 条 + 4 D1 条；P0×10（F301/F340/F501/F502/F504/F751/F868/F1101/F1102/F1104）

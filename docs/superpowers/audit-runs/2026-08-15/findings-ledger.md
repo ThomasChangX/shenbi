@@ -344,7 +344,7 @@
 | F870 | state-settling 正文指示写 characters/protagonist.md（契约外写，字段所有权属他人） | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F871 | score-volume 声明写 volume_score_trend 但正文零步骤零格式，dedup key=chapter 应为 volume | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F872 | score-stratum 声明 updates book_spine 但正文零说明（设计意图只存在于 triggers.py 注释） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
-| F873 | using-shenbi 触发表路由 14 个 DEPRECATED 技能，默认审计列 3 个 DEPRECATED，且 0 处路由到 group-*/foreshadowing-lifecycle 后继 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F873 | using-shenbi 触发表路由 14 个 DEPRECATED 技能，默认审计列 3 个 DEPRECATED，且 0 处路由到 group-*/foreshadowing-lifecycle 后继 | error | P1 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | verified |
 | F874 | review-sensitivity 缺陷证据格式段引用残缺（"必须遵循␣␣定义的四要素格式"缺指代对象） | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F875 | volume-outlining 跨卷钩子数量（铁律≥1 vs EXACT≥3）与张力曲线铺垫段范围（10-20% vs 15-25%）自相矛盾 | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F876 | worldbuilding 声称初始化 11 个 truth files 实际列举 12 个；出现两个"## 铁律"节 | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
@@ -357,3 +357,68 @@
 | F883 | volume-consolidation 执行步骤双"5"编号 + 两个冲突的"## 输出格式"模板 | error | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F884 | truth-sync 操作范围多章（N..M）但 reads 仅单章 parametric chapters/chapter-N.md | error | P2 | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
 | F885 | score-arc/stratum/volume description 中英混排 + audit 技能评分刻度不统一（X/10 vs /100） | optimization | M | 见 Z8-c 报告 | 见 zone-reports/Z8-c.md | 见 Z8-c | 见 Z8-c | 见 Z8-c | Z8-c 初审 | open |
+| F1001 | ci.yml | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | verified |
+| F1002 | justfile | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1003 | ci.yml + .gitignore | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | verified |
+| F1004 | plugins/master.json | error | P1 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1005 | plugins/master.json | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1006 | codeql.yml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1007 | pre-commit-autoupdate.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1008 | .pre-commit-config.yaml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1009 | pyproject.toml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1010 | compare_mutation_score.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1011 | audit-skill-descriptions.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1012 | check_fixture_mirror.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1013 | run_pipeline.sh | security | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1014 | run_pipeline.sh | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1015 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1016 | lint_status_strings.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1017 | lint_repo_consistency.py | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1018 | generate_autocheck_docs.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1019 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1020 | .gitignore | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1021 | release.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1022 | migrate_contract_to_frontmatter.py | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1023 | AGENTS.md（跨区） | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1024 | pyproject.toml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1025 | justfile | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1026 | docs.yml | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1027 | lint_status_strings.py | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1028 | CODEOWNERS | optimization | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1029 | AC-003.md | error | M | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F934 | 活跃 spec file:line 证据经 PR #42（2026-08-15 合并）后系统性漂移，其中 cost-ledger 的"仅一处传 state"计数已失效 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F935 | INDEX 排序违反自身声明（🟠 P1 的 #26 排在 ⚪ Low #16 与 🟡 P2 #25 之后） | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F936 | 编号交叉引用 #6 不可解析：INDEX 5 处 + #26 系列/正文引用 #6，归档文件与 archive/ 目录均无编号标记 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F937 | INDEX #4 依赖字段引用不存在章节 "§J"（归档推理控制 spec 实为 §2.9） | error | M | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F938 | 活跃 spec 间 P2 条目逐字重复：T12-03/04/05/06 在 #19+#22，T14-02/05/06/07 在 #19+#24 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F939 | #17 总纲统计与最终台账不闭合且自身加总差 1；G5(b) 三方对账第三条腿（总纲行数）缺位 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F940 | #16 M 批量 spec 计数漂移（声明 98，正文 unique 127）+ Z7-Z11 节结构损坏（伪标题 bullet）+ Z3 行内 F3AA/F3AD 重复 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F941 | #25 同一问题双重登记且 PR 归因冲突（F0-05=PR-22 正确 vs F125=PR-20 错误） | error | M | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F942 | 设计 spec（#5）v1 遗留计数与自身及交付物矛盾：§3 'T1-T11/十一条'、§5 '11 条线程'、§8 树 'Z1..Z10/T1..T9'、§11/§12 'Z1-Z10/T1-T9' vs §6 'Z1-Z11'、§7 'T1-T11'、交付 v3 'T1-T16' | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F943 | 设计 spec §9 预写文件名成死链：2026-08-13-minor-findings-batch-design.md / 2026-08-13-full-project-audit-design.md（实际 2026-08-14-*） | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F944 | 审计 prompt v3 T14 依据把活跃 spec #3 误标为 archive | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F945 | #3/INDEX 沿用 "已 9 次实现确定性替换"，被 T14-07（#19/#24）纠正为"实现 16、接线 ~5"，无勘误注 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F946 | #25 F1100 疑似误报：deterministic spec :18 的 `2026-06-22-positive-quality-gates.md:7` 可精确解析到 plans/archive 同名文件且 :7 即分层定义（prose）；F1100 假定目标为 specs/archive/…-design.md 并断言断链 | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F947 | 部分活跃 spec 验收/验证依赖真实 LLM dispatch 或手写 mock，与 SDD v6 核心原则 8 / G0.9 冲突，plan 阶段不改写即 BLOCKED | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F948 | 输出侧 spec 常量名 typo：MAX_DISPATCH_DETRIES（实为 MAX_DISPATCH_RETRIES） | error | M | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F949 | truth-write-path R1 实证过期：'ch55 出现 2 行/7 列 Ch{N}' 与现盘不符（现仅 1 行、9 列 `{N}` 表头；文件仅 1 次 commit） | error | P2 | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F950 | SDD prompt v6 停机条款事实错误："本仓 23 份活跃 spec 全部产自同一次 2026-08-14 audit"（实际 20/23，#3/#4=08-01、#5=08-13） | error | M | 见 Z9-b 报告 | 见 zone-reports/Z9-b.md | 见 Z9-b | 见 Z9-b | 见 Z9-b | Z9-b 初审 | open |
+| F1101 | 5 章正文被修订技能摘要覆写丢失（不可恢复） | error | P0 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
+| F1102 | decisions.json 契约被静默违反：145 个中 88 个（61%）不合规 | error | P0 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
+| F1103 | state 死字段：revision_count 与 resonance_score 全程未写入 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1104 | chapter_summaries.md 仅覆盖 2/56 章（历史 finding 原样复现） | error | P0 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | verified |
+| F1105 | 趋势类 truth 同样覆盖坍缩：resonance_trend 1 行、audit_drift 1 章 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1106 | truth/state_snapshot-pre-rev.md 不在词表——静默同义词 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1107 | BLOCKING 汇总抑制：单项审计判 BLOCKING，review-summary 全部报 0 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1108 | 审计波冗余：6.2MB 审计对 1.3MB 正文（4.64x），并在快照内二次嵌埋 | optimization | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1109 | 快照机制失能：拼接审计而非正文副本，且未覆盖 ch1–4/ch56 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1110 | staging 晋升半途而废：55 个 plan-decisions 仅存暂存，truth 暂存过期 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1111 | gate marker 空转/被覆写：无法证明其所名内容，且与复验矛盾 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1112 | state 声称 context-composing 完成但 41 章无 context 产物 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1113 | progress.json 为 171B 空壳（仅 scorer 字段） | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1114 | 运行中断态与 state 尾部失真 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1118 | DEBUG 文档自证已知缺陷与 state 漂移；正文与 genesis 大纲完全脱轨 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1116 | 计量链盲点：trace 无 finish_reason 字段、重试无反馈变化 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1119 | 三子项目结构漂移：xinghuo 缺 instrumentation，test-validation 词表不全 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1117 | 验证报告如实但记录了未修复的门禁失败集 | error | P2 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
+| F1115 | token-ledger 全仓不存在：40 小时/56 章运行零 token 计量 | error | P1 | 见 Z11-a 报告 | 见 zone-reports/Z11-a.md | 见 Z11-a | 见 Z11-a | 见 Z11-a | Z11-a 初审 | open |
