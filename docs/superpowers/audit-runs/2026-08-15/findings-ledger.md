@@ -734,3 +734,7 @@
 | T305 | 非 md/json 扩展静默直通不过滤 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
 | T306 | 注入无过滤标注 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
 | T307 | T1 dispatch 面（shenbi-dispatch→codex exec）无任何 reads 注入、结构性无过滤 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T206 | worldbuilding.py 声称 Auto-generated 但无生成器、不在 CI diff 范围——kind 手改变异实验零检测（唯一编辑面声明实质反例，协调者抽验） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
+| T207 | 迁移表 CLASSIFICATION 自称 authoritative，与 frontmatter 漂移 18 格（2 kind+16 IO，11 技能），无对账 lint | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
+| T208 | 存在性双向 closure 零门禁（G0.15 只查 G4_CHECKER_SKILLS 单向；deps/index.md/REGISTRY 三源无门禁） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
+| T209 | 词表死条目全量清单增量 + dag_key 与 normalize_to_glob 两 canonicalizer 分歧（真实代码实测） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
