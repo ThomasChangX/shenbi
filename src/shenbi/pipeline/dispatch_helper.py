@@ -1515,7 +1515,11 @@ def _dispatch_via_api(
     from openai import OpenAI
 
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
+    # only an int chapter is authoritative — a tolerant-parse str sentinel
+    # would crash %03d placeholder formatting downstream
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
     if chapter is None:
         chapter = extract_chapter(prompt)
     try:
@@ -1723,7 +1727,11 @@ def _dispatch_via_ide(
     response, and writes per-file output to the project directory.
     """
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
+    # only an int chapter is authoritative — a tolerant-parse str sentinel
+    # would crash %03d placeholder formatting downstream
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
     if chapter is None:
         chapter = extract_chapter(prompt)
     try:
@@ -1881,7 +1889,11 @@ def dispatch_skill(
     patterns.extend(OPTIONAL_READS.get(skill, []))
 
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
+    # only an int chapter is authoritative — a tolerant-parse str sentinel
+    # would crash %03d placeholder formatting downstream
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
     if chapter is None:
         chapter = extract_chapter(prompt)
     chapter_path = pd / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None

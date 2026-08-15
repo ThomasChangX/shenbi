@@ -168,7 +168,9 @@ def dispatch(
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)
     path_ctx = parse_path_context(prompt)
     if chapter is None:  # kwarg precedence: explicit chapter= wins over prompt line
-        chapter = path_ctx.chapter if path_ctx is not None else None
+        chapter = (
+            path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+        )
         if chapter is None:
             chapter = extract_chapter(prompt)
     file_type = derive_file_type(skill)
@@ -253,7 +255,9 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     from shenbi.audit.write_audit import audit_writes
 
     path_ctx = parse_path_context(prompt)
-    chapter = path_ctx.chapter if path_ctx is not None else None
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
     if chapter is None:
         chapter = extract_chapter(prompt)
     watch = _audit_watch_paths(skill, chapter, ctx=path_ctx)

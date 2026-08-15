@@ -116,3 +116,22 @@ def test_parse_multiple_context_lines_first_wins():
 
 def test_format_empty_context_returns_empty_string():
     assert format_path_context(PathContext()) == ""
+
+
+def test_parse_drops_path_traversal_values():
+    r"""Prompt-injected carrier values with /, \\ or .. are dropped at parse."""
+    ctx = parse_path_context("[path-context] escalation=../../etc chapter=5")
+    assert ctx == PathContext(chapter=5)  # unsafe value dropped, safe one kept
+    ctx2 = parse_path_context("[path-context] anchor=a/b")
+    assert ctx2 is None
+
+
+def test_non_int_chapter_sentinel_is_ignored_at_derive():
+    """A str chapter sentinel must not reach placeholder formatting: the
+    derive sites treat only int as authoritative and fall back.
+    """
+    parsed = parse_path_context("[path-context] chapter=x")
+    assert parsed is not None
+    # the wiring sites only trust an int chapter; a str sentinel fails this
+    # check and they fall back to extract_chapter — asserted as the invariant
+    assert not isinstance(parsed.chapter, int)

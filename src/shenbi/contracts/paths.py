@@ -53,8 +53,16 @@ def format_path_context(ctx: PathContext) -> str:
     return f"{PATH_CONTEXT_PREFIX} " + " ".join(parts) if parts else ""
 
 
+_UNSAFE_VALUE_RE = re.compile(r"[/\\]|\.\.")
+
+
 def parse_path_context(prompt: str) -> PathContext | None:
-    """Parse the first ``[path-context]`` line of a prompt; None when absent."""
+    r"""Parse the first ``[path-context]`` line of a prompt; None when absent.
+
+    Str-valued sentinel values containing ``/``, ``\\`` or ``..`` are dropped:
+    they are substituted into output paths, and a prompt-injected carrier line
+    (parse takes the FIRST such line) must not gain path traversal.
+    """
     for line in prompt.splitlines():
         s = line.strip()
         if not s.startswith(PATH_CONTEXT_PREFIX):
@@ -64,7 +72,10 @@ def parse_path_context(prompt: str) -> PathContext | None:
             if "=" in tok:
                 k, v = tok.split("=", 1)
                 if k in _CTX_KEYS:
-                    kv[k] = int(v) if v.isdecimal() else v  # isdecimal: "²" is isdigit-only
+                    if v.isdecimal():
+                        kv[k] = int(v)  # isdecimal: "²" is isdigit-only
+                    elif not _UNSAFE_VALUE_RE.search(v):
+                        kv[k] = v
         if kv:
             return PathContext(**kv)  # type: ignore[arg-type]
     return None
