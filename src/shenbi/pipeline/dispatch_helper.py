@@ -1,8 +1,12 @@
 """Dispatch + gate helpers for pipeline orchestrators.
 
-Reuses the existing ``dispatch_with_write_audit`` (write-overreach detection)
-via the dispatcher CLI rather than bypassing it. The dispatcher runs G1 (input
-readiness) and G2 (output structure) internally; this module adds G3 (scoring
+Tier B write audit (C32 R3 / F518): ALL THREE dispatch routes below are
+audited — routes 1 (API) and 2 (IDE CLI) wrap every dispatch with
+``_with_write_audit`` (pre/post FS snapshot + ``audit_writes`` + ledger
+record, same finally-hook topology as ``dispatch_with_write_audit``); route
+3 (legacy CLI subprocess) is audited inside the subprocess by that same
+``dispatch_with_write_audit``. The dispatcher runs G1 (input readiness) and
+G2 (output structure) on the legacy route; this module adds G3 (scoring
 independence) and G4 (skill-specific structure) on top.
 
 Dispatch routing (tried in order):
@@ -21,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -1821,6 +1826,88 @@ def _dispatch_via_ide(
 
 
 # ---------------------------------------------------------------------------
+# Tier B write audit for in-process routes (C32 R3 / F518)
+# ---------------------------------------------------------------------------
+
+
+def _with_write_audit(
+    dispatch_fn: Callable[[], DispatchResult],
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+    round_dir: Path | str | None = None,
+) -> DispatchResult:
+    """Wrap an in-process dispatch route (API / IDE CLI) with the Tier B write audit.
+
+    Same finally-hook topology as ``dispatcher.executor.dispatch_with_write_audit``
+    (the legacy CLI route's auditor): pre snapshot(declared write surface) ->
+    dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
+    the pipeline project dir — the root ``_write_parsed_outputs`` actually
+    writes to (the legacy route snapshots the framework repo root instead,
+    F519, out of scope here).
+
+    Audit-failure semantics identical to the legacy route:
+    - violations/drift on a rc==0 dispatch downgrade it to GATE_FAIL
+      (success=False, returncode=2) with the reasons surfaced in stderr —
+      recorded, never swallowed;
+    - the audit runs even when dispatch raises, so write overreach on
+      failure paths is still caught (then the original exception re-raises);
+    - an audit *infrastructure* exception is logged as error and does not
+      crash the dispatch (不崩) — it is not a violation verdict.
+    """
+    from shenbi.audit._shared import derive_output_files
+    from shenbi.audit.record import record_audit_outcome
+    from shenbi.audit.snapshot import snapshot_tree
+    from shenbi.audit.write_audit import audit_writes
+
+    path_ctx = parse_path_context(prompt)
+    # only an int chapter is authoritative — a tolerant-parse str sentinel
+    # would crash %03d placeholder formatting downstream
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
+    if chapter is None:
+        chapter = extract_chapter(prompt)
+    watch = derive_output_files(skill, chapter, ctx=path_ctx)
+    ledger_dir = Path(round_dir) if round_dir else project_dir
+    pre = snapshot_tree(project_dir, watch)
+    rc = DispatchResult(False, -1, "", "dispatch did not return a result")
+    dispatch_exc: BaseException | None = None
+    try:
+        rc = dispatch_fn()
+    except Exception as exc:
+        log.error(
+            "dispatch_exception",
+            skill=skill,
+            exc_type=type(exc).__name__,
+            exc_msg=str(exc),
+            project_dir=str(project_dir),
+        )
+        dispatch_exc = exc
+    finally:
+        # Franklin Important: if dispatch crashes mid-write, still run the
+        # post-snapshot + audit so write overreach is caught on failure paths.
+        try:
+            post = snapshot_tree(project_dir, watch)
+            result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
+            audit_ok = record_audit_outcome(ledger_dir, skill, result)
+        except Exception:
+            log.error("write_audit_infra_error", skill=skill, exc_info=True)
+        else:
+            if not audit_ok and rc.returncode == 0:
+                reasons = "; ".join([*result.violations, *result.drift])
+                stderr = (
+                    f"{rc.stderr}\nwrite-audit GATE_FAIL: {reasons}"
+                    if rc.stderr
+                    else f"write-audit GATE_FAIL: {reasons}"
+                )
+                rc = DispatchResult(False, 2, rc.stdout, stderr)
+    if dispatch_exc is not None:
+        raise dispatch_exc
+    return rc
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -1840,10 +1927,13 @@ def dispatch_skill(
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
-    Routing (tried in order):
-    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API
-    2. IDE CLI available (codex / zcode) → spawn agent subprocess
-    3. Fallback → ``shenbi-dispatch`` CLI subprocess
+    Routing (tried in order, all audited — C32 R3 / F518):
+    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (wrapped in
+       ``_with_write_audit``)
+    2. IDE CLI available (codex / zcode) → spawn agent subprocess (wrapped
+       in ``_with_write_audit``)
+    3. Fallback → ``shenbi-dispatch`` CLI subprocess (audited inside the
+       subprocess by ``dispatch_with_write_audit``)
 
     Args:
         skill: The skill name to dispatch (e.g. 'shenbi-chapter-drafting').
@@ -1872,21 +1962,33 @@ def dispatch_skill(
         if line:
             prompt = f"{prompt}\n{line}"
 
-    # API path
+    # API path (audited — C32 R3 / F518)
     if os.environ.get(_ENV_LLM_API_KEY):
-        return _dispatch_via_api(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
-        )
-
-    # IDE CLI path
-    if _find_ide_cli():
-        return _dispatch_via_ide(
+        return _with_write_audit(
+            lambda: _dispatch_via_api(
+                skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+            ),
             skill,
             pd,
             prompt,
-            uses_staging=uses_staging,
-            shared_context=shared_context,
-            state=state,
+            round_dir,
+        )
+
+    # IDE CLI path (audited — C32 R3 / F518)
+    if _find_ide_cli():
+        return _with_write_audit(
+            lambda: _dispatch_via_ide(
+                skill,
+                pd,
+                prompt,
+                uses_staging=uses_staging,
+                shared_context=shared_context,
+                state=state,
+            ),
+            skill,
+            pd,
+            prompt,
+            round_dir,
         )
 
     # Legacy CLI subprocess path
