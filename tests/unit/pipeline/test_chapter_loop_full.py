@@ -112,6 +112,14 @@ def chapter_succeeds():
                 return_value=DispatchResult(True, 0, "{}", ""),
             )
         )
+        # Serial WRITE_SHARED member (review-resonance) dispatches through the
+        # parallel_dispatch seam inside _dispatch_with_retry (C32 R4 follow-up).
+        serial_disp = stack.enter_context(
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            )
+        )
         g4 = stack.enter_context(
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS)
         )
@@ -164,6 +172,7 @@ def chapter_succeeds():
         )
         yield SimpleNamespace(
             dispatch=dispatch,
+            serial_disp=serial_disp,
             g4=g4,
             g3=g3,
             req=req,
@@ -225,13 +234,17 @@ class TestFullChapterSequence:
         assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
         assert chapter_state.chapter_loop.current_chapter == 2
         assert chapter_state.chapter_loop.step_index == 0
-        # 5 dispatched steps: chapter-planning, chapter-drafting, lifecycle,
-        # settling, + review-resonance (serial — its contract updates shared
-        # truth files, F532/C32 R4; the other audits are parallel-dispatched).
+        # 4 dispatched steps via the chapter_loop seam: chapter-planning,
+        # chapter-drafting, lifecycle, settling (the other audits are
+        # parallel-dispatched).
+        # review-resonance runs serially through the parallel_dispatch seam
+        # (its contract updates shared truth files, F532/C32 R4; since the
+        # R4 follow-up it retries via _dispatch_with_retry like wave members).
         # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
         #  pre-revision-snapshot are pipeline-internal;
         #  revision is skipped with NO_REVISION route).
-        assert chapter_succeeds.dispatch.call_count == 5
+        assert chapter_succeeds.dispatch.call_count == 4
+        assert chapter_succeeds.serial_disp.call_count == 1
         assert chapter_succeeds.g4.call_count == 4
         # G3 is not called in the parallel-dispatch audit path.
         assert chapter_succeeds.g3.call_count == 0
@@ -397,12 +410,14 @@ class TestAuditCircleAndRevisionRouting:
         assert cs.audit_results["revision_route"] == RevisionRoute.NO_REVISION.value
         # chapter-revision is still recorded in steps_done (ran as a no-op).
         assert "shenbi-chapter-revision" in cs.steps_done
-        # 5 dispatches: chapter-planning, chapter-drafting, lifecycle, settling,
-        # + review-resonance (serial — WRITE_SHARED contract writes, F532/C32 R4;
-        # other audits are parallel-dispatched).
+        # 4 dispatches via the chapter_loop seam: chapter-planning,
+        # chapter-drafting, lifecycle, settling; review-resonance runs serially
+        # through the parallel_dispatch seam (WRITE_SHARED contract writes,
+        # F532/C32 R4; other audits are parallel-dispatched).
         # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
         #  pre-revision-snapshot are pipeline-internal; revision is skipped).
-        assert chapter_succeeds.dispatch.call_count == 5
+        assert chapter_succeeds.dispatch.call_count == 4
+        assert chapter_succeeds.serial_disp.call_count == 1
 
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
@@ -420,6 +435,12 @@ class TestAuditCircleAndRevisionRouting:
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
                 return_value=DispatchResult(True, 0, "{}", ""),
             ) as mock_disp,
+            # Serial review-resonance dispatches through the parallel_dispatch
+            # seam inside _dispatch_with_retry (C32 R4 follow-up).
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ) as mock_serial_disp,
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
             patch("shenbi.pipeline.chapter_loop.run_gate_g3", return_value=_GATE_PASS),
             patch(
@@ -457,10 +478,13 @@ class TestAuditCircleAndRevisionRouting:
         ):
             _drive_three_segments(chapter_state, tmp_path)
             assert chapter_state.pending_checkpoint.type == CheckpointType.PER_CHAPTER
-            # 6 dispatches: chapter-planning, chapter-drafting, lifecycle,
-            # settling, review-resonance (serial, F532/C32 R4),
-            # + chapter-revision (SPOT_FIX route).
-            assert mock_disp.call_count == 6
+            # 5 dispatches via the chapter_loop seam: chapter-planning,
+            # chapter-drafting, lifecycle, settling, + chapter-revision
+            # (SPOT_FIX route); review-resonance rides the serial
+            # parallel_dispatch seam (1 call, F532/C32 R4 + follow-up).
+            assert mock_disp.call_count == 5
+            assert mock_serial_disp.call_count == 1
+            assert mock_serial_disp.call_args.kwargs["skill"] == "shenbi-review-resonance"
             cs = chapter_state.chapter_loop.chapter_states["1"]
             assert cs.audit_results["revision_route"] == RevisionRoute.SPOT_FIX.value
 

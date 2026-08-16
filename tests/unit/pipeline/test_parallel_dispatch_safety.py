@@ -2,14 +2,17 @@
 
 from __future__ import annotations
 
+from collections.abc import Generator
+from contextlib import contextmanager
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
 import pytest
 
 from shenbi.contracts import ContractError
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.parallel_dispatch import (
+    MAX_RETRIES,
     ReviewTask,
     dispatch_reviews_parallel,
 )
@@ -137,8 +140,11 @@ class TestAuditWavePartition:
         state.chapter_loop.step_index = _FIRST_AUDIT_IDX
 
         with (
+            # Serial members now dispatch through parallel_dispatch.dispatch_skill
+            # (inside _dispatch_with_retry, C32 R4 follow-up) — same seam as
+            # concurrent-wave members.
             patch(
-                "shenbi.pipeline.chapter_loop.dispatch_skill",
+                "shenbi.pipeline.parallel_dispatch.dispatch_skill",
                 return_value=DispatchResult(True, 0, "{}", ""),
             ) as serial_disp,
             patch(
@@ -163,8 +169,9 @@ class TestAuditWavePartition:
         # resonance never rides the concurrent wave...
         assert wave_skills, "parallel wave must have run"
         assert all("shenbi-review-resonance" not in w for w in wave_skills)
-        # ...it is dispatched serially instead.
-        serial_calls = [c[0][0] for c in serial_disp.call_args_list]
+        # ...it is dispatched serially instead (keyword form — _dispatch_with_retry
+        # calls dispatch_skill(skill=..., project_dir=..., prompt=..., ...)).
+        serial_calls = [c.kwargs["skill"] for c in serial_disp.call_args_list]
         assert "shenbi-review-resonance" in serial_calls
         # ...and every task left on the wave is genuinely read-only.
         from shenbi.pipeline.parallel_dispatch import assert_parallelizable
@@ -176,3 +183,128 @@ class TestAuditWavePartition:
                 for s in w
             ]
         )
+
+
+@contextmanager
+def _serial_dispatch_as(mock: MagicMock) -> Generator[None, None, None]:
+    """Patch BOTH dispatch seams with the same mock (no real dispatch).
+
+    The serial WRITE_SHARED path must dispatch through
+    ``parallel_dispatch.dispatch_skill`` (inside ``_dispatch_with_retry``);
+    ``chapter_loop.dispatch_skill`` is the seam used before the C32 R4
+    follow-up and by the non-audit steps. Patching both with one shared mock
+    makes these tests fail closed — the exception propagates and the test
+    fails — if the serial path ever bypasses the retry wrapper again.
+    """
+    with (
+        patch("shenbi.pipeline.chapter_loop.dispatch_skill", new=mock),
+        patch("shenbi.pipeline.parallel_dispatch.dispatch_skill", new=mock),
+        patch("shenbi.pipeline.parallel_dispatch.time.sleep"),  # no real backoff
+    ):
+        yield
+
+
+class TestSerialDispatchFailureParity:
+    """C32 R4 follow-up: serial WRITE_SHARED members get the same failure
+    semantics as concurrent-wave members (``_dispatch_with_retry``):
+
+    1. dispatch exceptions are caught and wrapped into a failed
+       DispatchResult (batch survives, failure joins consolidation) instead
+       of crashing ``run_chapter_step`` / the CLI driver;
+    2. failures retry with backoff — MAX_RETRIES + 1 attempts total.
+    """
+
+    def _resonance_task(self, tmp_path: Path) -> ReviewTask:
+        return ReviewTask(
+            skill="shenbi-review-resonance",
+            project_dir=tmp_path,
+            prompt="Execute review",
+            output_path="audits/chapter-1-resonance.md",
+        )
+
+    def test_serial_exception_wrapped_as_failed_result(self, tmp_path: Path):
+        """A raised exception becomes ok=False, not a crashed batch."""
+        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+
+        serial_dispatch = MagicMock(side_effect=OSError("OpenAI() construction failed"))
+        with _serial_dispatch_as(serial_dispatch):
+            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+
+        assert len(results) == 1
+        result = results[0]
+        assert result.success is False
+        assert result.returncode == -1
+        assert "OpenAI() construction failed" in result.stderr
+
+    def test_serial_persistent_failure_retries_max_attempts(self, tmp_path: Path):
+        """Persistent failure exhausts MAX_RETRIES + 1 attempts before failed."""
+        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+
+        serial_dispatch = MagicMock(side_effect=OSError("api down"))
+        with _serial_dispatch_as(serial_dispatch):
+            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+
+        assert serial_dispatch.call_count == MAX_RETRIES + 1  # 3 attempts
+        assert results[0].success is False
+        assert "retries exhausted" in results[0].stderr
+
+    def test_serial_transient_failure_retried_then_succeeds(self, tmp_path: Path):
+        """A transient exception is retried; the retry's success wins."""
+        from shenbi.pipeline.chapter_loop import _dispatch_serial_reviews
+
+        serial_dispatch = MagicMock(
+            side_effect=[OSError("transient API hiccup"), DispatchResult(True, 0, "{}", "")]
+        )
+        with _serial_dispatch_as(serial_dispatch):
+            results = _dispatch_serial_reviews([self._resonance_task(tmp_path)], tmp_path)
+
+        assert serial_dispatch.call_count == 2
+        assert results[0].success is True
+
+    def test_serial_exception_does_not_crash_wave_and_joins_consolidation(self, tmp_path: Path):
+        """End-to-end: the audit wave survives a raising serial member and its
+        failure is consolidated (counted as failed) instead of crashing.
+        """
+        from shenbi.pipeline.chapter_loop import (
+            _FIRST_AUDIT_IDX,
+            _LAST_AUDIT_IDX,
+            run_chapter_step,
+        )
+        from shenbi.pipeline.state import PipelineState
+
+        captured: list[DispatchResult] = []
+
+        def _capture(results: list[DispatchResult], chapter: int) -> str:
+            captured.extend(results)
+            return (
+                "# Chapter 1 — Consolidated Review Results\n\n"
+                "No BLOCKING or CRITICAL issues found across all reviews.\n"
+            )
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = _FIRST_AUDIT_IDX
+
+        serial_dispatch = MagicMock(side_effect=OSError("OpenAI() construction failed"))
+        with (
+            _serial_dispatch_as(serial_dispatch),
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
+                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            ),
+            patch(
+                "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
+                side_effect=_capture,
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop.run_gate_g4",
+                return_value={"status": "PASS"},
+            ),
+        ):
+            run_chapter_step(state, tmp_path)  # must NOT raise
+
+        failed = [r for r in captured if not r.success]
+        assert len(failed) == 1  # resonance's failure joined the consolidation
+        assert "OpenAI() construction failed" in failed[0].stderr
+        # The chapter still advances past the whole audit wave.
+        assert state.chapter_loop.step_index == _LAST_AUDIT_IDX + 1

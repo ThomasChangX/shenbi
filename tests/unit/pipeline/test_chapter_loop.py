@@ -474,6 +474,12 @@ class TestAuditCircleIntegration:
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
                 return_value=DispatchResult(True, 0, "{}", ""),
             ),
+            # Serial WRITE_SHARED members dispatch through the same seam as
+            # the concurrent wave (inside _dispatch_with_retry, C32 R4 follow-up).
+            patch(
+                "shenbi.pipeline.parallel_dispatch.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ),
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
                 side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
@@ -610,6 +616,12 @@ class TestRevisionRoutingIntegration:
         patches = {}
         patches["disp"] = patch(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
+            return_value=DispatchResult(True, 0, "{}", ""),
+        )
+        # Serial WRITE_SHARED members (review-resonance) dispatch through the
+        # parallel_dispatch seam inside _dispatch_with_retry (C32 R4 follow-up).
+        patches["serial_disp"] = patch(
+            "shenbi.pipeline.parallel_dispatch.dispatch_skill",
             return_value=DispatchResult(True, 0, "{}", ""),
         )
         patches["par_disp"] = patch(

@@ -2495,7 +2495,22 @@ def _partition_review_wave(
 def _dispatch_serial_reviews(
     serial_tasks: list[ReviewTask], project_dir: Path
 ) -> list[DispatchResult]:
-    """Dispatch WRITE_SHARED review skills one at a time (no concurrency)."""
+    """Dispatch WRITE_SHARED review skills one at a time (no concurrency).
+
+    Reuses parallel_dispatch._dispatch_with_retry so serial members get the
+    SAME failure semantics as concurrent-wave members: every exception is
+    caught and wrapped into a failed DispatchResult (never allowed to crash
+    run_chapter_step / the CLI driver) and failures retry with backoff,
+    up to MAX_RETRIES extra attempts. A 1-permit semaphore expresses the
+    single-flight form its signature expects (C32 R4 follow-up).
+    """
+    from threading import Semaphore
+
+    from shenbi.pipeline.parallel_dispatch import (
+        _dispatch_with_retry,  # pyright: ignore[reportPrivateUsage]
+    )
+
+    semaphore = Semaphore(1)
     results: list[DispatchResult] = []
     for t in serial_tasks:
         log.info(
@@ -2504,14 +2519,7 @@ def _dispatch_serial_reviews(
             project_dir=str(project_dir),
             reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
         )
-        results.append(
-            dispatch_skill(
-                t.skill,
-                project_dir,
-                t.prompt,
-                shared_context=t.shared_context,
-            )
-        )
+        results.append(_dispatch_with_retry(t, semaphore))
     return results
 
 
