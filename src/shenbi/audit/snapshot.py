@@ -60,13 +60,35 @@ def snapshot_tree(root: Path, watch_patterns: list[str]) -> dict[str, str | None
     return out
 
 
+# F503 哨兵键：非法 JSON / 顶层类型变化不得静默降级为"无键变化"——
+# 空键集 ⊆ 任何 OWNERSHIP write_keys → 零违规（审计逃逸）。哨兵键不在任何
+# 声明写键集内，强制在 field 级审计产生违规。
+UNPARSEABLE_JSON_KEY = "<unparseable-json>"
+TOP_LEVEL_TYPE_CHANGED_KEY = "<top-level-type-changed>"
+
+
+def _json_top_keys(content: str) -> tuple[str, ...]:
+    """单个 JSON 内容 → 顶层键集（added 分支与 diff 共用的 field 级谓词）。
+
+    非法 JSON → UNPARSEABLE_JSON_KEY；非对象顶层（list/null 等）→
+    TOP_LEVEL_TYPE_CHANGED_KEY（F503）。
+    """
+    try:
+        data = json.loads(content)
+    except (json.JSONDecodeError, TypeError):
+        return (UNPARSEABLE_JSON_KEY,)
+    if not isinstance(data, dict):
+        return (TOP_LEVEL_TYPE_CHANGED_KEY,)
+    return tuple(sorted(str(k) for k in data))
+
+
 def _changed_top_keys(pre: str, post: str) -> tuple[str, ...]:
     try:
         a, b = json.loads(pre), json.loads(post)
     except (json.JSONDecodeError, TypeError):
-        return ()
+        return (UNPARSEABLE_JSON_KEY,)
     if not (isinstance(a, dict) and isinstance(b, dict)):
-        return ()
+        return (TOP_LEVEL_TYPE_CHANGED_KEY,)
     a = cast(dict[str, Any], a)
     b = cast(dict[str, Any], b)
     keys: set[str] = set()
@@ -95,13 +117,26 @@ def _diff_records(
 
 
 def compute_file_change(relpath: str, pre: str | None, post: str | None) -> FileChange:
-    """由 pre/post 内容算 FileChange（按文件格式选粒度）。"""
+    """由 pre/post 内容算 FileChange（按文件格式选粒度）。
+
+    - added：按 post 内容计算 diff 载荷（JSON 顶层键集 / md 全部记录 id）——
+      删除+重建由此落入 field/record 级校验，不走空载荷旁路（F515）；
+    - deleted：仅产出 status，由 check_write_ownership 按 status 判违规（F502）；
+    - 未变更/双 None：status="unchanged"（F508）。
+    """
     if pre is None and post is not None:
+        if relpath.endswith(".json"):
+            return FileChange(
+                relpath=relpath, status="added", changed_top_keys=_json_top_keys(post)
+            )
+        if relpath.endswith(".md"):
+            new_ids, _, _ = _diff_records([], parse_records(post))
+            return FileChange(relpath=relpath, status="added", new_record_ids=new_ids)
         return FileChange(relpath=relpath, status="added")
     if pre is not None and post is None:
         return FileChange(relpath=relpath, status="deleted")
     if pre == post:
-        return FileChange(relpath=relpath, status="modified")
+        return FileChange(relpath=relpath, status="unchanged")
     if relpath.endswith(".json") and pre is not None and post is not None:
         return FileChange(
             relpath=relpath, status="modified", changed_top_keys=_changed_top_keys(pre, post)

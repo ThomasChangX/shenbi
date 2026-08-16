@@ -19,7 +19,7 @@ class FileChange:
     """单个被审文件的变更描述（snapshot 产出，ownership 消费）。"""
 
     relpath: str
-    status: Literal["added", "deleted", "modified"]
+    status: Literal["added", "deleted", "modified", "unchanged"]
     changed_top_keys: tuple[str, ...] = ()  # JSON field-level
     new_record_ids: tuple[str, ...] = ()  # markdown record-level（新增记录）
     deleted_record_ids: tuple[str, ...] = ()  # 删除记录
@@ -101,6 +101,8 @@ def get_ownership(skill: str, relpath: str) -> FileOwnership | None:
 def check_write_ownership(skill: str, change: FileChange) -> list[str]:
     """检查单个文件的写越权。返回 violations（空=合规）。
 
+    - deleted：OWNERSHIP 管控文件整体删除 → 直接违规——record/field 级粒度
+      对"无 post 内容"天然失明（记录/键集载荷恒空），按 status 判（F502）；
     - field（JSON）：改动顶层键 ⊆ write_keys；
     - record_create（plant）：新增记录允许；改/删已有记录 → 越权；
     - record_field（track/resolve/state-settling）：已有记录仅可改 write_keys 内字段；
@@ -110,6 +112,8 @@ def check_write_ownership(skill: str, change: FileChange) -> list[str]:
     own = get_ownership(skill, change.relpath)
     if own is None:
         return []
+    if change.status == "deleted":
+        return [f"{change.relpath}: 不允许删除 OWNERSHIP 管控文件"]
     v: list[str] = []
     if own.level == "field":
         bad = [k for k in change.changed_top_keys if k not in own.write_keys]
