@@ -272,6 +272,27 @@ class TestReadYamlRecords:
         f.write_text("# Just a header\n\nbody text\n")
         assert _read_yaml_records(f) == []
 
+    def test_thematic_break_body_is_not_frontmatter(self, tmp_path: Path):
+        """A body starting with a ``----`` thematic break (no frontmatter)
+        yields ``[]`` — the frontmatter gate is an EXACT first-line ``---``
+        match, not a ``startswith("---")`` prefix test (final review T4 M2:
+        the prefix test misparsed ``----`` bodies as frontmatter and raised
+        TruthFileParseError on files that carry no frontmatter at all).
+        """
+        f = tmp_path / "thematic.md"
+        # Later ``---`` rules in the body make the pre-fix misparse reach the
+        # YAML loader; without one it misraised "unterminated" instead.
+        f.write_text("----\n\n正文第一段。\n\n---\n\n第二段。\n")
+        assert _read_yaml_records(f) == []
+
+    def test_thematic_break_only_body_is_not_frontmatter(self, tmp_path: Path):
+        """``----`` with no second ``---`` in the body: also ``[]`` (the
+        pre-fix path misraised "frontmatter unterminated" here).
+        """
+        f = tmp_path / "thematic_only.md"
+        f.write_text("----\n\n正文。\n")
+        assert _read_yaml_records(f) == []
+
     def test_reads_records_from_hooks_key(self, tmp_path: Path):
         f = tmp_path / "hooks.md"
         f.write_text("---\nhooks:\n  - id: H1\n    state: active\n---\n\nbody\n")

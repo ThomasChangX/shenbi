@@ -155,7 +155,7 @@ def test_ide_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
 
 
 def test_audit_infra_crash_preserves_dispatch_result(
-    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     _seed_genre_config(tmp_path)
@@ -165,12 +165,21 @@ def test_audit_infra_crash_preserves_dispatch_result(
         raise RuntimeError("audit infra broken")
 
     import shenbi.audit.write_audit as wa
+    from shenbi.logging import configure_logging
 
+    # 生产形态:structlog 绑定 stderr(PrintLoggerFactory(sys.stderr))。单测默认
+    # 未 configure,structlog 走默认 stdout —— 先 configure 让本用例按生产流断言
+    # (cache_logger_on_first_use=False 使其绑定 capsys 当前捕获的 sys.stderr;
+    # 全局配置由 tests/conftest.py 的 _isolate_structlog_config 在 teardown 恢复).
+    configure_logging()
     monkeypatch.setattr(wa, "audit_writes", boom)
     result = dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is True  # 审计崩溃不吞派发结果
     assert result.returncode == 0
+    # fail-open 但必须 LOUD:infra 错误事件确实发声到 stderr —— caplog 捕不到
+    # structlog(自定义 PrintLoggerFactory),必须 capsys.
+    assert "write_audit_infra_error" in capsys.readouterr().err
 
 
 # -- 账本位置:显式 round_dir 优先(与 legacy 路由 rd 推导一致)--

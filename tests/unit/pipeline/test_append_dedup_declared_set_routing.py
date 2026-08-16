@@ -30,9 +30,8 @@ from pathlib import Path
 import pytest
 
 from shenbi.contracts import ContractError, load_contract
+from shenbi.gates.shared import SKILLS as _SKILLS_DIR
 from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
-
-_SKILLS_DIR = Path("skills")
 
 
 def _declared_append_dedup_pairs() -> list[tuple[str, str, str]]:

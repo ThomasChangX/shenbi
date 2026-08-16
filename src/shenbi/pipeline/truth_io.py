@@ -340,7 +340,12 @@ def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
         return []
     try:
         text = path.read_text(encoding="utf-8")
-        if not text.startswith("---"):
+        # Frontmatter gate: the FIRST LINE must be exactly ``---``. A bare
+        # ``startswith("---")`` prefix test also matched ``----`` thematic
+        # breaks, misparsing frontmatter-less bodies as frontmatter and
+        # raising TruthFileParseError on them (final review T4 M2).
+        first_line = text.split("\n", 1)[0].rstrip("\r \t")
+        if first_line != "---":
             return []
         parts = text.split("---", 2)
         if len(parts) < 3:

@@ -37,24 +37,20 @@ from pathlib import Path
 
 import pytest
 
+from shenbi.contracts import load_contract
 from shenbi.pipeline.chapter_loop import _build_resonance_trend_row
 from shenbi.pipeline.checkpoint import commit_staging
 from shenbi.pipeline.dispatch_helper import DispatchResult, _dispatch_via_api
 
 FIXTURES = Path("tests/fixtures")
 
-#: state-settling's full staging surface (contract writes + updates), in the
-#: order the contract declares them — the same list the checkpoint commit
-#: receives in production.
-_SETTLING_TARGETS = [
-    "truth/character_matrix.md",
-    "truth/current_state.md",
-    "truth/particle_ledger.md",
-    "truth/emotional_arcs.md",
-    "truth/subplot_board.md",
-    "truth/pending_hooks.md",
-    "truth/chapter_summaries.md",
-]
+#: state-settling's full staging surface, MECHANICALLY DERIVED from the live
+#: frontmatter contract (writes + updates, declaration order preserved). The
+#: production STATE_SETTLE checkpoint commit actually globs whatever is staged
+#: under ``staging/truth/*.md`` (pipeline/cli.py), so the contract is the only
+#: non-hand-maintained source for the full declared surface.
+_SETTLING_CONTRACT = load_contract("shenbi-state-settling")
+_SETTLING_TARGETS = [*_SETTLING_CONTRACT["writes"], *_SETTLING_CONTRACT["updates"]]
 
 #: Real ch1 truth outputs (G0.9) used to seed the "continuing loop" scenario.
 _PRIOR_STATE_FIXTURES = {
@@ -272,12 +268,15 @@ class TestTwoChapterLoopFromFreshProject:
         assert sum(1 for r in trend_rows if r.startswith("| Ch1 |")) == 1
         assert sum(1 for r in trend_rows if r.startswith("| Ch2 |")) == 1
 
-    def test_all_six_settling_targets_accumulate(
+    def test_all_row_keyed_settling_targets_accumulate(
         self, tmp_project: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """The same guard extended to every append_dedup target state-settling
-        owns: chapter 1's increment survives chapter 2's settle+commit in all
-        five row-keyed truth files (pending_hooks keyed by hook id).
+        """The same guard extended to the remaining row-keyed append_dedup
+        targets state-settling owns (chapter_summaries is already covered by
+        the loop test above; character_matrix is create_or_overwrite and thus
+        not row-keyed): chapter 1's increment survives chapter 2's
+        settle+commit in all five row-keyed truth files (pending_hooks keyed
+        by hook id).
         """
         _install_fake_llm(monkeypatch, [_settle_response(1), _settle_response(2)])
         _settle_chapter(monkeypatch, tmp_project, 1)

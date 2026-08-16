@@ -2403,10 +2403,15 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
     Worker threads return DispatchResult objects; the main thread merges
     them sequentially to PipelineState (single-writer / actor-model).
 
-    Both steps depend on drafting completion and write to disjoint files:
-    - lifecycle -> pending_hooks.md
-    - state-settling -> 6 truth files
-    Zero data conflict.
+    Both steps depend on drafting completion. Their file sets are NOT
+    disjoint: both contracts declare ``append_dedup`` updates to
+    ``truth/pending_hooks.md`` (lifecycle's only output; one of
+    state-settling's six), and both run with ``uses_staging=True`` while the
+    staging merge base is always the LIVE truth file — so the two staging
+    writers race last-writer-wins on pending_hooks and the first writer's
+    increment is lost from staging (known issue, fixed direction is per-file
+    serialization or chained staging merge; see spec T3 input N1 in
+    ``docs/superpowers/specs/2026-08-16-audit-truth-upsert-wiring-fix.md``).
 
     Returns:
         Tuple of (lifecycle_result, settling_result) DispatchResult objects.

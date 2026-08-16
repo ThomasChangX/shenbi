@@ -1122,10 +1122,14 @@ def _route_append_dedup_write(
       fall back to the legacy whole-file write with a WARN.
 
     Raises:
-        TruthFileParseError: propagated from ``truth_io`` when the existing
-            truth file is corrupt (fail-loud, T706). The dispatch entry points
-            (:func:`_dispatch_via_api` / :func:`_dispatch_via_ide`) convert it
-            into a failed DispatchResult instead of crashing the process.
+        TruthFileParseError: not raised by the CURRENT wiring — both routes
+            above go through the pure-string ``upsert_markdown_row`` path,
+            which never parses existing files as YAML (only ``upsert_yaml``
+            can, via ``truth_io._read_yaml_records``). The dispatch entry
+            points' ``except TruthFileParseError`` (:func:`_dispatch_via_api`
+            / :func:`_dispatch_via_ide`, converting it into a failed
+            DispatchResult) stays as defense for a future ``upsert_yaml``
+            wiring, not a live path today.
     """
     from shenbi.pipeline.truth_io import upsert_markdown_row, write_truth_file
 
@@ -1984,7 +1988,8 @@ def _with_write_audit(
     writes to (the legacy route snapshots the framework repo root instead,
     F519, out of scope here).
 
-    Audit-failure semantics identical to the legacy route:
+    Audit-failure semantics match the legacy route except the last bullet
+    (infra failures fail-open here; the legacy subprocess crashes instead):
     - violations/drift on a rc==0 dispatch downgrade it to GATE_FAIL
       (success=False, returncode=2) with the reasons surfaced in stderr —
       recorded, never swallowed;
