@@ -13,7 +13,7 @@ from shenbi.pipeline.truth_io import (
     _path_lock,
     _read_yaml_records,
     _upsert_by_key,
-    _upsert_markdown_table_row,
+    upsert_markdown_row,
     write_truth_file,
 )
 
@@ -248,14 +248,14 @@ class TestUpsertMarkdownTableRow:
         """A non-table new_row is appended without dedup."""
         existing = "# Header\n\nSome prose.\n"
         new = "Just a plain line"
-        result = _upsert_markdown_table_row(existing, new, "chapter")
+        result = upsert_markdown_row(existing, new, "chapter")
         assert "Some prose." in result
         assert "Just a plain line" in result
 
     def test_matching_key_row_is_replaced(self):
         existing = "| Ch1 | old | data |\n| Ch2 | old2 | data2 |\n"
         new = "| Ch2 | new | stuff |"
-        result = _upsert_markdown_table_row(existing, new, "chapter")
+        result = upsert_markdown_row(existing, new, "chapter")
         assert "| Ch2 | new | stuff |" in result
         assert "| Ch2 | old2 | data2 |" not in result
         assert "| Ch1 | old | data |" in result

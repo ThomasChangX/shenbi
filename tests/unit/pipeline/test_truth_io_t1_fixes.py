@@ -27,7 +27,7 @@ from shenbi.exceptions import TruthFileParseError
 from shenbi.pipeline.truth_io import (
     _read_yaml_records,
     _upsert_by_key,
-    _upsert_markdown_table_row,
+    upsert_markdown_row,
     write_truth_file,
 )
 
@@ -88,7 +88,7 @@ class TestTableRowKeyExtraction:
     def test_space_containing_english_key_dedups_on_whole_cell(self):
         """``Ch 1`` vs ``Ch 2`` differ only past the first token; whole-cell wins."""
         existing = "| Ch 1 | draft |\n| Ch 2 | draft |\n"
-        result = _upsert_markdown_table_row(existing, "| Ch 2 | revised |", "chapter")
+        result = upsert_markdown_row(existing, "| Ch 2 | revised |", "chapter")
         assert "| Ch 1 | draft |" in result
         assert result.count("Ch 2") == 1
         assert "revised" in result
@@ -96,7 +96,7 @@ class TestTableRowKeyExtraction:
     def test_multiline_key_survives_key_extraction(self):
         """A key cell containing trailing commentary still compares whole."""
         existing = "| 第 1 章 | ok |\n"
-        result = _upsert_markdown_table_row(existing, "| 第 10 章 | ok |", "chapter")
+        result = upsert_markdown_row(existing, "| 第 10 章 | ok |", "chapter")
         assert "| 第 1 章 | ok |" in result
         assert "| 第 10 章 | ok |" in result
 
@@ -134,14 +134,14 @@ class TestKeyFieldColumnPositioning:
     def test_header_cell_matching_tolerates_case_and_separators(self):
         """``Hook ID`` header matches key_field ``hook_id`` (normalized)."""
         existing = "| status | Hook ID |\n| --- | --- |\n| PLANTED | MH-1 | old |\n"
-        result = _upsert_markdown_table_row(existing, "| FIRED | MH-1 | new |", "hook_id")
+        result = upsert_markdown_row(existing, "| FIRED | MH-1 | new |", "hook_id")
         assert "FIRED" in result
         assert "old" not in result
 
     def test_headerless_table_defaults_to_first_column(self):
         """No header row → key column is 0 (existing behavior preserved)."""
         existing = "| a | 1 |\n| b | 2 |\n"
-        result = _upsert_markdown_table_row(existing, "| b | 3 |", "whatever")
+        result = upsert_markdown_row(existing, "| b | 3 |", "whatever")
         assert "| a | 1 |" in result
         assert result.count("| b |") == 1
 
@@ -149,7 +149,7 @@ class TestKeyFieldColumnPositioning:
         """A first data row containing the key word must not redirect the column."""
         existing = "| x | chapter |\n| keep | me |\n"
         # 'chapter' appears in column 1 of a NON-header row; key stays col 0.
-        result = _upsert_markdown_table_row(existing, "| x | replaced |", "chapter")
+        result = upsert_markdown_row(existing, "| x | replaced |", "chapter")
         assert result.count("| x |") == 1
         assert "replaced" in result
         assert "| keep | me |" in result

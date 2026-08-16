@@ -128,7 +128,7 @@ def write_truth_file(
                 _upsert_markdown_bullet(path, filename, new_data, key_field)
             elif isinstance(new_data, str):
                 existing = path.read_text(encoding="utf-8") if path.exists() else ""
-                merged = _upsert_markdown_table_row(existing, new_data, key_field or "chapter")
+                merged = upsert_markdown_row(existing, new_data, key_field or "chapter")
                 safe_write(path, merged)
                 log.info("truth_file_markdown_row_upserted", file=filename)
             else:
@@ -227,7 +227,7 @@ def _upsert_markdown_bullet(
     )
 
 
-def _split_table_cells(line: str) -> list[str] | None:
+def split_table_cells(line: str) -> list[str] | None:
     """Split a markdown table row into stripped cells, or None if not a row.
 
     A table row starts and ends with ``|``. Cell boundaries are the pipes
@@ -270,11 +270,11 @@ def _key_column(existing: str, key_name: str) -> int:
     """
     lines = existing.split("\n")
     for idx, line in enumerate(lines):
-        cells = _split_table_cells(line)
+        cells = split_table_cells(line)
         if cells is None:
             continue
         next_cells = next(
-            (_split_table_cells(l) for l in lines[idx + 1 :] if _split_table_cells(l) is not None),
+            (split_table_cells(l) for l in lines[idx + 1 :] if split_table_cells(l) is not None),
             None,
         )
         if next_cells is not None and not _is_separator_row(next_cells):
@@ -286,7 +286,7 @@ def _key_column(existing: str, key_name: str) -> int:
     return 0
 
 
-def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> str:
+def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     """Dedup a markdown table row by whole-cell key-column value (T702/T713).
 
     The key is the FULL text of the key cell (first cell by default, or the
@@ -297,7 +297,7 @@ def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> st
     with no usable natural key — is appended without dedup so no data is
     silently dropped (data-preserving fallback, symmetric with T703).
     """
-    new_cells = _split_table_cells(new_row)
+    new_cells = split_table_cells(new_row)
     if new_cells is None:
         # Not a table row — no key to dedup on; append (data-preserving).
         log.warning("truth_table_upsert_non_table_row", key_name=key_name)
@@ -317,7 +317,7 @@ def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> st
     result_lines: list[str] = []
     for line in existing.split("\n"):
         if line.lstrip().startswith("|"):
-            cells = _split_table_cells(line)
+            cells = split_table_cells(line)
             if cells is None or _is_separator_row(cells):
                 result_lines.append(line)  # separator rows are never data
                 continue
