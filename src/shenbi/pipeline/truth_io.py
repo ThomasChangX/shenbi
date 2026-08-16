@@ -198,27 +198,102 @@ def _upsert_markdown_bullet(
     )
 
 
-def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> str:
-    """Dedup a markdown table row by key column value.
+def _split_table_cells(line: str) -> list[str] | None:
+    """Split a markdown table row into stripped cells, or None if not a row.
 
-    Extracts the key from new_row's first ``|`` cell, removes any existing row
-    with the same key, appends new_row. Preserves headers and non-table content
-    (frontmatter, prose). This is key-based dedup, NOT substring matching.
+    A table row starts and ends with ``|``. Cell boundaries are the pipes
+    themselves, so a key is the FULL cell text — never the first whitespace
+    token. This is the T702 fix: keys like ``第 1 章`` or ``Ch 1`` (containing
+    spaces/CJK) must compare as whole cells, otherwise rows whose first
+    *token* collides (``第`` == ``第``) wrongly dedup each other and whole
+    families of rows get deleted.
     """
-    # Extract key from new_row (first cell after |)
-    new_key_match = re.match(r"\|\s*(\S+)", new_row)
-    if not new_key_match:
-        # Not a table row — just append to existing content
-        return existing.rstrip() + "\n" + new_row
-    new_key = new_key_match.group(1)
+    s = line.strip()
+    if not (s.startswith("|") and s.endswith("|")) or len(s) < 2:
+        return None
+    return [c.strip() for c in s[1:-1].split("|")]
 
+
+def _norm_cell(cell: str) -> str:
+    """Normalize a header cell for key-column matching (T713).
+
+    ``Hook ID``, ``hook_id`` and ``hook-id`` all normalize to ``hookid`` so
+    the contract ``key_field`` declaration can locate its column by header
+    name.
+    """
+    return re.sub(r"[\s_-]+", "", cell.lower())
+
+
+def _is_separator_row(cells: list[str]) -> bool:
+    """True for a markdown table separator row (``| --- | :---: |``)."""
+    return bool(cells) and all(re.fullmatch(r":?-{3,}:?", c) for c in cells)
+
+
+def _key_column(existing: str, key_name: str) -> int:
+    """Locate the key column index: header cell matching *key_name*, else 0.
+
+    Only the FIRST table row counts as a header candidate, and only when it
+    is followed by a separator row (markdown table convention). This stops a
+    data row that merely *contains* the key word from redirecting the key
+    column. If no header matches, the first column is the key (T713:
+    ``key_field`` used to be decorative for str rows — now it positions the
+    column).
+    """
     lines = existing.split("\n")
-    result_lines = []
-    for line in lines:
-        if line.startswith("|"):
-            existing_key_match = re.match(r"\|\s*(\S+)", line)
-            if existing_key_match and existing_key_match.group(1) == new_key:
-                continue  # Skip the existing row with the same key — replaced below
+    for idx, line in enumerate(lines):
+        cells = _split_table_cells(line)
+        if cells is None:
+            continue
+        next_cells = next(
+            (_split_table_cells(l) for l in lines[idx + 1 :] if _split_table_cells(l) is not None),
+            None,
+        )
+        if next_cells is not None and not _is_separator_row(next_cells):
+            return 0  # first table line is a data row, not a header
+        for i, cell in enumerate(cells):
+            if cell and _norm_cell(cell) == _norm_cell(key_name):
+                return i
+        break  # only the first table line is a header candidate
+    return 0
+
+
+def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> str:
+    """Dedup a markdown table row by whole-cell key-column value (T702/T713).
+
+    The key is the FULL text of the key cell (first cell by default, or the
+    column whose header matches *key_name*), never a whitespace token. Rows
+    whose key cell equals the new row's key are replaced by the new row;
+    everything else (frontmatter, headers, separator rows, prose, rows with
+    a different key) is preserved verbatim. A non-table *new_row* — or one
+    with no usable natural key — is appended without dedup so no data is
+    silently dropped (data-preserving fallback, symmetric with T703).
+    """
+    new_cells = _split_table_cells(new_row)
+    if new_cells is None:
+        # Not a table row — no key to dedup on; append (data-preserving).
+        log.warning("truth_table_upsert_non_table_row", key_name=key_name)
+        return existing.rstrip() + "\n" + new_row
+    key_col = _key_column(existing, key_name)
+    if key_col >= len(new_cells):
+        # New row lacks the key column — no natural key; append without dedup.
+        log.warning("truth_table_upsert_row_missing_key_column", key_name=key_name, column=key_col)
+        return existing.rstrip() + "\n" + new_row
+    new_key = new_cells[key_col]
+    if not new_key:
+        # Empty key cell = no natural key; append without dedup rather than
+        # letting all empty-key rows annihilate each other.
+        log.warning("truth_table_upsert_empty_key", key_name=key_name)
+        return existing.rstrip() + "\n" + new_row
+
+    result_lines: list[str] = []
+    for line in existing.split("\n"):
+        if line.lstrip().startswith("|"):
+            cells = _split_table_cells(line)
+            if cells is None or _is_separator_row(cells):
+                result_lines.append(line)  # separator rows are never data
+                continue
+            if key_col < len(cells) and cells[key_col] == new_key:
+                continue  # replaced by the new row appended below
         result_lines.append(line)
     result_lines.append(new_row)
     return "\n".join(result_lines)
