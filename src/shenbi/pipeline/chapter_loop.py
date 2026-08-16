@@ -39,6 +39,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
+    from shenbi.pipeline.parallel_dispatch import ReviewTask
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
 from shenbi.contracts.paths import resolve_chapter_path
@@ -50,6 +51,7 @@ from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_layer import run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
+    DispatchResult,
     dispatch_skill,
     requires_independent,
     run_gate_g3,
@@ -57,6 +59,7 @@ from shenbi.pipeline.dispatch_helper import (
     print_token_summary,
 )
 from shenbi.pipeline.snapshot_diff import create_differential_snapshot
+from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 from shenbi.pipeline.crash_recovery import (
     _check_emergency_flag as _cr_check_emergency_flag,  # pyright: ignore[reportPrivateUsage]
     is_shutdown_requested,
@@ -2467,6 +2470,52 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
 
 
 # ---------------------------------------------------------------------------
+# Audit-wave write-safety partition (C32 R4 / F532)
+# ---------------------------------------------------------------------------
+
+
+def _partition_review_wave(
+    tasks: list[ReviewTask],
+) -> tuple[list[ReviewTask], list[ReviewTask]]:
+    """Split review tasks into (concurrent-wave, serial) by write safety.
+
+    Skills whose contract writes shared truth files (review-resonance updates
+    truth/audit_drift.md + truth/resonance_trend.md) classify WRITE_SHARED
+    and must NOT ride the concurrent wave — ``assert_parallelizable`` would
+    reject the whole wave. They are dispatched serially instead and their
+    results join the same consolidation.
+    """
+    wave = [t for t in tasks if classify_skill_write_safety(t.skill) == WriteSafety.READ_ONLY_AUDIT]
+    serial = [
+        t for t in tasks if classify_skill_write_safety(t.skill) != WriteSafety.READ_ONLY_AUDIT
+    ]
+    return wave, serial
+
+
+def _dispatch_serial_reviews(
+    serial_tasks: list[ReviewTask], project_dir: Path
+) -> list[DispatchResult]:
+    """Dispatch WRITE_SHARED review skills one at a time (no concurrency)."""
+    results: list[DispatchResult] = []
+    for t in serial_tasks:
+        log.info(
+            "serial_review_dispatch",
+            skill=t.skill,
+            project_dir=str(project_dir),
+            reason="WRITE_SHARED contract writes — excluded from parallel wave (F532)",
+        )
+        results.append(
+            dispatch_skill(
+                t.skill,
+                project_dir,
+                t.prompt,
+                shared_context=t.shared_context,
+            )
+        )
+    return results
+
+
+# ---------------------------------------------------------------------------
 # Public API
 # ---------------------------------------------------------------------------
 
@@ -2549,7 +2598,6 @@ def _run_chapter_step_impl(
             audit_suffix,
             get_active_genre_audits,
         )
-        from shenbi.pipeline.dispatch_helper import DispatchResult
         from shenbi.safe_write import safe_write
 
         # Build shared audit context ONCE per chapter so auditors skip
@@ -2573,7 +2621,11 @@ def _run_chapter_step_impl(
                 return False
             return True
 
-        # Wave 1: Core-circle reviews (7 skills in parallel)
+        # Wave 1: Core-circle reviews in parallel. WRITE_SHARED members (e.g.
+        # review-resonance, whose contract updates truth/audit_drift.md +
+        # truth/resonance_trend.md) are partitioned out and dispatched
+        # serially — assert_parallelizable rejects any non-read-only skill,
+        # so leaving them in would fail the whole wave (F532, C32 R4).
         core_skills = [s.skill for s in CHAPTER_STEPS if s.is_audit and "review" in s.skill]
         core_tasks = [
             ReviewTask(
@@ -2587,15 +2639,18 @@ def _run_chapter_step_impl(
         ]
         # Filter cascaded audits (core audits + always-run are never skipped)
         core_tasks = [t for t in core_tasks if _keep_task(t)]
+        core_wave, core_serial = _partition_review_wave(core_tasks)
 
         core_results: list[DispatchResult] = []
-        if core_tasks:
-            log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_tasks))
-            core_results = dispatch_reviews_parallel(core_tasks)
+        if core_wave:
+            log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
+            core_results = dispatch_reviews_parallel(core_wave)
         else:
             log.info("parallel_review_wave1_empty", chapter=chapter)
+        core_results.extend(_dispatch_serial_reviews(core_serial, project_dir))
 
-        # Wave 2: Genre-circle reviews (conditionally active, in parallel)
+        # Wave 2: Genre-circle reviews (conditionally active, in parallel;
+        # same WRITE_SHARED partition as wave 1)
         gc_path = project_dir / "genre-config.json"
         genre_gc = json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
         genre_skills = get_active_genre_audits(genre_gc)
@@ -2611,13 +2666,15 @@ def _run_chapter_step_impl(
         ]
         # Filter cascaded audits for genre wave too
         genre_tasks = [t for t in genre_tasks if _keep_task(t)]
+        genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
         genre_results: list[DispatchResult] = []
-        if genre_tasks:
-            log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_tasks))
-            genre_results = dispatch_reviews_parallel(genre_tasks)
+        if genre_wave:
+            log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
+            genre_results = dispatch_reviews_parallel(genre_wave)
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
+        genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir))
 
         # Consolidate all results
         all_results = core_results + genre_results
