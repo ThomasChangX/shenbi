@@ -109,7 +109,10 @@ def write_truth_file(
     with lock:
         if mode == "replace":
             if isinstance(new_data, dict):
-                body = f"# {filename.removesuffix('.md')}\n\n- {new_data}\n"
+                # T712: render readable "- k: v" bullets, not a Python repr —
+                # the repr was unreadable prose and unparseable on re-read.
+                bullets = "\n".join(f"- {k}: {v}" for k, v in new_data.items())
+                body = f"# {filename.removesuffix('.md')}\n\n{bullets}\n"
                 safe_write(path, body.encode("utf-8"))
             else:
                 content = new_data if isinstance(new_data, str) else str(new_data)

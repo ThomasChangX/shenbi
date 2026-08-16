@@ -374,3 +374,24 @@ class TestKeylessRecordSymmetry:
         assert "no id here" in result
         assert result.count("MH-001") == 1
         assert result.count("MH-002") == 1
+
+
+# ---------------------------------------------------------------------------
+# T712: replace-mode dict input must render readable, re-parseable bullets
+# ---------------------------------------------------------------------------
+
+
+class TestReplaceModeDictRendering:
+    def test_replace_mode_dict_renders_readable_bullets(self, tmp_path: Path):
+        """No Python repr; each key becomes a '- k: v' bullet line (T712)."""
+        (tmp_path / "truth").mkdir()
+        write_truth_file(
+            tmp_path,
+            "current_state.md",
+            {"chapter": 1, "resonance": 65},
+            mode="replace",
+        )
+        content = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
+        assert "{'chapter'" not in content, "Python repr leaked into truth file"
+        assert "- chapter: 1" in content
+        assert "- resonance: 65" in content
