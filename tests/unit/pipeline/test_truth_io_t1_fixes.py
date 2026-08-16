@@ -21,7 +21,12 @@ from __future__ import annotations
 
 from pathlib import Path
 
+import pytest
+
+from shenbi.exceptions import TruthFileParseError
 from shenbi.pipeline.truth_io import (
+    _read_yaml_records,
+    _upsert_by_key,
     _upsert_markdown_table_row,
     write_truth_file,
 )
@@ -252,3 +257,120 @@ class TestDictUpsertStructurePreservation:
         result = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
         assert "# chapter_summaries" in result
         assert "- 1: note=first" in result
+
+
+# ---------------------------------------------------------------------------
+# T706: YAML parse failure must fail loud, not fall back to []
+# ---------------------------------------------------------------------------
+
+_CORRUPT_YAML = "---\nhooks:\n  - id: MH-001\n    state: [broken\n---\n\nbody\n"
+# Frontmatter opens but never closes — truncated file.
+_UNTERMINATED_FM = "---\nhooks:\n  - id: MH-001\n    state: PLANTED\n"
+
+
+class TestYamlParseFailLoud:
+    def test_corrupt_yaml_raises_and_leaves_file_untouched(self, tmp_path: Path):
+        """T706 anchor: a parse failure must raise, not rewrite the file empty.
+
+        The old ``return []`` fallback made upsert_yaml treat the existing
+        records as gone and collapse the file to just the new records.
+        """
+        target = tmp_path / "truth" / "pending_hooks.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(_CORRUPT_YAML, encoding="utf-8")
+
+        with pytest.raises(TruthFileParseError):
+            write_truth_file(
+                tmp_path,
+                "pending_hooks.md",
+                [{"id": "MH-002", "state": "PLANTED"}],
+                mode="upsert_yaml",
+                key_field="id",
+            )
+
+        # File was NOT rewritten — original content intact.
+        assert target.read_text(encoding="utf-8") == _CORRUPT_YAML
+
+    def test_unterminated_frontmatter_raises(self, tmp_path: Path):
+        """A truncated frontmatter block (no closing ---) fails loud too."""
+        target = tmp_path / "truth" / "pending_hooks.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(_UNTERMINATED_FM, encoding="utf-8")
+
+        with pytest.raises(TruthFileParseError):
+            write_truth_file(
+                tmp_path,
+                "pending_hooks.md",
+                [{"id": "MH-002"}],
+                mode="upsert_yaml",
+                key_field="id",
+            )
+
+    def test_read_yaml_records_raises_on_corrupt(self, tmp_path: Path):
+        target = tmp_path / "truth" / "broken.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(_CORRUPT_YAML, encoding="utf-8")
+        with pytest.raises(TruthFileParseError):
+            _read_yaml_records(target)
+
+    def test_valid_yaml_still_upserts(self, tmp_path: Path):
+        """Guard: the fail-loud change must not break the happy path."""
+        target = tmp_path / "truth" / "pending_hooks.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(
+            "---\nhooks:\n  - id: MH-001\n    state: PLANTED\n---\n\nbody\n",
+            encoding="utf-8",
+        )
+        write_truth_file(
+            tmp_path,
+            "pending_hooks.md",
+            [{"id": "MH-001", "state": "TRIGGERED"}],
+            mode="upsert_yaml",
+            key_field="id",
+        )
+        result = target.read_text(encoding="utf-8")
+        assert result.count("MH-001") == 1
+        assert "TRIGGERED" in result
+
+
+# ---------------------------------------------------------------------------
+# T703: keyless records — symmetric preserve policy
+# ---------------------------------------------------------------------------
+
+
+class TestKeylessRecordSymmetry:
+    def test_new_keyless_record_preserved(self):
+        """A NEW record missing the key field is kept, not silently dropped."""
+        existing = [{"id": "a", "v": 1}]
+        new = [{"nokey": True}, {"id": "b", "v": 2}]
+        result = _upsert_by_key(existing, new, "id")
+        assert {"nokey": True} in result
+        assert len(result) == 3
+
+    def test_both_existing_and_new_keyless_preserved(self):
+        """Existing AND new keyless records survive — symmetric policy."""
+        existing = [{"other": "old"}]
+        new = [{"other": "new"}, {"id": "b", "v": 2}]
+        result = _upsert_by_key(existing, new, "id")
+        assert {"other": "old"} in result
+        assert {"other": "new"} in result
+        assert len(result) == 3
+
+    def test_upsert_yaml_end_to_end_preserves_keyless_new_record(self, tmp_path: Path):
+        target = tmp_path / "truth" / "pending_hooks.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(
+            "---\nhooks:\n  - id: MH-001\n    state: PLANTED\n---\n\nbody\n",
+            encoding="utf-8",
+        )
+        write_truth_file(
+            tmp_path,
+            "pending_hooks.md",
+            [{"note": "no id here"}, {"id": "MH-002", "state": "PLANTED"}],
+            mode="upsert_yaml",
+            key_field="id",
+        )
+        result = target.read_text(encoding="utf-8")
+        assert "no id here" in result
+        assert result.count("MH-001") == 1
+        assert result.count("MH-002") == 1

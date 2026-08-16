@@ -42,6 +42,7 @@ from typing import Any
 
 import yaml
 
+from shenbi.exceptions import TruthFileParseError
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
@@ -322,48 +323,76 @@ def _upsert_markdown_table_row(existing: str, new_row: str, key_name: str) -> st
 
 
 def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
-    """Read the YAML-fronted records list (e.g. frontmatter ``hooks:`` array)."""
+    """Read the YAML-fronted records list (e.g. frontmatter ``hooks:`` array).
+
+    Fails LOUD on unreadable or malformed files (T706): the previous ``[]``
+    fallback made the subsequent upsert treat the existing records as gone
+    and collapse the whole file on rewrite. A missing file or a frontmatter
+    block that simply carries no records key legitimately yields ``[]``.
+    """
     if not path.exists():
         return []
     try:
         text = path.read_text(encoding="utf-8")
-        if text.startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
-                fm = yaml.safe_load(parts[1]) or {}
-                for key in ("hooks", "records", "items"):
-                    if isinstance(fm, dict):
-                        records = fm.get(key)
-                        if isinstance(records, list):
-                            return records
+        if not text.startswith("---"):
+            return []
+        parts = text.split("---", 2)
+        if len(parts) < 3:
+            raise TruthFileParseError(
+                "truth file frontmatter is unterminated (no closing ---)",
+                path=str(path),
+            )
+        fm = yaml.safe_load(parts[1]) or {}
+        if not isinstance(fm, dict):
+            raise TruthFileParseError(
+                "truth file frontmatter is not a YAML mapping",
+                path=str(path),
+                frontmatter_type=type(fm).__name__,
+            )
+        for key in ("hooks", "records", "items"):
+            records = fm.get(key)
+            if isinstance(records, list):
+                return records
         return []
-    except (yaml.YAMLError, OSError, ValueError):
-        log.warning("truth_yaml_read_failed", path=str(path))
-        return []
+    except (yaml.YAMLError, OSError, ValueError) as exc:
+        raise TruthFileParseError(
+            "truth file could not be parsed during upsert read",
+            path=str(path),
+        ) from exc
 
 
 def _upsert_by_key(
     existing: list[dict[str, Any]], new_records: list[dict[str, Any]], key_field: str
 ) -> list[dict[str, Any]]:
-    """Merge records by key_field: new records replace existing ones with same key."""
-    by_key: dict[str, dict[str, Any]] = {}
-    order: list[str] = []
-    for rec in existing:
-        if isinstance(rec, dict) and key_field in rec:  # pyright: ignore[reportUnnecessaryIsInstance]
+    """Merge records by key_field: new records replace existing ones with same key.
+
+    Records WITHOUT the key field are preserved on BOTH sides (T703 fix: the
+    new-record loop used to silently drop them, so an LLM record missing its
+    id simply vanished while existing keyless records were kept — asymmetric).
+    Keyless new records are kept and logged so the caller can notice; nothing
+    is discarded.
+    """
+
+    def _add(rec: dict[str, Any]) -> None:
+        if key_field in rec:
             k = str(rec[key_field])
             if k not in by_key:
                 order.append(k)
             by_key[k] = rec
         else:
-            # Preserve records without the key field at the front
-            order.insert(0, f"__nokey_{id(rec)}__")
-            by_key[f"__nokey_{id(rec)}__"] = rec
+            marker = f"__nokey_{id(rec)}__"
+            if marker not in by_key:
+                order.append(marker)
+            by_key[marker] = rec
+
+    by_key: dict[str, dict[str, Any]] = {}
+    order: list[str] = []
+    for rec in existing:
+        _add(rec)
     for rec in new_records:
-        if isinstance(rec, dict) and key_field in rec:  # pyright: ignore[reportUnnecessaryIsInstance]
-            k = str(rec[key_field])
-            if k not in by_key:
-                order.append(k)
-            by_key[k] = rec
+        if key_field not in rec:
+            log.warning("truth_yaml_upsert_record_missing_key", key_field=key_field)
+        _add(rec)
     return [by_key[k] for k in order if k in by_key]
 
 
