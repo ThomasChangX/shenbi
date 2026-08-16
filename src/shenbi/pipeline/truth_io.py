@@ -95,6 +95,9 @@ def write_truth_file(
 
     Raises:
         ValueError: If mode is unrecognized or key_field missing for upsert.
+        TruthFileParseError: In ``upsert_yaml`` mode, if the existing file's
+            YAML frontmatter is corrupt/unreadable (fail-loud, T706) — the
+            file is left untouched for repair instead of being collapsed.
     """
     if mode not in ("replace", "upsert_yaml", "upsert_markdown_row"):
         raise ValueError(
