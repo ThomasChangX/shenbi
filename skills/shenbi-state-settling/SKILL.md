@@ -5,6 +5,12 @@ contract:
   kind: artifact
   reads:
     - chapters/chapter-N.md
+    - truth/current_state.md
+    - truth/particle_ledger.md
+    - truth/emotional_arcs.md
+    - truth/subplot_board.md
+    - truth/pending_hooks.md
+    - truth/chapter_summaries.md
   writes:
     - file: truth/character_matrix.md
       mode: create_or_overwrite
@@ -38,7 +44,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md
+- **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 - **Writes:** truth/character_matrix.md
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
@@ -50,27 +56,20 @@ HARD-GATE: 状态结算在每章起草后**必须执行**。跳过 state-settlin
 
 ### Truth File Update Mode Rules (CRITICAL)
 
-**Every truth file declares its update mode in YAML frontmatter: `update_mode: replace`, `update_mode: upsert_markdown_row`, or `update_mode: upsert_yaml`.**
+**All six `updates:` targets in this skill's contract are declared `mode: append_dedup` — the pipeline's dispatch write path merges your output into those files BY KEY. You must NEVER output the whole file content for them.**
 
-- **replace-mode files** (snapshot type — output the ENTIRE file content):
-  - `current_state.md` — current chapter snapshot
-  - `character_matrix.md` — character state snapshot (DO NOT overwrite "角色定义" section — see below)
+- **append_dedup files** (cumulative — output ONLY the current chapter's row(s), NEVER the entire file):
+  - `truth/current_state.md` — one row for the current chapter's snapshot (key: `chapter`)
+  - `truth/particle_ledger.md` — one row for the current chapter's resource changes (key: `chapter`)
+  - `truth/emotional_arcs.md` — one row for the current chapter's emotional arc (key: `chapter`)
+  - `truth/subplot_board.md` — one row for the current chapter's thread status (key: `chapter`)
+  - `truth/chapter_summaries.md` — one row summarizing the current chapter (key: `chapter`)
+  - `truth/pending_hooks.md` — one row per hook touched this chapter, first column `Hook ID` (key: `hook_id`)
 
-- **upsert_markdown_row files** (cumulative type — output ONLY the new chapter's row, NOT the entire file):
-  - `resonance_trend.md` — one trend row for the current chapter
-  - `audit_drift.md` — drift findings for the current chapter
-  - `emotional_arcs.md` — emotional arc entry for the current chapter
-  - `chapter_summaries.md` — summary reference for the current chapter
+- **whole-file write** (output the ENTIRE file content):
+  - `truth/character_matrix.md` — declared `mode: create_or_overwrite` (see the write-protection rule below)
 
-- **upsert_yaml files** (cumulative structured records — output ONLY the new record(s)):
-  - `pending_hooks.md` — hook planting/tracking data for the current chapter
-
-**For cumulative files (upsert_markdown_row / upsert_yaml):** Output ONLY the
-new data for the current chapter. The pipeline's `write_truth_file()` will
-dedup by natural key (chapter number / hook id) and merge — it will replace any
-existing record with the same key, so re-runs are safe. Do NOT output the
-complete file content for cumulative files — doing so will cause data
-accumulation to fail.
+**Row format:** a markdown table row whose FIRST cell is the chapter key (`第N章` or `N`), e.g. `| 第 5 章 | 主角进入内门；灵石 -20；线索：考核完成 |`. For `pending_hooks.md`, output rows in the 活跃伏笔 table format with `Hook ID` in the first column. The pipeline's `write_truth_file()` merges by that key cell — re-running the same chapter replaces that chapter's row only (re-runs are safe), and rows for other chapters are preserved. Do NOT reproduce other chapters' rows in your output, and do NOT output headings/frontmatter for append_dedup files — output only the new row(s).
 
 ### `character_matrix.md` Write-Protection Rule
 
@@ -148,14 +147,14 @@ digraph state_settling {
 
 | 变化类型 | 更新的文件 | 更新模式 |
 |---------|-----------|---------|
-| 位置 | `truth/current_state.md` | replace |
-| 资源 | `truth/particle_ledger.md` | replace |
-| 关系 | `truth/character_matrix.md` | replace |
-| 情绪 | `truth/emotional_arcs.md` | upsert_markdown_row |
-| 信息 | `truth/character_matrix.md` (信息边界) | replace |
-| 线索 | `truth/subplot_board.md` [Phase 4] | replace |
-| 伏笔 | `truth/pending_hooks.md` | upsert_yaml |
-| 摘要 | `truth/chapter_summaries.md` (追加) | upsert_markdown_row |
+| 位置 | `truth/current_state.md` | append_dedup (key: chapter) |
+| 资源 | `truth/particle_ledger.md` | append_dedup (key: chapter) |
+| 关系 | `truth/character_matrix.md` | create_or_overwrite（整文件） |
+| 情绪 | `truth/emotional_arcs.md` | append_dedup (key: chapter) |
+| 信息 | `truth/character_matrix.md` (信息边界) | create_or_overwrite（整文件） |
+| 线索 | `truth/subplot_board.md` [Phase 4] | append_dedup (key: chapter) |
+| 伏笔 | `truth/pending_hooks.md` | append_dedup (key: hook_id) |
+| 摘要 | `truth/chapter_summaries.md` (追加) | append_dedup (key: chapter) |
 
 > **pending_hooks 字段分工（持久边界，非仅 Phase 1）**：`truth/pending_hooks.md` 有 4 个写者，按字段划分——
 > - **state-settling（本 skill）**：只更新 `last_reinforced` 和 `subtlety` 字段（记录"本章是否提及/加强"），**不**推进生命周期状态（PLANTED→RELEVANT→TRIGGERED→RESOLVED）。

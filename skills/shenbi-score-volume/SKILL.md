@@ -9,6 +9,7 @@ contract:
   - outline/volume_map.md
   - truth/book_spine.md
   - benchmarks/anchors/
+  - truth/volume_score_trend.md
   writes:
   - file: audits/volume-N-score.md
     mode: create_or_overwrite
@@ -56,7 +57,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/volume_summaries.md, outline/volume_map.md, truth/book_spine.md, benchmarks/anchors/
+- **Reads:** truth/volume_summaries.md, outline/volume_map.md, truth/book_spine.md, benchmarks/anchors/, truth/volume_score_trend.md
 - **Writes:** audits/volume-N-score.md, truth/volume_score_trend.md
 - **Updates:** none
 

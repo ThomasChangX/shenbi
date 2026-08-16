@@ -11,6 +11,7 @@ contract:
   - truth/resonance_trend.md
   - truth/volume_score_trend.md
   - truth/arc_payoff_trend.md
+  - truth/audit_drift.md
   writes:
   - file: truth/drift_guidance.md
     mode: create_or_overwrite
@@ -29,7 +30,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md
+- **Reads:** chapters/chapter-N.md, audits/chapter-N-*.md, truth/resonance_trend.md, truth/volume_score_trend.md, truth/arc_payoff_trend.md, truth/audit_drift.md
 - **Writes:** truth/drift_guidance.md
 - **Updates:** truth/audit_drift.md
 

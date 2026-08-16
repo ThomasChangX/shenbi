@@ -17,6 +17,8 @@ contract:
     - 11. 综合画像
     - 6. 修辞模式
   - benchmarks/anchors/
+  - truth/audit_drift.md
+  - truth/resonance_trend.md
   writes:
   - file: audits/chapter-N-resonance.md
     mode: create_or_overwrite
@@ -38,7 +40,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md, benchmarks/anchors/
+- **Reads:** chapters/chapter-N.md, plans/chapter-N-plan.md, style/style_profile.md, benchmarks/anchors/, truth/audit_drift.md, truth/resonance_trend.md
 - **Writes:** audits/chapter-N-resonance.md
 - **Updates:** truth/audit_drift.md, truth/resonance_trend.md
 

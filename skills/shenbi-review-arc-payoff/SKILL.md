@@ -18,6 +18,8 @@ contract:
     - 伏笔统计
     - 伏笔时间线
   - truth/resonance_trend.md
+  - truth/audit_drift.md
+  - truth/arc_payoff_trend.md
   writes:
   - file: audits/volume-N-payoff.md
     mode: create_or_overwrite
@@ -39,7 +41,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/*.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md
+- **Reads:** chapters/*.md, outline/volume_map.md, truth/pending_hooks.md, truth/resonance_trend.md, truth/audit_drift.md, truth/arc_payoff_trend.md
 - **Writes:** audits/volume-N-payoff.md
 - **Updates:** truth/audit_drift.md, truth/arc_payoff_trend.md
 
