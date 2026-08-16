@@ -140,29 +140,14 @@ def write_truth_file(
             log.info("truth_file_yaml_upserted", file=filename)
 
 
-def _read_truth_rows(path: Path) -> list[dict[str, str]]:
-    """Parse existing markdown rows into list of {column: value} dicts.
+_BULLET_ROW_RE = re.compile(r"^\s*-\s*(?P<key>.+?)\s*:(?P<rest>.*)$")
 
-    Reads lines starting with ``- `` (bullet rows) or ``| ... |`` (table
-    rows) and splits on ``:`` (bullet) or ``|`` (table). Tolerates an empty
-    or heading-only file by returning [].
-    """
-    if not path.exists():
-        return []
-    rows: list[dict[str, str]] = []
-    for line in path.read_text(encoding="utf-8").splitlines():
-        s = line.strip()
-        if s.startswith("- "):
-            body = s[2:]
-            if ":" in body:
-                k, _, v = body.partition(":")
-                rows.append({k.strip(): v.strip()})
-        elif s.startswith("|") and s.endswith("|") and set(s) != {"|"}:
-            cells = [c.strip() for c in s.strip("|").split("|")]
-            if cells and cells[0] and cells[0] != "chapter":
-                # treat first cell as key column for table form
-                rows.append({cells[0]: " ".join(cells[1:])})
-    return rows
+
+def _render_bullet_row(new_data: dict[str, Any], key_field: str) -> str:
+    """Render a dict row as the ``- {key}: {k=v ...}`` bullet format."""
+    key_val = str(new_data.get(key_field, ""))
+    rest_fields = " ".join(f"{k}={v}" for k, v in new_data.items() if k != key_field)
+    return f"- {key_val}: {rest_fields}" if rest_fields else f"- {key_val}:"
 
 
 def _upsert_markdown_bullet(
@@ -171,30 +156,67 @@ def _upsert_markdown_bullet(
     new_data: dict[str, Any],
     key_field: str | None,
 ) -> None:
-    """Upsert a dict row into a bullet-format markdown truth file.
+    """Upsert a dict row into a bullet-format markdown truth file (T701 fix).
 
-    Reads existing bullet/table rows, deduplicates by *key_field* value,
-    appends the new row, and writes back. Serialized by the per-path lock
-    so concurrent upserts to the same file cannot lose updates.
+    SURGICAL line edit: the existing bullet line whose key equals the new
+    row's ``key_field`` value is replaced in place (later duplicates of the
+    same key are dropped); if no such line exists the new bullet is appended
+    at the end of the file. Every other line — frontmatter, H1/H2 headings,
+    prose, bullets for other keys — is preserved verbatim. The old
+    implementation re-serialized the whole file as a bare bullet list,
+    collapsing the file structure.
     """
     if key_field is None:
         raise ValueError("upsert_markdown_row requires key_field")
-    rows = _read_truth_rows(path)
-    # Dedup: drop any existing row whose key matches the new row's key_field value.
     key_val = str(new_data.get(key_field, ""))
-    rows = [r for r in rows if next(iter(r.keys())) != key_val]
-    # Render non-key fields as "k=v" pairs.
-    rest_fields = " ".join(f"{k}={v}" for k, v in new_data.items() if k != key_field)
-    rows.append({key_val: rest_fields} if rest_fields else {key_val: ""})
-    body = f"# {filename.removesuffix('.md')}\n\n"
-    body += "\n".join(f"- {next(iter(r.items()))[0]}: {next(iter(r.items()))[1]}" for r in rows)
-    body += "\n"
+    new_line = _render_bullet_row(new_data, key_field)
+
+    if not path.exists():
+        body = f"# {filename.removesuffix('.md')}\n\n{new_line}\n"
+        safe_write(path, body.encode("utf-8"))
+        log.info("truth_file_written", path=str(path), mode="upsert_markdown_row", rows=1)
+        return
+
+    if not key_val:
+        # No natural key — preserve (append) and log rather than dedup-match
+        # every other keyless row (symmetric with the T703 policy).
+        log.warning("truth_bullet_upsert_empty_key", key_field=key_field)
+        text = path.read_text(encoding="utf-8")
+        merged = text.rstrip("\n") + "\n" + new_line + "\n"
+        safe_write(path, merged.encode("utf-8"))
+        return
+
+    lines = path.read_text(encoding="utf-8").split("\n")
+    replaced = False
+    duplicates = 0
+    kept: list[str] = []
+    for line in lines:
+        m = _BULLET_ROW_RE.match(line)
+        if m and m.group("key").strip() == key_val:
+            if not replaced:
+                kept.append(new_line)  # first match: update in place
+                replaced = True
+            else:
+                duplicates += 1  # historical duplicate rows are collapsed
+        else:
+            kept.append(line)
+    if not replaced:
+        # Append after the last non-empty line, keeping trailing blank lines.
+        while kept and kept[-1] == "":
+            kept.pop()
+        kept.append(new_line)
+        kept.append("")
+    body = "\n".join(kept)
+    if not body.endswith("\n"):
+        body += "\n"
     safe_write(path, body.encode("utf-8"))
+    if duplicates:
+        log.warning("truth_bullet_upsert_duplicate_rows_dropped", key=key_val, count=duplicates)
     log.info(
         "truth_file_written",
         path=str(path),
         mode="upsert_markdown_row",
-        rows=len(rows),
+        replaced=replaced,
     )
 
 

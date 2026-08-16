@@ -148,3 +148,107 @@ class TestKeyFieldColumnPositioning:
         assert result.count("| x |") == 1
         assert "replaced" in result
         assert "| keep | me |" in result
+
+
+# ---------------------------------------------------------------------------
+# T701: dict upsert must not collapse the file structure
+# ---------------------------------------------------------------------------
+
+_T701_STRUCTURE = (
+    "---\n"
+    "update_mode: upsert_markdown_row\n"
+    "---\n"
+    "\n"
+    "# Chapter Summaries\n"
+    "\n"
+    "## 摘要\n"
+    "\n"
+    "- 1: 主角进城 note=old\n"
+    "\n"
+    "## 备注\n"
+    "\n"
+    "自由散文段落，不应被覆写。\n"
+)
+
+
+class TestDictUpsertStructurePreservation:
+    def test_upsert_updates_only_target_row_and_preserves_structure(self, tmp_path: Path):
+        """T701 anchor: dict upsert replaces the matching bullet in place.
+
+        Frontmatter, H1/H2 headings and prose must survive verbatim — the old
+        implementation re-serialized the whole file as a bare bullet list.
+        """
+        target = tmp_path / "truth" / "chapter_summaries.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(_T701_STRUCTURE, encoding="utf-8")
+
+        write_truth_file(
+            tmp_path,
+            "chapter_summaries.md",
+            {"chapter": "1", "note": "new"},
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
+
+        result = target.read_text(encoding="utf-8")
+        # Structure fully preserved
+        assert "update_mode: upsert_markdown_row" in result
+        assert "# Chapter Summaries" in result
+        assert "## 摘要" in result
+        assert "## 备注" in result
+        assert "自由散文段落，不应被覆写。" in result
+        # Target row updated in place, exactly once
+        assert "- 1: note=new" in result
+        assert "note=old" not in result
+        assert result.count("- 1:") == 1
+
+    def test_upsert_appends_new_key_row_preserving_structure(self, tmp_path: Path):
+        """A new key appends one bullet; existing rows and structure intact."""
+        target = tmp_path / "truth" / "chapter_summaries.md"
+        target.parent.mkdir(parents=True)
+        target.write_text(_T701_STRUCTURE, encoding="utf-8")
+
+        write_truth_file(
+            tmp_path,
+            "chapter_summaries.md",
+            {"chapter": "2", "note": "second"},
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
+
+        result = target.read_text(encoding="utf-8")
+        assert "- 1: 主角进城 note=old" in result
+        assert "- 2: note=second" in result
+        assert "## 备注" in result
+        assert "自由散文段落，不应被覆写。" in result
+
+    def test_exact_key_match_no_prefix_collision(self, tmp_path: Path):
+        """Key ``1`` must not match the row for key ``10`` (exact compare)."""
+        target = tmp_path / "truth" / "chapter_summaries.md"
+        target.parent.mkdir(parents=True)
+        target.write_text("- 10: note=ten\n", encoding="utf-8")
+
+        write_truth_file(
+            tmp_path,
+            "chapter_summaries.md",
+            {"chapter": "1", "note": "one"},
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
+
+        result = target.read_text(encoding="utf-8")
+        assert "- 10: note=ten" in result
+        assert "- 1: note=one" in result
+
+    def test_creates_heading_file_when_missing(self, tmp_path: Path):
+        """A brand-new file still gets the H1 + bullet scaffold."""
+        write_truth_file(
+            tmp_path,
+            "chapter_summaries.md",
+            {"chapter": "1", "note": "first"},
+            mode="upsert_markdown_row",
+            key_field="chapter",
+        )
+        result = (tmp_path / "truth" / "chapter_summaries.md").read_text(encoding="utf-8")
+        assert "# chapter_summaries" in result
+        assert "- 1: note=first" in result

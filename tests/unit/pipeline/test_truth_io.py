@@ -11,7 +11,6 @@ import pytest
 
 from shenbi.pipeline.truth_io import (
     _path_lock,
-    _read_truth_rows,
     _read_yaml_records,
     _upsert_by_key,
     _upsert_markdown_table_row,
@@ -242,41 +241,6 @@ class TestWriteTruthFileValidation:
 # ---------------------------------------------------------------------------
 # Low-level helper tests
 # ---------------------------------------------------------------------------
-
-
-class TestReadTruthRows:
-    def test_empty_file_returns_empty_list(self, tmp_path: Path):
-        f = tmp_path / "empty.md"
-        f.write_text("")
-        assert _read_truth_rows(f) == []
-
-    def test_nonexistent_file_returns_empty_list(self, tmp_path: Path):
-        assert _read_truth_rows(tmp_path / "nonexistent.md") == []
-
-    def test_bullet_rows_parsed_correctly(self, tmp_path: Path):
-        f = tmp_path / "bullets.md"
-        f.write_text("- ch1: some data\n- ch2: other data\n")
-        rows = _read_truth_rows(f)
-        assert len(rows) == 2
-        assert rows[0] == {"ch1": "some data"}
-        assert rows[1] == {"ch2": "other data"}
-
-    def test_table_rows_parsed_correctly(self, tmp_path: Path):
-        f = tmp_path / "table.md"
-        f.write_text("| Ch1 | 60 | high |\n| Ch2 | 58 | medium |\n")
-        rows = _read_truth_rows(f)
-        assert len(rows) == 2
-        assert rows[0] == {"Ch1": "60 high"}
-        assert rows[1] == {"Ch2": "58 medium"}
-
-    def test_header_row_skipped(self, tmp_path: Path):
-        """The table header row 'chapter' is skipped."""
-        f = tmp_path / "table.md"
-        f.write_text("| chapter | score |\n| Ch1 | 60 |\n")
-        rows = _read_truth_rows(f)
-        # Only the Ch1 data row, not the header
-        assert len(rows) == 1
-        assert "Ch1" in rows[0]
 
 
 class TestUpsertMarkdownTableRow:
