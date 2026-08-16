@@ -17,8 +17,7 @@ contract:
     mode: create_or_overwrite
   updates:
   - file: truth/audit_drift.md
-    mode: append_dedup
-    key: chapter
+    mode: create_or_overwrite
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -41,6 +40,8 @@ contract:
 把当前章节的审计问题转化为下一章的写作指导，写入 `truth/audit_drift.md`，在 context-composing 阶段自动导入。
 
 > **单一写者（single-writer）**：`truth/audit_drift.md` 由本 skill 作为**合并器/最终写者**拥有。`shenbi-review-resonance`、`shenbi-review-arc-payoff`、`shenbi-score-arc` 仅 **append** 各自的趋势短板条目（不得覆盖/清空已有内容），随后本 skill 读取全部条目并合成最终纠偏指导。写顺序：评分器先 append → 本 skill 合并重写为权威版本。任何 skill 不得独立清空 audit_drift.md。
+>
+> **写模式（CRITICAL）**：本 skill 对 `truth/audit_drift.md` 的契约声明是 `mode: create_or_overwrite`——输出**整份权威 YAML frontmatter 版本**（含 12 章滚动归档剪枝的合并结果），派发写路径按整文件替换落盘。这是合并器的正确形态：增量合并/滚动剪枝由本 skill 在生成权威版本时完成，**不是**输出增量片段交给程序按键合入（`append_dedup` 会把整份 YAML 块追加到文件尾，破坏 frontmatter 位消费）。
 
 ## 流程
 

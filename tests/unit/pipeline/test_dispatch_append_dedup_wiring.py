@@ -18,15 +18,19 @@ Fixture policy (G0.9): seeds copy REAL skill outputs from ``tests/fixtures/``.
 
 from __future__ import annotations
 
+import re
 import shutil
 from pathlib import Path
 
 import pytest
+import yaml
 
 from shenbi.exceptions import TruthFileParseError
 from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
 
 FIXTURES = Path("tests/fixtures")
+
+_DRIFT_GUIDANCE_SKILL_MD = Path("skills/shenbi-drift-guidance/SKILL.md")
 
 
 def _seed_from_fixture(tmp_path: Path, rel_path: str, fixture_name: str) -> None:
@@ -309,3 +313,86 @@ class TestNonTruthAppendDedupFallback:
         # Unroutable declaration: falls back to whole-file write, still written.
         assert "logs/append.md" in out
         assert (tmp_path / "logs" / "append.md").read_text(encoding="utf-8") == "row-1"
+
+
+def _documented_audit_drift_block() -> str:
+    """The audit_drift authoritative block in the skill's own documented
+    output format — extracted from the REAL SKILL.md example (G0.9: no
+    hand-crafted mock of the skill's format).
+    """
+    text = _DRIFT_GUIDANCE_SKILL_MD.read_text(encoding="utf-8")
+    m = re.search(
+        r"### 写入 `truth/audit_drift\.md`.*?```markdown\n(.*?)\n```",
+        text,
+        re.DOTALL,
+    )
+    assert m, "audit_drift output-format example missing from drift-guidance SKILL.md"
+    return m.group(1)
+
+
+def _front_frontmatter(text: str) -> dict[str, object]:
+    """Parse the FIRST YAML frontmatter block (frontmatter-position consumer)."""
+    assert text.startswith("---"), "file lost its frontmatter position"
+    return yaml.safe_load(text.split("---", 2)[1]) or {}
+
+
+class TestDriftGuidanceAuditDriftWholeFileRewrite:
+    """Task-5 review F1: drift-guidance is the sole MERGER / final writer of
+    ``truth/audit_drift.md`` — its output is the WHOLE authoritative YAML
+    frontmatter version (the 12-chapter rolling archive pruning happens inside
+    that merge, per the skill's 铁律 6). The dispatch write for this target
+    must therefore REPLACE the file.
+
+    An ``append_dedup`` declaration routes the whole YAML block (non-table →
+    one block unit) through the data-preserving tail-append fallback: no dedup,
+    per-chapter accumulation of duplicate frontmatter blocks, and
+    frontmatter-position consumers read the STALE first block while the new
+    authoritative version rots at the file tail.
+    """
+
+    @staticmethod
+    def _block_for_chapter(chapter: int) -> str:
+        """The documented authoritative block, parameterized per chapter."""
+        block = _documented_audit_drift_block()
+        block = re.sub(r"(?m)^chapter: \d+$", f"chapter: {chapter}", block)
+        return block.replace("连续3章无 FIRE", f"第{chapter}章观测：连续3章无 FIRE")
+
+    def _dispatch(self, tmp_path: Path, chapter: int) -> None:
+        out = _write_parsed_outputs(
+            response=f"### FILE: truth/audit_drift.md\n{self._block_for_chapter(chapter)}\n",
+            output_paths=["truth/audit_drift.md"],
+            project_dir=tmp_path,
+            skill="shenbi-drift-guidance",
+        )
+        assert "truth/audit_drift.md" in out
+
+    def test_new_authoritative_version_replaces_file(self, tmp_path: Path):
+        """Chapter 5 settled, then chapter 6 merges a new authoritative
+        version: the file IS the chapter-6 version — one frontmatter block,
+        readable at the frontmatter position, no chapter-5 remnant.
+        """
+        self._dispatch(tmp_path, 5)
+        self._dispatch(tmp_path, 6)
+
+        result = (tmp_path / "truth" / "audit_drift.md").read_text(encoding="utf-8")
+        # Exactly ONE authoritative block — no per-chapter accumulation.
+        assert result.count("drift_items:") == 1, "duplicate frontmatter blocks accumulated"
+        # Frontmatter-position consumers see the NEW version, not a stale one.
+        assert _front_frontmatter(result)["chapter"] == 6
+        # Old chapter's lines do not linger anywhere in the file.
+        assert "chapter: 5" not in result
+        assert "第5章观测" not in result
+        # Whole-file replace: the file equals the dispatched authoritative version.
+        assert result.strip() == self._block_for_chapter(6).strip()
+
+    def test_re_dispatch_same_chapter_stays_single_block(self, tmp_path: Path):
+        """Crash-retry of the same chapter rewrites the same authoritative
+        version — exactly one frontmatter block, no duplicate.
+        """
+        self._dispatch(tmp_path, 5)
+        self._dispatch(tmp_path, 5)
+
+        result = (tmp_path / "truth" / "audit_drift.md").read_text(encoding="utf-8")
+        assert result.count("drift_items:") == 1
+        assert result.count("chapter: 5") == 1
+        assert _front_frontmatter(result)["chapter"] == 5
