@@ -21,7 +21,6 @@ from typing import Any
 import pytest
 
 import shenbi.pipeline.dispatch_helper as dh
-from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill
 
 PROJECT = Path(__file__).resolve().parents[3]
 GENRE_FIXTURE = PROJECT / "tests" / "fixtures" / "genre-config-example.json"
@@ -41,12 +40,12 @@ def _seed_genre_config(pd: Path) -> None:
 def _fake_api_writing(mutate: Any) -> Any:
     """构造 fake _dispatch_via_api:按 mutate 修改 genre-config.json 后返回成功."""
 
-    def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> DispatchResult:
+    def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
         cfg_path = project_dir / "genre-config.json"
         cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
         mutate(cfg)
         cfg_path.write_text(json.dumps(cfg, ensure_ascii=False), encoding="utf-8")
-        return DispatchResult(True, 0, "{}", "")
+        return dh.DispatchResult(True, 0, "{}", "")
 
     return fake
 
@@ -69,7 +68,7 @@ def test_api_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
         _fake_api_writing(lambda c: c.update({"approval": c.get("approval", {})})),
     )
 
-    result = dispatch_skill(SKILL, tmp_path, PROMPT)
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is True
     assert result.returncode == 0
@@ -94,7 +93,7 @@ def test_api_route_blocks_undeclared_key_write(
         dh, "_dispatch_via_api", _fake_api_writing(lambda c: c.update({"rogueKey": "越权"}))
     )
 
-    result = dispatch_skill(SKILL, tmp_path, PROMPT)
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is False
     assert result.returncode == 2  # GATE_FAIL,与 dispatch_with_write_audit 语义一致
@@ -111,15 +110,15 @@ def test_failed_api_dispatch_not_upgraded_but_audited(
     monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
     _seed_genre_config(tmp_path)
 
-    def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> DispatchResult:
+    def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
         cfg_path = project_dir / "genre-config.json"
         cfg = json.loads(cfg_path.read_text(encoding="utf-8"))
         cfg["rogueKey"] = "失败路径上的越权"
         cfg_path.write_text(json.dumps(cfg, ensure_ascii=False), encoding="utf-8")
-        return DispatchResult(False, -1, "", "API call failed")
+        return dh.DispatchResult(False, -1, "", "API call failed")
 
     monkeypatch.setattr(dh, "_dispatch_via_api", fake)
-    result = dispatch_skill(SKILL, tmp_path, PROMPT)
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is False
     assert result.returncode == -1  # 失败就是失败,不覆盖
@@ -134,14 +133,14 @@ def test_ide_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
     monkeypatch.delenv("SHENBI_LLM_API_KEY", raising=False)
     monkeypatch.setattr(dh, "_find_ide_cli", lambda: ["codex", "exec"])
 
-    def fake_ide(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> DispatchResult:
+    def fake_ide(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
         (project_dir / "genre-config.json").write_text(
             GENRE_FIXTURE.read_text(encoding="utf-8"), encoding="utf-8"
         )
-        return DispatchResult(True, 0, "out", "")
+        return dh.DispatchResult(True, 0, "out", "")
 
     monkeypatch.setattr(dh, "_dispatch_via_ide", fake_ide)
-    result = dispatch_skill(SKILL, tmp_path, PROMPT)
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is True
     ledger = tmp_path / "write-audit.jsonl"
@@ -173,7 +172,7 @@ def test_audit_infra_crash_preserves_dispatch_result(
     # 全局配置由 tests/conftest.py 的 _isolate_structlog_config 在 teardown 恢复).
     configure_logging()
     monkeypatch.setattr(wa, "audit_writes", boom)
-    result = dispatch_skill(SKILL, tmp_path, PROMPT)
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT)
 
     assert result.success is True  # 审计崩溃不吞派发结果
     assert result.returncode == 0
@@ -191,5 +190,5 @@ def test_round_dir_receives_ledger(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     round_dir = tmp_path / "round-001"
     round_dir.mkdir()
     monkeypatch.setattr(dh, "_dispatch_via_api", _fake_api_writing(lambda c: None))
-    dispatch_skill(SKILL, tmp_path, PROMPT, round_dir=round_dir)
+    dh.dispatch_skill(SKILL, tmp_path, PROMPT, round_dir=round_dir)
     assert (round_dir / "write-audit.jsonl").exists()

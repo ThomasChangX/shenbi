@@ -3,8 +3,29 @@
 from __future__ import annotations
 
 from pathlib import Path
+from typing import Any
 
 import pytest
+
+from shenbi.pipeline.crash_recovery import reset_emergency_state
+
+
+@pytest.fixture(autouse=True)
+def _reset_crash_recovery_state() -> Any:
+    """Reset module-level crash-recovery globals around every pipeline unit test.
+
+    Signal-handler tests (tests/pipeline/test_crash_recovery.py et al.) set
+    ``_shutdown_requested`` via ``_handle_emergency_signal``; their per-file
+    autouse fixtures only reset on setup, so the flag leaks to whatever test
+    runs next in the same xdist worker. ``run_chapter_step`` then returns
+    early at the shutdown check and the audit waves never dispatch (observed
+    as PR-CI order flake: "parallel wave must have run" with seed 1194147792).
+    Resetting both before and after each test closes the leak for every file
+    in this package, present and future.
+    """
+    reset_emergency_state()
+    yield
+    reset_emergency_state()
 
 
 @pytest.fixture
