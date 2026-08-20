@@ -11,10 +11,9 @@ import pytest
 
 from shenbi.pipeline.truth_io import (
     _path_lock,
-    _read_truth_rows,
     _read_yaml_records,
     _upsert_by_key,
-    _upsert_markdown_table_row,
+    upsert_markdown_row,
     write_truth_file,
 )
 
@@ -244,54 +243,19 @@ class TestWriteTruthFileValidation:
 # ---------------------------------------------------------------------------
 
 
-class TestReadTruthRows:
-    def test_empty_file_returns_empty_list(self, tmp_path: Path):
-        f = tmp_path / "empty.md"
-        f.write_text("")
-        assert _read_truth_rows(f) == []
-
-    def test_nonexistent_file_returns_empty_list(self, tmp_path: Path):
-        assert _read_truth_rows(tmp_path / "nonexistent.md") == []
-
-    def test_bullet_rows_parsed_correctly(self, tmp_path: Path):
-        f = tmp_path / "bullets.md"
-        f.write_text("- ch1: some data\n- ch2: other data\n")
-        rows = _read_truth_rows(f)
-        assert len(rows) == 2
-        assert rows[0] == {"ch1": "some data"}
-        assert rows[1] == {"ch2": "other data"}
-
-    def test_table_rows_parsed_correctly(self, tmp_path: Path):
-        f = tmp_path / "table.md"
-        f.write_text("| Ch1 | 60 | high |\n| Ch2 | 58 | medium |\n")
-        rows = _read_truth_rows(f)
-        assert len(rows) == 2
-        assert rows[0] == {"Ch1": "60 high"}
-        assert rows[1] == {"Ch2": "58 medium"}
-
-    def test_header_row_skipped(self, tmp_path: Path):
-        """The table header row 'chapter' is skipped."""
-        f = tmp_path / "table.md"
-        f.write_text("| chapter | score |\n| Ch1 | 60 |\n")
-        rows = _read_truth_rows(f)
-        # Only the Ch1 data row, not the header
-        assert len(rows) == 1
-        assert "Ch1" in rows[0]
-
-
 class TestUpsertMarkdownTableRow:
     def test_non_table_row_appended_as_is(self):
         """A non-table new_row is appended without dedup."""
         existing = "# Header\n\nSome prose.\n"
         new = "Just a plain line"
-        result = _upsert_markdown_table_row(existing, new, "chapter")
+        result = upsert_markdown_row(existing, new, "chapter")
         assert "Some prose." in result
         assert "Just a plain line" in result
 
     def test_matching_key_row_is_replaced(self):
         existing = "| Ch1 | old | data |\n| Ch2 | old2 | data2 |\n"
         new = "| Ch2 | new | stuff |"
-        result = _upsert_markdown_table_row(existing, new, "chapter")
+        result = upsert_markdown_row(existing, new, "chapter")
         assert "| Ch2 | new | stuff |" in result
         assert "| Ch2 | old2 | data2 |" not in result
         assert "| Ch1 | old | data |" in result
@@ -306,6 +270,27 @@ class TestReadYamlRecords:
     def test_no_frontmatter_returns_empty_list(self, tmp_path: Path):
         f = tmp_path / "nofm.md"
         f.write_text("# Just a header\n\nbody text\n")
+        assert _read_yaml_records(f) == []
+
+    def test_thematic_break_body_is_not_frontmatter(self, tmp_path: Path):
+        """A body starting with a ``----`` thematic break (no frontmatter)
+        yields ``[]`` — the frontmatter gate is an EXACT first-line ``---``
+        match, not a ``startswith("---")`` prefix test (final review T4 M2:
+        the prefix test misparsed ``----`` bodies as frontmatter and raised
+        TruthFileParseError on files that carry no frontmatter at all).
+        """
+        f = tmp_path / "thematic.md"
+        # Later ``---`` rules in the body make the pre-fix misparse reach the
+        # YAML loader; without one it misraised "unterminated" instead.
+        f.write_text("----\n\n正文第一段。\n\n---\n\n第二段。\n")
+        assert _read_yaml_records(f) == []
+
+    def test_thematic_break_only_body_is_not_frontmatter(self, tmp_path: Path):
+        """``----`` with no second ``---`` in the body: also ``[]`` (the
+        pre-fix path misraised "frontmatter unterminated" here).
+        """
+        f = tmp_path / "thematic_only.md"
+        f.write_text("----\n\n正文。\n")
         assert _read_yaml_records(f) == []
 
     def test_reads_records_from_hooks_key(self, tmp_path: Path):

@@ -241,7 +241,11 @@
     "reads": [
       "shenbi-chapter-drafting",
       "shenbi-context-composing",
-      "shenbi-intent-management"
+      "shenbi-drift-guidance",
+      "shenbi-intent-management",
+      "shenbi-review-arc-payoff",
+      "shenbi-review-resonance",
+      "shenbi-score-arc"
     ],
     "writes": [],
     "updates": [
@@ -286,6 +290,7 @@
       "shenbi-review-group-factual",
       "shenbi-review-pacing",
       "shenbi-review-world-rules",
+      "shenbi-state-settling",
       "shenbi-volume-consolidation"
     ],
     "writes": [],
@@ -309,7 +314,8 @@
       "shenbi-review-group-character",
       "shenbi-review-group-factual",
       "shenbi-review-pov",
-      "shenbi-review-world-rules"
+      "shenbi-review-world-rules",
+      "shenbi-state-settling"
     ],
     "writes": [],
     "updates": [
@@ -334,6 +340,7 @@
       "shenbi-review-memo-compliance",
       "shenbi-review-reader-pull",
       "shenbi-review-spinoff",
+      "shenbi-state-settling",
       "shenbi-volume-consolidation"
     ],
     "writes": [],
@@ -550,7 +557,8 @@
     "reads": [
       "shenbi-drift-guidance",
       "shenbi-escalation-review",
-      "shenbi-review-arc-payoff"
+      "shenbi-review-arc-payoff",
+      "shenbi-review-resonance"
     ],
     "writes": [],
     "updates": [
@@ -559,7 +567,8 @@
   },
   "truth/volume_score_trend.md": {
     "reads": [
-      "shenbi-drift-guidance"
+      "shenbi-drift-guidance",
+      "shenbi-score-volume"
     ],
     "writes": [
       "shenbi-score-volume"
@@ -568,7 +577,8 @@
   },
   "truth/arc_payoff_trend.md": {
     "reads": [
-      "shenbi-drift-guidance"
+      "shenbi-drift-guidance",
+      "shenbi-review-arc-payoff"
     ],
     "writes": [],
     "updates": [
@@ -737,7 +747,8 @@
   "truth/emotional_arcs.md": {
     "reads": [
       "shenbi-review-character",
-      "shenbi-review-group-character"
+      "shenbi-review-group-character",
+      "shenbi-state-settling"
     ],
     "writes": [],
     "updates": [
@@ -792,7 +803,8 @@
   "truth/subplot_board.md": {
     "reads": [
       "shenbi-review-foreshadowing",
-      "shenbi-review-group-plan"
+      "shenbi-review-group-plan",
+      "shenbi-state-settling"
     ],
     "writes": [],
     "updates": [
@@ -977,7 +989,9 @@
     "updates": []
   },
   "truth/particle_ledger.md": {
-    "reads": [],
+    "reads": [
+      "shenbi-state-settling"
+    ],
     "writes": [],
     "updates": [
       "shenbi-state-settling"

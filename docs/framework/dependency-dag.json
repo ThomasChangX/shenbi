@@ -2697,6 +2697,106 @@
     },
     {
       "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-drift-guidance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-escalation-review",
       "file": "truth/resonance_trend.md"
     },
@@ -5656,6 +5756,206 @@
       "file": "truth/resonance_trend.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-review-arc-payoff",
+      "file": "truth/arc_payoff_trend.md"
+    },
+    {
       "producer": "shenbi-anti-detect",
       "consumer": "shenbi-review-character",
       "file": "chapters/chapter-N.md"
@@ -8856,6 +9156,206 @@
       "file": "style/style_profile.md"
     },
     {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-review-resonance",
+      "file": "truth/resonance_trend.md"
+    },
+    {
       "producer": "shenbi-anti-detect",
       "consumer": "shenbi-review-sensitivity",
       "file": "chapters/chapter-N.md"
@@ -9972,6 +10472,106 @@
     },
     {
       "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-score-arc",
+      "file": "truth/audit_drift.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-score-stratum",
       "file": "truth/book_strata.md"
     },
@@ -10399,6 +10999,106 @@
       "producer": "shenbi-worldbuilding",
       "consumer": "shenbi-score-volume",
       "file": "truth/book_spine.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-score-volume",
+      "file": "truth/volume_score_trend.md"
     },
     {
       "producer": "shenbi-snapshot-manage",
@@ -11284,6 +11984,606 @@
       "producer": "shenbi-style-polishing",
       "consumer": "shenbi-state-settling",
       "file": "chapters/chapter-N.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/current_state.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/particle_ledger.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/emotional_arcs.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/subplot_board.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/pending_hooks.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-volume-consolidation",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-state-settling",
+      "file": "truth/chapter_summaries.md"
     },
     {
       "producer": "shenbi-faction-builder",

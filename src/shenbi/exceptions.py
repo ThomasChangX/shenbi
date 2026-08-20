@@ -124,6 +124,17 @@ class ToolTamperError(IntegrityError):
     """Tool modified without re-locking hash."""
 
 
+class TruthFileParseError(IntegrityError):
+    """A truth file could not be parsed during an upsert read.
+
+    Raised by ``truth_io`` when YAML frontmatter of an existing truth file is
+    corrupt (or unreadable). The alternative — silently treating the file as
+    empty — made the subsequent upsert rewrite collapse the whole file (audit
+    T706). Failing loud protects the existing data: the caller must repair or
+    explicitly replace the file instead of losing it.
+    """
+
+
 class GateError(ShenbiError):
     """Gate check failure (user error)."""
 

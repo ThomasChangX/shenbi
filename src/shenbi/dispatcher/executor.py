@@ -241,13 +241,20 @@ def _audit_watch_paths(
 
 
 def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
-    """Audited dispatch (pillar 4 Tier B topology).
+    """Audited dispatch (pillar 4 Tier B topology) — legacy CLI route only.
+
+    Covers ONLY dispatches that go through :func:`dispatch` above, i.e. the
+    ``shenbi-dispatch`` CLI subprocess (T1 testing / legacy fallback). The
+    production API/IDE routes live in ``pipeline.dispatch_helper`` and get
+    the identical audit via its ``_with_write_audit`` wrapper (C32 R3/F518).
 
     pre snapshot(declared write surface) -> dispatch -> post snapshot -> audit ->
     record. Returns 0 = shippable; 2 = GATE_FAIL (write overreach or drift),
     blocked before tier advance. The write side uses FS snapshot diff, feasible
     for all dispatch modes incl. codex subprocesses; read provenance in a
-    subprocess is a known blind spot.
+    subprocess is a known blind spot. Snapshot root is PROJECT_DIR (framework
+    repo root — F519); the API/IDE wrapper roots at the pipeline project dir
+    where those routes actually write.
     """
     from shenbi.audit.record import record_audit_outcome
     from shenbi.audit.snapshot import snapshot_tree

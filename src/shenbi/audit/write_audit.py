@@ -2,7 +2,8 @@
 
 按文件格式分派：JSON→field；markdown truth→record；chapter/report→file。
 对 OWNERSHIP 内文件调 check_write_ownership；对其余文件做 file-level 声明写入检查。
-cross-section drift（pending_hooks.md YAML vs 派生表）一并检测（判据 12）。
+cross-section drift（pending_hooks.md YAML vs 派生表）一并检测（判据 12），归属
+以"本次 dispatch 实际写过的文件"（快照 diff 非 unchanged）为界（F516）。
 """
 
 from __future__ import annotations
@@ -72,9 +73,17 @@ def audit_writes(
     for rel in sorted(set(pre) | set(post)):
         change = compute_file_change(rel, pre.get(rel), post.get(rel))
         checked.append(rel)
-        # cross-section drift（markdown truth：YAML vs 派生表），仅 post 存在时
+        # cross-section drift（markdown truth：YAML vs 派生表）。归属判据 =
+        # pre/post 快照 diff（F516）：仅本次 dispatch 实际写过的文件
+        # （added/modified）才做 drift 归属——unchanged 文件携带的 drift 是
+        # 既有漂移（前一技能或人工编辑造成），归属到零改动技能头上会级联
+        # rc=2 阻断；deleted 无 post 内容天然不检。
         post_content = post.get(rel)
-        if rel.endswith(".md") and post_content is not None:
+        if (
+            change.status in ("added", "modified")
+            and rel.endswith(".md")
+            and post_content is not None
+        ):
             recs = parse_records(post_content)
             md = parse_markdown_table(post_content)
             drift_issues.extend(detect_cross_section_drift(recs, md))

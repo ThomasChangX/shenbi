@@ -1,8 +1,12 @@
 """Dispatch + gate helpers for pipeline orchestrators.
 
-Reuses the existing ``dispatch_with_write_audit`` (write-overreach detection)
-via the dispatcher CLI rather than bypassing it. The dispatcher runs G1 (input
-readiness) and G2 (output structure) internally; this module adds G3 (scoring
+Tier B write audit (C32 R3 / F518): ALL THREE dispatch routes below are
+audited — routes 1 (API) and 2 (IDE CLI) wrap every dispatch with
+``_with_write_audit`` (pre/post FS snapshot + ``audit_writes`` + ledger
+record, same finally-hook topology as ``dispatch_with_write_audit``); route
+3 (legacy CLI subprocess) is audited inside the subprocess by that same
+``dispatch_with_write_audit``. The dispatcher runs G1 (input readiness) and
+G2 (output structure) on the legacy route; this module adds G3 (scoring
 independence) and G4 (skill-specific structure) on top.
 
 Dispatch routing (tried in order):
@@ -21,6 +25,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -46,7 +51,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
-from shenbi.exceptions import DispatchWriteFailureError
+from shenbi.exceptions import DispatchWriteFailureError, TruthFileParseError
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -1054,6 +1059,121 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     safe_write(out, existing)
 
 
+_TRUTH_DIR_PREFIX = "truth/"
+_STAGING_TRUTH_PREFIX = "staging/truth/"
+
+
+def _increment_units(content: str) -> list[str]:
+    """Split a dispatched append_dedup increment into upsert units.
+
+    Each markdown TABLE row line is its own unit, so a multi-row increment
+    (e.g. several hooks planted in one chapter) dedups row by row instead of
+    being handed to the primitive as one blob whose "key cell" would straddle
+    embedded newlines and pipes. Contiguous NON-table lines (section-style
+    entries: heading + prose) are grouped into one block unit — they carry no
+    key cell, so the primitive appends them verbatim (data-preserving
+    fallback, symmetric with the T703 never-drop policy). Blank-only spans
+    yield no unit.
+    """
+    from shenbi.pipeline.truth_io import split_table_cells
+
+    units: list[str] = []
+    block: list[str] = []
+
+    def _flush() -> None:
+        if any(line.strip() for line in block):
+            units.append("\n".join(block).strip("\n"))
+        block.clear()
+
+    for line in content.split("\n"):
+        if split_table_cells(line) is not None:
+            _flush()
+            units.append(line)
+        else:
+            block.append(line)
+    _flush()
+    return units
+
+
+def _route_append_dedup_write(
+    project_dir: Path, rel_path: str, content: str, *, key_field: str
+) -> None:
+    """Write an ``append_dedup`` increment through the truth_io keyed upsert.
+
+    C3 T2 fix (F360/F828): this dispatch path used to write contract-declared
+    append_dedup targets as WHOLE FILES, so cumulative truth data (chapter
+    summaries, trend rows, hook rows) collapsed to the latest chapter's
+    increment on every dispatch. The skill emits the increment; the program
+    merges it by key — the LLM never rewrites the full file.
+
+    Routing:
+
+    - ``truth/<file>`` — each increment unit is upserted via
+      ``truth_io.write_truth_file`` (per-path lock, atomic safe_write; key
+      from the contract ``key:`` field, key VALUE from the unit's key cell —
+      whole-cell, key-column positioned per the T702/T713 fixes).
+    - ``staging/truth/<file>`` (checkpoint-gated writers, e.g. state-settling)
+      — the increment is merged against the LIVE ``truth/<file>`` as base and
+      the merged snapshot is written to the staging path. The staging commit
+      is a whole-file replace, so staging must already carry the merged
+      content; the live file stays untouched until commit, keeping the
+      review/reject rollback (``clear_staging``) clean.
+    - anything else — unroutable (truth_io writes under ``truth/`` only):
+      fall back to the legacy whole-file write with a WARN.
+
+    Raises:
+        TruthFileParseError: not raised by the CURRENT wiring — both routes
+            above go through the pure-string ``upsert_markdown_row`` path,
+            which never parses existing files as YAML (only ``upsert_yaml``
+            can, via ``truth_io._read_yaml_records``). The dispatch entry
+            points' ``except TruthFileParseError`` (:func:`_dispatch_via_api`
+            / :func:`_dispatch_via_ide`, converting it into a failed
+            DispatchResult) stays as defense for a future ``upsert_yaml``
+            wiring, not a live path today.
+    """
+    from shenbi.pipeline.truth_io import upsert_markdown_row, write_truth_file
+
+    units = _increment_units(content)
+
+    if rel_path.startswith(_STAGING_TRUTH_PREFIX):
+        filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
+        base_path = project_dir / "truth" / filename
+        base = base_path.read_text(encoding="utf-8") if base_path.exists() else ""
+        merged = base
+        for unit in units:
+            merged = upsert_markdown_row(merged, unit, key_field)
+        staged = project_dir / rel_path
+        staged.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(staged, merged)
+        log.info(
+            "truth_increment_staged",
+            path=rel_path,
+            key=key_field,
+            base=str(base_path),
+            merged_size=len(merged),
+        )
+        return
+
+    if rel_path.startswith(_TRUTH_DIR_PREFIX):
+        filename = rel_path[len(_TRUTH_DIR_PREFIX) :]
+        for unit in units:
+            write_truth_file(
+                project_dir,
+                filename,
+                unit,
+                mode="upsert_markdown_row",
+                key_field=key_field,
+            )
+        return
+
+    log.warning(
+        "append_dedup_unroutable_path",
+        path=rel_path,
+        hint="append_dedup declared outside truth/ — legacy whole-file write",
+    )
+    safe_write(project_dir / rel_path, content)
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -1067,18 +1187,14 @@ def _write_parsed_outputs(
     """Parse agent response and write per-file content, honoring no_op_behavior.
 
     This generic dispatch path writes WHOLE FILES (one ``### FILE: <path>`` block
-    per output). It honors only ``no_op_behavior: skip_write`` (paths in
-    *skip_paths* are not written). For all declared modes — including
-    ``append_dedup`` — it writes the whole file via ``safe_write``.
-
-    Truth-file append/upsert (``mode: append_dedup``) is NOT routed here. That
-    mode is declared in the contract so G0.16 can verify it, but the upsert
-    itself is the CALLER's responsibility: the state-settling skill calls
-    ``write_truth_file`` directly with a real semantic key field (``chapter``,
-    ``hook_id``, ...). Fabricating a key from raw prose in this generic path
-    would be wrong — the key is semantic and only the calling skill knows it.
-    ``merge_prose`` content-preservation is likewise enforced by G4 / the caller;
-    the dispatch write itself replaces the file.
+    per output), with ONE routed exception: contract targets declared
+    ``mode: append_dedup`` under ``truth/`` are merged through the truth_io
+    keyed upsert instead of overwritten (C3 T2, F360/F828 — see
+    :func:`_route_append_dedup_write`). The skill's output for such a target is
+    the INCREMENT (the new chapter's row/rows); the program merges it by the
+    contract-declared key, so cumulative truth files accumulate instead of
+    collapsing to the latest increment. It honors ``no_op_behavior: skip_write``
+    (paths in *skip_paths* are not written).
 
     Returns list of successfully written paths.
     """
@@ -1137,10 +1253,25 @@ def _write_parsed_outputs(
             return  # Skip this file, preserve original
 
         # 2. WRITE.
-        safe_write(full_path, content)
-        written.append(rel_path)
-        mode = semantics.get(rel_path, {}).get("mode")
-        log.info("output_written", path=rel_path, size=len(content), mode=mode)
+        # Contract paths arrive staging-prefixed for checkpoint-gated skills
+        # (uses_staging); the semantics map is keyed by the CONTRACT path.
+        mode_meta = semantics.get(rel_path.removeprefix("staging/"), {})
+        if mode_meta.get("mode") == "append_dedup":
+            # Routed merge (C3 T2): upsert by key, never a whole-file rewrite.
+            key_field = str(mode_meta.get("key") or "chapter")
+            _route_append_dedup_write(project_dir, rel_path, content, key_field=key_field)
+            written.append(rel_path)
+            log.info(
+                "output_written",
+                path=rel_path,
+                size=len(content),
+                mode="append_dedup",
+                key=key_field,
+            )
+        else:
+            safe_write(full_path, content)
+            written.append(rel_path)
+            log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))
 
         # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
         issues: list[str] = []
@@ -1175,9 +1306,9 @@ def _write_parsed_outputs(
             continue
         full_path = project_dir / rel_path
         full_path.parent.mkdir(parents=True, exist_ok=True)
-        # NOTE: append_dedup is intentionally NOT branched here. The dispatch
-        # path writes whole files; truth-file upsert is the caller's job
-        # (state-settling skill calls write_truth_file with a real key).
+        # append_dedup-declared truth targets branch INSIDE _write_one into
+        # _route_append_dedup_write (keyed upsert merge); everything else is a
+        # whole-file write.
         _write_one(rel_path, content)
 
     # Process wildcard paths: check parsed outputs against wildcard patterns
@@ -1690,6 +1821,15 @@ def _dispatch_via_api(
             signature=exc.signature,
         )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except TruthFileParseError as exc:
+        # Corrupt existing truth file met an append_dedup upsert: fail loud at
+        # the dispatch layer (failed result, no process crash). Retrying the
+        # LLM call cannot fix the file — the failure surfaces to the chapter
+        # loop's failure handling (retry budget -> checkpoint for human repair).
+        log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
+        return DispatchResult(
+            False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
+        )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
@@ -1801,6 +1941,13 @@ def _dispatch_via_ide(
             signature=exc.signature,
         )
         return DispatchResult(False, -1, "", build_retry_feedback(exc))
+    except TruthFileParseError as exc:
+        # Same policy as the API route: corrupt existing truth file -> failed
+        # dispatch result, not a process crash (see _dispatch_via_api).
+        log.error("truth_upsert_parse_failed", skill=skill, error=str(exc))
+        return DispatchResult(
+            False, -1, "", f"truth file upsert aborted (existing file corrupt): {exc}"
+        )
     if not written:
         return DispatchResult(False, -1, "", "No output files written")
 
@@ -1818,6 +1965,89 @@ def _dispatch_via_ide(
             hint="IDE path cannot record usage; ledger row skipped",
         )
     return DispatchResult(True, 0, r.stdout, r.stderr)
+
+
+# ---------------------------------------------------------------------------
+# Tier B write audit for in-process routes (C32 R3 / F518)
+# ---------------------------------------------------------------------------
+
+
+def _with_write_audit(
+    dispatch_fn: Callable[[], DispatchResult],
+    skill: str,
+    project_dir: Path,
+    prompt: str,
+    round_dir: Path | str | None = None,
+) -> DispatchResult:
+    """Wrap an in-process dispatch route (API / IDE CLI) with the Tier B write audit.
+
+    Same finally-hook topology as ``dispatcher.executor.dispatch_with_write_audit``
+    (the legacy CLI route's auditor): pre snapshot(declared write surface) ->
+    dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
+    the pipeline project dir — the root ``_write_parsed_outputs`` actually
+    writes to (the legacy route snapshots the framework repo root instead,
+    F519, out of scope here).
+
+    Audit-failure semantics match the legacy route except the last bullet
+    (infra failures fail-open here; the legacy subprocess crashes instead):
+    - violations/drift on a rc==0 dispatch downgrade it to GATE_FAIL
+      (success=False, returncode=2) with the reasons surfaced in stderr —
+      recorded, never swallowed;
+    - the audit runs even when dispatch raises, so write overreach on
+      failure paths is still caught (then the original exception re-raises);
+    - an audit *infrastructure* exception is logged as error and does not
+      crash the dispatch (不崩) — it is not a violation verdict.
+    """
+    from shenbi.audit._shared import derive_output_files
+    from shenbi.audit.record import record_audit_outcome
+    from shenbi.audit.snapshot import snapshot_tree
+    from shenbi.audit.write_audit import audit_writes
+
+    path_ctx = parse_path_context(prompt)
+    # only an int chapter is authoritative — a tolerant-parse str sentinel
+    # would crash %03d placeholder formatting downstream
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
+    if chapter is None:
+        chapter = extract_chapter(prompt)
+    watch = derive_output_files(skill, chapter, ctx=path_ctx)
+    ledger_dir = Path(round_dir) if round_dir else project_dir
+    pre = snapshot_tree(project_dir, watch)
+    rc = DispatchResult(False, -1, "", "dispatch did not return a result")
+    dispatch_exc: BaseException | None = None
+    try:
+        rc = dispatch_fn()
+    except Exception as exc:
+        log.error(
+            "dispatch_exception",
+            skill=skill,
+            exc_type=type(exc).__name__,
+            exc_msg=str(exc),
+            project_dir=str(project_dir),
+        )
+        dispatch_exc = exc
+    finally:
+        # Franklin Important: if dispatch crashes mid-write, still run the
+        # post-snapshot + audit so write overreach is caught on failure paths.
+        try:
+            post = snapshot_tree(project_dir, watch)
+            result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
+            audit_ok = record_audit_outcome(ledger_dir, skill, result)
+        except Exception:
+            log.error("write_audit_infra_error", skill=skill, exc_info=True)
+        else:
+            if not audit_ok and rc.returncode == 0:
+                reasons = "; ".join([*result.violations, *result.drift])
+                stderr = (
+                    f"{rc.stderr}\nwrite-audit GATE_FAIL: {reasons}"
+                    if rc.stderr
+                    else f"write-audit GATE_FAIL: {reasons}"
+                )
+                rc = DispatchResult(False, 2, rc.stdout, stderr)
+    if dispatch_exc is not None:
+        raise dispatch_exc
+    return rc
 
 
 # ---------------------------------------------------------------------------
@@ -1840,10 +2070,13 @@ def dispatch_skill(
 ) -> DispatchResult:
     """Dispatch a skill for execution.
 
-    Routing (tried in order):
-    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API
-    2. IDE CLI available (codex / zcode) → spawn agent subprocess
-    3. Fallback → ``shenbi-dispatch`` CLI subprocess
+    Routing (tried in order, all audited — C32 R3 / F518):
+    1. ``SHENBI_LLM_API_KEY`` set → OpenAI-compatible API (wrapped in
+       ``_with_write_audit``)
+    2. IDE CLI available (codex / zcode) → spawn agent subprocess (wrapped
+       in ``_with_write_audit``)
+    3. Fallback → ``shenbi-dispatch`` CLI subprocess (audited inside the
+       subprocess by ``dispatch_with_write_audit``)
 
     Args:
         skill: The skill name to dispatch (e.g. 'shenbi-chapter-drafting').
@@ -1872,21 +2105,33 @@ def dispatch_skill(
         if line:
             prompt = f"{prompt}\n{line}"
 
-    # API path
+    # API path (audited — C32 R3 / F518)
     if os.environ.get(_ENV_LLM_API_KEY):
-        return _dispatch_via_api(
-            skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
-        )
-
-    # IDE CLI path
-    if _find_ide_cli():
-        return _dispatch_via_ide(
+        return _with_write_audit(
+            lambda: _dispatch_via_api(
+                skill, pd, prompt, uses_staging=uses_staging, shared_context=shared_context
+            ),
             skill,
             pd,
             prompt,
-            uses_staging=uses_staging,
-            shared_context=shared_context,
-            state=state,
+            round_dir,
+        )
+
+    # IDE CLI path (audited — C32 R3 / F518)
+    if _find_ide_cli():
+        return _with_write_audit(
+            lambda: _dispatch_via_ide(
+                skill,
+                pd,
+                prompt,
+                uses_staging=uses_staging,
+                shared_context=shared_context,
+                state=state,
+            ),
+            skill,
+            pd,
+            prompt,
+            round_dir,
         )
 
     # Legacy CLI subprocess path

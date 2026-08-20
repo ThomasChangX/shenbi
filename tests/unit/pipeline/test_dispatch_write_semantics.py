@@ -22,36 +22,40 @@ class TestCreateOrOverwrite:
         assert "new body" in (tmp_path / "chapters" / "c-1.md").read_text()
 
 
-class TestAppendDedupNotRoutedInDispatch:
-    """The generic dispatch write path does NOT route append_dedup to
-    write_truth_file. Truth-file append semantics are enforced at the caller
-    (state-settling skill calls write_truth_file explicitly with a real key),
-    NOT by fabricating a key from prose in the generic write path.
+class TestAppendDedupRoutedThroughTruthUpsert:
+    """The generic dispatch write path ROUTES contract-declared append_dedup
+    truth targets through the truth_io keyed upsert (C3 T2, F360/F828).
 
-    Here a declared mode: append_dedup truth-file path is still written as a
-    WHOLE FILE via safe_write — the contract declares the mode for G0.16, but
-    the dispatch path does not interpret it as an upsert.
+    The skill's output for such a target is the INCREMENT; the program merges
+    it by the contract ``key:`` — the existing content survives instead of
+    being overwritten by the increment (the old whole-file behavior collapsed
+    cumulative truth files to the latest chapter's data). Full acceptance
+    coverage (history preserved, double-chapter writes, hook_id keys, staging
+    merge, fail-loud) lives in test_dispatch_append_dedup_wiring.py; this test
+    pins the routing switch itself.
     """
 
-    def test_append_dedup_truth_file_is_written_whole_not_upserted(self, tmp_path: Path):
-        """A truth/ path declared mode: append_dedup is written as a whole file
-        by _write_parsed_outputs (safe_write), NOT routed to write_truth_file.
-        Upsert is the caller's (state-settling skill's) responsibility.
+    def test_append_dedup_truth_file_merged_not_overwritten(self, tmp_path: Path):
+        """A truth/ path declared mode: append_dedup keeps prior content and
+        appends/merges the increment (upsert, not whole-file replace).
         """
         truth = tmp_path / "truth" / "current_state.md"
         truth.parent.mkdir(parents=True)
         truth.write_text("# Current State\n\n- chapter: ch0\n", encoding="utf-8")
 
         out = _write_parsed_outputs(
-            response="### FILE: truth/current_state.md\nrow\n",
+            response="### FILE: truth/current_state.md\n| 第 2 章 | 林烽进入内门 |\n",
             output_paths=["truth/current_state.md"],
             project_dir=tmp_path,
             skill="shenbi-state-settling",
         )
-        # The file is written whole via safe_write (write_truth_file is not
-        # routed through the dispatch path — verified by the whole-file content).
         assert "truth/current_state.md" in out
-        assert (tmp_path / "truth" / "current_state.md").read_text() == "row"
+        result = truth.read_text(encoding="utf-8")
+        # Prior content survives the increment write (was: whole-file replace).
+        assert "# Current State" in result
+        assert "- chapter: ch0" in result
+        # The increment landed.
+        assert "| 第 2 章 | 林烽进入内门 |" in result
 
 
 class TestNoOpSkipWrite:

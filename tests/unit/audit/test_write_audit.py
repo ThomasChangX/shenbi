@@ -64,15 +64,23 @@ def test_track_skill_blocked_subtlety_change(tmp_path: Path) -> None:
 
 
 def test_cross_section_drift_detected(tmp_path: Path) -> None:
+    """Drift 检出能力本身不变，归属以实际写入为界（F516/C32 R4）。
+
+    旧版本用 pre==pre（零写入）断言 drift 被归属——那正是 F516 的生产 bug
+    （既有 drift 误归属零改动技能 → rc=2 级联）。现改为：pre 一致、post
+    （本次 dispatch 写入）带 YAML/表不一致 → drift 检出并归属本次。
+    """
     md = tmp_path / "truth" / "pending_hooks.md"
     md.parent.mkdir(parents=True)
-    # YAML state=PLANTED 但表行写 RESOLVED → drift
+    md.write_text(_hook_md("PLANTED"), encoding="utf-8")  # 一致内容
+    pre = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
+    # YAML state=PLANTED 但表行写 RESOLVED → 本次写入引入 drift
     md.write_text(
         _hook_md("PLANTED").replace("| h1 | GENUINE | PLANTED |", "| h1 | GENUINE | RESOLVED |"),
         encoding="utf-8",
     )
-    pre = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
-    res = audit_writes("shenbi-foreshadowing-track", pre, pre)
+    post = snapshot_tree(tmp_path, ["truth/pending_hooks.md"])
+    res = audit_writes("shenbi-foreshadowing-track", pre, post)
     assert any("state" in d and "h1" in d for d in res.drift)
 
 

@@ -10,6 +10,7 @@ contract:
   - truth/volume_summaries.md
   - truth/book_strata.md
   - benchmarks/anchors/
+  - truth/audit_drift.md
   writes:
   - file: audits/arc-N-score.md
     mode: create_or_overwrite
@@ -57,7 +58,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** truth/arcs/arc-N.md, truth/book_spine.md, truth/volume_summaries.md, truth/book_strata.md, benchmarks/anchors/
+- **Reads:** truth/arcs/arc-N.md, truth/book_spine.md, truth/volume_summaries.md, truth/book_strata.md, benchmarks/anchors/, truth/audit_drift.md
 - **Writes:** audits/arc-N-score.md
 - **Updates:** truth/audit_drift.md
 
