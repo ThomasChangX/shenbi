@@ -1,0 +1,1578 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-14-p2-batch-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>2026 08 14 p2 batch design - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="2026 08 14 p2 batch design - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-14-p2-batch-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-14-p2-batch-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="2026 08 14 p2 batch design - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-14-p2-batch-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#p2-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              2026 08 14 p2 batch design
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        统一修复模式（按家族）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z1-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z1-整体层（3 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z126" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z1（26 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z243" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z2（43 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z352" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z3（52 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z467" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z4（67 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z526" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z5（26 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z629" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z6（29 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z717" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z7（17 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z94" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z9（4 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#z111" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Z11（1 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        线程（11 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        其他（8 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<blockquote>
+<p><strong>Date:</strong> 2026-08-14 | <strong>Status:</strong> Design | <strong>Severity:</strong> 🟡 P2 | <strong>方法:</strong> systematic-debugging 四阶段
+<strong>系列:</strong> 2026-08-14 全项目审查（补齐 spec 8/8） | <strong>依赖:</strong> 全部子 spec | <strong>范围:</strong> 全仓库 | <strong>核心洞察:</strong> 287 条 P2 为各家族扩展实例/边界/错误处理/死代码/漂移，按家族统一修复模式批量处置（与 M 批量 spec 同构）</p>
+</blockquote>
+<h1 id="p2-spec">P2 批量 spec（按区分节）</h1>
+<h2 id="_1">统一修复模式（按家族）</h2>
+<ul>
+<li><strong>F431 家族（jload ValueError/内层形状崩溃）</strong>：except 元组加 ValueError/TypeError + isinstance 守卫（F440/F441/F459/F460/F465/F470/F471/F477/F485/F488/F489/F493/F497/F4A3 等 merged 实例随 F431 修复）</li>
+<li><strong>采样截断家族</strong>：检查语义站点读全文（F494/F496/F499/F4A5 随主条目）</li>
+<li><strong>契约漂移/未声明读写</strong>：frontmatter 对齐正文（随 z8-contract-drift spec）</li>
+<li><strong>死代码/半接线</strong>：删除或接线（随 tooling-gate-chain / T14 接线矩阵）</li>
+<li><strong>路径/参数错位</strong>：改传正确目录/参数（随 gate-effectiveness R3/R8/R9）</li>
+<li><strong>错误处理边界</strong>：补 try/except 与结构化信封</li>
+<li><strong>验收</strong>：家族主条目修复后对应实例回归测试全过；<code>just check</code> 全绿</li>
+</ul>
+<h2 id="z1-3">Z1-整体层（3 条）</h2>
+<ul>
+<li><strong>F0-03</strong> gate 文档漂移：overview.md:55 "八道门"、gates.md:3 "8 validation gates"、README "8 道" vs CLI 实际 11 gate（G0-G7+G_TRANSITION+G_DISPATCH+G_RECONCILE），活跃文档 0 引用额外 gate</li>
+<li><strong>F0-05</strong> command-to-give.md:48 引用已删除脚本 tests/dispatch-subagent.sh（0f68102 PR-22 删除 shim），执行者照做会失败</li>
+<li><strong>F0-06</strong> python 版本三元不一致：requires-python&gt;=3.11 vs mypy python_version=3.12 vs basedpyright pythonVersion=3.11</li>
+</ul>
+<h2 id="z126">Z1（26 条）</h2>
+<ul>
+<li><strong>F112</strong> RoundPaths.repo() 无任何调用方（死代码）</li>
+<li><strong>F113</strong> phase_runner cmd_pre_skill 的 ContractError 静默吞错：契约损坏时无日志降级为空 reads/writes</li>
+<li><strong>F114</strong> phase_runner.run_gate 不捕获 subprocess.TimeoutExpired：60s 门超时 → 状态机 traceback 崩溃而非 FAIL 降级</li>
+<li><strong>F116</strong> phase_runner cmd_post_skill 对 G2 FAIL 不阻断（仅记录），与 dispatcher/executor G2 FAIL→return 1 及 command-to-give "G2 失败 = 输出不合格" 冲突</li>
+<li><strong>F117</strong> sync_contracts.load_all_contracts 静默跳过 ContractError 技能 → expected_outputs/DAG/index 静默缺失，verify_bijection 同源盲区无法发现</li>
+<li><strong>F118</strong> scoring <code>--phase</code> 参数被解析但从未使用（死参数）；<code>--tier</code> 仅 T1 分支有实际逻辑</li>
+<li><strong>F119</strong> safe_write stale-takeover 固定 1 秒退避后无条件 unlink，可破坏活跃锁互斥；flock 失败路径 fd 泄漏</li>
+<li><strong>F120</strong> scoring check_gate_markers 的 G4/G6 标记名用 test_type 后缀，gates/cli.py 只写 "-generative" 标记（G4 bug-hunt/clean 分支不写标记）→ 非 generative 评分 + --round-dir 必误报 MARKER_MISSING</li>
+<li><strong>F121</strong> phase_runner cmd_post_skill rglob 回退 <code>[:20]</code> 静默截断 + 不过滤非输出 .md</li>
+<li><strong>F122</strong> phase_runner cmd_pre_score 不追加 step，其余 5 个命令均记录 → phase-state 审计历史不完整</li>
+<li><strong>F123</strong> capability_fs.CapabilityFS 无任何生产接线：支柱五"读 provenance 运行时兜底"仅测试消费，模块为生产死代码</li>
+<li><strong>F124</strong> phase_runner CLI 无位置参数校验：缺参 → IndexError traceback；flag 被解析为位置参数</li>
+<li><strong>F125</strong> command-to-give.md:48 引用不存在的 tests/dispatch-subagent.sh：PR-20 迁移后执行协议断链</li>
+<li><strong>F128</strong> phase_runner cmd_post_score 只校验 JSON 语法不校验结构：垃圾 scores 文件（<code>[]</code>/<code>"hello"</code>/<code>{"foo":1}</code>）推进状态机到 SCORED/FINALIZED，注释 "malformed must abort" 未落实</li>
+<li><strong>F129</strong> scoring --gate-only 模式 <code>--type</code> 尾参 IndexError（:303 无长度守卫，对照 :300 gate_type 有守卫；flag 命名与主路径 --test-type 不一致）</li>
+<li><strong>F133</strong> safe_write O_EXCL 释放路径 close(fd)→unlink(lockfile) 非原子：stale-takeover 后释放者 unlink 删除新持有者锁 → 双写者并发丢失更新（与 F108/F119 同区域第三独立缺陷站点）</li>
+<li><strong>F134</strong> scoring validate_scores 对空 dimensions rubric 静默放行 → 不可解析 rubric 产出静默 0 分（FAIL）而非 REJECT</li>
+<li><strong>F135</strong> scoring validate_scores 对 NaN 分数放行：<code>{"1": NaN}</code> 通过 0-100 校验 → final_score NaN 静默</li>
+<li><strong>F137</strong> phase_runner cmd_post_skill 经 derive_output_files/derive_file_type 静默吞 ContractError：契约损坏 → G2 SKIP + G4 空文件 vacuous PASS → 相位无校验推进、无日志</li>
+<li><strong>F141</strong> scoring validate_scores 对 bool 分数放行：scores.json 中 <code>true</code>/<code>false</code> 静默按 1/0 计分（isinstance 把 bool 当 int）</li>
+<li><strong>F144</strong> phase_runner <code>load_state</code> 对 phase-state 文件无形状/类型校验：损坏或非 dict 的状态文件 → 未捕获 JSONDecodeError/KeyError/TypeError 裸 traceback，与其余命令的结构化错误信封不一致</li>
+<li><strong>F148</strong> phase_runner cmd_post_skill 对契约声明但磁盘缺失/为空的输出静默丢弃（无日志）：技能未产出任何文件时 G2 SKIP + G4 空文件 vacuous PASS + PASS marker → 相位以 OK 推进</li>
+<li><strong>F149</strong> scoring filter_dimensions_by_test_type 对"无维度数字"的排除 scope 静默 no-op：规范 _template rubric 自身的 `Prose/narrative quality \</li>
+<li><strong>F150</strong> phase_runner run_gate("G2") 不传 project_dir → G2.7 重要章节 ceiling 判定在相位机路径恒失效（executor 传 REPO_ROOT 亦错）</li>
+<li><strong>F156</strong> phase_runner/executor 双路径对混合输出施加单一 derive_file_type：file_type="decisions" 时 G2 decisions 分支整体跳过 .md → 主章 .md 仅过 G2.1-2.3（存在/非空/UTF-8），文档化 G2.4-G2.12 内容校验（字数 G2.6、重要章节 ceiling G2.7、格式 G2.8/2.9、frontmatter G2.5）在管线路径静默不执行</li>
+<li><strong>F161</strong> RoundPaths.write() 无任何生产调用方（死代码）：F112 只覆盖了 repo()/backup()，write() 为同一家族第三个遗漏成员</li>
+</ul>
+<h2 id="z243">Z2（43 条）</h2>
+<ul>
+<li><strong>F202</strong> contracts/registry.py REGISTRY + load_skill_contract 生产无消费者（仅测试用）</li>
+<li><strong>F203</strong> schemas/deps.py DepsDoc + phase_of 未接线；sync_contracts 仍用 json.loads 解析 deps.json</li>
+<li><strong>F204</strong> schemas/novel.py NovelConfig 声称 g6 consumer，g6 未 import</li>
+<li><strong>F205</strong> schemas/scores.py ScoreReport 声称 g5 consumer，无生产 import</li>
+<li><strong>F206</strong> schemas/state.py ProgressDoc/SummaryDoc 从未被加载验证（C3 修复无生效面）</li>
+<li><strong>F207</strong> skills/_scoring_base.py ScoreReport + score_arc/stratum/volume 评分契约 dead-wire（M3 修复未接线）</li>
+<li><strong>F210</strong> hooks.py 的 SKILL.md 行号引用漂移（超出 ±5）</li>
+<li><strong>F211</strong> executor.py SHENBI_G1_SKIP_READS 环境特性零测试覆盖</li>
+<li><strong>F212</strong> executor.py run_g1/run_g2 不检查 returncode，stdout 非 JSON 时裸 JSONDecodeError</li>
+<li><strong>F213</strong> dispatcher/modes/codex.py 单次 codex exec、无重试/429/finish_reason/并行上限（仅 pipeline 路径有）</li>
+<li><strong>F215</strong> codex.py 用 <code>\{[^{}]*\}</code> 提取首个"无嵌套花括号"JSON 片段</li>
+<li><strong>F217</strong> pacing_design.py CONSTELLATION 区间三处不一致（docstring 20-30 / 代码 15-35 / SKILL.md 15-25）</li>
+<li><strong>F219</strong> executor.py 对 ContractError 静默 fail-open：registry 缺失 → 空 inputs → G1 空集真空 PASS → 无上下文派发</li>
+<li><strong>F220</strong> ownership.py OWNERSHIP 矩阵仅 6 条参考条目（docstring 自述「支柱一续」），其余技能落 file-level 检查</li>
+<li><strong>F221</strong> GenreConfig 缺 tropeInventory 字段且未编码 SKILL.md 规则 1「顶层字段数=8」；SKILL.md/fixture/OWNERSHIP 四源冲突</li>
+<li><strong>F222</strong> SHENBI_G1_SKIP_READS 三处实现/消费语义分叉（executor/g1/dispatch_helper），executor 侧零测试</li>
+<li><strong>F223</strong> codex.py 协议边界 JSON 处理无防护：shenbi-score stdout 双解析 + final_score 缺省静默 0 + 损坏 progress.json 裸 JSONDecodeError</li>
+<li><strong>F224</strong> G3.3「output files passed G2」全仓无生产者 → 永久 SKIP；codex.py _record_completion 写 <code>progress["skills"][skill][test_type]</code> = <code>{score,status}</code> 无 <code>output_files</code> 键</li>
+<li><strong>F225</strong> 独立 dispatcher（codex 模式）不消费 contract read_fields：Layer B 字段过滤仅 pipeline 生效</li>
+<li><strong>F228</strong> derive_output_files/G2 不展开 writes/updates 中的 glob → 9 技能 G2.1 恒失败</li>
+<li><strong>F229</strong> derive_file_type 单一 file_type 批处理与异构输出不兼容：(a) chapter 型技能非散文输出误套章节规则；(b) decisions 型技能 .md 散文静默漏套 G2.6-2.10</li>
+<li><strong>F230</strong> fields.py <code>_filter_json</code> 不做规范化（裸 <code>k in fields</code>），与 <code>_filter_md</code> 的 canonical rule 不一致——复核轮"md 与 json 同构"断言为误</li>
+<li><strong>F231</strong> genre-config 消费侧引用 povMode/sensitivityFlags，但模型/fixture/SKILL.md 规则表/OWNERSHIP 全源无此键——review_checklist 恒空默认、review-group-character 字段过滤恒 escape hatch</li>
+<li><strong>F233</strong> ownership.py record_create 的 write_keys 从不校验新增记录键集——plant 可写任意键，_HOOK_KEYS_NEW_RECORD 声明 dead</li>
+<li><strong>F234</strong> 整文件删除 owned 文件零违规——check_write_ownership 忽略 FileChange.status</li>
+<li><strong>F236</strong> audit/write_audit.py <code>_matches_declared</code> 不 fnmatch 声明为 glob 的写入（<code>truth/*.md</code> 等 9 技能）→ glob 写入恒判"未声明写入"</li>
+<li><strong>F237</strong> compute_file_change 对 added JSON 文件返回空 changed_top_keys → field 级 OWNERSHIP 键集校验对新建文件整体旁路</li>
+<li><strong>F238</strong> audit_writes 对 malformed <code>## hooks</code> YAML 裸抛 ScannerError/ValueError → dispatcher 审计链崩溃，"崩溃仍审计"保证失效</li>
+<li><strong>F239</strong> derive_file_type truth/decisions 分类 glob 盲区：精确字符串交集，<code>truth/*.md</code>/<code>snapshots/chapter-NNN/*</code> 写者被误归 "chapter"</li>
+<li><strong>F240</strong> extract_chapter 仅识别英文 "chapter N"：中文 prompt（框架主语言）→ chapter=None → N/NNN 输出全部丢弃 → standalone G2 整体静默跳过</li>
+<li><strong>F241</strong> genre_config 规则 1 approval.decision 缺失/空值时静默 PASS；禁用 非 list / 替换建议 非 dict 时对应规则静默跳过</li>
+<li><strong>F242</strong> OWNERSHIP 矩阵 2/6 条目指向 DEPRECATED 技能（plant/track），生产写者 foreshadowing-lifecycle 无条目 → pending_hooks.md 记录级写保护对生产路径空转</li>
+<li><strong>F243</strong> 独立 dispatcher 无独立评分者：PR-20 把原 shell 的"独立评分 subagent 派发（G3.4 wrapper）"改为"生成器自评"</li>
+<li><strong>F244</strong> G1.4 的 .bak 由 INPUTS 创建、G2.11 对 truth OUTPUTS diff → 输出非输入的 truth-updater G2.11 永不触发</li>
+<li><strong>F248</strong> pacing_design.from_markdown 解析失真：chapter_sequence 恒空使「不连续 3 章同类型」规则在 g4 门路径死代码；scene_types 固定词表子串扫描致 g4 误拒/虚增</li>
+<li><strong>F249</strong> executor.run_g2 把 PROJECT_DIR（shenbi 仓库根）当 G2 project_dir 传入 → _is_important_chapter 恒 False → 重要章 4500-10000 字被 G2.7 误拒</li>
+<li><strong>F250</strong> 独立 dispatcher codex 模式不注入技能定义：codex agent 仅有裸 prompt（无 SKILL.md/契约/rubric），无法产出契约一致输出</li>
+<li><strong>F254</strong> executor.run_g1/run_g2 与 codex.dispatch_codex 的 shenbi-score 子进程均无 timeout（仅 codex exec 有 600s）→ standalone 路径门/评分子进程挂起时无限阻塞</li>
+<li><strong>F255</strong> derive_file_type 的 REPORT 分支先于 truth 交集返回 → kind=report 且写 truth 概念文件的技能被归 "report"，G2.11 truth 只增不删保护对其静默失效</li>
+<li><strong>F260</strong> <code>_changed_top_keys</code> 对<strong>新增 null 值键</strong>返回空变更集 → field 级 OWNERSHIP 键集校验对 <code>{"key": null}</code> 新增旁路</li>
+<li><strong>F262</strong> read_fields 声明与生产者模板系统性漂移（7 文件/5 技能）——含 F218 部分丢弃实锤（book_strata/arc-N「未解决悬置」被静默丢弃）+ F231 同类全漏实例（0/N → 恒 escape hatch）</li>
+<li><strong>F266</strong> write_semantics 校验面整体未接线：<code>mode</code> 值自由形式无词表校验（拼写错误静默通过）、<code>append_dedup</code>/<code>merge_prose</code> 声明无框架实现（dispatch_helper 显式 NOT branched、g4 无 checker）、且与 truth 模板 <code>update_mode:</code> 词表双轨并行</li>
+<li><strong>F269</strong> <code>_changed_top_keys</code> 的 JSONDecodeError 路径：owned JSON（genre-config.json）被覆写为非法 JSON 时 field 级键集校验静默旁路（F237/F260 家族的第三个触发面）</li>
+</ul>
+<h2 id="z352">Z3（52 条）</h2>
+<ul>
+<li><strong>F305</strong> 审计严重度裸子串检测（"BLOCKING"/"FAIL"）产生误报</li>
+<li><strong>F306</strong> audit_context_cache 读错 volume_map 路径 + 章节号子串匹配缺陷</li>
+<li><strong>F308</strong> compact_pipeline_state / _archive_chapter_state 死代码（Plan 17 10d 未勾选 TODO 从未接线）</li>
+<li><strong>F309</strong> _validate_state_consistency / _heal_current_step 死代码（注释声称 cli.py resume 调用，实际无调用方）</li>
+<li><strong>F310</strong> volume_align.py 死模块（与 chapter_loop._check_volume_map_alignment 重复，无生产调用方）</li>
+<li><strong>F311</strong> scr_extractor 缓存永不失效：revision 改写章节后 SCR 持续陈旧</li>
+<li><strong>F314</strong> bridge 激活窗口包含已激活桥（chapter &gt;= activation - 3 未排除 past-activation）</li>
+<li><strong>F315</strong> _merge_step_result / _apply_step_outputs 为 no-op 死线（"单写者合并"实际什么都不做）</li>
+<li><strong>F316</strong> revision_router.collect_audit_issues 读原始 glob 无聚合去重（F10 先例未修复）</li>
+<li><strong>F317</strong> error_handler 常量与配置耦合：MAX_DISPATCH_RETRIES/MAX_AUDIT_RETRIES 死常量；dispatch 重试上限绑定 max_revision_retries（配置放大隐患）</li>
+<li><strong>F319</strong> cmd_review MODIFY 对 PER_CHAPTER 检查点无回滚语义，feedback 泄漏到下一章</li>
+<li><strong>F327</strong> §6.3 决策树未接线：decide_revision 无生产调用；route_chapter_revision 忽略 blocking；resonance floor 仅 log 不决策</li>
+<li><strong>F328</strong> CONDITIONAL_STEPS 从未被迭代（intent-management/drift-guidance/snapshot-manage 每章门控死代码）+ 自适应触发死簇</li>
+<li><strong>F330</strong> cmd_resume 忽略 <code>_verify_truth_integrity</code> 返回值——"fail fast"文档声称未兑现</li>
+<li><strong>F331</strong> 并行 post-draft 的 G4 失败只 log 不重试/不升级（与串行语义不一致），lifecycle G4 失败输出被静默接受</li>
+<li><strong>F332</strong> state.token_usage 不进 to_dict/from_dict——token 汇总跨进程/跨 save 丢失</li>
+<li><strong>F333</strong> genesis G4 auto 模式开关语义错位（per_chapter_review_enabled 兼任 genesis 严格度开关）+ 章数口径不一致</li>
+<li><strong>F335</strong> audit_context_cache 用补零章节文件名（chapter-001.md），生产为不补零 → chapter_text 恒空</li>
+<li><strong>F336</strong> state.to_dict/from_dict 丢失 step_timings（F332 同根不同面）</li>
+<li><strong>F337</strong> check_triggers 在 total_chapters=0 时 book_closure 恒 True（chapter &gt;= 0），仅被调用方守卫掩盖</li>
+<li><strong>F338</strong> 审计级联跳过（Spec 8 Fix 8）无数据源：并行波不写 per-skill audit_results → _should_skip_audit 恒 False</li>
+<li><strong>F339</strong> 并行波审计信号失真且无消费方：blocking_found 由 consolidate(stdout) 计算（API 路径恒 0）、audit_reports 记录不存在的 group-*.md、review-summary.md 恒报 0 问题</li>
+<li><strong>F342</strong> volume_snapshot_pending / add_audit_result / increment_retry / reset_retry 生产死代码</li>
+<li><strong>F346</strong> truth_index._HOOK_ID_RE 不匹配生产带连字符 hook id（MH-001/H-N01）→ master hooks 从 Route A 检索静默缺失</li>
+<li><strong>F347</strong> 生产 hook 数据格式与上下文"伏笔债务简报"解析全错位：简报恒"(无)"</li>
+<li><strong>F348</strong> SharedAuditContext 缓存注入与审计契约 reads 错位——缓存对预期目标近乎死线</li>
+<li><strong>F349</strong> MODIFY 派生的 truth re-dispatch 无重试预算/无升级：持续失败时每次 step 迭代重复重发</li>
+<li><strong>F355</strong> 确定性策展层输出死线：context/chapter-N-curated.md 无任何 skill 读取（9 节分层编排生产无效）</li>
+<li><strong>F356</strong> curate_context P 分层渲染失效：章节 plan 与全部 route 条目落入 P7，P1/P3-P6 恒 "(未产出)"</li>
+<li><strong>F357</strong> SharedAuditContext 的 style_profile 以幽灵路径 truth/style_profile.md 注入（style 内容重复进入每个审计 prompt）</li>
+<li><strong>F358</strong> linguistic drift ESCALATE 被吞：DriftEscalationError 在 pipeline-linguistic-drift-check 的 except Exception 中仅 log；drift 指令文件无消费者</li>
+<li><strong>F359</strong> Route A 检索条目无实体内容（仅 "[category] id from file" 标签），entity 事实从不进入上下文</li>
+<li><strong>F360</strong> chapter_loop._maybe_rebuild_truth_index 只 build 不落盘（周期索引重建无效，日志误导）</li>
+<li><strong>F365</strong> STATE_SETTLE MODIFY 重跑不重设 checkpoint：重跑结果悬空不提交、重审门被静默跳过（<code>_advance</code> 的 STATE_SETTLE 分支本身即死代码）</li>
+<li><strong>F366</strong> 5 个 PipelineConfig 死旋钮零消费者：genesis_review_required / volume_boundary_review_required / style_learning_interval / context_budget_override / snapshot_retention_chapters</li>
+<li><strong>F372</strong> <code>_style_profile_is_stale</code> 章节计数被 pre-revision 备份文件污染：<code>chapter-*.md</code> glob 计入 <code>chapter-N-pre-rev.md</code> → style-learning 自愈触发提前/误触发</li>
+<li><strong>F374</strong> write_safety 将 shenbi-review-resonance 分类为 READ_ONLY_AUDIT，但其契约 updates 写 truth/audit_drift.md + truth/resonance_trend.md → 并行审计波在无串行保护下并发写 truth 文件（模块自述的 WRITE_SHARED 串行不变量被违反）</li>
+<li><strong>F375</strong> API 路径多文件输出部分缺失仍返回成功（missing 仅 log.error，DispatchResult 恒 True）→ state-settling 等 6 文件技能的残缺输出被静默接受</li>
+<li><strong>F378</strong> context/volume-N-complete.json 全仓无写入方 → <code>_check_volume_completion</code> 恒 False → 软失败升级链恒触发 volume_objective_missed 信号；<code>last_trigger_failure</code> 写后无消费者</li>
+<li><strong>F381</strong> state_heal._heal_revision_counts 把未修订章节的 revision_count 抬到 ≥1：<code>_ensure_revision_decisions_exists</code> 对 NO_REVISION 路由也写回退文件，heal 误将其当作"发生过修订"</li>
+<li><strong>F382</strong> progress.json 物化层半接线：pipeline 从不写 trace 事件（safe_write 未传 round_dir/trace_action），每 5 步 materialize 把 progress.json 重建为"全 pending"视图，resume 时 staleness 检查空转</li>
+<li><strong>F383</strong> IDE 派发路径输出无 <code>### FILE:</code> 标记时，整段 stdout 被写入每一个输出文件（codex 已安装 → 当前环境 IDE 路径激活下的潜伏数据损坏点）</li>
+<li><strong>F384</strong> bge-large-zh SentenceTransformer 模型在每次 embed/检索调用中重复加载：genesis 每步全量重嵌（每 hook/rule 一次全新模型加载）+ 每章 context assembly 两次加载</li>
+<li><strong>F385</strong> dispatch_skill 第三路由（legacy <code>shenbi-dispatch</code> 子进程）为必失败死端：internal 模式硬拒 + uses_staging 被忽略</li>
+<li><strong>F386</strong> 软失败升级路径派发 escalation-review 但不设 ESCALATION checkpoint——升级从不暂停、escalation 报告成为孤儿</li>
+<li><strong>F387</strong> genre 波与 group 波文件级重复不止 sensitivity：worldRules/motivation/dialogue/texture 四维每章重复审计并覆盖 group 波产物（F329 的完整版）</li>
+<li><strong>F388</strong> <code>_audit_context_coverage</code> 死函数：docstring 声称"pipeline resume 初始化时调用"（spec §3.1 的 77% 上下文覆盖缺口检测），cli 从未接线</li>
+<li><strong>F391</strong> API/IDE 派发路径完全跳过 G1 input-readiness 门禁：缺失契约 reads 静默丢弃、无失败语义——模块 docstring 声称的 "G1/G2 经 dispatcher 内部执行" 仅 legacy 子进程路径成立</li>
+<li><strong>F392</strong> decisions JSON 恢复失败的 ValueError 穿透 dispatch→CLI：API/IDE 路径裸 traceback、无 checkpoint、无 JSON 结果（F304 同族、异常源不同）</li>
+<li><strong>F393</strong> review_checklist._extract_hook_deliverables 仅读 frontmatter hooks：生产 hook 数据在 body 表格 → 注入每个审计 prompt 的 "hook_deliverables" 恒空（F347 同根、新消费面）</li>
+<li><strong>F396</strong> check_genre_config_drift 的 _WARNING_RE 与两个生产写入方格式零交集：spec §6.6 genre-config 运行时更新触发恒 False，<code>config.genre_config_update_on_drift</code>（默认 True）全路径无功能效果</li>
+<li><strong>F399</strong> <code>next</code> 命令在审批过渡型检查点后静默跳过相位转换/延迟动作：GENESIS_COMPLETE approve 后 <code>next</code> 恒报 OK 无进展；VOLUME_BOUNDARY approve 后 <code>next</code> 不派发延迟快照、不更新 total_chapters</li>
+</ul>
+<h2 id="z467">Z4（67 条）</h2>
+<ul>
+<li><strong>F400</strong> G2.12 无 file_type 守卫 → JSON/清单文件误报"截断"WARN（D1-03 根因核实）</li>
+<li><strong>F403</strong> CLI G4 无 round_dir 时 ValueError 崩溃，破坏 JSON/退出码契约</li>
+<li><strong>F405</strong> G4_CHECKER_SKILLS 注册表过期：漏 9 个专用 checker</li>
+<li><strong>F406</strong> G0.3/G0.6/G7.5 使用遗留目录名 skill-output（真实布局 novel-output / project-output）</li>
+<li><strong>F407</strong> G0 无 seed 时早退 → 全部环境检查被跳过，gate 空转 PASS</li>
+<li><strong>F409</strong> G1 空输入 → PASS（G1.0 SKIP 空转）</li>
+<li><strong>F415</strong> g4/chapter_drafting.py:73 引用 SKILL.md:125，实际规则在 140（漂移 15 行）</li>
+<li><strong>F418</strong> g0_config_coherence 的 threshold_mismatch / floor_too_low 检测在真实调用路径永不触发</li>
+<li><strong>F420</strong> G6 在 novel.json / genre-config.json 损坏时崩溃（无 try/except）</li>
+<li><strong>F421</strong> G_RECONCILE / G_DISPATCH / G_TRANSITION 对非对象 progress.json 崩溃</li>
+<li><strong>F422</strong> cli.py G1 非 JSON 参数静默转空 → 零校验 PASS（丢失 gate 自身逗号拆分回退）</li>
+<li><strong>F423</strong> G0.7 引用已迁移的 tests/scoring.py → 每次带 seed 的 G0 恒 WARN</li>
+<li><strong>F424</strong> g4_chapter_drafting 用遗留目录名 "skill-output" 找 genre-config → 真实布局下疲劳词表恒用默认</li>
+<li><strong>F425</strong> G7.6 依赖遗留 skill-output → 真实布局恒 SKIP（pending truth 检测失效）</li>
+<li><strong>F426</strong> g4_genre_config 未用 resolve_input_path → 相对路径+无 rd 静默 CWD 回退</li>
+<li><strong>F427</strong> g4_chapter_revision 未解析路径（raw Path(fp)）→ rd+相对路径误报 invalid_json</li>
+<li><strong>F428</strong> G3.2 阈值分叉：total_score 直读路径用 acceptance.t1(94)，rubric/维度回退路径硬编码 90</li>
+<li><strong>F429</strong> G1.4 在 gate 内写 .bak（AGENTS.md 纯验证契约偏离）</li>
+<li><strong>F430</strong> g4_foreshadowing_track G4.ft.changes 判定过松：正文出现"操作"一词即 PASS</li>
+<li><strong>F433</strong> g4_chapter_drafting 主角在场检查用坏掉的 project_root（skill-output 爬升）而非已传入的 project_dir → 生产布局恒用默认名 ["林烽","他"]，检查形同虚设或误报</li>
+<li><strong>F434</strong> g4_state_settling 参数 agent 名单用单字符子串匹配（"冷"/"光"）→ 真实 fixture 误报 FAIL</li>
+<li><strong>F435</strong> G0.12 exempt_skills 读取后从未使用 + 注释声称的 "no skill returns UNIMPLEMENTED" 校验未实现（G0.12 恒 PASS 空转）</li>
+<li><strong>F437</strong> G5.5 用 except Exception → WARN 吞掉 G4 重跑的一切异常（含 gate 崩溃）→ G4 回归检查 fail-open</li>
+<li><strong>F439</strong> g4_style_polishing 字数比检查死路：其输入 .bak 只由 G1.4 为 BACKUP_SKILLS（truth updaters）创建，style-polishing 不在其中 → G4.sp.word_ratio 永不执行</li>
+<li><strong>F440</strong> g0.py G0.3/G0.12 的 jload ValueError 未捕获 → gate_G0 崩溃（F431 家族在 g0.py 的 2 处漏网）</li>
+<li><strong>F441</strong> G0.14 deps.json 为合法非 dict JSON → AttributeError 崩溃（json.loads 直读后未校验即 .get）</li>
+<li><strong>F442</strong> g4_length_normalizing 未实现 SKILL.md 压缩双底线（≥25% 原始长度）→ 过度压缩静默通过</li>
+<li><strong>F443</strong> g1.check_fields_exist 死代码：仅测试引用，gate_G1 与生产均未接线（B.4 字段软检查未生效）</li>
+<li><strong>F446</strong> count_transition_words 转折词计数双向偏离 SKILL 契约：然而→0、然后/显然→计入</li>
+<li><strong>F447</strong> G4.chapter-drafting 的 transition/fatigue 计数把 PRE/POST 元区块计入（与 G4.meta、word_count_md 剥离行为不一致）→ 真实章节近阈值/越阈值误报</li>
+<li><strong>F448</strong> check_chapter_title 只识别阿拉伯数字章节号，中文数字"第一章"漏检（SKILL.md 明示禁止）</li>
+<li><strong>F449</strong> G_RECONCILE 状态字面量 "DONE" 与全部生产 progress 形状不匹配 → GR.1 恒死；GR.2 在 F401 修复（剥离 -scores）后仍恒 FAIL</li>
+<li><strong>F450</strong> G6.7 hook 解析器与真实 pending_hooks.md 格式不匹配 → 真实项目恒 low_hook_density:0.0 FAIL，生命周期/超距检查死路</li>
+<li><strong>F451</strong> g6_checks check_pacing / check_style_consistency 元区块剥离正则缺 <code>#</code> 与 <code>&lt;!--META</code> 边界 → 正文被吞 → 章节误分类/风格指标失真</li>
+<li><strong>F452</strong> G4.cd.chapter_end_hook 评估的是文件末尾 POST_WRITE_SELF_CHECK 元文本而非叙事结尾</li>
+<li><strong>F453</strong> G2.7 重要章豁免（volume_map/plan 标注 → ceiling 10000）在全部自动化调用路径死路：project_dir 未接线 → &gt;4500 字重要章恒误报 FAIL</li>
+<li><strong>F454</strong> G_TRANSITION GT.1/GT.3 对生产 progress 形状语义漂移：round-exec 形状恒真空 PASS、materialize 形状恒 FAIL</li>
+<li><strong>F457</strong> G6.5/G6.10 对话占比用「对话段数 / 总字数」而非「对话字数 / 总字数」→ dialogue 分类死路、对白范围判定失真</li>
+<li><strong>F460</strong> json.loads/jload 后内层形状未校验 → AttributeError 崩溃（G0.3 chapter_word / G0.cc auditDimensions / G5.1 t1_scores 条目 / G4 _check_adjacent_budget 相邻文件）</li>
+<li><strong>F461</strong> g4_chapter_drafting protagonist_presence / scene_concreteness 未剥离 PRE/POST 元区块（F447 家族剩余消费方）→ 边缘章节主角在场/视觉场景误判</li>
+<li><strong>F462</strong> G3.2 评分提取键与 shenbi-score 规范输出形状不匹配（total_score/score vs final_score/dimensions）→ 规范形状报告 score=0 恒 FAIL；F428 的"直读 94 阈值"路径在生产形状下不可达</li>
+<li><strong>F463</strong> G3.2 全量扫描 t1-reports 不按 skill_name 过滤 + rubric 加权回退用 gate 技能 rubric 评估其它技能报告（跨技能互扰）</li>
+<li><strong>F464</strong> t1-reports 生产命名 <code>*-scores-subagent.json</code>（codex.py）与 gate 消费模式 <code>*-scores.json</code>/find_report 不匹配 → G5.1 兜底恒 no_report FAIL、G0.10 计数恒 0（F432 第二根因）、GR.1/GR.2 在 F401 修复后仍失败（-subagent 后缀）、G7.14/15 空转</li>
+<li><strong>F465</strong> F460 家族新增 4 实例：内层形状未校验 → AttributeError 崩溃（G7.1/G7.1b t1_scores、G_RECONCILE skills、character_design archetype_sources 元素、foreshadowing_plant hooks 元素）</li>
+<li><strong>F466</strong> G4.cd.content_uniqueness 在 G6.3 调用形状（rd=项目目录，g6.py:86-93）下静默跳过 —— Path(rd)/"project-output"/"chapters" 不存在 → T3 逐章 G4 中内容唯一性检查不执行且无 SKIP 记录</li>
+<li><strong>F467</strong> chapter_planning 节号分隔符不一致：sections 计数接受 <code>## 5、</code>/<code>## 5：</code>，s5/s7 提取正则仅认英文句点 <code>## 5\.</code> → 合法格式下 s5_choice 误 WARN、s7_hook_ops 误 FAIL</li>
+<li><strong>F468</strong> G3.2 的 <code>threshold = 90</code> 在循环内赋值泄漏到后续报告 → 同一报告因扫描顺序不同得到 PASS/FAIL 不同判定（F428 同根因的第二机制）</li>
+<li><strong>F469</strong> shenbi-chapter-revision 的 composite 把 g4_decisions 接进 "existing"（md）槽 → DecisionsDoc schema/P2.5 校验对该技能 decisions.json 永不执行，schema 违规静默 PASS</li>
+<li><strong>F471</strong> gate_manifest 的 "gates" 键为合法列表时 <code>setdefault</code> AttributeError 崩溃（F460/F465 家族内层形状新实例；gate_manifest 0% 覆盖）</li>
+<li><strong>F472</strong> cli.py bughunt/clean 分支不转发 rd → 相对路径报告恒 resolve_input_path ValueError 崩溃（F403 家族独立实例）</li>
+<li><strong>F473</strong> G6.11 卷边界检查在真实项目上恒发 7 条 must_fix：跨卷伏笔表格单元格被解析为"幽灵卷" + no_ending_hook 评估的是文件尾部元区块而非叙事结尾 + 规划中未写卷恒 FAIL</li>
+<li><strong>F474</strong> G6.4 时间线日期提取对单章内非时序日期引用（截止日/当前日混排）误报 timeline_regression——真实项目 2 条 FAIL</li>
+<li><strong>F475</strong> G0.3/G6.1 的 chapter_word.default 读取是死特性（GenreConfig 契约与真实配置均无此键）且 default=0 时 ZeroDivisionError 崩溃</li>
+<li><strong>F476</strong> G4.chapter-planning 仅实现 SKILL 声明 8 条"可自动检查"规则中的 2 条（段完整性/chapter_role），缺 6 条（段标题精确性/优先级来源声明/章尾改变数/hook 账列名/hook 操作有效性强制/沉默检测）</li>
+<li><strong>F477</strong> G_RECONCILE GR.2 对 skills[skill] 非 dict 值无守卫 → AttributeError 崩溃（GR.1 有守卫、GR.2 遗漏——F465 家族第 6 实例）</li>
+<li><strong>F483</strong> g4_chapter_drafting 主角名单硬编码阳性代词"他"且从不加"她" → 女性主角作品主角在场检查误报 FAIL</li>
+<li><strong>F484</strong> g3_independence 对畸形 agent_trace 静默 fail-open：agent_trace 非 dict 时同源评分检测被跳过 → G3.4 独立性保证在坏数据下失效（F408 家族之外的独立机制）</li>
+<li><strong>F485</strong> F460/F465 家族第 5 批未枚举实例：5 处 json 加载后内层形状未校验 → TypeError/AttributeError 崩溃（g3.5 / g_dispatch / g5 / g7 / g6）</li>
+<li><strong>F487</strong> g4_chapter_drafting <code>_load_protagonist_names</code> 主角名双重追加 → 主角在场计数翻倍（正常路径 fail-open）</li>
+<li><strong>F488</strong> g_transition GT.1 <code>remaining_{phase}</code> 为标量时 <code>len()</code> TypeError 崩溃（F460/F465/F485 家族新实例）</li>
+<li><strong>F489</strong> g6.py novel.json <code>target_word_count</code>/<code>target_words</code> 为字符串 → <code>-(-x // y)</code> TypeError 崩溃（F475/F485 家族相邻实例）</li>
+<li><strong>F491</strong> g4_worldbuilding 地点计数双重缺陷：<code>## 地点[：:]?</code> 可选冒号吞掉"## 地点构建汇总"汇总节 + numbered_loc 优先分支把任意 <code>## N.</code> 标题当地点数 → SKILL 模板合规输出误报 <code>G4.locations.count</code> FAIL</li>
+<li><strong>F493</strong> jload/json.loads 内层形状家族第 6 批：4 处未枚举实例 → AttributeError 崩溃（g3.3 skills 值 / g0.14 _calibration_hashes / g5.1 t2-phases / g6.1 t3-pipelines）</li>
+<li><strong>F494</strong> G6.4 时间线检查只读每章前 5000 字符 → 章节后半段的时间线回归完全漏报（check_pacing 却读全文，采样口径不一致）</li>
+<li><strong>F496</strong> G6.8 幽灵角色检测与口头禅匹配只读每章前 5000 字符 → 章节后半段角色/口头禅漏检漏报（F494 采样截断家族第二消费方）</li>
+<li><strong>F497</strong> G5.1/G6.1 的 t2-phases/t3-pipelines <strong>条目值</strong>非 dict → AttributeError 崩溃（F493 内层形状家族第二层未枚举实例）</li>
+<li><strong>F499</strong> F494/F496 采样截断家族剩余 2 个消费方：G6.9 章节扫描（[:3000]）与 G5.3 术语一致性采样（[:3000]）只读每文件前 3000 字符 → 章节尾部规则违反/术语混用漏检</li>
+</ul>
+<h2 id="z526">Z5（26 条）</h2>
+<ul>
+<li><strong>F500</strong> scoring_bridge 双评员一致性/塌缩检测 dead-wire：validate_dual_scorer/check_single_scorer_collapse 无生产调用方（spec §5.5 补丁2/3 运行时零执行）</li>
+<li><strong>F501</strong> escalation_bridge dead-wire：parse_resonance_scores/run_escalation_check 无生产调用；resonance_trend.md 写而不读（chapter_loop 直连 check_escalation）</li>
+<li><strong>F502</strong> FileChange.status Literal 定义在 contracts/ownership.py:22 而非 enums.py（enums.py:1 明示"所有 Literal 必须从此处 import"）</li>
+<li><strong>F503</strong> write_audit._declared_patterns 宽 except Exception 吞错：derive_output_files 意外异常 → declared=[] → 未声明写入假阳性 GATE_FAIL</li>
+<li><strong>F504</strong> ledger.record() 对 usage 值裸 int() 强转，非 int 可强转值 ValueError 崩 hot path（违反"must never crash the pipeline"）</li>
+<li><strong>F506</strong> report._try_avg_g3_score 把任意 <em><em>/</em>score</em>.json 的任意顶层 0-100 数值当 G3 分求平均，CPQ 指标名实不符</li>
+<li><strong>F508</strong> d1-06-coverage-gaps.txt 被 collect-only 覆写 coverage.xml 污染（16.08%），Z 区维度 8 依据失效</li>
+<li><strong>F514</strong> d1-06 重生成声明与工件矛盾：on-disk d1-06 仍为污染版（32.89%/cost=0%），F508 的"已重生成 85.16% 版本"不实</li>
+<li><strong>F515</strong> <code>_matches_declared</code> 不匹配契约原生 glob 写模式（<code>truth/*.md</code>）→ 已声明写被误报"未声明写入"</li>
+<li><strong>F517</strong> <code>audit_writes</code> 将 pending_hooks 专属解析无差别应用于全部 watched .md：非 truth .md 含 <code>## 活跃伏笔</code> 表 → 假 drift GATE_FAIL；含 <code>## hooks</code> 节 → ValueError/YAMLError 崩审计链</li>
+<li><strong>F519</strong> <code>TokenLedger.record</code> 写侧（mkdir/open/f.write）无 OSError 防御：文件系统错误崩 API dispatch hot path（API 成功后、输出写入前）→ 丢 LLM 输出并失败该步</li>
+<li><strong>F520</strong> tenacity 重试失败 attempt 的 token 消耗不记账：仅最终成功 attempt 的 usage 落账 → 429/5xx/timeout 重试成本被少计</li>
+<li><strong>F521</strong> <code>estimate_prompt_tokens</code> CJK 判定范围仅 0x4E00-0x9FFF：中文标点/全角/扩展 A 按 ASCII 4 chars/token 计 → 中文 prompt 系统性低估 token，上下文告警阈值提前量被侵蚀</li>
+<li><strong>F522</strong> resonance_trend.md 写侧（<code>_build_resonance_trend_row</code> 无 header 7 列行）与 <code>compute_drift.parse_trend</code>（要求 header 行含维度名）格式不兼容 → parse_trend 恒返回空，volume-decline 检测永不触发</li>
+<li><strong>F523</strong> <code>_diff_records</code> 对无 id 记录按 <code>str(None)</code> 键合并：id-less 记录的新增/删除在 record 级 diff 中静默掩盖</li>
+<li><strong>F525</strong> <code>TokenLedger.summarize</code>/<code>iter_records</code> 对"可构造但字段类型错误"的记录不跳过 → TypeError 崩报告 CLI，违反模块"corrupt line 绝不崩"契约</li>
+<li><strong>F526</strong> <code>_changed_top_keys</code> 对 JSON 顶层类型变化（dict→list/str）返回空元组 → OWNERSHIP field 文件被整体替换为非 dict 时零违规</li>
+<li><strong>F527</strong> <code>check_write_ownership</code> record_create 分支不校验新记录的键集：<code>_HOOK_KEYS_NEW_RECORD</code>（16 键白名单）为死配置，plant 新增记录可携带任意未授权键</li>
+<li><strong>F528</strong> <code>record_audit_outcome</code> 账本写侧（mkdir/open/write）无 OSError 防御：写失败在 <code>dispatch_with_write_audit</code> 的 finally 中传播 → 审计结果丢失并掩盖 dispatch rc</li>
+<li><strong>F529</strong> <code>detect_cross_section_drift</code> 单向（md→YAML）：YAML 权威记录在派生表中缺失时不报 drift，判据 12"派生表必须与 YAML 一致"反方向不一致静默放行（跨区 records/，被 Z5 write_audit 消费）</li>
+<li><strong>F533</strong> <code>TokenLedger.iter_records</code> 对无效 UTF-8 账本行抛 UnicodeDecodeError 崩 <code>shenbi-cost report</code>：read_text 无防护，违反模块"corrupt line is skipped, never crashing the report"契约</li>
+<li><strong>F534</strong> <code>_changed_top_keys</code> 对 JSONDecodeError 静默返回 ()：OWNERSHIP JSON 文件被写成无效 JSON（数据损坏形态）→ field 级审计零违规</li>
+<li><strong>F535</strong> <code>parse_markdown_table</code> 表头缺 id 列 → md_rows 恒空 → drift 检测静默放行（畸形派生表 = "一致"）</li>
+<li><strong>F536</strong> "未声明写入"检测在真实接线下不可达：快照面=声明写入面，技能写声明外文件（越权的基本形态）永不进入审计；test_write_audit.py:79-87 手工构造 post dict 掩盖该盲区</li>
+<li><strong>F537</strong> <code>_changed_top_keys</code> 的 <code>.get()</code> 把"缺失键"与"null 值键"归并为同一信号：OWNERSHIP field 文件新增 null 值键 / 删除 null 值键 → 键集变化零检测 → field 级审计静默放行</li>
+<li><strong>F538</strong> <code>snapshot_tree</code> 对非 UTF-8 watched 文件抛 UnicodeDecodeError 崩审计链：pre-snapshot（executor.py:244）崩 → dispatch 未启动即中止；post-snapshot（:264）崩 → finally 异常替换 dispatch 结果</li>
+</ul>
+<h2 id="z629">Z6（29 条）</h2>
+<ul>
+<li><strong>F603</strong> records drift 只检 md→YAML 方向：YAML 新增 hook 未同步派生表不报 drift</li>
+<li><strong>F607</strong> 同包双 baseline 路径分裂：baseline.py 写 style/ vs linguistic_drift.py 读 context/；术语表也分裂</li>
+<li><strong>F609</strong> replay 撕裂行/签名断链静默截断且无日志（改写文件不可追踪）</li>
+<li><strong>F610</strong> recall_overdue_hooks 对缺 id hook 直接 KeyError，单条坏记录使整批崩溃</li>
+<li><strong>F615</strong> TraceWriter 对撕裂尾部 JSONDecodeError 裸崩溃（replay 自愈 vs writer 不自愈不对称）</li>
+<li><strong>F616</strong> parser._parse_body 静默丢弃非 dict YAML 条目：权威记录视图缺行 → 潜在 drift 误报/漏报</li>
+<li><strong>F617</strong> linguistic_drift.py 两个告警函数无生产调用方：计划承诺的 &gt;3σ second-tier 告警与内容循环检测未接线</li>
+<li><strong>F619</strong> compute_stats CLI <code>--output</code> 缺参时 IndexError 裸崩溃</li>
+<li><strong>F622</strong> recall_overdue_hooks 对 str 类型 last_reinforced/max_distance TypeError 崩溃（F610 之外的独立类型失败模式）</li>
+<li><strong>F625</strong> versioning.migrate_to_current 缺迁移函数时 <code>_identity</code> 回退 → while 循环永不前进 → 无限循环挂死</li>
+<li><strong>F626</strong> check_linguistic_drift_trigger（第 4 漂移触发点）死导出：HARD/ESCALATE 从未接入 drift-guidance</li>
+<li><strong>F627</strong> parse_trend 无表结束条件：header 之后所有含 "</li>
+<li><strong>F630</strong> revision_router.DEFAULT_RESONANCE_FLOOR=50 与单源阈值 65 漂移（E11 缺陷类复活）</li>
+<li><strong>F632</strong> linguistic_drift severity 阶梯硬编码 30/50/100 与 thresholds.py 单源阈值重复且不一致风险（"single source of truth" 声明被违反）</li>
+<li><strong>F636</strong> detect_drift 把任意指标 0→正值映射为 6.0x 偏差 → 基线为 0 的指标首次出现即触发 is_drift=True（severity≥WARN）</li>
+<li><strong>F641</strong> records <code>_values_equal</code> 布尔比较孔：YAML 布尔 <code>true</code> 与 md 表 <code>"true"</code> 比较 → 假 drift（block ship）</li>
+<li><strong>F642</strong> check_opening_similarity 比较的是 META 指令块而非正文开头：真实章节对 (45,46) 相似度 0.627 &gt; 0.6 阈值 → F602 一旦接线即假阳性触发 opening-variation 指令</li>
+<li><strong>F644</strong> compute_ngrams 未剔除标点 → n-gram 风格指纹被标点对/标点串主导（真实 chapter-1 top bigram 为 <code>。他</code> 与 <code>——</code>）</li>
+<li><strong>F646</strong> AUDIT_SAFETY_MATRIX 维度集与真实 genre-config auditDimensions 漂移（6 vs 10 维）：motivation/foreshadowing/sensitivity/worldRules 可无 rationale 禁用且 G0 无信号</li>
+<li><strong>F647</strong> records drift.py <code>by_id</code> 对重复 id / 缺失 id 静默塌缩：权威 YAML 中重复 hook id 只保留最后一条，派生表与"错误的那条"比较 → 漏报或误报 drift 且无任何告警</li>
+<li><strong>F649</strong> check_opening_similarity/check_window_redundancy 用 SequenceMatcher.ratio() 默认 autojunk → 相似度随参数顺序不对称（0.57 vs 0.637），近阈值分类不稳定；F642 跨三轮之争的根源</li>
+<li><strong>F650</strong> TraceWriter 信任尾部签名不做链校验：可解析但签名无效的尾部（篡改/坏写）静默链上新事件，下次 replay 把新合法事件与坏尾部一起截断删除——静默数据丢失（F615 的另一失败模式）</li>
+<li><strong>F651</strong> records parser yaml.safe_load 对重复键静默 last-wins（<code>state: A</code> + <code>state: B</code> → B，无错误无告警）→ 权威记录源静默损坏，drift 与错误值比较</li>
+<li><strong>F654</strong> compute_drift <code>_try_float</code> docstring 承诺"非有限数值返回 None"，实际 nan/inf/1e999 透传 → 趋势表出现 nan 单元格时序列被静默污染（smooth 全 nan、σ 统计全 nan、单调 run 中断）</li>
+<li><strong>F655</strong> records <code>detect_cross_section_drift</code> 对"缺失键"无空值语义：<code>rec.get(key)</code> 返回 None 且 <code>_values_equal(None, '')</code> 恒 False → 派生表空单元格/多余列在 YAML 记录省略该字段时恒报假 drift</li>
+<li><strong>F660</strong> parse_markdown_table 无表头表静默整表丢行（首行分隔行被当表头 → 数据行无 id 全部丢弃，drift 检查空转）</li>
+<li><strong>F662</strong> materialize <code>_as_float</code> 对 str 分数静默置 0.0（同模块 <code>_as_int</code> 却接受 str）——MARK_DONE score 为字符串时分数被静默抹零</li>
+<li><strong>F664</strong> 审计链对 records.parser 的 yaml.YAMLError 无防护：坏 YAML 的 post .md 使 <code>dispatch_with_write_audit</code> 的 finally 块整次审计崩溃（写越权/drift 门禁被旁路、成功 dispatch 的 rc 被异常取代、无 write-audit.jsonl 记录）</li>
+<li><strong>F665</strong> drift-guidance skill §11.8 "卷级目标未达成"触发器在 compute_drift 未实现：SKILL.md 指示 LLM 读取 volume_score_trend.md 并从 drift_detection 获得卷级目标漂移信号，但 CLI 无该输入参数、无该 DriftKind、无 objective_achieved 解析</li>
+</ul>
+<h2 id="z717">Z7（17 条）</h2>
+<ul>
+<li><strong>F704</strong> tests/golden/ 空洞 + baselines/gate-outputs 陈旧且无 enforcement（T1108/T1109 同源确认）</li>
+<li><strong>F705</strong> lock-tool-hashes.sh 的 <code>_tool_hashes</code> 为死数据：96 键中 66 个已过期，且无任何 enforcement</li>
+<li><strong>F706</strong> test_g6.py:559-571 / test_g5.py:229-241 monkeypatch <code>jload</code> 触发 JSONDecodeError 测"不崩溃"，但断言仅 FAIL，未验证 JSON 合法</li>
+<li><strong>F707</strong> test_g4_escalation_review.py / test_g4_score_checkers.py 用字符串子串断言 JSON（<code>'"status": "PASS"' in result</code>），脆且测不到结构</li>
+<li><strong>F708</strong> test_retry.py 断言 <code>stop_reason is None</code> 于成功流，与实现语义可能不符（脆弱耦合）</li>
+<li><strong>F709</strong> test_docs_accuracy.py 四个 "File not yet created" skip 恒真恒跳（stale）</li>
+<li><strong>F710</strong> tests/unit/pipeline/test_context_assemble.py:163-169 / test_truth_embed.py:119-127 skip 为 masking（sentence_transformers 已装，降级路径永不可测）</li>
+<li><strong>F711</strong> test_chapter_loop.py / test_chapter_loop_full.py 大量 <code># review-resonance</code>/步骤索引注释与真实表错位，索引文档漂移</li>
+<li><strong>F712</strong> test_state_machine_heal.py 对 MagicMock state 调 <code>_heal_current_step</code> 仅验证状态赋值，未覆盖真实状态对象序列化</li>
+<li><strong>F713</strong> test_docs_accuracy.py:82-104 三处 <code>if not doc_path.exists(): skip("File not yet created")</code> 已成死条件（文件存在），应删除</li>
+<li><strong>F714</strong> test_g4_signatures.py 断言 <code>"skill" in data or "status" in data</code>（or 短路弱断言）</li>
+<li><strong>F715</strong> tests/unit/gates/test_g7.py:178-204 test_g715 注释声称"audit_warnings 写回 summary.json"，但断言"summary.json 未被写"——注释与断言矛盾（G7 纯度变更未同步注释）</li>
+<li><strong>F716</strong> test_phase_runner.py 大量 <code>monkeypatch.setattr(phase_runner, "run_gate", ...)</code> 仅测状态机，G5/G2/G4 真子进程集成只靠 test_gate_cli.py（慢且部分跳过）</li>
+<li><strong>F717</strong> tests/unit/gates/g4/test_all_skills_parametrized.py 的 <code>test_returns_string_for_empty_file_list</code> 等 12 断言全部用空输入，只证明"不崩溃"，不证明业务规则</li>
+<li><strong>F718</strong> tests/unit/pipeline/test_e2e.py / test_cli.py 用 <code>_run</code> 直接调 <code>main(argv)</code>，未走真实 CLI 入口（argparse/exit 路径）</li>
+<li><strong>F719</strong> tests/unit/test_pytest_framework.py 的 <code>test_unit_marker_works</code>/<code>test_integration_marker_works</code> 为恒真冒烟（<code>assert True</code>）</li>
+<li><strong>F720</strong> tests/unit/skill_utils/test_calibration.py / test_confidence_routing_integration.py 只测 <code>calibrate_confidence</code> 单个 HitRate 组合，未覆盖 anchor 命中率驱动的真实校准数据来源</li>
+</ul>
+<h2 id="z94">Z9（4 条）</h2>
+<ul>
+<li><strong>F1100</strong> D2 漂移：deterministic spec :18 引用 <code>2026-06-22-positive-quality-gates.md:7</code>，实际文件为 <code>...-gates-design.md</code>（缺 <code>-design</code> 后缀），且 :7 非分层表（分层表在 :63）</li>
+<li><strong>F1101</strong> D2 漂移：deterministic spec :102 引用 <code>dispatch_helper.py:1030-1037</code> 为 append_dedup caller-责任文档，实际该注释在 :1059-1065</li>
+<li><strong>F1104</strong> basedpyright-overrides.md:7,58 描述 <code>src/shenbi/skill_utils</code> executionEnvironment + "mirrors mypy ignore_errors = true for skill_utils"——实际 pyproject basedpyright 仅有 tests env，mypy overrides 无 skill_utils 条目</li>
+<li><strong>F1113</strong> README.md:45 <code>just pipeline-init outline-example.md ./my-novel --auto</code> 不可执行——justfile pipeline-init recipe 不接受/不转发 <code>--auto</code>，just 报错</li>
+</ul>
+<h2 id="z111">Z11（1 条）</h2>
+<ul>
+<li><strong>F1306</strong> revision-decisions 触发 34/56 但 <code>_ensure_revision_decisions_exists</code> 兜底写入的"minimal"文件仍违反 schema</li>
+</ul>
+<h2 id="11">线程（11 条）</h2>
+<ul>
+<li><strong>T303</strong> 4 个 group skill 正文手写 <code>## Contract</code> 块与 frontmatter 双源漂移（含字段声明永不生效）</li>
+<li><strong>T304</strong> <code>check_fields_exist</code>（G1 字段漂移 WARN）为死代码：无生产调用，D21 播种机制为其服务的假设不成立</li>
+<li><strong>T305</strong> <code>filter_to_fields</code> 对非 md/json 扩展名静默跳过：不过滤、matched=True、无 WARN（latent）</li>
+<li><strong>T401</strong> usage 载荷形状/类型脆弱：缺 total_tokens / None 值 / dict 形状 → AttributeError/TypeError 崩计量热路径（API 成功后、输出写盘前）→ 丢 LLM 输出</li>
+<li><strong>T402</strong> shenbi-cost 报告零自动化消费：账本数据 write-only，成本观测纯人工 CLI</li>
+<li><strong>T403</strong> parallel 接线 state 的聚合非原子性 + F505 联动：F302 修复方向（Z5.review4 建议"全部调用方传 state"）在并行波上会激活共享 dict 竞态与跨实例 append 交错</li>
+<li><strong>T404</strong> iter_records/summarize 静默跳过损坏行，报告无跳过计数：成本报告把不完整账本当完整展示</li>
+<li><strong>T6-01</strong> record_gate_result 对 pipeline-manifest.json 的读-改-写锁是进程内 threading.Lock：phase_runner cmd_post_skill 在 pipeline WriteLock 之外写 manifest → 跨进程 lost-update（F253/F3A4 家族第 4 实例站点）</li>
+<li><strong>T6-02</strong> <code>_executor_config_cache</code> 惰性初始化 check-then-act 竞态：并行审计波首批 7-9 线程并发首调 → N 个重复缓存条目（沙箱复现 8 线程→8 条目）</li>
+<li><strong>T6-03</strong> write_safety 分类是名字启发式：26 个 shenbi-review-* 中 2 个契约有 updates（resonance + arc-payoff）→ <code>assert_parallelizable</code> 保证建立在错误谓词上（F374 现行实例，arc-payoff 潜伏扩展）</li>
+<li><strong>T6-04</strong> truth_io <code>_path_lock</code> 键未规范化（相对/绝对/symlink 拼写→不同锁）：同文件写者可并发绕过串行化（latent）</li>
+</ul>
+<h2 id="8">其他（8 条）</h2>
+<ul>
+<li><strong>D1-03</strong> G2.12 对文件清单输入报 WARN "may be truncated"（Z8.files 2047 字节清单被截断校验？）</li>
+<li><strong>F3A0</strong> <code>_build_skill_prompt</code> 的 "Files to create" 清单跳过全部通配输出路径，而 shenbi-character-design 的 G4 无条件要求 major/minor 子目录 ≥3/≥2 文件——genesis step 3 与卷边界 expand 触发步 G4 缺口</li>
+<li><strong>F3A8</strong> <code>_check_content_size_guard</code> 新旧内容比混用"字符数 vs 字节数"：中文章节 revision 缩改（保留 &lt;60% 原文）被误拦截 → 重试循环/静默不应用</li>
+<li><strong>F3A9</strong> <code>_build_hook_debt_briefing</code> 对 frontmatter hooks 中缺 <code>id</code> 键的条目直接 KeyError → 单条坏数据使整章 curated 文档（P1-P7+多样性+债务简报）不产出</li>
+<li><strong>F3AC</strong> 并行 post-draft 中 foreshadowing-lifecycle dispatch 失败被吞：仅 state-settling 失败升级，lifecycle 失败 log 后照常 <code>add_step_done</code>+推进，hook 更新静默丢失且不可重试</li>
+<li><strong>F4A0</strong> G6.9 数值规则合规检查约束侧失效：关键词↔约束错配（str(val) 命中共享上下文中更早的数字子串）+ 真实 rules.md 散文格式零约束 + 仅"人/个"单位 + 前 10 条上限 → 现实项目数值规则违反静默漏检</li>
+<li><strong>F4A3</strong> G1 glob 展开双重缺陷：相对 glob 按 CWD 解析忽略 round_dir（与 resolve_input_path rd 语义不一致）+ compute_backup_targets 在展开前计算 → in-place 技能 glob 输入下 .bak 永不创建且误标 "not in-place skill"</li>
+<li><strong>F4A5</strong> G6.4 check_continuity 知识引入扫描（g6_checks.py:52）用 <code>[:3000]</code> 截断：intro_map 实体首次引入与 future_knowledge 检测只基于每章前 3000 字符（对照同函数 :30 时间线扫描 [:5000] 亦只被 F494 点名、F499 枚举 G6.9/G5.3 两处）——章节后部首次出现的实体不登记、后部提前引用漏报 future_knowledge（F494 家族第三实例，同函数第二采样点）</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

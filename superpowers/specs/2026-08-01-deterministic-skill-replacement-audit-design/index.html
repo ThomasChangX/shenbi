@@ -1,0 +1,1734 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>确定性技能替换审计：何时把 skill 从 LLM 提升到 Python - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="确定性技能替换审计：何时把 skill 从 LLM 提升到 Python - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="确定性技能替换审计：何时把 skill 从 LLM 提升到 Python - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-01-deterministic-skill-replacement-audit-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#skill-llm-python" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1-repo-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景：repo 已有的三层架构与 9 个先例
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景：repo 已有的三层架构与 9 个先例">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 三层架构（已半形式化）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 已存在的 9 个确定性先例（证明模式成立）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-cn3-postmortem" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 关键先例：CN3 postmortem 证明确定性写路径是根因修复
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-phase-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 提升判据（Phase 1 — 形式化何时提升）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-phase-2-skill-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 候选评估（Phase 2 — 逐 skill 6 字段 + 可行性）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 候选评估（Phase 2 — 逐 skill 6 字段 + 可行性）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-shenbi-snapshot-manage" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 shenbi-snapshot-manage —— 最干净的全替换候选
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-shenbi-context-composing-pipeline-85" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 shenbi-context-composing —— pipeline 模式下 85% 已确定
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-shenbi-state-settling-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 shenbi-state-settling —— 写半路径已落地，抽取留 LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-shenbi-memory-distill-800-llm" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 shenbi-memory-distill —— 结构字段聚合确定，800 字叙事留 LLM
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.5 不提升（反判据示范）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 模式分析（Phase 3）—— 跨候选规律
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 假设与验证（Phase 3）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-phase-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 修复方案（Phase 4）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 修复方案（Phase 4）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 P0（纯浪费，立即）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-p1helper" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 P1（helper 已存在，接主线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 P2（拆分，需验证）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 显式不提升（反判据）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 验证标准（数值化）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 铁律（4 条）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 依赖关系图
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="skill-llm-python">确定性技能替换审计：何时把 skill 从 LLM 提升到 Python</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-01
+<strong>Status:</strong> Design
+<strong>Severity:</strong> 🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）
+<strong>方法:</strong> <a href="../archive/2026-07-19-06-llm-context-engineering-design/"><code>systematic-debugging</code></a> skill 四阶段
+<strong>系列:</strong> Token 效率全栈 audit（子 spec 2/3，隶属总纲 <a href="../archive/2026-08-01-pipeline-read-write-consistency-audit-design/"><code>...read-write-consistency-audit-design.md</code></a> §0 分工）
+<strong>依赖:</strong> 总纲 spec；<code>src/shenbi/skill_utils/</code>（9 个已存在的确定性助手）；<code>src/shenbi/pipeline/{context_assemble,truth_io,hook_planting,scr_extractor}.py</code>；archive <code>2026-07-19-01</code>（覆盖 vs 追加 postmortem）
+<strong>范围:</strong> 本 spec 只审 <strong>"这个 LLM 调用本身是否必要"</strong>——能否用确定性 Python 替代（部分或全部）。<strong>不审</strong> prompt 内容（总纲）、不审调用参数（推理控制 spec）、不审输出浪费（输出侧 spec）。
+<strong>核心洞察（决定本 spec 框架）:</strong> "确定性替换"不是假设性维度——<strong>repo 已 9 次实现该模式</strong>（<code>skill_utils/</code> + <code>pipeline/</code> 助手），且 repo 自有 postmortem 证明确定性写路径是最高严重缺陷（CN3 覆盖 bug）的根因修复。因此本 spec 不是"要不要引入"，是"把提升判据形式化 + 逐候选评估剩余 skill"。</p>
+</blockquote>
+<hr />
+<h2 id="1-repo-9">1. 背景：repo 已有的三层架构与 9 个先例</h2>
+<h3 id="11">1.1 三层架构（已半形式化）</h3>
+<p>archive <code>2026-06-22-positive-quality-gates.md:7</code> 定义了 repo 的 canonical 分层：</p>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>位置</th>
+<th>职责</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>L1 确定逻辑</td>
+<td><code>src/shenbi/skill_utils/</code> + <code>src/shenbi/pipeline/</code></td>
+<td>漂移触发、置信度校准、块路由、trope 匹配——tested Python</td>
+</tr>
+<tr>
+<td>L2 skill 行为</td>
+<td><code>skills/*/SKILL.md</code></td>
+<td>LLM 执行的技能指令</td>
+</tr>
+<tr>
+<td>L3 输出校验</td>
+<td><code>gates/g4/</code></td>
+<td>结构性后置校验</td>
+</tr>
+</tbody>
+</table>
+<p>本 spec 审的是 <strong>L2→L1 的提升判据</strong>：何时一个 skill（L2）的核心功能应迁移到 Python（L1）。</p>
+<h3 id="12-9">1.2 已存在的 9 个确定性先例（证明模式成立）</h3>
+<table>
+<thead>
+<tr>
+<th>助手</th>
+<th>替代/包裹的 LLM 工作</th>
+<th>文件</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>context_assemble.py</code></td>
+<td>context-composing 的 3 路检索+rerank+budget 组装</td>
+<td><code>src/shenbi/pipeline/</code></td>
+</tr>
+<tr>
+<td><code>scr_extractor.py</code></td>
+<td>章节实体抽取（位置/对话/情绪关键词）</td>
+<td><code>src/shenbi/pipeline/</code></td>
+</tr>
+<tr>
+<td><code>truth_io.py</code> <code>write_truth_file()</code></td>
+<td>truth 文件键值 upsert（替代 LLM 全量重发）</td>
+<td><code>src/shenbi/pipeline/</code></td>
+</tr>
+<tr>
+<td><code>hook_planting.py</code></td>
+<td>伏笔 ID 生成 + upsert</td>
+<td><code>src/shenbi/pipeline/</code></td>
+</tr>
+<tr>
+<td><code>recall.py</code></td>
+<td>伏笔召回阈值过滤</td>
+<td><code>skill_utils/foreshadowing_recall/</code></td>
+</tr>
+<tr>
+<td><code>compute_pattern.py</code></td>
+<td>13 模式 + 熵 + 单调性统计（LLM 只做分类）</td>
+<td><code>skill_utils/chapter_pattern/</code></td>
+</tr>
+<tr>
+<td><code>compute_stats.py</code></td>
+<td>风格统计</td>
+<td><code>skill_utils/style_learning/</code></td>
+</tr>
+<tr>
+<td><code>triggers.py</code></td>
+<td>记忆蒸馏触发条件（chapter%12==0）</td>
+<td><code>src/shenbi/pipeline/</code></td>
+</tr>
+<tr>
+<td><code>decisions_validator.py</code></td>
+<td>decisions.json schema 校验</td>
+<td><code>gates/g4/</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-cn3-postmortem">1.3 关键先例：CN3 postmortem 证明确定性写路径是根因修复</h3>
+<p>archive <code>2026-07-19-01-truth-file-and-state-accumulation-design.md:42,176,283</code>：CN3（truth 文件覆盖 vs 追加）的根因是<strong>写路径缺陷</strong>（substring dedup），修复是 <code>truth_io.py:write_truth_file(mode="upsert_markdown_row")</code> 的键值 upsert——确定性路径<strong>结构性消除</strong>失败模式，而 prompt-only 守卫（"告诉 LLM 要追加"）被证明不够。这是"提升到 L1"的最强论据。</p>
+<hr />
+<h2 id="2-phase-1">2. 提升判据（Phase 1 — 形式化何时提升）</h2>
+<p>一个 skill 的 LLM 调用应迁移到 Python，当且仅当其核心功能落入以下任一类别（且 <code>requires_independent_agent</code> 不为 true）：</p>
+<table>
+<thead>
+<tr>
+<th>判据</th>
+<th>含义</th>
+<th>确定性程度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>纯文件操作</strong></td>
+<td>cp/glob/列表/hash，无变换</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>键值 upsert</strong></td>
+<td>按自然键去重合并</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>计数/tally</strong></td>
+<td>跨文件统计</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>固定模板填充</strong></td>
+<td>从已知输入填固定模板</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>阈值比较</strong></td>
+<td>触发条件判定</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>结构字段聚合</strong></td>
+<td>从已有结构化文件聚合字段</td>
+<td>100%</td>
+</tr>
+<tr>
+<td><strong>语义抽取</strong></td>
+<td>从自由文本抽结构化事实</td>
+<td>~30%（关键词命中部分，语义需 LLM）</td>
+</tr>
+<tr>
+<td><strong>叙事综合</strong></td>
+<td>多源压缩成连贯叙述</td>
+<td>0%（LLM 不可替代）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>反判据（不提升）：</strong> <code>requires_independent_agent: true</code> 的 skill（全部 review-<em> / score-</em> / drift-guidance / escalation-review / chapter-pattern）——其价值就是独立判断，确定性化即丧失存在意义。</p>
+<hr />
+<h2 id="3-phase-2-skill-6">3. 候选评估（Phase 2 — 逐 skill 6 字段 + 可行性）</h2>
+<h3 id="31-shenbi-snapshot-manage">3.1 <code>shenbi-snapshot-manage</code> —— 最干净的全替换候选</h3>
+<ul>
+<li><strong>核心功能</strong>：章节完成快照的 create/view/rollback/list——cp truth+章节到 <code>snapshots/chapter-NNN/</code> + manifest + SHA-256。</li>
+<li><strong>是否确定</strong>：<strong>100%</strong>。每步机械：cp/glob/列表/hash。SKILL.md <strong>自己禁止 LLM 算 checksum</strong>（<code>:156-164</code>，要求 <code>python3 -c "import hashlib..."</code>）。</li>
+<li><strong>确定性 vs 创意</strong>：100/0。无综合、无判断、无反合理化守卫依赖 LLM。</li>
+<li><strong>为何现用 LLM</strong>：纯样板便利——一切 dispatch 为 LLM 调用，此 skill 无推理内容。</li>
+<li><strong>替换破坏什么</strong>：无。人工确认 rollback 是策略门，非 LLM 能力。</li>
+<li><strong>token 成本</strong>：每章 ~10-15K tokens（读 truth+章节 ~30-40KB 纯为 cp）——<strong>纯 pass-through 浪费</strong>。</li>
+<li><strong>可行性</strong>：<strong>立即</strong>。SKILL.md 已近 Python spec。无 G4 checker（无 <code>gates/g4/snapshot*.py</code>），checksum 往返断言即可。</li>
+<li><strong>风险</strong>：无（policy 不禁；<code>kind: artifact</code>，无 <code>requires_independent_agent</code>）。</li>
+<li><strong>验证</strong>：<code>tests/pipeline/test_snapshot_diff.py</code> 已存在；加 checksum 往返属性测试。</li>
+</ul>
+<h3 id="32-shenbi-context-composing-pipeline-85">3.2 <code>shenbi-context-composing</code> —— pipeline 模式下 85% 已确定</h3>
+<ul>
+<li><strong>核心功能</strong>：从 12 truth/plan/style 文件组装 9 节上下文包（P1-P7 + 结尾多样性 + 钩子债）供 drafting。</li>
+<li><strong>是否确定</strong>：<strong>~85%</strong>。<code>context_assemble.py</code> <strong>已实现</strong> 3 路检索（Route A 实体索引 w=1.0 / Route B embedding w=sim×0.8 / Route C 固定文件 w=0.6）+ <code>rerank_results</code>（权重序 + content-hash 去重）+ budget 裁剪。SKILL.md 自认（<code>:109-118</code> Pipeline 集成模式）：pipeline 模式下此 skill 职责缩为"去重/冲突检测/budget 裁剪"。</li>
+<li><strong>确定性 vs 创意</strong>：~85/15。机械：载 P1-P7、取近 8 章、hash 去重、数钩子沉默 <code>(current-last_reinforced)/max_distance</code>。唯一软点：判"哪 ≤5 世界规则最相关"（top-5-by-frequency 可替）+ 结尾 3 桶分类（hook/transition/cliffhanger，可启发式或 LLM 标一次缓存）。</li>
+<li><strong>为何现用 LLM</strong>：样板 + 非 pipeline 直 dispatch 路径（无编排器预算装）。</li>
+<li><strong>替换破坏什么</strong>：极少。9 节 markdown 格式化（模板填充）+ 钩子债表渲染都平凡可模板化。</li>
+<li><strong>token 成本</strong>：~18K tokens/次 × 56 章 ≈ <strong>~1.0M tokens——单 skill 最大浪费之一</strong>。</li>
+<li><strong>可行性</strong>：<strong>强</strong>。<code>context_assemble.py</code> 是 pipeline 主路径；LLM skill 是遗留直 dispatch 兜底 + 表面策展。auto-check 不变量（9 节、无 3 连续结尾、钩子有路径）将从 G4 后置检查变成生成保证。</li>
+<li><strong>风险</strong>：低-中（结尾分类软点需验证）。</li>
+<li><strong>验证</strong>：<code>tests/unit/gates/g4/test_context_composing.py</code> 验 9 节/计数不变量；<code>context_assemble.py</code> 由 <code>tests/pipeline/</code> 覆盖。</li>
+</ul>
+<h3 id="33-shenbi-state-settling-llm">3.3 <code>shenbi-state-settling</code> —— 写半路径已落地，抽取留 LLM</h3>
+<ul>
+<li><strong>核心功能</strong>：章节后抽 9 类变化（位置/资源/关系/情绪/信息流/情节线/时间/身体/行为）写 6 truth 文件。</li>
+<li><strong>是否确定</strong>：<strong>写半 100%，抽取半 ~30%</strong>。</li>
+<li>写（upsert）半：<strong>完全确定</strong>。给定抽取记录 + 自然键（章号/hook_id），合并是纯键去重——<code>truth_io.py:write_truth_file()</code> 已实现（433 行测试 <code>tests/unit/pipeline/test_truth_io.py</code>）。</li>
+<li>抽取半：<strong>不确定</strong>。自由文本（"师姐苏晴: 观望→认可"）→ 结构化关系态增量需阅读理解。<code>scr_extractor.py</code> 试过确定性抽取但<strong>显式放弃语义类</strong>——只抽位置/对话关键词/情绪标记，<code>confidence: 0.7</code>、<code>character: "unknown"</code> 频繁。</li>
+<li><strong>确定性 vs 创意</strong>：~50/50。写 100% 确定；抽取 30% 机械（名/hook ID/位置，scr_extractor 覆盖）+ 70% 语义。</li>
+<li><strong>为何现用 LLM</strong>：(a) 语义抽取真需推理；(b) 历史 dispatch 路径强求全量发文。CN3 postmortem（§1.3）：失败是 prompt-only 守卫无程序强制。</li>
+<li><strong>替换破坏什么</strong>：纯 Python 抽取会漏 9 类大多数（<code>scr_extractor.py</code> 已证明）。人工审批门（逐项 checkbox + 原文引用）是反合理化守卫，确定路径会绕过。</li>
+<li><strong>根因裁定（关键）</strong>："覆盖 vs 追加"有两诊断：(1) 上下文工程 spec §2.3 说"上下文不足"→补上下文；(2) accumulation postmortem 说"写路径缺陷"→确定性 upsert。<strong>哪个治根因？</strong> 确定性写路径<strong>结构性消除</strong>失败（即使 LLM 发全文件，<code>write_truth_file(mode="upsert_markdown_row")</code> 按键去重保历史）；补上下文只<strong>降概率</strong>。<strong>repo 已选确定性路径</strong>——<code>truth_io.py</code> 已落地，<code>dispatch_helper.py:1030-1037</code> 文档说 append_dedup 是 caller 责任。故 state-settling 现实替换范围 = <strong>写半（已落地），非全抽取（不可行）</strong>。</li>
+<li><strong>token 成本</strong>：~9K tokens/次 × 56 ≈ 504K tokens。</li>
+<li><strong>可行性</strong>：写半已完成；抽取留 LLM 是正确定位。</li>
+<li><strong>风险</strong>：全抽取替换被 <code>scr_extractor.py</code> 的局限证伪——不可行。</li>
+</ul>
+<h3 id="34-shenbi-memory-distill-800-llm">3.4 <code>shenbi-memory-distill</code> —— 结构字段聚合确定，800 字叙事留 LLM</h3>
+<ul>
+<li><strong>核心功能</strong>：每 12 章蒸馏 <code>chapter_summaries.md</code> → 弧综合（<code>truth/arcs/arc-N.md</code>）；每 36 章 → 层综合；卷边界 → book spine 前滚。</li>
+<li><strong>是否确定</strong>：<strong>否（整体）</strong>，但<strong>可拆</strong>。</li>
+<li>结构字段（钩子兑现表、角色态表、未解悬置列表）：<strong>确定可聚合</strong>——从 <code>pending_hooks.md</code>/<code>character_matrix.md</code> 直接聚合。</li>
+<li>~800 字事件链叙述：<strong>LLM 不可替</strong>——压缩 12 章摘要成可溯源叙述正是 LLM 所长（铁律 #1：每条合成结论可溯源）。</li>
+<li><strong>确定性 vs 创意</strong>：~30/70。</li>
+<li><strong>可行性</strong>：<strong>部分替换</strong>——拆成"确定性聚合结构字段"+"LLM 只写叙述段"。</li>
+<li><strong>token 成本</strong>：每 12/36 章跑一次，56 章 ~5-9 次——频率低，绝对 payoff 小于 context-composing/state-settling。</li>
+</ul>
+<h3 id="35">3.5 不提升（反判据示范）</h3>
+<p>全部 <code>review-*</code>（24）、<code>score-*</code>（3）、<code>chapter-drafting</code>、<code>chapter-revision</code>、<code>drift-guidance</code>、<code>escalation-review</code>、语义抽取核——价值就是独立判断/创意生成，<code>requires_independent_agent: true</code> 或本质需推理。</p>
+<hr />
+<h2 id="4-phase-3">4. 模式分析（Phase 3）—— 跨候选规律</h2>
+<table>
+<thead>
+<tr>
+<th>规律</th>
+<th>成员</th>
+<th>含义</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>纯 pass-through 浪费</strong></td>
+<td>snapshot-manage</td>
+<td>LLM 读文件只为 cp——零变换，纯浪费</td>
+</tr>
+<tr>
+<td><strong>"helper 已存在，skill 是遗留兜底"</strong></td>
+<td>context-composing</td>
+<td>pipeline 主路径已确定，skill 降为表面策展</td>
+</tr>
+<tr>
+<td><strong>"写半已落地，抽取半不可行"</strong></td>
+<td>state-settling, truth-sync</td>
+<td>确定性写路径治根因；语义抽取是 LLM 不可替核心</td>
+</tr>
+<tr>
+<td><strong>"结构字段确定，叙述留 LLM"</strong></td>
+<td>memory-distill, foreshadowing-lifecycle</td>
+<td>可拆——确定性聚合结构 + LLM 写叙述</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-phase-3">5. 假设与验证（Phase 3）</h2>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>假设</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>snapshot-manage</td>
+<td>Python 替换后 checksum 往返一致，G4 无需</td>
+<td>加属性测试；跑 round 对比快照完整性</td>
+</tr>
+<tr>
+<td>context-composing</td>
+<td>pipeline 模式下 LLM 只做表面策展，去掉后 G4 仍 PASS</td>
+<td>关 LLM 策展层，跑 G4 对 9 节不变量</td>
+</tr>
+<tr>
+<td>state-settling 写半</td>
+<td><code>truth_io.py</code> 已消除覆盖 bug</td>
+<td><code>test_truth_io.py</code> 433 行已验</td>
+</tr>
+<tr>
+<td>memory-distill 拆分</td>
+<td>结构字段聚合 + LLM 叙述 = 全功能</td>
+<td>拆分跑 round 对比弧文件完整度</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-phase-4">6. 修复方案（Phase 4）</h2>
+<h3 id="61-p0">6.1 P0（纯浪费，立即）</h3>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>修复</th>
+<th>payoff</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>snapshot-manage</td>
+<td>提升为 <code>src/shenbi/pipeline/snapshot.py</code> CLI；dispatch 改调 Python；skill 标 deprecated 或保留仅非 pipeline 兜底</td>
+<td>省每章 ~10-15K pass-through token</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-p1helper">6.2 P1（helper 已存在，接主线）</h3>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>修复</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>context-composing</td>
+<td>pipeline 模式下 context_assemble.py 产出直接用；LLM skill 只在非 pipeline 兜底；auto-check 不变量转生成保证</td>
+<td>低-中（结尾分类软点）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-p2">6.3 P2（拆分，需验证）</h3>
+<table>
+<thead>
+<tr>
+<th>候选</th>
+<th>修复</th>
+<th>风险</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>state-settling</td>
+<td>显式化"写半确定（truth_io.py）+ 抽取半 LLM"分层；文档 + 契约反映</td>
+<td>低（写半已落地）</td>
+</tr>
+<tr>
+<td>memory-distill</td>
+<td>拆"确定性结构字段聚合"+"LLM 800 字叙述"两半</td>
+<td>中（需保证铁律 #1 可溯源）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="64">6.4 显式不提升（反判据）</h3>
+<p>review-<em> / score-</em> / drafting / revision / 语义抽取核——见 §3.5。</p>
+<hr />
+<h2 id="7">7. 验证标准（数值化）</h2>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>当前</th>
+<th>目标</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>snapshot-manage dispatch 次数/章</td>
+<td>1 LLM</td>
+<td>0 LLM（Python）</td>
+</tr>
+<tr>
+<td>context-composing pipeline 模式 LLM 调用</td>
+<td>1（含表面策展）</td>
+<td>0 或仅非 pipeline 兜底</td>
+</tr>
+<tr>
+<td>被 <code>requires_independent_agent</code> 保护的 skill 误替换数</td>
+<td>—</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>just check</code></td>
+<td>PASS</td>
+<td>PASS</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-4">8. 铁律（4 条）</h2>
+<ol>
+<li><strong>纯文件操作不调 LLM。</strong> cp/glob/hash/列表类 skill 必须是 Python；LLM 读文件仅为 cp 是 100% 浪费。</li>
+<li><strong>确定性写路径是覆盖 bug 的根因修复。</strong> prompt-only 守卫（"告诉 LLM 要追加"）不够；键值 upsert（<code>truth_io.py</code>）结构性消除失败。</li>
+<li><strong>语义抽取是 LLM 不可替核心。</strong> <code>scr_extractor.py</code> 的局限证明纯 Python 抽不全；state-settling 的正确分层是"写半确定 + 抽取半 LLM"。</li>
+<li><strong><code>requires_independent_agent</code> 的 skill 不确定性化。</strong> review/score 的价值是独立判断；确定性化即丧失存在意义。</li>
+</ol>
+<hr />
+<h2 id="9">9. 依赖关系图</h2>
+<div class="highlight"><pre><span></span><code>总纲 spec（决策原则、Cluster B 契约脱节归口）
+    │
+    ├─ §1.2 先例（9 助手）──► 证明模式成立
+    ├─ §1.3 CN3 postmortem ──► 证明确定性写路径治根因
+    ├─ 3.1 snapshot-manage ──► P0 提升到 snapshot.py
+    ├─ 3.2 context-composing ──► P1 context_assemble.py 接主线
+    ├─ 3.3 state-settling ──► P2 写半已落地（truth_io.py）
+    └─ 3.4 memory-distill ──► P2 拆结构字段/叙述
+
+P0/P1 实施前需另写 plan 并批准
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

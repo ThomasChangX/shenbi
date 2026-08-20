@@ -1,0 +1,2057 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>消除项目既有 test error 与 warning 根因（PR #23 调试复盘 → 实施 spec） - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="消除项目既有 test error 与 warning 根因（PR #23 调试复盘 → 实施 spec） - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="消除项目既有 test error 与 warning 根因（PR #23 调试复盘 → 实施 spec） - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-01-pr23-debugging-postmortem-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#test-error-warning-pr-23-spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              消除项目既有 test error 与 warning 根因（PR #23 调试复盘 → 实施 spec）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景与目标
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景与目标">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 为什么有这份 spec
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 根本目标（可量化）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2-pr-23-postmortem-git" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 根因索引（来自 PR #23 postmortem，详细归因见 git 历史）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-2026-08-01-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 现状证据基线（2026-08-01 实测，写 spec 时复核）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 现状证据基线（2026-08-01 实测，写 spec 时复核）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31-codeql-94" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 CodeQL 94 条——按规则与文件落点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-pip-audit-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 pip-audit 21 条（实测复现）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-postmortem-52" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 三个预防缺口（postmortem §5.2 承诺，均未实施）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实施计划（四个独立 PR，按此顺序）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 实施计划（四个独立 PR，按此顺序）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-dependabot-21" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1 · 合 Dependabot（消 21 条真漏洞）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-issue-27" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2 · 装本地拦截守卫（根治 Issue 2/7 复发）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 2 · 装本地拦截守卫（根治 Issue 2/7 复发）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-21-bpre-push-pip-audit-dev-issue-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.1 · 缺口 B：pre-push pip-audit 锁 dev 组（Issue 2 根治）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-22-cfixture-pre-commit-issue-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.2 · 缺口 C：fixture 镜像 pre-commit 守卫（Issue 7 根治）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-23-mirror_map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.3 · 单一源去重（避免 mirror_map 两处定义）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-24-amkdocs-issue-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2.4 · 缺口 A：mkdocs 链接本地拦截（Issue 1 防复发）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3 · 验证守卫真的工作（回归测试）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-94-codeql-chore-pr-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4 · 清 94 条 CodeQL（独立 chore PR，遵铁律 5）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Phase 4 · 清 94 条 CodeQL（独立 chore PR，遵铁律 5）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-41-novel-outputaudit_scriptpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.1 · novel-output/audit_script.py 裁决
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-42-77-94-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.2 · 按文件分批清理（剩 77 条，或 94 条若选 B）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-43-cyclic-import-10" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4.3 · cyclic-import 专项（10 条，非机械）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-postmortem-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 铁律（从 postmortem 继承 + 本 spec 新增）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-pass-criteria" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 验证标准（Pass criteria）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 实施顺序与 PR 路线图
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 依赖与前置
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 范围纪律声明
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="test-error-warning-pr-23-spec">消除项目既有 test error 与 warning 根因（PR #23 调试复盘 → 实施 spec）</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-01
+<strong>Status:</strong> Design（待批准写 plan 实施）
+<strong>Severity:</strong> 🟠 High（既有缺陷实际阻塞开发流 + 21 条真漏洞）
+<strong>方法:</strong> <code>systematic-debugging</code> skill 四阶段（Root Cause → Pattern → Hypothesis → Implementation）
+<strong>关联:</strong> PR #23 调试复盘（postmortem 部分，见 §1）→ 本 spec 是其"另写 plan"承诺的兑现
+<strong>Predecessors:</strong> 原文档定位为 postmortem；本版重写为<strong>实施 spec</strong>——根因分析（§2-§3）保留压缩作背景，§4 起为四个独立 PR 的实施计划。</p>
+</blockquote>
+<p><strong>Iron Law（systematic-debugging Phase 1）：</strong> <code>NO FIXES WITHOUT ROOT CAUSE INVESTIGATION FIRST</code>。本 spec 的根因已在 PR #23 postmortem 中逐一查到机制（见 §2 索引）；本版只做"机制 → 实施"的落地，不重复归因。</p>
+<p><strong>Iron Law（本 spec 专用，覆盖原 postmortem 铁律 5 的张力）：</strong> 原铁律 5「既有技术债不夹带进 feature PR」与本 spec「一次性清掉 94 条 CodeQL」存在张力。解法：<strong>本 spec 的所有 CodeQL 清理放独立 chore PR（Phase 4），不混入 feature/守卫 PR（Phase 1-3）</strong>。即"既有债集中在一个 chore PR 里清，而非分散夹带进多个 feature PR"——铁律 5 反对的是后者（review 范围失焦），本 spec 遵守的是前者。</p>
+<hr />
+<h2 id="1">1. 背景与目标</h2>
+<h3 id="11-spec">1.1 为什么有这份 spec</h3>
+<p>PR #23（<code>1933483</code>，consolidate to codex single-platform）交付链路触发 7 类异常。原 postmortem（本文档前身）查清了每条的根因（§2），结论是"不产生代码改动，三个预防缺口待另写 plan"。<strong>但那个 plan 从未写</strong>——<code>git log 1933483..main</code> 为空，94 条 CodeQL 告警、21 条 pip-audit 漏洞、三个预防缺口全部原样保留至今。</p>
+<p>本 spec 把"待另写"变成"已写"，把 postmortem 变成实施 spec。</p>
+<h3 id="12">1.2 根本目标（可量化）</h3>
+<table>
+<thead>
+<tr>
+<th>目标</th>
+<th>当前实测值</th>
+<th>目标值</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CodeQL open alerts（<code>main</code>）</td>
+<td><strong>94</strong></td>
+<td><strong>0</strong></td>
+<td><code>gh api 'repos/ThomasChangX/shenbi/code-scanning/alerts?ref=main&amp;state=open&amp;tool_name=CodeQL' --paginate \| jq length</code></td>
+</tr>
+<tr>
+<td><code>pip-audit</code> 已知漏洞</td>
+<td><strong>21</strong>（pillow 12.2.0 + pymdown 10.21.3）</td>
+<td><strong>0</strong></td>
+<td><code>uv run pip-audit</code></td>
+</tr>
+<tr>
+<td>pre-push 与 CI 审计基准一致</td>
+<td>❌ 不一致（Issue 2 根因未根治）</td>
+<td>✅ 一致</td>
+<td>pre-push 锁 <code>--group dev</code></td>
+</tr>
+<tr>
+<td>fixture 源/镜像漂移本地拦截</td>
+<td>❌ 仅 G0.11 round 时才发现</td>
+<td>✅ pre-commit 即时</td>
+<td>编辑 <code>outline-example.md</code> 时 hook 触发</td>
+</tr>
+<tr>
+<td>mkdocs 死链本地拦截</td>
+<td>❌ 仅远端 Docs CI 发现</td>
+<td>✅ pre-push docs 变更时触发</td>
+<td><code>docs/</code> 变更跑 <code>mkdocs build --strict</code></td>
+</tr>
+<tr>
+<td><code>just check</code> / 全测试</td>
+<td>✅ 2787 passed（基线）</td>
+<td>✅ 保持</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>非目标</strong>：不改业务逻辑、不重构架构、不动 skill 契约。本 spec 只做"消除 warning + 装本地拦截守卫"。任何顺带发现的 bug 另开 issue，不在本 spec 处理。</p>
+<hr />
+<h2 id="2-pr-23-postmortem-git">2. 根因索引（来自 PR #23 postmortem，详细归因见 git 历史）</h2>
+<p>本 spec 直接引用 postmortem 已查实的根因，不重复论证。每条标注"本 spec 是否实施修复"：</p>
+<table>
+<thead>
+<tr>
+<th>Issue</th>
+<th>根因（机制）</th>
+<th>postmortem 的处置</th>
+<th>本 spec 的处置</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1（mkdocs 14 死链）</td>
+<td>archive 移动让 <code>../specs/</code> 相对路径基准变</td>
+<td>✅ 已修（<code>1933483</code>）</td>
+<td><strong>Phase 3 装本地拦截</strong>，防复发</td>
+</tr>
+<tr>
+<td>2（pip-audit 21 漏洞）</td>
+<td>pre-push 裸跑 <code>pip-audit</code> 审计 venv 现状，与 CI 锁 <code>--group dev</code> 不同；venv 装过 docs 组就脏</td>
+<td>⚠️ "本地环境调整非代码提交"（<strong>沙堡修复，已复发</strong>）</td>
+<td><strong>Phase 1 合 Dependabot + Phase 2 缺口 B 锁基准</strong></td>
+</tr>
+<tr>
+<td>3（contract-sync hook）</td>
+<td>hook 比工作树不比 staged，拆提交时误报</td>
+<td>✅ 已澄清（合并提交即过）</td>
+<td>不实施（非缺陷）</td>
+</tr>
+<tr>
+<td>4（auto-fix abort）</td>
+<td>pre-commit auto-fix 标准行为</td>
+<td>✅ 已澄清（re-add 流程）</td>
+<td>不实施（非缺陷）</td>
+</tr>
+<tr>
+<td>5（stash 丢数据）</td>
+<td>混合 tracked/untracked 条目 pop 语义非显然 + 无安全锚点</td>
+<td>✅ 已恢复</td>
+<td>不实施（流程纪律，见 §5 铁律 4）</td>
+</tr>
+<tr>
+<td>6（94 CodeQL）</td>
+<td>仓库历史代码卫生债，维护性规则不阻塞</td>
+<td>❌ "单独开 chore PR"（<strong>从未开</strong>）</td>
+<td><strong>Phase 4 独立 chore PR 全清</strong></td>
+</tr>
+<tr>
+<td>7（G0.11 fixture 漂移）</td>
+<td>源/镜像两处存储，编辑源未同步镜像，无本地守卫</td>
+<td>✅ 已修（<code>1933483</code>）</td>
+<td><strong>Phase 2 缺口 C 装本地守卫</strong>，防复发</td>
+</tr>
+</tbody>
+</table>
+<p><strong>簇归纳</strong>（postmortem §3 已查实）：
+- <strong>簇 A</strong>（改源头未同步依赖方）：Issue 1 + 7 → Phase 2/3 装本地拦截根治
+- <strong>簇 B</strong>（本地/CI 环境契约漂移）：Issue 2 + 3 + 4 → Phase 1 + Phase 2 缺口 B 根治
+- <strong>簇 C1</strong>（流程/纪律缺口）：Issue 5 → §5 铁律 4（不实施代码）
+- <strong>簇 C2</strong>（既有债延期）：Issue 6 → Phase 4 独立 chore PR</p>
+<hr />
+<h2 id="3-2026-08-01-spec">3. 现状证据基线（2026-08-01 实测，写 spec 时复核）</h2>
+<h3 id="31-codeql-94">3.1 CodeQL 94 条——按规则与文件落点</h3>
+<p><strong>按规则</strong>（<code>gh api ... | jq -r '.[].rule.id' | sort | uniq -c | sort -rn</code>）：</p>
+<table>
+<thead>
+<tr>
+<th>规则</th>
+<th>数量</th>
+<th>性质</th>
+<th>清理策略</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>py/empty-except</code></td>
+<td>28</td>
+<td>bare <code>except:</code> 吞错</td>
+<td>改 specific except 或加注释 <code># noqa</code> + 理由</td>
+</tr>
+<tr>
+<td><code>py/unused-local-variable</code></td>
+<td>19</td>
+<td>死变量</td>
+<td>删除或加 <code>_</code> 前缀</td>
+</tr>
+<tr>
+<td><code>py/import-and-import-from</code></td>
+<td>10</td>
+<td>同名既 import 又 from-import</td>
+<td>合并 import</td>
+</tr>
+<tr>
+<td><code>py/cyclic-import</code></td>
+<td>10</td>
+<td>循环依赖</td>
+<td>惰性 import（函数内）或重组模块边界</td>
+</tr>
+<tr>
+<td><code>py/catch-base-exception</code></td>
+<td>10</td>
+<td><code>except BaseException</code></td>
+<td>改 <code>Exception</code> 或 specific</td>
+</tr>
+<tr>
+<td><code>py/regex/duplicate-in-character-class</code></td>
+<td>7</td>
+<td>正则字符类重复 <code>[aa]</code></td>
+<td>去重</td>
+</tr>
+<tr>
+<td><code>py/repeated-import</code></td>
+<td>5</td>
+<td>同名重复 import</td>
+<td>删重复</td>
+</tr>
+<tr>
+<td><code>py/multiple-definition</code></td>
+<td>2</td>
+<td>同名多次定义</td>
+<td>重命名</td>
+</tr>
+<tr>
+<td><code>py/unused-import</code> / <code>py/unused-global-variable</code> / <code>py/file-not-closed</code></td>
+<td>各 1</td>
+<td>杂项</td>
+<td>删 / 加 <code>with</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>按文件落点</strong>（前 5 占 43/94 = 46%）：</p>
+<table>
+<thead>
+<tr>
+<th>文件</th>
+<th>数量</th>
+<th>主要规则</th>
+<th>备注</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>novel-output/audit_script.py</code></td>
+<td><strong>17</strong></td>
+<td>10 catch-base + 7 empty-except</td>
+<td><strong>一次性审计脚本，硬编码本地绝对路径，无人 import</strong>（见 §4.4 裁决）</td>
+</tr>
+<tr>
+<td><code>tests/integration/test_gate_cli.py</code></td>
+<td>12</td>
+<td>—</td>
+<td>测试码</td>
+</tr>
+<tr>
+<td><code>src/shenbi/gates/g7.py</code></td>
+<td>5</td>
+<td>—</td>
+<td>框架码</td>
+</tr>
+<tr>
+<td><code>tests/unit/gates/g4/test_character_design.py</code></td>
+<td>5</td>
+<td>—</td>
+<td>测试码</td>
+</tr>
+<tr>
+<td><code>src/shenbi/pipeline/scr_extractor.py</code></td>
+<td>4</td>
+<td>—</td>
+<td>框架码</td>
+</tr>
+<tr>
+<td>其余 25 文件</td>
+<td>51</td>
+<td>—</td>
+<td>每文件 1-4 条</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-pip-audit-21">3.2 pip-audit 21 条（实测复现）</h3>
+<div class="highlight"><pre><span></span><code>$<span class="w"> </span>uv<span class="w"> </span>run<span class="w"> </span>pip-audit
+Found<span class="w"> </span><span class="m">21</span><span class="w"> </span>known<span class="w"> </span>vulnerabilities<span class="w"> </span><span class="k">in</span><span class="w"> </span><span class="m">2</span><span class="w"> </span>packages
+pillow<span class="w">             </span><span class="m">12</span>.2.0<span class="w">  </span><span class="o">(</span><span class="m">20</span><span class="w"> </span>条<span class="w"> </span>PYSEC-2026-*<span class="o">)</span><span class="w">  </span>→<span class="w"> </span>fix<span class="w"> </span><span class="m">12</span>.3.0
+pymdown-extensions<span class="w"> </span><span class="m">10</span>.21.3<span class="w"> </span><span class="o">(</span>CVE-2026-61632<span class="o">)</span><span class="w">      </span>→<span class="w"> </span>fix<span class="w"> </span><span class="m">11</span>.0.0
+</code></pre></div>
+<p>来源：仅 docs 组传递依赖（<code>mkdocs-material[imaging]</code> → <code>pymdown-extensions</code> → <code>pillow</code>）。CI 的 <code>uv sync --frozen --group dev</code> 不装 docs 组故看不到；本地装过 docs 组（复现 mkdocs）就脏。</p>
+<p>Dependabot 已开两个 PR（<strong>均 OPEN，未合</strong>）：
+- PR #21 <code>chore(deps): bump pillow 12.2.0→12.3.0</code>
+- PR #22 <code>chore(deps-dev): bump pymdown-extensions 10.21.3→11.0.0</code></p>
+<h3 id="33-postmortem-52">3.3 三个预防缺口（postmortem §5.2 承诺，均未实施）</h3>
+<table>
+<thead>
+<tr>
+<th>缺口</th>
+<th>现状（实测）</th>
+<th>实施点</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A（mkdocs 链接本地拦截）</td>
+<td><code>grep -c mkdocs tools/pre-push-check.sh</code> = 0</td>
+<td><code>tools/pre-push-check.sh</code> 增条件块</td>
+</tr>
+<tr>
+<td>B（pre-push pip-audit 锁 dev 组）</td>
+<td>L38 裸 <code>uv run pip-audit</code>，无 <code>--group dev</code></td>
+<td><code>tools/pre-push-check.sh</code> L37-38 改</td>
+</tr>
+<tr>
+<td>C（fixture 镜像 pre-commit 守卫）</td>
+<td><code>tools/check_fixture_mirror.py</code> 不存在</td>
+<td>新建脚本 + <code>.pre-commit-config.yaml</code> 注册</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-pr">4. 实施计划（四个独立 PR，按此顺序）</h2>
+<p><strong>分 PR 原则</strong>：每个 PR 独立可合、独立可回滚、review 范围单一。Phase 1-3 是 feature/守卫 PR（各有明确单一职责）；Phase 4 是纯 chore PR（集中清债，遵铁律 5）。</p>
+<h3 id="phase-1-dependabot-21">Phase 1 · 合 Dependabot（消 21 条真漏洞）</h3>
+<p><strong>目标</strong>：<code>pip-audit</code> 归零。</p>
+<p><strong>Task 1.1</strong>：合 PR #21（pillow 12.2.0→12.3.0）。
+- 验证：<code>uv sync --group docs &amp;&amp; uv run pip-audit</code> → pillow 漏洞条数归 0；<code>uv run mkdocs build</code>（非 strict，因 libcairo 本地问题）不报 pillow 相关错。</p>
+<p><strong>Task 1.2</strong>：合 PR #22（pymdown-extensions 10.21.3→11.0.0）。
+- <strong>兼容性风险</strong>：10→11 是大版本。mkdocs-material 9.7.6 声明兼容 pymdown ≥9。验证：<code>uv sync --group docs &amp;&amp; uv run mkdocs build 2&gt;&amp;1 | grep -i 'pymdown\|extension.*error'</code> 必须为空；浏览生成的 site 抽查渲染（代码块、警告框、tab）正常。
+- 若不兼容：回退 PR #22，pymdown 漏洞留至 mkdocs-material 升级支持后再合；本 spec 标注部分完成。</p>
+<p><strong>AC（Phase 1）</strong>：
+- <code>uv run pip-audit</code> 输出 <code>No known vulnerabilities found</code>（或仅剩 pymdown，注明回退原因）
+- <code>uv run mkdocs build</code>（非 strict）成功，无 pymdown/pillow 相关错误
+- <code>just check</code> 保持 2787 passed</p>
+<p><strong>leaf/infra 分类</strong>：leaf（合 PR，跑验证命令，无代码改动）。</p>
+<hr />
+<h3 id="phase-2-issue-27">Phase 2 · 装本地拦截守卫（根治 Issue 2/7 复发）</h3>
+<p><strong>目标</strong>：本地编辑/推送时即拦截环境漂移与 fixture 漂移，而非等到 CI 或 G0.11。</p>
+<h4 id="task-21-bpre-push-pip-audit-dev-issue-2">Task 2.1 · 缺口 B：pre-push pip-audit 锁 dev 组（Issue 2 根治）</h4>
+<p><strong>改 <code>tools/pre-push-check.sh</code></strong>（当前 L37-38）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 现状（L37-38）：</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;--- pip-audit ---&quot;</span>
+uv<span class="w"> </span>run<span class="w"> </span>pip-audit
+
+<span class="c1"># 改为：</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;--- pip-audit (dev group, mirroring CI security.yml) ---&quot;</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--frozen<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>&gt;/dev/null
+uv<span class="w"> </span>run<span class="w"> </span>pip-audit
+</code></pre></div></p>
+<p><strong>机制</strong>：postmortem §2.2 已查实——CI 锁 <code>--group dev</code>，pre-push 审计 venv 现状。显式 sync dev 组后再审，基准对齐 CI，"本地绿 = CI 绿"成立。</p>
+<p><strong>权衡（postmortem §5.2 缺口 B 已论证）</strong>：每次 push 多几秒 <code>uv sync</code>。可接受（CI 模拟器的正确性 &gt; 推送速度，符合"质量 &gt; 速度"原则）。</p>
+<h4 id="task-22-cfixture-pre-commit-issue-7">Task 2.2 · 缺口 C：fixture 镜像 pre-commit 守卫（Issue 7 根治）</h4>
+<p><strong>新建 <code>tools/check_fixture_mirror.py</code></strong>（postmortem §5.2 给了伪码，照实现）：
+<div class="highlight"><pre><span></span><code><span class="ch">#!/usr/bin/env python3</span>
+<span class="sd">&quot;&quot;&quot;Pre-commit guard: fixture mirrors must match source hashes (G0.11 本地版).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">hashlib</span><span class="o">,</span><span class="w"> </span><span class="nn">shutil</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">parent</span>
+<span class="c1"># 与 src/shenbi/gates/g0.py G0.11 的 mirror_map 保持单一源（见 Task 2.3）</span>
+<span class="n">MIRROR_MAP</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;tests/fixtures/outline-example.md&quot;</span><span class="p">:</span> <span class="s2">&quot;outline-example.md&quot;</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">sha256</span><span class="p">(</span><span class="n">p</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">hashlib</span><span class="o">.</span><span class="n">sha256</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">read_bytes</span><span class="p">())</span><span class="o">.</span><span class="n">hexdigest</span><span class="p">()</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">drift</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">fixture_rel</span><span class="p">,</span> <span class="n">source_rel</span> <span class="ow">in</span> <span class="n">MIRROR_MAP</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">fp</span><span class="p">,</span> <span class="n">sp</span> <span class="o">=</span> <span class="n">ROOT</span> <span class="o">/</span> <span class="n">fixture_rel</span><span class="p">,</span> <span class="n">ROOT</span> <span class="o">/</span> <span class="n">source_rel</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sp</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="k">continue</span>  <span class="c1"># source 不存在不报（可能未创建）</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">fp</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">or</span> <span class="n">sha256</span><span class="p">(</span><span class="n">fp</span><span class="p">)</span> <span class="o">!=</span> <span class="n">sha256</span><span class="p">(</span><span class="n">sp</span><span class="p">):</span>
+            <span class="n">drift</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">fixture_rel</span><span class="p">,</span> <span class="n">source_rel</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">drift</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">drift</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;fixture mirror drift: </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2"> != </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="se">\n</span><span class="s2">  fix: cp </span><span class="si">{</span><span class="n">s</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mi">1</span>
+    <span class="k">return</span> <span class="mi">0</span>
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+    <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="n">main</span><span class="p">())</span>
+</code></pre></div></p>
+<p><strong>注册到 <code>.pre-commit-config.yaml</code></strong>（照 L73-77 contract-sync hook 格式）：
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fixture-mirror-sync</span>
+<span class="w">        </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">fixture mirror integrity (G0.11 local)</span>
+<span class="w">        </span><span class="nt">entry</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/check_fixture_mirror.py</span>
+<span class="w">        </span><span class="nt">language</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">system</span>
+<span class="w">        </span><span class="nt">pass_filenames</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">false</span>
+</code></pre></div></p>
+<h4 id="task-23-mirror_map">Task 2.3 · 单一源去重（避免 mirror_map 两处定义）</h4>
+<p><strong>问题</strong>：Task 2.2 的 <code>MIRROR_MAP</code> 与 <code>src/shenbi/gates/g0.py:474</code> 的 <code>mirror_map</code> 重复——这正是 Issue 7 的元根因（"一个事实两处存储"）。若新增镜像条目只改一处，守卫与 gate 又会漂移。</p>
+<p><strong>解法</strong>：让 <code>check_fixture_mirror.py</code> 从 <code>g0.py</code> 动态读取 <code>mirror_map</code>，而非硬编码。实现选项：
+- <strong>选项 A（推荐，简单）</strong>：<code>g0.py</code> 把 <code>mirror_map</code> 提到模块级常量 <code>MIRROR_MAP</code>（从函数内移出），<code>check_fixture_mirror.py</code> 用 <code>import</code> 读取。代价：g0.py 微调。
+- <strong>选项 B（零侵入）</strong>：<code>check_fixture_mirror.py</code> 用 <code>ast.parse</code> 解析 <code>g0.py</code> 抽取 <code>mirror_map</code> 字面量。代价：脆弱，g0.py 改格式就坏。</p>
+<p>选 A。Task 2.3 含 <code>g0.py</code> 的 <code>mirror_map</code> 提模块级 + 两处同步验证。</p>
+<p><strong>已知耦合（审查 I1，非阻塞）</strong>：选项 A 让 <code>tools/check_fixture_mirror.py</code> import <code>shenbi.gates.g0</code>，即 pre-commit hook → 框架码。这<strong>不是新架构债务</strong>——<code>tools/</code> 已有 12 处 import <code>shenbi.*</code>（如 <code>tools/audit-skill-descriptions.py</code> import <code>shenbi.gates.g0_skill_contract</code>），是本项目既有模式。<strong>但</strong> Phase 4 的 Task 4.2b（gates CodeQL 清理）和 4.3（cyclic-import）会改 g0.py，若引入 import-time 故障，会震断此 hook 阻塞所有 commit。故 Phase 4 AC 增一条：4.2b/4.3 后重跑 <code>pre-commit run fixture-mirror-sync</code> 确认 import 仍解析（见 §4 Phase 4 AC）。</p>
+<h4 id="task-24-amkdocs-issue-1">Task 2.4 · 缺口 A：mkdocs 链接本地拦截（Issue 1 防复发）</h4>
+<p><strong>改 <code>tools/pre-push-check.sh</code></strong>，在 pip-audit 块后加（仅 docs 变更触发，避免日常推送背 docs 组）：
+<div class="highlight"><pre><span></span><code><span class="c1"># 4c. mkdocs link check (only when docs change)</span>
+<span class="c1"># 触发条件：检测【待 push 的】docs 变更。pre-push 阶段所有改动已 commit，</span>
+<span class="c1">#   故 `git diff --cached`（round-1）和 `git diff --name-only HEAD`（round-2）都恒空——</span>
+<span class="c1">#   前者比 index（已提交故空），后者比工作树（干净故空）。正确 idiom 是比推送范围。</span>
+<span class="c1">#   本 repo 主分支模型用 main：`git diff --name-only main...HEAD` 列待 push 的 docs 改动。</span>
+<span class="c1">#   （不用 @{u}...HEAD：feature 分支常无 upstream，会 fatal。）</span>
+<span class="k">if</span><span class="w"> </span>git<span class="w"> </span>diff<span class="w"> </span>--name-only<span class="w"> </span>main...HEAD<span class="w"> </span><span class="m">2</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-qE<span class="w"> </span><span class="s1">&#39;^(docs/|mkdocs\.yml)&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">  </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;--- mkdocs link check (docs changed) ---&quot;</span>
+<span class="w">  </span>uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>docs<span class="w"> </span>&gt;/dev/null
+<span class="w">  </span><span class="c1"># 单次 build，同时捕获输出与 exit code（审查 N4：避免双 build 浪费/不一致）</span>
+<span class="w">  </span><span class="k">if</span><span class="w"> </span>!<span class="w"> </span><span class="nv">out</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span>uv<span class="w"> </span>run<span class="w"> </span>mkdocs<span class="w"> </span>build<span class="w"> </span>--strict<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="k">)</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">    </span><span class="c1"># build 失败。区分三类（审查 N2：libcairo 崩溃本身含 Error/Traceback，不可用宽 grep 反判）：</span>
+<span class="w">    </span><span class="c1">#   (a) 死链 → 必失败</span>
+<span class="w">    </span><span class="c1">#   (b) libcairo-only（良性的本地环境问题，§9 声明不处理）→ 容忍</span>
+<span class="w">    </span><span class="c1">#   (c) 其他真错误（pymdown 不兼容、yml 语法、插件错）→ 必失败</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$out</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-q<span class="w"> </span><span class="s1">&#39;contains a link&#39;</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$out</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s1">&#39;contains a link&#39;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="w">          </span><span class="c1"># (a) 死链</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">    </span><span class="c1"># 判 (b)：输出里的 WARNING/ERROR 行是否【全部】可归因于 libcairo？</span>
+<span class="w">    </span><span class="c1"># 审查 C1：本脚本 L4 是 `set -euo pipefail`，`grep -vE` 全过滤时 exit 1，</span>
+<span class="w">    </span><span class="c1">#   pipefail + set -e 会 abort 整个脚本。故 `|| true` 中和退出码。</span>
+<span class="w">    </span><span class="c1"># libcairo 特征串：cairosvg crashed / no library called cairo / cairo-2 / libcairo</span>
+<span class="w">    </span><span class="nv">non_cairo_problems</span><span class="o">=</span><span class="s2">&quot;</span><span class="k">$(</span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$out</span><span class="s2">&quot;</span><span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-E<span class="w"> </span><span class="s1">&#39;^(WARNING|ERROR)&#39;</span><span class="w"> </span><span class="se">\</span>
+<span class="w">      </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-vE<span class="w"> </span><span class="s1">&#39;cairosvg|no library called.*cairo|cairo-2|libcairo&#39;</span><span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span><span class="k">)</span><span class="s2">&quot;</span>
+<span class="w">    </span><span class="k">if</span><span class="w"> </span><span class="o">[</span><span class="w"> </span>-z<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$non_cairo_problems</span><span class="s2">&quot;</span><span class="w"> </span><span class="o">]</span><span class="p">;</span><span class="w"> </span><span class="k">then</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;--- mkdocs: libcairo-only warnings tolerated (§9 out-of-scope) ---&quot;</span>
+<span class="w">    </span><span class="k">else</span>
+<span class="w">      </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$non_cairo_problems</span><span class="s2">&quot;</span><span class="p">;</span><span class="w"> </span><span class="nb">exit</span><span class="w"> </span><span class="m">1</span><span class="w">                      </span><span class="c1"># (c) 真错误</span>
+<span class="w">    </span><span class="k">fi</span>
+<span class="w">  </span><span class="k">fi</span>
+<span class="k">fi</span>
+</code></pre></div></p>
+<p><strong>决策表（审查 N2 要求的完整追踪，三路径不可重叠）</strong>：</p>
+<table>
+<thead>
+<tr>
+<th>情形</th>
+<th>mkdocs exit</th>
+<th><code>contains a link</code></th>
+<th>非 libcairo 的 WARNING/ERROR 行</th>
+<th>判定</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(a) 死链</td>
+<td>≠0</td>
+<td>有</td>
+<td>—</td>
+<td><strong>FAIL</strong></td>
+</tr>
+<tr>
+<td>(b) 仅 libcairo（本地 cairo 缺失）</td>
+<td>≠0</td>
+<td>无</td>
+<td>无（全部 cairosvg/no library called cairo/cairo-2/libcairo）</td>
+<td><strong>容忍</strong></td>
+</tr>
+<tr>
+<td>(c) 真错误（pymdown 不兼容/yml/插件）</td>
+<td>≠0</td>
+<td>无</td>
+<td>有</td>
+<td><strong>FAIL</strong></td>
+</tr>
+<tr>
+<td>(d) 干净</td>
+<td>0</td>
+<td>—</td>
+<td>—</td>
+<td>PASS</td>
+</tr>
+</tbody>
+</table>
+<p><strong>机制</strong>：postmortem §5.2 缺口 A 已论证——<code>contains a link</code> 是死链特征串。但单纯 <code>|| true</code>（早期方案）会吞掉<strong>非链接</strong>的 build 失败（如 Task 1.2 pymdown 10→11 不兼容、mkdocs.yml 语法错、插件错），重蹈"在 CI 才发现"覆辙。而宽 grep 反判（<code>grep Error|Traceback</code>）会误杀 libcairo（其崩溃本身带 Error/Traceback，见审查 N2）。故用<strong>排除法</strong>：build 失败时，剥离所有 libcairo 归因行后，若仍有 WARNING/ERROR 行则真失败，否则容忍。libcairo 是本地渲染库缺失问题，非仓库缺陷（§9 已声明不处理）。</p>
+<p><strong><code>set -euo pipefail</code> 兼容性（审查 C1）</strong>：本脚本 L4 启用 <code>set -euo pipefail</code>。决策表 row (b) 中 <code>grep -vE</code> 把所有行过滤光时 exit 1，<code>pipefail</code> 传播 + <code>set -e</code> 会 abort 脚本——使"容忍"分支反而阻塞推送。故 <code>grep -vE</code> 末尾加 <code>|| true</code> 中和（L241）。<code>if ! out="$(...)"</code> 和 <code>if git diff ... | grep -q</code> 在 <code>if</code> 条件内不受 <code>set -e</code> 影响（POSIX 豁免）。</p>
+<p><strong>与缺口 B 的张力（postmortem 已论证解法）</strong>：B 先 <code>uv sync --group dev</code>，A 又 <code>uv sync --group docs</code>。两者顺序：B 先（审计基准），A 后（docs 链接，按需）。A 的 sync 不影响 B 已完成的审计。</p>
+<p><strong>AC（Phase 2）</strong>：
+- <code>tools/pre-push-check.sh</code> 改动后，<code>bash -n</code> 语法检查过
+- 故意改 <code>outline-example.md</code> 不改 fixture → <code>pre-commit run fixture-mirror-sync</code> FAIL
+- <code>pre-commit run --all-files</code> 全绿（含新 hook）
+- <code>just check</code> 保持 2787 passed（g0.py 改动后 G0.11 仍 PASS，证明 Task 2.3 提常量未破坏 gate）</p>
+<p><strong>leaf/infra 分类</strong>：
+- Task 2.1（pre-push L38 改 2 行）：leaf
+- Task 2.2（新脚本 + hook 注册）：leaf
+- Task 2.3（g0.py mirror_map 提模块级）：<strong>infra</strong>（触及 gate 源码，跨 task 影响 G0.11 + 守卫，协调者亲实现）
+- Task 2.4（pre-push docs 块）：leaf</p>
+<hr />
+<h3 id="phase-3">Phase 3 · 验证守卫真的工作（回归测试）</h3>
+<p><strong>目标</strong>：证明 Phase 2 的守卫能拦截它们对应根因，而非装了摆设。<strong>Issue 2 是"沙堡修复，已复发"的最高风险根因——其守卫（Task 2.1）必须有 negative test，不可只靠读文件验证。</strong></p>
+<p><strong>Task 3.0</strong>：negative test——证明 pre-push 的 <code>--group dev</code> 锁有效（守 Task 2.1 / Issue 2）。<strong>必需方法</strong>（审查 N5：只验证锁真生效，非只验字符串存在）：</p>
+<p><strong>关键语义</strong>（审查 I1 纠正）：<code>pip-audit</code> 审计的是<strong>已安装</strong>包。Issue 2 的真实症状是——开发者本地装过 docs 组（<code>uv sync --group docs</code> 复现 mkdocs），venv 变脏含漏洞包，裸 <code>pip-audit</code> 此时<strong>误判失败</strong>（exit 1，报 21 漏洞），而非误判通过。<code>--group dev</code> 锁的作用是 push 前 <code>uv sync --frozen --group dev</code> 把 venv ** reconcil 回 dev 组**（卸载 docs 组的漏洞包），使审计基准 = CI。</p>
+<p><strong>测试步骤</strong>（须在 Phase 1 合并 Dependabot <strong>之前</strong>跑，否则 docs 组已修补，测试空洞化——见时序约束）：
+1. 确认当前在 Phase 1 之前的基线（pillow 12.2.0 / pymdown 10.21.3 仍有漏洞）。
+2. <code>uv sync --group docs</code> 把脏 venv 复现出来（装漏洞包）。
+3. 临时把 pre-push 的 <code>uv sync --frozen --group dev</code> 注释掉（模拟 Issue 2 复发），跑 pre-push → 必须<strong>误判失败</strong>（报 21 漏洞，因为审脏 venv）。
+4. 改回正确版本（<code>--group dev</code>），跑 pre-push → 必须报 0 漏洞（锁把 venv reconcil 回 dev 组）。
+5. 还原：<code>uv sync --frozen --group dev</code> 清理 venv + 恢复 pre-push 文件。</p>
+<p><strong>时序约束</strong>：此测试依赖 docs 组含漏洞包，<strong>必须在 Phase 1（合 Dependabot）之前执行</strong>。若 Phase 1 已先合，改用注入法：临时在<strong>非 dev 组</strong>（如新建 <code>test-injection</code> 组或临时加到 docs 组）pin 一个已知漏洞包，验证 <code>--group dev</code> 锁能把它排除在审计外（pin 在 dev 组内反而会被 <code>uv sync --group dev</code> 装上，测不出过滤）。plan 须把 Task 3.0 排在 Phase 1 之前，或用注入法去耦。</p>
+<p><strong>辅助断言</strong>（可选，不可替代必需方法）：pre-push-check.sh 加 grep 自检 <code>[ "$(grep -c 'uv sync --frozen --group dev' tools/pre-push-check.sh)" -ge 1 ]</code> 防字符串被误删——但此断言不能替代上面的语义测试（typo <code>--group docs</code> 仍会过 grep）。
+<strong>Task 3.1</strong>：negative test——本地造一个 fixture 漂移（改 <code>outline-example.md</code> 加一行空格，不改 fixture），跑 <code>pre-commit run fixture-mirror-sync</code>，必须 FAIL 并提示 cp 命令。还原。
+<strong>Task 3.2</strong>：negative test——本地造一个死链（在某个 <code>docs/superpowers/specs/*.md</code> 加一段形如 <code>](../nonexistent.md)</code> 的 markdown 链接文本），<strong>commit</strong> 后跑 pre-push 的 docs 块，必须 FAIL。（审查 I2：触发器是 <code>git diff --name-only main...HEAD</code>，只看 committed-not-on-main；staged-but-uncommitted 不触发，故必须 commit。）还原（amend 掉该 commit 或 reset）。
+<strong>Task 3.3</strong>：positive test——干净树跑 <code>pre-commit run --all-files</code> + <code>pre-push-check.sh</code>（手动 bash 调用），全绿。</p>
+<p><strong>AC（Phase 3）</strong>：4 个测试均符合预期，输出记录在 PR 描述。<strong>缺 Task 3.0 = 违铁律 6（Issue 2 的守卫无 negative test）。</strong></p>
+<p><strong>leaf/infra 分类</strong>：leaf（测试，不改源码）。</p>
+<hr />
+<h3 id="phase-4-94-codeql-chore-pr-5">Phase 4 · 清 94 条 CodeQL（独立 chore PR，遵铁律 5）</h3>
+<p><strong>目标</strong>：<code>gh api ... | jq length</code> = 0。</p>
+<p><strong>前置裁决（§4.4）</strong>：<code>novel-output/audit_script.py</code>（17 条，占 18%）的处置决定 Phase 4 工作量。</p>
+<h4 id="task-41-novel-outputaudit_scriptpy">Task 4.1 · <code>novel-output/audit_script.py</code> 裁决</h4>
+<p><strong>证据</strong>：
+- 硬编码绝对路径 <code>/Users/xiaotiac/Documents/GitHub/shenbi/novel-output/xinghuo-ranqiong</code>（<code>head -15</code> 已证实）——<strong>换机器即坏</strong>，不可移植。
+- 无任何模块 import 它（<code>grep -rn audit_script src/ tests/</code> 为空）——<strong>独立脚本，非框架依赖</strong>。
+- 在 <code>git ls-files</code> 内（受版本控制）但属一次性审计产物。</p>
+<p><strong>裁决选项</strong>（plan 阶段定，本 spec 列证据供决策）：
+- <strong>选项 A（推荐，省 17 条工作量）</strong>：仅 <code>git rm novel-output/audit_script.py</code>，<strong>不改 <code>.gitignore</code></strong>。理由：硬编码本地路径的一次性脚本不该进版本控制；CodeQL 扫它是误伤。<strong>关键约束</strong>：<code>.gitignore</code> 的 <code>!novel-output/</code> + <code>!novel-output/**</code>（L93-94）negation lines 是<strong>承重线</strong>——<code>novel-output/</code> 下有 1261 个受版本控制文件（其中 <code>xinghuo-ranqiong/</code> 1229 个，且被 <code>tests/unit/config/test_production_config_coherence.py</code> 守卫）。删 negation 不影响已 tracked 文件（gitignore 不 untrack），但会让<strong>未来新增</strong>的 <code>novel-output/</code> 文件静默 untracked，破坏"可审计 pipeline 验证"初衷。故只 <code>git rm</code> 单文件，negation lines 原样保留。
+- <strong>选项 B</strong>：保留并修 17 条（10 catch-base 改 <code>Exception</code>、7 empty-except 改 specific 或加注释）。代价：修一个不可移植脚本的价值可疑。</p>
+<p><strong>推荐 A</strong>（纯 <code>git rm</code>，零 <code>.gitignore</code> 改动）。若用户裁决 B，则 Task 4.2 含此文件。</p>
+<h4 id="task-42-77-94-b">Task 4.2 · 按文件分批清理（剩 77 条，或 94 条若选 B）</h4>
+<p><strong>分批策略</strong>（避免单 PR 过大，每批独立可合）：</p>
+<table>
+<thead>
+<tr>
+<th>批次</th>
+<th>范围</th>
+<th>条数</th>
+<th>规则集中度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>4.2a</td>
+<td><code>tests/</code> 下全部（test_gate_cli 12 + test_character_design 5 + 其余散落）</td>
+<td>36</td>
+<td>empty-except / unused-local 为主，机械修</td>
+</tr>
+<tr>
+<td>4.2b</td>
+<td><code>src/shenbi/gates/</code>（g7 5 + g5 4 + g6_checks 2 + g0 2 + shared 1 + g6 1 + g4/chapter_drafting 1 + g3 1 + g1 1）</td>
+<td>18</td>
+<td>框架码，需谨慎（gate 逻辑）</td>
+</tr>
+<tr>
+<td>4.2c</td>
+<td><code>src/shenbi/pipeline/</code>（scr_extractor 4 + crash_recovery 3 + dispatch_helper 2 + 其余）</td>
+<td>14</td>
+<td>含 cyclic-import（Task 4.3）</td>
+</tr>
+<tr>
+<td>4.2d</td>
+<td><code>src/shenbi/</code> 其余 + <code>novel-output/</code>（若选 B）</td>
+<td>9（+17 若选 B）</td>
+<td>杂项</td>
+</tr>
+</tbody>
+</table>
+<p><strong>每批的修复模式（按规则）</strong>：
+- <code>empty-except</code>（28）：bare <code>except:</code> → specific exception；确实需宽范围则 <code>except Exception</code> + 注释理由。禁止保留 bare <code>except:</code>。
+- <code>catch-base-exception</code>（10）：<code>except BaseException</code> → <code>except Exception</code>（除非明确要捕 <code>KeyboardInterrupt</code>，加注释）。
+- <code>unused-local-variable</code>（19）：删除，或前缀 <code>_</code> 若有意保留。
+- <code>import-and-import-from</code>（10）/ <code>repeated-import</code>（5）：合并/删重复 import。
+- <code>cyclic-import</code>（10）：<strong>见 Task 4.3</strong>，非机械修。
+- <code>regex/duplicate-in-character-class</code>（7）：正则字符类去重 <code>[aa]</code>→<code>[a]</code>。
+- <code>multiple-definition</code>（2）/ <code>unused-import</code>（1）/ <code>unused-global-variable</code>（1）/ <code>file-not-closed</code>（1）：逐案修。</p>
+<p><strong>批次 4.2b 特别警示（审查 I4）</strong>：gates 的 <code>except BaseException</code> / bare <code>except:</code> 是<strong>语义负载的</strong>——<code>except BaseException</code> 通常意在捕 <code>KeyboardInterrupt</code>/<code>SystemExit</code> 以做清理，收窄为 <code>except Exception</code> 会改变哪些异常传播。AGENTS.md 规定"gate checkers idempotent—pure validation, no side effects"。故 4.2b 的每个 except 收窄点<strong>必须逐 site 审查</strong>原意图（是否在捕 KeyboardInterrupt 做清理），<strong>禁止 bulk sed</strong>。即便分类为"机械修"的 empty-except，在 gates 内也按 infra 处理（逐 site 判断）。</p>
+<h4 id="task-43-cyclic-import-10">Task 4.3 · cyclic-import 专项（10 条，非机械）</h4>
+<p><strong>根因（postmortem 视角）</strong>：循环依赖是设计气味，非单纯代码风格。需逐个判断：
+- <strong>若惰性 import（函数内）可解</strong>：改函数内 import（如 <code>dispatch_helper.py:688</code> 已是此模式，可能告警已存在但合理——评估是否加 <code># noqa</code> + 注释说明）。
+- <strong>若模块边界设计问题</strong>：记录为 spec-deviation，<strong>本 spec 不重构</strong>（非目标），加 <code># noqa</code> 抑制并注释指向 follow-up issue。
+- <code>dispatch_helper.py</code> 的 cyclic-import（L688）涉及 <code>plan_skeleton</code>——postmortem 已核实此惰性 import 在 PR #23 前就存在，非新引入。处置：评估能否重组；若不能，<code># noqa</code> + 注释 + 开 follow-up issue。</p>
+<p><strong>抑制预算（审查 I5）</strong>：<code># noqa</code> 可让告警数归 0 但不消根因。为防"告警归 0 耦合留存"，规则：<strong>每个 <code># noqa</code> 的 cyclic-import 必须附 follow-up issue 链接</strong>（注释内）；PR 描述必须列"已修复 X / 已抑制 Y"比例。若无软上限可设（10 条全可能合理），则至少强制可见性——reviewer 能看到抑制 vs 真修的比例，而非被"告警 0"误导。本 spec 不重构（§9），故接受合理抑制，但拒绝静默抑制。</p>
+<p><strong>AC（Phase 4）</strong>：
+- <code>gh api '.../alerts?ref=main&amp;state=open&amp;tool_name=CodeQL' --paginate | jq length</code> = <strong>0</strong>
+- <code>just check</code> 保持绿（每批 commit 后跑，cyclic-import 改动易触发 import error）
+- 每批 PR 描述附改前/改后告警数 + 抑制/修复比例
+- <strong>跨 Phase AC（审查 I1）</strong>：4.2b/4.3 改 g0.py 后，重跑 <code>pre-commit run fixture-mirror-sync</code> 确认 Task 2.3 引入的 <code>shenbi.gates.g0</code> import 仍解析（Phase 4 改 gate 可能震断 Phase 2 的 hook）
+- <strong>g0.py 双触警示（审查 M6）</strong>：g0.py 在 Phase 2（Task 2.3 提 mirror_map 模块级）和 Phase 4（4.2b 清 2 条告警）都被改——plan 必须排序，避免两 PR 冲突</p>
+<p><strong>leaf/infra 分类</strong>：
+- 4.2a/4.2d（tests + 杂项）：leaf（机械修）
+- 4.2b/4.2c（gates + pipeline 框架码）：<strong>infra</strong>（触及 gate/核心逻辑，协调者亲实现）
+- 4.3（cyclic-import）：<strong>infra</strong>（设计决策）</p>
+<hr />
+<h2 id="5-postmortem-spec">5. 铁律（从 postmortem 继承 + 本 spec 新增）</h2>
+<p>继承自 PR #23 postmortem（措辞精炼，机制不重复）：</p>
+<ol>
+<li><strong>本地工具链必须与 CI 环境契约一致。</strong>（Phase 2 缺口 B 兑现）</li>
+<li><strong>改了源头，必须遍历所有引用该源头的依赖方。</strong>（Phase 2 缺口 A/C + Task 2.3 单一源兑现）</li>
+<li><strong>"在 CI 才发现"是工具链的失败。</strong>（Phase 2/3 全部兑现）</li>
+<li><strong>诊断性事务变更前先建安全锚点。</strong>（Issue 5，流程纪律，本 spec 不实施代码）</li>
+<li><strong>既有技术债集中在一个 chore PR 清，不分散夹带进 feature PR。</strong>（Phase 4 兑现——修订原铁律 5 的表述，本质不变：反对范围失焦，不反对集中清理）</li>
+</ol>
+<p>本 spec 新增：</p>
+<ol>
+<li><strong>守卫装完必须 negative test 证明它能拦。</strong>（Phase 3 兑现——装了不验证 = 摆设，违 Iron Law）</li>
+<li><strong>single source of truth：mirror_map 一处定义，gate 与守卫同源读取。</strong>（Task 2.3 兑现——否则守卫与 gate 漂移就是下一个 Issue 7）</li>
+</ol>
+<hr />
+<h2 id="6-pass-criteria">6. 验证标准（Pass criteria）</h2>
+<table>
+<thead>
+<tr>
+<th>判据</th>
+<th>阈值</th>
+<th>验证命令</th>
+<th>Phase</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CodeQL open alerts</td>
+<td><strong>0</strong></td>
+<td><code>gh api ... \| jq length</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td><code>pip-audit</code> 漏洞</td>
+<td><strong>0</strong>（或注明 pymdown 回退）</td>
+<td><code>uv run pip-audit</code></td>
+<td>1</td>
+</tr>
+<tr>
+<td>pre-push 审计基准 = CI</td>
+<td><code>--group dev</code> 锁定</td>
+<td>negative test（Task 3.0，证明锁语义生效非只验字符串）</td>
+<td>3</td>
+</tr>
+<tr>
+<td>fixture 漂移本地拦截</td>
+<td>pre-commit 触发</td>
+<td>negative test</td>
+<td>3</td>
+</tr>
+<tr>
+<td>mkdocs 死链本地拦截</td>
+<td>docs 变更触发</td>
+<td>negative test</td>
+<td>3</td>
+</tr>
+<tr>
+<td><code>just check</code></td>
+<td>2787 passed（基线保持）</td>
+<td><code>just check</code></td>
+<td>每 Phase</td>
+</tr>
+<tr>
+<td><code>mkdocs build --strict</code> 死链（基线，非守卫）</td>
+<td>0（既有 libcairo 告警除外）</td>
+<td><code>uv run mkdocs build --strict 2&gt;&amp;1 \| grep 'contains a link'</code></td>
+<td>基线（非 Phase，现状已 0）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-pr">7. 实施顺序与 PR 路线图</h2>
+<div class="highlight"><pre><span></span><code>Phase 1 (PR-A): 合 Dependabot #21/#22      [leaf, ~30min, 消 21 漏洞]
+   │
+   ▼
+Phase 2 (PR-B): 装三个守卫 + g0 单一源      [含 infra Task 2.3, ~半天]
+   │
+   ▼
+Phase 3 (PR-B 内或独立 PR-C): negative test  [leaf, ~1h]
+   │
+   ▼
+Phase 4 (PR-D…PR-G, 4 个 chore): 清 94 CodeQL [含 infra 4.2b/c/4.3, ~1-2天]
+</code></pre></div>
+<p><strong>依赖关系</strong>：Phase 1 独立可先行；Phase 2/3 顺序（3 验证 2）；Phase 4 与 1-3 独立（可并行开 chore PR，但建议在 2/3 后，避免清理时守卫未就位反复触发）。<strong>例外</strong>：Phase 3 Task 3.0 须排在 Phase 1 <strong>之前</strong>（依赖 docs 组含漏洞包；Phase 1 合 Dependabot 后测试空洞化，见 Task 3.0 时序约束）。</p>
+<p><strong>预估总工作量</strong>：Phase 1-3 约 1 天；Phase 4 约 1-2 天（取决 Task 4.1 裁决）。</p>
+<hr />
+<h2 id="8">8. 依赖与前置</h2>
+<div class="highlight"><pre><span></span><code>PR #23 postmortem（根因已查实，本 spec 引用不复述）
+        │
+        ├──► Dependabot PR #21/#22（Phase 1 合）
+        │
+        ├──► G0.11 实现（src/shenbi/gates/g0.py，Task 2.3 改单一源）
+        │
+        ├──► tools/pre-push-check.sh（Phase 2 缺口 A/B 改）
+        │
+        ├──► .pre-commit-config.yaml（Phase 2 缺口 C 注册）
+        │
+        └──► CodeQL 94 条（Phase 4 清，§3.1 分布）
+</code></pre></div>
+<p><strong>前置条件</strong>：无。所有 Phase 可立即开始（证据已齐，无待查项）。</p>
+<p><strong>对应 plan</strong>：本 spec 即 Design；批准后写 plan 拆 task（按 Phase × Task 粒度），plan 路径建议 <code>docs/superpowers/plans/2026-08-01-eliminate-existing-warnings-plan.md</code>。</p>
+<hr />
+<h2 id="9">9. 范围纪律声明</h2>
+<p>本 spec 只做"消除既有 warning + 装本地守卫"。不顺带：
+- 不重构 skill 契约
+- 不动业务逻辑（cyclic-import 若需重构才解，本 spec 选 <code># noqa</code> + follow-up issue，不在此重构）
+- 不改进 CodeQL 规则配置（如调 query suite）——仅清告警，不改扫描配置
+- 不处理 libcairo 本地渲染问题（环境问题，非仓库缺陷）</p>
+<p>任何清理中发现的真 bug，记录到 spec-deviations，另开 issue，不在本 spec 修。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

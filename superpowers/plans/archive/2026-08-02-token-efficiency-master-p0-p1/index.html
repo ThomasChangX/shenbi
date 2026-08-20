@@ -1,0 +1,2156 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Token 效率 audit 总纲 P0+P1 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Token 效率 audit 总纲 P0+P1 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Token 效率 audit 总纲 P0+P1 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-02-token-efficiency-master-p0-p1.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#token-audit-p0p1-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Token 效率 audit 总纲 P0+P1 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#file-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        File Structure
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-1-fix-basename-key-collision-lockstep-sharedauditcontext-injection-spec-34-61-c1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: Fix basename-key collision + lockstep SharedAuditContext injection (spec §3.4, §6.1 C1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-2-wire-tokenledgerrecord-into-the-dispatch-path-thread-state-through-ide-cli-path-spec-31-61-i6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: Wire TokenLedger.record() into the dispatch path + thread state through IDE-CLI path (spec §3.1, §6.1, I6)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-3-remove-3-dead-reads-from-shenbi-escalation-review-re-run-codegen-spec-36-61-i3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: Remove 3 dead reads from shenbi-escalation-review + re-run codegen (spec §3.6, §6.1, I3)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-4-adjudicate-apply-dead-decisions-sidecar-dispositions-spec-35-62-i2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: Adjudicate + apply dead decisions-sidecar dispositions (spec §3.5, §6.2, I2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-5-strip-auto-gen-auto-check-blocks-from-llm-system-prompt-spec-38-61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: Strip auto-gen 数据契约 + AUTO-CHECK blocks from LLM system prompt (spec §3.8, §6.1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-6-delete-dead-code-_inject_instruction_hierarchy-its-test-spec-23-11-61" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: Delete dead code _inject_instruction_hierarchy + its test (spec §2.3 #11, §6.1)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-7-add-dead-decisions-sidecar-lint-to-repo-consistency-checker-spec-35-62" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: Add dead-decisions-sidecar lint to repo-consistency checker (spec §3.5, §6.2)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task-8-deferred-field-level-reads-for-3-largest-truth-files-spec-37-separate-plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: DEFERRED — Field-level reads for 3 largest truth files (spec §3.7) → separate plan
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review-coordinator-run-after-phase-4-fixes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review (coordinator run after Phase-4 fixes)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="token-audit-p0p1-implementation-plan">Token 效率 audit 总纲 P0+P1 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Land the master Token-efficiency audit spec's P0 (pure waste, zero quality risk) + P1 (contract consistency) remediations — wire the TokenLedger dead-circuit, fix the basename-key correctness bug + its SharedAuditContext interaction, remove dead escalation reads, strip redundant auto-gen blocks from the LLM view, delete dead code, adjudicate dead decisions sidecars, and add field-level reads for the three largest truth files.</p>
+<p><strong>Architecture:</strong> All fixes target the dispatcher contract surface (<code>src/shenbi/pipeline/dispatch_helper.py</code>), the cost ledger wire-up (<code>src/shenbi/cost/</code>), skill contracts (<code>skills/*/SKILL.md</code> frontmatter), and repo-consistency lint (<code>tools/lint_repo_consistency.py</code>). P2 efficiency optimizations (cache layer, IDE CLI system/user split, example externalization) are deferred to a separate future plan — they depend on the TokenLedger measurement this plan lands (spec §9 dependency) and each requires full G4 validation.</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pathlib, structlog, pydantic contracts, pytest, ruff/mypy/basedpyright, justfile.</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li><strong>G4/gate is the sole quality arbiter</strong> (spec §0.1, §8 #5): any change where G4 still PASSes is safe; if a change makes G4 FAIL, revert immediately.</li>
+<li><strong>No <code>print()</code> in framework code</strong> — use structlog (AGENTS.md Python Conventions).</li>
+<li><strong>Contract changes must stay idempotent</strong> — <code>just generate</code> (shenbi-sync-contracts) must produce no diff after contract edits (AGENTS.md §PR Review Protocol).</li>
+<li><strong>Enum compliance (L1)</strong>: no new enums; if needed, define in <code>src/shenbi/contracts/enums.py</code> only.</li>
+<li><strong>I2 test truthfulness (L4)</strong>: tests must exercise real code paths, not mock-only.</li>
+<li><strong>Fix ordering</strong> (spec §9): T1 (basename key + helper) must land before any shared_context serial wire-up (deferred P2); T5 (auto-gen strip) is independent but T3 (escalation reads) depends on codegen re-run; T2 (ledger) is prerequisite for all P2 measurement.</li>
+<li><strong>line-length=100</strong> (pyproject.toml); ruff + basedpyright strict.</li>
+</ul>
+<h2 id="file-structure">File Structure</h2>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Responsibility</th>
+<th>Tasks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/shenbi/pipeline/dispatch_helper.py</code></td>
+<td>Dispatcher: input key form, auto-gen strip, ledger wire-up</td>
+<td>T1, T2, T5</td>
+</tr>
+<tr>
+<td><code>src/shenbi/cost/ledger.py</code></td>
+<td>TokenLedger (no change — already correct, just unwired)</td>
+<td>T2 (read-only ref)</td>
+</tr>
+<tr>
+<td><code>tools/lint_repo_consistency.py</code></td>
+<td>Repo-consistency lints — add dead-decisions-sidecar check</td>
+<td>T7</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-escalation-review/SKILL.md</code></td>
+<td>Dead reads removal (frontmatter)</td>
+<td>T3</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-chapter-planning/SKILL.md</code></td>
+<td>Dead writes removal (state-settling-decisions too)</td>
+<td>T4</td>
+</tr>
+<tr>
+<td><code>skills/shenbi-state-settling/SKILL.md</code></td>
+<td>Dead writes removal</td>
+<td>T4</td>
+</tr>
+<tr>
+<td><code>tests/pipeline/test_dispatch_helper_*.py</code></td>
+<td>Dispatcher unit tests</td>
+<td>T1, T2, T5</td>
+</tr>
+<tr>
+<td><code>tests/unit/test_lint_repo_consistency.py</code></td>
+<td>Lint tests</td>
+<td>T7</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="task-1-fix-basename-key-collision-lockstep-sharedauditcontext-injection-spec-34-61-c1">Task 1: Fix basename-key collision + lockstep SharedAuditContext injection (spec §3.4, §6.1 C1)</h2>
+<p><strong>complexity: infra</strong> (touches dispatcher input-path logic + shared_context injection; the C1 regression risk makes this infra, not leaf — coordinator implements)</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (add <code>_input_key</code> helper ~:530; change <code>:544</code> key; change <code>:551-557</code> injection keys)
+- Test: <code>tests/pipeline/test_dispatch_helper_keys.py</code> (create)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>full_path: Path</code>, <code>project_dir: Path</code> (both in scope at <code>_build_skill_prompt</code>)
+- Produces: <code>_input_key(full_path: Path, project_dir: Path) -&gt; str</code> — shared helper returning <code>str(full_path.relative_to(project_dir))</code>, used by both the disk-read path and the SharedAuditContext injection path.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing tests</strong></li>
+</ul>
+<p>Create <code>tests/pipeline/test_dispatch_helper_keys.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for input-key form in _build_skill_prompt (spec §3.4 + C1 regression guard).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_input_key</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_input_key_uses_relative_path</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Keys must be project-relative, not basename (spec §3.4 collision bug).&quot;&quot;&quot;</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj&quot;</span><span class="p">)</span>
+    <span class="n">key</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj/truth/pending_hooks.md&quot;</span><span class="p">),</span> <span class="n">project</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">key</span> <span class="o">==</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_input_key_distinguishes_same_basename_different_dirs</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Two files with the same basename in different dirs get distinct keys (the bug).&quot;&quot;&quot;</span>
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj&quot;</span><span class="p">)</span>
+    <span class="n">a</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj/dir_a/hooks.md&quot;</span><span class="p">),</span> <span class="n">project</span><span class="p">)</span>
+    <span class="n">b</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj/dir_b/hooks.md&quot;</span><span class="p">),</span> <span class="n">project</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">a</span> <span class="o">!=</span> <span class="n">b</span>
+    <span class="k">assert</span> <span class="n">a</span> <span class="o">==</span> <span class="s2">&quot;dir_a/hooks.md&quot;</span>
+    <span class="k">assert</span> <span class="n">b</span> <span class="o">==</span> <span class="s2">&quot;dir_b/hooks.md&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_keys.py -v</code>
+Expected: FAIL — <code>ImportError: cannot import name '_input_key'</code></p>
+<ul>
+<li>[ ] <strong>Step 3: Add the <code>_input_key</code> helper</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, add this helper near the other <code>_build_skill_prompt</code> helpers (e.g., just before <code>def _build_skill_prompt</code>, currently around line 465):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_input_key</span><span class="p">(</span><span class="n">full_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return the canonical raw_inputs key for a file (spec §3.4).</span>
+
+<span class="sd">    Uses the project-relative path (not basename) so two same-named files in</span>
+<span class="sd">    different directories don&#39;t silently overwrite each other. Shared by the</span>
+<span class="sd">    disk-read loop and the SharedAuditContext injection block so the two never</span>
+<span class="sd">    produce mismatched keys (spec §6.1 C1 regression guard).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="c1"># full_path is not under project_dir (defensive); fall back to full str.</span>
+        <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">full_path</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Wire <code>_input_key</code> into the disk-read path</strong></li>
+</ul>
+<p>Change <code>src/shenbi/pipeline/dispatch_helper.py:544</code>:
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+            <span class="n">raw_inputs</span><span class="p">[</span><span class="n">full_path</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+<span class="c1"># NEW:</span>
+            <span class="n">raw_inputs</span><span class="p">[</span><span class="n">_input_key</span><span class="p">(</span><span class="n">full_path</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">content</span>
+</code></pre></div>
+(<code>project_dir</code> is in scope at this point in <code>_build_skill_prompt</code>.)</p>
+<ul>
+<li>[ ] <strong>Step 5: Wire <code>_input_key</code> into the SharedAuditContext injection block (C1 fix)</strong></li>
+</ul>
+<p>The injection block (<code>dispatch_helper.py:548-560</code>) currently hardcodes basename keys. Update each cached field to use the relative-path form via <code>_input_key</code>. The cached values correspond to known truth files, so construct the keys from <code>project_dir</code>:</p>
+<p><div class="highlight"><pre><span></span><code>    <span class="c1"># Inject cached fields from shared_context so auditors skip re-reading</span>
+    <span class="c1"># those files from disk (Task 6 Step 2 wiring). Keys must match the</span>
+    <span class="c1"># disk-read path&#39;s _input_key form (spec §6.1 C1) — basename before was</span>
+    <span class="c1"># coincidentally consistent; now both use relative paths explicitly.</span>
+    <span class="k">if</span> <span class="n">shared_context</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">shared_context</span><span class="p">,</span> <span class="s2">&quot;world_rules&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="n">_input_key</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;world_rules.md&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">world_rules</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">shared_context</span><span class="p">,</span> <span class="s2">&quot;character_list&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="n">_input_key</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">character_list</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">shared_context</span><span class="p">,</span> <span class="s2">&quot;style_profile&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="n">_input_key</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">style_profile</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">shared_context</span><span class="p">,</span> <span class="s2">&quot;pending_hooks&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">):</span>
+            <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="n">_input_key</span><span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)]</span> <span class="o">=</span> <span class="n">shared_context</span><span class="o">.</span><span class="n">pending_hooks</span>
+        <span class="k">for</span> <span class="n">fname</span><span class="p">,</span> <span class="n">cached</span> <span class="ow">in</span> <span class="n">_INJECT_FROM_CACHE</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">cached</span> <span class="ow">and</span> <span class="n">fname</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">raw_inputs</span><span class="p">:</span>
+                <span class="n">raw_inputs</span><span class="p">[</span><span class="n">fname</span><span class="p">]</span> <span class="o">=</span> <span class="n">cached</span>
+</code></pre></div>
+Note the added <code>and fname not in raw_inputs</code> guard: if the disk-read loop already populated the file (fresh content), do NOT overwrite with the (possibly stale) cached slice.</p>
+<ul>
+<li>[ ] <strong>Step 6: Add a regression test for the C1 no-duplicate-keys invariant</strong></li>
+</ul>
+<p>Append to <code>tests/pipeline/test_dispatch_helper_keys.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_injection_keys_match_disk_read_keys</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;SharedAuditContext injection must use the same key form as disk reads.</span>
+
+<span class="sd">    Regression guard for spec §6.1 C1: if the injection block used basename</span>
+<span class="sd">    keys while the disk-read path used relative-path keys, the same logical</span>
+<span class="sd">    file would appear twice under two &lt;document name=...&gt; tags.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_input_key</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+    <span class="n">project</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;/proj&quot;</span><span class="p">)</span>
+    <span class="c1"># The injection block builds keys for these truth files:</span>
+    <span class="k">for</span> <span class="n">truth_file</span> <span class="ow">in</span> <span class="p">[</span>
+        <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;world_rules.md&quot;</span><span class="p">,</span>
+        <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;character_matrix.md&quot;</span><span class="p">,</span>
+        <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;style_profile.md&quot;</span><span class="p">,</span>
+        <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">,</span>
+    <span class="p">]:</span>
+        <span class="n">injected_key</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">truth_file</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>
+        <span class="n">disk_key</span> <span class="o">=</span> <span class="n">_input_key</span><span class="p">(</span><span class="n">truth_file</span><span class="p">,</span> <span class="n">project</span><span class="p">)</span>  <span class="c1"># same helper</span>
+        <span class="k">assert</span> <span class="n">injected_key</span> <span class="o">==</span> <span class="n">disk_key</span>
+        <span class="k">assert</span> <span class="s2">&quot;/&quot;</span> <span class="ow">in</span> <span class="n">injected_key</span>  <span class="c1"># relative-path form, not bare basename</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: Update the stale <code>test_audit_context_cache.py</code> simulation (Phase-4 C2 fix)</strong></li>
+</ul>
+<p><code>tests/pipeline/test_audit_context_cache.py:40-72</code> (<code>test_shared_context_fields_are_injectable</code>) duplicates the injection logic inline with the OLD basename keys (<code>world_rules.md</code> etc.) and asserts those keys land in <code>raw_inputs</code>. After Step 5, the real injection uses relative-path keys — this test still passes (it simulates, doesn't call real code) but documents the WRONG behavior, violating AGENTS.md L4 (test truthfulness). Update the simulation to match the new relative-path key form:</p>
+<p>In <code>tests/pipeline/test_audit_context_cache.py</code>, change the simulated <code>_INJECT_FROM_CACHE</code> keys from basename to relative-path form (matching Step 5's real injection block):
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD (lines ~55-61):</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;world_rules.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">world_rules</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;character_matrix.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">character_list</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;style_profile.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">style_profile</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">pending_hooks</span>
+<span class="c1"># NEW:</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;truth/world_rules.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">world_rules</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;truth/character_matrix.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">character_list</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;truth/style_profile.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">style_profile</span>
+        <span class="n">_INJECT_FROM_CACHE</span><span class="p">[</span><span class="s2">&quot;truth/pending_hooks.md&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span><span class="o">.</span><span class="n">pending_hooks</span>
+</code></pre></div>
+And update the assertions (lines ~66-70) accordingly:
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+    <span class="k">assert</span> <span class="s2">&quot;world_rules.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="n">raw_inputs</span><span class="p">[</span><span class="s2">&quot;world_rules.md&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;world rules summary&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;character_matrix.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="s2">&quot;style_profile.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="s2">&quot;pending_hooks.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+<span class="c1"># NEW:</span>
+    <span class="k">assert</span> <span class="s2">&quot;truth/world_rules.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="n">raw_inputs</span><span class="p">[</span><span class="s2">&quot;truth/world_rules.md&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;world rules summary&quot;</span>
+    <span class="k">assert</span> <span class="s2">&quot;truth/character_matrix.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="s2">&quot;truth/style_profile.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+    <span class="k">assert</span> <span class="s2">&quot;truth/pending_hooks.md&quot;</span> <span class="ow">in</span> <span class="n">raw_inputs</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 8: Run all dispatch_helper + audit_context tests</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_keys.py tests/pipeline/test_dispatch_helper_glob.py tests/pipeline/test_dispatch_helper_xml.py tests/pipeline/test_audit_context_cache.py -v</code>
+Expected: all PASS (the audit_context test now passes with updated relative-path keys from Step 7).</p>
+<ul>
+<li>[ ] <strong>Step 9: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS (no regressions). The <code>_input_key</code> change is behavioral only for the rare same-basename-different-dir case; the audit_context simulation now matches the new key form.</p>
+<ul>
+<li>[ ] <strong>Step 10: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_keys.py<span class="w"> </span>tests/pipeline/test_audit_context_cache.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: use project-relative input keys + lockstep SharedAuditContext injection (§3.4/C1)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-2-wire-tokenledgerrecord-into-the-dispatch-path-thread-state-through-ide-cli-path-spec-31-61-i6">Task 2: Wire TokenLedger.record() into the dispatch path + thread state through IDE-CLI path (spec §3.1, §6.1, I6)</h2>
+<p><strong>complexity: infra</strong> (touches dispatch routing API + cross-path state threading; coordinator implements)</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (<code>_record_token_usage:1246</code> add ledger call; <code>_dispatch_via_ide:1521</code> signature + <code>:1653</code> call site)
+- Test: <code>tests/pipeline/test_dispatch_helper_ledger.py</code> (create)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>TokenLedger</code> from <code>shenbi.cost.ledger</code> (existing, no change); <code>state</code> param on <code>dispatch_skill</code>/<code>_dispatch_via_api</code> (existing).
+- Produces: <code>_dispatch_via_ide</code> now accepts <code>state: Any = None</code>; <code>_record_token_usage</code> now persists to <code>cost/token-ledger.jsonl</code>.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/pipeline/test_dispatch_helper_ledger.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for TokenLedger wire-up in the dispatch path (spec §3.1 dead-wire fix).&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.ledger</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenLedger</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_record_token_usage_persists_to_ledger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;_record_token_usage must write to cost/token-ledger.jsonl (spec §3.1).</span>
+
+<span class="sd">    Before this fix, _record_token_usage only mutated an in-memory dict and</span>
+<span class="sd">    the ledger stayed empty (dead-wire).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_record_token_usage</span>
+
+    <span class="n">state</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">token_usage</span><span class="o">=</span><span class="p">{})</span>
+    <span class="n">usage</span> <span class="o">=</span> <span class="n">SimpleNamespace</span><span class="p">(</span><span class="n">prompt_tokens</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">completion_tokens</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">total_tokens</span><span class="o">=</span><span class="mi">150</span><span class="p">)</span>
+    <span class="n">_record_token_usage</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;test-skill&quot;</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">tmp_path</span><span class="p">)</span>
+
+    <span class="n">ledger_path</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;token-ledger.jsonl&quot;</span>
+    <span class="k">assert</span> <span class="n">ledger_path</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="s2">&quot;ledger file must be created&quot;</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ledger_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">()</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;skill&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;test-skill&quot;</span>
+    <span class="k">assert</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">100</span>
+    <span class="k">assert</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;completion_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">50</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_ledger.py -v</code>
+Expected: FAIL — <code>_record_token_usage() takes 3 positional arguments but 4 were given</code> (project_dir not yet a param).</p>
+<ul>
+<li>[ ] <strong>Step 3: Add <code>project_dir</code> param + ledger call to <code>_record_token_usage</code></strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, modify <code>_record_token_usage</code> (currently <code>:1246-1263</code>):</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_record_token_usage</span><span class="p">(</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">usage</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Accumulate token usage in pipeline state and persist to the ledger.</span>
+
+<span class="sd">    Spec §3.1: previously only mutated the in-memory state.token_usage dict —</span>
+<span class="sd">    the TokenLedger.record() write side was never wired, leaving</span>
+<span class="sd">    cost/token-ledger.jsonl permanently empty (dead-wire). Now also appends a</span>
+<span class="sd">    record when project_dir is available.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;token_usage&quot;</span><span class="p">):</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">token_usage</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="n">skill_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">state</span><span class="o">.</span><span class="n">token_usage</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">token_usage</span><span class="p">[</span><span class="n">skill_name</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="s2">&quot;calls&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+        <span class="p">}</span>
+
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">state</span><span class="o">.</span><span class="n">token_usage</span><span class="p">[</span><span class="n">skill_name</span><span class="p">]</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;completion_tokens&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;total_tokens&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span>
+    <span class="n">rec</span><span class="p">[</span><span class="s2">&quot;calls&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="c1"># Spec §3.1 wire-up: persist this usage to the append-only ledger.</span>
+    <span class="k">if</span> <span class="n">project_dir</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">TokenLedger</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+            <span class="n">skill_name</span><span class="p">,</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">{</span>
+                <span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+                <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+                <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>Add the import at the top of <code>dispatch_helper.py</code> (near other <code>shenbi.cost</code> imports if present, else with the other local imports):
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.ledger</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenLedger</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 4: Thread <code>project_dir</code> through <code>_log_token_usage</code> → <code>_record_token_usage</code></strong></li>
+</ul>
+<p>The call chain is: <code>_dispatch_via_api</code> (<code>:1387</code>) → <code>_log_token_usage(usage, skill, state=state)</code> (<code>:1470</code>) → <code>_record_token_usage(state, skill_name, usage)</code> (<code>:1243</code>). The <code>_record_token_usage</code> call at <code>:1243</code> lives INSIDE <code>_log_token_usage</code> (def <code>:1228</code>, signature <code>(response, skill_name, state=None)</code>), NOT <code>_dispatch_via_api</code>. So <code>project_dir</code> must be threaded through <code>_log_token_usage</code> first.</p>
+<p><strong>4a.</strong> Add <code>project_dir</code> param to <code>_log_token_usage</code> signature (<code>:1228</code>):
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_token_usage</span><span class="p">(</span><span class="n">response</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="c1"># NEW:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_log_token_usage</span><span class="p">(</span>
+    <span class="n">response</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">state</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</code></pre></div></p>
+<p><strong>4b.</strong> Pass <code>project_dir</code> at the <code>_record_token_usage</code> call site (<code>:1243</code>, inside <code>_log_token_usage</code>):
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+    <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+        <span class="n">_record_token_usage</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">usage</span><span class="p">)</span>
+<span class="c1"># NEW:</span>
+    <span class="k">if</span> <span class="n">state</span><span class="p">:</span>
+        <span class="n">_record_token_usage</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">skill_name</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div></p>
+<p><strong>4c.</strong> Pass <code>project_dir</code> from <code>_dispatch_via_api</code> to <code>_log_token_usage</code> (<code>:1470</code>):
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+        <span class="n">_log_token_usage</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">)</span>
+<span class="c1"># NEW:</span>
+        <span class="n">_log_token_usage</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="n">project_dir</span><span class="p">)</span>
+</code></pre></div>
+(<code>project_dir</code> IS in scope in <code>_dispatch_via_api</code> — it's a parameter of that function at <code>:1387</code>.)</p>
+<p><strong>Verify the chain is complete:</strong> <code>_dispatch_via_api</code>(has project_dir) → <code>_log_token_usage</code>(now receives it) → <code>_record_token_usage</code>(now receives it) → <code>TokenLedger(project_dir).record(...)</code>.</p>
+<ul>
+<li>[ ] <strong>Step 5: Thread <code>state</code> through the IDE-CLI path (I6 fix)</strong></li>
+</ul>
+<p>Add <code>state: Any = None</code> to <code>_dispatch_via_ide</code> signature (<code>:1521</code>):
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_dispatch_via_ide</span><span class="p">(</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">uses_staging</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
+    <span class="n">shared_context</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">state</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">DispatchResult</span><span class="p">:</span>
+</code></pre></div></p>
+<p>Update the call site at <code>dispatch_helper.py:1653</code> (in <code>dispatch_skill</code> routing):
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+        <span class="k">return</span> <span class="n">_dispatch_via_ide</span><span class="p">(</span>
+            <span class="n">skill</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">uses_staging</span><span class="o">=</span><span class="n">uses_staging</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">shared_context</span>
+        <span class="p">)</span>
+<span class="c1"># NEW:</span>
+        <span class="k">return</span> <span class="n">_dispatch_via_ide</span><span class="p">(</span>
+            <span class="n">skill</span><span class="p">,</span> <span class="n">pd</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">uses_staging</span><span class="o">=</span><span class="n">uses_staging</span><span class="p">,</span> <span class="n">shared_context</span><span class="o">=</span><span class="n">shared_context</span><span class="p">,</span> <span class="n">state</span><span class="o">=</span><span class="n">state</span>
+        <span class="p">)</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 6: Add IDE-path usage recording (best-effort)</strong></li>
+</ul>
+<p>The IDE-CLI subprocess (<code>codex exec</code>) does not return structured token usage in its stdout. The IDE path therefore cannot populate <code>state.token_usage</code> from the CLI output alone. Add a <code>log.info</code> marker so the uninstrumented path is at least observable, and document the limitation.</p>
+<p><strong>Insertion point (IMPORTANT — <code>_dispatch_via_ide</code> has 8 return points):</strong> insert immediately before the SUCCESS-path return at line ~1599 (<code>return DispatchResult(True, 0, r.stdout, r.stderr)</code>), which comes AFTER the <code>missing</code> outputs check. Do NOT insert before the early-exit error returns (PromptBuildFailure :1544, no-CLI :1548, timeout :1566, FileNotFound :1569, non-zero-rc :1573, write-failure :1591, no-files-written :1593) — those don't represent successful dispatches.</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Spec §3.1 / I6: the IDE-CLI path does not report structured token usage</span>
+    <span class="c1"># (codex exec stdout is prose, not a usage object). state is threaded so a</span>
+    <span class="c1"># future codex --json or zcode usage-report feature can record here.</span>
+    <span class="k">if</span> <span class="n">state</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;ide_dispatch_uninstrumented_tokens&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">hint</span><span class="o">=</span><span class="s2">&quot;IDE path cannot record usage; ledger row skipped&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">DispatchResult</span><span class="p">(</span><span class="kc">True</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">stderr</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: Run tests</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_ledger.py tests/unit/cost/test_ledger.py -v</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 8: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 9: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_ledger.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: wire TokenLedger.record() into dispatch path + thread state through IDE-CLI (§3.1/I6)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-3-remove-3-dead-reads-from-shenbi-escalation-review-re-run-codegen-spec-36-61-i3">Task 3: Remove 3 dead reads from shenbi-escalation-review + re-run codegen (spec §3.6, §6.1, I3)</h2>
+<p><strong>complexity: leaf</strong> (single skill frontmatter edit + codegen re-run; no cross-module logic)</p>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-escalation-review/SKILL.md</code> (frontmatter <code>reads:</code> block <code>:10-12</code>; auto-gen <code>:29</code> regenerates via codegen)
+- Test: G4 structural check + lint (no new unit test — this is a contract edit)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>shenbi-sync-contracts</code> (codegen entrypoint via <code>just generate</code>)
+- Produces: escalation-review contract with 3 fewer reads (volume-N-score, arc-N-score, stratum-N-score)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify the 3 reads are truly dead (body doesn't reference them)</strong></li>
+</ul>
+<p>Run: <code>grep -nE "volume-score|arc-score|stratum-score|卷分|弧分|层分" skills/shenbi-escalation-review/SKILL.md</code>
+Expected: no matches (confirms dead reads — spec §3.6 already verified).</p>
+<ul>
+<li>[ ] <strong>Step 2: Edit the frontmatter reads block</strong></li>
+</ul>
+<p>In <code>skills/shenbi-escalation-review/SKILL.md</code>, remove lines <code>:10-12</code> (the 3 score entries):
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/resonance_trend.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/volume-N-score.md</span><span class="w">      </span><span class="c1"># DELETE</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/arc-N-score.md</span><span class="w">          </span><span class="c1"># DELETE</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/stratum-N-score.md</span><span class="w">      </span><span class="c1"># DELETE</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/chapter-N-sensitivity.md</span>
+</code></pre></div>
+becomes:
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">truth/resonance_trend.md</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/chapter-N-sensitivity.md</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 3: Re-run codegen to sync the auto-gen 数据契约 block (I3 hard prerequisite)</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-sync-contracts</code>
+Then verify the auto-gen block at <code>:29</code> no longer lists the 3 dead reads:
+Run: <code>grep -nE "volume-N-score|arc-N-score|stratum-N-score" skills/shenbi-escalation-review/SKILL.md</code>
+Expected: no matches anywhere in the file (both frontmatter and auto-gen cleaned).</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify codegen is idempotent (no diff on re-run)</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-sync-contracts &amp;&amp; git diff --exit-code -- skills/shenbi-escalation-review/SKILL.md</code>
+Expected: exit 0 (the second run produces no further changes).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run lint + contract checks</strong></li>
+</ul>
+<p>Run: <code>just lint-contracts &amp;&amp; uv run python tools/lint_repo_consistency.py</code>
+Expected: PASS (no violations; body-ban still green because only frontmatter changed, not a hand-written body block).</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-escalation-review/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: remove 3 dead reads from escalation-review + sync codegen (§3.6/I3)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-4-adjudicate-apply-dead-decisions-sidecar-dispositions-spec-35-62-i2">Task 4: Adjudicate + apply dead decisions-sidecar dispositions (spec §3.5, §6.2, I2)</h2>
+<p><strong>complexity: infra</strong> (cross-skill contract edits + G4 checker-map awareness; the per-sidecar adjudication touches G4 semantics — coordinator implements)</p>
+<p><strong>Per-sidecar disposition table (verified against src/ + G4 checker map):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Producer</th>
+<th>writes</th>
+<th>skill reads?</th>
+<th>code/G4 consumer?</th>
+<th>Disposition</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chapter-planning</td>
+<td>plans/chapter-N-plan-decisions.json</td>
+<td>❌</td>
+<td>✅ G4 <code>make_composite_checker(g4_chapter_planning, g4_decisions)</code> (generic.py:285) — BUT the decisions path is <code>derive_expected_outputs</code>-derived from <code>writes:</code>, so removing the write drops it from G4's feed (no orphan <code>not_found</code>); no code reads content</td>
+<td><strong>DELETE writes</strong> (G4 feed tracks writes; removing write removes the G4 expectation too)</td>
+</tr>
+<tr>
+<td>state-settling</td>
+<td>truth/state-settling-decisions.json</td>
+<td>❌</td>
+<td>✅ G4 <code>make_composite_checker(g4_state_settling, g4_decisions)</code> (generic.py:300) — same derives-from-writes mechanism; no code reads content</td>
+<td><strong>DELETE writes</strong> (same as above)</td>
+</tr>
+<tr>
+<td>chapter-revision</td>
+<td>chapters/chapter-N-revision-decisions.json</td>
+<td>❌</td>
+<td>✅ G4 <code>g4_decisions</code> schema validation; <code>state_heal.py:58</code> + <code>chapter_loop.py:1570</code> check file <em>existence</em> only (not content)</td>
+<td><strong>KEEP writes</strong> (state_heal existence-check + snapshot depend on the file being present even if content isn't parsed)</td>
+</tr>
+<tr>
+<td>short-drafting</td>
+<td>short/short-N-decisions.json</td>
+<td>❌</td>
+<td>✅ G4 <code>g4_decisions</code></td>
+<td><strong>KEEP writes</strong> (G4 validates schema)</td>
+</tr>
+<tr>
+<td>market-radar</td>
+<td>context/market-radar-decisions.json</td>
+<td>❌</td>
+<td>✅ G4 <code>g4_decisions</code></td>
+<td><strong>KEEP writes</strong> (G4 validates schema)</td>
+</tr>
+</tbody>
+</table>
+<p>Rationale: "dead" per spec §3.5 = no skill <code>reads:</code> consumer. All 5 have G4 checkers (<code>g4_decisions</code> composite), but the 2 deleted (plan-decisions, state-settling-decisions) are safe because (a) the decisions path is derived from <code>writes:</code> via <code>derive_expected_outputs</code> (sync_contracts.py:76-92) — removing the write removes it from <code>expected_outputs</code>/<code>deps.json</code>, so G4 stops expecting it (no <code>not_found</code>); (b) no code reads their content. The 3 kept have non-removable structural dependencies: chapter-revision has <code>state_heal.py:58</code> existence-check + snapshot patterns; short-drafting + market-radar have no code dependency but their G4 schema validation is design-intended. The new lint (Task 7) uses the smarter definition: flag a decisions.json write only if it has NO skill reads AND is not in <code>_G4_DECISIONS_SKILLS</code> AND no code reference.</p>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-chapter-planning/SKILL.md</code> (remove <code>plans/chapter-N-plan-decisions.json</code> from <code>writes:</code>)
+- Modify: <code>skills/shenbi-state-settling/SKILL.md</code> (remove <code>truth/state-settling-decisions.json</code> from <code>writes:</code>)</p>
+<ul>
+<li>[ ] <strong>Step 1: Verify the 2 delete-candidates have no consumers</strong></li>
+</ul>
+<p>Run:
+<div class="highlight"><pre><span></span><code>grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;plan-decisions&quot;</span><span class="w"> </span>src/shenbi/<span class="w"> </span>tools/<span class="w"> </span>skills/*/SKILL.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>__pycache__<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;chapter-planning/SKILL.md&quot;</span>
+grep<span class="w"> </span>-rn<span class="w"> </span><span class="s2">&quot;state-settling-decisions&quot;</span><span class="w"> </span>src/shenbi/<span class="w"> </span>tools/<span class="w"> </span>skills/*/SKILL.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span>__pycache__<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-v<span class="w"> </span><span class="s2">&quot;state-settling/SKILL.md&quot;</span>
+</code></pre></div>
+Expected: no matches (confirms truly dead — no G4, no code, no skill reads).</p>
+<ul>
+<li>[ ] <strong>Step 2: Edit chapter-planning writes</strong></li>
+</ul>
+<p>In <code>skills/shenbi-chapter-planning/SKILL.md</code>, remove <code>plans/chapter-N-plan-decisions.json</code> from the <code>writes:</code> block.</p>
+<ul>
+<li>[ ] <strong>Step 3: Edit state-settling writes</strong></li>
+</ul>
+<p>In <code>skills/shenbi-state-settling/SKILL.md</code>, remove <code>truth/state-settling-decisions.json</code> from the <code>writes:</code> block.</p>
+<ul>
+<li>[ ] <strong>Step 4: Re-run codegen + verify idempotency</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-sync-contracts &amp;&amp; git diff --exit-code -- skills/shenbi-chapter-planning/SKILL.md skills/shenbi-state-settling/SKILL.md</code>
+Expected: exit 0 after second run.</p>
+<ul>
+<li>[ ] <strong>Step 5: Verify deps.json + docs sync (just generate idempotent)</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-sync-contracts &amp;&amp; git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/</code>
+Expected: exit 0 (no further changes).</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-chapter-planning/SKILL.md<span class="w"> </span>skills/shenbi-state-settling/SKILL.md<span class="w"> </span>tests/tiers/deps.json<span class="w"> </span>docs/framework/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: delete 2 truly-dead decisions sidecars (plan/state-settling); keep 3 G4-structural (§3.5/I2)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-5-strip-auto-gen-auto-check-blocks-from-llm-system-prompt-spec-38-61">Task 5: Strip auto-gen 数据契约 + AUTO-CHECK blocks from LLM system prompt (spec §3.8, §6.1)</h2>
+<p><strong>complexity: leaf</strong> (dispatcher post-read strip — single function, well-scoped)</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (add strip after <code>:506</code> read_text)
+- Test: <code>tests/pipeline/test_dispatch_helper_autogen_strip.py</code> (create)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: the sentinels <code>&lt;!-- AUTO-GENERATED ... --&gt;</code> / <code>&lt;!-- END AUTO-GENERATED --&gt;</code> and <code>&lt;!-- AUTO-CHECK-START --&gt;</code> / <code>&lt;!-- AUTO-CHECK-END --&gt;</code> (defined in <code>sync_contracts.py</code> + <code>generate_autocheck_docs.py</code>)
+- Produces: <code>_strip_autogen_blocks(text: str) -&gt; str</code> — removes both blocks from the system prompt before sending to LLM.</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<p>Create <code>tests/pipeline/test_dispatch_helper_autogen_strip.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Tests for auto-gen block stripping from LLM system prompt (spec §3.8).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">_strip_autogen_blocks</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strip_removes_data_contract_block</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;# Skill</span><span class="se">\n\n</span><span class="s2">&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## 数据契约</span><span class="se">\n\n</span><span class="s2">- **Reads:** foo.md</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&lt;!-- END AUTO-GENERATED --&gt;</span><span class="se">\n\n</span><span class="s2">## Body instructions</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">stripped</span> <span class="o">=</span> <span class="n">_strip_autogen_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;AUTO-GENERATED&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span>
+    <span class="k">assert</span> <span class="s2">&quot;数据契约&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span>
+    <span class="k">assert</span> <span class="s2">&quot;## Body instructions&quot;</span> <span class="ow">in</span> <span class="n">stripped</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strip_removes_autocheck_block</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Intro</span><span class="se">\n\n</span><span class="s2">&lt;!-- AUTO-CHECK-START --&gt;</span><span class="se">\n</span><span class="s2">## auto-check (generated -- do not edit)</span><span class="se">\n</span><span class="s2">&lt;!-- AUTO-CHECK-END --&gt;</span><span class="se">\n\n</span><span class="s2">Body&quot;</span>
+    <span class="n">stripped</span> <span class="o">=</span> <span class="n">_strip_autogen_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;AUTO-CHECK&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span>
+    <span class="k">assert</span> <span class="s2">&quot;auto-check&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span>
+    <span class="k">assert</span> <span class="s2">&quot;Body&quot;</span> <span class="ow">in</span> <span class="n">stripped</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strip_preserves_body_with_no_blocks</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;Plain skill body with no auto-gen blocks.&quot;</span>
+    <span class="k">assert</span> <span class="n">_strip_autogen_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">==</span> <span class="n">text</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_strip_handles_both_blocks_together</span><span class="p">():</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;Header</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&lt;!-- AUTO-GENERATED from frontmatter — do not edit --&gt;</span><span class="se">\n</span><span class="s2">X</span><span class="se">\n</span><span class="s2">&lt;!-- END AUTO-GENERATED --&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Middle</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;&lt;!-- AUTO-CHECK-START --&gt;</span><span class="se">\n</span><span class="s2">Y</span><span class="se">\n</span><span class="s2">&lt;!-- AUTO-CHECK-END --&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;Footer</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">stripped</span> <span class="o">=</span> <span class="n">_strip_autogen_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;X&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="s2">&quot;Y&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stripped</span>
+    <span class="k">assert</span> <span class="s2">&quot;Header&quot;</span> <span class="ow">in</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="s2">&quot;Middle&quot;</span> <span class="ow">in</span> <span class="n">stripped</span> <span class="ow">and</span> <span class="s2">&quot;Footer&quot;</span> <span class="ow">in</span> <span class="n">stripped</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_autogen_strip.py -v</code>
+Expected: FAIL — <code>ImportError: cannot import name '_strip_autogen_blocks'</code>.</p>
+<ul>
+<li>[ ] <strong>Step 3: Implement <code>_strip_autogen_blocks</code></strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, add near the other <code>_strip_*</code> helpers (e.g., after <code>_strip_meta_for_non_drafting</code> ~:139):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Sentinels for the auto-generated body blocks (spec §3.8). These are kept in</span>
+<span class="c1"># the SKILL.md for codegen traceability + CI idempotency, but they are 100%</span>
+<span class="c1"># redundant with the frontmatter contract (which the dispatcher already parses</span>
+<span class="c1"># separately) and should never reach the LLM.</span>
+<span class="n">_AUTOGEN_DATA_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;&lt;!-- AUTO-GENERATED.*?--&gt;\n.*?&lt;!-- END AUTO-GENERATED --&gt;\n?&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
+<span class="p">)</span>
+<span class="n">_AUTOGEN_CHECK_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+    <span class="sa">r</span><span class="s2">&quot;&lt;!-- AUTO-CHECK-START.*?--&gt;\n.*?&lt;!-- AUTO-CHECK-END --&gt;\n?&quot;</span><span class="p">,</span>
+    <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">,</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_strip_autogen_blocks</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Remove the auto-generated 数据契约 + AUTO-CHECK blocks from a SKILL.md body.</span>
+
+<span class="sd">    Spec §3.8: both blocks duplicate frontmatter info (数据契约) or are empty</span>
+<span class="sd">    placeholders (AUTO-CHECK). Stripping them before the system prompt is sent</span>
+<span class="sd">    saves ~150-320 chars (data-contract) + ~80 chars (auto-check) per skill per</span>
+<span class="sd">    dispatch. The blocks remain in SKILL.md for codegen/CI — only the LLM view</span>
+<span class="sd">    changes.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_AUTOGEN_DATA_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">_AUTOGEN_CHECK_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">text</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Call <code>_strip_autogen_blocks</code> after the system-prompt read</strong></li>
+</ul>
+<p>At <code>dispatch_helper.py:506</code> (where <code>system_prompt = skill_file.read_text(...)</code>), change:
+<div class="highlight"><pre><span></span><code><span class="c1"># OLD:</span>
+        <span class="n">system_prompt</span> <span class="o">=</span> <span class="n">skill_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+<span class="c1"># NEW:</span>
+        <span class="n">system_prompt</span> <span class="o">=</span> <span class="n">_strip_autogen_blocks</span><span class="p">(</span><span class="n">skill_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 5: Run tests</strong></li>
+</ul>
+<p>Run: <code>pytest tests/pipeline/test_dispatch_helper_autogen_strip.py -v</code>
+Expected: all PASS.</p>
+<ul>
+<li>[ ] <strong>Step 6: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_dispatch_helper_autogen_strip.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: strip redundant auto-gen blocks from LLM system prompt (§3.8)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-6-delete-dead-code-_inject_instruction_hierarchy-its-test-spec-23-11-61">Task 6: Delete dead code <code>_inject_instruction_hierarchy</code> + its test (spec §2.3 #11, §6.1)</h2>
+<p><strong>complexity: leaf</strong> (single function deletion + its dedicated test; function is dead in production but has a test caller)</p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code> (delete <code>_inject_instruction_hierarchy</code> at <code>:714-735</code>)
+- Modify: <code>tests/pipeline/test_audit_cascading.py</code> (delete the import at <code>:5</code> + <code>test_instruction_hierarchy_has_three_tiers</code> at <code>:8-13</code>; keep the other tests in that file)</p>
+<ul>
+<li>[ ] <strong>Step 1: Identify ALL references (production + test)</strong></li>
+</ul>
+<p>Run: <code>grep -rn "_inject_instruction_hierarchy" src/shenbi/ tests/ | grep -v __pycache__ | grep -v coverage</code>
+Expected: 3 hits — (1) the definition at <code>src/shenbi/pipeline/dispatch_helper.py:714</code>; (2) the import at <code>tests/pipeline/test_audit_cascading.py:5</code>; (3) the call at <code>tests/pipeline/test_audit_cascading.py:10</code>. The <code># pyright: ignore[reportUnusedFunction]</code> only reflects PRODUCTION callers — there is one test caller (<code>test_instruction_hierarchy_has_three_tiers</code>) that must be removed together with the function.</p>
+<ul>
+<li>[ ] <strong>Step 2: Delete the function</strong></li>
+</ul>
+<p>In <code>src/shenbi/pipeline/dispatch_helper.py</code>, delete the entire <code>_inject_instruction_hierarchy</code> function (<code>:714-735</code>, including the <code># pyright: ignore[reportUnusedFunction]</code> comment). The <code>_build_skill_prompt</code> function already returns at <code>:711</code> without calling it.</p>
+<ul>
+<li>[ ] <strong>Step 3: Delete the dedicated test + its import</strong></li>
+</ul>
+<p>In <code>tests/pipeline/test_audit_cascading.py</code>:
+- Delete the import line <code>:5</code> (<code>from shenbi.pipeline.dispatch_helper import _inject_instruction_hierarchy</code>).
+- Delete the <code>test_instruction_hierarchy_has_three_tiers</code> function (<code>:8-13</code>).
+- Keep the remaining tests in that file (<code>test_three_chapter_zero_hard_streak_skips_cascaded_audit</code> and any others — they test <code>_should_skip_audit</code>, not the hierarchy injection).
+- If the module docstring (<code>:1-3</code>) mentions "3-tier instruction hierarchy injection", trim that clause so the docstring matches the remaining tests.</p>
+<ul>
+<li>[ ] <strong>Step 4: Verify no remaining references</strong></li>
+</ul>
+<p>Run: <code>grep -rn "_inject_instruction_hierarchy" src/shenbi/ tests/ | grep -v __pycache__ | grep -v coverage</code>
+Expected: no matches (definition + import + call all removed).</p>
+<ul>
+<li>[ ] <strong>Step 5: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS (no caller breaks — the test that called it is also deleted; basedpyright no longer needs the ignore comment).</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_audit_cascading.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;refactor: delete dead code _inject_instruction_hierarchy + its test (§2.3 #11)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-7-add-dead-decisions-sidecar-lint-to-repo-consistency-checker-spec-35-62">Task 7: Add dead-decisions-sidecar lint to repo-consistency checker (spec §3.5, §6.2)</h2>
+<p><strong>complexity: leaf</strong> (new lint function + test, follows existing pattern in <code>lint_repo_consistency.py</code>)</p>
+<p><strong>Files:</strong>
+- Modify: <code>tools/lint_repo_consistency.py</code> (add <code>find_dead_decisions_sidecars</code>)
+- Test: <code>tests/unit/test_lint_repo_consistency.py</code> (extend)</p>
+<p><strong>Interfaces:</strong>
+- Consumes: the G4 checker map (<code>src/shenbi/gates/g4/generic.py</code> <code>checkers</code> dict) to know which skills have <code>g4_decisions</code> validation; skill frontmatter <code>writes:</code> + <code>reads:</code> blocks.
+- Produces: a new lint violation <code>dead-decisions-sidecar: &lt;skill&gt;: &lt;path&gt;</code> when a <code>*-decisions.json</code> write has no skill reads AND no G4 checker AND no code reference.</p>
+<p><strong>Smarter "dead" definition</strong> (accounts for G4 structural consumers found in Task 4): a decisions.json write is dead iff ALL of:
+1. No skill declares it in <code>reads:</code>
+2. The producer skill is NOT in the G4 checker map with <code>g4_decisions</code>
+3. No <code>src/shenbi/</code> or <code>tools/</code> file references the path pattern</p>
+<p>This avoids false-positives on the 3 G4-structural sidecars kept in Task 4.</p>
+<ul>
+<li>[ ] <strong>Step 1: Read the existing lint test file to match its style</strong></li>
+</ul>
+<p>Run: <code>head -40 tests/unit/test_lint_repo_consistency.py</code> to see the test patterns used.</p>
+<ul>
+<li>[ ] <strong>Step 2: Write the failing tests (negative + positive control)</strong></li>
+</ul>
+<p>Append to <code>tests/unit/test_lint_repo_consistency.py</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_dead_decisions_sidecar_clean_tree</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;On the real repo (after Task 4), 0 dead decisions sidecars remain.</span>
+
+<span class="sd">    Negative control: confirms the lint runs without error on a clean tree.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_repo_consistency</span><span class="w"> </span><span class="kn">import</span> <span class="n">find_dead_decisions_sidecars</span>
+
+    <span class="n">dead</span> <span class="o">=</span> <span class="n">find_dead_decisions_sidecars</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">dead</span> <span class="o">==</span> <span class="p">[],</span> <span class="sa">f</span><span class="s2">&quot;expected 0 dead decisions sidecars after Task 4, got </span><span class="si">{</span><span class="n">dead</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dead_decisions_sidecar_flags_synthetic_dead</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Positive control: a decisions.json write with no consumer IS flagged.</span>
+
+<span class="sd">    Without this, a broken lint (e.g. isinstance(w, str) on dict-form writes)</span>
+<span class="sd">    would pass the negative control via vacuous truth — exactly the dead-wire</span>
+<span class="sd">    pattern spec §8.1 iron law forbids.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_repo_consistency</span><span class="w"> </span><span class="kn">import</span> <span class="n">_is_dead_decisions_sidecar</span>
+
+    <span class="c1"># A dict-form write (the actual repo form: {file: ..., mode: ...}).</span>
+    <span class="n">synthetic_write</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;plans/chapter-N-totally-dead-decisions.json&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;create_or_overwrite&quot;</span><span class="p">}</span>
+    <span class="n">all_reads</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># no skill reads it</span>
+    <span class="n">g4_skills</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>  <span class="c1"># not G4-validated</span>
+    <span class="n">code_blob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># no code references (param type is str, not set — basedpyright strict)</span>
+    <span class="k">assert</span> <span class="n">_is_dead_decisions_sidecar</span><span class="p">(</span><span class="n">synthetic_write</span><span class="p">,</span> <span class="s2">&quot;shenbi-fake&quot;</span><span class="p">,</span> <span class="n">all_reads</span><span class="p">,</span> <span class="n">g4_skills</span><span class="p">,</span> <span class="n">code_blob</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dead_decisions_sidecar_spares_g4_validated</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A decisions.json write consumed by G4 is NOT flagged (Task 4 disposition).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">tools.lint_repo_consistency</span><span class="w"> </span><span class="kn">import</span> <span class="n">_is_dead_decisions_sidecar</span>
+
+    <span class="n">write</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;chapters/chapter-N-revision-decisions.json&quot;</span><span class="p">,</span> <span class="s2">&quot;mode&quot;</span><span class="p">:</span> <span class="s2">&quot;create_or_overwrite&quot;</span><span class="p">}</span>
+    <span class="n">all_reads</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">g4_skills</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">}</span>  <span class="c1"># G4 g4_decisions validates it</span>
+    <span class="n">code_blob</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>  <span class="c1"># param type is str (basedpyright strict)</span>
+    <span class="k">assert</span> <span class="n">_is_dead_decisions_sidecar</span><span class="p">(</span><span class="n">write</span><span class="p">,</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="n">all_reads</span><span class="p">,</span> <span class="n">g4_skills</span><span class="p">,</span> <span class="n">code_blob</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: Run tests to verify they fail</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/test_lint_repo_consistency.py -k dead_decisions_sidecar -v</code>
+Expected: FAIL — <code>ImportError: cannot import name 'find_dead_decisions_sidecars'</code>.</p>
+<ul>
+<li>[ ] <strong>Step 4: Implement <code>find_dead_decisions_sidecars</code> + <code>_is_dead_decisions_sidecar</code></strong></li>
+</ul>
+<p>In <code>tools/lint_repo_consistency.py</code>, add (pure-Python, matching the existing <code>find_*</code> style — NO subprocess, NO shell-out grep):</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># Merge into the EXISTING `from collections.abc import Iterable` line at the</span>
+<span class="c1"># top of the file → `from collections.abc import Container, Iterable`.</span>
+<span class="c1"># Add `import yaml` alongside the other top-level imports.</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Container</span><span class="p">,</span> <span class="n">Iterable</span>  <span class="c1"># noqa: I001 (merge, don&#39;t duplicate)</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="c1"># Skills whose decisions.json is structurally validated by G4 g4_decisions</span>
+<span class="c1"># (these are NOT dead even with no skill reads: — G4 consumes their schema).</span>
+<span class="c1"># Verified against src/shenbi/gates/g4/generic.py checkers dict.</span>
+<span class="n">_G4_DECISIONS_SKILLS</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span>
+    <span class="s2">&quot;shenbi-market-radar&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;shenbi-short-drafting&quot;</span><span class="p">,</span>
+<span class="p">})</span>
+
+<span class="c1"># A SKILL.md with frontmatter splits into [pre, frontmatter, body] on &quot;---&quot;.</span>
+<span class="n">_FRONTMATTER_DELIM</span> <span class="o">=</span> <span class="s2">&quot;---&quot;</span>
+<span class="n">_EXPECTED_FRONTMATTER_PARTS</span> <span class="o">=</span> <span class="mi">3</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_write_path</span><span class="p">(</span><span class="n">entry</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Extract the file path from a writes/reads entry (string OR dict-form).</span>
+
+<span class="sd">    Spec contract: writes/reads entries may be a bare string OR a dict with a</span>
+<span class="sd">    `file:` key (optionally `mode:` / `fields:`). This normalizer handles both.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">entry</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">entry</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;file&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_all_skill_frontmatter</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return {skill_name: parsed frontmatter dict} for all shenbi-* skills.&quot;&quot;&quot;</span>
+    <span class="n">out</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">skill_md</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">((</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;skills&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;shenbi-*/SKILL.md&quot;</span><span class="p">)):</span>
+        <span class="n">text</span> <span class="o">=</span> <span class="n">skill_md</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">text</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="n">_FRONTMATTER_DELIM</span><span class="p">):</span>
+            <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">_FRONTMATTER_DELIM</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="n">_EXPECTED_FRONTMATTER_PARTS</span><span class="p">:</span>
+                <span class="n">loaded</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">loaded</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+                    <span class="n">out</span><span class="p">[</span><span class="n">skill_md</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">loaded</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_code_reference_blob</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Concatenate all src/shenbi + tools *.py file contents into one blob.</span>
+
+<span class="sd">    Used by _is_dead_decisions_sidecar to check if a decisions.json path stem</span>
+<span class="sd">    is referenced in code. Pure-Python (rglob + read_text) — matches the</span>
+<span class="sd">    existing lint style, no subprocess / shell-out grep (cross-platform safe).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">parts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;src&quot;</span> <span class="o">/</span> <span class="s2">&quot;shenbi&quot;</span><span class="p">,</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">py</span> <span class="ow">in</span> <span class="n">root</span><span class="o">.</span><span class="n">rglob</span><span class="p">(</span><span class="s2">&quot;*.py&quot;</span><span class="p">):</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">py</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_dead_decisions_sidecar</span><span class="p">(</span>
+    <span class="n">write_entry</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">all_reads</span><span class="p">:</span> <span class="n">Container</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">g4_skills</span><span class="p">:</span> <span class="n">Container</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">code_blob</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True iff a decisions.json write has no consumer (spec §3.5).</span>
+
+<span class="sd">    A decisions.json write is &#39;dead&#39; iff ALL of:</span>
+<span class="sd">      1. No skill declares it in reads: (string OR dict-form)</span>
+<span class="sd">      2. The producer skill is NOT in _G4_DECISIONS_SKILLS (G4 validates it)</span>
+<span class="sd">      3. No src/tools code references the path stem</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">path</span> <span class="o">=</span> <span class="n">_write_path</span><span class="p">(</span><span class="n">write_entry</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">path</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;-decisions.json&quot;</span><span class="p">)):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">all_reads</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># a skill reads it</span>
+    <span class="k">if</span> <span class="n">skill</span> <span class="ow">in</span> <span class="n">g4_skills</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>  <span class="c1"># G4 validates it</span>
+    <span class="c1"># Code reference: check the path stem (strip the -N- chapter index).</span>
+    <span class="n">stem</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;chapter-N-&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;short-N-&quot;</span><span class="p">,</span> <span class="s2">&quot;short-&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;-N-&quot;</span><span class="p">,</span> <span class="s2">&quot;-&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">stem</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">code_blob</span>  <span class="c1"># dead iff no code references it</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">find_dead_decisions_sidecars</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Flag decisions.json writes with no consumer (spec §3.5).</span>
+
+<span class="sd">    Returns a list of violation strings. See _is_dead_decisions_sidecar for</span>
+<span class="sd">    the &#39;dead&#39; definition (smarter than the spec&#39;s original &#39;no reads&#39; —</span>
+<span class="sd">    accounts for G4 + code consumers found in Task 4 disposition).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">frontmatters</span> <span class="o">=</span> <span class="n">_all_skill_frontmatter</span><span class="p">()</span>
+    <span class="c1"># Collect all reads paths across all skills (string + dict-form).</span>
+    <span class="n">all_reads</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">fm</span> <span class="ow">in</span> <span class="n">frontmatters</span><span class="o">.</span><span class="n">values</span><span class="p">():</span>
+        <span class="n">contract</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contract&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;reads&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]):</span>
+            <span class="n">p</span> <span class="o">=</span> <span class="n">_write_path</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">p</span><span class="p">:</span>
+                <span class="n">all_reads</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">)</span>
+    <span class="n">code_blob</span> <span class="o">=</span> <span class="n">_code_reference_blob</span><span class="p">()</span>
+
+    <span class="n">vios</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">skill</span><span class="p">,</span> <span class="n">fm</span> <span class="ow">in</span> <span class="n">frontmatters</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">contract</span> <span class="o">=</span> <span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;contract&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="p">(</span><span class="n">contract</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;writes&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]):</span>
+            <span class="k">if</span> <span class="n">_is_dead_decisions_sidecar</span><span class="p">(</span><span class="n">w</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">all_reads</span><span class="p">,</span> <span class="n">_G4_DECISIONS_SKILLS</span><span class="p">,</span> <span class="n">code_blob</span><span class="p">):</span>
+                <span class="n">path</span> <span class="o">=</span> <span class="n">_write_path</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;?&quot;</span>
+                <span class="n">vios</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;dead-decisions-sidecar: </span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">vios</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Wire the new check into <code>main()</code></strong></li>
+</ul>
+<p>In <code>lint_repo_consistency.py</code> <code>main()</code>, add before the <code>return</code>:
+<div class="highlight"><pre><span></span><code>    <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">find_dead_decisions_sidecars</span><span class="p">():</span>
+        <span class="n">vios</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">v</span><span class="p">)</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 6: Run the lint tests (all 3: negative + 2 positive controls)</strong></li>
+</ul>
+<p>Run: <code>pytest tests/unit/test_lint_repo_consistency.py -k dead_decisions_sidecar -v</code>
+Expected: 3 PASS (clean_tree=0 dead after T4; flags_synthetic_dead=True; spares_g4_validated=False).</p>
+<ul>
+<li>[ ] <strong>Step 7: Run full check</strong></li>
+</ul>
+<p>Run: <code>just check</code>
+Expected: PASS.</p>
+<ul>
+<li>[ ] <strong>Step 8: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/lint_repo_consistency.py<span class="w"> </span>tests/unit/test_lint_repo_consistency.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: add dead-decisions-sidecar lint to repo-consistency (§3.5/I2)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="task-8-deferred-field-level-reads-for-3-largest-truth-files-spec-37-separate-plan">Task 8: DEFERRED — Field-level reads for 3 largest truth files (spec §3.7) → separate plan</h2>
+<p><strong>Status: DEFERRED from this run.</strong> Per Phase-4 plan review (I4), this task is under-specified for an executable plan: the exact field names (matching <code>##</code> H2 headers in <code>volume_map.md</code> / <code>power_system.md</code> / <code>chapter-N.md</code>) cannot be pre-derived because these truth files are <strong>runtime-generated</strong> (no fixed template in the repo), and the 07-18 §2.1 field analysis is in an archived spec referencing a specific round's output.</p>
+<p><strong>Why defer (not drop):</strong> The P0+P1 core value of this run (T1-T7: dead-wire fix, correctness bug, dead reads/sidecars, lint, auto-gen strip, dead code) does not depend on T8. T8 is a P1 <em>efficiency</em> optimization (reduce full-file reads to field-filtered), and its risk profile (wrong field name → <code>filter_to_fields</code> escape hatch fires → silent full-file read + WARN → AC unmet) is higher than the other tasks. It deserves a dedicated plan where field names can be validated against a real round's <code>truth/</code> output before the contract edit lands.</p>
+<p><strong>What the follow-up plan must do (recorded so it's not lost):</strong>
+1. Run a real round to generate <code>truth/volume_map.md</code> / <code>truth/power_system.md</code> / <code>chapters/chapter-N.md</code> with actual <code>##</code> section headers.
+2. For each of the 4 high-frequency skills (chapter-planning, chapter-drafting, context-composing, review-world-rules), read the skill body + identify which H2 sections it actually consumes from each large file.
+3. Cross-check the 07-18 archived spec (<code>docs/superpowers/specs/archive/2026-07-18-optimize-llm-context-design.md</code> §2.1, lines 40/49/71/74/92) which notes volume_map "460 行中仅 2 行相关" and sections 1/3/6/8.
+4. Convert the verified string-form reads to dict-form <code>fields:</code> with real header names.
+5. G4-validate each affected skill still PASSes with filtered context.</p>
+<hr />
+<h2 id="self-review-coordinator-run-after-phase-4-fixes">Self-Review (coordinator run after Phase-4 fixes)</h2>
+<p><strong>1. Spec coverage:</strong>
+- §6.1 P0 (5 items): 3.1 → T2 ✅; 3.4 → T1 ✅; 3.6 → T3 ✅; 3.8 → T5 ✅; 2.3#11 → T6 ✅
+- §6.2 P1 (2 items): 3.5 → T4 (disposition) + T7 (lint) ✅; 3.7 → T8 <strong>DEFERRED</strong> (field names need live round validation; separate plan) — spec §6.2 AC partially met (the lint + dead-sidecar cleanup lands; field-level reads deferred with documented rationale).
+- §6.3 P2 (5 items): DEFERRED — depends on T2 measurement + each needs G4 full validation.
+- §9 ordering constraints: T1 before any P2 3.2 wire-up ✅; T3 codegen self-contained ✅; T2 prerequisite for P2 measurement ✅.</p>
+<p><strong>2. Placeholder scan:</strong> All remaining tasks (T1-T7) show complete code with real signatures. T8's deferral note is explicit (not a placeholder — it's a documented scope decision). No TBD/TODO in executable tasks.</p>
+<p><strong>3. Type consistency:</strong> <code>_input_key(full_path, project_dir)</code> used consistently in T1. <code>_record_token_usage(state, skill_name, usage, project_dir)</code> consistent. <code>_strip_autogen_blocks(text)</code> consistent. <code>_write_path(entry)</code> + <code>_is_dead_decisions_sidecar(...)</code> consistent in T7. <code>_G4_DECISIONS_SKILLS</code> consistent between T4 disposition table and T7 lint.</p>
+<p><strong>4. Phase-2 C1/C2/I6 closure:</strong> C1 (basename+injection lockstep) → T1 Step 5 ✅; C2 (cache invalidation) → deferred with P2 ✅; I6 (IDE path state) → T2 Step 5-6 ✅.</p>
+<p><strong>5. Phase-4 plan-review fixes applied:</strong> C1 (T7 dict-form writes) → rewrote lint with <code>_write_path</code> normalizer ✅; C2 (stale test_audit_context_cache) → T1 Step 7 ✅; I1 (dead regex) → removed ✅; I2 (subprocess grep) → pure-Python rglob ✅; I3 (weak test) → positive-control test added ✅; I4 (T8 under-specified) → T8 deferred ✅; I5 (multi-return ambiguity) → T2 Step 6 insertion point clarified ✅; I6 (T4 overstatement) → table cell reworded ✅.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

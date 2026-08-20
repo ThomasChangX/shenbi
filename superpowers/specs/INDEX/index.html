@@ -1,0 +1,2280 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/INDEX/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec 执行索引 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec 执行索引 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/INDEX.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/INDEX/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec 执行索引 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/INDEX.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec 执行索引
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        执行队列
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="执行队列">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#7-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #7 · 全项目审查执行：数据丢失簇（P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-p0p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #12 · 全项目审查执行：成本计量（P0/P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#17-catalog6-16" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #17 · 全项目审查执行：总纲 catalog（#6-#16 父条目）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#4-revision-glob" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #4 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5-prompt-full-project-audit-prompt" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#8-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #8 · 全项目审查执行：门禁有效性（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#9-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #9 · 全项目审查执行：契约单一信源（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#10-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #10 · 全项目审查执行：审计链失效（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#11-drift-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #11 · 全项目审查执行：drift 链失效（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13-p1p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #13 · 全项目审查执行：配置治理（P1/P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#15-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #15 · 全项目审查执行：依赖供应链（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#18-fixture-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #18 · 全项目审查执行：Fixture 真实性与测试质量（补齐 A）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#19-decisions-b" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #19 · 全项目审查执行：Decisions 链（补齐 B）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#20-z11-c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #20 · 全项目审查执行：产物契约 Z11（补齐 C）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#21-truth-d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #21 · 全项目审查执行：Truth 写路径（补齐 D）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-e" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #22 · 全项目审查执行：安全与提示注入（补齐 E）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#23-z8-f" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #23 · 全项目审查执行：Z8 契约漂移补完（补齐 F）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#24-g" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #24 · 全项目审查执行：工具与门禁链补完（补齐 G）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#3-skill-llm-python" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #3 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#14-p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #14 · 全项目审查执行：确定性助手统计（P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#16-m-98" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #16 · 全项目审查执行：M 级批量（98 条）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#25-p2-h" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #25 · 全项目审查执行：P2 批量（补齐 H）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#26-6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #26 · 全项目审查执行：快照子系统接线（自 #6 拆分）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#27-c1p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #27 · 全项目审查执行：读方↔写方键空间对账（簇 C1，P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#28-layer-b-reads-c2p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #28 · 全项目审查执行：Layer B 字段级 reads（簇 C2，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#29-truth-upsert-c3p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #29 · 全项目审查执行：truth upsert 接线（簇 C3，P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#30-decisions-c4p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #30 · 全项目审查执行：decisions 链（簇 C4，P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#31-g3-c5p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #31 · 全项目审查执行：G3 独立性（簇 C5，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-driftcjk-c6p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #32 · 全项目审查执行：drift/CJK 度量（簇 C6，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-helper-c7p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #33 · 全项目审查执行：确定性 helper 接线（簇 C7，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-c8p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #34 · 全项目审查执行：状态词表单源（簇 C8，P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#35-c9p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #35 · 全项目审查执行：阈值/配置契约（簇 C9，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#36-token-c10p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #36 · 全项目审查执行：token 计量（簇 C10，P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#37-durability-c11p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #37 · 全项目审查执行：并发/durability（簇 C11，P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#38-c12p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #38 · 全项目审查执行：裸崩边界（簇 C12，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#39-c13p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #39 · 全项目审查执行：静默吞错（簇 C13，P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#40-2026-08-15-37-master" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #40 · 2026-08-15 审计修复总纲（37 簇 master）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#41-c27p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #41 · 审计修复 C27：供应链/安全审计盲区（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#42-c28p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #42 · 审计修复 C28：性能反模式（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#43-c29p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #43 · 审计修复 C29：截断/采样/排序静默（P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#44-c30staging-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #44 · 审计修复 C30：章循环状态机/staging 生命周期（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#45-c31p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #45 · 审计修复 C31：注入/越权安全面（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#46-c32p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #46 · 审计修复 C32：写审计机制（P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#47-c33p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #47 · 审计修复 C33：重试/失败分类统一（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#48-c34p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #48 · 审计修复 C34：路径/布局契约统一（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#49-c35p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #49 · 审计修复 C35：审计过程自身卫生（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#50-c36print-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #50 · 审计修复 C36：print 违禁与框架纯度豁免（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#51-c37p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #51 · 审计修复 C37：死代码清理与零接线执法（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-c14p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #52 · 审计修复 C14：弱断言/自证测试（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53-c15p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #53 · 审计修复 C15：关键模块/分支零覆盖（P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-c16fixture-g09-p0" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #54 · 审计修复 C16：fixture 真实性与 G0.9 执法（P0）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-c17p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #55 · 审计修复 C17：测试基础设施配置失效（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-c18p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #56 · 审计修复 C18：生产产物污染清洗（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#57-c19p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #57 · 审计修复 C19：快照子系统半迁移收口（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#58-c20p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #58 · 审计修复 C20：技能契约声明面断裂（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#59-c21p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #59 · 审计修复 C21：技能注册/触发路由漂移（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#60-c22p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #60 · 审计修复 C22：平行登记表对账门禁（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#61-c23p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #61 · 审计修复 C23：文档机械漂移（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-c24p2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #62 · 审计修复 C24：文档语义矛盾（P2）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-c25cijust-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #63 · 审计修复 C25：CI/just 双向同步漂移（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-c26shelljust-p1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #64 · 审计修复 C26：shell/just 包装层注入（P1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#6-token-p2-dispatch-ide-cli-system-user-skillmd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#65-reads-truth" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        #65 · 字段级 reads 覆盖率：三大 truth 文件的精准切片
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        登记与编号约定
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec">Spec 执行索引</h1>
+<blockquote>
+<p><strong>最后更新</strong>：2026-08-17
+<strong>活跃 spec 数</strong>：63</p>
+</blockquote>
+<p>本页<strong>只追踪活跃（待执行）spec</strong>，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
+已完成/合并/驳回的 spec 移至 <code>archive/</code>（按日期排序），<strong>本页不追踪归档</strong>——归档历史查 <code>archive/</code> 目录与 <code>git log</code>。</p>
+<hr />
+<h2 id="_1">执行队列</h2>
+<h3 id="7-p0">#7 · 全项目审查执行：数据丢失簇（P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-data-loss-cluster-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical</li>
+<li><strong>内容</strong>：append_dedup no-op（F397，chapter_summaries 仅 2/56 章）/ atexit 清 staging（F364）/ materialize 覆盖（F640）/ 并行写竞态（F326）</li>
+</ul>
+<h3 id="12-p0p1">#12 · 全项目审查执行：成本计量（P0/P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-cost-ledger-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（TokenLedger 少计，决策表 P0 例）</li>
+<li><strong>内容</strong>：TokenLedger 接线不全（F302）/ 注入缓解 no-op（F300）</li>
+</ul>
+<h3 id="17-catalog6-16">#17 · 全项目审查执行：总纲 catalog（#6-#16 父条目）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-full-project-audit-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🔴 P0（总纲）</li>
+<li><strong>内容</strong>：2026-08-14 全项目深度审查执行总纲（F1105 补登）：四层覆盖（D1-D4）执行结果、分区矩阵 Z1-Z11 与线程 T1-T15 产出、去重后 10 根因簇图与执行顺序（1+2 → 3 → 5 → 4/6/7/8 → 9/10+M）、G1-G7 完备性门说明；子 spec #6-#16 的父条目（F0-04 家族登记补全）</li>
+</ul>
+<h3 id="4-revision-glob">#4 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-01-output-side-waste-audit-design.md</code></li>
+<li><strong>系列</strong>：Token 效率全栈 audit（子 spec 3/3，隶属已归档总纲 <a href="../archive/2026-08-01-pipeline-read-write-consistency-audit-design/"><code>archive/...</code></a> §0 分工）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟠 High（输出 token 单价 2-3× 输入；总纲的盲点）</li>
+<li><strong>方法</strong>：<code>systematic-debugging</code> 四阶段</li>
+<li><strong>依赖</strong>：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——<strong>PR #39 已修</strong>）；推理控制 spec（已归档，§J finish_reason=length 盲点驱动本 spec F8 重试放大——<strong>PR #40 已修</strong>）；<code>src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py</code></li>
+<li><strong>内容</strong>：只审<strong>输出侧浪费</strong>——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大（坏章最坏 ~6 章等价输出 + 3 审计波；<code>error_handler.py:36-37</code> MAX_DISPATCH_RETRIES=2/MAX_AUDIT_RETRIES=3）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，<code>parallel_dispatch.py:189-249</code> consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（<code>revision_router.py:199</code>，~60-120KB/次）/ dead sidecar 产出 token。根因簇：无输出聚合层 / 无重试预算计量。P0：revision 前加审计聚合去重层；P1：重试预算计量 + TokenLedger 接线（<strong>PR #39 已接 API 路径</strong>）；P2：审计器缺陷共享去冗。</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<h3 id="5-prompt-full-project-audit-prompt">#5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-13-full-project-audit-prompt-design.md</code></li>
+<li><strong>系列</strong>：2026-08-13 全项目审查（总纲；只设计审查 prompt 文档本身，审查执行另起会话）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟠 High（工程卫生总审查的执行载体；产出驱动后续所有修复 spec）</li>
+<li><strong>方法</strong>：<code>brainstorming</code>（已完成）→ 直接编写 prompt 文档（superpowers skill 可选增强 / 无 SDD）</li>
+<li><strong>依赖</strong>：<code>docs/superpowers/single-model-sdd-prompt.md</code>（仅风格先例：Iron Law / 反合理化）；repo spec/INDEX 约定；AGENTS.md</li>
+<li><strong>内容</strong>：设计无时间盒、完备性门驱动（G1-G7）的全项目审查 prompt（交付物：<code>docs/superpowers/full-project-audit-prompt.md</code>，自包含基线 + superpowers skill 白名单可选增强（增强非替代）/ 无 SDD）：四层覆盖模型（D1 机械 100% / D2 模式 100% / D3 语义深读全文件 / D4 磁盘运行时产物与日志审计）+ 双台账（tracked 表 A + 磁盘产物表 B，无 sampled 兜底）+ 分区矩阵 Z1-Z11 + 跨模块审计线程 T1-T16（T10 历史修复回归核验、T11 运行时行为核验 + stub smoke、T12 安全、T13 依赖供应链、T14 确定性替换、T15 git 考古、T16 性能与资源效率）+ per-file 报告/findings ledger schema + 每 finding 独立 spec 产出契约（1 总纲 + N 子 spec + M 级合并批量 spec）+ checkpoint/resume 协议。只审不修。诚实代价：串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话。v2/v3 修订见 spec §0/§0.1（v3 为 2026-08-14 执行 run 的实证修复：G4 双轨收敛、§3.5 攻击角度库、G5 机械对账、G6 分层深核禁稀释、T16 性能线程、final-report 机械统计）。</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<h3 id="8-p1">#8 · 全项目审查执行：门禁有效性（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-gate-effectiveness-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：G3.4 伪造 scorer（F408）/ 并行波无 G3（F345）/ 门序回归（F227）/ GR.2 masking（F401）/ P2.5 空串（F404）/ disabled 维度（F216）/ G7.1b（F432）/ G4 目录参（F163）/ F402/F158</li>
+</ul>
+<h3 id="9-p1">#9 · 全项目审查执行：契约单一信源（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-contract-single-source-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：deps.json 缺 5 skill（F0-02）/ 契约模型 dead-wire（F201）/ 字段过滤（F218）/ rubric 过滤 no-op（F115）</li>
+</ul>
+<h3 id="10-p1">#10 · 全项目审查执行：审计链失效（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-audit-chain-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：快照根错位（F513）/ N 占位不一致（F247）/ declared 无 chapter（F524）/ 路径绕过（F512）/ deleted 零拦截（F507）</li>
+</ul>
+<h3 id="11-drift-p1">#11 · 全项目审查执行：drift 链失效（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-drift-chain-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：baseline 零调用（F602）/ off-by-one（F601）/ 门控（F612）/ 吞异常（F620）/ 判据 12 格式（F637）</li>
+</ul>
+<h3 id="13-p1p2">#13 · 全项目审查执行：配置治理（P1/P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-config-governance-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：4 个绕过向量（F611/F631/F643/F666）+ F606/F638/F635/F614</li>
+</ul>
+<h3 id="15-p1">#15 · 全项目审查执行：依赖供应链（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-deps-supply-chain-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 High</li>
+<li><strong>内容</strong>：dev group 含 sentence-transformers 致降级路径测试 masking（D1-01）；Z11-01 decisions.json 无效产物</li>
+</ul>
+<h3 id="18-fixture-a">#18 · 全项目审查执行：Fixture 真实性与测试质量（补齐 A）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-fixture-authenticity-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：fixtures 56% 手写/伪造（G0.9 声称不符）、scenario↔fixture 断链、伪造基准进门禁、测试质量洞（R1-R4 + P2×31 + M×15）</li>
+</ul>
+<h3 id="19-decisions-b">#19 · 全项目审查执行：Decisions 链（补齐 B）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-decisions-chain-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：decisions.json 全链（T1-01 G4.dec 恒 SKIP = Z11-01 根因、T1-02 producer 零编码、T1-03 写路径无校验、F1303-F1305）</li>
+</ul>
+<h3 id="20-z11-c">#20 · 全项目审查执行：产物契约 Z11（补齐 C）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-z11-output-contracts-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：章节头/META 契约（F1301/F1302）、truth registry 三源合一（F1307/F1322）、状态/账本产物契约（F1309/F1310/F1313）</li>
+</ul>
+<h3 id="21-truth-d">#21 · 全项目审查执行：Truth 写路径（补齐 D）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-truth-write-path-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：T7-01 双写者键漂移、T7-02 hooks 记录丢失、T7-03 staging 分叉、T7-06 state-settling 契约自相矛盾</li>
+</ul>
+<h3 id="22-e">#22 · 全项目审查执行：安全与提示注入（补齐 E）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-security-injection-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：T12-01 wrapper 属性注入、T12-02 持久化注入链 + codex 写面约束 + 命令注入/env/路径穿越 P2</li>
+</ul>
+<h3 id="23-z8-f">#23 · 全项目审查执行：Z8 契约漂移补完（补齐 F）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-z8-contract-drift-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：DEPRECATED 接线拆除（F904/F950/F1004）、reads/writes 声明补全（F953/F1002/F1011 等）、双重调度（F905/F906/F907）、内部矛盾（F903）、drift-guidance（F1001）</li>
+</ul>
+<h3 id="24-g">#24 · 全项目审查执行：工具与门禁链补完（补齐 G）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-tooling-gate-chain-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（补齐）</li>
+<li><strong>内容</strong>：lint 接线/发明值盲区（T201/T302/T9-01/F1212/F1214）、CLI 契约（F140）、并行波/重试（F301/F354/T501/T502）、助手接线（T14-01/03/04）、字段过滤接线（T301）</li>
+</ul>
+<h3 id="3-skill-llm-python">#3 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-01-deterministic-skill-replacement-audit-design.md</code></li>
+<li><strong>系列</strong>：Token 效率全栈 audit（子 spec 2/3，隶属已归档总纲 <a href="../archive/2026-08-01-pipeline-read-write-consistency-audit-design/"><code>archive/...</code></a> §0 分工）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）</li>
+<li><strong>方法</strong>：<code>systematic-debugging</code> 四阶段</li>
+<li><strong>依赖</strong>：已归档总纲 spec；<code>src/shenbi/skill_utils/</code>（9 个已存在的确定性助手）；<code>src/shenbi/pipeline/{context_assemble,truth_io,hook_planting,scr_extractor}.py</code>；归档 <code>2026-07-19-01</code>（覆盖 vs 追加 postmortem）</li>
+<li><strong>内容</strong>：只审 <strong>"这个 LLM 调用本身是否必要"</strong>——能否用确定性 Python 替代（部分或全部）。核心洞察：确定性替换非假设——repo 已 9 次实现该模式（<code>skill_utils/</code> + <code>pipeline/</code> 助手），且 postmortem 证明确定性写路径是 CN3 覆盖 bug 根因修复。形式化<strong>提升判据</strong>（{纯文件操作 / 键值 upsert / 计数 / 固定模板填充 / 阈值比较}）+ 逐候选评估：snapshot-manage（100% 确定，立即可换）/ context-composing（pipeline 模式 85% 确定，helper 已存在）/ state-settling（写半路径已落地 truth_io.py，抽取留 LLM）/ memory-distill（结构字段聚合确定，800 字叙事留 LLM）。铁律：<code>requires_independent_agent</code> 的 skill（review/score）不换。</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<h3 id="14-p2">#14 · 全项目审查执行：确定性助手统计（P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-stats-determinism-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 Medium</li>
+<li><strong>内容</strong>：标点双计/引号恒 0/熵分母/TTR/排比截断/双实现分叉等 21 子项</li>
+</ul>
+<h3 id="16-m-98">#16 · 全项目审查执行：M 级批量（98 条）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-minor-findings-batch-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：⚪ Low（批量）</li>
+<li><strong>内容</strong>：全仓库 M 级文案/命名/格式/过期注释按区分节批量清理</li>
+</ul>
+<h3 id="25-p2-h">#25 · 全项目审查执行：P2 批量（补齐 H）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-14-p2-batch-design.md</code></li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 P2（批量）</li>
+<li><strong>内容</strong>：287 条 P2 按区批量处置，家族统一修复模式（F431 崩溃族/采样截断/契约漂移/死代码/路径参数/错误处理）</li>
+</ul>
+<h3 id="26-6">#26 · 全项目审查执行：快照子系统接线（自 #6 拆分）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-15-snapshot-subsystem-wiring-design.md</code></li>
+<li><strong>系列</strong>：2026-08-14 全项目审查（自 #6 拆分：设计审查裁决三路设计决策无法一行方向化）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟠 P1</li>
+<li><strong>方法</strong>：<code>systematic-debugging</code> 四阶段</li>
+<li><strong>依赖</strong>：无（与 #6 的 closure step 10 契约对齐有衔接面，见各自内容字段）</li>
+<li><strong>内容</strong>：快照子系统三机制并存零接线（F303）：chapter_loop 差分三件套死代码 / crash_recovery 平行实现 / cli rollback deferred；三路裁决（接线 / 收敛后接线 / 移除）+ 按路径定稿验收</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<h3 id="27-c1p0">#27 · 全项目审查执行：读方↔写方键空间对账（簇 C1，P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-reader-writer-key-reconciliation-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C1，67 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（候选元根因 A；P0×1 F340 + P1×22）</li>
+<li><strong>内容</strong>：gate/管线/词表触发器读键与真实写方零对账——死检查清剿（F450-F470 族）、marker 协议单源（F121/F463）、rubric 适用性（F104/F757）、g_reconcile 假 FAIL（F449/F710）、审计级联/resonance 触发器格式对账（F372/F375/F643）+ 新增 lint_key_reconciliation 防复发</li>
+</ul>
+<h3 id="28-layer-b-reads-c2p1">#28 · 全项目审查执行：Layer B 字段级 reads（簇 C2，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-layerb-field-reads-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C2，13 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：字段过滤生产调用点死线（F224）+ escape-hatch 静默丢弃（F201）+ 19/35 声明零命中（F239/F824-F880 族）——过滤链接线、声明对账、字段存在性 lint</li>
+</ul>
+<h3 id="29-truth-upsert-c3p0">#29 · 全项目审查执行：truth upsert 接线（簇 C3，P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-truth-upsert-wiring-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C3，21 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（候选元根因 B；P0×3 F360/F868/F1101）</li>
+<li><strong>内容</strong>：append_dedup 原语零接线 → 派发路由 truth_io upsert（T1402 方向）；原语自身数据丢失缺陷（T701-T707：CJK 键互删/结构坍缩）；18 updates 目标×reads 闭合（F828）；幂等护栏防 F1104/F1105 复发</li>
+</ul>
+<h3 id="30-decisions-c4p0">#30 · 全项目审查执行：decisions 链（簇 C4，P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-decisions-chain-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C4，17 条；承接归档 #19 未完成面）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（P0×2 F1102/T101）</li>
+<li><strong>内容</strong>：derive_file_type 逐产物路由修复 .md 绕过 G2（T101）、G4 文件集接入 sidecar（F434/F795）、schema 对齐 145 生产样本（F237/F791）、producer 声明四源对账（T106）、P2.5 矩阵四源一致（F212）</li>
+</ul>
+<h3 id="31-g3-c5p1">#31 · 全项目审查执行：G3 独立性（簇 C5，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-g3-independence-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C5，6 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：run_gate_g3 自造 progress.json 自我满足（F794/F320）、scoring/escalation bridge 零消费者（F114/F506）、provenance 失真（F113）——fail-closed + 反坍缩链接线</li>
+</ul>
+<h3 id="32-driftcjk-c6p1">#32 · 全项目审查执行：drift/CJK 度量（簇 C6，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-linguistic-drift-cjk-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C6，21 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：触发条件不可达（F602 5.0&gt;5.0）、CJK 引号/对白度量恒 0（F601/F625/F404）、双基线三重分裂（F617）、共振分死分支（F304）——text/cjk.py 度量单源 + 阈值单源 + 影子模式上线</li>
+</ul>
+<h3 id="33-helper-c7p1">#33 · 全项目审查执行：确定性 helper 接线（簇 C7，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-deterministic-helper-wiring-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C7，5 条；候选元根因 C）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：baseline 生产者零调用（F376/F604）、五件套纯 prompt 接线（T1442）、anti-ai 双重体系（T1441）——派发前钩子注入 helper 预计算 + lint_helper_usage 防复发；T14 候选表按优先级排期</li>
+</ul>
+<h3 id="34-c8p2">#34 · 全项目审查执行：状态词表单源（簇 C8，P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-status-vocab-single-source-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C8，24 条；候选元根因 D 分簇一）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 P2（面广量大）</li>
+<li><strong>内容</strong>：36 域仅 9 域在单源内（T901）、severity 六词表并立且 21.1% 生产越表（T903）、lint 三重覆盖洞（T905）、HARD_FAIL 越表（F402/F711）——按 F771 同族统一方向收编 enums.py + lint 补洞</li>
+</ul>
+<h3 id="35-c9p1">#35 · 全项目审查执行：阈值/配置契约（簇 C9，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-threshold-config-coherence-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C9，18 条；候选元根因 D 分簇二）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：阈值多源矛盾（F134/F411/F760/F846/F818）、契约规则 9 缺 2（F232）、E11 检查死线（F436）、"林烽"硬编码（F443）——thresholds.py 单源 + genre-config 契约补全 + 阈值对账 lint</li>
+</ul>
+<h3 id="36-token-c10p0">#36 · 全项目审查执行：token 计量（簇 C10，P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-token-metering-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C10，20 条；候选元根因 E；承接归档 #12 未完成面）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（P0×2 F301/F504；56 章生产零计量 F1115）</li>
+<li><strong>内容</strong>：按 T401 修复形状——记录点去 state 门控（_dispatch_via_api 现场落账，一处接通 13/13 API 点）→ chapter 现场值（F505）→ 集成护栏（T409）→ 消费自动化（T402）→ IDE/子进程估记（F796）→ 报告面（T404/T405/T406）</li>
+</ul>
+<h3 id="37-durability-c11p0">#37 · 全项目审查执行：并发/durability（簇 C11，P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-concurrency-durability-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C11，24 条；候选元根因 H）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical（P0×1 F630；T605 双进程实跑复现）</li>
+<li><strong>内容</strong>：WriteLock 纯建议性全绕锁清单收敛 safe_write+flock（T605）、锁原语互斥修复（T603/F111）、cmd_init TOCTOU（F327）、materialize 覆盖改合并（F630）、write-audit durability（F534）、并发回归套件固化</li>
+</ul>
+<h3 id="38-c12p1">#38 · 全项目审查执行：裸崩边界（簇 C12，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-crash-boundary-guards-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C12，28 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：子进程边界统一守卫 helper（F106/F107/F125/F403）、LLM stdout 提取硬化拒绝垃圾落盘（F203/F329/T509）、CLI argparse 化（F102/F123）、shenbi-score exit 0 断链修复（F976）</li>
+</ul>
+<h3 id="39-c13p1">#39 · 全项目审查执行：静默吞错（簇 C13，P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-silent-swallow-partial-validation-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C13，35 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：吞门禁清剿（F103 except-pass / F535 G7 坏行 break / F708-F709 测试 pin 死代码）、假值绕过（F637/F133/F132）、checker 只验字样（F420/F430/F405）——违规构造样本驱动的校验完备性回归套件 + blind-except lint</li>
+</ul>
+<h3 id="40-2026-08-15-37-master">#40 · 2026-08-15 审计修复总纲（37 簇 master）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-remediation-master.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（总纲；supersede #17 的 catalog 角色）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🔴 P0（总纲）</li>
+<li><strong>内容</strong>：phase4 37 簇修复优先级矩阵（P0×7 簇=191 条 / P1×26 簇=483 / P2×4 簇=100，纯 M 簇 0 个）、跨簇依赖链（C32→C33→成本类、C3+C34→C1 验收、C10→C28/C33、C19#26→C37 解冻、C16→C14→C15）、量级汇总（L×7/M×22/S-M×8，3 泳道 6-9 周墙钟）、与既有 23 活跃 spec 的 supersede/解散/保留关系表、回写协议（737 条 merged）</li>
+</ul>
+<h3 id="41-c27p1">#41 · 审计修复 C27：供应链/安全审计盲区（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c27-supply-chain-audit-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C27，9 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：pip-audit 审临时环境非项目依赖集（T1301 verified）/ docs 组排除在 Security 门与 SBOM 外（T1303 verified，mkdocs 栈 26 包）/ CVE-2026-67422 处置闭环（T1302）/ GPL 口径成文（T1304）/ 死依赖与虚构 weekly 审计（T1305/F912）——审计对象对齐 uv.lock 全集 + SBOM 分组口径；supersede #15</li>
+</ul>
+<h3 id="42-c28p1">#42 · 审计修复 C28：性能反模式（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c28-perf-antipatterns-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C28，13 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：C10（token 落账为收益基线）</li>
+<li><strong>内容</strong>：审计波重复注入全章文本 29%（T1601 verified，56 章 ~1.74M 冗余 token）/ registry 重解析（F215/T1606/T1613）/ SentenceTransformer 重载 + Route B 无负缓存（F328/T1603）/ 快照与 save_state 与前章标题 O(N²)（T1607-T1610）/ 门禁子进程 import 96% 开销（T1604）——共享注入 + 缓存化 + 增量化 + 懒加载，benchmark 基线防回归</li>
+</ul>
+<h3 id="43-c29p2">#43 · 审计修复 C29：截断/采样/排序静默（P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c29-truncation-observability-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C29，8 条；唯一推理假设簇）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 P2</li>
+<li><strong>内容</strong>：32K 截断无标记且标记可被切（F361）/ 预算不再分配（F330）/ pending_hooks 截 3000 字符为 5/6 审计唯一视角（F362）/ G6·G5 采样截窄 PASS 不披露（F459/F235）/ 章号字符串排序（F326）/ trace 截断无日志（F620）——截断标记协议 + 采样披露字段 + 数值排序；内置修复前最小实证闸门</li>
+</ul>
+<h3 id="44-c30staging-p1">#44 · 审计修复 C30：章循环状态机/staging 生命周期（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c30-chapter-loop-staging-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C30，20 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：C3（staging 提交路由先定稿）；与 #26 共享 crash_recovery 面</li>
+<li><strong>内容</strong>：atexit 清 staging 丢未提交产物（F318）/ staging commit 丢 sidecar（T102 verified）/ auto 模式 resume 游标重置回第 1 章静默覆盖（F371 verified）/ MODIFY 先提交再重派覆盖人工编辑（F323）/ step-2 过早装配每章 2× Route B 停顿（T1602 verified/F358）/ SCR 缓存无失效（F310）/ 跨代步名无迁移（F797）——staging 清理谓词定稿 + 游标锚定 + 步骤表去魔法索引</li>
+</ul>
+<h3 id="45-c31p1">#45 · 审计修复 C31：注入/越权安全面（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c31-injection-authorization-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C31，10 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：审计报告解析器无作用域 first-match——被审文本伪造 G4 判定与共振分数（T1201 PoC verified）/ <code>&lt;</code> 转义恒等 no-op（F308 verified）/ phase 参数路径穿越（F105 verified）/ symlink 写逃出 project_dir（T1204）/ env 全量继承泄密钥（T1207）/ 会话日志残留 OAuth URL（F1161）——判定信封化 + 路径边界 + env 白名单 + 日志脱敏；supersede #22（T12-01/04/05 重立为 T1206/T1207/T1204）</li>
+</ul>
+<h3 id="46-c32p0">#46 · 审计修复 C32：写审计机制（P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c32-write-audit-mechanism-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C32，11 条，P0×3）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 Critical</li>
+<li><strong>内容</strong>：<code>_matches_declared</code> 不 fnmatch——glob 契约合法写恒判未声明，3 次生产 GATE_FAIL（F529 P0 verified）/ 未声明写入结构性零真阳性（F520）/ 整体删除与删除重建逃逸（F502 P0、F515）/ parametric 双向失效（F501 P0）/ API/IDE 路由整体绕过（F518）/ drift 误归属级联 rc=2（F516）——fnmatch 修复与 diff 谓词完备化必须同 PR；supersede #10；是 C33 的前置</li>
+</ul>
+<h3 id="47-c33p1">#47 · 审计修复 C33：重试/失败分类统一（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c33-retry-failure-taxonomy-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C33，11 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：C32（rc=2 语义）+ C10（重试成本落账）</li>
+<li><strong>内容</strong>：三套退避互不协调（T507）——tenacity 对 openai SDK 异常永不触发（F977 verified）但 SDK 隐式 max_retries=2 存在，无约束修复放大至 27 请求/任务（T506 verified）/ audit_retry_count 无重置路径（T508 verified）/ 确定性失败烧 6 次全价调用（T512）/ rc=2 与瞬时失败不可区分（F533）——失败分类枚举 + 全局重试预算 + 计数器生命周期；吸收 #24 重试面与 #4 的 F8 重试放大</li>
+</ul>
+<h3 id="48-c34p1">#48 · 审计修复 C34：路径/布局契约统一（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c34-path-layout-contract-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C34，14 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：skill-output/novel-output/project-output 三布局并存，rd/project_dir 语义从未统一——phase_runner G4 传错参致 T2 永久阻塞（F101 verified）/ checker 忽略 rd 假 FAIL（F401 verified/F433/F456/F457/F408）/ 快照根=框架仓库根（F519）/ CWD 依赖（F628/F115/F119）/ G1.4 checker 内写 .bak（F412）——一页路径协议 + resolve 单入口 + 观测面同根；supersede #8 的 R8/F163 面；是 C1 对账 lint 验收的地基</li>
+</ul>
+<h3 id="49-c35p1">#49 · 审计修复 C35：审计过程自身卫生（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c35-audit-process-hygiene-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C35，18 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：上轮 verified 零承接（F1177）/ 跨轮 F 编号 72/123 碰撞（F978）/ ledger 畸形行与记账缺口（F972/F973/F975/F969/F1176）/ 不可复现声称与重复立案（F767/F768/F894）/ 孤儿分支与 INDEX 计数漂移（T1502/T1507）——audit-lint 三方对账 + 跨轮承接清单 + ID 命名空间隔离 + severity 校准 11 项落账（phase4 §4）；全程可并行</li>
+</ul>
+<h3 id="50-c36print-p1">#50 · 审计修复 C36：print 违禁与框架纯度豁免（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c36-print-purity-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C36，3 条窄根因小簇）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：src/shenbi 6 处 print（cost/report.py:93,95、pipeline/cli.py:945,947、escalation/check.py:149、foreshadowing_recall/recall.py:61，D102 git grep 实跑）+ CLI 豁免边界未成文 + 无 lint 执法——shenbi.console 薄封装（或文件级豁免）+ 豁免规则入 AGENTS.md + lint 进 just check/ci.yml（与 C25 合写面）</li>
+</ul>
+<h3 id="51-c37p1">#51 · 审计修复 C37：死代码清理与零接线执法（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-c37-dead-code-enforcement-design.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C37，43 条最大 P1 簇）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：C3/C7/#26(C19)/C28 各接线裁决后执行</li>
+<li><strong>内容</strong>：三桶裁决（接线移交/删除/deferred）收口 43 处——假防线类优先（error_guidance/recovery 谎称消费 F108/F109、注释谎称接线 F378、G0.13 承诺失效 F903、genesis-context 零消费 F886 verified）；死模块/死表/死参数/死常量批量删（volume_align/CONDITIONAL_STEPS/compact/迁移器/死旋钮 F366 等）+ 直测死函数随删（协同 C14）+ vulture 式 CI 执法防回归；R0 分桶表是硬闸，未经认领的删除禁止合入</li>
+</ul>
+<h3 id="52-c14p1">#52 · 审计修复 C14：弱断言/自证测试（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-weak-assertions-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C14，26 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：自证壳重写（F704 内联重实现 / F701 同义反复 / F702 <code>or True</code> 恒真 / F728 生产注入块零覆盖 / F729 C1 守卫恒真，均 verified）+ 恒真空断言批量改写（F703/F705/F712/F713/F719/F730-F735/F743/F744）——红灯验证法（破坏生产代码必须变红）+ 禁用模式 meta 检查防回潮；只改测试不改生产（孤儿模块归 C37）</li>
+</ul>
+<h3 id="53-c15p2">#53 · 审计修复 C15：关键模块/分支零覆盖（P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-zero-coverage-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C15，12 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 P2</li>
+<li><strong>内容</strong>：仓内变更器 sync_contracts 56%（F112）+ dispatcher/cli 0%（F216）+ G2.dec 恢复路径（F418）+ g4 检查器 12%/零引用（F417/F765）+ parallel_dispatch 重试退避（F738）+ audit_context_cache（F737）等 12 面补行为级测试 + per-module 覆盖率底线表（跌破即 CI FAIL，留 5-10pp 余量防 flaky）</li>
+</ul>
+<h3 id="54-c16fixture-g09-p0">#54 · 审计修复 C16：fixture 真实性与 G0.9 执法（P0）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-fixture-authenticity-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C16，31 条；候选元根因 F 核心）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟥 P0（F751 内容级断链）</li>
+<li><strong>内容</strong>：g0_purity 三检查（引用存在性闭包 / provenance 三态 / 变体旁路纳入，T801 verified 零执法）+ bug-hunt expected 证据内容级校验（F751/F754）+ 复制体/角色滥用/伪造快照/27 虚构锚点清理重建（F777/F753/F779/F776，G0.14 锁值重算）——吸收 #18 未执行 R1-R4（#18 待归档）；四链传导（T809）收口</li>
+</ul>
+<h3 id="55-c17p1">#55 · 审计修复 C17：测试基础设施配置失效（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-test-infra-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C17，18 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1（F1159 回归重放双重死亡）</li>
+<li><strong>内容</strong>：hypothesis 样本入库 + CI replay（F1159/T1107/T1108 族）+ doc-links 拆 per-PR CI（F001/F732，承载 C23）+ mutmut 空转修复或诚实下线（T1104 实测 editable .pth 根因）+ golden/benchmark 建集或删承诺（F741/F742）+ G0.5 假 PASS 清理（T1109）——每条防线"激活或下线"二选一，消灭配置存在但永不运行态</li>
+</ul>
+<h3 id="56-c18p1">#56 · 审计修复 C18：生产产物污染清洗（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-artifact-contamination-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C18，17 条；候选元根因 G）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：与 C11 写安全协同；R5 覆写面在 #7 不重复</li>
+<li><strong>内容</strong>：F1171 权威复扫 109 文件元叙述污染（audits 55+snapshots 37+staging 9+decisions 7+正文 1，verified）+ 2 章手算 resonance（F1162/F1172 铁律 3 实证）——派发层沙箱写权根治（临时区+原子搬入）+ 产物 lint（元叙述/手算自证/时间戳倒挂）+ 分层清洗与机器重算；清洗前后 lint 计数对照可复验</li>
+</ul>
+<h3 id="57-c19p1">#57 · 审计修复 C19：快照子系统半迁移收口（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-snapshot-unify-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C19，12 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：#26 三路裁决先决（路径 3 移除时本 spec 大部分自动失效）</li>
+<li><strong>内容</strong>：F351 step-15 空操作 + F1109 生产实证失能（拼接审计非正文、漏 ch1-4/ch56）——布局/命名单源化（F792/F350/F306 三套并存）、TRUTH_FILES 从 truth-files.yaml 派生（F348 缺 book_strata/arcs）、state_heal 识别定稿布局（F317）、词表 D20 协调（F1155）+ 恢复演练与 F1109 复验脚本</li>
+</ul>
+<h3 id="58-c20p1">#58 · 审计修复 C20：技能契约声明面断裂（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-skill-contract-declaration-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C20，21 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：契约闭合 lint（R1 正文引用⊆声明 / R2 声明 writes⇒正文有步骤）+ P1 十技能修复（F836 memory-distill L5 盲写风险 / F811 context-composing 写未声明+时序错位 / F838 market-radar 必然 JSON 校验失败 / F870 越权写 / F871 dedup key 错配 等）+ D104 meta skill 契约二义性裁决——#23 声明面并入（待归档）；token 预算与 C2 Layer B/C29 截断协同</li>
+</ul>
+<h3 id="59-c21p1">#59 · 审计修复 C21：技能注册/触发路由漂移（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-skill-routing-deprecated-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C21，12 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：GENESIS_STEPS 换 lifecycle 排在 C3/C20 契约定稿后</li>
+<li><strong>内容</strong>：F873（verified）触发表路由 14 个 DEPRECATED 且后继零触发行 + F887 GENESIS_STEPS 仍派发 plant + F816/F817/F819 deps.json 仍注册——三路由面拆除 + 后继触发行补齐 + description 契约整改（F835/F842/F877 when-to-use）+ 防回潮 lint（DEPRECATED⇒零路由）；#23 拆除面并入（待归档）</li>
+</ul>
+<h3 id="60-c22p1">#60 · 审计修复 C22：平行登记表对账门禁（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-registry-reconcile-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C22，29 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：T209 canonicalizer 裁决先于 R2 词表闭包</li>
+<li><strong>内容</strong>：单一对账 lint 五规则（R1 技能闭包八面 / R2 词表闭包 / R3 哈希新鲜度 / R4 迁移表 / R5 glob 有效性）+ 存量修正（F432 G5_CHECKER_GLOBS 假 FAIL 生产面 / F1004 master.json 缺 15 技能 / F414 SHORT_MAP 缺 11 / F756 66 过期哈希 / F231 三方 74-69-69）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（待归档）</li>
+</ul>
+<h3 id="61-c23p1">#61 · 审计修复 C23：文档机械漂移（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-docs-mechanical-drift-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C23，46 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：C17 T2 doc-links CI 承载</li>
+<li><strong>内容</strong>：断链清零（F901 执行协议引用已删脚本 / F461/F1034 / F952 / F968 归档 32 路径）+ 计数去数字化（69/59/15 族四文档 vs 磁盘 74，F904/F1033 合并域）+ 行号锚点改符号引用（T1001 第三次漂移教训）+ docstring 过期批量清——与 C24 共用"文档对账工具+CI"（phase4 §7 合并建议的机械半）</li>
+</ul>
+<h3 id="62-c24p2">#62 · 审计修复 C24：文档语义矛盾（P2）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-docs-semantic-conflicts-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C24，56 条最大文档簇）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟡 P2 | <strong>依赖</strong>：阈值/词表类等 C9/C22/C16 定源后改引用</li>
+<li><strong>内容</strong>：裁决次序表（代码实值 &gt; 最新设计 &gt; 多数版本）+ DOT↔正文矛盾修复（F837/F852/F855，DOT 为权威）+ 缺失件补齐（F893 五技能缺 DOT 含 group-* 主力 / F801/F813 anti-rationalization 表）+ INDEX/spec 体系自洽（F935 排序 / F936 编号 / F938 重复 / F946-F950 勘误注）+ 术语/刻度统一（F885 X/10 vs /100）</li>
+</ul>
+<h3 id="63-c25cijust-p1">#63 · 审计修复 C25：CI/just 双向同步漂移（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-ci-just-sync-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C25，24 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1 | <strong>依赖</strong>：是 C17/C20/C21/C22 新 lint 的承载前提（先于此执行）</li>
+<li><strong>内容</strong>：清单一源化（CI 调 just check，F004/F005/F1001/F1002 双向洞 + AGENTS.md 等价命令失真）+ coverage 工件隔离（D101 collect-only 污染 16.08% / F1040 just test 假失败，AGENTS.md PR 协议 4 制度化）+ hook/工具激活面（F1038/F1011/F1012/F1015/F1036）+ workflow 修复（F1006/F1007/F1021）+ T1504 novel-output 22.7MB 反忽略出库（与 C18 协同）</li>
+</ul>
+<h3 id="64-c26shelljust-p1">#64 · 审计修复 C26：shell/just 包装层注入（P1）</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-16-audit-shell-injection-fix.md</code></li>
+<li><strong>系列</strong>：2026-08-15 全项目深度审计 · 阶段 5（簇 C26，11 条）</li>
+<li><strong>状态</strong>：Design | <strong>优先级</strong>：🟠 P1</li>
+<li><strong>内容</strong>：F1031（verified）just 全 recipe 参数无引用插值——自然语言 prompt 含 ;/$() 即任意命令（AGENTS.md 标准入口即攻击面）→ argv/env 安全传递模式 + 六类注入样本矩阵回归；F002 run_pipeline.sh 自动 approve ESCALATION + 直改 step_index → 白名单 opt-in 或降级 smoke 工具；F1013/T1205 python3 -c 拼接实证可执行任意 Python → argv 传参 + JSON 工具解析；README 示例实测（F902/F1030）</li>
+</ul>
+<h3 id="6-token-p2-dispatch-ide-cli-system-user-skillmd">#6 · Token 效率 P2 效率优化：跨 dispatch 缓存 / IDE-CLI system-user 分离 / 重示例 SKILL.md 外置</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-02-token-efficiency-p2-cache-ide-split-example-externalization-design.md</code></li>
+<li><strong>系列</strong>：Token 效率全栈 audit（P2 效率优化轮，承接已归档总纲 §6.3 P2 五项中的 3.3/3.9/3.10；3.2 归 #4（输出侧浪费），2.3 #8/#9 视 §3 而定）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟡 Medium（效率优化，非阻塞；度量前提 TokenLedger 已由 PR #39 落地；每项需 G4 全量验证 + 准备回滚）</li>
+<li><strong>方法</strong>：<code>systematic-debugging</code> 四阶段</li>
+<li><strong>依赖</strong>：已归档总纲（Cluster C 重复传输根因簇、§3.3/§3.9/§3.10 findings）；<strong>PR #39</strong>（TokenLedger API 路径接线 = 全部收益的度量前提；<code>_input_key</code> = 缓存 key 基础；<code>_strip_autogen_blocks</code> = system 字节稳定前置）；<code>src/shenbi/pipeline/{dispatch_helper,audit_context_cache,chapter_loop}.py</code>；<code>skills/shenbi-{chapter-pattern,review-resonance,review-arc-payoff,state-settling}/SKILL.md</code></li>
+<li><strong>内容</strong>：把总纲 P2 三项从提议推进到可实施——(1) §1 跨 dispatch 文件缓存层（保守首版：read-only truth 文件 only，规避 content-hash 失效语义；<code>pending_hooks</code>/<code>current_state</code> 等高 churn 文件不入缓存）；(2) §2 IDE-CLI system/user 分离（默认形态=system 字节稳定回归测试；强形态=CLI 支持 <code>--system</code> flag 才做，否则 stretch 放弃）；(3) §3 重 SKILL.md 示例外置到 <code>skills/_shared/</code>（同时解决 2.3 #9），首次 dispatch 带、后续引用，逐 skill 可回滚。实施顺序 T_A→T_B→T_C→T_D（风险升序）。与审计 #42（C28 性能）分工：彼覆盖审计波共享注入/registry/SentenceTransformer 缓存化，本 spec 为跨 dispatch 只读 truth 文件缓存。</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<h3 id="65-reads-truth">#65 · 字段级 reads 覆盖率：三大 truth 文件的精准切片</h3>
+<ul>
+<li><strong>文件</strong>：<code>2026-08-02-field-level-reads-coverage-design.md</code></li>
+<li><strong>系列</strong>：Token 效率全栈 audit（契约层补漏，承接已归档总纲 §3.7 + §6.2 P1 第二项；PR #39 plan T8 延后项——原延后理由"字段名需真实 round 输出验证"已由 <code>novel-output/</code> 真实 round header 解决）</li>
+<li><strong>状态</strong>：Design</li>
+<li><strong>优先级</strong>：🟡 Medium（P1 契约一致 + 效率；浪费量大但字段名匹配有准确性风险）</li>
+<li><strong>方法</strong>：<code>systematic-debugging</code> 四阶段</li>
+<li><strong>依赖</strong>：已归档总纲 §3.7/§6.2；<code>contracts/fields.py</code> <code>filter_to_fields</code>；<code>audit_context_cache.py</code> <code>_extract_volume_chapter</code>；<code>skills/shenbi-{chapter-planning,context-composing,review-world-rules}/SKILL.md</code>；真实 round header（<code>novel-output/*/world/power_system.md</code> + <code>outline/volume_map.md</code>）</li>
+<li><strong>内容</strong>：解决 PR #39 T8 延后项。三大文件分类处置——(1) <code>power_system.md</code>（固定 header）：review-world-rules + context-composing 声明 fields（能力边界/代价机制/力量天花板 等），~28.8KB→~8-12KB；(2) <code>volume_map.md</code>（动态卷标题，不可 fields）：把已有 <code>_extract_volume_chapter</code> 提取器接入通用 read 路径（选项 A：新 <code>extractor:</code> 契约字段），~26.3KB→~500B-2KB；(3) <code>chapter-N.md</code>（连续 prose 无 section）：<strong>显式不本 spec 管</strong>，归 P2 spec #6 cache + 确定性替换 #4 snapshot。逃逸门 WARN 即缺陷（field 声明必须字节匹配真实 header）。审计修复 #28（字段过滤死线/escape-hatch 修复）为接线前置。</li>
+<li><strong>对应 plan</strong>：❌ 未写</li>
+</ul>
+<hr />
+<h2 id="_2">登记与编号约定</h2>
+<ul>
+<li>新增 spec 时在此登记：<code>### #NN · &lt;title&gt;</code> + 文件/系列/状态/优先级/方法/依赖/内容/对应 plan 字段；编号 = 现有最大号 +1</li>
+<li>spec 完成（Done）或驳回（Rejected）→ 移 <code>archive/</code> 并从本页删行；<strong>编号是历史唯一标识，不重编号、不复用</strong>（系列/依赖字段按编号交叉引用，重编号会断链）</li>
+<li>本页不维护归档计数与归档分类汇总</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

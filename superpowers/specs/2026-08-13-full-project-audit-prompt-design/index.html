@@ -1,0 +1,2109 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-13-full-project-audit-prompt-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>全项目深度审查 Prompt 设计（full-project-audit-prompt） - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="全项目深度审查 Prompt 设计（full-project-audit-prompt） - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-13-full-project-audit-prompt-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/2026-08-13-full-project-audit-prompt-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="全项目深度审查 Prompt 设计（full-project-audit-prompt） - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/2026-08-13-full-project-audit-prompt-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prompt-full-project-audit-prompt" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              全项目深度审查 Prompt 设计（full-project-audit-prompt）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#0-v2-2026-08-13-full-project-audit-promptmd-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0. v2 修订记录（2026-08-13，人类指示；交付物 full-project-audit-prompt.md 已同步升级为 v2）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0. v2 修订记录（2026-08-13，人类指示；交付物 full-project-audit-prompt.md 已同步升级为 v2）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. 审计机制自身修复（v1 的洞，最优先）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-wide-v1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Wide 维度补充（v1 缺失）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c-deep-v2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. Deep 维度加强（v2 变更）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#d" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        D. 其他
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#01-v3-2026-08-15-full-project-audit-promptmd-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        0.1 v3 修订记录（2026-08-15，人类指示；交付物 full-project-audit-prompt.md 已同步升级为 v3）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="0.1 v3 修订记录（2026-08-15，人类指示；交付物 full-project-audit-prompt.md 已同步升级为 v3）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A. 审计机制自身修复（源自 run 复盘，最优先）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#b-wide-v3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        B. Wide 维度补充（v3 新增）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#c" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        C. 诚实边界与防偷懒
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景与目标
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景与目标">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 用户需求（已确认，逐字对齐）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 关键设计张力与裁决
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 交付物
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-prompt-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. Prompt 的总体流程：漏斗 7 阶段（完备性门驱动，无时间盒）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-d1d2d3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 覆盖模型：三层 D1/D2/D3 + 覆盖台账
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 覆盖模型：三层 D1/D2/D3 + 覆盖台账">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#41-d3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4.1 D3 排序（派发顺序优化，非覆盖裁剪）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-g1-g7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 完备性门 G1-G7（唯一终止条件，取代时间盒）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-z1-z11-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 分区矩阵 Z1-Z11（阶段 2 派发单元）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-t1-t11-3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 跨模块审计线程 T1-T11（阶段 3，第一公民）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-schema-tracked" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 报告与台账 schema（写入 tracked 审计目录）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9-spec-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. Spec 产出契约（阶段 5）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#10-anti-rationalization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        10. 防偷懒机制与 Anti-Rationalization 表
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#11-prompt-toc" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        11. 交付物 prompt 文档 TOC
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#12-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        12. 本 spec 的验证标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        13. 依赖关系图
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="prompt-full-project-audit-prompt">全项目深度审查 Prompt 设计（full-project-audit-prompt）</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-13
+<strong>Status:</strong> Design（v1 已交付并执行一轮完毕；<strong>v2 修订记录见 §0，v3 修订记录见 §0.1</strong>）
+<strong>Severity:</strong> 🟠 High（工程卫生总审查的执行载体；其产出的每一条 finding 是后续所有修复 spec 的来源）
+<strong>方法:</strong> <code>brainstorming</code>（已完成）→ 本文档 → <strong>直接编写 prompt 文档</strong>（用户 2026-08-13 更正：superpowers skill 可作为<strong>可选增强</strong>用于提升审查/spec 质量；仍不走 writing-plans、不用 SDD 流程）
+<strong>系列:</strong> 2026-08-13 全项目审查（总纲；本 spec 只设计<strong>审查 prompt 文档本身</strong>，不包含审查执行）
+<strong>依赖:</strong> <code>single-model-sdd-prompt.md</code>（仅作 Iron Law / 反合理化表的<strong>风格先例</strong>）；superpowers skill 白名单（可选增强，见 prompt §1.5 映射）；repo spec 约定（specs/INDEX.md 登记、archive 流程）；AGENTS.md（三层测试、G0-G7、decisions-sidecar、字段级 reads、G0.9 fixture 真实性——prompt 的执行依据）
+<strong>范围:</strong> 交付物为 <code>docs/superpowers/full-project-audit-prompt.md</code>。审查执行、findings 修复、子 spec 产出<strong>均不在本 spec 范围内</strong>——它们是该 prompt 被执行后的产物。执行者：任意有文件读写 + 命令执行能力的会话；子 agent 派发为<strong>可选</strong>能力，无则串行。
+<strong>核心洞察（决定本 spec 框架）:</strong> 用户已明确<strong>无时间盒</strong>、"最深入最广"。无时间约束的审查必须由<strong>完备性门驱动而非时钟驱动</strong>——否则要么无限审、要么执行者自我妥协降级为抽样。全量深读 65K 行 Python + 74 skills + 200 docs + 独立复核的诚实代价是串行 100+ 小时 / 并行墙钟 20-40 小时、跨 10-20 个会话，因此<strong>可恢复性是第一公民</strong>，且执行者<strong>不得自行宣布完成</strong>（最终"够了"由人类拍板）。</p>
+</blockquote>
+<hr />
+<h2 id="0-v2-2026-08-13-full-project-audit-promptmd-v2">0. v2 修订记录（2026-08-13，人类指示；交付物 <code>full-project-audit-prompt.md</code> 已同步升级为 v2）</h2>
+<p>v2 由一轮独立评审驱动（评审结论：wide ≈ 90/100、deep ≈ 88/100；v1 存在 1 个自身机制 bug、2 个结构性盲区、若干维度缺失）。逐条变更如下，prompt 中对应位置在括号内：</p>
+<h3 id="a-v1">A. 审计机制自身修复（v1 的洞，最优先）</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>v1 问题</th>
+<th>v2 修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td><strong>并行 agent 写同一报告文件会互相覆盖</strong>：Z7/Z8 拆多 agent 并行，但 §5 模板要求"追加写入 <code>zone-reports/Z&lt;N&gt;.md</code>"——Write 是全量覆盖，并行写 = 互相抹除，且协调者会误判"假深读/报告缺失"</td>
+<td>写隔离（铁则 6 + §4 阶段 2 写协议）：每 agent 只写独立段文件 <code>Z&lt;N&gt;.&lt;seg&gt;.md</code>，协调者收齐后合并为 <code>Z&lt;N&gt;.md</code> 才进复核；并行上限 ≤6；模板同步改为段文件</td>
+</tr>
+<tr>
+<td>A2</td>
+<td><strong>G2/G4 收敛判据"0 新 C/I"依赖严重度判定，而严重度无决策表</strong>：复核 agent 可把新发现压成 M 宣称收敛（可游戏化）；阶段 4 校准升级严重度不会触发重审</td>
+<td>① 收敛判据收紧为 <strong>0 新 finding（含 M）</strong>（G2/G4/原则 5）；② 新增 <strong>§8.1 严重度决策表</strong>（P0/P1/P2/M 触发条件 + 5 条判定规则），子 agent 派发时完整内联；③ 铁则 5：复核无权单方降级初审严重度（异议交协调者裁决）；④ 阶段 4 校准<strong>升级</strong> → 该区/线程强制补复核</td>
+</tr>
+<tr>
+<td>A3</td>
+<td><strong>G6 meta-audit 的 ≥20% 抽样方法未指定</strong>：执行者自选样本 = 挑容易的过</td>
+<td>抽样种子阶段 0 预先登记（§2 + §7.1 progress.md schema）：固定随机种子 + 按区成层 + 高风险区（Z3/Z4/Z5/Z11）与低置信度文件必抽；假深读判定规则明确（3 条）+ 结果落 <code>meta-audit.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-wide-v1">B. Wide 维度补充（v1 缺失）</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>v1 缺失</th>
+<th>v2 补充</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td><strong>安全维度整体缺席</strong>（D1 禁用模式 grep 不是安全审计；11 条线程无一条安全）</td>
+<td>新线程 <strong>T12 安全</strong>（凭证泄露/命令注入/路径遍历/prompt injection 面/敏感数据落盘）+ D1⑧ 凭证扫描（git 全历史 + 工作树）+ 阶段 1 维度 8 + 通用 rubric 维度 9 安全初查 + findings 类别新增 <code>security</code> + 白名单新增 <code>superpowers:security-review</code></td>
+</tr>
+<tr>
+<td>B2</td>
+<td><strong>依赖与供应链</strong>：仅"锁定卫生"一句话</td>
+<td>新线程 <strong>T13 依赖与供应链</strong>（D1⑨ 漏洞清单核实/未使用依赖/重型依赖必要性/许可证/uv.lock 可复现/<code>.venv</code> 漂移/plugins 依赖面）+ D1⑨⑩⑫（uv audit、deptry/uv tree 初判、uv lock --check）+ findings 类别新增 <code>deps</code> + 阶段 1 维度 7</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><strong>前序审计未播种</strong>：08-01 确定性技能替换 audit-design（self 标注"单候选 payoff 最高"）在 T1-T11 完全缺席</td>
+<td>新线程 <strong>T14 确定性技能替换</strong>（承接 Z8 候选初筛；用 <code>skill_utils/</code> 9 先例判据逐候选 payoff 数值化）+ Z8 增加候选初筛维度</td>
+</tr>
+<tr>
+<td>B4</td>
+<td><strong>被跳过测试无处置要求</strong>（v1 执行 2814 passed + 214 skipped）</td>
+<td>D1⑪ skip/xfail 清点（<code>pytest --collect-only</code>）+ Z7 逐条处置规则（keep/enable/stale/masking；masking=P1、stale=P2）</td>
+</tr>
+<tr>
+<td>B5</td>
+<td><strong>覆盖率缺口无处置要求</strong>（85.14% 的缺口只用于排序）</td>
+<td>D1⑥ 输出每文件未覆盖行清单 + 通用 rubric 维度 8 逐行处置（dead-code / must-test / acceptable(理由)）</td>
+</tr>
+<tr>
+<td>B6</td>
+<td><strong>git 考古缺席</strong>（churn 只用于排序）</td>
+<td>新线程 <strong>T15 git 历史考古</strong>（revert 周期/未完成迁移/孤儿分支/churn 簇/大文件入库/历史凭证转 T12）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c-deep-v2">C. Deep 维度加强（v2 变更）</h3>
+<ul>
+<li><strong>T11 扩展</strong>：并发运行时压力（重复并发运行观察竞态）、运行时幂等核验（同一 phase 两次跑产物 diff）、同 seed 全 pipeline 重跑确定性（关键产物 hash）、flaky 抽检（核心子集重复 ≥3 次）、mutmut 扩至全部 gate checkers + scoring/contracts 确定性助手（量小模块全跑）；</li>
+<li><strong>T10 扩展</strong>：补充 torch-bump 处置 follow-up 核验（INDEX 历史 #3）；</li>
+<li><strong>D2 修正自相矛盾</strong>：原"100% 文件"却含"漂移抽查"——v2 明确穷举项（契约图闭包/import 环/死代码/重复块/SKILL.md 元数据）与抽样项（文档漂移，规则固定：每文档 ≥5 引用 + 高风险文档全查，清单阶段 0 登记）；</li>
+<li><strong>阶段 4 与 G6 职责区分</strong>：原两处"≥20% 抽查 per-file 报告"完全重复——阶段 4 = findings <strong>结论</strong>核实（≥10%，抓结论与证据脱节）；G6 = per-file 报告<strong>真实性</strong> meta-audit（≥20%，抓假深读）；两套抽样独立、种子均预先登记。</li>
+</ul>
+<h3 id="d">D. 其他</h3>
+<ul>
+<li><strong>表 A 新增 <code>self-artifact</code> 处置</strong>（仅限 <code>$AUDIT_DIR</code> 自身文件）：审计过程中持续变化，不参与 Z9 深读，由 G6 + 阶段 6 自检覆盖（每文件须有 meta-audit 记录链接）；</li>
+<li>阶段 2 可选 scribe agent 机械录账（协调者上下文压力缓解，核实权不变）；</li>
+<li>阶段 4 末可选人类中间简报（不替代 G7）；</li>
+<li>阶段 1 审查维度 6 → 8（新增依赖与供应链顶层、安全顶层）；</li>
+<li>反合理化表 +6 行（M 游戏化 / 并行写文件 / 校准升级 / skip 处置 / workflow 豁免 / 抽样挑选）；</li>
+<li>§9 恢复协议新增 prompt 升级处理（v1→v2：恢复时补跑 D1 ⑧-⑫ 再进阶段 2）；</li>
+<li>§11 成本更新（线程 15 条；D1 新增扫描分钟级）。</li>
+</ul>
+<hr />
+<h2 id="01-v3-2026-08-15-full-project-audit-promptmd-v3">0.1 v3 修订记录（2026-08-15，人类指示；交付物 <code>full-project-audit-prompt.md</code> 已同步升级为 v3）</h2>
+<p>v3 是对 v2 的<strong>实证修复版</strong>：每条机制变更对应 2026-08-14 执行 run（<code>audit-runs/2026-08-14/</code>）暴露的一个具体缺陷，而非新一轮先验评审。逐条变更如下（prompt 中对应位置在括号内）：</p>
+<h3 id="a-run">A. 审计机制自身修复（源自 run 复盘，最优先）</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>v2 实证缺陷（2026-08-14 run 证据）</th>
+<th>v3 修复</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A1</td>
+<td><strong>G4"唯一终止条件 = 本轮 0 新 finding（含 M）"实际不可达</strong>：Z2/Z3/Z4/Z6 四区结束轮仍有 1-4 条新 finding，全部按人类"无新 P0/P1"豁免放行——豁免无记录标准、无披露义务</td>
+<td><strong>G4 双轨收敛</strong>：硬收敛（连续 2 轮 0 新含 M）自动通过；软收敛（连续 3 轮无新 P0/P1 且每轮新增 ≤3）须三件套——轮次计数证据 + 残余风险清单 + 阶段 4 简报/G7 人类追认；含未解 P0 的区禁用软收敛（§3 G4）</td>
+</tr>
+<tr>
+<td>A2</td>
+<td><strong>"单调下降、不降反升必须查明"被反复违反且零次查明</strong>：Z1 5→6、Z3 8→11、Z4 6→10、Z5 4→8、Z6 3→1→3，progress/final-report/meta-audit 中"单调"零次出现</td>
+<td><strong>波动条款</strong>：承认波动是 fresh-context 重审的正常产出，义务从"查明"降为"当轮记一行波动分析"（发现角度/上轮漏因）；累计 2 次同盲区 → 强制新角度轮（§1 原则 5）</td>
+</tr>
+<tr>
+<td>A3</td>
+<td><strong>完备性实际靠人类补洞</strong>：收敛出 final-report 后，人工指示的 7 项后续扫描仍产出新 finding（F1322）与新确认——新攻击角度 &gt; 重复重读，但 v2 无角度机制</td>
+<td><strong>§3.5 攻击角度库</strong>：收录 7 项实证有效角度 + 4 个泛化模板；每轮复核强制声明 ≥1 个本轮新增角度，连续两轮不得复用；起步清单用尽后才允许模板派生（§3.5、§4 阶段 2）</td>
+</tr>
+<tr>
+<td>A4</td>
+<td><strong>G5 等式"ledger 条目数 == 子 spec 文件数"设计错误</strong>（M 批量/merged 语义下不成立：786 findings vs 23 specs），实际执行阶段 5 只覆盖 10/118 P1，靠人工续会话补齐 8 份 spec 才闭合</td>
+<td><strong>G5 重写为"产出与对账"</strong>：(a) findings↔spec 语义覆盖 grep 命令（已在真实 786 条台账实测输出空）(b) INDEX↔磁盘↔总纲三方对账 + ID 唯一性命令 (c) spec 自审保留；铁则 6 禁手抄数字（§3 G5、§0 铁则 6）</td>
+</tr>
+<tr>
+<td>A5</td>
+<td><strong>G6 有效深核率被隐性稀释</strong>：登记 552 样本（达标 ≥20%），实际逐条深核 228 条（≈8.3%），稀释恰在 Z7（tests）与 Z11（运行时产物）两个最大区，final-report 未披露分母落差</td>
+<td><strong>G6 分层深核下限</strong>：Z1-Z6/Z8-Z10 全样本、Z7 ≥35%、Z11 ≥25% 条目级 + 全量类别级计数复演；低于下限 = BLOCKING deviation；final-report 强制披露三重分母（逐条深核数/登记样本数/总文件数）（§3 G6、§4 阶段 6）</td>
+</tr>
+<tr>
+<td>A6</td>
+<td><strong>final-report 手抄统计漂移</strong>：报告写 781，台账实际 786；机械统计还暴露 6 条词表外严重度行</td>
+<td><strong>机械统计强制</strong>：统计数字一律由内联 awk/grep 命令产生并粘贴输出；词表外严重度行 = 台账格式缺陷先修再报；ledger 严重度单元格限 P0/P1/P2/M 四字面量（§4 阶段 6、§7.2）</td>
+</tr>
+<tr>
+<td>A7</td>
+<td><strong>测量装置被测量污染</strong>：审计期间 coverage.xml 2 次被并行测试覆写（D1-02 族）</td>
+<td><strong>原则 7 测量装置隔离</strong>：COVERAGE_FILE 独占 + 除 T11 外禁止并发 pytest；D1⑥ 同步（§1 原则 7、§2 D1⑥）</td>
+</tr>
+<tr>
+<td>A8</td>
+<td><strong>只读审计的根因不可实验验证但无分级</strong>：根因聚类纯推理，下游 spec/SDD 无从区分可信度</td>
+<td><strong>根因证据等级标注</strong>：每条根因标 <code>实验佐证</code>（附命令+输出）或 <code>推理假设</code>；SDD 阶段 1 驳斥门优先核验推理假设级；v2"可选简报"升级为触发式强制（findings ≥300 或任一软收敛区）（§4 阶段 4.3/.5、§8）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="b-wide-v3">B. Wide 维度补充（v3 新增）</h3>
+<table>
+<thead>
+<tr>
+<th>编号</th>
+<th>v2 缺失</th>
+<th>v3 补充</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>B1</td>
+<td><strong>计算/内存/IO 性能整类缺席</strong>（v2 仅 token 成本有 T4/T14；通用 rubric 9 维度无一涉及复杂度；T11 只跑既有 benchmark——无 benchmark 的性能退化无机制可发现）</td>
+<td>新线程 <strong>T16 性能与资源效率</strong>：热路径复杂度标注（每章循环体）/ cProfile 实测 / 内存生命周期 / IO 重复读写 / 启动 import 面 / <strong>步骤复用与重复 dispatch 指纹去重（对 Z11 实际 dispatch 记录统计相同 skill+相同上下文指纹的重复派发与 memoization 命中率）</strong>；每条性能 finding 必附增长曲线断言（§6 T16）</td>
+</tr>
+<tr>
+<td>B2</td>
+<td>通用 rubric 无性能维度</td>
+<td><strong>通用维度 10 复杂度与资源效率</strong>（轻量必查，深查归 T16）；阶段 1 新增维度 9 性能顶层设计（§5、§4 阶段 1）</td>
+</tr>
+<tr>
+<td>B3</td>
+<td><strong>运行时路径无离线验证手段且未被声明为缺口</strong>（实况：<code>internal</code> 模式硬拒绝、<code>trace/replay.py</code> 为签名链校验——无可用的离线派发模式）</td>
+<td><strong>T11 stub 实机 smoke</strong>：grep 离线模式，有则 1-3 章迷你 pipeline 实跑全链；无则记 P2 可测性 finding + final-report 遗留风险声明（§6 T11；§8.1 P2 典型例子加"可测性缺陷"）</td>
+</tr>
+<tr>
+<td>B4</td>
+<td>T10 回归核验源不含既往审计产物</td>
+<td>T10 核验源扩展：archive spec / INDEX / <strong>既往 <code>audit-runs/*/final-report.md</code> 修复声明</strong>（§6 T10）</td>
+</tr>
+</tbody>
+</table>
+<h3 id="c">C. 诚实边界与防偷懒</h3>
+<ul>
+<li><strong>§0 任务节新增"诚实边界"声明</strong>：本 prompt 保证过程完备（每文件处置、每声称可对账），不保证本体完备（每缺陷被发现）；G7 因此不可绕过（§0、§11）；</li>
+<li>严重度表 P1 新增性能触发条件（热路径超线性致生产规模不可行）、P2 新增"增长曲线断言支撑的性能优化 / 可测性缺陷"（§8.1）；</li>
+<li>反合理化表 +9 行（软收敛三件套 / 角度复用 / G6 稀释 / 手抄数字 / 波动不记 / 性能无 benchmark / 根因不分级 / stub 静默跳过 / 交互阻塞挂着等）（§10）；</li>
+<li><strong>§1.6 无人值守与非交互纪律（$UNATTENDED，人类指示补入）</strong>：Variables 新增 <code>$UNATTENDED</code>；人类门降级语义表（阶段 4 简报→记录+默认"继续"不等待 / 软收敛追认→标待追认不阻塞 / BLOCKING deviation→子项挂起继续他项 / G7=终点停止而非卡住）；非交互纪律（timeout 包裹 + stdin 隔离 + <strong>禁触等待人工 checkpoint decision 的真实 pipeline 入口</strong>，交互阻塞 = P2 finding + 不可审计声明）；T11 / 阶段 4.5 / 变更注⑦ 同步（§1.6、§4 阶段 4、§6 T11）；</li>
+<li>§9 恢复协议新增 v3 补跑项（未收敛区改双轨判定 / 阶段 5 补 G5 对账 / 补 T16 / final-report 按机械统计重出）（§9）；</li>
+<li>progress.md schema 新增软收敛登记表与波动分析登记表（§7.1）。</li>
+</ul>
+<hr />
+<h2 id="1">1. 背景与目标</h2>
+<h3 id="11">1.1 用户需求（已确认，逐字对齐）</h3>
+<ol>
+<li><strong>先创建 prompt 文档</strong>（本 spec 的交付物），随后按该 prompt 独立执行审查。</li>
+<li>审查范围：<strong>整个 shenbi 项目</strong>——从整体（架构、契约、pipeline、gates、CI、文档体系）到细节（每文件逐项）。</li>
+<li>目标：找出<strong>所有错误和优化点</strong>（bug / 契约违反 / 不一致 / 浪费 / 架构债 / 测试失效 / 文档漂移……）。</li>
+<li>产出：<strong>每个 finding 一个独立 spec</strong>，遵循 repo spec 约定；<strong>minor issue 可合并</strong>为一个批量 spec（用户 2026-08-13 补充确认）。</li>
+<li><strong>不限制审查时长</strong>；要求最深入、最广的审查。</li>
+<li><strong>只审不修</strong>：执行者不修复任何问题，修复留给后续 spec→plan。</li>
+<li><strong>skill 可选增强 / 无 SDD</strong>：prompt 机制自包含为基线（无 skill 环境可执行）；superpowers skill 按白名单表可选使用以提升审查/spec 质量（用户 2026-08-13 更正）；不走 SDD 流程。</li>
+</ol>
+<h3 id="12">1.2 关键设计张力与裁决</h3>
+<table>
+<thead>
+<tr>
+<th>张力</th>
+<th>裁决</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"逐项检查" vs 65K 行代码</td>
+<td>三层覆盖模型（§4）：机械层与模式层 100% 文件覆盖，语义深读层扩至<strong>全部文件</strong>（per-file 报告），台账消除 sampled 兜底</td>
+</tr>
+<tr>
+<td>无时间盒 vs 无限审</td>
+<td>完备性门 G1-G7（§5）是唯一终止条件；每轮必须增量收敛（新 C/I 数单调下降），最终人类裁决</td>
+</tr>
+<tr>
+<td>深读真实性 vs 假深读</td>
+<td>per-file 报告必须列<strong>声称检查的不变量清单</strong> + 验证命令输出；独立复核 agent + meta-audit 抽查抓假</td>
+</tr>
+<tr>
+<td>多天多会话 vs 上下文丢失</td>
+<td>checkpoint commit + tracked 审计状态目录 + resume 协议（§10）</td>
+</tr>
+<tr>
+<td>并行提速 vs 审查独立性</td>
+<td>审查全程<strong>只读</strong>（只写各自报告文件），zone 子 agent 可并行派发；复核与初审分离、协调者逐条核实</td>
+</tr>
+<tr>
+<td>skill 可选 vs 机制完整性</td>
+<td>Iron Law / 反合理化 / 独立复核全部<strong>内联自包含</strong>（无 skill 环境可执行）；superpowers skill 按 prompt 内白名单表作可选增强——增强非替代，使用必粘贴输出，白名单外禁止</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 交付物</h2>
+<p><code>docs/superpowers/full-project-audit-prompt.md</code>——中文、<strong>自包含基线</strong>的自治执行 prompt：机制全部内联（无 skill 环境可执行）；superpowers skill 作为白名单<strong>可选增强</strong>（提升审查/spec 质量，增强非替代，用户 2026-08-13 更正）；不含 SDD 机制。只依赖执行会话的通用能力（文件读写、命令执行、可选的子 agent 派发）与 repo 的 AGENTS.md。与 <code>single-model-sdd-prompt.md</code> 同目录同风格（仅风格，非机制）。其结构 TOC 见 §11。</p>
+<hr />
+<h2 id="3-prompt-7">3. Prompt 的总体流程：漏斗 7 阶段（完备性门驱动，无时间盒）</h2>
+<div class="highlight"><pre><span></span><code>阶段 0 清点与基线 ──► 阶段 1 整体层审查 ──► 阶段 2 全量分区深度审查（并行只读）
+                                                    │
+  阶段 6 覆盖证明 + meta-audit ◄── 阶段 5 spec 产出 ◄── 阶段 4 根因聚类 ──◄─ 阶段 3 跨模块线程（与 2 交错）
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>阶段</th>
+<th>内容</th>
+<th>退出条件（门）</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0 清点与基线</td>
+<td>生成全文件清单台账；跑 D1 机械基线（<code>just check</code> 全套 + tools/ 全部 lint 脚本 + 74 个 SKILL.md frontmatter 解析 + G2/G4 校验 + coverage 报告），记录 <strong>pre-existing 失败基线</strong></td>
+<td>G1 台账建成 + D1 基线归档</td>
+</tr>
+<tr>
+<td>1 整体层审查</td>
+<td>架构一致性（AGENTS.md 声明 vs 实际）、契约单一信源体系、pipeline 状态机设计、G0-G7 体系、CI 设计、文档体系——找<strong>系统性</strong>错误</td>
+<td>每项有结论（通过/问题→findings）</td>
+</tr>
+<tr>
+<td>2 分区深度审查</td>
+<td>Z1-Z11 十一区，每区一个 fresh-context 初审 agent <strong>并行只读</strong>深读，产出 per-file 报告</td>
+<td>每区报告含<strong>全文件</strong> per-file 条目（G1）</td>
+</tr>
+<tr>
+<td>3 跨模块审计线程</td>
+<td>T1-T11 十一条横切线程，每条一个 fresh-context agent，读全部相关文件，产出线程报告</td>
+<td>11 线程报告齐全</td>
+</tr>
+<tr>
+<td>4 根因聚类</td>
+<td>跨区去重（同根因→合并）、严重度校准 P0/P1/P2/M、根因簇图、抽查复核（fresh-context agent 抽查 20% 分区结论 vs 真实文件）</td>
+<td>findings ledger 无重复根因 + 严重度已校准</td>
+</tr>
+<tr>
+<td>5 spec 产出</td>
+<td>总纲 catalog spec + 每 finding 独立子 spec + INDEX 登记</td>
+<td>G5：ledger 条目数 == spec 文件数</td>
+</tr>
+<tr>
+<td>6 覆盖证明 + meta-audit</td>
+<td>G1 台账零未处置文件；G2 复核收敛；meta-audit 审审计（抽查 per-file 报告 vs 真实文件）；总结报告 → <strong>人类裁决</strong></td>
+<td>G1-G6 全过 + 人类说"够了"（G7）</td>
+</tr>
+</tbody>
+</table>
+<p>阶段 2 与阶段 3 可交错（线程可随分区并行派发）；其余严格串行。</p>
+<hr />
+<h2 id="4-d1d2d3">4. 覆盖模型：三层 D1/D2/D3 + 覆盖台账</h2>
+<table>
+<thead>
+<tr>
+<th>层</th>
+<th>内容</th>
+<th>覆盖保证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>D1 确定性机械层</strong></td>
+<td><code>just check</code> 全套（contract lints ×3 + ruff + format + mypy + basedpyright + sync-contracts 幂等 + pytest 双 pass）+ tools/ 其余脚本（<code>audit-skill-descriptions.py</code>、<code>check_fixture_mirror.py</code>、<code>lint_no_forbid_with_computed_field.py</code>、<code>lint_no_fs_mutation.py</code> 等 13 个）+ 全部 74 个 SKILL.md frontmatter 解析 + G2/G4 校验全部 fixtures/skills + 禁用模式 git grep（bare except / print() / pickle / TODO-FIXME-HACK）+ pytest <code>--cov</code> 缺口报告</td>
+<td><strong>100% 文件</strong>，机器穷举；输出归档为 <code>d1-baseline.md</code>（含 pre-existing 失败，与审查新增发现分离）</td>
+</tr>
+<tr>
+<td><strong>D2 结构化模式层</strong></td>
+<td>契约图闭包与 reads/writes 接线 vs deps.json、import 环、死代码、重复块、文档↔代码 file:line 漂移、SKILL.md 元数据一致性（name/description ≤500 字符规则/kind/reads）</td>
+<td><strong>100% 文件</strong>，grep/脚本模式可达</td>
+</tr>
+<tr>
+<td><strong>D3 语义深读层</strong></td>
+<td>每文件人工语义审查：逻辑正确性、设计质量、边界条件、错误处理、测试真实性。<strong>不抽样</strong>——全文件深读</td>
+<td><strong>100% 文件</strong>（生成物目录除外，见 §4.1）</td>
+</tr>
+<tr>
+<td><strong>D4 运行时产物与日志层</strong></td>
+<td>磁盘未跟踪执行产物的清点与审计：<code>novel-output/</code>、<code>truth/</code>、<code>.superpowers/</code>、<code>*.log</code>、<code>.hypothesis/examples/</code>（真实运行证据——novel-output 的 .gitignore 注释明示其为 auditable pipeline verification）；日志 grep 异常；sdd 历史已知问题转 pre-seeded findings</td>
+<td><strong>100% 磁盘执行产物</strong>（构建产物/工具缓存除外）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>覆盖台账（G1 的载体，双表）</strong>：</p>
+<ul>
+<li><strong>表 A · tracked</strong>（<code>git ls-files</code>，当前 2736 文件）：每文件一条处置，唯一合法值 <code>deep-read</code>（链接 per-file 报告）。</li>
+<li><strong>表 B · 磁盘执行产物</strong>（阶段 0 <code>find</code> + <code>git status --ignored</code> 清点）：<code>audited</code>（链接 D4 报告）\ <code>generated-excluded(理由)</code>（仅可再生成的构建产物 dist/site）\ <code>cache-ignored</code>（工具缓存，验证 .gitignore）。</li>
+</ul>
+<p>不存在 <code>sampled</code>。两表零未处置是阶段 6 的硬门。</p>
+<h3 id="41-d3">4.1 D3 排序（派发顺序优化，非覆盖裁剪）</h3>
+<p>虽然全文件深读，但<strong>派发顺序</strong>按风险加权：(a) postmortem 聚集区（pipeline / gates / contracts / cost——CN3 覆盖 bug、TokenLedger dead-wire、finish_reason 盲点均在此）(b) git churn (c) coverage 缺口 (d) 复杂度。高风险区先审，使早期发现尽早进入后续阶段；覆盖不受影响。</p>
+<hr />
+<h2 id="5-g1-g7">5. 完备性门 G1-G7（唯一终止条件，取代时间盒）</h2>
+<table>
+<thead>
+<tr>
+<th>门</th>
+<th>判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>G1 广度</strong></td>
+<td>台账表 A 每文件 = <code>deep-read</code>；表 B 每项 = <code>audited</code> / <code>generated-excluded(理由)</code> / <code>cache-ignored</code>；两表零未处置</td>
+</tr>
+<tr>
+<td><strong>G2 深度</strong></td>
+<td>每区初审通过<strong>独立</strong> fresh-context 复核 agent（与初审分离）：复核重读全文件，0 新 Critical/Important 才算过；11 条线程报告齐全</td>
+</tr>
+<tr>
+<td><strong>G3 验证</strong></td>
+<td>D1 全工具真实运行、输出归档（pre-existing 失败单独列）；全部 CLI 入口冒烟（shenbi-validate G0/G2/G4、shenbi-score、shenbi-phase、shenbi-dispatch dry-run 若可行）</td>
+</tr>
+<tr>
+<td><strong>G4 收敛</strong></td>
+<td>复核轮次不设上限、重审无条件；终止条件仅为本轮 0 新 C/I</td>
+</tr>
+<tr>
+<td><strong>G5 产出</strong></td>
+<td>findings ledger 条目数 == 子 spec 文件数（M 级批量 spec 例外见 §9）；每 spec 过自审</td>
+</tr>
+<tr>
+<td><strong>G6 Meta</strong></td>
+<td>meta-audit：fresh-context agent 抽查 ≥20% 的 per-file 报告 vs 真实文件，抓假深读/橡皮图章/覆盖空洞</td>
+</tr>
+<tr>
+<td><strong>G7 人类裁决</strong></td>
+<td>执行者<strong>禁止</strong>自行宣布"审计完成"；阶段 6 产出总结报告（覆盖数字、findings 统计、遗留风险）后停，由人类拍板结束或追加审查</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-z1-z11-2">6. 分区矩阵 Z1-Z11（阶段 2 派发单元）</h2>
+<p>每区 = 一个 fresh-context 初审 agent + 独立复核 agent；并行只读，只写各自 <code>zone-reports/Z&lt;N&gt;.md</code>。</p>
+<table>
+<thead>
+<tr>
+<th>区</th>
+<th>文件范围</th>
+<th>重点 rubric 维度</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Z1</td>
+<td><code>src/shenbi/</code> 顶层 19 文件（exceptions / logging / scoring / phase_runner / status / paths / recovery / safe_write / capability_fs / cli_utils / error_guidance / sync_contracts）</td>
+<td>异常层次完整性、T2/T3 状态机正确性、幂等写、structlog 无 print</td>
+</tr>
+<tr>
+<td>Z2</td>
+<td><code>src/shenbi/contracts/</code> + <code>src/shenbi/dispatcher/</code></td>
+<td>契约单一信源、字段级 reads 过滤与 escape hatch、派发协议</td>
+</tr>
+<tr>
+<td>Z3</td>
+<td><code>src/shenbi/pipeline/</code></td>
+<td>状态机、并发、重试、truth 写路径、token 计量（历史 P0 聚集区）</td>
+</tr>
+<tr>
+<td>Z4</td>
+<td><code>src/shenbi/gates/</code>（含 g4 checkers）</td>
+<td>门幂等、decisions.json G4 schema、P2.5 rationale 规则</td>
+</tr>
+<tr>
+<td>Z5</td>
+<td><code>src/shenbi/audit/</code> + <code>cost/</code> + <code>orchestration/</code></td>
+<td>TokenLedger 接线、审计波调度、成本计量</td>
+</tr>
+<tr>
+<td>Z6</td>
+<td><code>records/</code> + <code>trace/</code> + <code>text/</code> + <code>config/</code> + <code>plugins/</code> + <code>skill_utils/</code></td>
+<td>确定性助手正确性、序列化、配置治理</td>
+</tr>
+<tr>
+<td>Z7</td>
+<td><code>tests/</code> 16 子目录（unit / gates / pipeline / integration / contracts / tiers / skill-behavior / skill-triggering / property / benchmark / pressure-tests / coverage / golden / baselines / fixtures / rounds）</td>
+<td>测试真实性（L4 无纯 mock）、fixture 真实性（G0.9）、覆盖缺口、测试自身 bug</td>
+</tr>
+<tr>
+<td>Z8</td>
+<td><code>skills/</code> 74 个 skill（SKILL.md 全文 + 附属文件）</td>
+<td>触发条件 description ≤500 字符、DOT 流程图与正文一致性、decisions 声明、reads 字段声明 vs truth 文件实况</td>
+</tr>
+<tr>
+<td>Z9</td>
+<td><code>docs/</code> 200 md（framework / architecture / superpowers/specs+plans+archive / ADR）+ 根级 AGENTS.md / README / 其余根 md</td>
+<td>文档↔代码漂移（file:line 引用抽查）、INDEX 一致性、spec 间矛盾</td>
+</tr>
+<tr>
+<td>Z10</td>
+<td><code>.github/workflows/</code> 8 个 + <code>pyproject.toml</code> + <code>justfile</code> + <code>uv.lock</code> + <code>tools/</code> 13 脚本 + <code>scripts/</code> + <code>plugins/master.json</code> + <code>benchmarks/</code> + <code>executor_config.toml</code> + <code>goal-prompt.md</code> + <code>command-to-give.md</code> + <code>run_pipeline.sh</code> + <code>mkdocs.yml</code> + <code>cliff.toml</code></td>
+<td>CI 与 just check 一致性、脚本正确性、配置漂移、meta-prompt 自身（含 single-model-sdd-prompt.md）</td>
+</tr>
+<tr>
+<td>Z11</td>
+<td><strong>磁盘执行产物</strong>（清单 = 台账表 B）：<code>novel-output/</code>（test-validation / validation-results / xinghuo-ranqiong 真实运行）、<code>truth/</code>、<code>.superpowers/sdd*</code>、<code>*.log</code>（先读 <code>src/shenbi/logging.py</code> 定位日志汇）</td>
+<td>产物与 pipeline 不变量一致性、decisions.json 真实数据 schema/P2.5、日志异常（ERROR/traceback/retry/429/finish_reason）、sdd 历史已知问题转 pre-seeded findings</td>
+</tr>
+</tbody>
+</table>
+<p>子 agent prompt 必须<strong>内联完整 rubric</strong>（fresh-context 子 agent 看不到本 prompt 文件，禁止只引用章节名——沿用 single-model-sdd-prompt.md 的注入规则）。</p>
+<hr />
+<h2 id="7-t1-t11-3">7. 跨模块审计线程 T1-T11（阶段 3，第一公民）</h2>
+<p>每条线程一个 fresh-context agent，读全部相关文件横切审查；与分区并行派发。</p>
+<table>
+<thead>
+<tr>
+<th>线程</th>
+<th>内容</th>
+<th>依据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>T1</td>
+<td>decisions-schema v1 全链合规：producer 写入 vs consumer 读取 vs G2（file_type=decisions）vs G4（schema + P2.5 rationale 规则）</td>
+<td>AGENTS.md decisions-sidecar</td>
+</tr>
+<tr>
+<td>T2</td>
+<td>契约单一信源：SKILL.md frontmatter ↔ deps.json ↔ docs/framework ↔ skills/ 生成物；<code>shenbi-sync-contracts</code> 幂等</td>
+<td>AGENTS.md + PR #17</td>
+</tr>
+<tr>
+<td>T3</td>
+<td>字段级 reads 过滤 + escape hatch：dispatcher 实现 vs 契约声明；缺字段回退全文件 + WARN 日志是否真实存在</td>
+<td>AGENTS.md 字段级 reads</td>
+</tr>
+<tr>
+<td>T4</td>
+<td>TokenLedger 接线：计量代码存在但未接线（dead-wire 模式，PR #39 先例）</td>
+<td>历史 postmortem</td>
+</tr>
+<tr>
+<td>T5</td>
+<td>重试经济与错误处理：error_handler 重试参数、异常层次、bare except、finish_reason 处理</td>
+<td>PR #40 先例</td>
+</tr>
+<tr>
+<td>T6</td>
+<td>并发与序列化安全：ProcessPool / threading / multiprocessing 的 pickle 边界、共享状态</td>
+<td>single-model-sdd-prompt 文件级检查表</td>
+</tr>
+<tr>
+<td>T7</td>
+<td>truth 文件写路径幂等：覆盖 vs 追加、upsert 键唯一性（CN3 先例）</td>
+<td>归档 postmortem</td>
+</tr>
+<tr>
+<td>T8</td>
+<td>fixture 真实性：G0.9 禁止手写 mock；fixtures 必须为真实输出或上游生成副本</td>
+<td>AGENTS.md fixtures</td>
+</tr>
+<tr>
+<td>T9</td>
+<td>枚举/状态字符串单一信源：<code>contracts/enums.py</code> 唯一定义；lint_status_strings 覆盖范围是否有洞</td>
+<td>PR #19 集群</td>
+</tr>
+<tr>
+<td>T10</td>
+<td>历史修复回归核验：archive spec / INDEX 全部"已修(PR #N)"声明逐一 grep 修复签名是否仍在当前代码（TokenLedger 接线、finish_reason 检测、truth_io upsert 调用方全覆盖）；消失 = 回归</td>
+<td>归档 spec P0 声明</td>
+</tr>
+<tr>
+<td>T11</td>
+<td>运行时行为核验：实际运行 pressure-tests / benchmark（对比 baselines）/ golden / 差分测试；3-4 关键模块跑 mutmut 突变测试；重放 .hypothesis/examples/ 失败样本</td>
+<td>pyproject <code>[tool.mutmut]</code>、tests 分层</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-schema-tracked">8. 报告与台账 schema（写入 tracked 审计目录）</h2>
+<p>审计状态目录：<code>docs/superpowers/audit-runs/2026-08-13/</code>（tracked；每阶段 checkpoint commit）：</p>
+<div class="highlight"><pre><span></span><code>audit-runs/2026-08-13/
+├── progress.md            # 阶段状态机 + 每会话 resume 点（权威恢复入口）
+├── coverage-ledger.md     # G1 台账：全文件 → 处置 + 报告链接
+├── findings-ledger.md     # 唯一权威 findings 表（见下）
+├── d1-baseline.md         # D1 工具输出归档 + pre-existing 失败
+├── zone-reports/Z1.md … Z10.md
+├── thread-reports/T1.md … T9.md
+└── final-report.md        # 阶段 6 总结（覆盖数字/findings 统计/遗留风险）
+</code></pre></div>
+<p><strong>per-file 报告条目</strong>（zone/thread 报告的主体）：</p>
+<div class="highlight"><pre><span></span><code><span class="gu">### &lt;file path&gt;</span>
+<span class="k">-</span><span class="w"> </span>处置: deep-read | generated-excluded(理由)
+<span class="k">-</span><span class="w"> </span>审查者: &lt;agent 标识&gt;  | 复核: &lt;复核 agent 标识 + 结论&gt;
+<span class="k">-</span><span class="w"> </span>声称检查的不变量: [列表——写文件时应检查的具体不变量]
+<span class="k">-</span><span class="w"> </span>findings: F&lt;NNN&gt; …
+<span class="k">-</span><span class="w"> </span>验证命令: [本文件相关的实际命令 + 输出摘要]
+<span class="k">-</span><span class="w"> </span>置信度: high | medium | low（low 必须说明原因）
+</code></pre></div>
+<p><strong>findings ledger 条目</strong>（<code>findings-ledger.md</code> 每行一条，唯一权威）：</p>
+<table>
+<thead>
+<tr>
+<th>字段</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ID</td>
+<td>F<NNN> 递增</td>
+</tr>
+<tr>
+<td>标题</td>
+<td>一句话</td>
+</tr>
+<tr>
+<td>类别</td>
+<td><code>error</code>（bug/契约违反/不一致/测试失效）| <code>optimization</code>（性能/token/架构/可维护）</td>
+</tr>
+<tr>
+<td>严重度</td>
+<td>P0（立即）/ P1（高）/ P2（中）/ M（文案类 minor）</td>
+</tr>
+<tr>
+<td>证据</td>
+<td>file:line ×N（每条必须真实验证过）</td>
+</tr>
+<tr>
+<td>根因</td>
+<td>根因级描述（聚类去重键）</td>
+</tr>
+<tr>
+<td>验证</td>
+<td>已运行命令 + 输出摘要</td>
+</tr>
+<tr>
+<td>影响</td>
+<td>质量/成本/维护影响</td>
+</tr>
+<tr>
+<td>建议方向</td>
+<td>修复方向一句话（完整方案留给 spec）</td>
+</tr>
+<tr>
+<td>状态</td>
+<td><code>open</code> → <code>verified</code>（协调者核实）→ <code>merged-into-Fx</code>（去重合并）→ <code>specced</code>（spec 已产出）</td>
+</tr>
+<tr>
+<td>深度标注</td>
+<td>deep-read / tool-only（D1 发现）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-spec-5">9. Spec 产出契约（阶段 5）</h2>
+<ul>
+<li><strong>单位 = 根因</strong>：同一根因的多处表现合并为 1 个 spec（findings 表内列全）；不同根因不同 spec。</li>
+<li><strong>严重度规则</strong>：P0/P1/P2 每个根因一个独立子 spec；M 级（错别字/命名不一致等文案类）合入单一批量 spec <code>2026-08-13-minor-findings-batch-design.md</code>（按区分节）——避免数十个单行 spec 噪音。</li>
+<li><strong>文件</strong>：<code>docs/superpowers/specs/2026-08-13-&lt;slug&gt;-design.md</code>，头部块 <code>Date/Status/Severity/方法/系列/依赖/范围/核心洞察</code>；每条 finding 含 症状/证据 file:line/根因/分类/影响/假设+验证命令/修复方向/数值化标准（沿用现有 audit spec 格式）。</li>
+<li><strong>总纲</strong>：<code>2026-08-13-full-project-audit-design.md</code>（catalog：每 finding 一行 + 根因簇图 + 建议执行顺序 + 覆盖统计）。</li>
+<li><strong>INDEX</strong>：登记 1 总纲 + N 子 spec；<code>#NN</code> 顺序号按现有队列续排。</li>
+<li><strong>只审不改</strong>：全程唯一可写的是审计目录 + specs/ + INDEX.md；src/tests/skills/docs 正文零修改，修复一律留给后续 spec→plan。</li>
+</ul>
+<hr />
+<h2 id="10-anti-rationalization">10. 防偷懒机制与 Anti-Rationalization 表</h2>
+<ol>
+<li><strong>Iron Law（每条消息级）</strong>：任何含"通过/完成/无问题"字样的消息，其验证命令必须在同一条消息内运行过并粘贴输出。</li>
+<li><strong>审查独立性</strong>：初审 / 复核 / 协调者核实三层分离；复核是<strong>全量重读</strong>，非 diff 抽查；"协调者核实过即免独立复核"= 禁止。</li>
+<li><strong>rubric 内联</strong>：子 agent prompt 复制完整 rubric，禁止只引用章节名。</li>
+<li><strong>meta-audit</strong>：G6 抽查 ≥20% per-file 报告 vs 真实文件。</li>
+</ol>
+<table>
+<thead>
+<tr>
+<th>模型可能说</th>
+<th>回应</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>"时间不够，这区抽样吧"</td>
+<td>禁止。无时间盒，抽样概念不存在（§4 台账无 sampled）。</td>
+</tr>
+<tr>
+<td>"工具绿了 = 没错误"</td>
+<td>禁止。D1 只是基线；语义错误跑不出来。</td>
+</tr>
+<tr>
+<td>"已经审过 3 轮了"</td>
+<td>唯一终止条件：本轮 0 新 C/I（G4），且每轮新 C/I 数必须单调下降并记录。</td>
+</tr>
+<tr>
+<td>"这文件一看就是样板，快速过"</td>
+<td>禁止。per-file 报告必须列声称检查的不变量，写不出来 = 没审。</td>
+</tr>
+<tr>
+<td>"子 agent 报告成功"</td>
+<td>协调者逐条打开真实文件核对 findings，不轻信。</td>
+</tr>
+<tr>
+<td>"生成物目录可以整目录跳过"</td>
+<td>必须逐个声明 <code>generated-excluded</code> + 再生成性验证 + 理由。</td>
+</tr>
+<tr>
+<td>"审查完成"</td>
+<td>禁止自宣完成。G1-G6 全过 + 人类裁决（G7）。</td>
+</tr>
+<tr>
+<td>"发现太多先记着后面写"</td>
+<td>发现即录入 findings ledger（当轮），禁止内存暂存。</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-prompt-toc">11. 交付物 prompt 文档 TOC</h2>
+<p><code>docs/superpowers/full-project-audit-prompt.md</code> 结构：</p>
+<ol>
+<li>标题 + Variables（日期、审计目录路径）</li>
+<li>核心原则（Iron Law / 只审不改 / 完备性门驱动 / 审查独立性 / 可恢复）+ skill 白名单（可选增强映射表）</li>
+<li>覆盖模型三层 + 台账规则（§4 内容）</li>
+<li>完备性门 G1-G7 表（§5 内容）</li>
+<li>阶段 0-6 流程（§3 内容；每阶段：输入、动作、退出条件；skill 增强点见白名单表）</li>
+<li>分区矩阵 Z1-Z10（§6 内容，含每区文件 glob + rubric 内联模板）</li>
+<li>跨模块线程 T1-T9（§7 内容）</li>
+<li>schema 三件套（per-file 报告 / findings ledger / coverage 台账模板，§8 内容）</li>
+<li>spec 产出契约（§9 内容）</li>
+<li>checkpoint/恢复协议（checkpoint commit 时机、resume 第一步 = 读 progress.md、会话间状态交接）</li>
+<li>Anti-Rationalization 表（§10 内容）</li>
+<li>成本预期与诚实声明（串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话；禁止中途自我降级）</li>
+</ol>
+<hr />
+<h2 id="12-spec">12. 本 spec 的验证标准</h2>
+<table>
+<thead>
+<tr>
+<th>标准</th>
+<th>判据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>设计↔prompt 映射</td>
+<td>prompt 文件包含 §11 全部 12 节，且 G1-G7 / Z1-Z10 / T1-T9 / 三 schema / 反合理化表<strong>逐项在 prompt 中可找到对应机制</strong></td>
+</tr>
+<tr>
+<td>无占位符</td>
+<td>prompt 中无 TBD/TODO/待定</td>
+</tr>
+<tr>
+<td>自包含基线</td>
+<td>新会话只读 prompt + AGENTS.md 即可<strong>无 skill</strong> 完整执行；skill 引用仅存在于白名单表（增强非替代）与否定声明中</td>
+</tr>
+<tr>
+<td>repo 惯例</td>
+<td>遵循 spec 头部块、INDEX 登记、Conventional Commits</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="13">13. 依赖关系图</h2>
+<div class="highlight"><pre><span></span><code>single-model-sdd-prompt.md（仅风格先例：Iron Law / 反合理化）
+        │
+        ▼
+本 spec（prompt 文档设计）──► 直接编写 full-project-audit-prompt.md（无 writing-plans）
+        │
+        ▼（prompt 被执行后，另起会话）
+审计执行（阶段 0-6，完备性门驱动，产出 audit-runs/2026-08-13/）
+        │
+        ▼
+1 总纲 catalog spec + N 子 spec（每 finding 一个）→ INDEX 登记 → 各自走 plan → 实施
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
