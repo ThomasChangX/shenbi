@@ -269,4 +269,4 @@ PR #39（P0+P1 + TokenLedger）  已合并
         各自独立 plan + 实施 + G4 验证 ──► 归档本 spec
 ```
 
-本 spec 是 **design，不实施**。P2/P2 各项实施前需另写 plan 并批准。
+本 spec 是 **design，不实施**。P2 各项实施前需另写 plan 并批准。
