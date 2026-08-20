@@ -20,7 +20,7 @@ dependencies = [
     "tenacity>=8.0.0",
 ]
 [project.optional-dependencies]
-embeddings = ["sentence-transformers>=3.0.0"]
+embeddings = ["sentence-transformers>=5.7.0"]
 
 [dependency-groups]
 dev = [
@@ -44,7 +44,7 @@ dev = [
     "yamllint>=1.33.0",
     "git-cliff>=2.4.0",
     "types-PyYAML>=6.0.12",
-    "sentence-transformers>=3.0.0",
+    "sentence-transformers>=5.7.0",
     "setuptools>=81.0.0",
 ]
 docs = [
