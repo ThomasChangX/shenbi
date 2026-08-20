@@ -28,7 +28,7 @@ jobs:
       # dev 组已含 sentence-transformers + torch（pyproject.toml [dependency-groups].dev）
       - run: uv sync --frozen --group dev
       - name: Cache HuggingFace model (~80MB all-MiniLM-L6-v2)
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ github.workspace }}/.hf-cache
           key: hf-model-all-MiniLM-L6-v2-${{ runner.os }}
