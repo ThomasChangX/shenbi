@@ -1,7 +1,7 @@
 # Spec 执行索引
 
-> **最后更新**：2026-08-17
-> **活跃 spec 数**：63
+> **最后更新**：2026-08-23
+> **活跃 spec 数**：62
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,12 +9,6 @@
 ---
 
 ## 执行队列
-
-### #7 · 全项目审查执行：数据丢失簇（P0）
-
-- **文件**：`2026-08-14-data-loss-cluster-design.md`
-- **状态**：Design | **优先级**：🟥 Critical
-- **内容**：append_dedup no-op（F397，chapter_summaries 仅 2/56 章）/ atexit 清 staging（F364）/ materialize 覆盖（F640）/ 并行写竞态（F326）
 
 ### #12 · 全项目审查执行：成本计量（P0/P1）
 

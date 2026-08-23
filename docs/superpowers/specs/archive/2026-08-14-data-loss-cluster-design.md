@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟥 P0 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-23 · superseded by #40 归簇 + main 已含等效修复：R1/F397 已由 PR #43 c168903 修复（append_dedup 键控 upsert 路由）；R2/F364→#44 C30/F318；R3/F640→#37 C11 T4/F630；R4/F326→#29 C3 T3 输入 N1；R5/F1300→#29 T3「修订技能对正文禁写」强于本 spec 方案。残量洞察已补录 #37 T4 / #29 T3 显式输入) | **Severity:** 🟥 P0 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** src/shenbi/pipeline/ + crash_recovery.py + trace/ | **核心洞察:** 4 个独立数据丢失路径，生产已实证累积数据被覆盖
 
 # 数据丢失簇（4 独立根因）
