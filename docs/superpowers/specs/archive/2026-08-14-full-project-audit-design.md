@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟥 4×P0 / 🟠 45×P1 / 🟡 318×P2 / ⚪ 98×M | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-24 · 纯 catalog 父条目，无独立可执行内容；catalog/排序角色已被 #40 正式取代——INDEX 登记「supersede #17 的 catalog 角色」；簇工作全部由子 spec #6-#16 与 2026-08-15 C 系列承接，子 spec 7 份活跃照常执行) | **Severity:** 🟥 4×P0 / 🟠 45×P1 / 🟡 318×P2 / ⚪ 98×M | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（总纲） | **依赖:** 无 | **范围:** 全仓库 | **核心洞察:** pipeline 存在 5 个独立"永不完成"根因 + 2 个数据丢失根因；G3/G4 门禁有效性被多机制击穿
 
 # 2026-08-14 全项目审查 · 总纲（catalog）
