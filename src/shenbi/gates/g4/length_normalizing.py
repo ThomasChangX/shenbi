@@ -32,7 +32,7 @@ def g4_length_normalizing(
             continue
 
         content = pf.read_text(encoding="utf-8")
-        wc = word_count_md(fp)
+        wc = word_count_md(pf)  # F402: count on the resolved path
 
         if "## 归一化报告" not in content:
             mf.append(f"G4.ln.no_report:{fp}")

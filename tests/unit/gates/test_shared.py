@@ -239,6 +239,16 @@ class TestCountTransitionWords:
 
 
 class TestFindReport:
+    def test_finds_scores_subagent_variant(self, tmp_path):
+        """F464: subagent-scored reports are found, with precedence over -scores."""
+        from shenbi.gates.shared import find_report
+
+        (tmp_path / "sk-generative-scores-subagent.json").write_text("{}", encoding="utf-8")
+        assert find_report(str(tmp_path), "sk", "generative") is not None
+        (tmp_path / "sk-generative-scores.json").write_text("{}", encoding="utf-8")
+        found = find_report(str(tmp_path), "sk", "generative")
+        assert found is not None and found.name == "sk-generative-scores-subagent.json"
+
     def test_finds_skill_test_type_scores_variant(self, tmp_path: Path) -> None:
         """Preferred form: <skill>-<test_type>-scores.json."""
         (tmp_path / "shenbi-x-generative-scores.json").write_text("{}", encoding="utf-8")

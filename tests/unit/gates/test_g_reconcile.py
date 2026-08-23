@@ -4,15 +4,10 @@ G_RECONCILE reads `progress.json` from round_dir and iterates
 `progress["skills"][<skill>][<test_type>]["status"]`. Only skills whose
 status == "DONE" require a matching report file under t1-reports/.
 
-Note on filename convention: `find_report` in `src/shenbi/gates/shared.py`
-accepts three patterns (`<skill>-<test_type>-scores.json`,
-`<skill>-<test_type>.json`, `<skill>.json`). GR.2's on-disk filename
-parser does NOT strip the `-scores` suffix, so reports named with the
-production convention `<skill>-generative-scores.json` falsely trigger
-GR.2 `status=?` FAILs even when progress.json has matching DONE entries.
-Spec Non-Goal #3 forbids fixing the parser, so tests that exercise the
-GR.1 happy path use the `<skill>-<test_type>.json` naming to sidestep
-the parser bug.
+F401 fix: the GR.2 filename parser strips the `-scores` / `-scores-subagent`
+suffixes (production convention from dispatcher/modes/codex.py) before
+splitting into skill/test_type, so production-named reports no longer
+falsely FAIL with `status=?`.
 """
 
 from __future__ import annotations
@@ -33,17 +28,38 @@ def _result_dict(result_str: str) -> dict[str, Any]:
 def _write_pattern2_report(
     round_dir: Path, skill: str, test_type: str, payload: dict[str, Any]
 ) -> None:
-    """Write a report using `<skill>-<test_type>.json` naming.
-
-    This is find_report's pattern 2. Using it (instead of pattern 1's
-    `-scores.json` suffix) sidesteps the GR.2 parser bug described in the
-    module docstring while still exercising GR.1's DONE-skill lookup.
-    """
+    """Write a report using `<skill>-<test_type>.json` naming (pattern 2)."""
     reports = round_dir / "t1-reports"
     reports.mkdir(exist_ok=True)
     (reports / f"{skill}-{test_type}.json").write_text(
         json.dumps(payload, ensure_ascii=False), encoding="utf-8"
     )
+
+
+@pytest.mark.unit
+def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
+    """F401: production report names must not falsely FAIL GR.2.
+
+    Production naming (dispatcher/modes/codex.py): `<skill>-<test_type>-scores.json`
+    and `<skill>-<test_type>-scores-subagent.json`. With progress status DONE
+    (uppercase — F449 case normalization is out of scope, spec #27), the
+    suffix-stripped parser must reconcile them without `status=?` noise.
+    """
+    skill = "shenbi-worldbuilding"
+    for i, name in enumerate(
+        (f"{skill}-generative-scores.json", f"{skill}-generative-scores-subagent.json")
+    ):
+        round_dir = tmp_path / f"round-{i}"
+        round_dir.mkdir()
+        (round_dir / "progress.json").write_text(
+            json.dumps({"skills": {skill: {"generative": {"status": "DONE"}}}}), encoding="utf-8"
+        )
+        reports = round_dir / "t1-reports"
+        reports.mkdir()
+        (reports / name).write_text(json.dumps({"score": 85}), encoding="utf-8")
+        result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+        assert result["status"] == "PASS", (name, result.get("must_fix"))
+        assert not any("GR.2" in mf and "status=?" in mf for mf in result.get("must_fix", []))
 
 
 @pytest.mark.unit

@@ -151,16 +151,17 @@ def find_report(
 ) -> Path | None:
     """Find a report file with flexible naming convention.
 
-    Tries: <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
+    Tries: <skill>-<test_type>-scores-subagent.json (F464), then
+    <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
     """
     rd = Path(reports_dir)
     if test_type:
-        path = rd / f"{skill_name}-{test_type}-scores.json"
-        if path.exists():
-            return path
-        path = rd / f"{skill_name}-{test_type}.json"
-        if path.exists():
-            return path
+        # F401/F464: production naming appends -subagent (independent subagent
+        # scoring, dispatcher/modes/codex.py) — accept it alongside -scores.
+        for suffix in ("-scores-subagent", "-scores", ""):
+            path = rd / f"{skill_name}-{test_type}{suffix}.json"
+            if path.exists():
+                return path
     path = rd / f"{skill_name}.json"
     if path.exists():
         return path
@@ -240,6 +241,19 @@ def read_genre_config(project_dir: str | Path) -> dict[str, Any]:
 ALL_SKILLS = (
     sorted(d.name for d in SKILLS.iterdir() if d.is_dir() and (d / "SKILL.md").exists())
     if SKILLS.exists()
+    else []
+)
+
+# F432: the t1-skill scaffold roster (tests/tiers/t1-skill/<skill>/) is the
+# coverage universe for G7.1b reverse coverage — skills without a T1 scaffold
+# (group-*/lifecycle) can never appear in a round summary and must not FAIL it.
+T1_SCAFFOLD_SKILLS: tuple[str, ...] = tuple(
+    sorted(
+        d.name
+        for d in (TESTS / "tiers" / "t1-skill").iterdir()
+        if d.is_dir() and d.name != "_template"
+    )
+    if (TESTS / "tiers" / "t1-skill").exists()
     else []
 )
 

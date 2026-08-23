@@ -116,8 +116,17 @@ class TestRunGateG4:
 
 
 class TestRunGateG3:
+    """F408: these tests pre-create progress.json — missing progress is
+    fail-closed (see test_run_gate_g3_failclosed.py), not the subprocess path.
+    """
+
+    @staticmethod
+    def _with_progress(tmp_path):
+        (tmp_path / "progress.json").write_text("{}", encoding="utf-8")
+
     @patch(PATCH)
     def test_parses_json_output(self, mock_run, tmp_path):
+        self._with_progress(tmp_path)
         mock_run.return_value = MagicMock(
             returncode=0, stdout=json.dumps({"status": "PASS"}), stderr=""
         )
@@ -126,18 +135,21 @@ class TestRunGateG3:
 
     @patch(PATCH)
     def test_invalid_json_returns_fail(self, mock_run, tmp_path):
+        self._with_progress(tmp_path)
         mock_run.return_value = MagicMock(returncode=0, stdout="not json", stderr="e")
         result = run_gate_g3("shenbi-review-resonance", tmp_path)
         assert result["status"] == "FAIL"
 
     @patch(PATCH)
     def test_timeout_returns_fail(self, mock_run, tmp_path):
+        self._with_progress(tmp_path)
         mock_run.side_effect = subprocess.TimeoutExpired(cmd=[], timeout=1)
         result = run_gate_g3("shenbi-review-resonance", tmp_path)
         assert result["status"] == "FAIL"
 
     @patch(PATCH)
     def test_passes_generative_test_type(self, mock_run, tmp_path):
+        self._with_progress(tmp_path)
         mock_run.return_value = MagicMock(
             returncode=0, stdout=json.dumps({"status": "PASS"}), stderr=""
         )

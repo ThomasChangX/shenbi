@@ -2480,6 +2480,23 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
 # ---------------------------------------------------------------------------
 
 
+def _g3_parallel_wave(skills: list[str], project_dir: Path, chapter: int) -> list[dict[str, Any]]:
+    """F345: run G3 (scoring independence) for requires_independent skills
+    after a parallel audit wave — the serial step loop runs G3 at step 17,
+    but the parallel wave previously bypassed it entirely.
+
+    Fail-closed (F408): missing progress.json scores FAIL, honestly recorded.
+    """
+    from shenbi.pipeline.dispatch_helper import requires_independent, run_gate_g3
+
+    g3_results: list[dict[str, Any]] = []
+    for skill in skills:
+        if requires_independent(skill):
+            g3 = run_gate_g3(skill, project_dir, chapter=chapter, phase="chapter_loop")
+            g3_results.append({"skill": skill, "g3": g3})
+    return g3_results
+
+
 def _partition_review_wave(
     tasks: list[ReviewTask],
 ) -> tuple[list[ReviewTask], list[ReviewTask]]:
@@ -2692,6 +2709,14 @@ def _run_chapter_step_impl(
 
         # Consolidate all results
         all_results = core_results + genre_results
+        # F345: G3 scoring independence for audit skills riding the parallel
+        # wave / serial reviews (the step-loop G3 at step 17 only covers the
+        # serial chapter-step path). Recorded per-skill into the gate manifest.
+        for rec in _g3_parallel_wave(
+            [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
+        ):
+            if str(rec["g3"].get("status", "")) != "PASS":
+                log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
         consolidated = consolidate_review_results(all_results, chapter)
         summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
         safe_write(summary_path, consolidated)

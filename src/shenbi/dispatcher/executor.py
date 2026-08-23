@@ -208,15 +208,6 @@ def dispatch(
 
     output_files = derive_output_files(skill, chapter, round_dir, ctx=path_ctx)
     is_pipeline = (round_dir / "pipeline-state.json").exists()
-    if not is_pipeline:
-        if output_files:
-            g2 = run_g2(output_files, file_type, round_dir)
-            if g2.get("status") != "PASS":
-                log.error("g2_failed", gate="G2", result=g2)
-                return 1
-            log.info("gate_passed", gate="G2")
-    else:
-        log.info("g2_skipped_pipeline", reason="pipeline mode — output validated by G4/G6")
 
     mode = detect_mode()
     log.info("dispatch_mode", mode=mode)
@@ -224,10 +215,24 @@ def dispatch(
     if mode == "codex":
         from shenbi.dispatcher.modes.codex import dispatch_codex
 
-        return dispatch_codex(skill, test_type, round_dir, prompt, agent_id)
-    from shenbi.dispatcher.modes.internal import dispatch_internal
+        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id, output_files)
+    else:
+        from shenbi.dispatcher.modes.internal import dispatch_internal
 
-    return dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+        rc = dispatch_internal(skill, test_type, round_dir, prompt, agent_id)
+
+    # F227: G2 runs AFTER execution. Validating outputs before the skill runs
+    # failed every fresh round (the outputs did not exist yet). Pipeline mode
+    # keeps skipping G2 here — outputs are validated by G4/G6 instead.
+    if not is_pipeline and rc == 0 and output_files:
+        g2 = run_g2(output_files, file_type, round_dir)
+        if g2.get("status") != "PASS":
+            log.error("g2_failed", gate="G2", result=g2)
+            return 1
+        log.info("gate_passed", gate="G2")
+    elif is_pipeline:
+        log.info("g2_skipped_pipeline", reason="pipeline mode — output validated by G4/G6")
+    return rc
 
 
 def _audit_watch_paths(

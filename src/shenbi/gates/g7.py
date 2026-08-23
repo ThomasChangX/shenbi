@@ -15,6 +15,7 @@ from typing import Any
 from shenbi.gates.shared import (
     ALL_SKILLS,
     PROJECT,
+    T1_SCAFFOLD_SKILLS,
     fail,
     jload,
     passed,
@@ -33,7 +34,9 @@ def gate_G7(round_dir: str) -> str:
     if summary_path.exists():
         try:
             s = jload(str(summary_path))
-            actual = set(ALL_SKILLS)
+            actual = set(ALL_SKILLS) | set(
+                T1_SCAFFOLD_SKILLS
+            )  # F432: union keeps hallucination detection broad
             summary_skills = set(s.get("t1_scores", {}).keys())
             hallu = summary_skills - actual
             if hallu:
@@ -51,12 +54,12 @@ def gate_G7(round_dir: str) -> str:
     else:
         mf.append("G7.1:summary.json_not_found")
 
-    # G7.1b — reverse coverage: every ALL_SKILLS skill must appear in summary.json
+    # G7.1b — reverse coverage: every T1-scaffold skill must appear in summary.json (F432)
     if summary_path.exists():
         try:
             s = jload(str(summary_path))
             summary_skills = set(s.get("t1_scores", {}).keys())
-            missing_in_summary = set(ALL_SKILLS) - summary_skills
+            missing_in_summary = set(T1_SCAFFOLD_SKILLS) - summary_skills  # F432
             if missing_in_summary:
                 mf.append(f"G7.1:missing_coverage:{sorted(missing_in_summary)}")
         except (json.JSONDecodeError, OSError):

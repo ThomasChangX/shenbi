@@ -782,6 +782,16 @@ class TestRevisionRoutingIntegration:
 class TestAuditLayerWiring:
     """Tests that run_audit_layer is called after core circle and handles BLOCKING."""
 
+    @pytest.fixture(autouse=True)
+    def _g3_pass(self, monkeypatch, tmp_path):
+        """F408: run_gate_g3 is fail-closed without scorer evidence; these
+        orchestration tests mock dispatch, so G3 is mocked PASS likewise.
+        """
+        monkeypatch.setattr(
+            "shenbi.pipeline.chapter_loop.run_gate_g3",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
     def test_run_audit_layer_called_after_last_core_audit(self, tmp_path, monkeypatch):
         """After step 16 (last is_audit step), run_audit_layer is called."""
         from shenbi.pipeline.state import PipelinePhase, PipelineState

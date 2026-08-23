@@ -81,3 +81,19 @@ def test_registry_includes_genre_config() -> None:
     from shenbi.contracts.registry import REGISTRY
 
     assert "shenbi-genre-config" in REGISTRY
+
+
+def test_disabled_dim_with_empty_custom_rules_rejected() -> None:
+    """F216: empty customRules must NOT skip the disabled-dimension rule check."""
+    cfg = json.loads(json.dumps(_BASE))
+    cfg["auditDimensions"]["dim0"] = False  # disable one dimension
+    # customRules stays [] — old code skipped the whole check
+    with pytest.raises(ValidationError, match="no customRules reason found"):
+        GenreConfig.model_validate(cfg)
+
+
+def test_disabled_dim_with_matching_rule_still_passes() -> None:
+    cfg = json.loads(json.dumps(_BASE))
+    cfg["auditDimensions"]["dim0"] = False
+    cfg["customRules"] = [{"id": "r1", "description": "dim0 disabled because X"}]
+    GenreConfig.model_validate(cfg)

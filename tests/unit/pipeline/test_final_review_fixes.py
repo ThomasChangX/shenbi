@@ -119,6 +119,14 @@ class TestI1TriggeredFailureChecked:
     must check the return value and escalate.
     """
 
+    @pytest.fixture(autouse=True)
+    def _g3_pass(self, monkeypatch, tmp_path):
+        """F408: G3 fail-closed without scorer evidence; dispatch is mocked so G3 too."""
+        monkeypatch.setattr(
+            "shenbi.pipeline.dispatch_helper.run_gate_g3",
+            lambda *a, **kw: {"status": "PASS"},
+        )
+
     @patch("shenbi.pipeline.triggers.dispatch_skill")
     @patch("shenbi.pipeline.triggers.run_gate_g4")
     def test_dispatch_failure_returns_false(self, mock_g4, mock_disp, tmp_path):

@@ -135,14 +135,17 @@ def gate_G3(
                             )
                         else:
                             c.append({"id": "G3.2", "file": rp.name, "s": "PASS", "score": score})
-                    except (json.JSONDecodeError, OSError):
+                    except (json.JSONDecodeError, ValueError, OSError):  # F444
                         continue  # malformed score file → skip, score next report
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444
             c.append({"id": "G3.2", "s": "SKIP", "r": "acceptance.json invalid"})
     else:
         c.append({"id": "G3.2", "s": "SKIP", "r": "no acceptance.json"})
 
     # G3.3 — Output files passed G2
+    # (F444 boundary: only the codex dispatch route records output_files into
+    # progress.json; the pipeline route relies on G4/G6 — G3.3 SKIPs cleanly
+    # on materialized progress without fabricated data.)
     pp = rd / "progress.json"
     if pp.exists():
         try:
@@ -150,7 +153,16 @@ def gate_G3(
             if skill_name:
                 skills = progress.get("skills", {})
                 skill_data = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
-                output_files = skill_data.get("output_files", [])
+                # F444: producers (dispatcher/modes/codex.py _record_completion)
+                # write per-test_type entries: skills[skill][test_type]
+                tt_entry = (
+                    skill_data.get(test_type or "generative", {})
+                    if isinstance(skill_data, dict)
+                    else {}
+                )
+                output_files = (
+                    tt_entry.get("output_files", []) if isinstance(tt_entry, dict) else []
+                )
             else:
                 output_files = []
             if output_files and isinstance(output_files, list):
@@ -185,7 +197,11 @@ def gate_G3(
                     mf.append({"id": "G3.3", "s": "FAIL", "r": "G2 result unparseable"})
             else:
                 c.append({"id": "G3.3", "s": "SKIP", "r": "no output_files"})
-        except (json.JSONDecodeError, OSError):
+        except (
+            json.JSONDecodeError,
+            ValueError,
+            OSError,
+        ):  # F444: jload raises ValueError on non-dict
             mf.append({"id": "G3.3", "s": "FAIL", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.3", "s": "SKIP", "r": "no progress.json"})
@@ -200,7 +216,7 @@ def gate_G3(
                 mf.append({"id": "G3.4", "s": "FAIL", "r": reason})
             else:
                 c.append({"id": "G3.4", "s": "PASS"})
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
             c.append({"id": "G3.4", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.4", "s": "SKIP", "r": "no progress.json"})
@@ -224,7 +240,7 @@ def gate_G3(
                 mf.append({"id": "G3.5", "s": "FAIL", "r": "scorer already scored"})
             else:
                 c.append({"id": "G3.5", "s": "PASS", "note": f"{len(prior_agents)} prior scorers"})
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
             c.append({"id": "G3.5", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.5", "s": "SKIP", "r": "no progress.json"})

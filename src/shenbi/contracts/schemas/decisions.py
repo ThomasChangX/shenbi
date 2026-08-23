@@ -30,7 +30,7 @@ class Selection(BaseModel):
     @model_validator(mode="after")
     def _p25(self) -> Selection:
         rationale = self.rationale
-        has = rationale is not None
+        has = bool(rationale and rationale.strip())  # F404: empty/whitespace ≠ provided
         if rationale is not None and len(rationale) > _RATIONALE_MAX_CHARS:
             raise ValueError(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars")
         requires = self.severity in ("medium", "high") or self.basis == "manual_override"
@@ -56,6 +56,9 @@ class Adjustment(BaseModel):
     def _rationale(self) -> Adjustment:
         if len(self.rationale) > _RATIONALE_MAX_CHARS:
             raise ValueError(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars")
+        if not self.rationale or not self.rationale.strip():
+            # F458: adjustments always require a substantive rationale
+            raise ValueError("rationale REQUIRED (non-empty) for adjustments")
         return self
 
 

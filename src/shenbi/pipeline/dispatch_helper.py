@@ -29,7 +29,7 @@ from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
-from uuid import uuid4
+
 
 import httpx
 from pydantic import BaseModel, ValidationError
@@ -2273,17 +2273,15 @@ def run_gate_g3(
     rd = Path(round_dir)
     pp = rd / "progress.json"
     if not pp.exists():
-        safe_write(
-            pp,
-            json.dumps(
-                {
-                    "current_scorer_agent": f"pipeline-g3-scorer-{uuid4().hex[:12]}",
-                    "scoring_history": [{"agent": "pipeline-skill-generator", "g2_passed": True}],
-                },
-                indent=2,
-            ),
-        )
-        log.info("progress_json_created_for_g3", skill=skill, path=str(pp))
+        # F408: never fabricate scoring evidence. Missing progress.json = FAIL.
+        log.error("g3_fail_closed_no_progress", skill=skill, path=str(pp))
+        fail_result = {
+            "status": GateStatus.FAIL,
+            "error": "no progress.json — fail-closed (F408)",
+        }
+        if chapter is not None and phase is not None:
+            _record_gate_manifest(rd, phase, chapter, skill, "G3", fail_result)
+        return fail_result
 
     cmd = [sys.executable, "-m", "shenbi.gates.cli", "G3", skill, "generative", str(rd)]
     try:

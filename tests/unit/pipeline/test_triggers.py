@@ -18,8 +18,11 @@ diagnostic fields. Enforced by the ordered step list.
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from unittest.mock import patch
+
+import pytest
 
 from shenbi.pipeline._shared import read_volume_boundaries
 from shenbi.pipeline.dispatch_helper import DispatchResult
@@ -398,6 +401,21 @@ class TestTriggerStepDataclass:
 
 
 class TestRunTriggeredSkills:
+    @pytest.fixture(autouse=True)
+    def _progress_for_g3(self, tmp_path):
+        """F408: G3 is fail-closed without progress.json; the real flow records
+        skill completions before G3 runs, so tests pre-create it.
+        """
+        (tmp_path / "progress.json").write_text(
+            json.dumps(
+                {
+                    "current_scorer_agent": "fixture-scorer",
+                    "agent_trace": {"shenbi-score-arc": "fixture-generator"},
+                }
+            ),
+            encoding="utf-8",
+        )
+
     @patch("shenbi.pipeline.triggers.dispatch_skill")
     @patch("shenbi.pipeline.triggers.run_gate_g4")
     def test_executes_all_arc_steps(self, mock_g4, mock_disp, tmp_path):
@@ -413,6 +431,17 @@ class TestRunTriggeredSkills:
     def test_g3_for_scoring_skills(self, mock_g4, mock_disp, tmp_path):
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        # F408: G3 is fail-closed without progress.json — real flow records
+        # completions before G3 runs, so the fixture pre-creates it.
+        (tmp_path / "progress.json").write_text(
+            json.dumps(
+                {
+                    "current_scorer_agent": "fixture-scorer",
+                    "agent_trace": {"shenbi-score-arc": "fixture-generator"},
+                }
+            ),
+            encoding="utf-8",
+        )
         state = PipelineState.default(str(tmp_path))
         result = TriggerResult(score_arc=True, l2_distill=True, style_learning=True)
         run_triggered_skills(state, tmp_path, 12, result)
