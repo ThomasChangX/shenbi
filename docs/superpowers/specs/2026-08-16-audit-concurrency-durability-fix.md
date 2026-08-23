@@ -31,6 +31,7 @@
 - **T2 · 锁原语修复（T603/F111/T602/F510/T408）**：stale-takeover 改带活性证明（锁文件内 pid/mtime 双检 + 心跳）或直接删除 1s 无条件夺锁；补回退/抢占段单测（当前零测试）；实例锁改锁文件或全局注册表（跨实例有效）。
 - **T3 · TOCTOU 修复（F327/T606/F525/T407）**：cmd_init 三段式收进单锁临界区；TokenLedger 读路径去掉 mkdir 副作用（惰性创建仅写路径）。
 - **T4 · 覆盖改合并（F630/F1113）**：materialize_progress 改键级 merge（保留非自有键），或物化频率降级+锁内读改写；生产空壳 progress.json 由恢复路径重建。
+  - **T4 显式输入（2026-08-23 spec #7 REJECT 补录，F640 事实补强）**：INIT/MARK_DONE trace 事件全仓零生产者（src/+tools/ grep 无任何发射点；trace_action= 全仓仅 materialize 自身出现）——键级 merge 只防覆盖他方键，不解决「重放结果为空」本身：零事件下 materialize 仍会把自有键重建为全 pending。T4 落地时须二选一：补齐事件生产者，或降级/删除调用点（chapter_loop.py:687-746 每 5 步 + resume 触发面）。
 - **T5 · durability 基线（F534/F605/F416）**：write-audit.jsonl/trace 追加统一 fsync+时间戳；审计轨迹先校验后写；gate_manifest 损坏 fail-loud（不静默重置）。
 - **T6 · 并发回归套件**：双进程/多线程实跑用例固化——T605 双进程丢更新复现用例、T601 5 并发 findings 覆盖用例、F531 trace 分叉用例，全部从"复现 bug"翻转为"验证互斥"。
 
