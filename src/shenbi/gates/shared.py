@@ -151,7 +151,8 @@ def find_report(
 ) -> Path | None:
     """Find a report file with flexible naming convention.
 
-    Tries: <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
+    Tries: <skill>-<test_type>-scores-subagent.json (F464), then
+    <skill>-<test_type>-scores.json, <skill>-<test_type>.json, <skill>.json.
     """
     rd = Path(reports_dir)
     if test_type:
