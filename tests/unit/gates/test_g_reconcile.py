@@ -37,7 +37,7 @@ def _write_pattern2_report(
 
 
 @pytest.mark.unit
-def test_gr2_production_scores_suffix_not_false_fail(make_project) -> None:
+def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
     """F401: production report names must not falsely FAIL GR.2.
 
     Production naming (dispatcher/modes/codex.py): `<skill>-<test_type>-scores.json`
@@ -46,15 +46,19 @@ def test_gr2_production_scores_suffix_not_false_fail(make_project) -> None:
     suffix-stripped parser must reconcile them without `status=?` noise.
     """
     skill = "shenbi-worldbuilding"
-    for name in (f"{skill}-generative-scores.json", f"{skill}-generative-scores-subagent.json"):
-        _, round_dir = make_project(
-            progress={"skills": {skill: {"generative": {"status": "DONE"}}}},
+    for i, name in enumerate(
+        (f"{skill}-generative-scores.json", f"{skill}-generative-scores-subagent.json")
+    ):
+        round_dir = tmp_path / f"round-{i}"
+        round_dir.mkdir()
+        (round_dir / "progress.json").write_text(
+            json.dumps({"skills": {skill: {"generative": {"status": "DONE"}}}}), encoding="utf-8"
         )
         reports = round_dir / "t1-reports"
-        reports.mkdir(exist_ok=True)
+        reports.mkdir()
         (reports / name).write_text(json.dumps({"score": 85}), encoding="utf-8")
         result = _result_dict(gate_G_RECONCILE(str(round_dir)))
-        assert result["status"] == "PASS", (name, result["must_fix"])
+        assert result["status"] == "PASS", (name, result.get("must_fix"))
         assert not any("GR.2" in mf and "status=?" in mf for mf in result.get("must_fix", []))
 
 
