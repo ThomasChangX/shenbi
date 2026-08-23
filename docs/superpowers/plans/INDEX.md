@@ -1,13 +1,15 @@
 # Plan 执行索引
 
-> **最后更新**：2026-08-15
-> **活跃 plan 数**：0 | **已归档**：66（见 `archive/`）
+> **最后更新**：2026-08-24
+> **活跃 plan 数**：1 | **已归档**：66（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- `2026-08-24-spec8-gate-effectiveness.md` — spec #8 门禁有效性（R1-R7/R9/F402/F158/F417，10 task）· ✅ ready
 
 
 
