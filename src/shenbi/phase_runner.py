@@ -53,7 +53,7 @@ def load_state(round_dir: str, phase: str) -> dict[str, Any]:
 
 
 def save_state(round_dir: str, state: dict[str, Any]) -> None:
-    _sanitize_phase(str(state.get("phase", "")))
+    state["phase"] = _sanitize_phase(str(state.get("phase", "")))
     state_dir = Path(round_dir) / "phase-state"
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file = state_dir / f"{state['phase']}.json"
