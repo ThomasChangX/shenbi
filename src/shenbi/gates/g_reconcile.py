@@ -48,6 +48,10 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
     if reports_dir.exists():
         for rp in reports_dir.glob("*.json"):
             stem = rp.stem
+            # F401: production report naming appends `-scores` / `-scores-subagent`
+            # (subagent scoring, dispatcher/modes/codex.py) — strip before parsing.
+            for suffix in ("-subagent", "-scores"):
+                stem = stem.removesuffix(suffix)
             matched = False
             for n_split in range(1, 6):
                 parts = stem.rsplit("-", n_split)
