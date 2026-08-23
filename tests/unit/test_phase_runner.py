@@ -862,3 +862,32 @@ class TestPostSkillOutputDiscovery:
         # With empty derive_output_files, G2 should receive empty string (no stray.md)
         if captured_outputs:
             assert "stray.md" not in captured_outputs[0]
+
+
+# --- F158: phase name sanitization (path traversal) ---
+
+
+@pytest.mark.unit
+def test_load_state_rejects_traversal_phase(tmp_path):
+    from shenbi.phase_runner import load_state
+
+    with pytest.raises(ValueError, match="invalid phase name"):
+        load_state(str(tmp_path), "../evil")
+
+
+@pytest.mark.unit
+def test_save_state_rejects_traversal_phase(tmp_path):
+    from shenbi.phase_runner import save_state
+
+    with pytest.raises(ValueError, match="invalid phase name"):
+        # state with a traversal phase cannot write outside phase-state/
+        save_state(str(tmp_path), {"phase": "../evil", "steps": []})
+
+
+@pytest.mark.unit
+def test_valid_phase_roundtrip(tmp_path):
+    from shenbi.phase_runner import load_state, save_state
+
+    save_state(str(tmp_path), {"phase": "t2-genesis", "steps": ["a"]})
+    state = load_state(str(tmp_path), "t2-genesis")
+    assert state["phase"] == "t2-genesis"

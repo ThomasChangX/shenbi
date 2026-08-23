@@ -33,7 +33,19 @@ def load_deps() -> Any:
     return json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
 
 
+def _sanitize_phase(phase: str) -> str:
+    """F158: phase is joined into a state-file path — reject anything outside
+    [A-Za-z0-9_-]+ (path traversal / separator injection) fail-loud.
+    """
+    import re
+
+    if re.fullmatch(r"[A-Za-z0-9_-]+", phase) is None:
+        raise ValueError(f"invalid phase name: {phase!r}")
+    return phase
+
+
 def load_state(round_dir: str, phase: str) -> dict[str, Any]:
+    phase = _sanitize_phase(phase)
     state_file = Path(round_dir) / "phase-state" / f"{phase}.json"
     if state_file.exists():
         return cast(dict[str, Any], json.loads(state_file.read_text(encoding="utf-8")))
@@ -41,6 +53,7 @@ def load_state(round_dir: str, phase: str) -> dict[str, Any]:
 
 
 def save_state(round_dir: str, state: dict[str, Any]) -> None:
+    _sanitize_phase(str(state.get("phase", "")))
     state_dir = Path(round_dir) / "phase-state"
     state_dir.mkdir(parents=True, exist_ok=True)
     state_file = state_dir / f"{state['phase']}.json"
