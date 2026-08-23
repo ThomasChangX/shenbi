@@ -17,12 +17,21 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
-def _record_completion(round_dir: Path, skill: str, test_type: str, score: float) -> None:
+def _record_completion(
+    round_dir: Path,
+    skill: str,
+    test_type: str,
+    score: float,
+    output_files: list[str] | None = None,
+) -> None:
     """Record skill completion directly into progress.json.
 
     Replaces the historical ``shenbi-progress mark-done`` subprocess, which
     invoked an entry point never registered in pyproject.toml. Mirrors how
     gate logic (g_dispatch.py) reads ``completed_skill_names``.
+
+    ``output_files`` (F444) records the skill's produced files at the
+    test_type layer so G3.3 can re-run G2 on them.
     """
     progress_path = round_dir / "progress.json"
     if progress_path.exists():
@@ -41,14 +50,24 @@ def _record_completion(round_dir: Path, skill: str, test_type: str, score: float
     skills = skills_obj if isinstance(skills_obj, dict) else {}
     skill_entry_obj = skills.get(skill, {})
     skill_entry = skill_entry_obj if isinstance(skill_entry_obj, dict) else {}
-    skill_entry[test_type] = {"score": score, "status": "done"}
+    entry: dict[str, object] = {"score": score, "status": "done"}
+    if output_files:
+        entry["output_files"] = output_files
+    skill_entry[test_type] = entry
     skills[skill] = skill_entry
     progress["skills"] = skills
 
     safe_write(progress_path, json.dumps(progress, indent=2, ensure_ascii=False))
 
 
-def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, agent_id: str) -> int:
+def dispatch_codex(
+    skill: str,
+    test_type: str,
+    round_dir: Path,
+    prompt: str,
+    agent_id: str,
+    output_files: list[str] | None = None,
+) -> int:
     """Dispatch via codex CLI."""
     if not prompt:
         raise SubAgentProtocolError("codex mode requires non-empty prompt")
@@ -112,6 +131,6 @@ def dispatch_codex(skill: str, test_type: str, round_dir: Path, prompt: str, age
         return result.returncode
 
     final = json.loads(result.stdout).get("final_score", 0)
-    _record_completion(round_dir, skill, test_type, final)
+    _record_completion(round_dir, skill, test_type, final, output_files=output_files)
     emit_json(json.loads(result.stdout))
     return 0

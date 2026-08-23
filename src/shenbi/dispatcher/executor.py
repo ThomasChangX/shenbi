@@ -215,7 +215,7 @@ def dispatch(
     if mode == "codex":
         from shenbi.dispatcher.modes.codex import dispatch_codex
 
-        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id)
+        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id, output_files)
     else:
         from shenbi.dispatcher.modes.internal import dispatch_internal
 

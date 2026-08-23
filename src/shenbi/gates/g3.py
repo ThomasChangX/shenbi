@@ -150,7 +150,16 @@ def gate_G3(
             if skill_name:
                 skills = progress.get("skills", {})
                 skill_data = skills.get(skill_name, {}) if isinstance(skills, dict) else {}
-                output_files = skill_data.get("output_files", [])
+                # F444: producers (dispatcher/modes/codex.py _record_completion)
+                # write per-test_type entries: skills[skill][test_type]
+                tt_entry = (
+                    skill_data.get(test_type or "generative", {})
+                    if isinstance(skill_data, dict)
+                    else {}
+                )
+                output_files = (
+                    tt_entry.get("output_files", []) if isinstance(tt_entry, dict) else []
+                )
             else:
                 output_files = []
             if output_files and isinstance(output_files, list):
@@ -185,7 +194,11 @@ def gate_G3(
                     mf.append({"id": "G3.3", "s": "FAIL", "r": "G2 result unparseable"})
             else:
                 c.append({"id": "G3.3", "s": "SKIP", "r": "no output_files"})
-        except (json.JSONDecodeError, OSError):
+        except (
+            json.JSONDecodeError,
+            ValueError,
+            OSError,
+        ):  # F444: jload raises ValueError on non-dict
             mf.append({"id": "G3.3", "s": "FAIL", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.3", "s": "SKIP", "r": "no progress.json"})

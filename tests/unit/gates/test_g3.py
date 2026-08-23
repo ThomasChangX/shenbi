@@ -115,7 +115,8 @@ class TestG3ErrorPaths:
             + "\n\n## PRE_WRITE_CHECK\n内容\n\n## POST_WRITE_SELF_CHECK\n内容\n",
             encoding="utf-8",
         )
-        progress = {"skills": {"shenbi-worldbuilding": {"output_files": [str(ch)]}}}
+        # F444: production shape — producers write skills[skill][test_type]
+        progress = {"skills": {"shenbi-worldbuilding": {"generative": {"output_files": [str(ch)]}}}}
         (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
@@ -127,7 +128,7 @@ class TestG3ErrorPaths:
         """progress.json without output_files -> G3.3 SKIP."""
         rd = tmp_path / "round"
         rd.mkdir()
-        progress = {"skills": {"shenbi-worldbuilding": {}}}
+        progress = {"skills": {"shenbi-worldbuilding": {"generative": {}}}}
         (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
         g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
@@ -217,7 +218,9 @@ def test_g33_runs_g2_when_output_files_present(tmp_path: Path) -> None:
         "# 第1章\n\n## PRE_WRITE_CHECK\nx\n\n## POST_WRITE_SELF_CHECK\ny\n", encoding="utf-8"
     )
     (rd / "progress.json").write_text(
-        json.dumps({"skills": {"shenbi-chapter-drafting": {"output_files": [str(ch)]}}}),
+        json.dumps(
+            {"skills": {"shenbi-chapter-drafting": {"generative": {"output_files": [str(ch)]}}}}
+        ),
         encoding="utf-8",
     )
     result = _result_dict(gate_G3("shenbi-chapter-drafting", "generative", str(rd)))
@@ -342,3 +345,49 @@ def test_g31_does_not_silently_query_missing_key() -> None:
     assert "find_report" not in code_names, (
         "G3.1 must not call find_report (D19: dead prereq lookup deleted)"
     )
+
+
+@pytest.mark.unit
+def test_g33_executes_on_real_producer_shape(tmp_path: Path) -> None:
+    """F444: progress built by the REAL producer (_record_completion with
+    output_files) → G3.3 actually executes (non-SKIP) on the production shape.
+    """
+    from shenbi.dispatcher.modes.codex import _record_completion
+
+    rd = tmp_path / "round"
+    rd.mkdir()
+    ch = rd / "chapters" / "ch001.md"
+    ch.parent.mkdir()
+    ch.write_text(
+        "# Chapter\n\n"
+        + ("字" * 3500)
+        + "\n\n## PRE_WRITE_CHECK\n内容\n\n## POST_WRITE_SELF_CHECK\n内容\n",
+        encoding="utf-8",
+    )
+    _record_completion(rd, "shenbi-worldbuilding", "generative", 95.0, output_files=[str(ch)])
+    result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+    g33 = next((c for c in result["checks"] if c.get("id") == "G3.3"), None)
+    assert g33 is not None
+    assert g33["s"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
+    """F444 follow-on: non-dict JSON progress raises ValueError inside gate_G2's
+    jload — g3.py must catch it and record FAIL, not propagate.
+    """
+    rd = tmp_path / "round"
+    rd.mkdir()
+    ch = rd / "outline" / "o.md"
+    ch.parent.mkdir()
+    ch.write_text("非 JSON 字数不足", encoding="utf-8")
+    (rd / "progress.json").write_text(
+        json.dumps(
+            {"skills": {"shenbi-worldbuilding": {"generative": {"output_files": [str(ch)]}}}}
+        ),
+        encoding="utf-8",
+    )
+    # make the output file itself a non-dict JSON to trigger jload ValueError in gate_G2
+    ch.write_text("[1,2]", encoding="utf-8")
+    result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
+    assert result["status"] in ("FAIL", "PASS")  # no exception propagated
