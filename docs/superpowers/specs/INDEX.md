@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 spec 数**：59
+> **活跃 spec 数**：58
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）
-
-- **文件**：`2026-08-13-full-project-audit-prompt-design.md`
-- **系列**：2026-08-13 全项目审查（总纲；只设计审查 prompt 文档本身，审查执行另起会话）
-- **状态**：Design
-- **优先级**：🟠 High（工程卫生总审查的执行载体；产出驱动后续所有修复 spec）
-- **方法**：`brainstorming`（已完成）→ 直接编写 prompt 文档（superpowers skill 可选增强 / 无 SDD）
-- **依赖**：`docs/superpowers/single-model-sdd-prompt.md`（仅风格先例：Iron Law / 反合理化）；repo spec/INDEX 约定；AGENTS.md
-- **内容**：设计无时间盒、完备性门驱动（G1-G7）的全项目审查 prompt（交付物：`docs/superpowers/full-project-audit-prompt.md`，自包含基线 + superpowers skill 白名单可选增强（增强非替代）/ 无 SDD）：四层覆盖模型（D1 机械 100% / D2 模式 100% / D3 语义深读全文件 / D4 磁盘运行时产物与日志审计）+ 双台账（tracked 表 A + 磁盘产物表 B，无 sampled 兜底）+ 分区矩阵 Z1-Z11 + 跨模块审计线程 T1-T16（T10 历史修复回归核验、T11 运行时行为核验 + stub smoke、T12 安全、T13 依赖供应链、T14 确定性替换、T15 git 考古、T16 性能与资源效率）+ per-file 报告/findings ledger schema + 每 finding 独立 spec 产出契约（1 总纲 + N 子 spec + M 级合并批量 spec）+ checkpoint/resume 协议。只审不修。诚实代价：串行 100+ 小时 / 并行墙钟 20-40 小时、10-20 会话。v2/v3 修订见 spec §0/§0.1（v3 为 2026-08-14 执行 run 的实证修复：G4 双轨收敛、§3.5 攻击角度库、G5 机械对账、G6 分层深核禁稀释、T16 性能线程、final-report 机械统计）。
-- **对应 plan**：❌ 未写
 
 ### #8 · 全项目审查执行：门禁有效性（P1）
 
