@@ -7,7 +7,7 @@
 > **系列:** Token 效率全栈 audit（第三轮，承接 archive `2026-07-17-reduce-token-waste` / `2026-07-18-optimize-llm-context` / `2026-07-19-06-llm-context-engineering`）
 > **依赖:** 上述 3 归档 spec；G4 结构校验门；`src/shenbi/pipeline/dispatch_helper.py` / `audit_layer.py` / `src/shenbi/cost/`
 > **决策原则:** 质量 > token > 速度，但不应有浪费。即——能砍的只有"砍掉后 G4/gate 仍 PASS"的部分；凡是 gate FAIL 的上下文，无论多冗余都是必要保留或待去冗。
-> **Purpose（总纲）:** 本 spec 是 Token 效率全栈 audit 的**总纲**——定义全局决策原则、四 spec 分工边界、跨 spec 根因簇图；并保留**输入侧（读/写/system prompt）的 10 条 findings**（§3）。三个子 spec 各自极致专注一个独立维度：[推理控制](2026-08-01-inference-control-audit-design.md)（采样/模型/重试）、[确定性替换](../2026-08-01-deterministic-skill-replacement-audit-design.md)（skill→Python）、[输出侧浪费](../2026-08-01-output-side-waste-audit-design.md)（重试放大/审计冗余/revision raw glob）。
+> **Purpose（总纲）:** 本 spec 是 Token 效率全栈 audit 的**总纲**——定义全局决策原则、四 spec 分工边界、跨 spec 根因簇图；并保留**输入侧（读/写/system prompt）的 10 条 findings**（§3）。三个子 spec 各自极致专注一个独立维度：[推理控制](2026-08-01-inference-control-audit-design.md)（采样/模型/重试）、[确定性替换](../2026-08-01-deterministic-skill-replacement-audit-design.md)（skill→Python）、[输出侧浪费](2026-08-01-output-side-waste-audit-design.md)（重试放大/审计冗余/revision raw glob）。
 
 ---
 
@@ -30,7 +30,7 @@
 | **本总纲** | 输入侧（reads/writes/system prompt） | prompt **内容**里有什么浪费？ | 10（§3） |
 | [推理控制](2026-08-01-inference-control-audit-design.md) | 调用方式（采样/模型/重试/截断） | 模型**怎么被调**？ | 10 |
 | [确定性替换](../2026-08-01-deterministic-skill-replacement-audit-design.md) | 调用必要性（LLM→Python） | **这个调用本身是否必要**？ | 4 候选 + 判据 |
-| [输出侧浪费](../2026-08-01-output-side-waste-audit-design.md) | 输出 token（重试放大/审计冗余） | LLM **产出**什么浪费？ | 4 |
+| [输出侧浪费](2026-08-01-output-side-waste-audit-design.md) | 输出 token（重试放大/审计冗余） | LLM **产出**什么浪费？ | 4 |
 
 ### 0.3 折叠维度（证据不足独立成 spec，归此）
 
