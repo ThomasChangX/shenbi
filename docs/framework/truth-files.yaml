@@ -67,6 +67,7 @@ concepts:
   - {name: audits/escalation-N-report.md, kind: report}  # parametric: N
   # chapter_loop consolidate (pipeline):
   - {name: audits/chapter-N-review-summary.md, kind: report, producer: pipeline}
+  - {name: audits/chapter-N.aggregate.md, kind: report, producer: pipeline}
   # foundation / snapshots / import / short
   - {name: foundation/review_report.md, kind: report}
   # D20: pipeline writes timestamped flatfiles snapshots/chapter-NNN-*.md

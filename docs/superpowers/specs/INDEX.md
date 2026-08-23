@@ -18,7 +18,7 @@
 - **优先级**：🟠 High（输出 token 单价 2-3× 输入；总纲的盲点）
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——**PR #39 已修**）；推理控制 spec（已归档，§J finish_reason=length 盲点驱动本 spec F8 重试放大——**PR #40 已修**）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
-- **内容**：只审**输出侧浪费**——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大——**[2026-08-24 修订] superseded 关闭**（TokenLedger 接线 PR #39 已落地，重试预算/失败分类归活跃 #47/C33 承接，本 spec 不实施防重复）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，`parallel_dispatch.py` consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（`revision_router.py:205`，~60-120KB/次）/ F7 dead sidecar 产出 token——**[2026-08-24 修订] 证据 5→3，改本 spec P0 直接承接**（残留 market-radar / short-drafting / chapter-revision-revision）。根因簇：无输出聚合层。**P0：revision 前加审计聚合去重层 + 3 残留 dead sidecar 契约清理**；P2：审计器缺陷共享去冗。
+- **内容**：只审**输出侧浪费**——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大——**[2026-08-24 修订] superseded 关闭**（TokenLedger 接线 PR #39 已落地，重试预算/失败分类归活跃 #47/C33 承接）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，`parallel_dispatch.py` consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（`revision_router.py:205`，~60-120KB/次）+ 共振文件 glob 双读 / F7 dead sidecar——**[2026-08-24 二次修订] 关闭**（3 残留已由归档 plan 2026-08-02 裁决 KEEP：state_heal 存在性对账 + G4 decisions schema 校验为机器消费方）。根因簇：无输出聚合层。**P0：revision 前加审计聚合去重层（接线契约 spec §5.1a：确定性产出者、双触发点、fail-open 回退、保守去重无损不变量）**；P2：审计器缺陷共享去冗。
 - **对应 plan**：❌ 未写
 
 ### #5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）

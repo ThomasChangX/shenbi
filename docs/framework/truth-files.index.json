@@ -375,21 +375,11 @@
       "shenbi-intent-management"
     ]
   },
-  "audits/chapter-N-*.md": {
-    "reads": [
-      "shenbi-chapter-revision",
-      "shenbi-drift-guidance"
-    ],
-    "writes": [],
-    "updates": []
-  },
-  "audits/chapter-N-resonance.md": {
+  "audits/chapter-N.aggregate.md": {
     "reads": [
       "shenbi-chapter-revision"
     ],
-    "writes": [
-      "shenbi-review-resonance"
-    ],
+    "writes": [],
     "updates": []
   },
   "truth/state_snapshot-pre-rev.md": {
@@ -552,6 +542,13 @@
     "updates": [
       "shenbi-relationship-map"
     ]
+  },
+  "audits/chapter-N-*.md": {
+    "reads": [
+      "shenbi-drift-guidance"
+    ],
+    "writes": [],
+    "updates": []
   },
   "truth/resonance_trend.md": {
     "reads": [
@@ -897,6 +894,13 @@
       "shenbi-score-volume"
     ],
     "writes": [],
+    "updates": []
+  },
+  "audits/chapter-N-resonance.md": {
+    "reads": [],
+    "writes": [
+      "shenbi-review-resonance"
+    ],
     "updates": []
   },
   "truth/parent_canon.md": {

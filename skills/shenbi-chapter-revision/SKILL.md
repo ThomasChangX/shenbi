@@ -6,8 +6,7 @@ contract:
   reads:
     - chapters/chapter-N.md
     - chapters/chapter-N-decisions.json
-    - audits/chapter-N-*.md
-    - audits/chapter-N-resonance.md
+    - audits/chapter-N.aggregate.md
     - file: plans/chapter-N-plan.md
       fields: ["1. 当前任务", "6. 章尾必须发生的改变", "8. 不要做"]
   writes:
@@ -30,7 +29,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, chapters/chapter-N-decisions.json, audits/chapter-N-*.md, audits/chapter-N-resonance.md, plans/chapter-N-plan.md
+- **Reads:** chapters/chapter-N.md, chapters/chapter-N-decisions.json, audits/chapter-N.aggregate.md, plans/chapter-N-plan.md
 - **Writes:** truth/state_snapshot-pre-rev.md, chapters/chapter-N-revision-decisions.json
 - **Updates:** chapters/chapter-N.md
 

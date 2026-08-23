@@ -49,6 +49,7 @@ import yaml
 
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
+from shenbi.pipeline.audit_aggregate import write_audit_aggregate
 from shenbi.pipeline.audit_layer import run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
     DispatchResult,
@@ -2897,6 +2898,12 @@ def _run_chapter_step_impl(
             f"Fix these issues in your new output."
         )
 
+    # F10 (spec §5.1a): refresh the audit aggregate right before revision
+    # is dispatched — the revision skill reads the aggregate, not the raw
+    # glob, so the aggregate must reflect the latest audit set.
+    if step.skill == "shenbi-chapter-revision":
+        write_audit_aggregate(project_dir, chapter)
+
     # Dispatch the skill.
     result = dispatch_skill(
         step.skill,
@@ -3070,6 +3077,10 @@ def _run_chapter_step_impl(
                 chapter=chapter,
                 retry=cs.audit_retry_count,
             )
+            # F10: re-audit changed the audit set — regenerate the aggregate
+            # so revision never consumes a stale one (correctness, not just
+            # efficiency).
+            write_audit_aggregate(project_dir, chapter)
             rev = dispatch_skill(
                 "shenbi-chapter-revision",
                 project_dir,
