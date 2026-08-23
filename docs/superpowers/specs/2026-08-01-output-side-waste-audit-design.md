@@ -1,7 +1,7 @@
 # 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
 
 > **Date:** 2026-08-01
-> **Status:** Design
+> **Status:** Design | Revised 2026-08-24（价值门复核：F8 重试面 superseded→活跃 #47/C33，TokenLedger 接线已由 PR #39 落地；F7 dead sidecar 证据漂移 5→3，改由本 spec 直接承接）
 > **Severity:** 🟠 High（输出 token 单价 2-3× 输入；输出侧是总纲 spec 的盲点）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段
 > **系列:** Token 效率全栈 audit（子 spec 3/3，隶属总纲 [`...read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
@@ -30,6 +30,8 @@
 ## 2. 根因发现（Phase 1）—— 4 条
 
 ### 2.1 [F8] G4 重试放大：坏章最坏 ~6 章等价输出 + 3 审计波
+
+> **[2026-08-24 修订] 本条 superseded，关闭不实施。** 证据（常量、重试链）仍成立，但修复面已全部有主：TokenLedger 计量已接（PR #39，`dispatch_helper.py:1448,1467` 每次 dispatch 含重试均记账 completion_tokens）；截断检测已修（PR #40）；全局重试预算/失败分类由活跃 spec **#47（C33 重试/失败分类统一）** 承接（其 INDEX 登记明确「吸收 #4 的 F8 重试放大」）。本 spec 不再含 F8 的任何实施任务，防止与 #47 重复实施。下文保留原始分析作历史记录。
 
 - **症状**：一个质量差的章节触发重试链，产出多份废弃全量输出。
 - **证据**：
@@ -76,13 +78,17 @@
 
 ### 2.4 [F7] dead decisions sidecar 的产出 token（总纲 §3.5 的输出视角补全）
 
-- **症状**：5 个 dead decisions.json sidecar（无下游 reads）不仅占盘，LLM 还花 completion token 产它们。
-- **证据**：总纲 §3.5 已立 5/7 dead sidecar（planning/revision/short-drafting/market-radar/state-settling 的 decisions 无下游 reads）。本条补**输出视角**：`docs/framework/decisions-schema.md` 定 sidecar 结构（selections/adjustments/budget），最小 ~0.5KB，填充 ~1-2KB；producer LLM 花 completion token 生成。
-- **根因**：同总纲 §3.5——AGENTS.md §73 无机器化校验。
+> **[2026-08-24 修订] 证据漂移 5→3，改由本 spec 直接承接。** planning 与 state-settling 的 SKILL.md 已无 decisions writes；chapter-drafting 的 chapter-N-decisions.json 现被 revision reads、context-decisions 被 drafting reads——均不再 dead。总纲已归档无执行载体，余量清理由本 spec P0 承接。下文按 3 个残留更新。
+
+- **症状**：3 个 dead decisions.json sidecar（有 writes 无下游 reads）不仅占盘，LLM 还花 completion token 产它们。
+- **证据**（2026-08-24 复核）：
+  - `skills/shenbi-market-radar/SKILL.md:12,27`（context/market-radar-decisions.json）
+  - `skills/shenbi-short-drafting/SKILL.md:24,39`（short/short-N-decisions.json）
+  - `skills/shenbi-chapter-revision/SKILL.md:16,34`（chapters/chapter-N-revision-decisions.json）
+  - `docs/framework/decisions-schema.md` 定 sidecar 结构（selections/adjustments/budget），producer LLM 花 completion token 生成。
+- **根因**：无机器化校验（dead sidecar = 契约闭合缺口）。
 - **分类**：纯浪费（产出 100% 废弃）。
-- **浪费量**：5 skill × ~0.5-2KB sidecar × completion 单价 = 纯产出浪费（总纲 §3.5 已估字节，此处强调 completion token 成本）。
-- **质量影响**：无。
-- **修复**：归总纲 §3.5 P1（删 writes 或加 reads）。
+- **修复**：P0 直接清理——3 个 sidecar 删 writes（或为消费价值明确的加下游 reads；无明确消费者则删）。
 
 ---
 
@@ -112,15 +118,15 @@
 
 | finding | 修复 | 落地点 | 验证 |
 |---|---|---|---|
-| 2.4 | 归总纲 §3.5 P1：5 dead sidecar 删 writes 或加 reads | skills 契约 | G4 PASS |
-| 2.3 | revision 前加审计聚合去重层：按段落+缺陷类型合并多器报告 → 单份聚合审计摘要；revision reads 改聚合摘要 | `revision_router.py:199` 前置聚合；`shenbi-chapter-revision` reads 改 | revision 输入字符数降 + G4 PASS |
+| 2.4 | 3 个残留 dead sidecar 删 writes 或加 reads | skills 契约（market-radar / short-drafting / chapter-revision） | G4 PASS + `just generate` diff 空 |
+| 2.3 | revision 前加审计聚合去重层：按段落+缺陷类型合并多器报告 → 单份聚合审计摘要；revision reads 改聚合摘要 | `revision_router.py` glob 前置聚合；`shenbi-chapter-revision` reads 改 | revision 输入字符数降 + G4 PASS |
 
 ### 5.2 P1（机制，需验证）
 
 | finding | 修复 | 风险 |
 |---|---|---|
-| 2.1 | 重试预算计量：接 TokenLedger（总纲 §3.1 P0 前置）记录每次重试 completion token；超预算阈值告警 | 低（观测层） |
-| 2.1 | 截断致空烧的修复归推理 spec §2.9 P0（检测 length → 提 cap 重发） | — |
+| ~~2.1~~ | ~~重试预算计量：接 TokenLedger~~ **[2026-08-24 移交]** 归活跃 #47（C33）——TokenLedger 接线已由 PR #39 落地，全局重试预算/失败分类由 #47 承接，本 spec 不实施防重复 | — |
+| ~~2.1~~ | ~~截断致空烧的修复归推理 spec §2.9 P0~~ **[已修]** PR #40 已落地 | — |
 
 ### 5.3 P2（效率，需全量 G4）
 
@@ -139,8 +145,8 @@
 | 标准 | 当前 | 目标 |
 |---|---|---|
 | revision 输入审计字节/次 | ~60-120KB raw glob | ~10-20KB 聚合去重 |
-| 重试 completion token 计量 | 无（TokenLedger dead-wire） | 每次重试记录 |
-| dead sidecar 产出 | 5 | 0 |
+| 重试 completion token 计量 | ~~无~~ 已接（PR #39） | **[移交 #47]** 全局重试预算 |
+| dead sidecar 产出 | 3（2026-08-24 复核；原 5 中 2 已修） | 0 |
 | `just check` | PASS | PASS |
 
 ---
@@ -163,11 +169,11 @@
 推理控制 spec
   └─ §2.9 finish_reason=length 盲点 ──► 本 spec 2.1 截断致空烧的根因
 
-本 spec
-  ├─ 2.1 重试放大 ──► P1 计量（依赖总纲 §3.1）+ 推理 §2.9 截断修复
+本 spec（2026-08-24 修订后）
+  ├─ 2.1 重试放大 ──► ✗ superseded：计量已接（PR #39）+ 截断已修（PR #40）+ 预算面归 #47/C33
   ├─ 2.2 审计交叉冗余 ──► P2 共享缺陷池（评估独立性冲突）
   ├─ 2.3 revision raw glob ──► P0 聚合去重层
-  └─ 2.4 dead sidecar 产出 ──► 归总纲 §3.5 P1
+  └─ 2.4 dead sidecar 产出 ──► P0 直接承接（3 残留：market-radar / short-drafting / chapter-revision-revision）
 
 P0/P1 实施前需另写 plan 并批准
 ```
