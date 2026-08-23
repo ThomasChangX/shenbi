@@ -2712,7 +2712,11 @@ def _run_chapter_step_impl(
         # F345: G3 scoring independence for audit skills riding the parallel
         # wave / serial reviews (the step-loop G3 at step 17 only covers the
         # serial chapter-step path). Recorded per-skill into the gate manifest.
-        _g3_parallel_wave([t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter)
+        for rec in _g3_parallel_wave(
+            [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
+        ):
+            if str(rec["g3"].get("status", "")) != "PASS":
+                log.warning("parallel_wave_g3_failed", chapter=chapter, skill=rec["skill"])
         consolidated = consolidate_review_results(all_results, chapter)
         summary_path = project_dir / "audits" / f"chapter-{chapter}-review-summary.md"
         safe_write(summary_path, consolidated)
