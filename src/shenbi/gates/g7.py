@@ -54,7 +54,7 @@ def gate_G7(round_dir: str) -> str:
     else:
         mf.append("G7.1:summary.json_not_found")
 
-    # G7.1b — reverse coverage: every ALL_SKILLS skill must appear in summary.json
+    # G7.1b — reverse coverage: every T1-scaffold skill must appear in summary.json (F432)
     if summary_path.exists():
         try:
             s = jload(str(summary_path))
