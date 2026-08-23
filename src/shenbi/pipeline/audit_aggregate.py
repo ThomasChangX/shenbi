@@ -126,12 +126,13 @@ def render_aggregate(
             parts.append("")
             parts.append(body.rstrip())
             parts.append("")
-    parts.append("## 报告上下文")
-    parts.append("")
-    for name, lines in sorted(context.items()):
-        parts.append(f"### {name}")
-        parts.extend(lines)
+    if context:
+        parts.append("## 报告上下文")
         parts.append("")
+        for name, lines in sorted(context.items()):
+            parts.append(f"### {name}")
+            parts.extend(lines)
+            parts.append("")
     return "\n".join(parts).rstrip() + "\n"
 
 
