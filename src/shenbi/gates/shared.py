@@ -155,12 +155,12 @@ def find_report(
     """
     rd = Path(reports_dir)
     if test_type:
-        path = rd / f"{skill_name}-{test_type}-scores.json"
-        if path.exists():
-            return path
-        path = rd / f"{skill_name}-{test_type}.json"
-        if path.exists():
-            return path
+        # F401/F464: production naming appends -subagent (independent subagent
+        # scoring, dispatcher/modes/codex.py) — accept it alongside -scores.
+        for suffix in ("-scores-subagent", "-scores", ""):
+            path = rd / f"{skill_name}-{test_type}{suffix}.json"
+            if path.exists():
+                return path
     path = rd / f"{skill_name}.json"
     if path.exists():
         return path
