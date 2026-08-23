@@ -41,6 +41,17 @@ def test_extract_captures_blocking_and_critical_forms():
     assert units[1].severity == "CRITICAL"
 
 
+def test_extract_degrades_non_entry_severity_to_context():
+    # 标题/段落形态的 severity 行不丢：降级为逐字 context（无损优先）
+    content = "## BLOCKING：第 7 段 OOC\nP5 对白信息倾倒：CRITICAL\n| 结果 | 通过（1 warning） |\n"
+    units, ctx = extract_finding_units("chapter-1-x.md", content)
+    assert units == []
+    assert any("BLOCKING：第 7 段 OOC" in line for line in ctx)
+    assert any("P5 对白信息倾倒：CRITICAL" in line for line in ctx)
+    # 表格形态的元数据行不得虚增 finding
+    assert any("通过" in line for line in ctx)
+
+
 def test_render_is_lossless_and_deduped():
     raw = _content()
     units, ctx = extract_finding_units("chapter-1-character.md", raw)
@@ -53,6 +64,8 @@ def test_render_is_lossless_and_deduped():
     assert units, "fixture must yield at least one finding (non-vacuous)"
     for u in [*units, *units2]:
         assert u.text in out
+    # 对账断言（防解析器自证）：报告方计数 == 去重条目数
+    assert out.count("报告方:") == len(merged)
     # 不以 --- 开头（G1.3）
     assert not out.startswith("---")
     # 双份相同内容 → 聚合显著小于 2×raw

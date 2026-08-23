@@ -39,6 +39,10 @@ _SEVERITY_RE = re.compile(r"\b(BLOCKING|CRITICAL|WARNING|ERROR)\b", re.IGNORECAS
 _PLACEHOLDER_ROW_RE = re.compile(r"^\|[\s—\-|]*\|$")
 #: Context lines worth preserving verbatim (result / score / target headers).
 _CONTEXT_RE = re.compile(r"^(\*\*(结果|审计目标文件|章节)\*\*|###\s*评分)", re.IGNORECASE)
+#: Metadata-leading lines (``**结果**…`` or ``| 结果 | …``) are context even
+#: when they mention a severity word in passing — they must not inflate the
+#: finding count nor lose their verbatim context slot.
+_METADATA_LEAD_RE = re.compile(r"^\|?\s*\**\s*(结果|评分)", re.IGNORECASE)
 #: Resonance reports are preserved verbatim in full (spec §5.1a).
 _RESONANCE_NAME_RE = re.compile(r"^chapter-\d+-resonance\.md$")
 
@@ -70,7 +74,10 @@ def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingU
 
     A finding unit is a markdown list item or table row that carries a
     BLOCKING/CRITICAL/WARNING/ERROR severity value (any surface form).
-    Placeholder rows (all em-dashes) never produce units.
+    Placeholder rows (all em-dashes) never produce units. Lines that carry
+    a severity word but are NOT entries (headings, prose paragraphs), or
+    that lead with metadata (结果/评分), degrade to verbatim context —
+    conservative preservation, never silent loss.
     """
     units: list[FindingUnit] = []
     context: list[str] = []
@@ -78,12 +85,15 @@ def extract_finding_units(report_name: str, content: str) -> tuple[list[FindingU
         stripped = line.strip()
         if not stripped or _PLACEHOLDER_ROW_RE.match(stripped):
             continue
-        is_entry = stripped.startswith(("- ", "* ", "|"))
         sev = _severity_of(stripped)
-        if is_entry and sev:
+        if _CONTEXT_RE.match(stripped) or _METADATA_LEAD_RE.match(stripped):
+            context.append(stripped)
+        elif stripped.startswith(("- ", "* ", "|")) and sev:
             text = _normalize(_SEVERITY_RE.sub("", stripped).strip("-*| "))
             units.append(FindingUnit(sev, text, (report_name,)))
-        elif _CONTEXT_RE.match(stripped):
+        elif sev:
+            # Severity-bearing but not a list/table entry — keep verbatim
+            # rather than dropping (lossless invariant over tidy output).
             context.append(stripped)
     return units, context
 
