@@ -244,6 +244,19 @@ ALL_SKILLS = (
     else []
 )
 
+# F432: the t1-skill scaffold roster (tests/tiers/t1-skill/<skill>/) is the
+# coverage universe for G7.1b reverse coverage — skills without a T1 scaffold
+# (group-*/lifecycle) can never appear in a round summary and must not FAIL it.
+T1_SCAFFOLD_SKILLS: tuple[str, ...] = tuple(
+    sorted(
+        d.name
+        for d in (TESTS / "tiers" / "t1-skill").iterdir()
+        if d.is_dir() and d.name != "_template"
+    )
+    if (TESTS / "tiers" / "t1-skill").exists()
+    else []
+)
+
 # Skills that have dedicated (non-generic) G4 generative checkers
 G4_CHECKER_SKILLS = {
     "shenbi-anti-detect",
