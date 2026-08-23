@@ -55,7 +55,7 @@ def test_gr2_production_scores_suffix_not_false_fail(make_project) -> None:
         (reports / name).write_text(json.dumps({"score": 85}), encoding="utf-8")
         result = _result_dict(gate_G_RECONCILE(str(round_dir)))
         assert result["status"] == "PASS", (name, result["must_fix"])
-        assert not any("GR.2" in mf and "status=?" in mf for mf in result["must_fix"])
+        assert not any("GR.2" in mf and "status=?" in mf for mf in result.get("must_fix", []))
 
 
 @pytest.mark.unit
