@@ -1,7 +1,7 @@
 # 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
 
 > **Date:** 2026-08-01
-> **Status:** Design | Revised 2026-08-24（价值门复核：F8 重试面 superseded→活跃 #47/C33，TokenLedger 接线已由 PR #39 落地；F7 dead sidecar 证据漂移 5→3，改由本 spec 直接承接）
+> **Status:** Design | Revised 2026-08-24（价值门：F8 重试面 superseded→活跃 #47/C33；阶段 3 审查：F7 关闭——3 残留 sidecar 已由归档 plan 2026-08-02 裁决 KEEP（机器消费方存在），本 spec 剩余可执行内容 = F10 聚合去重层 + F9 P2）
 > **Severity:** 🟠 High（输出 token 单价 2-3× 输入；输出侧是总纲 spec 的盲点）
 > **方法:** [`systematic-debugging`](archive/2026-07-19-06-llm-context-engineering-design.md) skill 四阶段
 > **系列:** Token 效率全栈 audit（子 spec 3/3，隶属总纲 [`...read-write-consistency-audit-design.md`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
@@ -66,7 +66,7 @@
 - **症状**：`shenbi-chapter-revision` 的 `reads: audits/chapter-N-*.md` glob 吃进全部原始审计报告，无聚合去重层。
 - **证据**：
   - `skills/shenbi-chapter-revision/SKILL.md:9-10`：`reads: - audits/chapter-N-*.md`。
-  - `revision_router.py:199`：`for audit_file in sorted(audit_dir.glob(f"{prefix}*.md")):` 扫全部匹配。
+  - `revision_router.py:205`：`for audit_file in sorted(audit_dir.glob(f"{prefix}*.md")):` 扫全部匹配。
   - **无聚合去重层**：`parallel_dispatch.consolidate_review_results`（`parallel_dispatch.py:189-249`）只提 `BLOCKING`/`CRITICAL` **行**生成摘要文件，**不去重缺陷**；revision 契约仍单独读 raw glob。
   - 6 wave-1 + 至多 9 wave-2 审计器 × ~6-8KB/报告 = **~60-120KB 原始审计输入/次 revision**，大量描述重叠缺陷。
 - **根因**：consolidate 只做"提严重行"，未做"缺陷去重"；revision 直读 raw。
@@ -74,21 +74,15 @@
 - **浪费量**：~60-120KB/次 revision 输入（输入 token）+ revision 因读冗余而产冗余修订（输出 token）。
 - **质量影响**：低-中（去重后 revision 聚焦真缺陷，可能升质量）。
 - **假设**：revision 前加审计聚合去重层（按段落+缺陷类型合并），输入降至 ~10-20KB，revision 输出更聚焦。
-- **验证**：mock 5 份重叠审计报告，对比去重前后 revision 输入字符数 + 修订质量。
+- **验证**：fixtures 驱动测试（G0.9：输入只用 `tests/fixtures/` 真实审计产物，禁手写 mock）——多审计器重叠场景用真实产物，对比去重前后 revision 输入字符数 + 修订质量。
 
 ### 2.4 [F7] dead decisions sidecar 的产出 token（总纲 §3.5 的输出视角补全）
 
-> **[2026-08-24 修订] 证据漂移 5→3，改由本 spec 直接承接。** planning 与 state-settling 的 SKILL.md 已无 decisions writes；chapter-drafting 的 chapter-N-decisions.json 现被 revision reads、context-decisions 被 drafting reads——均不再 dead。总纲已归档无执行载体，余量清理由本 spec P0 承接。下文按 3 个残留更新。
+> **[2026-08-24 二次修订（阶段 3 审查纠正）：本条关闭，无实施动作。]** 首次修订曾误将 3 个残留 sidecar 改为本 spec 承接「删 writes」——经设计审查复核，该处置与已合并归档 plan `plans/archive/2026-08-02-token-efficiency-master-p0-p1.md` 的既有裁决矛盾：该 plan 已按消费方逐项裁定 **chapter-revision / short-drafting / market-radar 三个 sidecar 均 KEEP writes**，因为它们有非 LLM 的机器消费方——`state_heal.py:58` 用 `chapter-N-revision-decisions.json` 的存在性对账 `revision_count`；`chapter_loop._ensure_revision_decisions_exists`（:1967）在 revision 跳过时补写该文件；G4 `g4_decisions`（`g4/generic.py:332-334`）对三者做 schema 校验（derive_expected_outputs 从 writes 派生，删 writes 会连带拆掉 G4 期望面）。AGENTS.md「Decisions-Sidecar Artifacts」本身将 decisions.json 定为 Layer A 框架特性——「dead」仅指无 LLM 下游 reads，非纯浪费。首次修订注记作废，以本注记为准。
 
-- **症状**：3 个 dead decisions.json sidecar（有 writes 无下游 reads）不仅占盘，LLM 还花 completion token 产它们。
-- **证据**（2026-08-24 复核）：
-  - `skills/shenbi-market-radar/SKILL.md:12,27`（context/market-radar-decisions.json）
-  - `skills/shenbi-short-drafting/SKILL.md:24,39`（short/short-N-decisions.json）
-  - `skills/shenbi-chapter-revision/SKILL.md:16,34`（chapters/chapter-N-revision-decisions.json）
-  - `docs/framework/decisions-schema.md` 定 sidecar 结构（selections/adjustments/budget），producer LLM 花 completion token 生成。
-- **根因**：无机器化校验（dead sidecar = 契约闭合缺口）。
-- **分类**：纯浪费（产出 100% 废弃）。
-- **修复**：P0 直接清理——3 个 sidecar 删 writes（或为消费价值明确的加下游 reads；无明确消费者则删）。
+- **症状**：（历史记录）decisions.json sidecar 无 LLM 下游 reads，产出 token 似为纯浪费。
+- **结论**：不成立为浪费——机器消费方（state_heal / G4 schema 校验）构成合法消费；既有 plan 裁决 KEEP。
+- **修复**：无。本 spec 不含 F7 的任何实施任务。
 
 ---
 
@@ -118,8 +112,24 @@
 
 | finding | 修复 | 落地点 | 验证 |
 |---|---|---|---|
-| 2.4 | 3 个残留 dead sidecar 删 writes 或加 reads | skills 契约（market-radar / short-drafting / chapter-revision） | G4 PASS + `just generate` diff 空 |
-| 2.3 | revision 前加审计聚合去重层：按段落+缺陷类型合并多器报告 → 单份聚合审计摘要；revision reads 改聚合摘要 | `revision_router.py` glob 前置聚合；`shenbi-chapter-revision` reads 改 | revision 输入字符数降 + G4 PASS |
+| 2.3 | revision 前加审计聚合去重层（设计见 §5.1a） | `chapter_loop.py` 审计波完成后确定性产出聚合文件；`shenbi-chapter-revision` reads 改聚合文件 | revision 输入字符数降 + G4 PASS + 无损不变量测试 |
+| 2.3b | 顺带修复：`shenbi-chapter-revision` reads 同时声明 `audits/chapter-N-*.md` glob 与 `audits/chapter-N-resonance.md` 单条——glob 已匹配共振文件，同一文件每章被读两次 | 同一行契约修改 | 契约 lint + `just generate` diff 空 |
+
+（原 2.4 行删除：F7 已于 2026-08-24 二次修订关闭，无实施动作。）
+
+### 5.1a 聚合层接线契约（阶段 3 审查补充——防 dead-wire）
+
+- **产出者**：纯 Python 确定性函数（零 LLM 调用；structlog 记录、pathlib、幂等），落在 `src/shenbi/pipeline/audit_aggregate.py`（新模块）
+- **触发点**（两条 revision 入口都要接，缺一即 dead-wire）：
+  1. `chapter_loop.py` Step 16（shenbi-chapter-revision）派发前——审计波完成后
+  2. `chapter_loop.py` BLOCKING 重派路径（~:3074）重审后再次派发 revision 前——**每次审计集变化后必须再生成**，否则聚合过期（正确性风险，非仅效率）
+- **聚合文件路径**：`audits/chapter-N.aggregate.md`——**必须不匹配 `chapter-N-*.md` glob**（用 `.` 不用 `-` 分隔）：否则聚合文件会被 `revision_router.py:207` 的 severity 扫描（BLOCKING 原文保留 → 恒命中 → 双计数）、聚合产出者自身的输入 glob、以及 `shenbi-drift-guidance` 的 `audits/chapter-N-*.md` reads 反复吃回自己。改名一次性关闭全部三个回路面，零逐消费者补丁
+- **消费契约**：`shenbi-chapter-revision` SKILL.md reads 删 `audits/chapter-N-*.md` glob 与 resonance 单条，改 `audits/chapter-N.aggregate.md`（共振结论并入聚合）；`just generate` 同步 deps.json/docs。**契约图 ORPHAN_READ 机制**：`tools/lint_contract_graph.py:8,85` 将「无 producer 的 read」判 exit-1 阻塞，而聚合文件的 producer 是框架代码（对 SKILL.md 契约不可见）——plan 必须给机制：将 `audits/chapter-N.aggregate.md` 登记进 truth-files 注册表为框架产出 pattern，或在 `find_closure_violations` 引入 FRAMEWORK_PRODUCERS 白名单。 dangling-write 侧无忧（audit writes 仍被 drift-guidance glob read 消费，且 dangling writes 本就只 WARN）
+- **回退（须在 G1 之前生效）**：聚合文件缺失（旧项目目录/异常路径）时若只在 dispatcher 读取阶段 fail-open，G1.1 输入就绪检查（`g1.py:198-199` 对缺失 declared read 硬 FAIL）会先拦——**回退必须落在 dispatch_helper 的 reads 解析阶段、G1 之前**：declared read `audits/chapter-N.aggregate.md` 缺失 → 该次 dispatch 的 reads 集改写为 raw glob `audits/chapter-N-*.md` 注入 + log WARN（对齐字段过滤 escape-hatch 语义，但作用于路径集而非内容），不阻塞 revision
+- **G4/C32 交互**：聚合文件是派发之间的框架写——与 Step 15 pre-revision 快照同构的先例（非 skill writes，不在 declared 谓词面内）；`write_audit` 快照围绕单次 dispatch，框架写不触发
+- **阶段 3 终轮 Minor 折入（plan 须落实）**：① 聚合格式不得以 `---` 开头（G1.3 frontmatter 解析，`g1.py:213-217`）；② `_is_audit_file`（`dispatch_helper.py:1013-1026`）会把 `.aggregate.md` 误分类为 LLM 审计报告——扩展排除或文档化；③ 无损不变量测试加独立覆盖断言（每份 raw 报告在聚合中被引用 + 各报告解析键数与聚合条目对账 + 逐字保留块），防解析器自证；④ ORPHAN_READ 机制**首选** truth-files 注册表登记（`lint_contract_graph.py:63-73` 已支持 pipeline producer，零 lint 改动），FRAMEWORK_PRODUCERS 白名单仅作后备（YAGNI）
+- **去重键（保守去重，防误删缺陷）**：按「段落位置 + 缺陷类型」精确匹配才合并；不匹配则逐字保留。**无损不变量**：聚合文件必须包含 raw 报告的全部缺陷事实——以 fixtures 驱动测试表达（raw findings 条目 ⊆ 聚合条目，**且显式覆盖 resonance 报告**——其单条 read 被删除，共振结论只能经聚合存活），测试输入只用 `tests/fixtures/` 真实审计产物（G0.9 禁手写；现无多审计器重叠 fixture——`tests/fixtures/audits/` 为空、仅有单份 `audit-report-example.md`——**fixture 生成是 plan 的第 0 号任务**：由上游 dispatch 产出后提交为 fixture，不得手写）
+- **验收对齐**：revision 输入审计字节 ~60-120KB → ~10-20KB
 
 ### 5.2 P1（机制，需验证）
 
@@ -145,9 +155,10 @@
 | 标准 | 当前 | 目标 |
 |---|---|---|
 | revision 输入审计字节/次 | ~60-120KB raw glob | ~10-20KB 聚合去重 |
-| 重试 completion token 计量 | ~~无~~ 已接（PR #39） | **[移交 #47]** 全局重试预算 |
-| dead sidecar 产出 | 3（2026-08-24 复核；原 5 中 2 已修） | 0 |
+| 聚合无损性 | —（无聚合层） | raw 缺陷条目 ⊆ 聚合条目（fixtures 驱动测试） |
 | `just check` | PASS | PASS |
+
+转出注记：重试 completion token 计量已接（PR #39），全局重试预算归活跃 #47——非本 spec 验收面。dead sidecar：3 个残留经阶段 3 审查复核为已裁决 KEEP（见 §2.4 二次修订注记），非本 spec 验收面。
 
 ---
 
@@ -155,7 +166,7 @@
 
 1. **重试产出是被计量资源。** 每次 G4 重试烧的 completion token 必须记入 TokenLedger；无计量的重试 = 隐形成本。
 2. **审计去重在 revision 前，不在 revision 内。** revision 直读 raw glob 审计 = 输入冗余 + 输出冗余；聚合层应在 revision_router 前置。
-3. **输出 token 单价高于输入。** 输出侧浪费的优先级 ≥ 输入侧；dead sidecar 产出的 completion token 是纯成本。
+3. **输出 token 单价高于输入。** 输出侧浪费的优先级 ≥ 输入侧。（原「dead sidecar 产出是纯成本」表述已于 2026-08-24 修正：decisions sidecar 有 G4/state_heal 机器消费方，非纯成本——见 §2.4。）
 
 ---
 
@@ -172,8 +183,8 @@
 本 spec（2026-08-24 修订后）
   ├─ 2.1 重试放大 ──► ✗ superseded：计量已接（PR #39）+ 截断已修（PR #40）+ 预算面归 #47/C33
   ├─ 2.2 审计交叉冗余 ──► P2 共享缺陷池（评估独立性冲突）
-  ├─ 2.3 revision raw glob ──► P0 聚合去重层
-  └─ 2.4 dead sidecar 产出 ──► P0 直接承接（3 残留：market-radar / short-drafting / chapter-revision-revision）
+  ├─ 2.3 revision raw glob ──► P0 聚合去重层（接线契约见 §5.1a）
+  └─ 2.4 dead sidecar 产出 ──► ✗ 关闭：3 残留经复核为已裁决 KEEP（归档 plan 2026-08-02，机器消费方存在）
 
 P0/P1 实施前需另写 plan 并批准
 ```
