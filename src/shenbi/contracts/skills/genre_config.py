@@ -91,7 +91,7 @@ class GenreConfig(BaseModel):
     @model_validator(mode="after")
     def _disabled_dimensions_have_rules(self) -> GenreConfig:
         disabled = [k for k, v in self.audit_dimensions.items() if v is False]
-        if disabled and self.custom_rules:
+        if disabled:  # F216: empty customRules must not skip the check
             rule_texts = " ".join(
                 str(r.get("description", "")) + str(r.get("id", "")) for r in self.custom_rules
             )
