@@ -135,14 +135,17 @@ def gate_G3(
                             )
                         else:
                             c.append({"id": "G3.2", "file": rp.name, "s": "PASS", "score": score})
-                    except (json.JSONDecodeError, OSError):
+                    except (json.JSONDecodeError, ValueError, OSError):  # F444
                         continue  # malformed score file → skip, score next report
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444
             c.append({"id": "G3.2", "s": "SKIP", "r": "acceptance.json invalid"})
     else:
         c.append({"id": "G3.2", "s": "SKIP", "r": "no acceptance.json"})
 
     # G3.3 — Output files passed G2
+    # (F444 boundary: only the codex dispatch route records output_files into
+    # progress.json; the pipeline route relies on G4/G6 — G3.3 SKIPs cleanly
+    # on materialized progress without fabricated data.)
     pp = rd / "progress.json"
     if pp.exists():
         try:
@@ -213,7 +216,7 @@ def gate_G3(
                 mf.append({"id": "G3.4", "s": "FAIL", "r": reason})
             else:
                 c.append({"id": "G3.4", "s": "PASS"})
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
             c.append({"id": "G3.4", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.4", "s": "SKIP", "r": "no progress.json"})
@@ -237,7 +240,7 @@ def gate_G3(
                 mf.append({"id": "G3.5", "s": "FAIL", "r": "scorer already scored"})
             else:
                 c.append({"id": "G3.5", "s": "PASS", "note": f"{len(prior_agents)} prior scorers"})
-        except (json.JSONDecodeError, OSError):
+        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
             c.append({"id": "G3.5", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.5", "s": "SKIP", "r": "no progress.json"})

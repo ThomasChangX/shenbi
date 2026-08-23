@@ -378,16 +378,14 @@ def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
     """
     rd = tmp_path / "round"
     rd.mkdir()
-    ch = rd / "outline" / "o.md"
+    ch = rd / "outline" / "o.json"
     ch.parent.mkdir()
-    ch.write_text("非 JSON 字数不足", encoding="utf-8")
+    ch.write_text("[1,2]", encoding="utf-8")  # non-dict JSON → jload ValueError in gate_G2
     (rd / "progress.json").write_text(
         json.dumps(
             {"skills": {"shenbi-worldbuilding": {"generative": {"output_files": [str(ch)]}}}}
         ),
         encoding="utf-8",
     )
-    # make the output file itself a non-dict JSON to trigger jload ValueError in gate_G2
-    ch.write_text("[1,2]", encoding="utf-8")
     result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
-    assert result["status"] in ("FAIL", "PASS")  # no exception propagated
+    assert result["status"] == "FAIL"  # caught → FAIL, no exception propagated
