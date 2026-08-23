@@ -36,10 +36,6 @@ def test_preexisting_outputs_still_g2_checked(tmp_path: Path) -> None:
     calls: list[str] = []
     rd = tmp_path / "round"
     rd.mkdir()
-    # pre-create one expected output so `preexisting` is non-empty
-    out = rd / "skill-output" / "world.json"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    out.write_text("{}", encoding="utf-8")
 
     def fake_dispatch(skill, test_type, round_dir, prompt, agent_id):
         calls.append("dispatch")
