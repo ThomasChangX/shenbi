@@ -10,11 +10,11 @@
 
 ## 执行队列
 
-### #12 · 全项目审查执行：成本计量（P0/P1）
+### #12 · 全项目审查执行：注入缓解 no-op（Revised 2026-08-24）
 
 - **文件**：`2026-08-14-cost-ledger-design.md`
-- **状态**：Design | **优先级**：🟥 Critical（TokenLedger 少计，决策表 P0 例）
-- **内容**：TokenLedger 接线不全（F302）/ 注入缓解 no-op（F300）
+- **状态**：Design (Revised 2026-08-24) | **优先级**：🟠 High
+- **内容**：~~TokenLedger 接线不全（F302）~~ 已由 PR #39（C10 T1+T2, 0d36d31）修复删除；注入缓解 no-op（F300，dispatch_helper.py:752 恒等替换）
 
 ### #17 · 全项目审查执行：总纲 catalog（#6-#16 父条目）
 
