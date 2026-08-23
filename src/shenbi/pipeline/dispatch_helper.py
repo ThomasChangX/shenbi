@@ -389,6 +389,13 @@ OPTIONAL_READS: dict[str, list[str]] = {
         "stratum-*-score.md",
         "chapter-*-sensitivity.md",
     ],
+    # F10 (spec #4 §5.1a): the framework-written audit aggregate may be
+    # absent on legacy project dirs — G1 must drop the missing read instead
+    # of hard-failing before the reads-loop fallback can substitute the raw
+    # glob (executor drops optional non-existent reads pre-G1). Note: this
+    # env-gated drop only runs on the legacy subprocess route; the API/IDE
+    # routes get the raw-glob substitution via _resolve_read_with_fallback.
+    "shenbi-chapter-revision": ["chapter-*.aggregate.md"],
 }
 
 _G1_SKIP_ENV_VAR = "SHENBI_G1_SKIP_READS"
@@ -416,6 +423,27 @@ def _resolve_read_path(project_dir: Path, read_path: str) -> list[Path]:
     full_path = project_dir / read_path
     if full_path.exists():
         return [full_path]
+    return []
+
+
+#: F10 (spec #4 §5.1a): declared reads produced by the framework aggregate
+#: layer. When the aggregate is missing (legacy project dirs), the read
+#: fails open to the raw audit glob.
+_AGGREGATE_READ_FALLBACK_RE = re.compile(r"^audits/chapter-(\d+)\.aggregate\.md$")
+
+
+def _resolve_read_with_fallback(project_dir: Path, read_path: str) -> list[Path]:
+    """Resolve a read path, failing aggregate reads open to the raw glob."""
+    resolved = _resolve_read_path(project_dir, read_path)
+    if resolved:
+        return resolved
+    m = _AGGREGATE_READ_FALLBACK_RE.match(read_path)
+    if m:
+        log.warning(
+            "audit_aggregate_missing_fallback_raw_glob",
+            read_path=read_path,
+        )
+        return _resolve_read_path(project_dir, f"audits/chapter-{m.group(1)}-*.md")
     return []
 
 
@@ -600,7 +628,7 @@ def _build_skill_prompt(
         if resolved is None:
             continue  # unresolvable placeholder (genesis) — skip this read
 
-        resolved_paths = _resolve_read_path(project_dir, resolved)
+        resolved_paths = _resolve_read_with_fallback(project_dir, resolved)
         for full_path in resolved_paths:
             try:
                 content = full_path.read_text(encoding="utf-8")
@@ -1018,6 +1046,10 @@ def _is_audit_file(name: str) -> bool:
     ``chapter-NN.md`` (the prose file) is NOT an audit.
     """
     stem = Path(name).stem
+    # The framework-written aggregate (chapter-N.aggregate.md) is NOT an
+    # LLM audit report (spec #4 F10).
+    if stem.endswith(".aggregate"):
+        return False
     m = _CHAPTER_NUM_RE.match(stem)
     if not m:
         return False
