@@ -1,7 +1,7 @@
 # 全项目深度审查 Prompt 设计（full-project-audit-prompt）
 
 > **Date:** 2026-08-13
-> **Status:** Design（v1 已交付并执行一轮完毕；**v2 修订记录见 §0，v3 修订记录见 §0.1**）
+> **Status:** Rejected (2026-08-24 · 交付物已完整存在于 main（v3，494 行）并经 2026-08-14/15 两轮真实执行——spec 使命已通过非 SDD 路径完成，无需再执行)
 > **Severity:** 🟠 High（工程卫生总审查的执行载体；其产出的每一条 finding 是后续所有修复 spec 的来源）
 > **方法:** `brainstorming`（已完成）→ 本文档 → **直接编写 prompt 文档**（用户 2026-08-13 更正：superpowers skill 可作为**可选增强**用于提升审查/spec 质量；仍不走 writing-plans、不用 SDD 流程）
 > **系列:** 2026-08-13 全项目审查（总纲；本 spec 只设计**审查 prompt 文档本身**，不包含审查执行）
