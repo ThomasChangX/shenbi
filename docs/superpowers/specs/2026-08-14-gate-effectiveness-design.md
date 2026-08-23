@@ -4,9 +4,10 @@
 # 门禁有效性（G3/G2/门序）
 
 ## R1 · run_gate_g3 伪造 scorer 证据（F408, P1；从属 F214/F3AF）
-- 证据：dispatch_helper.py:2262-2287（原引 1921-1945，行号已漂移）在 progress.json 缺失时写入伪造 `current_scorer_agent: pipeline-g3-scorer-<uuid>` + `scoring_history` → G3.4 fail-closed 恒 PASS
+- 证据：src/shenbi/pipeline/dispatch_helper.py:2262-2287（原引 1921-1945，行号已漂移）在 progress.json 缺失时写入伪造 `current_scorer_agent: pipeline-g3-scorer-<uuid>` + `scoring_history` → G3.4 fail-closed 恒 PASS
 - 影响：G3 全路径零真实校验（与 F345 并行波无 G3 叠加 → G3.4 显式契约静默满足）
 - 修复：删除伪造写入，缺证据时如实 FAIL（行为变更：依赖伪造 PASS 的既有 round 将开始 FAIL——预期 fail-closed，无回滚路径需要）；**验收：空 progress 目录 G3 FAIL**
+- 边界（round-3）：F794/F320 的 run_gate_g3 重构面归 #31/C5，本项仅删伪造写入 + fail-closed（INDEX #31 条目已双向注记）
 
 ## R2 · 并行审计波绕过 G3（F345, P1）
 - 证据：6 个 audit skill requires_independent=True，串行路径 chapter_loop.py:3023 跑 G3，并行波（parallel_dispatch）零 G3 调用
@@ -28,7 +29,7 @@
 - 修复：Selection `_p25` 与 Adjustment `_rationale` 两处 validator 同步收紧——`has = bool(rationale and rationale.strip())`；Adjustment.rationale 增加 strip 非空校验（F458：`rationale: str` 必填但空串通过）；**验收：空串/纯空白 rationale → REJECT（Selection 与 Adjustment 各一例）**
 
 ## R6 · genre_config disabled 维度空 customRules 跳过（F216, P1）
-- 证据：genre_config.py:94 `if disabled and self.custom_rules:`——customRules 空时整段跳过
+- 证据：src/shenbi/contracts/skills/genre_config.py:94 `if disabled and self.custom_rules:`——customRules 空时整段跳过
 - 修复：`if disabled:` 逐维度要求 rule 命中；**验收：disabled dim + 空 rules → REJECT**
 
 ## R7 · G7.1b ALL_SKILLS 反向覆盖（F432, P1）
