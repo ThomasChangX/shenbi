@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 spec 数**：60
+> **活跃 spec 数**：59
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,17 +9,6 @@
 ---
 
 ## 执行队列
-
-### #4 · 输出侧浪费审计：重试放大 / 审计交叉冗余 / revision 原始 glob
-
-- **文件**：`2026-08-01-output-side-waste-audit-design.md`
-- **系列**：Token 效率全栈 audit（子 spec 3/3，隶属已归档总纲 [`archive/...`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
-- **状态**：Design
-- **优先级**：🟠 High（输出 token 单价 2-3× 输入；总纲的盲点）
-- **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 spec（§3.1 TokenLedger dead-wire 是本 spec 重试计量的前置——**PR #39 已修**）；推理控制 spec（已归档，§J finish_reason=length 盲点驱动本 spec F8 重试放大——**PR #40 已修**）；`src/shenbi/pipeline/{error_handler,revision_router,parallel_dispatch,chapter_loop}.py`
-- **内容**：只审**输出侧浪费**——LLM 产出 token 的浪费。补总纲盲点（总纲 §3 的 10 条 findings 全是输入侧）。4 条 findings：F8 重试放大——**[2026-08-24 修订] superseded 关闭**（TokenLedger 接线 PR #39 已落地，重试预算/失败分类归活跃 #47/C33 承接）/ F9 审计交叉冗余（同一缺陷 5 份报告各描述，`parallel_dispatch.py` consolidate 只提 BLOCKING 行不去冗）/ F10 revision 读 raw glob 无去重（`revision_router.py:205`，~60-120KB/次）+ 共振文件 glob 双读 / F7 dead sidecar——**[2026-08-24 二次修订] 关闭**（3 残留已由归档 plan 2026-08-02 裁决 KEEP：state_heal 存在性对账 + G4 decisions schema 校验为机器消费方）。根因簇：无输出聚合层。**P0：revision 前加审计聚合去重层（接线契约 spec §5.1a：确定性产出者、双触发点、fail-open 回退、保守去重无损不变量）**；P2：审计器缺陷共享去冗。
-- **对应 plan**：❌ 未写
 
 ### #5 · 全项目深度审查 Prompt 设计（full-project-audit-prompt）
 

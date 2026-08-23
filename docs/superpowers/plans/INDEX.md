@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- [2026-08-24-output-side-waste-f10-aggregate](2026-08-24-output-side-waste-f10-aggregate.md) — spec #4 F10 审计聚合去重层 ✅ ready（阶段 5 三轮审查收敛）
 
 
 ## 待执行的 spec → plan 映射
