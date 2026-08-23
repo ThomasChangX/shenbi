@@ -161,7 +161,7 @@
 - **文件**：`2026-08-16-audit-g3-independence-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C5，6 条）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：run_gate_g3 自造 progress.json 自我满足（F794/F320）、scoring/escalation bridge 零消费者（F114/F506）、provenance 失真（F113）——fail-closed + 反坍缩链接线
+- **内容**：run_gate_g3 自造 progress.json 自我满足（F794/F320，核心面已由 #8 R1 承接——删伪造写入+fail-closed；#31 聚焦 F320 重构面与 F114/F506 bridge 接线）/ scoring/escalation bridge 零消费者（F114/F506）/ provenance 失真（F113）——fail-closed + 反坍缩链接线
 
 ### #32 · 全项目审查执行：drift/CJK 度量（簇 C6，P1）
 

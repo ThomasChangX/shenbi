@@ -20,7 +20,7 @@
 ## R4 · GR.2 -scores 后缀误报（F401, P1）
 - 证据：g_reconcile.py:50-68 不剥离 `-scores` 后缀 → 生产命名 `<skill>-generative-scores.json` 恒误报 FAIL；测试 docstring 自认规避（masking）
 - 修复：stem 依次剥离 `-subagent`、`-scores` 后缀（覆盖 F464 记载的 `*-scores-subagent.json` 生产命名）+ 删除测试规避注释
-- **边界（2026-08-24 审查定案）**：状态字面量大小写归一（生产写 `done`、GR.2 判 `DONE`，F449）**不在本项**——F449/F710 由 spec #24 承接，避免双修
+- **边界（2026-08-24 审查定案）**：状态字面量大小写归一（生产写 `done`、GR.2 判 `DONE`，F449）**不在本项**——F449/F710 由 spec **#27**（簇 C1 读方↔写方键空间对账）承接（INDEX:136），避免双修
 - **验收：生产命名（含 -scores-subagent）+ progress 状态 "DONE"（大写构造）→ GR.2 不再因后缀 FAIL**
 
 ## R5 · P2.5 rationale 空串绕过（F404, P1；从属 F458/F232）
@@ -43,6 +43,8 @@
 - 证据：g3.py:151-153 `skills.get(skill,{}).get("output_files",[])` 在 skill 层读，而全部生产 progress 写入方均**不含 output_files 键**（codex.py:44 只写 score/status、trace/materialize.py 只写 status/score（2026-08-24 修正路径）、round-exec.sh 写空 skills、run_gate_g3 伪造无 skills 键；g_reconcile.py:36-40 按 `[skill][test_type]` 解析同一结构；Z4.review4 修正 review3 的 "test_type 层" 说法）→ "G3.3 Output files passed G2" 复查在所有已知生产形状下恒 SKIP；tests/unit/gates/test_g3.py:118/220 用非生产形状（skill 层 output_files）钉死代码路径，掩盖死路
 - 修复（2026-08-24 审查定案，读侧+写侧双改）：① g3.py 改读 `skills.get(skill,{}).get(test_type or "generative",{}).get("output_files",[])`（test_type 层）；② producer 接线——codex `_record_completion` 增可选 `output_files` 参数写入 `skills[skill][test_type]["output_files"]`（调用方从契约 writes 传入），否则修完读侧门仍恒 SKIP；③ 测试改用生产形状（经真实 `_record_completion` 代码路径构造，满足 G0.9）；**附带**：修复后 gate_G2 对非 dict JSON 抛的 ValueError（F419/F431 家族）将穿透 g3.py:188 except（仅 JSONDecodeError/OSError）→ 一并加 ValueError；**验收：经真实 producer 写入 output_files 的 progress + gate_G3 → G3.3 实际执行（非 SKIP）**
 - 边界：trace/materialize.py 的 MARK_DONE 事件不携 output_files——pipeline 路径的 G3.3 维持 SKIP-by-design（记 spec-deviations），扩展 trace 事件 schema 归 #31/C5 域
+- 边界（round-2）：g3.py:188 except 扩为含 ValueError（JSONDecodeError 本身是其子类；非 dict JSON 场景经 gate_G2 的真实异常类型在实施时实证钉死并补回归用例，不预设）
+- **执行顺序约束：R1 先于 R2**——若并行波先接 G3 而 R1 伪造未删，G3 会以伪造证据 PASS（恰是 R2 要防的 bug 类）
 
 ## 补充（同批次）
 - **F402（P1）**：g4_length_normalizing 用未解析路径计字数（:29 解析 pf vs :35 用原始 fp）→ rd+相对路径崩溃；改 `word_count_md(pf)` + 补回归测试
