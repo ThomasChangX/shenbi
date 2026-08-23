@@ -187,14 +187,16 @@ class TestRunClosureStep:
         called_skill = mock_disp.call_args[0][0]
         assert called_skill == CLOSURE_STEPS[0].skill
 
+    @patch("shenbi.pipeline.closure.run_gate_g3")
     @patch("shenbi.pipeline.closure.dispatch_skill")
     @patch("shenbi.pipeline.closure.run_gate_g4")
-    def test_full_run_to_checkpoint(self, mock_g4, mock_disp, tmp_path):
+    def test_full_run_to_checkpoint(self, mock_g4, mock_disp, mock_g3, tmp_path):
         """Run steps 1-9, verify the book-closure checkpoint fires after
         step 9 (style-learning), NOT after step 10 (snapshot-manage).
         """
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
+        mock_g3.return_value = {"status": "PASS"}  # F408: fail-closed without scorer evidence
         state = PipelineState.default(str(tmp_path))
         state.closure = ClosureState.IN_PROGRESS
         state.closure_step = 0

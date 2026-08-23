@@ -166,9 +166,13 @@ class TestWave1E2E:
         with (
             patch("shenbi.pipeline.genesis.dispatch_skill") as mock_disp,
             patch("shenbi.pipeline.genesis.run_gate_g4") as mock_g4,
+            patch("shenbi.pipeline.genesis.run_gate_g3") as mock_g3,
         ):
             mock_disp.return_value = DispatchResult(True, 0, "{}", "")
             mock_g4.return_value = {"status": "PASS"}
+            # F408: real G3 is fail-closed without scorer evidence; the mock
+            # simulates an independent scorer having already recorded results.
+            mock_g3.return_value = {"status": "PASS"}
 
             for argv in (
                 ["status", str(project_dir)],
