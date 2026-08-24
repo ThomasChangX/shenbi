@@ -534,6 +534,25 @@ class DriftEscalationError(Exception):
     """Raised when linguistic drift reaches ESCALATE severity."""
 
 
+def _run_linguistic_drift_check(project_dir: Path, chapter: int) -> None:
+    """Run the linguistic drift check for a pipeline-internal step.
+
+    R4 (F620): ESCALATE must pause the pipeline — DriftEscalationError
+    propagates to the checkpoint logic. Any other failure stays
+    non-blocking (warning only).
+    """
+    try:
+        _check_linguistic_drift(project_dir, chapter)
+    except DriftEscalationError:
+        raise
+    except Exception:
+        log.warning(
+            "linguistic_drift_check_failed",
+            chapter=chapter,
+            exc_info=True,
+        )
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -2858,16 +2877,9 @@ def _run_chapter_step_impl(
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
-        # ── Linguistic drift check (non-blocking) ────────────────────────
+        # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
         if step.skill == "pipeline-linguistic-drift-check":
-            try:
-                _check_linguistic_drift(project_dir, chapter)
-            except Exception:
-                log.warning(
-                    "linguistic_drift_check_failed",
-                    chapter=chapter,
-                    exc_info=True,
-                )
+            _run_linguistic_drift_check(project_dir, chapter)
 
         state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)
