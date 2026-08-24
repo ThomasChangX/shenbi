@@ -17,7 +17,11 @@ from collections import Counter
 from dataclasses import dataclass, field
 from difflib import SequenceMatcher
 from pathlib import Path
-from typing import Literal
+from typing import Final, Literal
+
+# R2 (F601): single source for the drift threshold. Dialogue collapse sets the
+# deviation ratio to exactly this value, so the trigger test must be >=.
+_DEVIATION_DRIFT_THRESHOLD: Final[float] = 5.0
 
 
 @dataclass
@@ -212,10 +216,10 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
         dialogue_ratio = curr_dialogue / base_dialogue
         deviations["dialogue_density"] = round(dialogue_ratio, 2)
         if dialogue_ratio < 0.2:
-            max_deviation_ratio = max(max_deviation_ratio, 5.0)
+            max_deviation_ratio = max(max_deviation_ratio, _DEVIATION_DRIFT_THRESHOLD)
             trigger_metric = trigger_metric or "dialogue_density"
 
-    is_drift = max_deviation_ratio > 5.0  # >500% deviation threshold
+    is_drift = max_deviation_ratio >= _DEVIATION_DRIFT_THRESHOLD  # >500% deviation
 
     stm_density = current.get("system_term_density", 0.0)  # already per mille
     severity: Literal["NONE", "WARN", "HARD", "ESCALATE"]
