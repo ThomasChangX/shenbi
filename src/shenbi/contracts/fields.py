@@ -58,8 +58,16 @@ def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
     for heading, body in sections.items():
         if any(match_field(f, heading) for f in fields):
             matched[heading] = body
-    if not matched:
-        log.warning("field_filter_no_match", fields=fields, available=list(sections.keys()))
+    missing = [f for f in fields if not any(match_field(f, h) for h in sections)]
+    if missing:
+        # AGENTS.md field-level reads contract: ANY declared field missing ->
+        # escape hatch returns the full file + WARN (spec #9 R3 / F218).
+        log.warning(
+            "field_filter_missing_fields",
+            missing=missing,
+            matched=list(matched.keys()),
+            available=list(sections.keys()),
+        )
         return text, False
     return "\n\n".join(f"## {h}\n{b}" for h, b in matched.items()), True
 
@@ -74,14 +82,24 @@ def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool]:
         log.warning("field_filter_json_not_object", path=path)
         return text, False
     projected = {k: v for k, v in data.items() if k in fields}
-    if not projected:
-        log.warning("field_filter_no_match", path=path, fields=fields, available=list(data.keys()))
+    missing = [f for f in fields if f not in data]
+    if missing:
+        # Same any-missing -> full-text + WARN contract as _filter_md (F218).
+        log.warning(
+            "field_filter_missing_fields",
+            path=path,
+            missing=missing,
+            matched=list(projected.keys()),
+            available=list(data.keys()),
+        )
         return text, False
     return json.dumps(projected, ensure_ascii=False, indent=2), True
 
 
 def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool]:
-    """Returns (filtered_text, matched_any). Caller decides WARN vs FAIL on matched=False."""
+    """Returns (filtered_text, matched_all). matched=False means the escape
+    hatch fired (full file returned; WARN already logged inside).
+    """
     if not fields:
         return text, True
     if path.endswith(".md"):

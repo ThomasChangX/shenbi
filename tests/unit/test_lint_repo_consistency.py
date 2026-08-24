@@ -122,3 +122,49 @@ def test_dead_decisions_sidecar_spares_g4_validated() -> None:
         )
         is False
     )
+
+
+class TestSkillDepsClosure:
+    """Spec #9 R1: skills/ dir <-> deps.json closure (both directions)."""
+
+    @pytest.mark.unit
+    def test_all_registered_passes(self, tmp_path):
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        (tmp_path / "skills" / "shenbi-alpha").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-alpha" / "SKILL.md").write_text("x")
+        (tmp_path / "tests" / "tiers").mkdir(parents=True)
+        (tmp_path / "tests" / "tiers" / "deps.json").write_text(
+            '{"t2-phases": {"p": {"prerequisites": ["shenbi-alpha"]}}}'
+        )
+        assert check_skill_deps_closure(tmp_path) == []
+
+    @pytest.mark.unit
+    def test_missing_registration_fails(self, tmp_path):
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        (tmp_path / "skills" / "shenbi-beta").mkdir(parents=True)
+        (tmp_path / "skills" / "shenbi-beta" / "SKILL.md").write_text("x")
+        (tmp_path / "tests" / "tiers").mkdir(parents=True)
+        (tmp_path / "tests" / "tiers" / "deps.json").write_text('{"t2-phases": {}}')
+        errs = check_skill_deps_closure(tmp_path)
+        assert len(errs) == 1
+        assert "shenbi-beta" in errs[0]
+
+    @pytest.mark.unit
+    def test_deps_name_without_dir_fails(self, tmp_path):
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        (tmp_path / "skills").mkdir()
+        (tmp_path / "tests" / "tiers").mkdir(parents=True)
+        (tmp_path / "tests" / "tiers" / "deps.json").write_text(
+            '{"t2-phases": {"p": {"prerequisites": ["shenbi-ghost"]}}}'
+        )
+        errs = check_skill_deps_closure(tmp_path)
+        assert any("shenbi-ghost" in e for e in errs)
+
+    @pytest.mark.unit
+    def test_missing_deps_json_reported(self, tmp_path):
+        from tools.lint_repo_consistency import check_skill_deps_closure
+
+        assert "not found" in check_skill_deps_closure(tmp_path)[0]

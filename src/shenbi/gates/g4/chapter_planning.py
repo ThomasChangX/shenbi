@@ -103,6 +103,19 @@ def g4_chapter_planning(
         else:
             c.append({"id": "G4.cp.s7_hook_ops", "file": fp, "s": "PASS", "ops": found_ops})
 
+        # Defer-silence rule (SKILL.md section 7 可自动检查规则; spec #9 R2):
+        # rows with 操作=defer and 沉默章数 >= 4 require an 激活方案 or ABANDON
+        # annotation in section 7. Only the EXACT-template column order
+        # (ID | 操作 | 推进方式 | 沉默章数) is parsed; free-form tables
+        # (e.g. Phase-1 placeholder prose) do not match and are not flagged.
+        defer_silent = re.findall(r"\|\s*[^|]*\|\s*defer\s*\|[^|]*\|\s*(\d+)\s*\|", s7_text)
+        if any(int(n) >= 4 for n in defer_silent) and not re.search(
+            r"激活方案|ABANDON", s7_text, re.IGNORECASE
+        ):
+            mf.append(f"G4.cp.s7_defer_silence:{fp}")
+        else:
+            c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": "PASS"})
+
     if not fps:
         c.append({"id": "G4.cp", "s": "SKIP", "r": "no files"})
 

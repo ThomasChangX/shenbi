@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 plan 数**：0 | **已归档**：67（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：67（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,6 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- [2026-08-24-spec9-contract-single-source.md](2026-08-24-spec9-contract-single-source.md) — spec #9 契约单一信源（fix/spec-9-contract-single-source）· ✅ ready
 
 
 
