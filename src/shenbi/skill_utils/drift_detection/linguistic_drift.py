@@ -186,10 +186,11 @@ def frequency_divergence_alarms(
 def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> DriftResult:
     """Detect linguistic drift by comparing current metrics against baseline.
 
-    Threshold: any of the density metrics deviates >500% from baseline, or the
-    dialogue density collapses to <20% of baseline. Severity is driven by the
-    absolute system_term_density (per mille): 30-50 -> WARN, 50-100 -> HARD,
-    >100 -> ESCALATE.
+    Threshold: any of the density metrics deviates >=500% (>= 5.0x, see
+    _DEVIATION_DRIFT_THRESHOLD — inclusive so the dialogue-collapse set-point
+    is reachable) from baseline, or the dialogue density collapses to <20% of
+    baseline. Severity is driven by the absolute system_term_density (per
+    mille): 30-50 -> WARN, 50-100 -> HARD, >100 -> ESCALATE.
     """
     deviations: dict[str, float] = {}
     max_deviation_ratio = 1.0
