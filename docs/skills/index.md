@@ -1,8 +1,8 @@
 # 技能目录 / Skill Catalog
 
-Shenbi 包含 67 个写作技能和 2 个元技能，按 9 个 T2 阶段组织。以下数据源自 `tests/tiers/deps.json`。
+Shenbi 包含 72 个写作技能和 2 个元技能，按 9 个 T2 阶段组织。以下数据源自 `tests/tiers/deps.json`。
 
-Shenbi includes 67 writing skills and 2 meta-skills, organized by 9 T2 phases. All groupings below are sourced from `tests/tiers/deps.json`.
+Shenbi includes 72 writing skills and 2 meta-skills, organized by 9 T2 phases. All groupings below are sourced from `tests/tiers/deps.json`.
 
 ---
 
@@ -186,4 +186,4 @@ These skills pass T1 validation but are not required by any T2 phase. They serve
 ---
 
 !!! note "Cross-phase skills"
-    Some skills appear in multiple phases (e.g., `genre-config` in both Genesis and Architecture). This reflects `tests/tiers/deps.json`, not an error. Total unique skills: **69** (67 writing + 2 meta).
+    Some skills appear in multiple phases (e.g., `genre-config` in both Genesis and Architecture). This reflects `tests/tiers/deps.json`, not an error. Total unique skills: **74** (72 writing + 2 meta).

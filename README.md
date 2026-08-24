@@ -13,13 +13,13 @@
 
 ## 什么是 Shenbi / What is Shenbi
 
-Shenbi 是一套小说写作 AI 技能框架。用 AI 写一部完整的小说，意味着要协调几十个专业环节——世界观构建、角色设计、伏笔管理、文风打磨、反 AI 检测——同时在数十万字的内容中保持一致性。Shenbi 通过 67 个写作技能、8 道质量门控（G0-G7）、三层测试评分系统（T1/T2/T3）和真相文件状态管理来解决这个问题。
+Shenbi 是一套小说写作 AI 技能框架。用 AI 写一部完整的小说，意味着要协调几十个专业环节——世界观构建、角色设计、伏笔管理、文风打磨、反 AI 检测——同时在数十万字的内容中保持一致性。Shenbi 通过 72 个写作技能、8 道质量门控（G0-G7）、三层测试评分系统（T1/T2/T3）和真相文件状态管理来解决这个问题。
 
-Shenbi is a novel-writing AI skill framework. Writing a complete novel with AI means orchestrating dozens of specialized tasks — worldbuilding, character design, foreshadowing management, style polishing, anti-AI detection — while maintaining consistency across hundreds of thousands of words. Shenbi solves this through 67 writing skills, 8 quality gates (G0-G7), a three-tier testing and scoring system (T1/T2/T3), and truth-file state management.
+Shenbi is a novel-writing AI skill framework. Writing a complete novel with AI means orchestrating dozens of specialized tasks — worldbuilding, character design, foreshadowing management, style polishing, anti-AI detection — while maintaining consistency across hundreds of thousands of words. Shenbi solves this through 72 writing skills, 8 quality gates (G0-G7), a three-tier testing and scoring system (T1/T2/T3), and truth-file state management.
 
 ## 为什么选择 Shenbi / Why Shenbi
 
-- **技能编排 / Skill orchestration** — 67 个写作技能覆盖从世界观构建到反 AI 检测的全流程，按 9 个流水线阶段组织 / 67 writing skills cover the full process from worldbuilding to anti-AI detection, organized by 9 pipeline phases
+- **技能编排 / Skill orchestration** — 72 个写作技能覆盖从世界观构建到反 AI 检测的全流程，按 9 个流水线阶段组织 / 72 writing skills cover the full process from worldbuilding to anti-AI detection, organized by 9 pipeline phases
 - **质量门控 / Quality gates** — 8 道验证门控（G0-G7）在每个关键边界强制执行质量检查，没有任何门控可以跳过 / 8 validation gates (G0-G7) enforce quality at every critical boundary — no gate can be skipped
 - **可测量的质量 / Measurable quality** — T1/T2/T3 评分系统使用 0-100 的评分标准，94 分为推进门槛，100 分为收敛目标 / T1/T2/T3 scoring uses 0-100 rubrics, with 94 as the advancement threshold and 100 as the convergence target
 
@@ -85,7 +85,7 @@ Full documentation is published at https://thomaschangx.github.io/shenbi/
 |-------------|-------------------|
 | [核心概念 / Concepts](docs/getting-started/concepts.md) | 技能、真相文件、门控、评分 / Skills, truth files, gates, scoring |
 | [第一本小说 / First Novel](docs/getting-started/first-novel.md) | 完整长篇小说创作流程 / Complete long-form pipeline walkthrough |
-| [技能目录 / Skills](docs/skills/index.md) | 全部 69 个技能的完整目录 / Full catalog of all 69 skills |
+| [技能目录 / Skills](docs/skills/index.md) | 全部 74 个技能的完整目录 / Full catalog of all 74 skills |
 | [架构概览 / Architecture](docs/architecture/overview.md) | 流水线、门控链、评分系统 / Pipeline, gate chain, scoring system |
 
 ## 技能一览 / Skills at a Glance
