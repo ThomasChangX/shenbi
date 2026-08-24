@@ -1,5 +1,9 @@
 """Tests for linguistic drift detection and 3-tier intervention."""
 
+from pathlib import Path
+
+import pytest
+
 from shenbi.skill_utils.drift_detection.linguistic_drift import (
     compute_linguistic_metrics,
     detect_drift,
@@ -50,3 +54,30 @@ def test_escalate_message_reflects_severity():
     r = detect_drift(current, baseline)
     assert "No linguistic drift" not in r.message
     assert "ESCALATE" in r.message
+
+
+def test_stm_110_escalate_raises_through_check(tmp_path):
+    """R3 验收原文: stm 110 permille 触发 ESCALATE — 经 _check_linguistic_drift 断言 raise."""
+    import json
+    import shutil
+
+    from shenbi.pipeline.chapter_loop import DriftEscalationError, _check_linguistic_drift
+
+    src = Path("tests/fixtures/multi-chapter-example")
+    chapters = tmp_path / "chapters"
+    chapters.mkdir()
+    for ch in (1, 2, 3):
+        shutil.copy(src / f"chapter-{ch}.md", chapters / f"chapter-{ch}.md")
+    (chapters / "chapter-4.md").write_text(
+        "冷在场于第七层深度。冷值7.3，在场度0.89。系统阈值参数格式串。" * 30,
+        encoding="utf-8",
+    )
+    style = tmp_path / "style"
+    style.mkdir()
+    # 污染 baseline：stm=30 使 ch4 比值不越阈、is_drift=False，纯绝对阈值 ESCALATE
+    (style / "linguistic_baseline.json").write_text(
+        json.dumps({"dialogue_density": 50.0, "system_term_density": 30.0}),
+        encoding="utf-8",
+    )
+    with pytest.raises(DriftEscalationError):
+        _check_linguistic_drift(tmp_path, 4)

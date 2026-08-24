@@ -155,7 +155,9 @@ def check_linguistic_drift_trigger(linguistic_result: Any) -> bool:
     """
     if linguistic_result is None:
         return False
-    return linguistic_result.is_drift and linguistic_result.severity in ("HARD", "ESCALATE")
+    # R3 (F612): severity alone drives intervention — ESCALATE/HARD can occur
+    # with is_drift=False (polluted baseline, absolute threshold breach).
+    return linguistic_result.severity in ("HARD", "ESCALATE")
 
 
 def parse_trend(path: str | Path, dims: list[str]) -> dict[str, list[tuple[float, bool]]]:
