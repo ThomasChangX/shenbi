@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 spec 数**：57
+> **活跃 spec 数**：56
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,12 +9,6 @@
 ---
 
 ## 执行队列
-
-### #9 · 全项目审查执行：契约单一信源（P1）
-
-- **文件**：`2026-08-14-contract-single-source-design.md`
-- **状态**：Design | **优先级**：🟠 High
-- **内容**：deps.json 缺 5 skill（F0-02）/ 契约模型 dead-wire（F201）/ 字段过滤（F218）/ rubric 过滤 no-op（F115）/ 计数漂移（F0-01，docs 69 vs 实际 74）——R1 闭包 lint、R2 删模型+defer-silence 接线、R3 escape-hatch（AGENTS.md 全文+WARN 语义）、R4 表头兼容、R5 计数同步已由本 spec 先行实施（见归档）；#60 R1 规则面/#27 rubric 适用性 lint 面/#61 计数去数字化/#28 T2/#29 段 7 模板强制（audit-T2 I-1 移交）各自价值门时收窄
 
 ### #10 · 全项目审查执行：审计链失效（P1）
 
