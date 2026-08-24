@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 plan 数**：1 | **已归档**：67（见 `archive/`）
+> **活跃 plan 数**：0 | **已归档**：68（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- [2026-08-24-spec9-contract-single-source.md](2026-08-24-spec9-contract-single-source.md) — spec #9 契约单一信源（fix/spec-9-contract-single-source）· ✅ ready
 
 
 
@@ -22,7 +21,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 归档说明
 
-63 个已完成的 plan 在 `archive/` 中，按日期排序（2026-06 ~ 07）。这些 plan 对应的 PR 已全部合并到 main（#1–#19），保留作历史记录。按系列：
+已完成的 plan 在 `archive/` 中按日期排序，保留作历史记录（数量与对应 PR 区间随归档持续增长，以页头计数为准）。按系列：
 
 - **P-1 基础卫生**（`2026-06-14` a/b/c/d，PR #3）— pyproject/uv/lint、pytest+CI+pre-commit、structlog+异常+ADR、重构清理
 - **P-1.E 地基补完**（`2026-06-15` 01–07，PR #4）— src 布局、PR-fraud 填实、工具链、测试、CI 供应链、企业化、文档配置
