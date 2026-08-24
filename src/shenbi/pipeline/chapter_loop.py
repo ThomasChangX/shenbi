@@ -2042,13 +2042,19 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
 
     chapter_text = chapter_file.read_text(encoding="utf-8")
 
-    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)
+    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5).
+    # R1 (F602): lazily establish the canonical baseline (style/) once chapter 4
+    # is reached; chapters 1-3 ARE the baseline corpus, absence is expected.
     baseline_file = project_dir / "style" / "linguistic_baseline.json"
-    if baseline_file.exists():
-        baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
-    else:
-        log.warning("no_linguistic_baseline", chapter=chapter)
-        return None
+    if not baseline_file.exists():
+        if chapter >= 4:
+            from shenbi.skill_utils.drift_detection.baseline import establish_baseline
+
+            establish_baseline(project_dir, [1, 2, 3])
+        else:
+            log.warning("no_linguistic_baseline", chapter=chapter)
+            return None
+    baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
 
     current = compute_linguistic_metrics(chapter_text, project_dir=project_dir)
     result = detect_drift(current, baseline)
