@@ -534,6 +534,25 @@ class DriftEscalationError(Exception):
     """Raised when linguistic drift reaches ESCALATE severity."""
 
 
+def _run_linguistic_drift_check(project_dir: Path, chapter: int) -> None:
+    """Run the linguistic drift check for a pipeline-internal step.
+
+    R4 (F620): ESCALATE must pause the pipeline — DriftEscalationError
+    propagates to the checkpoint logic. Any other failure stays
+    non-blocking (warning only).
+    """
+    try:
+        _check_linguistic_drift(project_dir, chapter)
+    except DriftEscalationError:
+        raise
+    except Exception:
+        log.warning(
+            "linguistic_drift_check_failed",
+            chapter=chapter,
+            exc_info=True,
+        )
+
+
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
@@ -2042,18 +2061,27 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
 
     chapter_text = chapter_file.read_text(encoding="utf-8")
 
-    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5)
+    # Load baseline (established from first 3 chapters — see Task 6 / spec §3.5).
+    # R1 (F602): lazily establish the canonical baseline (style/) once chapter 4
+    # is reached; chapters 1-3 ARE the baseline corpus, absence is expected.
     baseline_file = project_dir / "style" / "linguistic_baseline.json"
-    if baseline_file.exists():
-        baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
-    else:
-        log.warning("no_linguistic_baseline", chapter=chapter)
-        return None
+    if not baseline_file.exists():
+        if chapter >= 4:
+            from shenbi.skill_utils.drift_detection.baseline import establish_baseline
+
+            establish_baseline(project_dir, [1, 2, 3])
+        else:
+            log.warning("no_linguistic_baseline", chapter=chapter)
+            return None
+    baseline = json.loads(baseline_file.read_text(encoding="utf-8"))
 
     current = compute_linguistic_metrics(chapter_text, project_dir=project_dir)
     result = detect_drift(current, baseline)
 
-    if result.is_drift:
+    # R3 (F612): drive intervention by severity, not is_drift — detect_drift
+    # guarantees is_drift=True ⇒ severity ≥ WARN, and absolute-threshold
+    # ESCALATE/HARD can coexist with is_drift=False (polluted baseline).
+    if result.severity != "NONE":
         log.warning(
             "linguistic_drift_detected",
             chapter=chapter,
@@ -2849,16 +2877,9 @@ def _run_chapter_step_impl(
 
     # Pipeline-internal steps (not dispatched): advance without dispatch/G4.
     if step.skill.startswith("pipeline-"):
-        # ── Linguistic drift check (non-blocking) ────────────────────────
+        # ── Linguistic drift check (non-blocking, except ESCALATE) ────────
         if step.skill == "pipeline-linguistic-drift-check":
-            try:
-                _check_linguistic_drift(project_dir, chapter)
-            except Exception:
-                log.warning(
-                    "linguistic_drift_check_failed",
-                    chapter=chapter,
-                    exc_info=True,
-                )
+            _run_linguistic_drift_check(project_dir, chapter)
 
         state.add_step_done(chapter, step.skill)
         _reset_retries(state, step, chapter)

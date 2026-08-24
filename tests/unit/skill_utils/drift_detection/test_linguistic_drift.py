@@ -182,3 +182,19 @@ def test_check_window_redundancy_detects_looping():
     ]
     max_sim = check_window_redundancy(chapters, window_size=4)
     assert max_sim > 0.35, f"Expected >0.35, got {max_sim}"
+
+
+def test_dialogue_collapse_triggers_drift():
+    """R2 (F601): dialogue ratio < 0.2 must set is_drift=True (was unreachable)."""
+    baseline = {"dialogue_density": 50.0, "system_term_density": 1.0}
+    current = {"dialogue_density": 5.0, "system_term_density": 1.0}  # ratio 0.1 < 0.2
+    result = detect_drift(current, baseline)
+    assert result.is_drift is True
+    assert result.deviations["dialogue_density"] == 0.1
+
+
+def test_drift_threshold_semantics_unchanged_for_ratios():
+    """比值路径语义保持: 正常对话比不触发。"""
+    baseline = {"dialogue_density": 10.0, "system_term_density": 1.0}
+    current = {"dialogue_density": 6.0, "system_term_density": 1.0}  # ratio 0.6 正常
+    assert detect_drift(current, baseline).is_drift is False

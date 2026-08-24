@@ -174,6 +174,7 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
     # trail (a top-level escape would skip save_state and the exhaustion
     # storm repeats one full cycle after crash-resume).
     from shenbi.exceptions import RetryExhaustedError
+    from shenbi.pipeline.chapter_loop import DriftEscalationError
 
     try:
         from shenbi.pipeline.chapter_loop import (
@@ -325,6 +326,22 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
             CheckpointType.ESCALATION,
             chapter=esc_chapter,
             context=f"Retry budget exhausted: {exc}",
+        )
+    except DriftEscalationError as exc:
+        # R4 (F620): ESCALATE must persist as a resumable ESCALATION checkpoint
+        # (mirrors RetryExhaustedError) — otherwise every resume re-raises at
+        # the same step in a crash loop instead of pausing for human review.
+        log.error("drift_escalate_checkpoint", error=str(exc))
+        esc_chapter = (
+            state.chapter_loop.current_chapter
+            if state.phase == PipelinePhase.CHAPTER_LOOP
+            else None
+        )
+        set_checkpoint(
+            state,
+            CheckpointType.ESCALATION,
+            chapter=esc_chapter,
+            context=f"Linguistic drift ESCALATE: {exc}",
         )
 
 
