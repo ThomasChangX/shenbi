@@ -87,3 +87,18 @@ def test_append_dedup_reads_union_source(tmp_path):
     target.write_text(_body_freetext_only_variant(), encoding="utf-8")
     entries = [{"hook_id": "H1", "description": "x", "type": None, "category": None}]
     assert _append_to_pending_hooks(tmp_path, entries, chapter=2) == 0
+
+
+def test_append_preserves_unmanaged_body_sections(tmp_path):
+    """PR #70 review: 非托管 ## 段(伏笔统计/伏笔时间线)在 canonical 重写后保留。"""
+    truth = tmp_path / "truth"
+    truth.mkdir()
+    target = truth / "pending_hooks.md"
+    shutil.copy(FIXTURE, target)
+
+    entries = [{"hook_id": "H99", "description": "x", "type": None, "category": None}]
+    _append_to_pending_hooks(tmp_path, entries, chapter=5)
+
+    text = target.read_text(encoding="utf-8")
+    assert "## 伏笔统计" in text
+    assert "## 伏笔时间线" in text

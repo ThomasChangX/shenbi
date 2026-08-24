@@ -15,7 +15,12 @@ from typing import Any
 
 
 from shenbi.logging import get_logger
-from shenbi.records.writer import collect_records, preserve_keys, render_pending_hooks
+from shenbi.records.writer import (
+    collect_records,
+    preserve_body_sections,
+    preserve_keys,
+    render_pending_hooks,
+)
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -227,11 +232,13 @@ def _append_to_pending_hooks(
     existing_hooks: list[dict[str, Any]] = []
     existing_ids: set[str] = set()
     _preserve: dict[str, Any] = {}
+    _preserve_body = ""
     old_text = ""
 
     if hooks_file.exists():
         old_text = hooks_file.read_text(encoding="utf-8")
         _preserve = preserve_keys(old_text)
+        _preserve_body = preserve_body_sections(old_text)
         existing_hooks = collect_records(old_text)
         existing_ids = {h["id"] for h in existing_hooks if "id" in h}
 
@@ -251,13 +258,22 @@ def _append_to_pending_hooks(
         # skip the write when the render is byte-identical (already canonical)
         # to avoid racing a concurrent skill edit with a no-op rewrite.
         if hooks_file.exists() and existing_hooks:
-            rendered = render_pending_hooks(existing_hooks, preserve_frontmatter=_preserve)
+            rendered = render_pending_hooks(
+                existing_hooks,
+                preserve_frontmatter=_preserve,
+                preserve_body=_preserve_body,
+            )
             if rendered != old_text:
                 safe_write(hooks_file, rendered)
         return 0
 
     all_hooks = existing_hooks + new_hooks
-    safe_write(hooks_file, render_pending_hooks(all_hooks, preserve_frontmatter=_preserve))
+    safe_write(
+        hooks_file,
+        render_pending_hooks(
+            all_hooks, preserve_frontmatter=_preserve, preserve_body=_preserve_body
+        ),
+    )
     log.info(
         "hook_plant_appended_to_pending_hooks",
         chapter=chapter,

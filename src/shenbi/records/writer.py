@@ -129,18 +129,41 @@ def _render_table(records: list[dict[str, Any]]) -> str:
     return "\n".join(lines)
 
 
+_MANAGED_HEADERS = ("hooks", "活跃伏笔")
+
+
+def preserve_body_sections(text: str) -> str:
+    """Verbatim copy of unmanaged ``##`` sections (伏笔统计/伏笔时间线/...).
+
+    PR #70 review: the canonical rewrite must stay lossless for sections the
+    writer does not own — only ``## hooks`` and ``## 活跃伏笔`` are managed.
+    """
+    _, body = _split_frontmatter(text)
+    kept: list[str] = []
+    for section in re.split(r"(?m)(?=^## )", body):
+        header = section.splitlines()[0] if section else ""
+        if header.startswith("## ") and header[3:].strip() not in _MANAGED_HEADERS:
+            kept.append(section.strip("\n"))
+    return "\n\n".join(kept)
+
+
 def render_pending_hooks(
-    records: list[dict[str, Any]], *, preserve_frontmatter: dict[str, Any] | None = None
+    records: list[dict[str, Any]],
+    *,
+    preserve_frontmatter: dict[str, Any] | None = None,
+    preserve_body: str = "",
 ) -> str:
     """Render the canonical three-part document from one record set.
 
     ``preserve_frontmatter`` carries non-hooks frontmatter keys (project /
     last_updated / ...) from the file being rewritten so they survive.
+    ``preserve_body`` carries verbatim unmanaged ``##`` sections
+    (see preserve_body_sections), appended after the managed sections.
     """
     fm: dict[str, Any] = dict(preserve_frontmatter or {})
     fm["hooks"] = records
     frontmatter = yaml.safe_dump(fm, sort_keys=True, allow_unicode=True, default_flow_style=False)
-    return (
+    out = (
         "---\n"
         + frontmatter
         + "---\n\n"
@@ -150,6 +173,9 @@ def render_pending_hooks(
         + _render_table(records)
         + "\n"
     )
+    if preserve_body.strip():
+        out += "\n" + preserve_body.strip("\n") + "\n"
+    return out
 
 
 def preserve_keys(text: str) -> dict[str, Any]:
