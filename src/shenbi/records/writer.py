@@ -163,6 +163,13 @@ def write_pending_hooks(
     records: list[dict[str, Any]],
     preserve_frontmatter: dict[str, Any] | None = None,
 ) -> None:
+    """Public write API mirroring parser.parse_records/serialize_records.
+
+    Currently no in-repo production caller (hook_planting inlines the render
+    so it can log its own append event and handle mid-file migration); kept
+    as the module's write-side entry point for future writers of
+    ``truth/pending_hooks.md``.
+    """
     safe_write(
         project_dir / "truth" / "pending_hooks.md",
         render_pending_hooks(records, preserve_frontmatter=preserve_frontmatter),
