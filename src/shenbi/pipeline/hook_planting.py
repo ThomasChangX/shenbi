@@ -227,6 +227,7 @@ def _append_to_pending_hooks(
     existing_hooks: list[dict[str, Any]] = []
     existing_ids: set[str] = set()
     _preserve: dict[str, Any] = {}
+    old_text = ""
 
     if hooks_file.exists():
         old_text = hooks_file.read_text(encoding="utf-8")
@@ -246,12 +247,13 @@ def _append_to_pending_hooks(
         existing_ids.add(hook_id)
 
     if not new_hooks:
-        # Still migrate a legacy-shaped file to canonical form (idempotent).
+        # Still migrate a legacy-shaped file to canonical form (idempotent);
+        # skip the write when the render is byte-identical (already canonical)
+        # to avoid racing a concurrent skill edit with a no-op rewrite.
         if hooks_file.exists() and existing_hooks:
-            safe_write(
-                hooks_file,
-                render_pending_hooks(existing_hooks, preserve_frontmatter=_preserve),
-            )
+            rendered = render_pending_hooks(existing_hooks, preserve_frontmatter=_preserve)
+            if rendered != old_text:
+                safe_write(hooks_file, rendered)
         return 0
 
     all_hooks = existing_hooks + new_hooks

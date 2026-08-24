@@ -167,3 +167,13 @@ def write_pending_hooks(
         project_dir / "truth" / "pending_hooks.md",
         render_pending_hooks(records, preserve_frontmatter=preserve_frontmatter),
     )
+
+
+__all__ = [
+    "TABLE_COLUMNS",
+    "collect_records",
+    "normalize_record",
+    "preserve_keys",
+    "render_pending_hooks",
+    "write_pending_hooks",
+]
