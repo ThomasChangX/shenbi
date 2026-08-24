@@ -1,13 +1,15 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-24
-> **活跃 plan 数**：0 | **已归档**：68（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：68（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
 ---
 
 ## 活跃 Plan
+
+- [`2026-08-24-drift-chain-plan.md`](2026-08-24-drift-chain-plan.md) ✅ ready — SDD #11 drift 检测干预链修复（R1-R5 五 task，全部 infra；阶段 5 审查 3 轮收敛）
 
 
 
