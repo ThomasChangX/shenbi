@@ -18,9 +18,9 @@ Writing a complete novel with AI means orchestrating dozens of specialized tasks
 
 ### 技能编排 / Skill Orchestration
 
-67 个写作技能 + 2 个元技能，按 9 个流水线阶段组织。从世界观构建到反 AI 检测，覆盖长篇小说创作的全流程。
+72 个写作技能 + 2 个元技能，按 9 个流水线阶段组织。从世界观构建到反 AI 检测，覆盖长篇小说创作的全流程。
 
-67 writing skills + 2 meta-skills, organized by 9 pipeline phases. From worldbuilding to anti-AI detection, covering the full long-form novel creation process.
+72 writing skills + 2 meta-skills, organized by 9 pipeline phases. From worldbuilding to anti-AI detection, covering the full long-form novel creation process.
 
 → [技能目录 / Skill Catalog](skills/index.md)
 
