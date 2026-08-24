@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design (Revised 2026-08-24 · 阶段 3 审查吸收：边界/格式裁决/行号修正) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Done (PR #70 · 2026-08-24 · R2/R4 面供 #32 核销) | 原 Design (Revised 2026-08-24) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** skill_utils/drift_detection/ + pipeline/chapter_loop.py + pipeline/hook_planting.py + records/ | **核心洞察:** 语言漂移 3 层干预全链失效（未接线 + 门控 + 吞异常），且真实格式与检测假设分叉
 
 # Drift 检测干预链失效
