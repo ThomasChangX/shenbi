@@ -11,6 +11,7 @@
 
 from __future__ import annotations
 
+import json
 import re
 from collections.abc import Container, Iterable
 from pathlib import Path
@@ -218,6 +219,39 @@ def find_dead_decisions_sidecars() -> list[str]:
     return vios
 
 
+def _collect_deps_names(node: object) -> set[str]:
+    """Recursively collect 'shenbi-*' strings from any deps.json JSON value."""
+    names: set[str] = set()
+    if isinstance(node, dict):
+        for v in node.values():
+            names |= _collect_deps_names(v)
+    elif isinstance(node, list):
+        for v in node:
+            if isinstance(v, str) and v.startswith("shenbi-"):
+                names.add(v)
+            else:
+                names |= _collect_deps_names(v)
+    return names
+
+
+def check_skill_deps_closure(repo: Path) -> list[str]:
+    """Spec #9 R1: skills/ dir <-> deps.json closure (both directions)."""
+    errs: list[str] = []
+    deps_path = repo / "tests" / "tiers" / "deps.json"
+    if not deps_path.exists():
+        return [f"skills_deps_closure: deps.json not found: {deps_path}"]
+    skills_dir = repo / "skills"
+    dirs = {p.name for p in skills_dir.iterdir() if p.is_dir() and p.name.startswith("shenbi-")}
+    deps_names = _collect_deps_names(json.loads(deps_path.read_text(encoding="utf-8")))
+    missing = sorted(dirs - deps_names)
+    if missing:
+        errs.append(f"skills_deps_closure: skill dirs not registered in deps.json: {missing}")
+    ghost = sorted(deps_names - dirs)
+    if ghost:
+        errs.append(f"skills_deps_closure: deps.json names without skill dir: {ghost}")
+    return errs
+
+
 def main() -> int:
     """Run all repo-consistency checks; print violations, exit non-zero if any."""
     vios: list[str] = []
@@ -235,6 +269,8 @@ def main() -> int:
     for p in find_extra_contract_key_readers(py_files):
         vios.append(f"loader-uniqueness: {p} reads frontmatter contract: key")
     for v in find_dead_decisions_sidecars():
+        vios.append(v)
+    for v in check_skill_deps_closure(REPO):
         vios.append(v)
     for v in vios:
         print(v)

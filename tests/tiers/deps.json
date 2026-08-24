@@ -64,7 +64,8 @@
         "shenbi-anti-detect",
         "shenbi-length-normalizing",
         "shenbi-foreshadowing-recall",
-        "shenbi-score-arc"
+        "shenbi-score-arc",
+        "shenbi-foreshadowing-lifecycle"
       ],
       "expected_outputs": [
         "audits/arc-*-score.md",
@@ -94,7 +95,11 @@
         "shenbi-review-long-span",
         "shenbi-review-era",
         "shenbi-review-fanfic",
-        "shenbi-review-spinoff"
+        "shenbi-review-spinoff",
+        "shenbi-review-group-character",
+        "shenbi-review-group-craft",
+        "shenbi-review-group-factual",
+        "shenbi-review-group-plan"
       ],
       "expected_outputs": [
         "audits/chapter-*.md"
