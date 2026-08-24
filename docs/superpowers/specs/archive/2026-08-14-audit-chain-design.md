@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-24 · superseded by #46/C32——R2/R3/R4/R5 已由 main 修复 commits 87d8738/ac46663/26db756/ac33d25 等效落地；R1 残留（legacy 路由快照根）移交 #46 收口) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** audit/ + dispatcher/executor.py + pipeline/ | **核心洞察:** 支柱四写审计在主路径被绕过且快照根错位，双重失效
 
 # 审计链失效
