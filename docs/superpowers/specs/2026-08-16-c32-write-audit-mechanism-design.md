@@ -7,7 +7,7 @@
 - 簇：C32（写审计机制缺陷 write_audit/snapshot diff），11 条，最高严重度 **P0**（F501/F502/F529 三条），证据等级=实验佐证（5 条 verified，含真实生产数据 3 次 GATE_FAIL）
 - 成员：F501（代表）、F502、F503、F508、F515、F516、F518、F520、F528、F529、F532
 - 来源：`docs/superpowers/audit-runs/2026-08-15/findings-ledger.md` Z5 初审 + Z5-review-r1/r2/r3/r4
-- 关系：supersede `archive/2026-08-14-audit-chain-design.md`（#10，2026-08-24 Rejected）的写审计面（F507/F512/F513 为上轮同族 ID）
+- 关系：supersede `archive/2026-08-14-audit-chain-design.md`（spec `#10`，2026-08-24 Rejected）的写审计面（F507/F512/F513 为上轮同族 ID）
 
 ## 背景与根因
 写审计子系统（pre/post 快照 diff → declared 匹配 → OWNERSHIP field 级校验）的两个核心谓词各自失效：
@@ -64,4 +64,4 @@
 ## 回写
 - merged 关系（phase4 §3）：`F501 <- F502-F503, F508, F515-F516, F518, F520, F528-F529, F532`
 - 上轮承接：#10（audit-chain）的 F507/F512/F513 面随本簇关闭后归档；F533（rc 不可区分）归 C33 消费侧
-- 边界注记（2026-08-24，#10 Rejected 对账）：F507/F512 同族面已随 R1-R4 落地修复；**F513 残留仍开放**——legacy CLI 路由（executor.py:276/296）快照根仍为 PROJECT_DIR 而非 round_dir，生产 API/IDE 路由已由 Tier B wrapper 正确覆盖，残留面限 legacy 回退路由 + test_executor_audit.py 根合一 monkeypatch 掩蔽，归本簇（#46）后续收口
+- 边界注记（2026-08-24，spec `#10` Rejected 对账）：F507/F512 同族面已随 R1-R4 落地修复；**F513 残留仍开放**——legacy CLI 路由（executor.py:276/296）快照根仍为 PROJECT_DIR 而非 round_dir，生产 API/IDE 路由已由 Tier B wrapper 正确覆盖，残留面限 legacy 回退路由 + test_executor_audit.py 根合一 monkeypatch 掩蔽，归本簇（spec `#46`）后续收口
