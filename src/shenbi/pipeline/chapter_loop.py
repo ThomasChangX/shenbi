@@ -2059,7 +2059,10 @@ def _check_linguistic_drift(project_dir: Path, chapter: int) -> DriftResult | No
     current = compute_linguistic_metrics(chapter_text, project_dir=project_dir)
     result = detect_drift(current, baseline)
 
-    if result.is_drift:
+    # R3 (F612): drive intervention by severity, not is_drift — detect_drift
+    # guarantees is_drift=True ⇒ severity ≥ WARN, and absolute-threshold
+    # ESCALATE/HARD can coexist with is_drift=False (polluted baseline).
+    if result.severity != "NONE":
         log.warning(
             "linguistic_drift_detected",
             chapter=chapter,
