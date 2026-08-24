@@ -22,6 +22,10 @@ _MD_HEADER_TO_KEY: dict[str, str] = {
 
 _ACTIVE_HEADER_RE = re.compile(r"^## 活跃伏笔\s*$", re.MULTILINE)
 
+# Public alias: records/writer.py derives the canonical table column set from
+# this map (R5/F637) — private-name access across modules is a lint error.
+MD_HEADER_TO_KEY: dict[str, str] = _MD_HEADER_TO_KEY
+
 
 def parse_markdown_table(text: str) -> dict[str, dict[str, str]]:
     """解析 ## 活跃伏笔 markdown 表 → {id: {key: str_value}}。无表/空表 → {}。"""

@@ -13,9 +13,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-import yaml
 
 from shenbi.logging import get_logger
+from shenbi.records.writer import collect_records, preserve_keys, render_pending_hooks
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
@@ -221,27 +221,18 @@ def _append_to_pending_hooks(
     """
     hooks_file = project_dir / "truth" / "pending_hooks.md"
 
-    # Read existing hooks.
+    # Read existing hooks. R5 (F637): union-source read (frontmatter ∪ body
+    # block ∪ table ∪ body free-text IDs) — dedup must see records written by
+    # any legacy shape, and the rewrite below must preserve body sections.
     existing_hooks: list[dict[str, Any]] = []
     existing_ids: set[str] = set()
+    _preserve: dict[str, Any] = {}
 
     if hooks_file.exists():
-        text = hooks_file.read_text(encoding="utf-8")
-        if text.startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
-                try:
-                    fm = yaml.safe_load(parts[1]) or {}
-                    hooks = fm.get("hooks", [])
-                    if isinstance(hooks, list):
-                        existing_hooks = hooks
-                        existing_ids = {
-                            h["id"]
-                            for h in existing_hooks
-                            if isinstance(h, dict) and "id" in h  # pyright: ignore[reportUnnecessaryIsInstance]
-                        }
-                except Exception:
-                    log.warning("hook_plant_yaml_parse_error", path=str(hooks_file))
+        old_text = hooks_file.read_text(encoding="utf-8")
+        _preserve = preserve_keys(old_text)
+        existing_hooks = collect_records(old_text)
+        existing_ids = {h["id"] for h in existing_hooks if "id" in h}
 
     # Collect new hooks (skip duplicates).
     new_hooks: list[dict[str, Any]] = []
@@ -255,18 +246,16 @@ def _append_to_pending_hooks(
         existing_ids.add(hook_id)
 
     if not new_hooks:
+        # Still migrate a legacy-shaped file to canonical form (idempotent).
+        if hooks_file.exists() and existing_hooks:
+            safe_write(
+                hooks_file,
+                render_pending_hooks(existing_hooks, preserve_frontmatter=_preserve),
+            )
         return 0
 
-    # Build new YAML frontmatter.
     all_hooks = existing_hooks + new_hooks
-    frontmatter: dict[str, Any] = {"hooks": all_hooks}
-    new_content = (
-        "---\n"
-        + yaml.dump(frontmatter, allow_unicode=True, default_flow_style=False, sort_keys=False)
-        + "---\n"
-    )
-
-    safe_write(hooks_file, new_content)
+    safe_write(hooks_file, render_pending_hooks(all_hooks, preserve_frontmatter=_preserve))
     log.info(
         "hook_plant_appended_to_pending_hooks",
         chapter=chapter,
