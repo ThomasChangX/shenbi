@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design (Revised 2026-08-24 · SDD #8 执行前事实修正：F404 路径迁至 contracts/schemas/decisions.py、R9 引用 materialize 实为 trace/materialize.py、R8/F163 划归 #48/C34 不在本份范围) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Done (PR #63) — Revised 2026-08-24 · SDD #8 执行前事实修正：F404 路径迁至 contracts/schemas/decisions.py、R9 引用 materialize 实为 trace/materialize.py、R8/F163 划归 #48/C34 不在本份范围) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查 | **依赖:** 无 | **范围:** src/shenbi/gates/ + dispatcher/ + pipeline/ | **核心洞察:** G3.4 独立性门被伪造证据击穿 + 门序回归使 G1/G2 空转
 
 # 门禁有效性（G3/G2/门序）
