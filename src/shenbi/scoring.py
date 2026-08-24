@@ -71,23 +71,52 @@ def load_rubric(rubric_path: str) -> tuple[list[Dimension], list[str]]:
 
 
 def load_applicability(rubric_path: str) -> dict[str, dict[str, bool]]:
-    """Parse rubric.md to extract dimension applicability by test type."""
+    """Parse rubric.md to extract dimension applicability by test type.
+
+    Two table shapes are recognized inside `## Dimension Applicability`:
+    - legacy scope rows: header `| Dimension scope | <type>... |`, each row a
+      scope expression like "dim 2" (No/Yes per type column);
+    - per-dim rows (spec #9 R4 / F115): header
+      `| # | Dimension | <Type> Standard | ... |`, each row one dimension,
+      cells "N/A — ..." mark the dimension exempt for that type.
+    """
     applicability: dict[str, dict[str, bool]] = {}
     in_applicability = False
-    header_dims = []
+    mode = ""
+    header_dims: list[str] = []
     with open(rubric_path, encoding="utf-8") as f:
         for line in f:
             stripped = line.strip()
             if stripped.startswith("## Dimension Applicability"):
                 in_applicability = True
+                mode = ""
+                header_dims = []
                 continue
             if in_applicability and stripped.startswith("## "):
                 in_applicability = False
             if in_applicability and stripped.startswith("|"):
                 cells = [c.strip() for c in stripped.split("|")[1:-1]]
                 if len(cells) >= 4 and cells[0] == "Dimension scope":
+                    mode = "legacy"
                     header_dims = cells[1:]
-                elif len(cells) >= 4 and not cells[0].startswith("---"):
+                elif len(cells) >= 3 and cells[0] == "#" and cells[1] == "Dimension":
+                    # "Bug-hunt Standard" -> "bug-hunt"
+                    mode = "per_dim"
+                    header_dims = [c.removesuffix("Standard").strip().lower() for c in cells[2:]]
+                elif (
+                    mode == "per_dim"
+                    and len(cells) >= 3
+                    and not cells[0].startswith("---")
+                    and cells[0].isdigit()
+                ):
+                    scope = f"dim {cells[0]}"
+                    for i, test_type in enumerate(header_dims):
+                        applicability.setdefault(test_type, {})
+                        cell_val = cells[i + 2] if i + 2 < len(cells) else "Yes"
+                        applicability[test_type][scope] = (
+                            not cell_val.strip().upper().startswith("N/A")
+                        )
+                elif mode == "legacy" and len(cells) >= 4 and not cells[0].startswith("---"):
                     dim_scope = cells[0]
                     for i, test_type in enumerate(header_dims):
                         if test_type not in applicability:

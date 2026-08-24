@@ -97,7 +97,9 @@ def _filter_json(text: str, fields: list[str], path: str) -> tuple[str, bool]:
 
 
 def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool]:
-    """Returns (filtered_text, matched_any). Caller decides WARN vs FAIL on matched=False."""
+    """Returns (filtered_text, matched_all). matched=False means the escape
+    hatch fired (full file returned; WARN already logged inside).
+    """
     if not fields:
         return text, True
     if path.endswith(".md"):
