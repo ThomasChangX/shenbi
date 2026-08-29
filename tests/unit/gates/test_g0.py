@@ -314,3 +314,31 @@ def test_known_skill_names_is_single_source() -> None:
     from shenbi.gates.shared import ALL_SKILLS
 
     assert known_skill_names() == set(ALL_SKILLS)
+
+
+def test_g0_cc_reads_state_floor(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """g0.py cc loop passes PipelineState floor (was dead — spec 13 R1 read side)."""
+    from shenbi.gates import g0 as g0_mod
+
+    proj = tmp_path / "novel-output" / "p1"
+    proj.mkdir(parents=True)
+    (proj / "genre-config.json").write_text(
+        json.dumps({"auditDimensions": {"texture": True, "antiAi": True, "continuity": True}}),
+        encoding="utf-8",
+    )
+    (proj / "pipeline-state.json").write_text(
+        json.dumps({"config": {"resonance_global_floor": 55}}), encoding="utf-8"
+    )
+    monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
+    # Neutralize repo-scanning sub-checks so gate_G0 reaches the cc loop:
+    # symlink tests/ so G0.8 fixture refs resolve; drop MIRROR_MAP novel-output
+    # entries (they point at the real repo tree, not this tmp PROJECT).
+    (tmp_path / "tests").symlink_to(
+        (Path(__file__).parents[3] / "tests").resolve(), target_is_directory=True
+    )
+    monkeypatch.setattr(g0_mod, "MIRROR_MAP", {})
+
+    seed = tmp_path / "seed.md"
+    seed.write_text("目标字数：10000\n", encoding="utf-8")
+    result = _result_dict(gate_G0(seed_file=str(seed)))
+    assert "floor_too_low:resonance_global_floor=55" in json.dumps(result)

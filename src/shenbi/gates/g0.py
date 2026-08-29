@@ -669,7 +669,19 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 if p.is_dir() and (p / "genre-config.json").exists()
             ]
         for project_dir in project_dirs:
-            cc_issues = check_config_coherence(project_dir)
+            # Read the in-effect floor from pipeline-state.json when present
+            # (was dead-wired: floor checks never ran from gate_G0 — spec 13 R1).
+            floor: int | float | None = None
+            state_path = project_dir / "pipeline-state.json"
+            if state_path.exists():
+                try:
+                    state_data: dict[str, Any] = json.loads(state_path.read_text(encoding="utf-8"))
+                    raw_floor = state_data.get("config", {}).get("resonance_global_floor")
+                    if isinstance(raw_floor, (int, float)) and not isinstance(raw_floor, bool):
+                        floor = raw_floor
+                except (OSError, json.JSONDecodeError):
+                    log.debug("g0_state_read_failed_for_floor", path=str(state_path))
+            cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
             for idx, issue in enumerate(cc_issues):
                 check_id = f"G0.cc.{idx + 1}"
                 checks.append({"id": check_id, "s": "FAIL", "r": issue})

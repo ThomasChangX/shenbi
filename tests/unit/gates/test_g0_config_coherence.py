@@ -197,3 +197,52 @@ class TestG0Integration:
         seed.write_text("目标字数：300000\n", encoding="utf-8")
         result = g0mod.gate_G0(seed_file=str(seed))
         assert "G0.cc.critical_audit_disabled:texture" in result
+
+
+class TestGovernanceReadSide:
+    def _write(self, tmp_path, dims):
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps({"version": "1.0", "auditDimensions": dims}), encoding="utf-8"
+        )
+
+    def test_scalar_audit_dimensions_loud_fail_not_crash(self, tmp_path):
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps({"auditDimensions": False}), encoding="utf-8"
+        )
+        issues = check_config_coherence(tmp_path)
+        assert any("malformed_audit_dimensions" in i for i in issues)
+
+    def test_falsy_zero_flagged(self, tmp_path):
+        self._write(tmp_path, {"texture": 0})
+        issues = check_config_coherence(tmp_path)
+        assert any("critical_audit_disabled:texture" in i for i in issues)
+
+    def test_truthy_one_flagged(self, tmp_path):
+        self._write(tmp_path, {"texture": 1})
+        issues = check_config_coherence(tmp_path)
+        assert any("critical_audit_disabled:texture" in i for i in issues)
+
+    def test_snake_case_flagged(self, tmp_path):
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps({"audit_dimensions": {"texture": False}}), encoding="utf-8"
+        )
+        issues = check_config_coherence(tmp_path)
+        assert any("critical_audit_disabled:texture" in i for i in issues)
+
+    def test_missing_critical_not_flagged(self, tmp_path):
+        self._write(tmp_path, {"dialogue": True})
+        issues = check_config_coherence(tmp_path)
+        assert not any("critical_audit_disabled" in i for i in issues)
+
+    def test_float_floor_below_trigger_flagged(self, tmp_path):
+        issues = check_config_coherence(tmp_path, resonance_global_floor=59.5)
+        assert any("floor_too_low" in i for i in issues)
+
+    def test_string_floor_flagged_not_crash(self, tmp_path):
+        issues = check_config_coherence(tmp_path, resonance_global_floor="50")  # type: ignore[arg-type]
+        assert any("floor_invalid_type" in i for i in issues)
+
+    def test_top_level_list_config_loud_fail_not_crash(self, tmp_path):
+        (tmp_path / "genre-config.json").write_text("[1, 2]", encoding="utf-8")
+        issues = check_config_coherence(tmp_path)
+        assert any("malformed_audit_dimensions" in i for i in issues)
