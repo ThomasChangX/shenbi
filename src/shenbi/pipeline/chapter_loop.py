@@ -951,6 +951,15 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     when automatic advancement is configured.
     """
     project_dir = Path(state.project_dir)
+    # z11 R3 (F1309/F1313): fail-closed product-contract check at chapter
+    # completion — a project whose bookkeeping is a scorer shell or that has
+    # no token ledger is a real contract violation, not a bypass case.
+    from shenbi.exceptions import ProductContractError
+    from shenbi.pipeline.product_contracts import check_product_contracts
+
+    violations = check_product_contracts(project_dir)
+    if violations:
+        raise ProductContractError("; ".join(violations))
     key = str(chapter)
     cs = state.chapter_loop.chapter_states.get(key)
     if cs is None:
