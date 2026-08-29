@@ -45,6 +45,10 @@ class FrameworkError(ShenbiError):
     """Framework infrastructure issue."""
 
 
+class ProductContractError(FrameworkError):
+    """Pipeline product artifacts violate the output contract (z11 F1309/F1313)."""
+
+
 class RegistryError(FrameworkError):
     """Registry lockfile issues."""
 

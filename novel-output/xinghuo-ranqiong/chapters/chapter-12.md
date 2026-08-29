@@ -1,3 +1,5 @@
+# Chapter 12:
+
 The revision is complete. Here's a summary of what was done:
 
 **Mode**: spot-fix (auto-routed from "措辞/段落形状" → anti-AI Phase 1)

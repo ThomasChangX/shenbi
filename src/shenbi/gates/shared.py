@@ -29,6 +29,13 @@ FIXTURES = TESTS / "fixtures"
 CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
+#: Chapter-file contract anchors. SINGLE SOURCE for both the write-path
+#: normalizer (pipeline.dispatch_helper) and the gate-side check (gates.g2)
+#: — a second copy of either regex anywhere is a contract drift (z11 F1301).
+META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+", re.MULTILINE)
+CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
+
 
 def bak_path(fp: str | Path) -> str:
     """Return the ``.bak`` sibling path for ``fp``.
@@ -118,7 +125,7 @@ def word_count_md(fp: str | Path) -> int:
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
     # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
-    c = re.sub(r"<!--META-BEGIN-->.*?<!--META-END-->", "", c, flags=re.DOTALL)
+    c = META_BLOCK_RE.sub("", c)
     return len(re.findall(r"[一-鿿]", c))
 
 
@@ -343,3 +350,23 @@ def count_transition_words(content: str) -> int:
     for w in TRANSITION_SPECIFIC:
         tc += content.count(w)
     return max(tc, 0)
+
+
+def load_chapter_exemptions() -> dict[str, set[int]]:
+    """Read-only load of z11 chapter META exemptions (SDD #20 R1b, F1302).
+
+    Returns {project: {chapter}}; a missing or malformed file yields {} so the
+    G2.13 check fails closed on real violations instead of crashing.
+    """
+    path = PROJECT / "docs" / "framework" / "z11-chapter-exemptions.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    out: dict[str, set[int]] = {}
+    for e in data.get("exemptions", []):
+        try:
+            out.setdefault(str(e.get("project", "")), set()).add(int(e.get("chapter", -1)))
+        except (TypeError, ValueError):
+            continue
+    return out
