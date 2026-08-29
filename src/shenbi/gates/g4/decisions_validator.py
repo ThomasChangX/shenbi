@@ -90,10 +90,11 @@ def g4_decisions(
             mf.append(f"G4.dec.not_found:{fp}")
             continue
 
-        # CRITICAL: skip non-JSON files — the composite checker passes ALL skill
-        # outputs (including .md artifacts). json.loads() on markdown would crash.
-        if not fp.endswith(".json"):
-            continue  # skip .md and other non-decisions files
+        # CRITICAL: only *-decisions.json sidecars are DecisionsDoc material.
+        # Non-decisions .json (e.g. genre-config.json) and .md artifacts are
+        # routed to the structural checker by the composite partition instead.
+        if not fp.endswith("-decisions.json"):
+            continue
 
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -159,17 +160,17 @@ def make_composite_checker(
         project_dir: str | None = None,
         repo_root: str | None = None,
     ) -> str:
-        # Partition by extension: structural checkers parse markdown and have NO
-        # .json guard, so feeding them a .json file fails (no expected sections
-        # in JSON). The decisions checker already skips non-.json. Route each
-        # checker only the file types it can handle. "other" (non-.md/.json)
-        # files go to both so neither silently drops them.
-        md_files = [fp for fp in fps if fp.endswith(".md")]
-        json_files = [fp for fp in fps if fp.endswith(".json")]
-        other_files = [fp for fp in fps if not fp.endswith((".md", ".json"))]
+        # Partition by filename: *-decisions.json → decisions checker;
+        # everything else (incl. non-decisions .json like genre-config.json)
+        # → existing/structural checker (spec 13 R4a'). Note: "other"
+        # (non-.md/.json) files previously went to BOTH checkers; under this
+        # partition they go only to the structural checker — audited
+        # per-consumer, no composite passes bare "other" files today.
+        decisions_files = [fp for fp in fps if fp.endswith("-decisions.json")]
+        other_files = [fp for fp in fps if not fp.endswith("-decisions.json")]
 
-        existing_result = existing_checker(md_files + other_files, rd, project_dir, repo_root)
-        decisions_result = decisions_checker(json_files + other_files, rd, project_dir, repo_root)
+        existing_result = existing_checker(other_files, rd, project_dir, repo_root)
+        decisions_result = decisions_checker(decisions_files, rd, project_dir, repo_root)
 
         # Parse both results and aggregate.
         # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.

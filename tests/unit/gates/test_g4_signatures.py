@@ -56,3 +56,14 @@ def test_gate_g4_threads_params_to_generic_bug_hunt(tmp_path):
     )
     data = json.loads(result)
     assert "skill" in data or "status" in data
+
+
+def test_chapter_revision_registration_order():
+    """generic.py must register (structural, decisions) — not reversed (spec 13)."""
+    import inspect
+
+    import shenbi.gates.g4.generic as g
+
+    src = inspect.getsource(g)
+    assert "make_composite_checker(g4_decisions, g4_chapter_revision)" not in src
+    assert "make_composite_checker(g4_chapter_revision, g4_decisions)" in src
