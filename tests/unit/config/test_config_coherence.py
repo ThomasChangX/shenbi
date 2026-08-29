@@ -7,7 +7,11 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.config.config_coherence import ConfigError, update_genre_config
+from shenbi.config.config_coherence import (
+    AUDIT_TRAIL_NAME,
+    ConfigError,
+    update_genre_config,
+)
 
 
 def _seed_genre_config(tmp_path: Path) -> Path:
@@ -62,3 +66,73 @@ class TestUpdateGenreConfig:
                 tmp_path, {"resonance_global_floor": 40}, rationale="lowering the bar"
             )
         assert "floor_too_low" in str(exc.value)
+
+
+_LONG = "x" * 55  # >= RATIONALE_MIN_CHARS
+
+
+def _real_config(tmp_path):
+    """Copy of the real genre-config fixture (G0.9: no hand-crafted mocks)."""
+    src = Path(__file__).parents[2] / "fixtures" / "genre-config-example.json"
+    cfg = json.loads(src.read_text(encoding="utf-8"))
+    (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
+    return cfg
+
+
+class TestRule1BypassVectors:
+    def test_whole_key_object_overwrite_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        victim = dict.fromkeys(("texture", "antiAi", "continuity"), False)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions": victim}, rationale="none")
+
+    def test_falsy_zero_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions.texture": 0}, rationale="none")
+
+    def test_snake_case_key_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"audit_dimensions.texture": False}, rationale="none")
+
+    def test_malformed_scalar_change_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions": False}, rationale=_LONG)
+
+    def test_valid_disable_with_rationale_passes(self, tmp_path):
+        _real_config(tmp_path)
+        update_genre_config(tmp_path, {"auditDimensions.texture": False}, rationale=_LONG)
+        trail = (tmp_path / AUDIT_TRAIL_NAME).read_text(encoding="utf-8")
+        assert '"key": "auditDimensions.texture"' in trail
+
+
+class TestRule2TypeGuard:
+    def test_float_below_trigger_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"resonance_global_floor": 59.5}, rationale=_LONG)
+
+    def test_string_floor_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"resonance_global_floor": "50"}, rationale=_LONG)
+
+    def test_float_above_trigger_ok(self, tmp_path):
+        _real_config(tmp_path)
+        update_genre_config(tmp_path, {"resonance_global_floor": 60.0}, rationale=_LONG)
+
+
+class TestTwoPhaseCommit:
+    def test_mixed_batch_leaves_no_phantom_trail(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(
+                tmp_path,
+                {"auditDimensions.dialogue": False, "auditDimensions.texture": False},
+                rationale="short",
+            )
+        assert not (tmp_path / AUDIT_TRAIL_NAME).exists()
+        cfg = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
+        assert cfg["auditDimensions"]["dialogue"] is True

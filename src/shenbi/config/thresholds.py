@@ -12,6 +12,7 @@ same value.
 
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 
 
@@ -88,3 +89,25 @@ def is_critical_audit_dimension(dim: str) -> bool:
     """Return True iff *dim* is a critical safety-net audit dimension."""
     entry = AUDIT_SAFETY_MATRIX.get(dim)
     return bool(entry and entry.get("critical"))
+
+
+def resolve_audit_dimensions(config: Mapping[str, object]) -> tuple[dict[str, object], bool]:
+    """Merge camelCase/snake_case audit-dimension maps, single source for all consumers.
+
+    camelCase ``auditDimensions`` wins on key collision; snake_case
+    ``audit_dimensions`` only contributes keys camelCase lacks. Any present
+    but non-dict key shape makes the whole thing malformed (fail-safe).
+    Returns (merged_dims, malformed).
+    """
+    camel = config.get("auditDimensions")
+    snake = config.get("audit_dimensions")
+    if (camel is not None and not isinstance(camel, dict)) or (
+        snake is not None and not isinstance(snake, dict)
+    ):
+        return {}, True
+    merged: dict[str, object] = {}
+    if isinstance(snake, dict):
+        merged.update(snake)
+    if isinstance(camel, dict):
+        merged.update(camel)
+    return merged, False
