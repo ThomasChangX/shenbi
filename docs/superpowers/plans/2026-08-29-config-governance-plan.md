@@ -211,7 +211,11 @@ def _validate_changes(
     changes: dict[str, Any],
     rationale: str,
 ) -> None:
-    """Validate ALL changes against the staged (all-applied) config. Raises ConfigError."""
+    """Validate ALL changes against the staged (all-applied) config. Raises ConfigError.
+
+    注：snake_case 键写入与既有 camelCase 键并存时 camel-wins 合并会使该写入
+    成为静默 no-op（校验评估的是 camel 值）——本函数不另行告警，属声明的合并语义。
+    """
     if any(_touches_audit_dimensions(k) for k in changes):
         merged, malformed = resolve_audit_dimensions(staged)
         if malformed:
@@ -400,7 +404,7 @@ class TestGovernanceReadSide:
             ...既有 threshold_mismatch / floor_too_low 两检查不变...
 ```
 
-签名保持 `resonance_global_floor: int | float | None = None`（str 场景仅在防御性守卫测试中出现，测试侧以 `# type: ignore[arg-type]` 传入；mypy 只跑 src/，basedpyright 认 type: ignore）。
+签名从 `int | float | None = None` 放宽（现 `int | None`；str 场景仅在防御性守卫测试中出现，测试侧以 `# type: ignore[arg-type]` 传入；mypy 只跑 src/，basedpyright 认 type: ignore）。
 
 - [ ] **Step 4: g0.py 调用点补线（floor 死线）**
 
@@ -531,8 +535,6 @@ git commit -m "fix: G0 read-side unified semantics — malformed loud-fail, is-n
 import json
 
 from shenbi.gates.g4.decisions_validator import make_composite_checker
-from shenbi.gates.g4.genre_config import g4_genre_config
-from shenbi.gates.shared import passed
 
 
 def _structural_stub(fps, rd, project_dir, repo_root):
