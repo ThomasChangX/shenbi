@@ -353,12 +353,16 @@ class TestGovernanceReadSide:
 
 - [ ] **Step 3: 改 checker**
 
-`g0_config_coherence.py` Check 3 替换为：
+`g0_config_coherence.py` Check 3 替换为（**保留既有 `isinstance(config, dict)` 守卫**——顶层非 dict（如 list）不得让 `.get` 抛 AttributeError 逃出 g0.py 的窄 except，F666 同类守卫）：
 
 ```python
         from shenbi.config.thresholds import resolve_audit_dimensions
 
-        audit_dims, malformed = resolve_audit_dimensions(config)
+        if not isinstance(config, dict):
+            malformed = True  # 顶层非 dict（如 list）也属 malformed——响亮失败而非静默空过
+            audit_dims: dict[str, object] = {}
+        else:
+            audit_dims, malformed = resolve_audit_dimensions(config)
         if malformed:
             issues.append(
                 "G0.cc.malformed_audit_dimensions — auditDimensions must be an "
@@ -479,19 +483,24 @@ _CRITICAL_GENRE_DIMS = frozenset(
 g0.py floor 补线另加直测（`tests/unit/gates/test_g0.py` 追加，沿用该文件既有 tmp 项目构造方式）：
 
 ```python
-def test_g0_cc_reads_state_floor(tmp_path, ...):
+def test_g0_cc_reads_state_floor(tmp_path, monkeypatch):
     """g0.py cc loop passes PipelineState floor (was dead — spec 13 R1 read side)."""
+    import shenbi.gates.g0 as g0_mod
+
+    monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)  # gate_G0 扫 PROJECT/novel-output
     proj = tmp_path / "novel-output" / "p1"
     proj.mkdir(parents=True)
     (proj / "genre-config.json").write_text("{}", encoding="utf-8")
     (proj / "pipeline-state.json").write_text(
         json.dumps({"config": {"resonance_global_floor": 55}}), encoding="utf-8"
     )
-    ...调用 gate_G0 / 直接调 check 逻辑入口（按该文件既有模式）...
-    assert 某处出现 "floor_too_low:resonance_global_floor=55"
+    result = gate_G0(...)  # 按该文件既有 gate_G0 调用签名
+    assert "floor_too_low:resonance_global_floor=55" in json.dumps(result)
 ```
 
-（精确断言形态按 test_g0.py 既有 gate_G0 调用模式落位；红相 = 修 g0.py 前无该 issue。）
+（gate_G0 调用签名按 test_g0.py 既有用例照抄；红相 = 修 g0.py 前结果中无该 issue。）
+
+Task 4 注记（g2 免改声明）：spec R4 列的 g2.py 触点无需改代码——g2 decisions 分支整体委托 `DecisionsDoc.model_validate`（g2.py:160），schema 放宽自动覆盖；在 spec-deviations 记一句防审查误报。
 
 - [ ] **Step 9: Commit**
 
@@ -527,13 +536,13 @@ from shenbi.gates.shared import passed
 
 
 def _structural_stub(fps, rd, project_dir, repo_root):
-    """Records what the structural slot received; returns minimal PASS."""
-    import json as _json
-
+    """Records what the structural slot received; per-file PASS entries."""
     from shenbi.gates.shared import passed as _p
 
-    seen = list(fps)
-    return _p(f"stub-structural:{seen}")  # name carries the observed fps
+    return _p(
+        "stub-structural",
+        [{"id": f"stub-structural:{fp}", "s": "PASS"} for fp in (fps or [])],
+    )
 
 
 _VALID_SIDECAR = {
@@ -791,7 +800,7 @@ def govern_genre_config_change(
             f"rationale exceeds {_TRAIL_RATIONALE_MAX_CHARS} chars; produce one "
             f"merged 50-100 char rationale instead"
         )
-    old_dims, old_bad = resolve_audit_dimensions(old_config)
+    old_dims, _old_bad = resolve_audit_dimensions(old_config)
     new_dims, new_bad = resolve_audit_dimensions(new_config)
     if new_bad:
         raise ConfigError(
@@ -802,8 +811,10 @@ def govern_genre_config_change(
     for dim in AUDIT_SAFETY_MATRIX:
         if not is_critical_audit_dimension(dim):
             continue
-        old_v = old_dims.get(dim, True)
-        new_v = new_dims.get(dim, True)
+        # diff 语境：删除 critical 键 = 禁用企图（spec R2——与运行侧「缺失=启用」
+        # 是有意的语义分裂：diff 看「显式移除」，运行看「终局是否仍护网」）
+        new_v = new_dims.get(dim, False)
+        old_v = old_dims.get(dim, False)
         if new_v is not True and old_v is True:
             if len(rationale) < RATIONALE_MIN_CHARS:
                 raise ConfigError(
@@ -816,13 +827,13 @@ def govern_genre_config_change(
         _append_audit_trail(project_dir, key, old_v, new_v, rationale)
 ```
 
-（`_real_config`/`copy` 已在 Task 1 就位。）
+（`_real_config`/`copy` 已在 Task 1 就位。残余注记：`_append_audit_trail` 自身中途失败的 partial-trail 是接受的残余风险——R5 幻影条目保证已接线于 update_genre_config 的两阶段与 govern 的先校验后追加，追加循环自身 IO 失败不在本 spec 语义内。整键覆写产生的单条 trail 的 old/new 为整个 dict——注释说明即可，grep 键名仍可行。）
 
 - [ ] **Step 4: 跑单测** → PASS
 
 - [ ] **Step 5: 写失败测试（触发器集成：快照/回滚/接线）**
 
-`tests/unit/pipeline/test_triggers.py` 追加（沿用该文件既有 TriggerResult/TriggerStep 构造方式，monkeypatch `dispatch_skill` 与 `run_gate_g4` 为可控 stub——管线级单测对 dispatch 的 stub 是既有测试模式，非 LLM 产物 mock）：
+`tests/unit/pipeline/test_triggers.py` 追加（沿用该文件既有 `@patch`/TriggerResult 构造模式；**两个 helper 需新建**，勿在存量里找：`FIXTURE = Path(__file__).parents[2] / "fixtures" / "genre-config-example.json"`；`_genre_config_trigger_result()` 返回 `TriggerResult(genre_config_update=True)` 按 test_triggers.py 既有 dataclass 构造）。monkeypatch `dispatch_skill` 与 `run_gate_g4` 为可控 stub——管线级单测对 dispatch 的 stub 是既有测试模式，非 LLM 产物 mock。第一支测试写**短 rationale 的 sidecar**（真实 skill 输出形态：<50 字被拒），与「无 sidecar」支区分：
 
 ```python
 class TestGenreConfigGovernanceWiring:
@@ -831,13 +842,29 @@ class TestGenreConfigGovernanceWiring:
         cfg = json.loads(FIXTURE.read_text(encoding="utf-8"))
         cfg["auditDimensions"]["texture"] = True
         (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
-        # dispatch stub writes a bad new config (texture disabled, no rationale sidecar)
         bad = copy.deepcopy(cfg)
         bad["auditDimensions"]["texture"] = False
+        # sidecar 存在但 rationale < 50 字（真实 skill 输出形态）
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-genre-config",
+            "selections": [
+                {
+                    "target": "auditDimensions.texture",
+                    "selected": ["disabled"],
+                    "basis": "manual_override",
+                    "rationale": "太短了",
+                }
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
 
         def fake_dispatch(skill, project_dir, prompt):
             (Path(project_dir) / "genre-config.json").write_text(
                 json.dumps(bad), encoding="utf-8"
+            )
+            (Path(project_dir) / "genre-config-decisions.json").write_text(
+                json.dumps(sidecar), encoding="utf-8"
             )
             return SimpleNamespace(success=True)
 
