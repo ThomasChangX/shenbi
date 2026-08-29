@@ -1,7 +1,7 @@
 # Decisions Schema v1
 
 **Version**: `shenbi-decisions-v1`
-**Status**: Active (spec 2026-07-07-clean-context-handoff-design.md, Layer A)
+**Status**: Active (spec archive/2026-07-07-clean-context-handoff-design.md, Layer A)
 
 ## Purpose
 

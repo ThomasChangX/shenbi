@@ -1,7 +1,7 @@
 > **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟥 P0（F751 内容级断链）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C16，候选元根因 F 核心）| **代表 finding:** T801 | **簇规模:** 31 条 | **严重度上限:** P0
 > **范围:** tests/fixtures/ 全量 + tests/tiers/ 场景 + src/shenbi/gates/g0.py（g0_purity 执法）+ calibration/ | **证据等级:** 实验佐证（T8 线程 + Z7-c/Z7-d，协调者核验 g0_purity 零执法）
-> **与既有 spec 关系:** 吸收 #18（2026-08-14-fixture-authenticity-design.md）未执行的 R1–R4 全部内容并扩展 G0.9 执法面——#18 建议随本 spec 启动而归档（归档动作由协调者执行）
+> **与既有 spec 关系:** 吸收 #18（archive/2026-08-14-fixture-authenticity-design.md）未执行的 R1–R4 全部内容并扩展 G0.9 执法面——#18 建议随本 spec 启动而归档（归档动作由协调者执行）
 
 # C16 · fixture 真实性失真与 G0.9 零执法修复（fixture-authenticity-fix）
 

@@ -41,7 +41,7 @@ archive `2026-06-22-positive-quality-gates.md:7` 定义了 repo 的 canonical �
 
 ### 1.3 关键先例：CN3 postmortem 证明确定性写路径是根因修复
 
-archive `2026-07-19-01-truth-file-and-state-accumulation-design.md:42,176,283`：CN3（truth 文件覆盖 vs 追加）的根因是**写路径缺陷**（substring dedup），修复是 `truth_io.py:write_truth_file(mode="upsert_markdown_row")` 的键值 upsert——确定性路径**结构性消除**失败模式，而 prompt-only 守卫（"告诉 LLM 要追加"）被证明不够。这是"提升到 L1"的最强论据。
+`archive/2026-07-19-01-truth-file-and-state-accumulation-design.md:42,176,283`：CN3（truth 文件覆盖 vs 追加）的根因是**写路径缺陷**（substring dedup），修复是 `truth_io.py:write_truth_file(mode="upsert_markdown_row")` 的键值 upsert——确定性路径**结构性消除**失败模式，而 prompt-only 守卫（"告诉 LLM 要追加"）被证明不够。这是"提升到 L1"的最强论据。
 
 ---
 
