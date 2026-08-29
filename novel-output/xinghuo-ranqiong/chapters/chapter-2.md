@@ -1,3 +1,5 @@
+# Chapter 2:
+
 All three files have been output. Here's a summary of the revision:
 
 **Revision mode**: rewrite (mixed issues — local dash fixes + MH-020 content addition)
