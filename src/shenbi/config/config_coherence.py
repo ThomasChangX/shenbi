@@ -103,17 +103,25 @@ def _touches_audit_dimensions(key: str) -> bool:
 
 
 def _validate_changes(
+    old_config: dict[str, Any],
     staged: dict[str, Any],
     changes: dict[str, Any],
     rationale: str,
 ) -> None:
     """Validate ALL changes against the staged (all-applied) config. Raises ConfigError.
 
+    Rule 1 is delta-based: a critical dimension counts as a disable attempt
+    when it was enabled (or absent = enabled, criticality-split semantics) in
+    the old config and is absent-or-not-True in the staged config. A critical
+    dim already disabled before this batch does not re-trigger (no coupling of
+    unrelated changes to historical state).
+
     Note: when a snake_case key coexists with a camelCase key, the camel-wins
     merge makes the snake_case write a silent no-op (validation evaluates the
     camel value) -- declared merge semantics, no extra warning is emitted.
     """
     if any(_touches_audit_dimensions(k) for k in changes):
+        old_dims, _old_bad = resolve_audit_dimensions(old_config)
         merged, malformed = resolve_audit_dimensions(staged)
         if malformed:
             raise ConfigError(
@@ -123,7 +131,18 @@ def _validate_changes(
         for dim in AUDIT_SAFETY_MATRIX:
             if not is_critical_audit_dimension(dim):
                 continue
-            if dim in merged and merged[dim] is not True and len(rationale) < RATIONALE_MIN_CHARS:
+            was_enabled = old_dims.get(dim, True) is True
+            # Disable attempt = explicit falsy value, or explicit removal of a
+            # previously-declared key (whole-key overwrite omission). Absence in
+            # both old and staged is no change (criticality-split: missing =
+            # enabled, governed only on the whole-file diff path).
+            explicit_falsy = dim in merged and merged[dim] is not True
+            explicit_removal = dim in old_dims and dim not in merged
+            if (
+                was_enabled
+                and (explicit_falsy or explicit_removal)
+                and len(rationale) < RATIONALE_MIN_CHARS
+            ):
                 raise ConfigError(
                     f"Cannot disable critical audit '{dim}' without "
                     f">= {RATIONALE_MIN_CHARS} char rationale explaining the "
@@ -158,12 +177,13 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
     non-numeric or below the revision trigger.
     """
     config = _load_config(project_dir)
+    rationale = rationale or ""  # None-safe (audit-T1 M)
 
     # Phase 1: stage all changes on a copy and validate — no side effects yet.
     staged = copy.deepcopy(config)
     for key, new_value in changes.items():
         _set_nested(staged, key, new_value)
-    _validate_changes(staged, changes, rationale)
+    _validate_changes(config, staged, changes, rationale)
 
     # Phase 2: commit — write config, then append trail entries.
     entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]

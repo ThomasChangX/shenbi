@@ -207,6 +207,7 @@ def _touches_audit_dimensions(key: str) -> bool:
 
 
 def _validate_changes(
+    old_config: dict[str, Any],
     staged: dict[str, Any],
     changes: dict[str, Any],
     rationale: str,
@@ -217,16 +218,26 @@ def _validate_changes(
     成为静默 no-op（校验评估的是 camel 值）——本函数不另行告警，属声明的合并语义。
     """
     if any(_touches_audit_dimensions(k) for k in changes):
+        old_dims, _old_bad = resolve_audit_dimensions(old_config)
         merged, malformed = resolve_audit_dimensions(staged)
         if malformed:
             raise ConfigError(
                 "auditDimensions must be an object mapping dimension -> bool, "
                 "got a scalar/list value; refusing to apply."
             )
+        # delta 语义（audit-T1 定稿）：禁用企图 = 显式 falsy 值，或整键覆写
+        # 显式移除已声明键；新旧皆缺失 = 无变化（缺失=启用，仅整文件 diff 路径管辖）
         for dim in AUDIT_SAFETY_MATRIX:
             if not is_critical_audit_dimension(dim):
                 continue
-            if dim in merged and merged[dim] is not True and len(rationale) < RATIONALE_MIN_CHARS:
+            was_enabled = old_dims.get(dim, True) is True
+            explicit_falsy = dim in merged and merged[dim] is not True
+            explicit_removal = dim in old_dims and dim not in merged
+            if (
+                was_enabled
+                and (explicit_falsy or explicit_removal)
+                and len(rationale) < RATIONALE_MIN_CHARS
+            ):
                 raise ConfigError(
                     f"Cannot disable critical audit '{dim}' without "
                     f">= {RATIONALE_MIN_CHARS} char rationale explaining the "
@@ -257,7 +268,7 @@ def _validate_changes(
     staged = copy.deepcopy(config)
     for key, new_value in changes.items():
         _set_nested(staged, key, new_value)
-    _validate_changes(staged, changes, rationale)
+    _validate_changes(config, staged, changes, rationale)
 
     # Phase 2: commit — write config, then append trail entries.
     entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]

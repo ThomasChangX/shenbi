@@ -87,14 +87,19 @@ class TestRule1BypassVectors:
             update_genre_config(tmp_path, {"auditDimensions": victim}, rationale="none")
 
     def test_falsy_zero_blocked(self, tmp_path):
+        # antiAi is True in the real fixture (texture is already false there)
         _real_config(tmp_path)
         with pytest.raises(ConfigError):
-            update_genre_config(tmp_path, {"auditDimensions.texture": 0}, rationale="none")
+            update_genre_config(tmp_path, {"auditDimensions.antiAi": 0}, rationale="none")
 
     def test_snake_case_key_blocked(self, tmp_path):
-        _real_config(tmp_path)
+        # Strip camelCase first: with camel present, the snake write is a
+        # camel-wins no-op (declared merge semantics), not a bypass.
+        cfg = _real_config(tmp_path)
+        del cfg["auditDimensions"]
+        (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
         with pytest.raises(ConfigError):
-            update_genre_config(tmp_path, {"audit_dimensions.texture": False}, rationale="none")
+            update_genre_config(tmp_path, {"audit_dimensions.antiAi": False}, rationale="none")
 
     def test_malformed_scalar_change_blocked(self, tmp_path):
         _real_config(tmp_path)
@@ -130,9 +135,28 @@ class TestTwoPhaseCommit:
         with pytest.raises(ConfigError):
             update_genre_config(
                 tmp_path,
-                {"auditDimensions.dialogue": False, "auditDimensions.texture": False},
+                {"auditDimensions.dialogue": False, "auditDimensions.antiAi": False},
                 rationale="short",
             )
         assert not (tmp_path / AUDIT_TRAIL_NAME).exists()
         cfg = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
         assert cfg["auditDimensions"]["dialogue"] is True
+        assert cfg["auditDimensions"]["antiAi"] is True
+
+
+class TestDeltaSemantics:
+    def test_whole_key_omitting_critical_blocked(self, tmp_path):
+        """audit-T1 C1: omission-shape whole-key overwrite drops critical dims."""
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions": {"dialogue": True}}, rationale="none")
+
+    def test_benign_change_with_preexisting_disabled_critical_ok(self, tmp_path):
+        """audit-T1 I1: pre-existing texture=false must not block dialogue change."""
+        _real_config(tmp_path)  # fixture has texture: false
+        update_genre_config(tmp_path, {"auditDimensions.dialogue": False}, rationale="none needed")
+
+    def test_none_rationale_is_configerror_not_typeerror(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions.antiAi": False}, rationale=None)  # type: ignore[arg-type]
