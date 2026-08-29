@@ -6,6 +6,7 @@ from shenbi.gates.shared import CHAPTER_HEADER_RE, META_BLOCK_RE
 def test_chapter_header_re_matches_contract_form() -> None:
     assert CHAPTER_HEADER_RE.match("# Chapter 1:")
     assert CHAPTER_HEADER_RE.match("# Chapter 56: 星火")
+    assert not CHAPTER_HEADER_RE.match("# Chapter 7")  # 无冒号不符契约
     assert not CHAPTER_HEADER_RE.match("## Chapter 1")  # h2 不算
     assert not CHAPTER_HEADER_RE.match("Chapter 1")  # 无 # 前缀
 

@@ -27,13 +27,17 @@ def check_product_contracts(project_dir: Path) -> list[str]:
     if progress.exists():
         try:
             data = json.loads(progress.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            violations.append("progress.json: invalid JSON")
+        except (json.JSONDecodeError, OSError):
+            violations.append("progress.json: unreadable or invalid JSON")
         else:
             if isinstance(data, dict) and set(data.keys()) <= _SCORER_SHELL_KEYS:
                 violations.append("progress.json: scorer-only shell, no progress fields (F1309)")
         ledger = project_dir / "cost" / "token-ledger.jsonl"
-        if not ledger.exists() or not ledger.read_text(encoding="utf-8").strip():
+        try:
+            ledger_empty = not ledger.exists() or not ledger.read_text(encoding="utf-8").strip()
+        except OSError:
+            ledger_empty = True
+        if ledger_empty:
             violations.append("cost/token-ledger.jsonl missing or empty (F1313)")
     if violations:
         log.warning(

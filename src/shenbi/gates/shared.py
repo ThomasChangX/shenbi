@@ -33,7 +33,7 @@ CHAPTER_WORD_CEILING = 10000
 #: normalizer (pipeline.dispatch_helper) and the gate-side check (gates.g2)
 #: — a second copy of either regex anywhere is a contract drift (z11 F1301).
 META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
-CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+", re.MULTILINE)
+CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+:", re.MULTILINE)
 CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
 
 
