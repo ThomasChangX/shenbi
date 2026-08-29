@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-30
-> **活跃 spec 数**：53
+> **活跃 spec 数**：52
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -9,12 +9,6 @@
 ---
 
 ## 执行队列
-
-### #15 · 全项目审查执行：依赖供应链（P1）
-
-- **文件**：`2026-08-14-deps-supply-chain-design.md`
-- **状态**：Design | **优先级**：🟠 High
-- **内容**：dev group 含 sentence-transformers 致降级路径测试 masking（D1-01）；Z11-01 decisions.json 无效产物
 
 ### #18 · 全项目审查执行：Fixture 真实性与测试质量（补齐 A）
 
