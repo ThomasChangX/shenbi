@@ -66,7 +66,12 @@ def check_config_coherence(
 
     # --- Check 1 & 2: floor coherence (only when a floor was supplied). ---
     if resonance_global_floor is not None:
-        if isinstance(resonance_global_floor, bool):
+        # Defensive runtime guard: untyped callers may pass str/None-like values
+        # despite the declared signature (pyright: the isinstance is load-bearing).
+        if isinstance(resonance_global_floor, bool) or not isinstance(
+            resonance_global_floor,
+            (int, float),  # pyright: ignore[reportUnnecessaryIsInstance]
+        ):
             issues.append(
                 f"G0.cc.floor_invalid_type:resonance_global_floor="
                 f"{resonance_global_floor!r} ({type(resonance_global_floor).__name__}) — "
