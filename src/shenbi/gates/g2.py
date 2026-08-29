@@ -337,9 +337,7 @@ def gate_G2(
         # Scope: novel-output project chapters only — test-tier round chapters
         # (PRE/POST check-block shape) are a different artifact contract.
         if file_type == "chapter":
-            import re as _re
-
-            pm = _re.search(r"novel-output/([^/]+)/", str(p))
+            pm = re.search(r"novel-output/([^/]+)/", str(p))
             if pm is None:
                 checks.append(
                     {"id": "G2.13", "file": fp, "s": "SKIP", "r": "not a novel-output chapter"}
