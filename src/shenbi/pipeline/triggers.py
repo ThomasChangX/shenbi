@@ -51,6 +51,7 @@ from typing import Any
 
 from shenbi.logging import get_logger
 
+from shenbi.config.config_coherence import rollback_genre_config
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
@@ -78,7 +79,6 @@ AUDIT_DRIFT_PATH = "truth/audit_drift.md"
 # Re-imported from _shared: read_volume_boundaries (used internally by
 # is_volume_boundary). Volume-map parsing domain was extracted to _shared to
 # break the Cluster 1 cycle (context_assemble -> triggers back-edge).
-from shenbi.config.config_coherence import rollback_genre_config
 from shenbi.pipeline._shared import read_volume_boundaries
 
 

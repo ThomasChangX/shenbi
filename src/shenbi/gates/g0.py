@@ -682,7 +682,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                         # loudly (floor_invalid_type) instead of silent skip.
                         floor = raw_floor  # pyright: ignore[reportAssignmentType]
                 except (OSError, json.JSONDecodeError):
-                    log.debug("g0_state_read_failed_for_floor", path=str(state_path))
+                    log.warning("g0_state_read_failed_for_floor", path=str(state_path))
             cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
             for idx, issue in enumerate(cc_issues):
                 check_id = f"G0.cc.{idx + 1}"

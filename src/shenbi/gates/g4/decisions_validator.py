@@ -77,9 +77,9 @@ def g4_decisions(
     """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules.
 
     Only processes *.json files — non-JSON files (e.g., the main .md artifact
-    passed by composite checkers) are silently skipped. This prevents crashes
-    when g4_decisions is used as the decisions_checker in a composite that
-    receives all skill outputs including markdown.
+    passed by composite checkers) are silently skipped. Only files ending in
+    ``-decisions.json`` are DecisionsDoc material; everything else (including
+    non-decisions .json) routes to the structural checker instead.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []

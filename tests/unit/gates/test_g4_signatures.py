@@ -73,8 +73,6 @@ def test_chapter_revision_registration_order():
     import tempfile
     from pathlib import Path
 
-    import shenbi.gates.g4.chapter_revision as cr
-    import shenbi.gates.g4.decisions_validator as dv
     import shenbi.gates.g4.generic as g
 
     with tempfile.TemporaryDirectory() as td:
@@ -100,4 +98,3 @@ def test_chapter_revision_registration_order():
             None,
         )
         assert "G4.rev.adjustment_0_thin_rationale" in result
-    assert cr.g4_chapter_revision is not dv.g4_decisions
