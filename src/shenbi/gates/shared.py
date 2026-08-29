@@ -350,3 +350,23 @@ def count_transition_words(content: str) -> int:
     for w in TRANSITION_SPECIFIC:
         tc += content.count(w)
     return max(tc, 0)
+
+
+def load_chapter_exemptions() -> dict[str, set[int]]:
+    """Read-only load of z11 chapter META exemptions (SDD #20 R1b, F1302).
+
+    Returns {project: {chapter}}; a missing or malformed file yields {} so the
+    G2.13 check fails closed on real violations instead of crashing.
+    """
+    path = PROJECT / "docs" / "framework" / "z11-chapter-exemptions.json"
+    try:
+        data = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    out: dict[str, set[int]] = {}
+    for e in data.get("exemptions", []):
+        try:
+            out.setdefault(str(e.get("project", "")), set()).add(int(e.get("chapter", -1)))
+        except (TypeError, ValueError):
+            continue
+    return out

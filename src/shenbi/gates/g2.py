@@ -28,7 +28,12 @@ from shenbi.gates.shared import (
     yload,
 )
 
-from shenbi.gates.shared import META_BLOCK_RE as _META_RE  # 单源别名（z11 F1301），禁止本地重定义
+from shenbi.gates.shared import (  # 单源（z11 F1301），禁止本地重定义
+    CHAPTER_HEADER_RE,
+    CHAPTER_NUM_RE,
+    META_BLOCK_RE as _META_RE,
+    load_chapter_exemptions,
+)
 
 
 def gate_G2(
@@ -327,6 +332,36 @@ def gate_G2(
         if meta_failures:
             for f in meta_failures:
                 checks.append({"id": "G2.meta_ratio", "file": fp, "s": "WARN", "r": f})
+
+        # G2.13 — chapter contract: header + META-or-exemption (z11 F1301/F1302).
+        # Scope: novel-output project chapters only — test-tier round chapters
+        # (PRE/POST check-block shape) are a different artifact contract.
+        if file_type == "chapter":
+            import re as _re
+
+            pm = _re.search(r"novel-output/([^/]+)/", str(p))
+            if pm is None:
+                checks.append(
+                    {"id": "G2.13", "file": fp, "s": "SKIP", "r": "not a novel-output chapter"}
+                )
+            else:
+                project = pm.group(1)
+                m = CHAPTER_NUM_RE.match(p.stem)
+                first_line = content.lstrip().split("\n", 1)[0]
+                header_ok = bool(CHAPTER_HEADER_RE.match(first_line)) if m else True
+                meta_ok = bool(_META_RE.search(content)) or (
+                    m is not None
+                    and int(m.group(1)) in load_chapter_exemptions().get(project, set())
+                )
+                if header_ok and meta_ok:
+                    checks.append({"id": "G2.13", "file": fp, "s": "PASS"})
+                else:
+                    reasons = []
+                    if not header_ok:
+                        reasons.append("missing '# Chapter N:' header")
+                    if not meta_ok:
+                        reasons.append("missing META block (not exempted)")
+                    mf.append({"id": "G2.13", "file": fp, "s": "FAIL", "r": "; ".join(reasons)})
 
     if mf:
         return fail(
