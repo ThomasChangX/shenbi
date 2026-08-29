@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-30 · 全部可执行面被活跃 spec #54（audit-fixture-authenticity-fix，P0）显式吸收；R3-F703=weak-assertions F705；P2 大部已修或被认领。残余未认领子项：R3-F700 step_index=16 恒真空转 / R3-F701 并发无交错断言 / R3-F702 g_reconcile 规避注释——随 #54 或 weak-assertions spec 顺带处置) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 1/7） | **依赖:** 无 | **范围:** tests/fixtures + tests/tiers + calibration/ | **核心洞察:** fixtures 56% 为手写/伪造（G0.9 "真实输出"声称不符），scenario 与 fixture 大面积断链，测试质量洞（空转/植错前提/伪造基准）使 T1/T2 门禁建立在假基准上
 
 # Fixture 真实性与测试质量（补齐 A）
