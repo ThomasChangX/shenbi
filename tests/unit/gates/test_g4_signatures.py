@@ -67,18 +67,15 @@ def test_chapter_revision_registration_order():
     composite (callable that is not g4_chapter_revision itself) and that
     g4_decisions is not in the existing slot.
     """
-    import shenbi.gates.g4.chapter_revision as cr
-    import shenbi.gates.g4.decisions_validator as dv
-    import shenbi.gates.g4.generic as g
-
-    body = g.gate_G4.__code__
-    # gate_G4 builds the dict inline; reconstruct by calling with chapter-revision
-    # and confirming BOTH checkers ran (composite), via the routing behavior:
-    # a thin-rationale revision sidecar must produce G4.rev findings (proving the
-    # dedicated checker sits in the existing slot, not the decisions slot).
+    # Behavioral routing assertion: a thin-rationale revision sidecar must
+    # produce G4.rev findings via gate_G4 (dedicated checker in existing slot).
     import json as _json
     import tempfile
     from pathlib import Path
+
+    import shenbi.gates.g4.chapter_revision as cr
+    import shenbi.gates.g4.decisions_validator as dv
+    import shenbi.gates.g4.generic as g
 
     with tempfile.TemporaryDirectory() as td:
         td_path = Path(td)

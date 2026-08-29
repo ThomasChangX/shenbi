@@ -336,7 +336,7 @@ def gate_G4(
             # revision sidecars carry stricter G4.rev semantics than DecisionsDoc
             # (empty_adjustments_no_skip / >=20-char rationale) — route them to
             # the dedicated checker, not the generic decisions slot.
-            lambda fp: fp.endswith("-decisions.json") and "revision" not in fp,
+            lambda fp: fp.endswith("-decisions.json") and "revision" not in Path(fp).name,
         ),
         "shenbi-short-drafting": g4_decisions,
     }

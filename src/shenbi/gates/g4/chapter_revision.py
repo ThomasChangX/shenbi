@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 
+from shenbi.gates.shared import resolve_input_path
 from shenbi.status import GateStatus
 
 # Minimum rationale length per adjustment entry (the Adjustment model requires
@@ -39,8 +40,6 @@ def g4_chapter_revision(
         ``make_composite_checker`` expects via ``json.loads(existing_result)``.
     """
     issues: list[str] = []
-
-    from shenbi.gates.shared import resolve_input_path
 
     for fp in fps or []:
         p = resolve_input_path(fp, rd)
