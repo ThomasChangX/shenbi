@@ -48,7 +48,7 @@ class StructuredChapterRepresentation:
 
 
 # --- META stripping ---
-_META_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+from shenbi.gates.shared import META_BLOCK_RE as _META_RE  # 单源别名（z11 F1301）
 
 
 def extract_prose(text: str) -> str:

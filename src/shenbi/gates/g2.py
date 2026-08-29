@@ -28,7 +28,7 @@ from shenbi.gates.shared import (
     yload,
 )
 
-_META_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+from shenbi.gates.shared import META_BLOCK_RE as _META_RE  # 单源别名（z11 F1301），禁止本地重定义
 
 
 def gate_G2(

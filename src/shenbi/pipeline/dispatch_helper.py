@@ -1035,7 +1035,21 @@ def _check_content_size_guard(
 
 #: Regex for the chapter-number in an audit filename like
 #: ``chapter-32-foreshadowing.md`` or a prose file ``chapter-32.md``.
-_CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
+from shenbi.gates.shared import CHAPTER_NUM_RE as _CHAPTER_NUM_RE  # 单源（z11 F1301）
+from shenbi.gates.shared import CHAPTER_HEADER_RE
+
+
+def ensure_chapter_header(content: str, chapter_num: int) -> str:
+    """Insert the contract ``# Chapter N:`` header if missing. Idempotent.
+
+    z11 SDD #20 R1a (F1301): the chapter-file header is a machine-insertable
+    contract line; it is normalized on the write path (pre snapshot) and
+    enforced gate-side by G2.13 — both share ``CHAPTER_HEADER_RE``.
+    """
+    first_line = content.lstrip().split("\n", 1)[0]
+    if CHAPTER_HEADER_RE.match(first_line):
+        return content
+    return f"# Chapter {chapter_num}:\n\n" + content
 
 
 def _is_audit_file(name: str) -> bool:
@@ -1301,6 +1315,12 @@ def _write_parsed_outputs(
                 key=key_field,
             )
         else:
+            # z11 R1a (F1301): normalize the contract header on the chapter
+            # write path (before the post-snapshot, so write-audit sees the
+            # final contract-compliant content).
+            _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
+            if _m and not _is_audit_file(Path(rel_path).name):
+                content = ensure_chapter_header(content, int(_m.group(1)))
             safe_write(full_path, content)
             written.append(rel_path)
             log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))

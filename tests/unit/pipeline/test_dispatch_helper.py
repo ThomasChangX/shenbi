@@ -918,3 +918,32 @@ class TestRetryWriteConfirmation:
         feedback = build_retry_feedback(err)
         assert "CRITICAL" in feedback
         assert "write access" in feedback
+
+
+# --- z11 R1a: chapter-contract header normalization (SDD #20, F1301) ---
+
+
+def test_ensure_chapter_header_inserts_when_missing() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "第一段正文。\n第二段。"
+    out = ensure_chapter_header(body, 7)
+    assert out == "# Chapter 7:\n\n第一段正文。\n第二段。"
+
+
+def test_ensure_chapter_header_idempotent_when_present() -> None:
+    from shenbi.pipeline.dispatch_helper import ensure_chapter_header
+
+    body = "# Chapter 7: 标题\n\n正文。"
+    assert ensure_chapter_header(body, 7) == body
+
+
+def test_write_parsed_outputs_normalizes_chapter_header(tmp_path: Path) -> None:
+    """Walk the real _write_parsed_outputs write path; headerless chapter-3.md gets normalized."""
+    from shenbi.pipeline import dispatch_helper as dh
+
+    resp = "### FILE: chapters/chapter-3.md\n正文，无头。\n"
+    paths = ["chapters/chapter-3.md"]
+    dh._write_parsed_outputs(resp, paths, tmp_path, skill="shenbi-chapter-drafting")
+    text = (tmp_path / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
+    assert text.startswith("# Chapter 3:")

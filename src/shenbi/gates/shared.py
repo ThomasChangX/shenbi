@@ -29,6 +29,13 @@ FIXTURES = TESTS / "fixtures"
 CHAPTER_WORD_FLOOR = 3000
 CHAPTER_WORD_CEILING = 10000
 
+#: Chapter-file contract anchors. SINGLE SOURCE for both the write-path
+#: normalizer (pipeline.dispatch_helper) and the gate-side check (gates.g2)
+#: — a second copy of either regex anywhere is a contract drift (z11 F1301).
+META_BLOCK_RE = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+CHAPTER_HEADER_RE = re.compile(r"^#\s+Chapter\s+\d+", re.MULTILINE)
+CHAPTER_NUM_RE = re.compile(r"chapter-(\d+)")
+
 
 def bak_path(fp: str | Path) -> str:
     """Return the ``.bak`` sibling path for ``fp``.
