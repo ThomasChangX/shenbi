@@ -127,3 +127,9 @@ class TestSCRIntegration:
         # Second call should hit cache
         scr2 = extract_scr(tmp_path, 3)
         assert scr1.extracted_at == scr2.extracted_at  # Same timestamp = cached
+
+
+def test_extract_prose_strips_contract_header_and_title() -> None:
+    """z11 R1c: contract header + original title line both stripped from prose."""
+    text = "# Chapter 7:\n\n# 第7章 试炼\n\n正文开始。"
+    assert extract_prose(text) == "正文开始。"

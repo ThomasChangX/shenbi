@@ -54,8 +54,9 @@ from shenbi.gates.shared import META_BLOCK_RE as _META_RE  # 单源别名（z11 
 def extract_prose(text: str) -> str:
     """Strip META blocks and title line from chapter text."""
     text = _META_RE.sub("", text)
-    # Remove H1 title line
-    text = re.sub(r"^#\s+.+?\n", "", text, count=1)
+    # Remove leading H1 lines: the contract header (`# Chapter N:`) plus the
+    # chapter title line that follows it (z11 R1c — both are non-prose).
+    text = re.sub(r"^(#\s+.+?\n\s*)+", "", text)
     return text.strip()
 
 
