@@ -192,7 +192,7 @@ class TestTwoPhaseCommit:
 
 - [ ] **Step 6: 跑测试确认失败**
 
-`uv run pytest tests/unit/config/test_config_coherence.py -q` → 新增用例 FAIL（整键/falsy/snake 未拦截）
+`uv run pytest tests/unit/config/test_config_coherence.py -q` → 红相用例：4 个 bypass 向量 + `test_mixed_batch_leaves_no_phantom_trail` + Rule 2 的 float/str 拦截。注：`test_valid_disable_with_rationale_passes`（dotted-key texture: False + 长 rationale）与 `test_float_above_trigger_ok`（60.0）今日已绿——回归锚，非红相。
 
 - [ ] **Step 7: 重写 update_genre_config 校验逻辑**
 
@@ -207,7 +207,6 @@ def _touches_audit_dimensions(key: str) -> bool:
 
 
 def _validate_changes(
-    old_config: dict[str, Any],
     staged: dict[str, Any],
     changes: dict[str, Any],
     rationale: str,
@@ -254,7 +253,7 @@ def _validate_changes(
     staged = copy.deepcopy(config)
     for key, new_value in changes.items():
         _set_nested(staged, key, new_value)
-    _validate_changes(config, staged, changes, rationale)
+    _validate_changes(staged, changes, rationale)
 
     # Phase 2: commit — write config, then append trail entries.
     entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]
@@ -350,7 +349,7 @@ class TestGovernanceReadSide:
 
 - [ ] **Step 2: 跑测试确认失败**
 
-`uv run pytest tests/unit/gates/test_g0_config_coherence.py -q --no-cov` → 新增用例 FAIL（现状：`texture: 0` 不标记、标量 AttributeError、`"50"` 比较行为未定义）
+`uv run pytest tests/unit/gates/test_g0_config_coherence.py -q --no-cov` → 真红用例：`test_scalar_audit_dimensions_loud_fail_not_crash`（AttributeError）、`test_falsy_zero_flagged`、`test_truthy_one_flagged`、`test_snake_case_flagged`、`test_string_floor_flagged_not_crash`（TypeError）。注：`test_float_floor_below_trigger_flagged`（59.5）与 `test_missing_critical_not_flagged` 今日已绿——它们是回归锚，非红相（勿误判）。
 
 - [ ] **Step 3: 改 checker**
 
@@ -397,7 +396,7 @@ class TestGovernanceReadSide:
             ...既有 threshold_mismatch / floor_too_low 两检查不变...
 ```
 
-签名放宽为 `resonance_global_floor: int | float | str | None = None`（守卫在体内；mypy 兼容用 `float | None` + `# type: ignore` 不可取，取 `int | float | None` 并在 g0 调用点保证类型——测试用 `type: ignore[arg-type]` 传入 str）。
+签名保持 `resonance_global_floor: int | float | None = None`（str 场景仅在防御性守卫测试中出现，测试侧以 `# type: ignore[arg-type]` 传入；mypy 只跑 src/，basedpyright 认 type: ignore）。
 
 - [ ] **Step 4: g0.py 调用点补线（floor 死线）**
 
@@ -477,6 +476,23 @@ _CRITICAL_GENRE_DIMS = frozenset(
 
 `uv run pytest tests/unit/gates/test_g0_config_coherence.py tests/unit/gates/test_g0.py tests/unit/pipeline/test_audit_layer.py tests/unit/config/ -q --no-cov` → PASS（存量 G0/audit_layer 用例无回归）
 
+g0.py floor 补线另加直测（`tests/unit/gates/test_g0.py` 追加，沿用该文件既有 tmp 项目构造方式）：
+
+```python
+def test_g0_cc_reads_state_floor(tmp_path, ...):
+    """g0.py cc loop passes PipelineState floor (was dead — spec 13 R1 read side)."""
+    proj = tmp_path / "novel-output" / "p1"
+    proj.mkdir(parents=True)
+    (proj / "genre-config.json").write_text("{}", encoding="utf-8")
+    (proj / "pipeline-state.json").write_text(
+        json.dumps({"config": {"resonance_global_floor": 55}}), encoding="utf-8"
+    )
+    ...调用 gate_G0 / 直接调 check 逻辑入口（按该文件既有模式）...
+    assert 某处出现 "floor_too_low:resonance_global_floor=55"
+```
+
+（精确断言形态按 test_g0.py 既有 gate_G0 调用模式落位；红相 = 修 g0.py 前无该 issue。）
+
 - [ ] **Step 9: Commit**
 
 ```bash
@@ -499,7 +515,7 @@ git commit -m "fix: G0 read-side unified semantics — malformed loud-fail, is-n
 
 - [ ] **Step 1: 写失败测试**
 
-`tests/unit/gates/g4/test_composite_partition.py`（新文件）：
+`tests/unit/gates/g4/test_composite_partition.py`（新文件；sidecar 用**今日可过 DecisionsDoc 的形态**（含 chapter: 1），路由断言锚定 per-file check 条目而非顶层 result 名——`g4_decisions([])` 的 SKIP 也含 "G4-decisions" 字样，顶层断言是空洞的）：
 
 ```python
 """Filename-partition semantics of make_composite_checker (spec 13 R4a')."""
@@ -507,39 +523,63 @@ import json
 
 from shenbi.gates.g4.decisions_validator import make_composite_checker
 from shenbi.gates.g4.genre_config import g4_genre_config
+from shenbi.gates.shared import passed
 
 
-def _result_has(result: str, needle: str) -> bool:
-    return needle in result
+def _structural_stub(fps, rd, project_dir, repo_root):
+    """Records what the structural slot received; returns minimal PASS."""
+    import json as _json
+
+    from shenbi.gates.shared import passed as _p
+
+    seen = list(fps)
+    return _p(f"stub-structural:{seen}")  # name carries the observed fps
+
+
+_VALID_SIDECAR = {
+    "$schema": "shenbi-decisions-v1",
+    "skill": "shenbi-genre-config",
+    "chapter": 1,
+    "selections": [],
+    "adjustments": [],
+    "produced_at": "2026-08-29T00:00:00",
+}
 
 
 class TestFilenamePartition:
-    def test_genre_config_json_routes_to_structural(self, tmp_path):
+    def test_non_decisions_json_routes_to_structural(self, tmp_path):
         (tmp_path / "genre-config.json").write_text(
             json.dumps({"version": "1.0", "auditDimensions": {"texture": True}}),
             encoding="utf-8",
         )
-        composite = make_composite_checker(g4_genre_config, _decisions_stub_ok(tmp_path))
+        from shenbi.gates.g4.decisions_validator import g4_decisions
+
+        composite = make_composite_checker(_structural_stub, g4_decisions)
         result = composite(["genre-config.json"], str(tmp_path), None, None)
-        assert _result_has(result, "G4.gc")  # reached structural checker
+        data = json.loads(result)
+        # structural stub saw the file; decisions checker saw none (SKIP not FAIL)
+        assert any("genre-config.json" in c.get("id", "") for c in data["checks"])
+        assert data["status"] == "PASS"
 
     def test_decisions_json_routes_to_decisions_checker(self, tmp_path):
-        sidecar = {
-            "$schema": "shenbi-decisions-v1",
-            "skill": "shenbi-genre-config",
-            "chapter": None,
-            "selections": [],
-            "adjustments": [],
-            "produced_at": "2026-08-29T00:00:00",
-        }
         (tmp_path / "genre-config-decisions.json").write_text(
-            json.dumps(sidecar), encoding="utf-8"
+            json.dumps(_VALID_SIDECAR), encoding="utf-8"
         )
-        structural_stub = _structural_stub()
-        composite = make_composite_checker(structural_stub, _real_decisions())
+        from shenbi.gates.g4.decisions_validator import g4_decisions
+
+        composite = make_composite_checker(_structural_stub, g4_decisions)
         result = composite(["genre-config-decisions.json"], str(tmp_path), None, None)
-        assert _result_has(result, "G4-decisions")  # reached decisions checker
+        data = json.loads(result)
+        # decisions checker validated the sidecar (per-file PASS entry)
+        assert any(
+            c.get("file") == "genre-config-decisions.json" and c.get("s") == "PASS"
+            for c in data["checks"]
+        )
+        # structural stub saw nothing
+        assert all("genre-config-decisions" not in c.get("id", "") for c in data["checks"])
 ```
+
+（Task 4 落地后 sidecar 的 chapter 可为 null；本测试用 chapter: 1 与 Task 4 解耦。）
 
 （stub checker 以本地小函数实现：structural stub 断言收到的 fps、decisions 用真 `g4_decisions`；具体 stub 代码在实现时按 `G4CheckerFn` 四参签名写，返回 `passed(...)`。）
 
@@ -576,7 +616,7 @@ def test_chapter_revision_registration_order():
         decisions_result = decisions_checker(decisions_files, rd, project_dir, repo_root)
 ```
 
-`g4_decisions` 的 `.json` 跳过改为 `-decisions.json` 匹配（`if not fp.endswith("-decisions.json"): continue`），注释同步。`generic.py:333` 改 `make_composite_checker(g4_chapter_revision, g4_decisions)`；`:310` 改 `make_composite_checker(g4_genre_config, g4_decisions)`。逐一核对其余 4 个 composite（chapter-drafting/planning/context-composing/state-settling）现存 G4 调用文件集（grep 调用方 + triggers/chapter_loop 传参）确认仅 `.md` + `*-decisions.json`——记录到 spec-deviations。
+`g4_decisions` 的 `.json` 跳过改为 `-decisions.json` 匹配（`if not fp.endswith("-decisions.json"): continue`），注释同步。`generic.py:333` 改 `make_composite_checker(g4_chapter_revision, g4_decisions)`；`:310` 改 `make_composite_checker(g4_genre_config, g4_decisions)`。**显式行为变更注记**：旧分区把非-.md/.json 的 "other" 文件送双 checker，新分区只送 existing/structural checker（decisions checker 不再看 other）——记入 spec-deviations 并纳入下述消费者审计。逐一核对其余 4 个 composite（chapter-drafting/planning/context-composing/state-settling）现存 G4 调用文件集（grep 调用方 + triggers/chapter_loop 传参）确认仅 `.md` + `*-decisions.json`、无 other 文件——记录到 spec-deviations。
 
 - [ ] **Step 4: 跑 g4 全量**
 
@@ -687,6 +727,10 @@ from shenbi.config.config_coherence import govern_genre_config_change
 class TestGovernGenreConfigChange:
     def _pair(self, tmp_path):
         cfg = _real_config(tmp_path)  # Task 1 的 helper
+        # 真实 fixture 的 texture 本为 false（含 rationale 的真实禁用案例）；
+        # 治理测试需要 enabled→disabled 方向，先翻 True（spec R2 fixture 注记）
+        cfg["auditDimensions"]["texture"] = True
+        (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
         return cfg, copy.deepcopy(cfg)
 
     def test_disable_critical_without_rationale_rejected(self, tmp_path):
@@ -800,7 +844,7 @@ class TestGenreConfigGovernanceWiring:
         monkeypatch.setattr("shenbi.pipeline.triggers.dispatch_skill", fake_dispatch)
         monkeypatch.setattr(
             "shenbi.pipeline.triggers.run_gate_g4",
-            lambda *a, **k: json.dumps({"status": "PASS", "checks": []}),
+            lambda *a, **k: {"status": "PASS", "checks": []},  # dict（run_gate_g4 返回 dict）
         )
         # build a TriggerResult whose only step is the genre_config_update step
         result = _genre_config_trigger_result()  # helper per既有构造
@@ -813,7 +857,32 @@ class TestGenreConfigGovernanceWiring:
         assert now["auditDimensions"]["texture"] is True
         assert not (tmp_path / "config-change-log.jsonl").exists()
 
-    def test_sidecar_missing_rolls_back(self, ...):  # 同构：dispatch 后无 genre-config-decisions.json → G4 composite FAIL 分支或 governance rationale 缺失 → 回滚 + last_trigger_failure
+    def test_sidecar_missing_rolls_back(self, tmp_path, monkeypatch):
+        """无 sidecar → rationale 空 → governance ConfigError → 回滚 + last_trigger_failure。"""
+        cfg = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        cfg["auditDimensions"]["texture"] = True
+        (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
+        bad = copy.deepcopy(cfg)
+        bad["auditDimensions"]["texture"] = False
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(
+                json.dumps(bad), encoding="utf-8"
+            )
+            return SimpleNamespace(success=True)
+
+        monkeypatch.setattr("shenbi.pipeline.triggers.dispatch_skill", fake_dispatch)
+        monkeypatch.setattr(
+            "shenbi.pipeline.triggers.run_gate_g4",
+            lambda *a, **k: {"status": "PASS", "checks": []},
+        )
+        result = _genre_config_trigger_result()
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(state, tmp_path, chapter=6, result=result)
+        assert ok is False
+        now = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
+        assert now["auditDimensions"]["texture"] is True
+        assert not (tmp_path / "config-change-log.jsonl").exists()
 ```
 
 - [ ] **Step 6: 确认失败** → FAIL（现状无治理钩子，ok 可能为 True 或失败但无回滚）
@@ -838,6 +907,8 @@ class TestGenreConfigGovernanceWiring:
 
         g4_files = [g4_file] if g4_file else []
         if is_gc_update:
+            # 固定文件名，无需 resolve_contract_path（记 deviation：spec 的「同 output_path 待遇」
+            # 对该无 token 字面名等价直传）
             g4_files.append("genre-config-decisions.json")
         g4 = run_gate_g4(step.skill, g4_files, project_dir)
         if not _gate_passed(g4):
@@ -878,6 +949,9 @@ def _rollback_genre_config(project_dir: Path, snapshot: str | None) -> None:
     gc_path = project_dir / "genre-config.json"
     if snapshot is not None:
         safe_write(gc_path, snapshot)
+    else:
+        # dispatch 前无配置：被拒的新配置也不得留盘（R4c 不变量）
+        gc_path.unlink(missing_ok=True)
     for stale in project_dir.glob("genre-config-decisions.json"):
         stale.unlink()
     for bak in project_dir.glob("genre-config.json.bak.*"):
@@ -891,6 +965,8 @@ def _read_genre_config_rationale(project_dir: Path) -> str:
     try:
         data = json.loads(sidecar.read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError):
+        return ""
+    if not isinstance(data, dict):
         return ""
     parts = [
         s.get("rationale") or ""
