@@ -73,7 +73,7 @@ def test_chapter_revision_registration_order():
     import tempfile
     from pathlib import Path
 
-    import shenbi.gates.g4.generic as g
+    from shenbi.gates.g4 import generic as g
 
     with tempfile.TemporaryDirectory() as td:
         td_path = Path(td)

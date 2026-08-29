@@ -234,3 +234,12 @@ class TestGovernGenreConfigChange:
         new["updated"] = "2026-08-30"
         govern_genre_config_change(tmp_path, old, new, rationale="routine date bump")
         assert not (tmp_path / AUDIT_TRAIL_NAME).exists()
+
+
+class TestSetNestedNewObjectCreation:
+    def test_dotted_key_creates_new_nested_object(self, tmp_path):
+        """PR #74 Copilot: absent intermediate creates a dict; only scalar clobbers reject."""
+        _real_config(tmp_path)
+        update_genre_config(tmp_path, {"newSection.sub.key": True}, rationale="none")
+        cfg = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
+        assert cfg["newSection"]["sub"]["key"] is True

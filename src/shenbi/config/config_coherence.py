@@ -72,7 +72,10 @@ def _set_nested(config: dict[str, Any], dotted_key: str, value: Any) -> None:
     parts = dotted_key.split(".")
     for part in parts[:-1]:
         nxt: Any = cur.get(part)
-        if not isinstance(nxt, dict):
+        if nxt is None:
+            nxt = {}
+            cur[part] = nxt
+        elif not isinstance(nxt, dict):
             raise ConfigError(
                 f"cannot_set:{dotted_key} -- intermediate segment '{part}' is not "
                 f"an object; refusing scalar-clobbering write"
