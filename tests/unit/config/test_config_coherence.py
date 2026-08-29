@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 
@@ -10,6 +11,7 @@ import pytest
 from shenbi.config.config_coherence import (
     AUDIT_TRAIL_NAME,
     ConfigError,
+    govern_genre_config_change,
     update_genre_config,
 )
 
@@ -185,3 +187,50 @@ class TestAuditT1EdgeFixes:
         _real_config(tmp_path)
         with pytest.raises(ConfigError):
             update_genre_config(tmp_path, {"auditDimensions.antiAi": False}, rationale=" " * 60)
+
+
+class TestGovernGenreConfigChange:
+    def _pair(self, tmp_path):
+        cfg = _real_config(tmp_path)
+        # 真实 fixture 的 texture 本为 false；治理测试需要 enabled→disabled 方向
+        cfg["auditDimensions"]["texture"] = True
+        (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
+        return cfg, copy.deepcopy(cfg)
+
+    def test_disable_critical_without_rationale_rejected(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        new["auditDimensions"]["texture"] = False
+        with pytest.raises(ConfigError):
+            govern_genre_config_change(tmp_path, old, new, rationale="short")
+
+    def test_delete_critical_key_rejected(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        del new["auditDimensions"]["texture"]
+        with pytest.raises(ConfigError):
+            govern_genre_config_change(tmp_path, old, new, rationale="short")
+
+    def test_old_missing_new_false_rejected(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        del old["auditDimensions"]["antiAi"]
+        new["auditDimensions"]["antiAi"] = False
+        with pytest.raises(ConfigError):
+            govern_genre_config_change(tmp_path, old, new, rationale="short")
+
+    def test_rationale_over_500_rejected(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        new["auditDimensions"]["texture"] = False
+        with pytest.raises(ConfigError):
+            govern_genre_config_change(tmp_path, old, new, rationale="y" * 501)
+
+    def test_valid_change_appends_trail(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        new["auditDimensions"]["texture"] = False
+        govern_genre_config_change(tmp_path, old, new, rationale=_LONG)
+        trail = (tmp_path / AUDIT_TRAIL_NAME).read_text(encoding="utf-8")
+        assert '"key": "auditDimensions.texture"' in trail
+
+    def test_no_dim_change_no_trail(self, tmp_path):
+        old, new = self._pair(tmp_path)
+        new["updated"] = "2026-08-30"
+        govern_genre_config_change(tmp_path, old, new, rationale="routine date bump")
+        assert not (tmp_path / AUDIT_TRAIL_NAME).exists()

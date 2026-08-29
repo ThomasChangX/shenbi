@@ -209,3 +209,68 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
             new=new_value,
             rationale=rationale,
         )
+
+
+_TRAIL_RATIONALE_MAX_CHARS = 500
+
+
+def govern_genre_config_change(
+    project_dir: Path,
+    old_config: dict[str, Any],
+    new_config: dict[str, Any],
+    rationale: str,
+) -> None:
+    """Govern a whole-file genre-config overwrite (production update path).
+
+    Compares resolved audit dimensions old vs new; any critical dimension
+    disabled or deleted requires a >=RATIONALE_MIN_CHARS rationale (F635/F643).
+    Appends one trail entry per governed dimension change on success. Raises
+    ConfigError with no side effects on violation (two-phase, F614).
+    """
+    rationale = str(rationale or "")
+    if len(rationale) > _TRAIL_RATIONALE_MAX_CHARS:
+        raise ConfigError(
+            f"rationale exceeds {_TRAIL_RATIONALE_MAX_CHARS} chars; produce one "
+            f"merged 50-100 char rationale instead"
+        )
+    old_dims, _old_bad = resolve_audit_dimensions(old_config)
+    new_dims, new_bad = resolve_audit_dimensions(new_config)
+    if new_bad:
+        raise ConfigError(
+            "auditDimensions must be an object mapping dimension -> bool; "
+            "refusing ungoverned overwrite."
+        )
+    changed: list[tuple[str, Any, Any]] = []
+    for dim in AUDIT_SAFETY_MATRIX:
+        if not is_critical_audit_dimension(dim):
+            continue
+        # Diff semantics (spec R2): a deleted critical key counts as a disable
+        # attempt. Old side uses the runtime rule (missing = enabled); new side
+        # treats missing as disabled. This is a deliberate semantics split:
+        # the diff looks at explicit removal, the runtime at final protection.
+        new_v = new_dims.get(dim, False)
+        old_v = old_dims.get(dim, True)
+        if new_v is not True and old_v is True:
+            if len(rationale.strip()) < RATIONALE_MIN_CHARS:
+                raise ConfigError(
+                    f"Cannot disable critical audit '{dim}' without "
+                    f">= {RATIONALE_MIN_CHARS} char rationale explaining the "
+                    f"alternative detection mechanism."
+                )
+            changed.append((f"auditDimensions.{dim}", old_v, new_v))
+    for key, old_v, new_v in changed:
+        _append_audit_trail(project_dir, key, old_v, new_v, rationale)
+
+
+def rollback_genre_config(project_dir: Path, snapshot: str | None) -> None:
+    """Restore the pre-dispatch config; remove stale sidecar/bak artifacts (spec 13 R4c)."""
+    gc_path = project_dir / "genre-config.json"
+    if snapshot is not None:
+        safe_write(gc_path, snapshot)
+    else:
+        # No pre-existing config: a rejected new config must not stay on disk either.
+        gc_path.unlink(missing_ok=True)
+    for stale in project_dir.glob("genre-config-decisions.json"):
+        stale.unlink()
+    for bak in project_dir.glob("genre-config.json.bak.*"):
+        bak.unlink()

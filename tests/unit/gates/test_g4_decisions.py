@@ -392,3 +392,24 @@ class TestG4CompositeFilePartitioning:
         assert not any(fp.endswith(".json") for fp in received), (
             f".json leaked to structural checker: {received}"
         )
+
+
+def test_decisions_doc_chapter_optional():
+    from shenbi.contracts.schemas.decisions import DecisionsDoc
+
+    doc = DecisionsDoc.model_validate(
+        {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-genre-config",
+            "selections": [
+                {
+                    "target": "auditDimensions.texture",
+                    "selected": ["disabled"],
+                    "basis": "manual_override",
+                    "rationale": "替代检测机制：每卷手动感官密度复查，由人工按 checklist 执行",
+                }
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+    )
+    assert doc.chapter is None

@@ -55,6 +55,7 @@ concepts:
   - {name: chapters/chapter-N-revision-decisions.json, kind: decisions}  # revision decisions
   - {name: plans/chapter-N-plan-decisions.json, kind: decisions}    # plan decisions sidecar
   - {name: context/market-radar-decisions.json, kind: decisions}        # market-radar decisions
+  - {name: genre-config-decisions.json, kind: decisions}  # genre-config sidecar (spec 13)
   - {name: truth/state-settling-decisions.json, kind: decisions}          # state-settling decisions
   # style
   - {name: style/style_profile.md, kind: style}
