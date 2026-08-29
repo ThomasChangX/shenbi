@@ -18,6 +18,7 @@ from __future__ import annotations
 
 import copy
 import json
+import math
 import threading
 from datetime import UTC, datetime
 from pathlib import Path
@@ -70,7 +71,13 @@ def _set_nested(config: dict[str, Any], dotted_key: str, value: Any) -> None:
     cur = config
     parts = dotted_key.split(".")
     for part in parts[:-1]:
-        cur = cur.setdefault(part, {})
+        nxt: Any = cur.get(part)
+        if not isinstance(nxt, dict):
+            raise ConfigError(
+                f"cannot_set:{dotted_key} -- intermediate segment '{part}' is not "
+                f"an object; refusing scalar-clobbering write"
+            )
+        cur = nxt
     cur[parts[-1]] = value
 
 
@@ -141,7 +148,7 @@ def _validate_changes(
             if (
                 was_enabled
                 and (explicit_falsy or explicit_removal)
-                and len(rationale) < RATIONALE_MIN_CHARS
+                and len(rationale.strip()) < RATIONALE_MIN_CHARS
             ):
                 raise ConfigError(
                     f"Cannot disable critical audit '{dim}' without "
@@ -156,6 +163,8 @@ def _validate_changes(
                     f"floor_not_numeric:resonance_global_floor={new_value!r} "
                     f"(expected int/float, got {type(new_value).__name__})"
                 )
+            if math.isnan(new_value) or math.isinf(new_value):
+                raise ConfigError(f"floor_not_finite:resonance_global_floor={new_value!r}")
             if new_value < DEFAULT_THRESHOLDS.resonance_revision_trigger:
                 raise ConfigError(
                     f"floor_too_low:resonance_global_floor={new_value} < revision trigger "
@@ -177,7 +186,7 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
     non-numeric or below the revision trigger.
     """
     config = _load_config(project_dir)
-    rationale = rationale or ""  # None-safe (audit-T1 M)
+    rationale = str(rationale or "")  # None/non-str safe (audit-T1 M)
 
     # Phase 1: stage all changes on a copy and validate — no side effects yet.
     staged = copy.deepcopy(config)

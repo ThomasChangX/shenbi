@@ -160,3 +160,28 @@ class TestDeltaSemantics:
         _real_config(tmp_path)
         with pytest.raises(ConfigError):
             update_genre_config(tmp_path, {"auditDimensions.antiAi": False}, rationale=None)  # type: ignore[arg-type]
+
+
+class TestAuditT1EdgeFixes:
+    def test_nan_floor_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"resonance_global_floor": float("nan")}, rationale=_LONG)
+
+    def test_inf_floor_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"resonance_global_floor": float("inf")}, rationale=_LONG)
+
+    def test_scalar_intermediate_dotted_write_is_configerror(self, tmp_path):
+        _real_config(tmp_path)
+        (tmp_path / "genre-config.json").write_text(
+            json.dumps({"auditDimensions": False}), encoding="utf-8"
+        )
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions.texture": True}, rationale="none")
+
+    def test_whitespace_only_rationale_blocked(self, tmp_path):
+        _real_config(tmp_path)
+        with pytest.raises(ConfigError):
+            update_genre_config(tmp_path, {"auditDimensions.antiAi": False}, rationale=" " * 60)
