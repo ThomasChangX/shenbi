@@ -6,6 +6,9 @@ exit 0 = pass; exit 1 = violations found.
 
 Allowlist rationale:
   - safe_write.py: the atomic-write entry point (temp + os.replace + fsync).
+  - config/config_coherence.py: append-only JSONL audit-trail writer (incompatible
+    with safe_write's temp+replace) + genre-config snapshot-rollback unlinks
+    (spec 13 R4c; deletion has no safe_write equivalent).
   - trace/writer.py: TraceWriter does true append-only writes (.open("a") +
     per-line fsync). safe_write is temp+replace (full-file), incompatible.
   - cost/ledger.py: TokenLedger does append-only writes (.open("a") +

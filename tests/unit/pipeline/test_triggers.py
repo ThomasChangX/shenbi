@@ -692,3 +692,48 @@ class TestGenreConfigGovernanceWiring:
         assert ok is True
         trail = (tmp_path / "config-change-log.jsonl").read_text(encoding="utf-8")
         assert "auditDimensions.texture" in trail
+
+
+class TestMalformedSnapshotRollback:
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_malformed_old_snapshot_rolls_back(self, mock_disp, mock_g4, tmp_path):
+        """audit-T5 I: unparseable pre-dispatch snapshot must not escape as a crash."""
+        (tmp_path / "genre-config.json").write_text("not json at all", encoding="utf-8")
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(
+                json.dumps({"auditDimensions": {}}), encoding="utf-8"
+            )
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(
+            state, tmp_path, chapter=6, result=TriggerResult(genre_config_update=True)
+        )
+        assert ok is False
+        assert state.last_trigger_failure is not None
+        assert state.last_trigger_failure["stage"] == "governance"
+        # snapshot restored byte-for-byte
+        assert (tmp_path / "genre-config.json").read_text(encoding="utf-8") == "not json at all"
+
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_no_preexisting_config_unlinks_written_config(self, mock_disp, mock_g4, tmp_path):
+        """Snapshot is None branch: rejected update leaves nothing on disk."""
+        bad = {"auditDimensions": {"texture": False}}
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(
+            state, tmp_path, chapter=6, result=TriggerResult(genre_config_update=True)
+        )
+        assert ok is False
+        assert not (tmp_path / "genre-config.json").exists()

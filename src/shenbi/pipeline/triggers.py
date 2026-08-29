@@ -619,10 +619,32 @@ def run_triggered_skills(
             from shenbi.config.config_coherence import ConfigError, govern_genre_config_change
 
             gc_path = project_dir / "genre-config.json"
-            old_cfg: dict[str, Any] = json.loads(gc_snapshot) if gc_snapshot else {}
-            new_cfg: dict[str, Any] = (
-                json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
-            )
+            try:
+                old_raw: Any = (
+                    json.loads(gc_snapshot) if gc_snapshot and gc_snapshot.strip() else {}
+                )
+                new_raw: Any = (
+                    json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+                )
+            except (json.JSONDecodeError, OSError):
+                # Malformed pre-dispatch snapshot: cannot compute a diff — treat
+                # as governance rejection so the rollback invariant still holds.
+                log.error("genre_config_snapshot_unparseable", chapter=chapter)
+                state.last_trigger_failure = {
+                    "chapter": chapter,
+                    "skill": step.skill,
+                    "mode": getattr(step, "mode", None),
+                    "stage": "governance",
+                    "timestamp": _iso_now(),
+                }
+                rollback_genre_config(project_dir, gc_snapshot)
+                return False
+            if not isinstance(old_raw, dict):
+                old_raw = {}
+            if not isinstance(new_raw, dict):
+                new_raw = {}
+            old_cfg: dict[str, Any] = old_raw
+            new_cfg: dict[str, Any] = new_raw
             rationale = _read_genre_config_rationale(project_dir)
             try:
                 govern_genre_config_change(project_dir, old_cfg, new_cfg, rationale)
