@@ -66,10 +66,13 @@ def test_complete_chapter_raises_on_contract_violation(tmp_path: Path) -> None:
         _complete_chapter(state, 1)
 
 
-def test_unreadable_artifacts_are_violations_not_crashes(tmp_path, monkeypatch) -> None:
-    """PR #83 review: OSError on progress/ledger reads fails closed as violations."""
+def test_unreadable_artifacts_are_violations_not_crashes(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """PR #83/#84 review: OSError on progress/ledger reads fails closed as violations."""
     good = json.loads(FIX.joinpath("progress-complete-good.json").read_text(encoding="utf-8"))
-    (tmp_path / "progress.json").write_text(json.dumps(good), encoding="utf-8")
+    # ledger exists with content so the emptiness check reaches read_text (and raises)
+    _mk(tmp_path, good, ["{}"])
 
     real_read_text = Path.read_text
 
