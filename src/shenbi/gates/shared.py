@@ -125,7 +125,7 @@ def word_count_md(fp: str | Path) -> int:
     ]:
         c = re.sub(tag, "", c, flags=re.DOTALL)
     # Also strip HTML comment wrappers (<!--META-BEGIN-->...<!--META-END-->)
-    c = re.sub(r"<!--META-BEGIN-->.*?<!--META-END-->", "", c, flags=re.DOTALL)
+    c = META_BLOCK_RE.sub("", c)
     return len(re.findall(r"[一-鿿]", c))
 
 

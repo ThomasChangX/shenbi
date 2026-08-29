@@ -154,7 +154,7 @@ def _load_executor_config() -> dict[str, Any]:
 # 10a: META block stripping for non-drafting LLM calls
 # ---------------------------------------------------------------------------
 
-_META_PATTERN = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+from shenbi.gates.shared import META_BLOCK_RE as _META_PATTERN  # 单源别名（z11 F1301）
 
 
 def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
