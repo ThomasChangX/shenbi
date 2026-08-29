@@ -7,7 +7,7 @@
 - 簇：C33（重试/失败分类分裂：三套退避互不协调），11 条，最高严重度 P1（F977/T508 verified），证据等级=实验佐证
 - 成员：T507（代表）、F363、F365、F533、F977、T506、T508、T510、T511、T512、T514
 - 来源：thread-reports/T5.md + Z3-review-r2 + Z5-review-r4 + Z9-review-r2
-- 关系：吸收 `2026-08-14-tooling-gate-chain-design.md`（#24）的重试面（F301/F354/T501/T502）与 `2026-08-01-output-side-waste-audit-design.md`（#4）的 F8 重试放大
+- 关系：吸收 `2026-08-14-tooling-gate-chain-design.md`（#24）的重试面（F301/F354/T501/T502）与 `archive/2026-08-01-output-side-waste-audit-design.md`（#4）的 F8 重试放大
 
 ## 背景与根因
 传输层与业务层各有 retry 机制但无共享分类/预算：
