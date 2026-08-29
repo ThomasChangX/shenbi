@@ -50,3 +50,31 @@ class TestFilenamePartition:
             for c in data["checks"]
         )
         assert all("genre-config-decisions" not in c.get("id", "") for c in data["checks"])
+
+
+class TestChapterRevisionRouting:
+    def test_revision_sidecar_reaches_dedicated_checker(self, tmp_path):
+        """G4.rev HARD checks stay production-reachable (audit-T3 C1)."""
+        from shenbi.gates.g4.generic import gate_G4
+
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-chapter-revision",
+            "chapter": 5,
+            "selections": [],
+            "adjustments": [
+                {"issue_id": "x", "severity": "low", "handling": "ignore", "rationale": "short"}
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+        (tmp_path / "chapter-5-revision-decisions.json").write_text(
+            json.dumps(sidecar), encoding="utf-8"
+        )
+        result = gate_G4(
+            "shenbi-chapter-revision",
+            "generative",
+            ["chapter-5-revision-decisions.json"],
+            str(tmp_path),
+            None,
+        )
+        assert "G4.rev.adjustment_0_thin_rationale" in result

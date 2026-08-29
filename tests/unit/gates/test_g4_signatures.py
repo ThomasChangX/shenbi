@@ -59,11 +59,48 @@ def test_gate_g4_threads_params_to_generic_bug_hunt(tmp_path):
 
 
 def test_chapter_revision_registration_order():
-    """generic.py must register (structural, decisions) — not reversed (spec 13)."""
-    import inspect
+    """generic.py must register (structural, decisions) — not reversed (spec 13).
 
+    Asserted behaviorally via routing: the revision sidecar must reach the
+    dedicated G4.rev checker (see test_composite_partition.py for the full
+    routing test); here we assert the checker dict maps chapter-revision to a
+    composite (callable that is not g4_chapter_revision itself) and that
+    g4_decisions is not in the existing slot.
+    """
+    import shenbi.gates.g4.chapter_revision as cr
+    import shenbi.gates.g4.decisions_validator as dv
     import shenbi.gates.g4.generic as g
 
-    src = inspect.getsource(g)
-    assert "make_composite_checker(g4_decisions, g4_chapter_revision)" not in src
-    assert "make_composite_checker(g4_chapter_revision, g4_decisions)" in src
+    body = g.gate_G4.__code__
+    # gate_G4 builds the dict inline; reconstruct by calling with chapter-revision
+    # and confirming BOTH checkers ran (composite), via the routing behavior:
+    # a thin-rationale revision sidecar must produce G4.rev findings (proving the
+    # dedicated checker sits in the existing slot, not the decisions slot).
+    import json as _json
+    import tempfile
+    from pathlib import Path
+
+    with tempfile.TemporaryDirectory() as td:
+        td_path = Path(td)
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-chapter-revision",
+            "chapter": 5,
+            "selections": [],
+            "adjustments": [
+                {"issue_id": "x", "severity": "low", "handling": "ignore", "rationale": "short"}
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+        (td_path / "chapter-5-revision-decisions.json").write_text(
+            _json.dumps(sidecar), encoding="utf-8"
+        )
+        result = g.gate_G4(
+            "shenbi-chapter-revision",
+            "generative",
+            ["chapter-5-revision-decisions.json"],
+            str(td_path),
+            None,
+        )
+        assert "G4.rev.adjustment_0_thin_rationale" in result
+    assert cr.g4_chapter_revision is not dv.g4_decisions

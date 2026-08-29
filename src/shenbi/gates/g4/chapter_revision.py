@@ -12,7 +12,6 @@ json.loads(existing_result) and expects {"status", "checks", "must_fix"}.
 from __future__ import annotations
 
 import json
-from pathlib import Path
 
 from shenbi.status import GateStatus
 
@@ -41,8 +40,10 @@ def g4_chapter_revision(
     """
     issues: list[str] = []
 
+    from shenbi.gates.shared import resolve_input_path
+
     for fp in fps or []:
-        p = Path(fp)
+        p = resolve_input_path(fp, rd)
         if "revision" not in p.name or p.suffix != ".json":
             continue  # Only check revision decisions JSON
 

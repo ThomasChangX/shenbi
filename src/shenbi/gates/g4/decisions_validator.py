@@ -146,12 +146,19 @@ G4CheckerFn = Callable[[list[str], str | None, str | None, str | None], str]
 
 
 def make_composite_checker(
-    existing_checker: G4CheckerFn, decisions_checker: G4CheckerFn
+    existing_checker: G4CheckerFn,
+    decisions_checker: G4CheckerFn,
+    decisions_match: Callable[[str], bool] | None = None,
 ) -> G4CheckerFn:
     """Create a composite G4 checker that runs both existing + decisions validation.
 
     Returns FAIL if either checker fails; aggregates all checks and must_fix items.
     Both checkers always run (even if the first fails) to collect all failures.
+
+    *decisions_match* overrides which files route to the decisions checker
+    (default: ``fp.endswith("-decisions.json")``). Used by chapter-revision,
+    whose dedicated checker owns the stricter ``*revision-decisions.json``
+    semantics — those sidecars route to the existing slot instead.
     """
 
     def composite(
@@ -166,8 +173,9 @@ def make_composite_checker(
         # (non-.md/.json) files previously went to BOTH checkers; under this
         # partition they go only to the structural checker — audited
         # per-consumer, no composite passes bare "other" files today.
-        decisions_files = [fp for fp in fps if fp.endswith("-decisions.json")]
-        other_files = [fp for fp in fps if not fp.endswith("-decisions.json")]
+        is_decisions = decisions_match or (lambda fp: fp.endswith("-decisions.json"))
+        decisions_files = [fp for fp in fps if is_decisions(fp)]
+        other_files = [fp for fp in fps if not is_decisions(fp)]
 
         existing_result = existing_checker(other_files, rd, project_dir, repo_root)
         decisions_result = decisions_checker(decisions_files, rd, project_dir, repo_root)
