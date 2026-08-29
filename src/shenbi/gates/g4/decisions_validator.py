@@ -77,9 +77,9 @@ def g4_decisions(
     """Validate decisions.json against shenbi-decisions-v1 schema + P2.5 rules.
 
     Only processes *.json files — non-JSON files (e.g., the main .md artifact
-    passed by composite checkers) are silently skipped. This prevents crashes
-    when g4_decisions is used as the decisions_checker in a composite that
-    receives all skill outputs including markdown.
+    passed by composite checkers) are silently skipped. Only files ending in
+    ``-decisions.json`` are DecisionsDoc material; everything else (including
+    non-decisions .json) routes to the structural checker instead.
     """
     c: list[dict[str, Any]] = []
     mf: list[str] = []
@@ -90,10 +90,11 @@ def g4_decisions(
             mf.append(f"G4.dec.not_found:{fp}")
             continue
 
-        # CRITICAL: skip non-JSON files — the composite checker passes ALL skill
-        # outputs (including .md artifacts). json.loads() on markdown would crash.
-        if not fp.endswith(".json"):
-            continue  # skip .md and other non-decisions files
+        # CRITICAL: only *-decisions.json sidecars are DecisionsDoc material.
+        # Non-decisions .json (e.g. genre-config.json) and .md artifacts are
+        # routed to the structural checker by the composite partition instead.
+        if not fp.endswith("-decisions.json"):
+            continue
 
         try:
             data = json.loads(p.read_text(encoding="utf-8"))
@@ -145,12 +146,19 @@ G4CheckerFn = Callable[[list[str], str | None, str | None, str | None], str]
 
 
 def make_composite_checker(
-    existing_checker: G4CheckerFn, decisions_checker: G4CheckerFn
+    existing_checker: G4CheckerFn,
+    decisions_checker: G4CheckerFn,
+    decisions_match: Callable[[str], bool] | None = None,
 ) -> G4CheckerFn:
     """Create a composite G4 checker that runs both existing + decisions validation.
 
     Returns FAIL if either checker fails; aggregates all checks and must_fix items.
     Both checkers always run (even if the first fails) to collect all failures.
+
+    *decisions_match* overrides which files route to the decisions checker
+    (default: ``fp.endswith("-decisions.json")``). Used by chapter-revision,
+    whose dedicated checker owns the stricter ``*revision-decisions.json``
+    semantics — those sidecars route to the existing slot instead.
     """
 
     def composite(
@@ -159,17 +167,18 @@ def make_composite_checker(
         project_dir: str | None = None,
         repo_root: str | None = None,
     ) -> str:
-        # Partition by extension: structural checkers parse markdown and have NO
-        # .json guard, so feeding them a .json file fails (no expected sections
-        # in JSON). The decisions checker already skips non-.json. Route each
-        # checker only the file types it can handle. "other" (non-.md/.json)
-        # files go to both so neither silently drops them.
-        md_files = [fp for fp in fps if fp.endswith(".md")]
-        json_files = [fp for fp in fps if fp.endswith(".json")]
-        other_files = [fp for fp in fps if not fp.endswith((".md", ".json"))]
+        # Partition by filename: *-decisions.json → decisions checker;
+        # everything else (incl. non-decisions .json like genre-config.json)
+        # → existing/structural checker (spec 13 R4a'). Note: "other"
+        # (non-.md/.json) files previously went to BOTH checkers; under this
+        # partition they go only to the structural checker — audited
+        # per-consumer, no composite passes bare "other" files today.
+        is_decisions = decisions_match or (lambda fp: fp.endswith("-decisions.json"))
+        decisions_files = [fp for fp in fps if is_decisions(fp)]
+        other_files = [fp for fp in fps if not is_decisions(fp)]
 
-        existing_result = existing_checker(md_files + other_files, rd, project_dir, repo_root)
-        decisions_result = decisions_checker(json_files + other_files, rd, project_dir, repo_root)
+        existing_result = existing_checker(other_files, rd, project_dir, repo_root)
+        decisions_result = decisions_checker(decisions_files, rd, project_dir, repo_root)
 
         # Parse both results and aggregate.
         # CRITICAL: fail() emits key "must_fix" (not "failures") — see shared.py:113.

@@ -308,7 +308,7 @@ def gate_G4(
         "shenbi-faction-builder": g4_faction_builder,
         "shenbi-foreshadowing-plant": g4_foreshadowing_plant,
         "shenbi-foreshadowing-track": g4_foreshadowing_track,
-        "shenbi-genre-config": g4_genre_config,
+        "shenbi-genre-config": make_composite_checker(g4_genre_config, g4_decisions),
         "shenbi-length-normalizing": g4_length_normalizing,
         "shenbi-location-builder": g4_location_builder,
         "shenbi-pacing-design": g4_pacing_design,
@@ -330,7 +330,14 @@ def gate_G4(
         "shenbi-escalation-review": g4_escalation_review,
         # New: decisions-only (no existing dedicated checker)
         "shenbi-market-radar": g4_decisions,
-        "shenbi-chapter-revision": make_composite_checker(g4_decisions, g4_chapter_revision),
+        "shenbi-chapter-revision": make_composite_checker(
+            g4_chapter_revision,
+            g4_decisions,
+            # revision sidecars carry stricter G4.rev semantics than DecisionsDoc
+            # (empty_adjustments_no_skip / >=20-char rationale) — route them to
+            # the dedicated checker, not the generic decisions slot.
+            lambda fp: fp.endswith("-decisions.json") and "revision" not in Path(fp).name,
+        ),
         "shenbi-short-drafting": g4_decisions,
     }
     fn = checkers.get(skill_name)

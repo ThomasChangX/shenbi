@@ -18,6 +18,7 @@ diagnostic fields. Enforced by the ordered step list.
 
 from __future__ import annotations
 
+import copy
 import json
 from pathlib import Path
 from unittest.mock import patch
@@ -583,3 +584,156 @@ class TestConstants:
 
     def test_trigger_steps_table_not_empty(self):
         assert len(TRIGGER_STEPS) > 0
+
+
+class TestGenreConfigGovernanceWiring:
+    FIXTURE = Path(__file__).parents[2] / "fixtures" / "genre-config-example.json"
+
+    def _seed_old(self, tmp_path):
+        cfg = json.loads(self.FIXTURE.read_text(encoding="utf-8"))
+        cfg["auditDimensions"]["texture"] = True
+        (tmp_path / "genre-config.json").write_text(json.dumps(cfg), encoding="utf-8")
+        return cfg
+
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_rejected_update_rolls_back(self, mock_disp, mock_g4, tmp_path):
+        cfg = self._seed_old(tmp_path)
+        bad = copy.deepcopy(cfg)
+        bad["auditDimensions"]["texture"] = False
+        # sidecar 存在但 rationale < 50 字（真实 skill 输出形态）
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-genre-config",
+            "selections": [
+                {
+                    "target": "auditDimensions.texture",
+                    "selected": ["disabled"],
+                    "basis": "manual_override",
+                    "rationale": "太短了",
+                }
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
+            (Path(project_dir) / "genre-config-decisions.json").write_text(
+                json.dumps(sidecar), encoding="utf-8"
+            )
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        result = TriggerResult(genre_config_update=True)
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(state, tmp_path, chapter=6, result=result)
+        assert ok is False
+        assert state.last_trigger_failure is not None
+        assert state.last_trigger_failure["stage"] == "governance"
+        now = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
+        assert now["auditDimensions"]["texture"] is True
+        assert not (tmp_path / "config-change-log.jsonl").exists()
+        assert not (tmp_path / "genre-config-decisions.json").exists()
+
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_sidecar_missing_rolls_back(self, mock_disp, mock_g4, tmp_path):
+        cfg = self._seed_old(tmp_path)
+        bad = copy.deepcopy(cfg)
+        bad["auditDimensions"]["texture"] = False
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        result = TriggerResult(genre_config_update=True)
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(state, tmp_path, chapter=6, result=result)
+        assert ok is False
+        now = json.loads((tmp_path / "genre-config.json").read_text(encoding="utf-8"))
+        assert now["auditDimensions"]["texture"] is True
+        assert not (tmp_path / "config-change-log.jsonl").exists()
+
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_valid_update_appends_trail(self, mock_disp, mock_g4, tmp_path):
+        cfg = self._seed_old(tmp_path)
+        good = copy.deepcopy(cfg)
+        good["auditDimensions"]["texture"] = False
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-genre-config",
+            "selections": [
+                {
+                    "target": "auditDimensions.texture",
+                    "selected": ["disabled"],
+                    "basis": "manual_override",
+                    "rationale": "替代检测机制说明：停用 texture 自动审计后改为每卷手动感官密度复查，复查按既定 checklist 逐项执行并在 audits 目录留痕，复查结果进入卷级复盘",
+                }
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(good), encoding="utf-8")
+            (Path(project_dir) / "genre-config-decisions.json").write_text(
+                json.dumps(sidecar), encoding="utf-8"
+            )
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        result = TriggerResult(genre_config_update=True)
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(state, tmp_path, chapter=6, result=result)
+        assert ok is True
+        trail = (tmp_path / "config-change-log.jsonl").read_text(encoding="utf-8")
+        assert "auditDimensions.texture" in trail
+
+
+class TestMalformedSnapshotRollback:
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_malformed_old_snapshot_rolls_back(self, mock_disp, mock_g4, tmp_path):
+        """audit-T5 I: unparseable pre-dispatch snapshot must not escape as a crash."""
+        (tmp_path / "genre-config.json").write_text("not json at all", encoding="utf-8")
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(
+                json.dumps({"auditDimensions": {}}), encoding="utf-8"
+            )
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(
+            state, tmp_path, chapter=6, result=TriggerResult(genre_config_update=True)
+        )
+        assert ok is False
+        assert state.last_trigger_failure is not None
+        assert state.last_trigger_failure["stage"] == "governance"
+        # snapshot restored byte-for-byte
+        assert (tmp_path / "genre-config.json").read_text(encoding="utf-8") == "not json at all"
+
+    @patch("shenbi.pipeline.triggers.run_gate_g4")
+    @patch("shenbi.pipeline.triggers.dispatch_skill")
+    def test_no_preexisting_config_unlinks_written_config(self, mock_disp, mock_g4, tmp_path):
+        """Snapshot is None branch: rejected update leaves nothing on disk."""
+        bad = {"auditDimensions": {"texture": False}}
+
+        def fake_dispatch(skill, project_dir, prompt):
+            (Path(project_dir) / "genre-config.json").write_text(json.dumps(bad), encoding="utf-8")
+            return DispatchResult(True, 0, "ok", "")
+
+        mock_disp.side_effect = fake_dispatch
+        mock_g4.return_value = {"status": "PASS", "checks": []}
+        state = PipelineState.default(str(tmp_path))
+        ok = run_triggered_skills(
+            state, tmp_path, chapter=6, result=TriggerResult(genre_config_update=True)
+        )
+        assert ok is False
+        assert not (tmp_path / "genre-config.json").exists()

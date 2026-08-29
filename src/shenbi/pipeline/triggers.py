@@ -41,6 +41,7 @@ has been propagated >= :data:`DRIFT_THRESHOLD` times and
 
 from __future__ import annotations
 
+import json
 import re
 from collections import Counter
 from dataclasses import dataclass
@@ -50,6 +51,7 @@ from typing import Any
 
 from shenbi.logging import get_logger
 
+from shenbi.config.config_coherence import rollback_genre_config
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
@@ -476,6 +478,25 @@ def _gate_passed(result: dict[str, Any]) -> bool:
 # ---------------------------------------------------------------------------
 
 
+def _read_genre_config_rationale(project_dir: Path) -> str:
+    """Merged manual_override rationale from the (G4-validated) decisions sidecar."""
+    sidecar = project_dir / "genre-config-decisions.json"
+    if not sidecar.exists():
+        return ""
+    try:
+        data: Any = json.loads(sidecar.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return ""
+    if not isinstance(data, dict):
+        return ""
+    parts = [
+        s.get("rationale") or ""
+        for s in data.get("selections", [])
+        if isinstance(s, dict) and s.get("basis") == "manual_override"
+    ]
+    return " ".join(p.strip() for p in parts if p.strip())
+
+
 def run_triggered_skills(
     state: PipelineState,
     project_dir: Path | str,
@@ -530,6 +551,11 @@ def run_triggered_skills(
     ctx_line = format_path_context(ctx)
 
     for step in steps:
+        is_gc_update = step.category == "genre_config_update"
+        gc_snapshot: str | None = None
+        if is_gc_update:
+            gc_path = project_dir / "genre-config.json"
+            gc_snapshot = gc_path.read_text(encoding="utf-8") if gc_path.exists() else None
         mode_hint = f" Mode: {step.mode}." if step.mode else ""
         prompt = (
             f"Execute {step.skill} for chapter {chapter}.{mode_hint} Project dir: {project_dir}"
@@ -560,10 +586,17 @@ def run_triggered_skills(
                 "stage": "dispatch",
                 "timestamp": _iso_now(),
             }
+            if is_gc_update:
+                rollback_genre_config(project_dir, gc_snapshot)
             return False
 
         g4_file = resolve_contract_path(step.output_path, chapter, ctx) if step.output_path else ""
-        g4 = run_gate_g4(step.skill, [g4_file] if g4_file else [], project_dir)
+        g4_files = [g4_file] if g4_file else []
+        if is_gc_update:
+            # Fixed literal name: no N tokens to resolve (declared deviation --
+            # equivalent to the resolve_contract_path treatment for this name).
+            g4_files.append("genre-config-decisions.json")
+        g4 = run_gate_g4(step.skill, g4_files, project_dir)
         if not _gate_passed(g4):
             log.error(
                 "trigger_g4_failed",
@@ -578,7 +611,54 @@ def run_triggered_skills(
                 "stage": "g4",
                 "timestamp": _iso_now(),
             }
+            if is_gc_update:
+                rollback_genre_config(project_dir, gc_snapshot)
             return False
+
+        if is_gc_update:
+            from shenbi.config.config_coherence import ConfigError, govern_genre_config_change
+
+            gc_path = project_dir / "genre-config.json"
+            try:
+                old_raw: Any = (
+                    json.loads(gc_snapshot) if gc_snapshot and gc_snapshot.strip() else {}
+                )
+                new_raw: Any = (
+                    json.loads(gc_path.read_text(encoding="utf-8")) if gc_path.exists() else {}
+                )
+            except (json.JSONDecodeError, OSError):
+                # Malformed pre-dispatch snapshot: cannot compute a diff — treat
+                # as governance rejection so the rollback invariant still holds.
+                log.error("genre_config_snapshot_unparseable", chapter=chapter)
+                state.last_trigger_failure = {
+                    "chapter": chapter,
+                    "skill": step.skill,
+                    "mode": getattr(step, "mode", None),
+                    "stage": "governance",
+                    "timestamp": _iso_now(),
+                }
+                rollback_genre_config(project_dir, gc_snapshot)
+                return False
+            if not isinstance(old_raw, dict):
+                old_raw = {}
+            if not isinstance(new_raw, dict):
+                new_raw = {}
+            old_cfg: dict[str, Any] = old_raw
+            new_cfg: dict[str, Any] = new_raw
+            rationale = _read_genre_config_rationale(project_dir)
+            try:
+                govern_genre_config_change(project_dir, old_cfg, new_cfg, rationale)
+            except ConfigError as exc:
+                log.error("genre_config_governance_rejected", error=str(exc), chapter=chapter)
+                state.last_trigger_failure = {
+                    "chapter": chapter,
+                    "skill": step.skill,
+                    "mode": getattr(step, "mode", None),
+                    "stage": "governance",
+                    "timestamp": _iso_now(),
+                }
+                rollback_genre_config(project_dir, gc_snapshot)
+                return False
 
         if step.requires_g3:
             from shenbi.pipeline.dispatch_helper import run_gate_g3

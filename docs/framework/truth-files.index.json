@@ -666,6 +666,13 @@
     ],
     "updates": []
   },
+  "genre-config-decisions.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-genre-config"
+    ],
+    "updates": []
+  },
   "import/analysis/*.md": {
     "reads": [],
     "writes": [

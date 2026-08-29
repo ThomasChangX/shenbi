@@ -90,11 +90,12 @@ class TestBoundaryTriggers:
 # Genre-circle activation logic
 # ---------------------------------------------------------------------------
 class TestGetActiveGenreAudits:
-    def test_empty_config_returns_empty(self):
-        assert get_active_genre_audits({}) == []
+    def test_empty_config_critical_only(self):
+        # Criticality split (spec 13 R2): texture defaults enabled.
+        assert get_active_genre_audits({}) == ["shenbi-review-texture"]
 
-    def test_no_audit_dimensions_key(self):
-        assert get_active_genre_audits({"other": 1}) == []
+    def test_no_audit_dimensions_key_critical_only(self):
+        assert get_active_genre_audits({"other": 1}) == ["shenbi-review-texture"]
 
     def test_all_active(self):
         gc = {"audit_dimensions": dict.fromkeys(GENRE_ACTIVATION_MATRIX, True)}
@@ -106,7 +107,12 @@ class TestGetActiveGenreAudits:
     def test_subset_active(self):
         gc = {"audit_dimensions": {"era": True, "sensitivity": True, "dialogue": False}}
         result = get_active_genre_audits(gc)
-        assert result == ["shenbi-review-era", "shenbi-review-sensitivity"]
+        # texture absent → enabled (criticality split)
+        assert result == [
+            "shenbi-review-era",
+            "shenbi-review-sensitivity",
+            "shenbi-review-texture",
+        ]
 
     def test_false_values_excluded(self):
         gc = {"audit_dimensions": {"texture": False}}
@@ -169,7 +175,8 @@ class TestAuditRelativePath:
 # ---------------------------------------------------------------------------
 class TestRunAuditLayerNoActive:
     def test_no_active_audits_clean(self, tmp_project: Path):
-        result = run_audit_layer(tmp_project, 1, {})
+        # texture explicitly disabled: absent would mean enabled (R2 split)
+        result = run_audit_layer(tmp_project, 1, {"auditDimensions": {"texture": False}})
         assert result.blocking_found is False
         assert result.critical_found is False
         assert result.audit_reports == []
@@ -182,7 +189,7 @@ class TestRunAuditLayer:
     def test_genre_audit_pass(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "PASS"}
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         result = run_audit_layer(tmp_project, 1, gc)
         assert result.blocking_found is False
         assert len(result.audit_reports) == 1
@@ -199,7 +206,7 @@ class TestRunAuditLayer:
         (audit_dir / "chapter-1-era.md").write_text(
             "# Era Review\n\n**BLOCKING**: anachronism detected.\n"
         )
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         result = run_audit_layer(tmp_project, 1, gc)
         assert result.blocking_found is True
         assert len(result.issues) == 1
@@ -226,7 +233,7 @@ class TestRunAuditLayer:
     @patch(PATCH_DISPATCH)
     def test_dispatch_failure_records_blocking(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(False, 1, "", "dispatch error")
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         result = run_audit_layer(tmp_project, 1, gc)
         assert result.blocking_found is True
         assert len(result.issues) == 1
@@ -238,7 +245,7 @@ class TestRunAuditLayer:
     def test_g4_failure_records_blocking(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "FAIL", "error": "structure"}
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         result = run_audit_layer(tmp_project, 1, gc)
         assert result.blocking_found is True
         assert len(result.issues) == 1
@@ -249,7 +256,7 @@ class TestRunAuditLayer:
     def test_genre_and_boundary_combined(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "PASS"}
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         result = run_audit_layer(tmp_project, 24, gc)
         assert mock_disp.call_count == 3  # era + long-span + chapter-pattern
         assert len(result.audit_reports) == 3
@@ -259,7 +266,7 @@ class TestRunAuditLayer:
     def test_boundary_only_no_genre_config(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "PASS"}
-        result = run_audit_layer(tmp_project, 12, {})
+        result = run_audit_layer(tmp_project, 12, {"auditDimensions": {"texture": False}})
         assert mock_disp.call_count == 1  # chapter-pattern only
         assert "chapter-12-chapter-pattern" in result.audit_reports[0]
 
@@ -268,7 +275,7 @@ class TestRunAuditLayer:
     def test_passes_correct_prompt(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "PASS"}
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         run_audit_layer(tmp_project, 7, gc)
         prompt = mock_disp.call_args[0][2]
         assert "shenbi-review-era" in prompt
@@ -279,7 +286,7 @@ class TestRunAuditLayer:
     def test_missing_audit_file_no_crash(self, mock_disp, mock_g4, tmp_project: Path):
         mock_disp.return_value = DispatchResult(True, 0, "ok", "")
         mock_g4.return_value = {"status": "PASS"}
-        gc = {"audit_dimensions": {"era": True}}
+        gc = {"audit_dimensions": {"era": True, "texture": False}}
         # No audit file created — should not crash, no severity flags.
         result = run_audit_layer(tmp_project, 1, gc)
         assert result.blocking_found is False
@@ -336,6 +343,9 @@ class TestGenreActivationCamelCase:
                 "pacing": True,
                 "continuity": True,
                 "foreshadowing": True,
+                # texture is the one critical genre dim; absent = enabled (R2),
+                # so disable it explicitly to keep this test about core keys.
+                "texture": False,
             }
         }
         result = get_active_genre_audits(gc)
@@ -347,10 +357,25 @@ class TestGenreActivationCamelCase:
         result = get_active_genre_audits(gc)
         assert "shenbi-review-sensitivity" in result
 
-    def test_missing_key_returns_empty(self):
-        """No auditDimensions key → empty list."""
-        assert get_active_genre_audits({}) == []
+    def test_missing_key_criticality_split(self):
+        """No auditDimensions key → only the critical dim (texture) activates."""
+        assert get_active_genre_audits({}) == ["shenbi-review-texture"]
 
     def test_non_dict_audit_dims_returns_empty(self):
         """AuditDimensions is not a dict → empty list."""
         assert get_active_genre_audits({"auditDimensions": "invalid"}) == []
+
+
+class TestCriticalitySplitActivation:
+    def test_missing_texture_still_activates(self):
+        # Derived from the real fixture's auditDimensions shape (G0.9).
+        active = get_active_genre_audits({"auditDimensions": {"dialogue": True}})
+        assert "shenbi-review-texture" in active
+
+    def test_truthy_one_does_not_activate(self):
+        active = get_active_genre_audits({"auditDimensions": {"texture": 1, "dialogue": True}})
+        assert "shenbi-review-texture" not in active
+
+    def test_snake_case_still_honored(self):
+        active = get_active_genre_audits({"audit_dimensions": {"dialogue": True}})
+        assert "shenbi-review-dialogue" in active

@@ -350,6 +350,16 @@ class TestPhaseRunner(unittest.TestCase):
         proj = self.round_dir / "project-output"
         (proj / "novel.json").write_text("{}")
         (proj / "genre-config.json").write_text("{}")
+        (proj / "genre-config-decisions.json").write_text(
+            json.dumps(
+                {
+                    "$schema": "shenbi-decisions-v1",
+                    "skill": "shenbi-genre-config",
+                    "selections": [],
+                    "produced_at": "2026-08-29T00:00:00",
+                }
+            )
+        )
         for d in ["world", "characters/major", "characters/minor", "truth"]:
             (proj / d).mkdir(parents=True, exist_ok=True)
         for name in [

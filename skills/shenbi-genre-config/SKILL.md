@@ -8,7 +8,9 @@ contract:
   reads:
   - novel.json
   - genre-config.json
-  writes: []
+  writes:
+  - file: genre-config-decisions.json
+    mode: create_or_overwrite
   updates:
   - file: genre-config.json
     mode: create_or_overwrite
@@ -34,7 +36,7 @@ contract:
 ## 数据契约
 
 - **Reads:** novel.json, genre-config.json
-- **Writes:** none
+- **Writes:** genre-config-decisions.json
 - **Updates:** genre-config.json
 
 <!-- END AUTO-GENERATED -->
@@ -58,6 +60,14 @@ digraph genre_config {
     "Human reviews" -> "Write to genre-config.json" [label="approved"];
 }
 ```
+
+## 决策留痕（decisions sidecar）
+
+每次配置变更输出 `genre-config-decisions.json`（schema `shenbi-decisions-v1`，
+非章节型：无 chapter 字段）。禁用/删除 critical 审计维度（texture/antiAi/continuity）
+时，必须包含一条 `selections[]` 条目：`basis: manual_override`，rationale 为
+50-100 字的合并变更理由（说明替代检测机制）——治理层据此放行，缺失或不足
+50 字整次更新被拒绝回滚。
 
 ## 铁律
 

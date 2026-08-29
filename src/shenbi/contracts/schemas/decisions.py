@@ -73,7 +73,8 @@ class DecisionsDoc(BaseModel):
     model_config = {"extra": "forbid"}
     schema_: str = Field(alias="$schema")
     skill: str
-    chapter: int
+    # Optional for non-chapter skills (e.g. shenbi-genre-config config updates).
+    chapter: int | None = None
     selections: list[Selection] = []
     adjustments: list[Adjustment] = []
     budget: Budget | None = None

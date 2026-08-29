@@ -11,6 +11,7 @@ from shenbi.config.thresholds import (
     DEFAULT_THRESHOLDS,
     QualityThresholds,
     is_critical_audit_dimension,
+    resolve_audit_dimensions,
 )
 
 
@@ -129,3 +130,31 @@ class TestIsCriticalAuditDimension:
 
     def test_empty_string_returns_false(self):
         assert is_critical_audit_dimension("") is False
+
+
+class TestResolveAuditDimensions:
+    def test_camel_case_only(self):
+        dims, malformed = resolve_audit_dimensions({"auditDimensions": {"texture": True}})
+        assert dims == {"texture": True} and malformed is False
+
+    def test_snake_case_fallback(self):
+        dims, malformed = resolve_audit_dimensions({"audit_dimensions": {"texture": False}})
+        assert dims == {"texture": False} and malformed is False
+
+    def test_merge_camel_wins(self):
+        cfg = {"auditDimensions": {"texture": True}, "audit_dimensions": {"era": True}}
+        dims, malformed = resolve_audit_dimensions(cfg)
+        assert dims == {"texture": True, "era": True} and malformed is False
+
+    def test_both_absent_means_empty_not_malformed(self):
+        dims, malformed = resolve_audit_dimensions({"version": "1.0"})
+        assert dims == {} and malformed is False
+
+    def test_scalar_camel_is_malformed(self):
+        dims, malformed = resolve_audit_dimensions({"auditDimensions": False})
+        assert dims == {} and malformed is True
+
+    def test_valid_camel_plus_scalar_snake_is_malformed(self):
+        cfg = {"auditDimensions": {"texture": True}, "audit_dimensions": 0}
+        dims, malformed = resolve_audit_dimensions(cfg)
+        assert dims == {} and malformed is True

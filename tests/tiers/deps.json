@@ -19,6 +19,7 @@
         "characters/minor/*.md",
         "characters/protagonist.md",
         "characters/relationships.md",
+        "genre-config-decisions.json",
         "genre-config.json",
         "novel.json",
         "outline/*.md",
@@ -36,6 +37,7 @@
         "shenbi-genre-config"
       ],
       "expected_outputs": [
+        "genre-config-decisions.json",
         "genre-config.json",
         "outline/*.md"
       ],

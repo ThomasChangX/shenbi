@@ -49,7 +49,7 @@ source of truth for the schema.
 |-------|------|----------|-------------|
 | `$schema` | string | yes | Must be `shenbi-decisions-v1` |
 | `skill` | string | yes | Skill name that produced this file |
-| `chapter` | int | yes | Chapter number |
+| `chapter` | int \| null | 可空 | Chapter number；非章节型 skill（如 shenbi-genre-config 配置更新）省略 |
 | `produced_at` | string | yes | ISO 8601 timestamp |
 | `selections` | array | yes | List of selection decisions |
 | `adjustments` | array | no | Drift/conflict adjustments |

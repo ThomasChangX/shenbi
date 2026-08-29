@@ -21,6 +21,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from collections.abc import Callable, Mapping
 
+from shenbi.config.thresholds import resolve_audit_dimensions
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.status import GateStatus
@@ -66,6 +67,10 @@ _CORE_CIRCLE_KEYS = frozenset(
     }
 )
 
+#: Critical dims that appear in the genre activation matrix (texture only —
+#: antiAi/continuity are core-circle keys). Missing = enabled (criticality split).
+_CRITICAL_GENRE_DIMS = frozenset(d for d in ("texture",) if d in GENRE_ACTIVATION_MATRIX)
+
 
 # ---------------------------------------------------------------------------
 # Boundary-circle triggers (spec section 6.2)
@@ -97,20 +102,25 @@ class AuditResult:
 def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
     """Determine which genre-circle audits to run based on genre-config.json.
 
-    Reads the ``auditDimensions`` sub-dict (camelCase, matching real fixture
-    produced by shenbi-genre-config). Falls back to ``audit_dimensions``
-    (snake_case) for backward compat. Filters out core-circle keys that are
-    handled by chapter_loop fixed steps.
+    Reads the merged ``auditDimensions`` / ``audit_dimensions`` maps via the
+    shared resolver (camelCase wins). Filters out core-circle keys that are
+    handled by chapter_loop fixed steps. Liveness is ``value is True`` across
+    all three governance sites (write side / G0 / runtime); critical dims
+    default to enabled when absent (criticality split, spec 13 R2).
     """
-    audit_dims = genre_config.get("auditDimensions")
-    if audit_dims is None:
-        audit_dims = genre_config.get("audit_dimensions", {})
-    if not isinstance(audit_dims, dict):
+    audit_dims, malformed = resolve_audit_dimensions(genre_config)
+    if malformed:
         return []
+
+    def _live(dim_key: str) -> bool:
+        if dim_key in _CRITICAL_GENRE_DIMS:
+            return audit_dims.get(dim_key, True) is True
+        return audit_dims.get(dim_key, False) is True
+
     return sorted(
         skill
         for dim_key, skill in GENRE_ACTIVATION_MATRIX.items()
-        if dim_key not in _CORE_CIRCLE_KEYS and audit_dims.get(dim_key, False)
+        if dim_key not in _CORE_CIRCLE_KEYS and _live(dim_key)
     )
 
 

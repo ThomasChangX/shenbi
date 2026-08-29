@@ -56,3 +56,45 @@ def test_gate_g4_threads_params_to_generic_bug_hunt(tmp_path):
     )
     data = json.loads(result)
     assert "skill" in data or "status" in data
+
+
+def test_chapter_revision_registration_order():
+    """generic.py must register (structural, decisions) — not reversed (spec 13).
+
+    Asserted behaviorally via routing: the revision sidecar must reach the
+    dedicated G4.rev checker (see test_composite_partition.py for the full
+    routing test); here we assert the checker dict maps chapter-revision to a
+    composite (callable that is not g4_chapter_revision itself) and that
+    g4_decisions is not in the existing slot.
+    """
+    # Behavioral routing assertion: a thin-rationale revision sidecar must
+    # produce G4.rev findings via gate_G4 (dedicated checker in existing slot).
+    import json as _json
+    import tempfile
+    from pathlib import Path
+
+    from shenbi.gates.g4 import generic as g
+
+    with tempfile.TemporaryDirectory() as td:
+        td_path = Path(td)
+        sidecar = {
+            "$schema": "shenbi-decisions-v1",
+            "skill": "shenbi-chapter-revision",
+            "chapter": 5,
+            "selections": [],
+            "adjustments": [
+                {"issue_id": "x", "severity": "low", "handling": "ignore", "rationale": "short"}
+            ],
+            "produced_at": "2026-08-29T00:00:00",
+        }
+        (td_path / "chapter-5-revision-decisions.json").write_text(
+            _json.dumps(sidecar), encoding="utf-8"
+        )
+        result = g.gate_G4(
+            "shenbi-chapter-revision",
+            "generative",
+            ["chapter-5-revision-decisions.json"],
+            str(td_path),
+            None,
+        )
+        assert "G4.rev.adjustment_0_thin_rationale" in result
