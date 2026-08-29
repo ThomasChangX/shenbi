@@ -64,3 +64,21 @@ def test_complete_chapter_raises_on_contract_violation(tmp_path: Path) -> None:
     state.chapter_loop.current_chapter = 1
     with pytest.raises(ProductContractError):
         _complete_chapter(state, 1)
+
+
+def test_unreadable_artifacts_are_violations_not_crashes(tmp_path, monkeypatch) -> None:
+    """PR #83 review: OSError on progress/ledger reads fails closed as violations."""
+    good = json.loads(FIX.joinpath("progress-complete-good.json").read_text(encoding="utf-8"))
+    (tmp_path / "progress.json").write_text(json.dumps(good), encoding="utf-8")
+
+    real_read_text = Path.read_text
+
+    def _raise_oserror(self: Path, *a: object, **k: object) -> str:
+        if self.name in {"progress.json", "token-ledger.jsonl"}:
+            raise OSError("io broken")
+        return real_read_text(self, *a, **k)  # type: ignore[arg-type]
+
+    monkeypatch.setattr(Path, "read_text", _raise_oserror)
+    v = check_product_contracts(tmp_path)
+    assert any("progress.json: unreadable" in x for x in v)
+    assert any("token-ledger" in x for x in v)
