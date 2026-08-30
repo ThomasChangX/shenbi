@@ -342,8 +342,9 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
 
     Args:
         skill: audit skill short-name (e.g. "dialogue", "continuity").
-        audit_history: list of per-chapter audit result dicts, most-recent-last.
-            Each entry maps skill -> {"passed": bool, "hard_failures": int}.
+        audit_history: flat per-skill records from _get_audit_history,
+            most-recent-last: {"skill": str, "chapter": int, "passed": bool,
+            "hard_failures": int}.
 
     Returns:
         True if the audit may be cascade-skipped this chapter.
@@ -377,8 +378,8 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
 def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[str, Any]]:
     """Extract audit results from previous chapters in pipeline state.
 
-    Returns list of dicts with keys: skill, chapter, passed, issues
-    for all audit results from chapters < current_chapter.
+    Returns list of dicts with keys: skill, chapter, passed, hard_failures,
+    issues for all audit results from chapters < current_chapter.
     The returned list is most-recent-last (sorted by chapter number).
     """
     results: list[dict[str, Any]] = []
@@ -1588,9 +1589,9 @@ def _drift_guidance_triggered(state: PipelineState) -> bool:
     # on PipelineState — the old getattr-default read made this permanently
     # False. The real drift-alert writer is truth/audit_drift.md
     # (drift_detection._append_audit, ``- [{kind}] ...`` lines).
-    from shenbi.pipeline.triggers import count_drift_alerts
+    from shenbi.pipeline.triggers import DRIFT_THRESHOLD, count_drift_alerts
 
-    return count_drift_alerts(Path(state.project_dir)) >= 3
+    return count_drift_alerts(Path(state.project_dir)) >= DRIFT_THRESHOLD
 
 
 def _any_audit_has_findings(state: PipelineState) -> bool:
