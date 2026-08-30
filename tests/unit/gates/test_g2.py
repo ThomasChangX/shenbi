@@ -610,3 +610,24 @@ def test_meta_ratio_calculates_correctly(tmp_path: Path):
     checks, failures = _check_meta_ratio(chapter)
     # Exactly at 50% threshold, should PASS (only > 50% triggers WARN)
     assert len(failures) == 0
+
+
+@pytest.mark.unit
+def test_meta_ratio_single_warn_with_file_attribution(tmp_path: Path):
+    """F481: over-50% META chapter emits exactly ONE G2.meta_ratio WARN entry
+    (no caller-side duplicate) and the entry carries file attribution.
+    """
+    chapter = tmp_path / "chapter-1.md"
+    chapter.write_text("""<!--META-BEGIN-->
+some meta content that takes up a lot of space in the file
+more meta content to pad the ratio
+even more meta content to make it really large
+still more meta content to ensure ratio exceeds 50%
+additional meta content for padding purposes
+<!--META-END-->
+short prose.
+""")
+    result = _result_dict(gate_G2(str(chapter), "chapter"))
+    warns = [c for c in result["checks"] if c.get("id") == "G2.meta_ratio" and c.get("s") == "WARN"]
+    assert len(warns) == 1
+    assert "file" in warns[0]
