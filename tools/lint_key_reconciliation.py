@@ -17,9 +17,10 @@ Assertion (b): read_pattern is reconciled — for glob families, at least one
 writer anchor constructs that family; for literal keys, the key appears in a
 writer anchor file.
 
-WARN→FAIL transition: default mode reports violations as WARN and exits 0
-(first merge cycle); ``--strict`` exits 1 on any violation (retirement
-trigger: the next PR touching gates/ or scoring/ after this spec merges).
+WARN→FAIL transition: default mode reports violations as WARN and exits 0.
+The WARN cycle was consumed at merge time — the registry shipped green, so
+this tool is wired into ``just check`` and CI already in ``--strict`` mode
+(spec #27 final review ruling); default WARN mode remains for local triage.
 """
 
 from __future__ import annotations

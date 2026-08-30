@@ -1240,7 +1240,7 @@ def test_gate_markers_verified_reflects_real_check(tmp_path, capsys, monkeypatch
     """
     import sys as _sys
 
-    import shenbi.scoring as scoring_mod
+    from shenbi import scoring as scoring_mod
 
     rd = tmp_path / "round"
     rd.mkdir()
