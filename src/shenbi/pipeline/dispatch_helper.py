@@ -132,7 +132,10 @@ def _handle_timeout_gracefully(skill_name: str, chapter: int | None) -> None:
     chunks as they arrive, so a timeout keeps whatever already landed (F395).
     """
     log.warning(
-        "dispatch_timeout", skill=skill_name, chapter=chapter, resolution="saving_partial_output"
+        "dispatch_timeout",
+        skill=skill_name,
+        chapter=chapter,
+        resolution="partial_output_already_persisted_by_streaming",
     )
     # Reuse previous truth file versions for incomplete updates
     # This is logged for observability; actual handling depends on skill

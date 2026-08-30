@@ -604,6 +604,18 @@ def cmd_review(args: argparse.Namespace) -> int:
             decision = ReviewDecision(args.decision)
             cp = state.pending_checkpoint
 
+            # Validate inputs BEFORE any staging side effects (F390).
+            feedback = None
+            if args.feedback:
+                feedback_path = Path(args.feedback)
+                if not feedback_path.is_file():
+                    log.error("feedback_file_not_found", path=str(feedback_path))
+                    emit_json(
+                        {"status": "ERROR", "message": f"feedback file not found: {args.feedback}"}
+                    )
+                    return 1
+                feedback = feedback_path.read_text(encoding="utf-8")
+
             # Staging handling (spec section 2.7): approve/modify commits
             # staging files to their final paths; reject clears staging.
             if decision in (ReviewDecision.APPROVE, ReviewDecision.MODIFY):
@@ -612,14 +624,6 @@ def cmd_review(args: argparse.Namespace) -> int:
                 from shenbi.pipeline.checkpoint import clear_staging
 
                 clear_staging(project_dir)
-
-            feedback = None
-            if args.feedback:
-                feedback_path = Path(args.feedback)
-                if not feedback_path.is_file():
-                    log.error("feedback_file_not_found", path=str(feedback_path))
-                    return 1
-                feedback = feedback_path.read_text(encoding="utf-8")
 
             if decision == ReviewDecision.REJECT:
                 _apply_reject_redo(state, cp, feedback=feedback)  # acts on the cp snapshot
@@ -836,14 +840,16 @@ def cmd_resume(args: argparse.Namespace) -> int:
                         _update_total_chapters(project_dir)
 
                         snap_ch = last.get("chapter")
-                        snap_rc = dispatch_skill(
+                        snap_result = dispatch_skill(
                             "shenbi-snapshot-manage",
                             project_dir,
                             f"Volume-boundary snapshot after chapter {snap_ch}.",
                         )
-                        if snap_rc:
+                        if not snap_result.success:
                             log.error(
-                                "volume_boundary_snapshot_failed", chapter=snap_ch, rc=snap_rc
+                                "volume_boundary_snapshot_failed",
+                                chapter=snap_ch,
+                                rc=snap_result.returncode,
                             )
                         # If this boundary was also the book-closure point,
                         # transition to closure (the step_index guard prevents
