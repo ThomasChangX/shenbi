@@ -45,26 +45,26 @@ _WARNING_RE = re.compile(r"(?:warning|drift|fatigue)\s*[:\uff1a]\s*(.+)", re.IGN
 - Test: `tests/unit/test_scoring.py`、`tests/unit/test_gates_cli.py`
 
 **Interfaces:**
-- Produces: `src/shenbi/gates/shared.py` 新常量 `def marker_filename(gate: str, target: str, test_type: str) -> str`（返回 `f"{gate}-{target}-{test_type}.json"`）；scoring 与 cli 统一调用。`G4_STATUS_VOCAB`（读方容忍集，见 Task 4 复用状态词单一信源 enums）。
+- Produces: `src/shenbi/gates/shared.py` 新常量 `def marker_filename(gate: str, target: str, test_type: str) -> str`（返回 `f"{gate}-{target}-{test_type}.json"`）；scoring 与 cli 统一调用。状态字面量经 `contracts/enums.py` 单源（不得引入裸字符串）。
 - 复杂度: infra · test_kind: tdd_red_green · T1 层级（unit）
 
 **Steps:**
-- [ ] **1.1 失败测试**（tests/unit/test_gates_cli.py 追加）：
+- [ ] **1.1 失败测试**（tests/unit/test_gates_cli.py 追加）：读方键 = `G4-{skill_name}-{test_type}.json`，skill_name 取自 **rubric 路径** `tests/tiers/t1-skill/<skill>/…`（scoring.py:249）——写方 target 必须与之一致：
 ```python
-def test_g4_bughunt_writes_marker(tmp_path, monkeypatch):
-    # bug-hunt 分支必须写 G4-<skill>-bug-hunt.json marker（F463）
-    out = run_cli(["G4", "bug-hunt", "<fixture files>", str(tmp_path)])
-    marker = tmp_path / "gate-markers" / "G4-bug-hunt-bug-hunt.json"
-    # 断言：PASS 时 marker 存在；命名从 marker_filename() 取
+def test_g4_bughunt_writes_marker(tmp_path):
+    # G4 CLI 扩展形态：shenbi-validate G4 <skill> --test-type bug-hunt <files> <round-dir>
+    # PASS 时必须写 marker_filename("G4", "<skill>", "bug-hunt")
+    marker = tmp_path / "gate-markers" / "G4-shenbi-worldbuilding-bug-hunt.json"
+    assert marker.exists()
 ```
-（具体断言按 `gate_G4_bughunt` 现有返回形状落实；fixture 引 `tests/fixtures/` 真实 bug-hunt 产物路径，grep `tests/fixtures -r "bug-hunt"` 取现存样本）
 - [ ] **1.2 跑测确认失败**：`uv run pytest tests/unit/test_gates_cli.py -k bughunt_writes_marker -v` → FAIL（marker 不存在）
-- [ ] **1.3 实现**：shared.py 增加 `marker_filename()`；cli.py G4 分支 bughunt/clean 路径调用 `write_gate_marker("G4", target, "bug-hunt"|"clean", result, rd, file_list)`；scoring.py `check_gate_markers` 内三处 f-string 换 `marker_filename(...)`。读方兼容历史 `G4-*-generative.json`（t2-phase 分支已是 generative 字面量，保持）
+- [ ] **1.3 实现**：shared.py 增加 `marker_filename()`；cli.py G4 分支扩展 `--test-type` flag（默认 generative 不破调用方），bughunt/clean 路径取 skill 名（SHORT_MAP 反查或新显式参数）调用 `write_gate_marker("G4", skill_name, test_type, result, rd, file_list)`——target 与读方 rubric 路径派生的 skill_name 一致；scoring.py `check_gate_markers` 内三处 f-string 换 `marker_filename(...)`。读方兼容历史 `G4-*-generative.json`（t2-phase 分支已是 generative 字面量，保持）。状态词经 `contracts/enums.py` 单源
 - [ ] **1.4 验收命令**（spec 验收 1 前半）：
 ```bash
-uv run shenbi-validate G4 bughunt <fixture-files> <round-dir>   # 真实产出 marker（G0.9：非手写）
-uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <scores.json> --test-type bug-hunt --round-dir <round-dir>
+uv run shenbi-validate G4 <skill> --test-type bug-hunt <fixture-files> <round-dir>   # 真实产出 marker（G0.9：非手写）
+uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <real-scores.json> --test-type bug-hunt --round-dir <round-dir>
 # 期望 exit 0（无 MARKER_MISSING exit 3）
+# scores 样本：复用 tests/ 既有真实 generative scores 文件 + filter_dimensions_by_test_type（scoring.py:410）按 bug-hunt 维度过滤——禁现场 dispatch 取样（SDD 核心原则 8）
 ```
 - [ ] **1.5 兼容断言**：`tests/baselines/gate-outputs/G4-genre_config.json` 经读方逻辑解析不破坏（unit test 直接调 `check_gate_markers` 对构造 round-dir）
 - [ ] **1.6 commit**: `fix: marker protocol single source + bug-hunt/clean marker writers (spec #27 T2)`
@@ -84,11 +84,11 @@ uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <scores.json> --tes
 - [ ] **2.2 跑测确认失败**：现 `== "DONE"` 对 `done` 报 status=? 假 FAIL
 - [ ] **2.3 实现**：g_reconcile.py:40/:65 比较改 `.upper() == "DONE"`（或经 enums 状态词表 helper）；不改写方
 - [ ] **2.4 F130 核对**：unit test 喂 canonical `{"final_score": x, "dimensions": {...}}` 形状 → g3.py `_compute_rubric_weighted_score` 路径产出正确分数；不匹配则补 final_score 分支
-- [ ] **2.5 F435 核对**：`cmd_post_skill`（phase_runner.py:247-261）新形状下 Route C 侧车索要行为——unit test 驱动 `derive_output_files` 输出含 sidecar 时 G2 面不误报；若已无索要面则记 spec-deviations 核销
+- [ ] **2.5 F435 核对**：`cmd_post_skill`（src/shenbi/phase_runner.py:221 cmd_post_skill，derive_output_files 来自 src/shenbi/audit/_shared.py）新形状下 Route C 侧车索要行为——unit test 驱动 `derive_output_files` 输出含 sidecar 时 G2 面不误报；若已无索要面则记 spec-deviations 核销
 - [ ] **2.6 验收命令**（spec 验收 2）：`uv run shenbi-validate G_RECONCILE <dir-with-codex-progress>` → 零 `status=?`
 - [ ] **2.7 commit**: `fix: g_reconcile status vocab alignment + G3.2 canonical shape (spec #27 T4)`
 
-### Task 3: 死检查清剿（spec T1 · F340 子面 F349/F406/F419、F450-F455、F458 残存 glob、F464/F465/F466、F467/F468/F470、F639）
+### Task 3: 死检查清剿（spec T1 · F406/F419、F458 残存 glob、F464/F465/F466、F467/F468/F470、F639）
 
 **Files:**
 - Modify: `src/shenbi/gates/g0.py:230-240,367-372,450,529-537`、`gates/g_transition.py:69-85`、`gates/g1.py:243-273`、`gates/g3.py:224-240`、`gates/g3_independence.py:20`、`gates/g5.py:57`、`gates/g7.py:40,61,182,207`、`gates/shared.py`（若 find_report 吸收 glob）
@@ -98,7 +98,7 @@ uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <scores.json> --tes
 - 复杂度: infra · test_kind: characterization（先固现状再删）+ regression_guard · T1
 
 **Steps:**
-- [ ] **3.1 逐条裁决表**（progress.md 落盘）：每 finding 二选一「删检查」或「补写方」。默认删（spec 修复形状建议）；.gate-lock（F467）删除读方 g1.py:243-245 并记 deviation 与 C11 联动注记
+- [ ] **3.1 逐条裁决表**（progress.md 落盘）：每 finding 二选一「删检查」或「补写方」。默认删（spec 修复形状建议）；.gate-lock（F467）删除读方 g1.py:243-251（G1.5 锁检查整支，含 no-lock PASS 分支）并记 deviation 与 C11 联动注记
 - [ ] **3.2 characterization 测试**：删除前对每个目标 checker 跑既有测试确认绿（现状锚定），然后删除死分支（G0.7 exists-check、GT.3 gate_blockers、G1.6 scoring_history、G3.5 agent_id、F419 missing_dirs 死分支、t1_scores 读方 g5/g7、F406 豁免计数、F639）+ 同步删除/收编对应 pin 测试（F708-F709 面）——**每删一处跑其测试文件**
 - [ ] **3.3 F458 残存**：g7.py:182/:207、g0.py:450 的 `*-scores.json`/`*-generative-scores.json` glob 改走 `find_report()`（gates/shared.py:156-175 已支持 `-scores-subagent` 多后缀）
 - [ ] **3.4 死数据面**：`trace/materialize.py:90` 的 `"gate_blockers": []` 恒空键删除（写方即唯一读方已删）；F469 例外（归 Task 5/T6 处置）
@@ -116,13 +116,15 @@ uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <scores.json> --tes
 - 复杂度: infra · test_kind: tdd_red_green · T1/T2
 
 **Steps:**
-- [ ] **4.1 失败测试（F340 P0）**：构造 audits 目录含 `chapter-3-group-factual.md`（内含 "## BLOCKING"）→ `_any_audit_has_findings` 必须返回 True（现名单缺席 → False → revision 静默跳过）。fixture 用 xinghuo-ranqiong 真实审计产物或其精确副本
+- [ ] **4.1 失败测试（F340 P0，拆两半，均 G0.9 合规、零 dispatch）**：
+  (a) **命名族派生半**：对纯函数「扫描名单生成器」（4.2 新增，输入=激活矩阵+group 技能集，输出=audit_relative_path 列表）断言输出含 `group-factual/character/craft/plan` 与 `era/fanfic/highpoint` 命名——纯函数测试无需审计产物；
+  (b) **BLOCKING 检测半（F370）**：用 xinghuo-ranqiong 既有真实 BLOCKING 审计产物（如 `audits/chapter-2-memo-compliance.md`、`chapter-45-motivation.md`，含 `## BLOCKING`）断言检测 True、非 BLOCKING 产物断言 False。group-* 真实产物全仓为零（禁现场 dispatch 补产）——F340 的修复正确性由 (a) 单源派生 + 集成断言「名单 ∝ audit_suffix 命名族」覆盖
 - [ ] **4.2 实现**：`_any_audit_has_findings` 13 型硬编码名单替换为 `audit_layer` 单源派生——遍历激活矩阵（audit_layer.py:40-48）+ group 技能集（chapter_loop.py:210-231），用 `audit_relative_path` 构造；`"FAIL" in text` 改 `re.search(r"^#{0,3}\s*(BLOCKING|FAIL)", text, re.M)` 精确标记（F370）；F349 `drift_alerts` 幽灵字段读删除
-- [ ] **4.3 级联词表（F303/F341）**：CORE/CASCADABLE 补 `group-factual/character/craft/plan`、`era/fanfic/highpoint`；`_should_skip_audit` 读键对齐写方键（`blocking_found/issues/audit_reports`，chapter_loop.py:2870-2872）——无 per-skill `passed` 键则 streak 逻辑按写方真实形状重写
+- [ ] **4.3 级联词表（F303/F341）**：CORE/CASCADABLE 补 `group-factual/character/craft/plan`、`era/fanfic/highpoint`；`_should_skip_audit` 读键对齐写方键（`blocking_found/issues/audit_reports`，chapter_loop.py:2870-2872）——并修复 `_get_audit_history`（chapter_loop.py:365-392 返回扁平列表）与 `_should_skip_audit`（:321-363 期望 per-chapter skill→result 映射）的接口错配：写时按 skill pivot 历史、`passed` 从 run_audit_layer 输出派生，否则 cascade 恒 False
 - [ ] **4.4 触发器正则（F375/F643）**：triggers.py `_WARNING_RE` 改匹配写方真实格式 `- [{kind}] {dim}: {detail}`：`re.compile(r"^\s*-\s*\[(warning|drift|fatigue)\]\s*(.+)$", re.M | re.I)`；unit test 喂 compute_drift 真实输出样本断言非空命中
-- [ ] **4.5 F372 resonance**：`_parse_resonance_score`（chapter_loop.py:1339-1374）按技能自产格式实样对齐——以 `tests/fixtures/` 真实 resonance 产物断言解析非空；解析不了时 WARN 日志
+- [ ] **4.5 F372 resonance**：`_parse_resonance_score`（chapter_loop.py:1339-1374）按技能自产格式实样对齐——以 `novel-output/xinghuo-ranqiong/audits/chapter-N-resonance.md` 真实产物（格式 `**结果**: 通过 (80/100)`，现三模式全不匹配）断言解析非空，并将其精确副本入 tests/fixtures（G0.9/G0.11）；解析不了时 WARN 日志
 - [ ] **4.6 F511**：`_try_avg_g3_score` 改只取明确契约键（`final_score`/`total_score` 顶层键），不再抓任意 0-100 数值；unit test 喂含噪声 JSON
-- [ ] **4.7 F374/F524/F1311/F322/T105**：style_profile 陈旧判定排除 `chapter-*.md.bak`/备份命名族（写方 chapter_loop.py:1673-1694）；parse_trend 三方消费者表头契约对账断言（unit，三方构造同表头）；chapter_loop.py:1311 局部 regex 改走 truth_readers 单源；skills/shenbi-chapter-drafting SKILL.md reads 中 `context/chapter-N-context-decisions.json` 死读键处置（删除声明或补写方——改 SKILL.md 须跑 `just lint-contracts && just generate`）
+- [ ] **4.7 F374/F524/F1311/F322/T105**：style_profile 陈旧判定排除 `chapter-{N}-pre-rev.md` 备份命名族（写方 `_create_pre_revision_backup`，chapter_loop.py:1673-1694）；parse_trend 三方消费者表头契约对账断言（unit，三方构造同表头）；chapter_loop.py:1311 局部 regex 改走 truth_readers 单源；skills/shenbi-chapter-drafting SKILL.md reads 中 `context/chapter-N-context-decisions.json` 死读键处置（删除声明或补写方——改 SKILL.md 须跑 `just lint-contracts && just generate`）
 - [ ] **4.8 验收命令**（spec 验收 6 前半）：`uv run pytest tests/unit/pipeline -k "resonance or drift or style_profile" -v` 全绿（解析非空断言）
 - [ ] **4.9 commit**: `fix: audit gate single-source scan list + trigger format reconciliation (spec #27 T5)`
 
@@ -148,13 +150,13 @@ uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <scores.json> --tes
 - Modify: `justfile`（lint 面）、`.github/workflows/ci.yml`（lint 面，与 C25 联动处核对既有 lint 接入惯例）
 - Test: `tests/unit/test_lint_key_reconciliation.py`
 
-**Interfaces:**
+**Interfaces:**（**必须排在 Task 1-5 全部完成后执行**——registry 锚点引用前序 task 的终态代码面）
 - Produces: `READ_KEY_REGISTRY: list[ReadKey]`；`@dataclass class ReadKey {check_id: str; anchor: str; read_pattern: str; writer_sources: list[str]}`；`main(argv) -> int`（`--strict` flag：默认 WARN exit 0，strict 违规 exit 1）。断言 = (a) 每个 writer_source 锚点文件中模式 grep 存在；(b) read_pattern 与写方命名族样本交集非空（样本 = fixtures 真实产物路径 + 写方代码字面量，登记于 registry）
 - 复杂度: infra · test_kind: tdd_red_green · T1
 
 **Steps:**
 - [ ] **6.1 失败测试**：构造临时 registry 含一条孤儿读键 → strict 模式 exit 1 且输出含 check_id；一条健全读键 → exit 0
-- [ ] **6.2 实现**：首批登记 T1-T5 涉及的 40+ 读键（marker 命名族、g_reconcile 状态键、审计扫描族、触发器正则锚点、resonance 解析、score 键）；每条 writer_source 带 file:line 锚点
+- [ ] **6.2 实现**：首批登记 T1-T5 涉及的 40+ 读键（marker 命名族、g_reconcile 状态键、审计扫描族、触发器正则锚点、resonance 解析、score 键）；每条 writer_source 为 path+pattern 锚点（grep 断言用，行号仅注释性——行号会随后续提交漂移）
 - [ ] **6.3 接线**：justfile 追加 `lint-key-reconciliation` recipe → 接入 `just check`（首周期无 `--strict`，WARN 模式）；ci.yml lint 面同构接入（核对既有 lint 工具的接入行复制形态）
 - [ ] **6.4 验收命令**（spec 验收 3）：`uv run python tools/lint_key_reconciliation.py` exit 0 且零 WARN 输出
 - [ ] **6.5 commit**: `feat: lint_key_reconciliation — read↔writer key reconciliation lint (spec #27 T7)`
