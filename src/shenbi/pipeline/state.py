@@ -70,7 +70,6 @@ class PipelineConfig:
     #: truth in ``shenbi.config.thresholds`` so config / skills / gates can
     #: never drift apart again (root cause of E11).
     resonance_global_floor: int = DEFAULT_THRESHOLDS.resonance_global_floor
-    snapshot_retention_chapters: int = 50
 
 
 @dataclass
@@ -168,7 +167,6 @@ class PipelineState:
     closure: ClosureState = ClosureState.PENDING
     pending_checkpoint: CheckpointData = field(default_factory=CheckpointData)
     checkpoint_history: list[dict[str, Any]] = field(default_factory=list)
-    last_snapshot: dict[str, Any] = field(default_factory=dict)
     closure_step: int = 0  # tracks closure progress (persisted)
     closure_skills_done: list[str] = field(default_factory=list)  # closure skill history
     closure_retry_counts: dict[str, int] = field(default_factory=dict)  # closure per-skill retries
@@ -271,7 +269,6 @@ class PipelineState:
                 "created_at": self.pending_checkpoint.created_at,
             },
             "checkpoint_history": self.checkpoint_history,
-            "last_snapshot": self.last_snapshot,
             "closure_step": self.closure_step,
             "closure_skills_done": self.closure_skills_done,
             "closure_retry_counts": self.closure_retry_counts,
@@ -289,7 +286,6 @@ class PipelineState:
                 "style_learning_interval": self.config.style_learning_interval,
                 "genre_config_update_on_drift": self.config.genre_config_update_on_drift,
                 "resonance_global_floor": self.config.resonance_global_floor,
-                "snapshot_retention_chapters": self.config.snapshot_retention_chapters,
             },
         }
 
@@ -352,7 +348,6 @@ class PipelineState:
             ),
             pending_re_dispatches=data.get("pending_re_dispatches", []),
             checkpoint_history=data.get("checkpoint_history", []),
-            last_snapshot=data.get("last_snapshot", {}),
             closure_step=data.get("closure_step", 0),
             closure_skills_done=data.get("closure_skills_done", []),
             closure_retry_counts=data.get("closure_retry_counts", {}),

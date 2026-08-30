@@ -1,14 +1,14 @@
 """Chapter loop orchestrator: per-chapter step sequence with staging, context
 assembly, and G4 validation (spec section 6.1).
 
-The chapter loop runs 20 steps per chapter (the spec's 13-step loop expanded
-with individual audit-circle skills). Steps 2 (chapter-planning) and 7
+The chapter loop runs 15 steps per chapter (the spec's 13-step loop expanded
+with individual audit-circle skills; see CHAPTER_STEPS below). Steps 2 (chapter-planning) and 7
 (state-settling) write to ``staging/`` and are gated by human-review
 checkpoints. Step 4 (pipeline-context-assemble) materializes the three-route
 context package (section 7) before chapter-drafting consumes it.
 
-Each dispatched step runs G4 (skill-specific structure). Step 17
-(review-resonance) additionally runs G3 (scoring independence) because it is a
+Each dispatched step runs G4 (skill-specific structure). review-resonance
+additionally runs G3 (scoring independence) because it is a
 ``requires_independent_agent`` skill.
 
 dispatch/gate failures retry per spec section 11: up to
@@ -20,7 +20,7 @@ Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
 implements the audit layer, W3T5 implements revision routing. Clear TODO
 markers indicate the integration points.
 Revision routing (W3T5) is integrated: after review-resonance the router
-determines the route and step 18 (chapter-revision) is skipped when no
+determines the route and chapter-revision is skipped when no
 revision is needed.
 
 The orchestrator is stateless itself: it mutates the passed-in
@@ -59,7 +59,6 @@ from shenbi.pipeline.dispatch_helper import (
     run_gate_g4,
     print_token_summary,
 )
-from shenbi.pipeline.snapshot_diff import create_differential_snapshot
 from shenbi.pipeline.write_safety import WriteSafety, classify_skill_write_safety
 from shenbi.pipeline.crash_recovery import (
     _check_emergency_flag as _cr_check_emergency_flag,  # pyright: ignore[reportPrivateUsage]
@@ -124,13 +123,15 @@ class ChapterStep:
     output_path: str = ""
 
 
-# Restructured CHAPTER_STEPS: 16 core steps (shrunk from 20 per Plan 18 Task 5).
+# Restructured CHAPTER_STEPS: 15 core steps (shrunk from 20 per Plan 18 Task 5;
+# snapshot step removed per spec #26 path 3 — differential snapshot
+# subsystem dead-wired, rollback served by shenbi-snapshot-manage skill).
 # Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
 #   foreshadowing-recall, context-composing.
 # Merged: 3 foreshadowing skills → shenbi-foreshadowing-lifecycle (MERGE-1).
 # Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
 # Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
-#   linguistic-drift-check, pre-revision-snapshot).
+#   linguistic-drift-check).
 # Conditional: intent-management, drift-guidance, snapshot-manage moved to
 #   CONDITIONAL_STEPS (invoked only when gates open).
 # NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
@@ -246,16 +247,9 @@ CHAPTER_STEPS: list[ChapterStep] = [
         step_type="audit",
         is_audit=True,
     ),
-    # Step 15: Pre-revision snapshot (deterministic)
+    # Step 15: Chapter revision (LLM, conditional on audit findings)
     ChapterStep(
         15,
-        "pipeline-pre-revision-snapshot",
-        "pre-revision-snapshot",
-        step_type="checkpoint",
-    ),
-    # Step 16: Chapter revision (LLM, conditional on audit findings)
-    ChapterStep(
-        16,
         "shenbi-chapter-revision",
         "revision",
         step_type="core",
@@ -1437,14 +1431,6 @@ def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
     safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
-def _get_snapshot_retention(project_dir: Path) -> int:
-    """Return the number of chapters of snapshots to retain.
-
-    Defaults to 50 (matching ``PipelineConfig.snapshot_retention_chapters``).
-    """
-    return 50
-
-
 def _get_last_recall_chapter(project_dir: Path) -> int | None:
     """Return the chapter number where recall last ran, or None."""
     manifest = _load_manifest(project_dir)
@@ -1580,236 +1566,6 @@ def _should_run_drift(project_dir: Path, chapter: int) -> bool:  # pyright: igno
     return False
 
 
-def _prune_old_snapshots(project_dir: Path) -> None:
-    """Remove snapshot files older than the retention window.
-
-    Keeps only the most recent ``snapshot_retention_chapters`` worth of
-    snapshots (counting CHAPTERS, not the numeric range — robust to gaps).
-    Removes files from disk and updates the manifest. Spec 22 E40: fixes the
-    off-by-one in the previous ``ch < keep_from`` comparator (which kept
-    ``retention + 1``) and adds a post-prune guard.
-    """
-    retention = _get_snapshot_retention(project_dir)
-    manifest = _load_manifest(project_dir)
-    chapters_dict = manifest.get("chapters", {})
-
-    all_chapters = sorted(int(k) for k in chapters_dict)
-    if len(all_chapters) <= retention:
-        return
-
-    # Keep the newest ``retention`` chapters; prune the rest. Slice-based so
-    # gaps in chapter numbering do not distort the count.
-    keep_set = set(all_chapters[-retention:])
-    to_prune = [ch for ch in all_chapters if ch not in keep_set]
-
-    if not to_prune:
-        return
-
-    snap_dir = project_dir / "snapshots"
-    for ch in to_prune:
-        ch_key = str(ch)
-        for filename in chapters_dict.get(ch_key, []):
-            file_path = snap_dir / filename
-            if file_path.exists():
-                file_path.unlink()
-        chapters_dict.pop(ch_key, None)
-
-    _save_manifest(project_dir, manifest)
-    log.info("snapshots_pruned", pruned=len(to_prune), retention=retention)
-
-    # GUARD: assert the cap is now respected (fail loudly if a concurrent
-    # writer re-added snapshots between the prune and this check).
-    remaining = len(chapters_dict)
-    if remaining > retention:
-        log.error(
-            "snapshot_prune_failed",
-            count=remaining,
-            cap=retention,
-            msg="snapshot count still exceeds cap after pruning — "
-            "concurrent writer or manifest corruption suspected",
-        )
-
-
-# ---------------------------------------------------------------------------
-# Core snapshot file list + CJK content guard (spec §3.7, §3.8)
-# ---------------------------------------------------------------------------
-
-# Files included in snapshots (core chapter-state only).
-# Excludes audits, truth files, and staging to prevent ~15x bloat (spec §3.7).
-_CORE_SNAPSHOT_PATTERNS = [
-    "chapters/chapter-{chapter}.md",
-    "chapters/chapter-{chapter}-meta.md",
-    "chapters/chapter-{chapter}-decisions.json",
-    "chapters/chapter-{chapter}-revision-decisions.json",
-]
-
-
-def _get_core_snapshot_files(project_dir: Path, chapter: int) -> list[Path]:
-    """Get list of core chapter files to include in a snapshot.
-
-    Only includes chapter body, metadata, decisions, and revision decisions.
-    Excludes audit reports, truth files, and staging to reduce snapshot bloat.
-
-    Args:
-        project_dir: Root directory of the novel project.
-        chapter: Chapter number.
-
-    Returns:
-        List of existing file paths to include in the snapshot.
-    """
-    files: list[Path] = []
-    for pattern in _CORE_SNAPSHOT_PATTERNS:
-        path = project_dir / pattern.format(chapter=chapter)
-        if path.exists():
-            files.append(path)
-    return files
-
-
-def _has_minimum_chinese_chars(text: str, threshold: int = 500) -> bool:
-    """Check if text has at least ``threshold`` Chinese characters.
-
-    Chinese characters are defined as CJK Unified Ideographs (U+4E00 to
-    U+9FFF). This is used to flag snapshots that may contain revision
-    metadata instead of actual prose.
-
-    Args:
-        text: The text content to check.
-        threshold: Minimum number of Chinese characters required.
-
-    Returns:
-        True if the text has >= ``threshold`` Chinese characters.
-    """
-    count = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
-    return count >= threshold
-
-
-def _snapshot_chapter_files(  # pyright: ignore[reportUnusedFunction]
-    project_dir: Path,
-    chapter: int,
-    label: str = "",
-    use_legacy_snapshot: bool = False,
-    *,
-    state: PipelineState | None = None,
-) -> None:
-    """Create a snapshot of chapter outputs.
-
-    By default, uses a differential SHA-256 hash-based snapshot that stores
-    full content only for the most recent RING_BUFFER_N chapters (enabling
-    revision-rollback to restore previous chapter content after a revision
-    overwrite). Truth files are always stored in full. Older chapter/plan
-    files are tracked by hash only.
-
-    Set ``use_legacy_snapshot=True`` to use the old monolithic markdown
-    snapshot format (timestamped flat file in ``snapshots/``). The legacy
-    path is maintained for rollback safety during migration.
-
-    When *state* is provided, updates ``state.last_snapshot`` to point at the
-    newly written snapshot (spec §3.3) so resume/rollback can find the recovery
-    point from state without scanning the snapshots directory.
-
-    Args:
-        project_dir: Root directory of the novel project.
-        chapter: Chapter number to snapshot.
-        label: Optional label for legacy snapshots (e.g. "emergency").
-        use_legacy_snapshot: If True, use the old monolithic markdown format.
-        state: Optional pipeline state to record last_snapshot pointer into.
-    """
-    if use_legacy_snapshot:
-        from datetime import datetime
-
-        snap_dir = project_dir / "snapshots"
-        snap_dir.mkdir(parents=True, exist_ok=True)
-
-        timestamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S")
-        if label:
-            snap_filename = f"chapter-{chapter:03d}-{label}-{timestamp}.md"
-        else:
-            snap_filename = f"chapter-{chapter:03d}-{timestamp}.md"
-        snap_path = snap_dir / snap_filename
-
-        parts: list[str] = []
-
-        # Core chapter files only (excludes audits, truth, staging — spec §3.7)
-        core_files = _get_core_snapshot_files(project_dir, chapter)
-        for fpath in core_files:
-            fname = fpath.name
-            parts.append(f"## {fname}\n\n{fpath.read_text(encoding='utf-8')}")
-
-        # Content guard: warn if chapter body has too few Chinese chars (§3.8)
-        chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-        if chapter_path.exists():
-            text = chapter_path.read_text(encoding="utf-8")
-            if not _has_minimum_chinese_chars(text):
-                log.warning(
-                    "snapshot_suspect_content",
-                    chapter=chapter,
-                    chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
-                )
-
-        content = (
-            "\n\n---\n\n".join(parts) if parts else f"# Snapshot Chapter {chapter}\n\n(no files)"
-        )
-        safe_write(snap_path, content.encode("utf-8"))
-
-        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
-        # resume/rollback can find the recovery point without a directory scan.
-        if state is not None:
-            state.last_snapshot = {
-                "chapter": chapter,
-                "path": str(snap_path.relative_to(project_dir)),
-                "timestamp": timestamp,
-            }
-            log.info(
-                "last_snapshot_updated",
-                chapter=chapter,
-                path=state.last_snapshot["path"],
-            )
-
-        # Update manifest
-        manifest = _load_manifest(project_dir)
-        chapter_key = str(chapter)
-        manifest.setdefault("chapters", {})
-        manifest["chapters"].setdefault(chapter_key, [])
-        manifest["chapters"][chapter_key].append(snap_filename)
-        _save_manifest(project_dir, manifest)
-
-        log.info(
-            "snapshot_created",
-            chapter=chapter,
-            file=snap_filename,
-            size=len(content),
-        )
-
-        # Prune old snapshots
-        _prune_old_snapshots(project_dir)
-    else:
-        # Differential SHA-256 hash-based snapshot (default).
-        # Stores full content for recent chapters (ring buffer) so
-        # revision-rollback can restore previous chapter after an overwrite.
-        # Truth files always stored in full; older chapters hash-only.
-        from datetime import datetime
-
-        snapshot_dir = project_dir / "snapshots" / f"chapter-{chapter:03d}"
-        create_differential_snapshot(project_dir, chapter, snapshot_dir)
-
-        # Wire last_snapshot (spec §3.3): point state at the newest snapshot so
-        # resume/rollback can find the recovery point without a directory scan.
-        if state is not None:
-            state.last_snapshot = {
-                "chapter": chapter,
-                "path": str(snapshot_dir.relative_to(project_dir)),
-                "timestamp": datetime.now(UTC).strftime("%Y%m%dT%H%M%S"),
-            }
-            log.info(
-                "last_snapshot_updated",
-                chapter=chapter,
-                path=state.last_snapshot["path"],
-            )
-
-        # Prune old snapshots
-        _prune_old_snapshots(project_dir)
-
-
 def _update_last_recall_manifest(project_dir: Path, chapter: int) -> None:
     """Record that recall ran at *chapter* in the manifest."""
     manifest = _load_manifest(project_dir)
@@ -1942,7 +1698,7 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     """Collect audit issues and determine the revision route (spec §6.3).
 
     Called after the review-resonance step succeeds. Stores the route in the
-    chapter's ``audit_results`` so that step 18 (chapter-revision) can decide
+    chapter's ``audit_results`` so that chapter-revision can decide
     whether to run or skip.
     """
     _create_pre_revision_backup(project_dir, chapter)
@@ -1986,7 +1742,7 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
 
 
 def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
-    """True if step 18 (chapter-revision) should be skipped for *chapter*.
+    """True if chapter-revision should be skipped for *chapter*.
 
     This only applies when the revision router has already run (after
     review-resonance) and determined ``RevisionRoute.NO_REVISION``. Steps
@@ -2532,7 +2288,7 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
 
 def _g3_parallel_wave(skills: list[str], project_dir: Path, chapter: int) -> list[dict[str, Any]]:
     """F345: run G3 (scoring independence) for requires_independent skills
-    after a parallel audit wave — the serial step loop runs G3 at step 17,
+    after a parallel audit wave — the serial step loop runs G3 at review-resonance,
     but the parallel wave previously bypassed it entirely.
 
     Fail-closed (F408): missing progress.json scores FAIL, honestly recorded.
@@ -2760,7 +2516,7 @@ def _run_chapter_step_impl(
         # Consolidate all results
         all_results = core_results + genre_results
         # F345: G3 scoring independence for audit skills riding the parallel
-        # wave / serial reviews (the step-loop G3 at step 17 only covers the
+        # wave / serial reviews (the step-loop G3 at review-resonance only covers the
         # serial chapter-step path). Recorded per-skill into the gate manifest.
         for rec in _g3_parallel_wave(
             [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
@@ -2924,10 +2680,9 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # Step 18 (chapter-revision) is conditional -- skip when routing decided
-    # no revision is needed (spec §6.3, set during step 17 review-resonance).
-    # Scoped to the revision skill ONLY: snapshot (step 19) and drift (step
-    # 20) must always run regardless of the revision route.
+    # chapter-revision is conditional -- skip when routing decided no
+    # revision is needed (spec §6.3, route set during review-resonance).
+    # Scoped to the revision skill ONLY; other steps are unaffected.
     if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
         log.info("revision_step_skipped", chapter=chapter)
         state.add_step_done(chapter, step.skill)
@@ -3086,7 +2841,7 @@ def _run_chapter_step_impl(
             state.chapter_loop.retry_counts.pop(retry_key, None)
         # No hard fails → fall through to advance
 
-    # G3: scoring independence for requires_independent_agent skills (step 17).
+    # G3: scoring independence for requires_independent_agent skills.
     if requires_independent(step.skill):
         g3 = run_gate_g3(step.skill, project_dir, chapter=chapter, phase="chapter_loop")
         if not _gate_passed(g3):

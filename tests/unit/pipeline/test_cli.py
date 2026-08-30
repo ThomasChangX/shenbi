@@ -1,7 +1,7 @@
 """Tests for pipeline CLI commands.
 
-Covers all seven subcommands (init, next, status, review, resume, chapters,
-rollback) plus error paths. stdout is captured by monkeypatching sys.stdout to
+Covers the six subcommands (init, next, status, review, resume, chapters)
+plus error paths (rollback removed per spec #26 path 3). stdout is captured by monkeypatching sys.stdout to
 an in-memory buffer (same convention as test_gates_cli.py): ``capsys`` installs
 capture streams that pytest closes at teardown, and main()'s
 configure_logging() binds structlog (cache_logger_on_first_use=True) to the
@@ -511,29 +511,6 @@ class TestChaptersCommand:
 
         assert rc != 0
         assert result["status"] == "error"
-
-
-class TestRollbackCommand:
-    """``cmd_rollback`` is retained for direct callers (subparser removed)."""
-
-    def test_rollback_not_implemented(
-        self, tmp_path: Path, sample_seed_content: str, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """Rollback returns non-zero not_implemented until snapshot integration lands."""
-        import argparse
-
-        from shenbi.pipeline.cli import cmd_rollback
-
-        project_dir = _init_project(tmp_path, monkeypatch, sample_seed_content)
-        out = io.StringIO()
-        monkeypatch.setattr(sys, "stdout", out)
-
-        args = argparse.Namespace(project_dir=str(project_dir), chapter=2)
-        rc = cmd_rollback(args)
-        result = json.loads(out.getvalue())
-
-        assert rc != 0, "rollback should return non-zero (not faking success)"
-        assert result["status"] == "not_implemented"
 
 
 class TestUpdateTotalChapters:

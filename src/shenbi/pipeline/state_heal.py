@@ -1,6 +1,6 @@
 """Self-heal orphaned state counters on resume (spec §3.4).
 
-After a crash, retry_budget_consumed / revision_count / last_snapshot may be
+After a crash, retry_budget_consumed / revision_count may be
 stale or empty. heal_state_counters cross-checks each against disk reality
 and repairs conservatively (never undercount consumed retry budget). Every
 heal action is logged and returned as a description string for auditability.
@@ -8,21 +8,12 @@ heal action is logged and returned as a description string for auditability.
 
 from __future__ import annotations
 
-import re
-from datetime import datetime, UTC
 from pathlib import Path
 
 from shenbi.logging import get_logger
 from shenbi.pipeline.state import PipelineState
 
 log = get_logger(__name__)
-
-_SNAPSHOT_CHAPTER_RE = re.compile(r"chapter-(\d+)-")
-
-
-def _extract_chapter_from_snapshot_name(name: str) -> int:
-    m = _SNAPSHOT_CHAPTER_RE.search(name)
-    return int(m.group(1)) if m else 0
 
 
 def _heal_retry_budget(state: PipelineState, project_dir: Path) -> list[str]:
@@ -73,28 +64,6 @@ def _heal_revision_counts(state: PipelineState, project_dir: Path) -> list[str]:
     return actions
 
 
-def _heal_last_snapshot(state: PipelineState, project_dir: Path) -> list[str]:
-    """Point last_snapshot at the newest on-disk snapshot if it is empty."""
-    if state.last_snapshot:
-        return []
-    snap_dir = project_dir / "snapshots"
-    if not snap_dir.exists():
-        return []
-    snaps = sorted(snap_dir.glob("chapter-*.md"), key=lambda p: p.stat().st_mtime)
-    if not snaps:
-        return []
-    latest = snaps[-1]
-    state.last_snapshot = {
-        "chapter": _extract_chapter_from_snapshot_name(latest.name),
-        "path": str(latest.relative_to(project_dir)),
-        "timestamp": datetime.fromtimestamp(latest.stat().st_mtime, tz=UTC).strftime(
-            "%Y%m%dT%H%M%S"
-        ),
-    }
-    log.info("last_snapshot_healed", path=str(latest))
-    return [f"last_snapshot_healed:{state.last_snapshot['path']}"]
-
-
 def heal_state_counters(state: PipelineState, project_dir: Path) -> list[str]:
     """Self-heal orphaned state counters by cross-checking against disk.
 
@@ -104,5 +73,4 @@ def heal_state_counters(state: PipelineState, project_dir: Path) -> list[str]:
     actions: list[str] = []
     actions += _heal_retry_budget(state, project_dir)
     actions += _heal_revision_counts(state, project_dir)
-    actions += _heal_last_snapshot(state, project_dir)
     return actions

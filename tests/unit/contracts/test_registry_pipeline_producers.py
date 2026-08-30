@@ -39,9 +39,14 @@ SHARED = {
     "genre-config.json",
 }
 
-# D20: the real pipeline flatfile (chapter_loop._snapshot_chapter_files writes
-# snapshots/chapter-NNN-{timestamp}.md). The fictional directory concept
-# snapshots/chapter-NNN/ must no longer be the snapshot concept name.
+# D20: flatfile snapshot concept snapshots/chapter-NNN-*.md. The original
+# chapter_loop timestamped writer was removed (spec #26 path 3); the current
+# in-repo flat writer is crash_recovery emergency snapshots
+# (snapshots/chapter-N-{label}.md) and the LLM skill writes the
+# snapshots/chapter-NNN/ directory format. Reconciling the D20 concept
+# entry (docs/framework/truth-files.yaml) with the post-removal writers is
+# owned by spec #57 T4 (its surviving scope). The fictional directory concept
+# must no longer be the ONLY snapshot concept name.
 D20_REAL_FLATFILE = "snapshots/chapter-NNN-*.md"
 D20_FICTIONAL_DIR_CONCEPT = "snapshots/chapter-NNN/manifest.json"
 

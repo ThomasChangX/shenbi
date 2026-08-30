@@ -38,22 +38,9 @@ def test_heals_revision_count_from_disk(tmp_path: Path):
     assert s.chapter_loop.chapter_states["3"].revision_count >= 1
 
 
-def test_heals_last_snapshot_from_disk(tmp_path: Path):
-    s = PipelineState.default(project_dir=str(tmp_path))
-    assert s.last_snapshot == {}
-    snap_dir = tmp_path / "snapshots"
-    snap_dir.mkdir()
-    (snap_dir / "chapter-007-20260101T000000.md").write_text("# snap", encoding="utf-8")
-
-    heal_state_counters(s, tmp_path)
-    assert s.last_snapshot, "last_snapshot should be healed from disk"
-    assert s.last_snapshot["chapter"] == 7
-    assert s.last_snapshot["path"].startswith("snapshots/")
-
-
 def test_no_changes_returns_empty_actions(tmp_path: Path):
     s = PipelineState.default(project_dir=str(tmp_path))
-    # Nothing on disk, no feedback, last_snapshot already empty is left empty.
+    # Nothing on disk, no feedback — nothing healed.
     actions = heal_state_counters(s, tmp_path)
     # No snapshots/revision files/feedback -> nothing to heal.
     assert actions == []

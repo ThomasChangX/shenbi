@@ -5,10 +5,6 @@ from pathlib import Path
 
 import pytest
 
-from shenbi.pipeline.chapter_loop import (
-    _get_core_snapshot_files,
-    _has_minimum_chinese_chars,
-)
 from shenbi.pipeline.crash_recovery import (
     _snapshot_chapter_files,
     is_shutdown_requested,
@@ -72,56 +68,3 @@ class TestSnapshotChapterFiles:
 # ---------------------------------------------------------------------------
 # Task 6: core-file filtering + CJK content guard (spec §3.7, §3.8)
 # ---------------------------------------------------------------------------
-
-
-class TestCoreSnapshotFiles:
-    """Snapshot file list includes only core chapter files that exist on disk."""
-
-    def test_only_includes_chapter_artifacts(self):
-        with tempfile.TemporaryDirectory() as tmp:
-            project_dir = Path(tmp)
-            (project_dir / "chapters").mkdir()
-            # Create all core files for chapter 5
-            (project_dir / "chapters" / "chapter-5.md").write_text("# Ch5")
-            (project_dir / "chapters" / "chapter-5-meta.md").write_text("meta")
-            (project_dir / "chapters" / "chapter-5-decisions.json").write_text("{}")
-            (project_dir / "chapters" / "chapter-5-revision-decisions.json").write_text("[]")
-
-            # Also create audit and truth dirs to ensure they are excluded
-            (project_dir / "audits").mkdir()
-            (project_dir / "audits" / "chapter-5-audit.md").write_text("audit")
-            (project_dir / "truth").mkdir()
-            (project_dir / "truth" / "truth.md").write_text("truth")
-
-            files = _get_core_snapshot_files(project_dir=project_dir, chapter=5)
-
-            # Should include the chapter body
-            assert any(f.name == "chapter-5.md" for f in files)
-            # Should have exactly 4 core files
-            assert len(files) == 4
-
-            # Should NOT include audit reports
-            for f in files:
-                assert "audits/" not in str(f)
-                assert "truth/" not in str(f)
-                assert "staging/" not in str(f)
-
-
-class TestMinChineseChars:
-    """Content with fewer than 500 Chinese chars triggers warning."""
-
-    def test_detects_short_content(self):
-        # Revision metadata — 0 Chinese chars
-        short = "Chapter complete. No changes needed. Summary follows."
-        assert _has_minimum_chinese_chars(short, threshold=500) is False
-
-    def test_passes_normal_prose(self):
-        """Normal Chinese prose passes the minimum character check."""
-        normal = "林烽" * 300  # 600 Chinese characters
-        assert _has_minimum_chinese_chars(normal, threshold=500) is True
-
-    def test_counts_only_cjk(self):
-        """Only CJK unified ideographs are counted, not punctuation."""
-        mixed = "林烽站在城墙上。" * 100  # ~400 Chinese chars + punctuation
-        result = _has_minimum_chinese_chars(mixed, threshold=300)
-        assert result is True

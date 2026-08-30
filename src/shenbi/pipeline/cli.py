@@ -781,8 +781,8 @@ def cmd_resume(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
 
-            # Self-heal orphaned counters/pointers from disk (spec §3.4):
-            # retry_budget_consumed, revision_count, last_snapshot.
+            # Self-heal orphaned counters from disk (spec §3.4):
+            # retry_budget_consumed, revision_count.
             from shenbi.pipeline.state_heal import heal_state_counters
 
             heal_state_counters(state, project_dir)
@@ -916,29 +916,6 @@ def cmd_chapters(args: argparse.Namespace) -> int:
         }
     )
     return 0
-
-
-def cmd_rollback(args: argparse.Namespace) -> int:
-    """Rollback to a chapter snapshot.
-
-    Not yet implemented -- requires snapshot integration (deferred to a future
-    spec, see docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
-    The subparser registration has been removed so 'pipeline --help' does not
-    advertise this command. This function is retained for direct callers and
-    returns a non-zero exit code.
-    """
-    project_dir = Path(args.project_dir)
-    log.info("rollback_not_implemented", project_dir=str(project_dir), chapter=args.chapter)
-    emit_json(
-        {
-            "status": "not_implemented",
-            "message": (
-                "Rollback requires snapshot integration (deferred to future spec). "
-                "See docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
-            ),
-        }
-    )
-    return 1
 
 
 def cmd_backfill_context(args: argparse.Namespace) -> int:

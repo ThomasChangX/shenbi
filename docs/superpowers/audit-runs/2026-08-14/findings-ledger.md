@@ -60,7 +60,7 @@
 | F300 | dispatch_helper `"\u003c"` 转义是 no-op，文档声明的标签注入缓解未生效 | security | P1 | 见 Z3.a.md#F300 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F301 | 并行审计波使串行审计路径（run_audit_layer / 审计 BLOCKING 重审环 / resonance 解析与落盘 / boundary circle）在生产中不可达 | error | P1 | 见 Z3.a.md#F301 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F302 | TokenLedger 接线不全：genesis/closure/triggers/并行 post-draft/审计波调用 dispatch_skill 均未传 state，账本缺大部分调用；chapter 字段恒 0 | error | P0 | 见 Z3.a.md#F302 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
-| F303 | 快照子系统生产未接线：create_differential_snapshot / restore_from_snapshot / _prune_old_snapshots / chapter_loop._snapshot_chapter_files 全部无生产调用方；step 15 "pre-revision-snapshot" 空转；last_snapshot 永不写入 | error | P1 | 见 Z3.a.md#F303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
+| F303 | 快照子系统生产未接线：create_differential_snapshot / restore_from_snapshot / _prune_old_snapshots / chapter_loop._snapshot_chapter_files 全部无生产调用方；step 15 "pre-revision-snapshot" 空转；last_snapshot 永不写入 | error | P1 | 见 Z3.a.md#F303 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | removed (spec #26 path 3, PR pending) |
 | F304 | RetryExhaustedError 在 crash-resume 预算耗尽路径未被捕获，CLI 裸崩而非 escalation checkpoint | error | P1 | 见 Z3.a.md#F304 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | specced |
 | F305 | 审计严重度裸子串检测（"BLOCKING"/"FAIL"）产生误报 | error | P2 | 见 Z3.a.md#F305 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
 | F306 | audit_context_cache 读错 volume_map 路径 + 章节号子串匹配缺陷 | error | P2 | 见 Z3.a.md#F306 | 见报告 | 见报告 | 见报告 | 见报告 | deep-read | verified |
