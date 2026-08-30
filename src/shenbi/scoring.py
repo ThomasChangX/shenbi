@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
+from shenbi.contracts.enums import ScoredBy
 from shenbi.contracts.thresholds import TEST_PASS
 from shenbi.gates.shared import marker_filename
 from shenbi.logging import configure_logging, get_logger
@@ -341,7 +342,7 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
     }
 
 
-def _resolve_scored_by() -> str:
+def _resolve_scored_by() -> ScoredBy:
     """Explicit provenance (spec #31 T3 / F113 residual).
 
     Replaces the two-value argv sniff: codex dispatch passes ``--subagent``,

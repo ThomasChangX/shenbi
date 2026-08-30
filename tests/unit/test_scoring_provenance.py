@@ -7,6 +7,7 @@ import pytest
 from shenbi.contracts.enums import ALL_ENUMS, ScoredBy
 
 
+@pytest.mark.unit
 def test_scored_by_in_all_enums() -> None:
     assert ALL_ENUMS["ScoredBy"] == ScoredBy
 
