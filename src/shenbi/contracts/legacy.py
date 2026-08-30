@@ -144,7 +144,7 @@ def read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
     text = skill_md.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise ContractError("frontmatter missing", skill=skill)
-    fm = re.match(r"^---\n(.*?)\n---(?:\n|$)", text, re.DOTALL)  # F263: line-anchored
+    fm = re.match(r"^---\r?\n(.*?)\r?\n---(?:\r?\n|$)", text, re.DOTALL)  # F263: line-anchored
     if not fm:
         raise ContractError("frontmatter unterminated", skill=skill)
     try:
@@ -232,7 +232,7 @@ def requires_independent_agent(skill: str) -> bool:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
         return False
-    fm = re.match(r"^---\n(.*?)\n---(?:\n|$)", text, re.DOTALL)  # F263: line-anchored
+    fm = re.match(r"^---\r?\n(.*?)\r?\n---(?:\r?\n|$)", text, re.DOTALL)  # F263: line-anchored
     if not fm:
         return False
     try:

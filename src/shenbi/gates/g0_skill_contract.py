@@ -65,7 +65,7 @@ def _parse_frontmatter(skill_md: Path) -> dict[str, Any] | None:
         text = skill_md.read_text(encoding="utf-8")
         if not text.startswith("---"):
             return None
-        m = re.match(r"^---\n(.*?)\n---(?:\n|$)", text, re.DOTALL)  # F263: line-anchored
+        m = re.match(r"^---\r?\n(.*?)\r?\n---(?:\r?\n|$)", text, re.DOTALL)  # F263: line-anchored
         if not m:
             return None
         data = yaml.safe_load(m.group(1)) or {}
