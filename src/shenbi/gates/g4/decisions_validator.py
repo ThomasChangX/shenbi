@@ -19,7 +19,7 @@ from pydantic import ValidationError
 
 from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 from shenbi.contracts.schemas.decisions import DecisionsDoc
-from shenbi.gates.shared import fail, passed, resolve_input_path
+from shenbi.gates.shared import fail, parse_decisions_payload, passed, resolve_input_path
 from shenbi.status import GateStatus
 
 
@@ -96,14 +96,14 @@ def g4_decisions(
         if not fp.endswith("-decisions.json"):
             continue
 
-        try:
-            data = json.loads(p.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            mf.append(f"G4.dec.invalid_json:{fp}")
-            continue
-
-        if not isinstance(data, dict):
-            mf.append(f"G4.dec.not_object:{fp}:got {type(data).__name__}")
+        # Parse policy shared with G2 (spec #30 T3/T6, T104): concat detection
+        # + strict loads + raw_decode first-object recovery — the same file
+        # cannot pass one gate and fail the other on syntax grounds. Recovery
+        # is diagnostic only; the recovered object still goes through
+        # DecisionsDoc validation below (never a silent pass).
+        data, parse_failures = parse_decisions_payload(p.read_text(encoding="utf-8"), fp, "G4.dec")
+        if parse_failures:
+            mf.extend(f"{f['id']}:{fp}:{f['r']}" for f in parse_failures)
             continue
 
         # Schema version, required keys, and P2.5 rationale (DecisionsDoc).

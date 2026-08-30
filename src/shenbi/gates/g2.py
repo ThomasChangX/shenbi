@@ -23,6 +23,7 @@ from shenbi.gates.shared import (
     bak_path,
     fail,
     jload,
+    parse_decisions_payload,
     passed,
     word_count_md,
     yload,
@@ -92,78 +93,12 @@ def gate_G2(
                     continue
                 eff_type = "chapter"  # .md main artifact validated as chapter
             else:
-                # G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())
-                # (G4 retry feedback can cause LLM to concatenate old + new JSON under
-                # one ### FILE: marker. This catches it early.)
-                #
-                # CRITICAL ORDERING: json.loads() raises JSONDecodeError on concatenated JSON
-                # ("Extra data" error), so this check must execute first. If we placed it
-                # after data = json.loads(content), the line above would raise before the
-                # check is ever reached, making the check dead code.
-                if content.count('"$schema"') > 1:
-                    mf.append(
-                        {
-                            "id": "G2.dec.4",
-                            "file": fp,
-                            "s": "FAIL",
-                            "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
-                        }
-                    )
-                    continue  # skip the json.loads() below for this file — it would raise
-
-                # G2.dec.1 — valid JSON (with multi-JSON concatenation recovery)
-                # Multi-JSON detection runs BEFORE json.loads(): if raw_decode()
-                # succeeds where json.loads() fails (due to concatenated JSON objects),
-                # extract only the first complete object and warn about truncation.
-                data: Any = None
-                try:
-                    data = json.loads(content)
-                except json.JSONDecodeError:
-                    # Recovery: attempt raw_decode() to extract first complete JSON object
-                    decoder = json.JSONDecoder()
-                    try:
-                        clean_data, end_pos = decoder.raw_decode(content)
-                        if isinstance(clean_data, dict):
-                            data = clean_data
-                            remaining = content[end_pos:].strip()
-                            if remaining:
-                                log.warning(
-                                    "g2_decisions_multi_json_truncated",
-                                    file=fp,
-                                    original_len=len(content),
-                                    recovered_len=end_pos,
-                                    remaining_preview=remaining[:200],
-                                )
-                            else:
-                                # Trailing whitespace only — borderline valid, accept
-                                log.info(
-                                    "g2_decisions_json_trailing_ws_recovered",
-                                    file=fp,
-                                    original_len=len(content),
-                                    cleaned_len=end_pos,
-                                )
-                        else:
-                            mf.append(
-                                {
-                                    "id": "G2.dec.1",
-                                    "file": fp,
-                                    "s": "FAIL",
-                                    "r": f"recovered non-object JSON: {type(clean_data).__name__}",
-                                }
-                            )
-                            continue
-                    except json.JSONDecodeError:
-                        mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
-                        continue
-                if not isinstance(data, dict):
-                    mf.append(
-                        {
-                            "id": "G2.dec.1",
-                            "file": fp,
-                            "s": "FAIL",
-                            "r": f"expected JSON object, got {type(data).__name__}",
-                        }
-                    )
+                # G2.dec.4/.1 — concat detection + strict loads + raw_decode
+                # recovery, shared with G4 via parse_decisions_payload
+                # (spec #30 T3/T6: same file, same verdict in both gates).
+                data, parse_failures = parse_decisions_payload(content, fp, "G2.dec")
+                if parse_failures:
+                    mf.extend(parse_failures)
                     continue
                 # G2.dec.2/.3 — schema version, required keys, P2.5 rationale (DecisionsDoc)
                 try:
