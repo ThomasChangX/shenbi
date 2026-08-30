@@ -614,7 +614,9 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     if step.uses_staging and "state-settling" in step.skill:
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            files.extend(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
+            files.extend(
+                f"{STAGING_DIR}/truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))
+            )
 
     # F434: contract-declared decisions sidecars join the G4 file list.
     # Existence-gated to avoid spurious FAILs (matches phase_runner's

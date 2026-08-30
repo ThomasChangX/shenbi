@@ -85,13 +85,20 @@ def gate_G2(
         # chapter semantics (eff_type) instead of silently bypassing G2.4+.
         eff_type = file_type
         if file_type == "decisions":
-            if not fp.endswith(".json"):
-                if "snapshot" in Path(fp).name:
+            if not fp.endswith("-decisions.json"):
+                if Path(fp).suffix == ".json" and "snapshot" not in Path(fp).name:
+                    # Non-sidecar JSON (e.g. genre-config.json in a decisions-type
+                    # output set) is not DecisionsDoc material — fall through to
+                    # the generic G2.4 JSON-syntax check (PR #120 review: G2
+                    # must not schema-validate foreign JSON as decisions).
+                    pass
+                elif "snapshot" in Path(fp).name:
                     # Backup files (chapter-revision's truth/state_snapshot-pre-rev.md)
                     # are byte-copies of a prior chapter, not artifacts to gate —
                     # chapter semantics would false-FAIL on frontmatter/word floor.
                     continue
-                eff_type = "chapter"  # .md main artifact validated as chapter
+                else:
+                    eff_type = "chapter"  # .md main artifact validated as chapter
             else:
                 # G2.dec.4/.1 — concat detection + strict loads + raw_decode
                 # recovery, shared with G4 via parse_decisions_payload
