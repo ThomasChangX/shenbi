@@ -70,9 +70,11 @@ def compute_consecutive(patterns: list[str]) -> dict[str, int]:
     if current_pattern:
         runs[current_pattern].append(current_len)
     result: dict[str, int] = {}
-    for pattern in PATTERNS:
-        pattern_runs = runs.get(pattern, [])
-        result[pattern] = max(pattern_runs) if pattern_runs else 0
+    # F667: report every pattern present in the input, not just vocab entries —
+    # out-of-vocab labels (e.g. 未分类) must not silently vanish.
+    for pattern in sorted(set(patterns)):
+        if runs[pattern]:  # falsy labels never enter the run loop
+            result[pattern] = max(runs[pattern])
     return result
 
 
@@ -148,9 +150,12 @@ def compute_transition_matrix(patterns: list[str]) -> list[dict[str, Any]]:
     for i in range(len(patterns) - 1):
         matrix[patterns[i]][patterns[i + 1]] += 1
     rows: list[dict[str, Any]] = []
-    for p1 in PATTERNS:
+    # F667: superset of vocab + input patterns so out-of-vocab labels keep
+    # their transition rows while the vocab grid stays stable.
+    all_patterns = sorted(set(PATTERNS) | set(patterns))
+    for p1 in all_patterns:
         row: dict[str, Any] = {"from": p1, "to": {}}
-        for p2 in PATTERNS:
+        for p2 in all_patterns:
             inner = matrix.get(p1)
             count = inner.get(p2, 0) if inner else 0
             row["to"][p2] = count
@@ -202,7 +207,7 @@ def main() -> None:
             }
             for p in PATTERNS
         ],
-        "max_consecutive": [{"pattern": p, "max_run": consecutive.get(p, 0)} for p in PATTERNS],
+        "max_consecutive": [{"pattern": p, "max_run": consecutive[p]} for p in consecutive],
         "consecutive_warnings": consecutive_warnings,
         "entropy": entropy_vals,
         "entropy_terms": entropy_terms,

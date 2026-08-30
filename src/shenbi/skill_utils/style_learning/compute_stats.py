@@ -10,10 +10,13 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
 from shenbi.safe_write import safe_write
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
+# F668: directional quote pairs (aligned with cjk.PUNCTUATION_TOKENS 引号); ASCII " toggles.
+QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}
 PUNCT_MAP = {
     "句号": "。",
     "逗号": "，",
@@ -34,11 +37,6 @@ CONNECTIVES = {
     "让步": ["虽然", "尽管", "固然", "即便", "哪怕"],
     "条件": ["如果", "只要", "只有", "除非", "否则"],
 }
-RHETORICAL = {
-    "排比": re.compile(r"([^。！？\n]{8,})([。！？])\1([^。！？\n]{8,})\2"),
-    "设问": re.compile(r"(为何|为什么|怎么|怎样|如何).*[？]"),
-    "反问": re.compile(r"(难道|岂|怎能|怎会|莫非).*[？]"),
-}
 AI_MARKERS = [
     "似乎",
     "仿佛",
@@ -55,28 +53,63 @@ TRANSITION_WORDS = ["然而", "不过", "此时", "突然", "终于", "于是", 
 
 
 def segment_sentences(text: str) -> list[tuple[str, int]]:
-    """Segment Chinese text into sentences. Returns list of (sentence_text, char_count)."""
+    r"""Segment Chinese text into sentences. Returns list of (sentence_text, char_count).
+
+    F628: ； terminates sentences (unified with SENT_ENDS).
+    F668: sentence-final punctuation inside open quotes does not split;
+    \n splits unconditionally (escape hatch for unterminated quotes).
+    """
     sentences: list[tuple[str, int]] = []
     current: list[str] = []
+    quote_stack: list[str] = []
+    ascii_quote_open = False
+
+    def flush() -> None:
+        sent = "".join(current).strip()
+        if sent:
+            char_count = len(sent.replace("\n", "").replace(" ", ""))
+            if char_count > 0:
+                sentences.append((sent, char_count))
+        current.clear()
+
     for ch in text:
         current.append(ch)
-        if ch in "。！？\n":
-            sent = "".join(current).strip()
-            if sent:
-                char_count = len(sent.replace("\n", "").replace(" ", ""))
-                if char_count > 0:
-                    sentences.append((sent, char_count))
-            current = []
+        quote_closed = False
+        if ch in QUOTE_PAIR.values():
+            quote_stack.append(ch)
+        elif ch in QUOTE_PAIR:
+            if quote_stack and quote_stack[-1] == QUOTE_PAIR[ch]:
+                quote_stack.pop()
+                quote_closed = True
+        elif ch == '"':
+            if ascii_quote_open:
+                quote_closed = True
+            ascii_quote_open = not ascii_quote_open
+        in_quote = bool(quote_stack) or ascii_quote_open
+        if ch == "\n" or (ch in "。！？；" and not in_quote):
+            if ch == "\n":
+                # reset quote state so an unterminated quote on one line cannot
+                # suppress splitting on later lines (Copilot review, PR #100)
+                quote_stack.clear()
+                ascii_quote_open = False
+            flush()
+        elif (
+            quote_closed
+            and not quote_stack
+            and not ascii_quote_open
+            and len(current) >= 2
+            and current[-2] in "。！？；"
+        ):
+            # F668: sentence-final punct right before the OUTERMOST closing quote
+            # ends the sentence (nested inner closes do not split the outer one)
+            flush()
     if current:
-        sent = "".join(current).strip()
-        char_count = len(sent.replace("\n", "").replace(" ", ""))
-        if char_count > 0:
-            sentences.append((sent, char_count))
+        flush()
     return sentences
 
 
 def segment_paragraphs(text: str) -> list[dict[str, Any]]:
-    """Segment text into paragraphs by double-newline or single-newline boundaries."""
+    """Segment text into paragraphs by double-newline (blank line) boundaries."""
     raw = re.split(r"\n\s*\n", text)
     paragraphs: list[dict[str, Any]] = []
     for p in raw:
@@ -170,7 +203,13 @@ def compute_ttr(text: str) -> dict[str, Any]:
     """Compute Type-Token Ratio at character level for Chinese text."""
     chars = [c for c in text if c.strip() and c not in "。，！？；：''「」『』（）——……、\n"]
     if not chars:
-        return {"global_ttr": 0, "sliding_ttr_mean": 0, "sliding_ttr_std": 0}
+        return {
+            "global_ttr": 0,
+            "content_ttr": 0,
+            "sliding_ttr_mean": 0,
+            "sliding_ttr_std": 0,
+            "total_chars": 0,
+        }
     unique = len(set(chars))
     total = len(chars)
     global_ttr = round(unique / total, 4) if total > 0 else 0
@@ -250,11 +289,13 @@ def compute_connectives(text: str) -> dict[str, dict[str, dict[str, float]]]:
 def detect_rhetoric(text: str) -> dict[str, int]:
     """Rule-based detection of rhetorical patterns."""
     results: dict[str, int] = {}
-    sent_texts = [s[0] for s in segment_sentences(text)]
+    sentences = segment_sentences(text)
+    # F656: compare full sentence lengths — [:20] truncation made any three
+    # long sentences read as "parallel".
+    sent_lens = [s[1] for s in sentences]
     parallelism_count = 0
-    for i in range(len(sent_texts) - 2):
-        a, b, c = sent_texts[i][:20], sent_texts[i + 1][:20], sent_texts[i + 2][:20]
-        la, lb, lc = len(a), len(b), len(c)
+    for i in range(len(sent_lens) - 2):
+        la, lb, lc = sent_lens[i], sent_lens[i + 1], sent_lens[i + 2]
         if la > 0 and lb > 0 and lc > 0:
             if abs(la - lb) / max(la, lb) < 0.3 and abs(lb - lc) / max(lb, lc) < 0.3:
                 parallelism_count += 1
@@ -263,20 +304,30 @@ def detect_rhetoric(text: str) -> dict[str, int]:
     results["设问"] = shewen
     fanwen = len(re.findall(r"(难道|岂|怎能|怎会|莫非)[^？]{0,15}？", text))
     results["反问"] = fanwen
+    # F652: longest-first with position-interval consumption — a repeated
+    # phrase counts once; shorter n-grams whose occurrences fall inside an
+    # already-counted longer phrase's intervals are skipped.
     repetition = 0
-    for phrase_len in [3, 4, 5]:
+    consumed: list[tuple[int, int]] = []
+
+    def uncovered(positions: list[int]) -> list[int]:
+        return [p for p in positions if not any(start <= p < end for start, end in consumed)]
+
+    for phrase_len in (5, 4, 3):
         phrases: dict[str, list[int]] = {}
-        for i in range(len(text) - phrase_len):
-            phrase = text[i : i + phrase_len]
-            if phrase not in phrases:
-                phrases[phrase] = []
-            phrases[phrase].append(i)
-        for phrase, positions in phrases.items():
-            if len(positions) >= 3:
-                for j in range(len(positions) - 1):
-                    if positions[j + 1] - positions[j] < 100:
-                        repetition += 1
-                        break
+        for i in range(len(text) - phrase_len + 1):
+            phrases.setdefault(text[i : i + phrase_len], []).append(i)
+        for positions in phrases.values():
+            remaining = uncovered(positions)
+            if len(remaining) < 3:
+                continue
+            if not any(remaining[j + 1] - remaining[j] < 100 for j in range(len(remaining) - 1)):
+                continue
+            repetition += 1
+            # extend margins by phrase_len-1 on both sides so junction n-grams
+            # spanning repeat boundaries (same or shorter tier) are shielded too
+            margin = phrase_len - 1
+            consumed.extend((p - margin, p + phrase_len + margin) for p in remaining)
     results["反复"] = repetition
     return results
 
@@ -330,6 +381,8 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
 def compute_all_stats(texts: dict[str, str]) -> dict[str, Any]:
     """Run all statistical analyses on the given texts."""
     combined = "\n\n".join(texts.values())
+    # F634: META blocks are bookkeeping, not prose — strip before any stat.
+    combined = META_BLOCK_RE.sub("", combined)
     total_chars = len(combined.replace("\n", "").replace(" ", ""))
     sentences = segment_sentences(combined)
     paragraphs = segment_paragraphs(combined)

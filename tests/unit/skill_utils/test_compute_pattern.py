@@ -5,6 +5,7 @@ from __future__ import annotations
 import pytest
 
 from shenbi.skill_utils.chapter_pattern.compute_pattern import (
+    DEFAULT_MAX_CONSECUTIVE,
     PATTERNS,
     check_distribution,
     classify_entropy,
@@ -16,9 +17,10 @@ from shenbi.skill_utils.chapter_pattern.compute_pattern import (
 
 @pytest.mark.unit
 def test_compute_consecutive_returns_zero_for_empty() -> None:
+    """F667: keys track the input set, so no input -> no vocab-padded rows."""
     result = compute_consecutive([])
-    for pattern in PATTERNS:
-        assert result[pattern] == 0
+    assert result == {}
+    assert PATTERNS  # vocab still defined for other consumers
 
 
 @pytest.mark.unit
@@ -149,8 +151,8 @@ def test_compute_consecutive_all_unique_patterns_yields_all_ones() -> None:
     assert result["升级"] == 1
     assert result["转折"] == 1
     assert result["决战"] == 1
-    # Patterns never appearing have max run 0.
-    assert result["日常"] == 0
+    # F667: absent patterns no longer get vocab-padded zero rows.
+    assert "日常" not in result
 
 
 @pytest.mark.unit
@@ -236,3 +238,74 @@ def test_main_with_stdin_json(monkeypatch: pytest.MonkeyPatch) -> None:
     main()
     result = json.loads(out.getvalue())
     assert result["sample"]["chapters"] == 1
+
+
+# --- spec #14 T3: F667 out-of-vocab patterns preserved ---
+
+
+@pytest.mark.unit
+def test_compute_consecutive_keys_equal_input_set() -> None:
+    """F667: keys are exactly the patterns present, in sorted order."""
+    result = compute_consecutive(["未分类", "未分类", "未分类", "未分类", "引入"])
+    assert list(result) == sorted({"未分类", "引入"})
+    assert result["未分类"] == 4
+
+
+@pytest.mark.unit
+def test_compute_consecutive_empty_returns_empty_dict() -> None:
+    """F667: no vocab-padding of absent patterns (was: zero rows for all vocab)."""
+    assert compute_consecutive([]) == {}
+
+
+@pytest.mark.unit
+def test_check_consecutive_warnings_covers_out_of_vocab() -> None:
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import (
+        check_consecutive_warnings,
+    )
+
+    warnings = check_consecutive_warnings({"未分类": 4})
+    assert warnings and warnings[0]["pattern"] == "未分类"
+    assert warnings[0]["max_run"] == 4
+    assert warnings[0]["threshold"] == DEFAULT_MAX_CONSECUTIVE
+
+
+@pytest.mark.unit
+def test_compute_transition_matrix_includes_out_of_vocab() -> None:
+    """F667: 未分类 transitions appear (superset grid: vocab + input)."""
+    rows = compute_transition_matrix(["引入", "未分类", "未分类"])
+    sources = {r["from"] for r in rows}
+    assert "未分类" in sources
+    unc = next(r for r in rows if r["from"] == "未分类")
+    assert unc["to"]["未分类"] == 1
+    assert any(r["from"] == "引入" and r["to"]["未分类"] == 1 for r in rows)
+
+
+@pytest.mark.unit
+def test_main_max_consecutive_includes_out_of_vocab(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    """F667: main() max_consecutive rows follow compute_consecutive keys."""
+    import io
+    import json
+    import sys
+
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import main
+
+    data = json.dumps([{"num": i, "pattern": "未分类"} for i in range(1, 5)])
+    monkeypatch.setattr(sys, "argv", ["compute_pattern.py", "-"])
+    monkeypatch.setattr(sys, "stdin", io.StringIO(data))
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    main()
+    result = json.loads(out.getvalue())
+    assert result["max_consecutive"] == [{"pattern": "未分类", "max_run": 4}]
+    assert any(
+        w["pattern"] == "未分类" and w["max_run"] == 4 for w in result["consecutive_warnings"]
+    )
+
+
+@pytest.mark.unit
+def test_compute_consecutive_empty_label_does_not_crash() -> None:
+    """Stage-8 audit: falsy pattern labels never enter the run loop — no max() on empty."""
+    result = compute_consecutive(["引入", "", "引入"])
+    assert result == {"引入": 1}
