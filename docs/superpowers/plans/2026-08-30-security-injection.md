@@ -196,13 +196,18 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 # abort 使测试变空洞）。
 PAYLOAD = "pwned-by-injection"
 PWN = f"touch $PWD/{PAYLOAD}"
-MALICIOUS = [
-    f"x') or __import__('os').system('{PWN}') and ('1",
-    f"x' ; __import__('os').system('{PWN}') ; '",
-    "x') or __import__('os').system('id') and ('",          # 无副作用探测
-    "x$(touch y)",   # 防御纵深：shell 层命令替换（此上下文非可达，留作回归锚）
-    "x`touch z`",    # 防御纵深：反引号（同上）
+# 可达行（and 形）：open() 先吃掉预置的字面量文件 x（tmp_path/x），成功后 and
+# 才评估 os.system → pre-fix payload 真实执行（红灯可满足）。$PWD 由
+# os.system 的 sh 在运行期展开。
+REACHABLE = [f"x') and __import__('os').system('{PWN}') and ('1"]
+# 防御纵深行：or 形被 open() 异常短路、$()/反引号不被 shell 二次展开——
+# pre-fix 按设计即通过（payload 不可达），post-fix 亦通过，仅作回归锚
+DEFENSE_IN_DEPTH = [
+    "x') or __import__('os').system('id') and ('",
+    "x$(touch y)",
+    "x`touch z`",
 ]
+MALICIOUS = REACHABLE + DEFENSE_IN_DEPTH
 
 
 @pytest.mark.parametrize("name", MALICIOUS, ids=lambda n: n[:12])
@@ -210,12 +215,15 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
     evil = name
     round_dir = tmp_path / evil
     round_dir.mkdir()
+    # and 形 payload 依赖字面量 `<tmp>/x` 存在且为合法 JSON（open 成功后
+    # and 链才走到 os.system）
+    (tmp_path / "x").write_text("{}", encoding="utf-8")
     (round_dir / "summary.json").write_text(json.dumps({"t1_scores": {}}), encoding="utf-8")
     (round_dir / "meta.json").write_text(json.dumps({"tier_target": "T1"}), encoding="utf-8")
 
     proc = subprocess.run(
         ["bash", str(REPO_ROOT / "tests" / "round-exec.sh"), "--validate", str(round_dir)],
-        capture_output=True, text=True, timeout=60,
+        capture_output=True, text=True, timeout=30,
     )
     # 防空洞：subprocess 不设 cwd（repo root 下跑），payload 经 $PWD 展开
     # 到 repo root；退出非零来自 --validate 真实检查（目录空），
@@ -234,7 +242,7 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
 - [ ] **Step 2: 跑测试确认失败（红灯验证）**
 
 Run: `uv run pytest tests/test_round_exec_injection.py -q`
-Expected: 至少一条 FAIL（`payload_marker.exists()` 为真——注入成功执行）
+Expected: REACHABLE 行 FAIL（`Path.cwd()/PAYLOAD` 存在——注入真实执行）；DEFENSE_IN_DEPTH 行 PASS（按设计不可达）
 
 - [ ] **Step 3: 修 round-exec.sh**（四处，全改 argv 传参）
 
@@ -280,6 +288,8 @@ Expected: 全 PASS + SYNTAX_OK
 
 - [ ] **Step 5: Commit** `fix: argv-parameterize python3 -c calls in round-exec.sh + injection matrix (T12-03, spec #22 R2)`
 
+create 模式（progress.json/.token-hashes.json argv 化改动）无 CI 覆盖面——人工验证项：`bash tests/round-exec.sh <model> T1` 跑通后核对 progress.json 为合法 JSON 且 `expected_chapters` 为字符串。
+
 ---
 
 ### Task 4: skill 名词法校验 + generate.py output containment（R3）
@@ -307,7 +317,7 @@ import pytest
 
 from shenbi.contracts.legacy import ContractError, validate_skill_name
 
-BAD = ["../escape", "a/b", "", "UPPER", "shenbi x", "shenbi/../shenbi", "."]
+BAD = ["../escape", "a/b", "/abs/skill", "", "UPPER", "shenbi x", "shenbi/../shenbi", "."]
 GOOD = ["shenbi-worldbuilding", "using-shenbi", "a", "shenbi-2nd"]
 
 
@@ -378,10 +388,10 @@ def _skill_path(skill: str) -> Path:
 
 `phase_runner.py` `cmd_pre_skill` 内 :150 前：
 ```python
-    from shenbi.contracts.legacy import ContractError, validate_skill_name
+    validate_skill_name(skill)  # import 放文件顶部，与现有 contracts import 合并
     try:
         validate_skill_name(skill)
-    except ContractError as exc:
+    except ContractError:
         emit_json({"status": CommandStatus.ERROR, "phase": phase, "skill": skill,
                    "message": f"invalid skill name: {skill!r}"})
         sys.exit(1)
