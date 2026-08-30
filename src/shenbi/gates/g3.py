@@ -136,6 +136,13 @@ def gate_G3(
             threshold = acceptance.get("t1", T1_PASS)
             if reports_dir.exists():
                 for rp in reports_dir.glob("*.json"):
+                    # spec #31: sidecar artifacts (collapse-check, dual-scorer
+                    # second scores) are not readiness score reports — G3.2
+                    # must only judge primary score files, else a legitimate
+                    # collapse-check.json (no score fields → score 0) fails
+                    # the very rounds this gate protects.
+                    if not rp.name.endswith(("-scores.json", "-scores-subagent.json")):
+                        continue
                     try:
                         data = jload(str(rp))
                         top_score, flat_dims = _extract_score_fields(data)
