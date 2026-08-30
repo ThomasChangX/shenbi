@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design (Revised 2026-08-30) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Done (PR #91) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 5/7）| **依赖:** 无 | **范围:** wrapper 属性注入（T12-01 属性半面）/ round-exec.sh 命令注入（T12-03 半面）/ 按名拼接防御（T12-06）
 > **修订记录（2026-08-30，SDD #22 价值门 REWRITE）:** 收窄为未被承接的独占面；已承接面让渡——T12-01 内容侧 no-op 转义（F300/F308）→ spec #45 R2；T12-02 持久化注入链与 codex 写面 → F512 已由 C32 R3（PR 合并 26db756）修复写审计接线，判定伪造缓解与 env/路径/symlink 面归 spec #45（T1201/T1206/T1207/T1204）；T12-03 的 run_pipeline.sh 半面 → spec #64（F003/F1013/T1205）；T12-04 → spec #45 R4（T1207）；T12-05 → spec #45 R3（T1204）。**禁止双修**：上述让渡面本 spec 不实施。
 
