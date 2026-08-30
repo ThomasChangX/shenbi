@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-30
-> **活跃 spec 数**：45
+> **活跃 spec 数**：44
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,17 +10,6 @@
 
 ## 执行队列
 
-
-### #3 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
-
-- **文件**：`2026-08-01-deterministic-skill-replacement-audit-design.md`
-- **系列**：Token 效率全栈 audit（子 spec 2/3，隶属已归档总纲 [`archive/...`](archive/2026-08-01-pipeline-read-write-consistency-audit-design.md) §0 分工）
-- **状态**：Design
-- **优先级**：🟡 Medium（架构层优化，非阻塞；但单条候选 payoff 最高——消除 1 次不必要 dispatch = 省 100% 该调用 token）
-- **方法**：`systematic-debugging` 四阶段
-- **依赖**：已归档总纲 spec；`src/shenbi/skill_utils/`（9 个已存在的确定性助手）；`src/shenbi/pipeline/{context_assemble,truth_io,hook_planting,scr_extractor}.py`；归档 `2026-07-19-01`（覆盖 vs 追加 postmortem）
-- **内容**：只审 **"这个 LLM 调用本身是否必要"**——能否用确定性 Python 替代（部分或全部）。核心洞察：确定性替换非假设——repo 已 9 次实现该模式（`skill_utils/` + `pipeline/` 助手），且 postmortem 证明确定性写路径是 CN3 覆盖 bug 根因修复。形式化**提升判据**（{纯文件操作 / 键值 upsert / 计数 / 固定模板填充 / 阈值比较}）+ 逐候选评估：snapshot-manage（100% 确定，立即可换）/ context-composing（pipeline 模式 85% 确定，helper 已存在）/ state-settling（写半路径已落地 truth_io.py，抽取留 LLM）/ memory-distill（结构字段聚合确定，800 字叙事留 LLM）。铁律：`requires_independent_agent` 的 skill（review/score）不换。
-- **对应 plan**：❌ 未写
 
 ### #14 · 全项目审查执行：确定性助手统计（P2）
 
@@ -98,7 +87,7 @@
 - **文件**：`2026-08-16-audit-deterministic-helper-wiring-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C7，5 条；候选元根因 C）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：baseline 生产者零调用（F376/F604）、五件套纯 prompt 接线（T1442）、anti-ai 双重体系（T1441）——派发前钩子注入 helper 预计算 + lint_helper_usage 防复发；T14 候选表按优先级排期
+- **内容**：baseline 生产者零调用（F376/F604）、五件套纯 prompt 接线（T1442）、anti-ai 双重体系（T1441）——派发前钩子注入 helper 预计算 + lint_helper_usage 防复发；T14 候选表按优先级排期；memory-distill 拆"确定性结构字段聚合 + LLM 叙述"两半（自 #3 补登，T14 估 P2 低 payoff，入 T6 候选池）
 
 ### #34 · 全项目审查执行：状态词表单源（簇 C8，P2）
 
