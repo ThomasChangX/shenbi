@@ -14,6 +14,7 @@ from shenbi.safe_write import safe_write
 from shenbi.cli_utils import emit_json
 from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
+from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse
 
 log = get_logger(__name__)
 
@@ -70,15 +71,21 @@ def _record_collapse_check(
     drops non-numeric keys with a WARN, so embedding would be noise. Scores from
     codex JSON carry str dimension keys — normalized to int here.
     """
-    from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse
-
     normalized: dict[int, float] = {}
+    dropped: list[str] = []
     for k, v in scores.items():
         try:
             if isinstance(v, (int, float)) and not isinstance(v, bool):
                 normalized[int(k)] = float(v)
+            else:
+                dropped.append(str(k))
         except (TypeError, ValueError):
-            continue
+            dropped.append(str(k))
+    if dropped:
+        # Mirrors parse_scores_dict's non_numeric_score_keys_dropped WARN.
+        log.info(
+            "collapse_check_non_numeric_dropped", skill=skill, test_type=test_type, dropped=dropped
+        )
     result = check_single_scorer_collapse(normalized)
     out = round_dir / "t1-reports" / f"{skill}-{test_type}-collapse-check.json"
     out.parent.mkdir(parents=True, exist_ok=True)
