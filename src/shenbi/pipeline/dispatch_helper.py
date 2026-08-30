@@ -25,7 +25,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -2116,25 +2116,28 @@ def _dispatch_via_ide(
 
 
 def _normalize_staged_snapshot(
-    snap: dict[str, str | None], declared: set[str]
+    snap: Mapping[str, str | None], declared: set[str]
 ) -> dict[str, str | None]:
     """Fold ``staging/<declared>`` snapshot keys back onto the declared relpath.
 
     Spec #29 R1: staged writes land on ``staging/<contract-path>`` while the
     audit's declared surface is the unprefixed contract path. Without this
     fold, pre==post on the declared key and the staged write is invisible
-    (audit theater: a ``blocked:false`` no-op record). Staged content WINS
-    over the live key when both exist — same last-writer semantics as the
-    staged-merge commit route (``checkpoint.commit_staging``). Staged paths
-    that map to no declared key are kept verbatim so they surface as
-    undeclared writes.
+    (audit theater: a ``blocked:false`` no-op record). A present staged file
+    OVERRIDES the live key — the staged tree is what the dispatch just
+    produced and what a later commit would ship; a missing staged file
+    (``None``) never folds, so the live baseline survives and a staged write
+    that dropped live rows still diffs as a modification. Staged paths that
+    map to no declared key are kept verbatim so they surface as undeclared
+    writes.
     """
     out = dict(snap)
     for key, value in snap.items():
         if key.startswith("staging/"):
             base = key[len("staging/") :]
             if base in declared:
-                out[base] = value
+                if value is not None:
+                    out[base] = value
                 out.pop(key, None)
     return out
 

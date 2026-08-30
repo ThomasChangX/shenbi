@@ -174,6 +174,24 @@ def test_staging_wins_over_live_on_same_key(
     assert any("rogueKey" in v for v in rec["violations"])
 
 
+def test_normalize_staged_snapshot_none_does_not_erase_live() -> None:
+    """A missing staged file (None) must not fold over the live baseline --
+    otherwise every staged write diffs as "added" and a staged file that
+    dropped live rows goes unnoticed (final review I1).
+    """
+    snap = {"truth/x.md": "live", "staging/truth/x.md": None, "staging/rogue.md": "r"}
+    out = dh._normalize_staged_snapshot(snap, {"truth/x.md"})
+    assert out["truth/x.md"] == "live"  # live baseline preserved
+    assert "staging/truth/x.md" not in out  # None staged key folded away
+    assert out["staging/rogue.md"] == "r"  # undeclared staged path kept verbatim
+
+
+def test_normalize_staged_snapshot_present_staged_overrides_live() -> None:
+    snap = {"truth/x.md": "live", "staging/truth/x.md": "staged"}
+    out = dh._normalize_staged_snapshot(snap, {"truth/x.md"})
+    assert out == {"truth/x.md": "staged"}
+
+
 # -- 越权语义与 legacy 路径一致:违规记 rc=2,不吞 --
 
 
