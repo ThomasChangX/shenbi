@@ -160,19 +160,17 @@ def detect_mode() -> str:
     return "internal"
 
 
-def dispatch(
-    skill: str, test_type: str, round_dir: Path, prompt: str, *, chapter: int | None = None
-) -> int:
+def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     """Main dispatch entry point."""
     agent_id = generate_agent_id(round_dir, skill, test_type)
     log.info("dispatch_start", agent_id=agent_id, skill=skill, test_type=test_type)
     path_ctx = parse_path_context(prompt)
-    if chapter is None:  # kwarg precedence: explicit chapter= wins over prompt line
-        chapter = (
-            path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
-        )
-        if chapter is None:
-            chapter = extract_chapter(prompt)
+    # F257: the former `chapter=` kwarg had zero external callers; derive from prompt.
+    chapter = (
+        path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
+    )
+    if chapter is None:
+        chapter = extract_chapter(prompt)
     file_type = derive_file_type(skill)
     input_files = derive_input_files(skill, chapter, round_dir, ctx=path_ctx)
 

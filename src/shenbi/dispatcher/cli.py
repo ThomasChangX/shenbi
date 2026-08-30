@@ -25,7 +25,7 @@ def main() -> int:
     skill = sys.argv[1]
     test_type = sys.argv[2]
     round_dir = Path(sys.argv[3])
-    prompt = sys.argv[4] if len(sys.argv) > 4 else ""
+    prompt = " ".join(sys.argv[4:])  # F267: multi-word prompts no longer truncated
     return dispatch(skill, test_type, round_dir, prompt)
 
 

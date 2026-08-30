@@ -62,7 +62,6 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
     - No chapter numbers in title
     - No duplicate titles
     - No day-of-week labels (WARN, not HARD)
-    - Thematic naming encouraged (1-4 Chinese characters)
     """
     issues = []
 

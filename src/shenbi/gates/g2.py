@@ -327,11 +327,10 @@ def gate_G2(
             checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
 
         # G2.meta_ratio: WARN when META block proportion > 50%
-        meta_checks, meta_failures = _check_meta_ratio(p)
+        # (_check_meta_ratio already emits the WARN entry with file+r — the
+        # former caller-side loop duplicated it, F481.)
+        meta_checks, _ = _check_meta_ratio(p)
         checks.extend(meta_checks)
-        if meta_failures:
-            for f in meta_failures:
-                checks.append({"id": "G2.meta_ratio", "file": fp, "s": "WARN", "r": f})
 
         # G2.13 — chapter contract: header + META-or-exemption (z11 F1301/F1302).
         # Scope: novel-output project chapters only — test-tier round chapters
@@ -396,18 +395,19 @@ def _check_meta_ratio(
     ratio = meta_chars / total_chars
 
     if meta_chars > 0:
-        checks.append(
-            {
-                "id": "G2.meta_ratio",
-                "s": "WARN" if ratio > 0.5 else "PASS",
-                "ratio": f"{ratio:.1%}",
-                "meta_chars": meta_chars,
-                "total_chars": total_chars,
-            }
-        )
-
+        failure = f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold"
+        check: dict[str, Any] = {
+            "id": "G2.meta_ratio",
+            "file": str(file_path),
+            "s": "WARN" if ratio > 0.5 else "PASS",
+            "ratio": f"{ratio:.1%}",
+            "meta_chars": meta_chars,
+            "total_chars": total_chars,
+        }
         if ratio > 0.5:
-            failures.append(f"G2.meta_ratio:{ratio:.1%}_meta_exceeds_50%_threshold")
+            check["r"] = failure
+            failures.append(failure)
+        checks.append(check)
 
     return checks, failures
 

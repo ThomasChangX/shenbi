@@ -77,11 +77,14 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
 
     # Resolve current volume at runtime via triggers.py (NEVER hard-code)
     resolved = _resolve_volume_at_runtime(project_dir, chapter)
+    next_chapter: int | None
     if resolved is None:
         current_volume, next_chapter = "Unknown", chapter + 1
     else:
         current_volume, _ch_start, ch_end = resolved
-        next_chapter = min(chapter + 1, ch_end)
+        # At a volume's end, chapter+1 belongs to the NEXT volume whose map is
+        # not loaded — clamping to ch_end made the chapter point at itself (F3A2).
+        next_chapter = chapter + 1 if chapter < ch_end else None
     chapter_node = _extract_chapter_node(volume_map_text, chapter)
     next_node = _extract_chapter_node(volume_map_text, next_chapter)
     pending_bridges = _extract_pending_bridges(volume_map_text, chapter)
@@ -192,8 +195,13 @@ def generate_plan_skeleton(project_dir: Path, chapter: int) -> str:
     )
 
 
-def _extract_chapter_node(volume_map_text: str, chapter: int) -> dict[str, str] | None:
-    """Delegate to _shared.read_chapter_node (single source, spec #6 R6)."""
+def _extract_chapter_node(volume_map_text: str, chapter: int | None) -> dict[str, str] | None:
+    """Delegate to _shared.read_chapter_node (single source, spec #6 R6).
+
+    chapter=None (volume-end, F3A2) has no node in this volume's map.
+    """
+    if chapter is None:
+        return None
     from shenbi.pipeline._shared import read_chapter_node
 
     return read_chapter_node(volume_map_text, chapter)

@@ -37,9 +37,14 @@ def g4_plot_thread_weaver(
         content = tm.read_text(encoding="utf-8")
         # A线/B线/C线
         lines_found = []
-        for label in ["A 长线", "B 中线", "C 短线", "## A", "## B", "## C"]:
+        for label in ["A 长线", "B 中线", "C 短线"]:
             if label in content:
                 lines_found.append(label)
+        # '## A' style: line-anchored heading match — bare substring tests hit
+        # prose mentions like "方案 ## A 备选" (F486).
+        for short in ["A", "B", "C"]:
+            if re.search(rf"^##\s+{short}\b", content, re.MULTILINE):
+                lines_found.append(f"## {short}")
         if not lines_found:
             mf.append("G4.pt.lines:missing_A/B/C")
         else:

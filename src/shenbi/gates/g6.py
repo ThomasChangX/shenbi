@@ -154,12 +154,14 @@ def gate_G6(
                 mf.append(f"G6.7:high_hook_density:{density:.1f}/chapter")
             elif density < 0.3:
                 mf.append(f"G6.7:low_hook_density:{density:.1f}/chapter")
-        # Unresolved at end
+        # Unresolved at end. Status must reflect this sub-check's own mf
+        # entries — a PASS summary alongside must_fix is a lie (F4A2).
+        g67_status = "WARN" if any(str(m).startswith("G6.7:") for m in mf) else "PASS"
         if unresolved > 0:
             c.append(
                 {
                     "id": "G6.7",
-                    "s": "PASS",
+                    "s": g67_status,
                     "total_hooks": total_hooks,
                     "unresolved": unresolved,
                     "exceeded": len(exceeded),
@@ -167,7 +169,9 @@ def gate_G6(
                 }
             )
         else:
-            c.append({"id": "G6.7", "s": "PASS", "total_hooks": total_hooks, "all_resolved": True})
+            c.append(
+                {"id": "G6.7", "s": g67_status, "total_hooks": total_hooks, "all_resolved": True}
+            )
     else:
         c.append(
             {"id": "G6.7", "s": "SKIP", "r": "need truth/pending_hooks.md for foreshadowing check"}
@@ -187,8 +191,18 @@ def gate_G6(
                 has_vp = "voice_profile:" in ct
                 cps: list[str] = []
                 if has_vp:
-                    # Extract catchphrases
-                    cp_section = ct[ct.index("voice_profile:") :] if "voice_profile:" in ct else ""
+                    # Extract catchphrases — bounded at the NEXT top-level
+                    # field, not EOF (F4A4: quotes from later sections leaked
+                    # into the catchphrase list).
+                    vp_start = ct.index("voice_profile:")
+                    rest = ct[vp_start:]
+                    after_line = rest[rest.index("\n") + 1 :] if "\n" in rest else ""
+                    next_field = re.search(r"^[A-Za-z_][\w]*:", after_line, re.MULTILINE)
+                    cp_section = (
+                        ct[vp_start : len(ct) - len(after_line) + next_field.start()]
+                        if next_field
+                        else ct[vp_start:]
+                    )
                     cps = re.findall(r'"([^"]{2,30})"', cp_section)
                 char_voice[cname] = {
                     "has_voice_profile": has_vp,
@@ -282,7 +296,8 @@ def gate_G6(
                                 mf.append(f"G6.9:limit_exceeded:{kw}:{found_val}>{val}:{ch_name}")
                             elif const["lower"] and found_val < val:
                                 mf.append(f"G6.9:below_minimum:{kw}:{found_val}<{val}:{ch_name}")
-        c.append({"id": "G6.9", "s": "PASS", "constraints_extracted": len(constraints)})
+        g69_status = "WARN" if any(str(m).startswith("G6.9:") for m in mf) else "PASS"
+        c.append({"id": "G6.9", "s": g69_status, "constraints_extracted": len(constraints)})
     else:
         c.append(
             {

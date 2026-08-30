@@ -153,8 +153,13 @@ def resolve_volume_path(path: str, volume: int | None) -> str:
 
 
 def extract_chapter(text: str) -> int | None:
-    m = re.search(r"\bchapter\s+(\d+)\b", text, re.IGNORECASE)
-    return int(m.group(1)) if m else None
+    """First non-zero chapter reference; 'chapter 0' is a prologue marker,
+    not a chapter number (F258).
+    """
+    for m in re.finditer(r"\bchapter\s+(\d+)\b", text, re.IGNORECASE):
+        if int(m.group(1)) > 0:
+            return int(m.group(1))
+    return None
 
 
 def resolve_or_skip(path: str, chapter: int | None) -> str | None:

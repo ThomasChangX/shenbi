@@ -222,3 +222,24 @@ def test_chapter_drift_below_mean_2sigma_triggers() -> None:
     scores = [20.0] * 10 + [0.0, 0.0, 0.0]
     f = detect_chapter_drift(scores, dim="情感落地", min_samples_sigma=6)
     assert any(f.kind == "below_mean_2sigma" for f in f)
+
+
+class TestSpec16VolumeExclusion:
+    def test_volume_drift_ignores_human_overridden(self, tmp_path):
+        """F657: excluded (human_overridden) chapters must not feed volume drift."""
+        md = (
+            "| chapter | overall | human_overridden |\n"
+            "|---|---|---|\n"
+            "| 1 | 90 | false |\n"
+            "| 2 | 60 | true |\n"
+            "| 3 | 95 | false |\n"
+        )
+        trend = tmp_path / "trend.md"
+        trend.write_text(md, encoding="utf-8")
+        from shenbi.skill_utils.drift_detection.compute_drift import ARC_PAYOFF_DIMS
+
+        parsed = parse_trend(trend, ARC_PAYOFF_DIMS)
+        series = parsed.get("overall", [])
+        scores = [s for s, overridden in series if not overridden]
+        assert scores == [90.0, 95.0]
+        assert detect_volume_drift(scores) == []

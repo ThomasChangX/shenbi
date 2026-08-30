@@ -58,7 +58,7 @@ class RegistryStaleError(RegistryError):
 
     def __init__(self, mismatches: list[tuple[str, str, str]], lockfile_generated_at: str) -> None:
         super().__init__(
-            f"{len(mismatches)} source files changed since lockfile built at "
+            f"{len(mismatches)} source file{'' if len(mismatches) == 1 else 's'} changed since lockfile built at "
             f"{lockfile_generated_at}",
             mismatches=mismatches[:5],
             total_mismatches=len(mismatches),

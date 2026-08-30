@@ -444,11 +444,9 @@ branch = true
 source = ["src/shenbi"]
 
 [tool.coverage.report]
-# P-1.E PR-56: target reached. Phase 3 closed the coverage gap to >=90% line /
-# >=80% branch. Threshold is now permanent — regressions will fail CI.
-# 89 (not 90) to accommodate Windows: 2 G7 chmod tests are skipif(win32)
-# (chmod permissions are not honored on Windows NTFS), leaving ~35 lines
-# of g7.py uncovered there. POSIX remains at 90%+.
+# Permanent floor (F0-08): global line coverage must stay >=85%.
+# The old >=90%/89 narrative described the earlier gate; the enforced
+# value is 85 (Windows skips 2 G7 chmod tests; see skipif(win32)).
 fail_under = 85
 show_missing = true
 exclude_lines = [

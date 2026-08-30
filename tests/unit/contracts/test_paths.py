@@ -61,3 +61,16 @@ class TestResolveOrSkip:
 
     def test_chapter_resolves(self):
         assert resolve_or_skip("chapters/chapter-N.md", 5) == "chapters/chapter-5.md"
+
+
+class TestExtractChapterSpec16:
+    def test_chapter_zero_skipped_for_later_chapter(self) -> None:
+        """F258: 'chapter 0' (volume prologue refs) must not shadow chapter 3."""
+        from shenbi.contracts.paths import extract_chapter
+
+        assert extract_chapter("chapter 0 recap; see chapter 3 for detail") == 3
+
+    def test_chapter_zero_only_returns_none(self) -> None:
+        from shenbi.contracts.paths import extract_chapter
+
+        assert extract_chapter("prologue of chapter 0") is None

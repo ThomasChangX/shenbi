@@ -36,18 +36,26 @@ def match_field(declared: str, heading: str) -> bool:
 
 
 def extract_h2_sections(text: str) -> dict[str, str]:
+    """Extract H2 section bodies. First occurrence wins on duplicate H2
+    headings (F264); `## ` lines inside fenced code blocks are content,
+    not headings (F271).
+    """
     sections: dict[str, str] = {}
     current_heading: str | None = None
     current_body: list[str] = []
+    in_fence = False
     for line in text.splitlines():
-        if line.startswith("## "):
-            if current_heading is not None:
+        if line.lstrip().startswith("```"):
+            in_fence = not in_fence
+        if not in_fence and line.startswith("## "):
+            heading = line[3:].strip()
+            if current_heading is not None and current_heading not in sections:
                 sections[current_heading] = "\n".join(current_body).strip()
-            current_heading = line[3:].strip()
+            current_heading = None if heading in sections else heading
             current_body = []
         elif current_heading is not None:
             current_body.append(line)
-    if current_heading is not None:
+    if current_heading is not None and current_heading not in sections:
         sections[current_heading] = "\n".join(current_body).strip()
     return sections
 

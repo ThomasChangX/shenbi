@@ -95,7 +95,7 @@ def g4_chapter_revision(
     return json.dumps(
         {
             "status": GateStatus.PASS if not issues else "HARD_FAIL",
-            "checks": issues,
+            "checks": [],
             "must_fix": issues,
         },
         ensure_ascii=False,

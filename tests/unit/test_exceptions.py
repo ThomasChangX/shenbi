@@ -61,7 +61,7 @@ class TestSerialization:
             lockfile_generated_at="2026-06-14T00:00:00Z",
         )
         s = str(err)
-        assert "1 source files changed" in s
+        assert "1 source file changed" in s
 
 
 class TestRegistryStaleTruncation:

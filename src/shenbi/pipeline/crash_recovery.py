@@ -36,8 +36,9 @@ def reset_emergency_state() -> None:
     _shutdown_requested = False
     _emergency_flag = False
     _emergency_state.clear()
-    # Restore default signal disposition so a second SIGTERM kills immediately,
-    # and remove any atexit hooks registered by earlier tests.
+    # Restore default signal disposition so a second SIGTERM kills immediately.
+    # (atexit handlers registered by register_emergency_handlers are NOT removed
+    # here — signal defaults make them unreachable; F394 comment/impl aligned.)
     signal.signal(signal.SIGTERM, signal.SIG_DFL)
     signal.signal(signal.SIGINT, signal.SIG_DFL)
 

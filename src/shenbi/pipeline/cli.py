@@ -298,7 +298,7 @@ def _orchestrate_to_checkpoint(state: PipelineState, project_dir: Path) -> None:
 
                     dispatch_escalation(
                         project_dir,
-                        0,  # closure has no chapter context
+                        None,  # closure has no chapter context
                         context=f"Closure step {state.closure_step + 1} failed",
                     )
                     set_checkpoint(
@@ -604,6 +604,18 @@ def cmd_review(args: argparse.Namespace) -> int:
             decision = ReviewDecision(args.decision)
             cp = state.pending_checkpoint
 
+            # Validate inputs BEFORE any staging side effects (F390).
+            feedback = None
+            if args.feedback:
+                feedback_path = Path(args.feedback)
+                if not feedback_path.is_file():
+                    log.error("feedback_file_not_found", path=str(feedback_path))
+                    emit_json(
+                        {"status": "ERROR", "message": f"feedback file not found: {args.feedback}"}
+                    )
+                    return 1
+                feedback = feedback_path.read_text(encoding="utf-8")
+
             # Staging handling (spec section 2.7): approve/modify commits
             # staging files to their final paths; reject clears staging.
             if decision in (ReviewDecision.APPROVE, ReviewDecision.MODIFY):
@@ -612,10 +624,6 @@ def cmd_review(args: argparse.Namespace) -> int:
                 from shenbi.pipeline.checkpoint import clear_staging
 
                 clear_staging(project_dir)
-
-            feedback = None
-            if args.feedback:
-                feedback = Path(args.feedback).read_text(encoding="utf-8")
 
             if decision == ReviewDecision.REJECT:
                 _apply_reject_redo(state, cp, feedback=feedback)  # acts on the cp snapshot
@@ -742,16 +750,15 @@ def _verify_truth_integrity(state: PipelineState, project_dir: Path) -> list[str
             if not (project_dir / rel_path).exists():
                 missing.append(rel_path)
 
-    # If chapter loop is active, verify at least the first chapter plan exists.
+    # If chapter loop is active, verify the previous chapter's plan exists.
+    # The CURRENT chapter's plan is created during its own step 2, so its
+    # absence is normal — checking it flagged every chapter (F398).
     if state.phase == PipelinePhase.CHAPTER_LOOP:
         ch = state.chapter_loop.current_chapter
-        chapter_plan = project_dir / "plans" / f"chapter-{ch}-plan.md"
-        if not chapter_plan.exists():
-            # The chapter plan for the current chapter may not exist if
-            # we just transitioned from genesis. Don't flag chapter 1 since
-            # its plan is created during the first chapter-loop iteration.
-            if ch > 1:
-                missing.append(f"plans/chapter-{ch}-plan.md")
+        if ch > 1:
+            prev_plan = project_dir / "plans" / f"chapter-{ch - 1}-plan.md"
+            if not prev_plan.exists():
+                missing.append(f"plans/chapter-{ch - 1}-plan.md")
 
     if missing:
         log.warning("truth_integrity_check_failed", missing=missing)
@@ -833,11 +840,17 @@ def cmd_resume(args: argparse.Namespace) -> int:
                         _update_total_chapters(project_dir)
 
                         snap_ch = last.get("chapter")
-                        dispatch_skill(
+                        snap_result = dispatch_skill(
                             "shenbi-snapshot-manage",
                             project_dir,
                             f"Volume-boundary snapshot after chapter {snap_ch}.",
                         )
+                        if not snap_result.success:
+                            log.error(
+                                "volume_boundary_snapshot_failed",
+                                chapter=snap_ch,
+                                rc=snap_result.returncode,
+                            )
                         # If this boundary was also the book-closure point,
                         # transition to closure (the step_index guard prevents
                         # the trigger block from re-firing on re-entry).

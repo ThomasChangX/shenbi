@@ -101,3 +101,26 @@ class TestPartialMatchEscapeHatch:
         out, matched = filter_to_fields('{"a": 1, "b": 2}', ["a"], "x.json")
         assert matched is True
         assert '"b"' not in out
+
+
+# --- Spec #16: frontmatter/H2 extraction hardening (F263/F264/F271) -------
+
+
+class TestExtractH2SectionsSpec16:
+    def test_duplicate_h2_first_wins(self) -> None:
+        """F264: a repeated H2 must not overwrite the first section's body."""
+        from shenbi.contracts.fields import extract_h2_sections
+
+        text = "## A\nfirst body\n\n## B\nother\n\n## A\nsecond body\n"
+        sections = extract_h2_sections(text)
+        assert sections["A"] == "first body"
+        assert sections["B"] == "other"
+
+    def test_h2_inside_fenced_code_ignored(self) -> None:
+        """F271: `## ` lines inside ``` fences are content, not headings."""
+        from shenbi.contracts.fields import extract_h2_sections
+
+        text = "## Real\noutside\n\n```\n## Fake\nfenced\n```\n"
+        sections = extract_h2_sections(text)
+        assert "Fake" not in sections
+        assert "Real" in sections

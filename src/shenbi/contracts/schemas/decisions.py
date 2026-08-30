@@ -8,8 +8,6 @@ from typing import Literal
 from pydantic import BaseModel, Field, model_validator
 
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
-VALID_BASIS = {"adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"}
-VALID_SEVERITY = {"low", "medium", "high"}
 _RATIONALE_MAX_CHARS = 100
 
 Basis = Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"]

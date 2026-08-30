@@ -2,6 +2,7 @@
 """Score a test report against its rubric. Output structured JSON."""
 
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -44,6 +45,7 @@ def load_rubric(rubric_path: str) -> tuple[list[Dimension], list[str]]:
                 "total score = 0" in stripped.lower()
                 or "phase = 0" in stripped.lower()
                 or "pipeline = 0" in stripped.lower()
+                or "detection dimension = 0" in stripped.lower()
             ):
                 ks_text = stripped.lstrip("- ").rstrip()
                 if ks_text not in kill_switches:
@@ -134,8 +136,9 @@ def filter_dimensions_by_test_type(
     """Remove dimensions not applicable to the given test type.
 
     Strategy: Build an exclusion set of dimension numbers from rows
-    where the cell value starts with "No". Then filter those dimensions
-    out and renormalize weights.
+    where the cell value starts with "No", then filter those dimensions
+    out. No explicit weight renormalization: compute_score divides by the
+    remaining total weight.
     """
     import re
 
@@ -163,6 +166,23 @@ def filter_dimensions_by_test_type(
         return dimensions
     filtered = [d for d in dimensions if d["num"] not in excluded_nums]
     return filtered if filtered else dimensions
+
+
+_INT_KEY_RE = re.compile(r"-?\d+")
+
+
+def parse_scores_dict(raw: dict[str, Any]) -> dict[int, Any]:
+    """Convert JSON string-keyed scores to int-keyed, warning on dropped keys (F151)."""
+    scores: dict[int, Any] = {}
+    dropped: list[str] = []
+    for k, v in raw.items():
+        if _INT_KEY_RE.fullmatch(k):
+            scores[int(k)] = v
+        else:
+            dropped.append(k)
+    if dropped:
+        log.warning("non_numeric_score_keys_dropped", keys=sorted(dropped))
+    return scores
 
 
 def validate_scores(scores: dict[int, Any], dimensions: list[Dimension]) -> tuple[bool, list[str]]:
@@ -233,7 +253,13 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
     elif "t2-phase" in rubric_p.parts:
         deps_path = Path(__file__).resolve().parents[2] / "tests" / "tiers" / "deps.json"
         if deps_path.exists():
-            deps = json.loads(deps_path.read_text(encoding="utf-8"))
+            try:
+                deps = json.loads(deps_path.read_text(encoding="utf-8"))
+            except json.JSONDecodeError as exc:
+                # Fail closed: a corrupt deps registry must not silently pass
+                # prerequisite marker verification (gates cannot be skipped).
+                log.error("t2_deps_json_corrupt", path=str(deps_path), error=str(exc))
+                return [f"t2_deps_json_corrupt:{deps_path.name}"]
             idx = rubric_p.parts.index("t2-phase")
             phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
             if phase_name and phase_name in deps.get("t2-phases", {}):
@@ -414,7 +440,10 @@ def main() -> dict[str, Any]:
             for ks in kill_switches:
                 log.info("kill_switch_item", switch=ks)
             try:
-                ks_input = input("Kill switch triggered? (y/n): ").strip().lower()
+                # Prompt on stderr so stdout carries only the JSON payload (F157).
+                sys.stderr.write("Kill switch triggered? (y/n): ")
+                sys.stderr.flush()
+                ks_input = input().strip().lower()
                 if ks_input == "y":
                     kill_switch_triggered = True
             except EOFError:
@@ -423,7 +452,10 @@ def main() -> dict[str, Any]:
         for d in dimensions:
             while True:
                 try:
-                    raw_val = input(f"  {d['num']}. {d['name']} [{d['weight']}%] (0-100): ")
+                    # Prompt on stderr so stdout carries only the JSON payload (F157).
+                    sys.stderr.write(f"  {d['num']}. {d['name']} [{d['weight']}%] (0-100): ")
+                    sys.stderr.flush()
+                    raw_val = input()
                     val = int(raw_val)
                     if 0 <= val <= 100:
                         scores[d["num"]] = val
@@ -445,7 +477,7 @@ def main() -> dict[str, Any]:
         else:
             with open(scores_file, encoding="utf-8") as f:
                 raw = json.load(f)
-                scores = {int(k): v for k, v in raw.items() if k.lstrip("-").isdigit()}
+            scores = parse_scores_dict(raw)
 
     # Always validate scores against rubric dimensions before computing
     is_valid, validation_errors = validate_scores(scores, dimensions)
