@@ -28,18 +28,18 @@ AGENTS.md 的评分纪律（"Scoring MUST use an independent subagent (G3.4)；d
 
 - **T1 · ~~G3 自足性修复~~**：已由 PR #8 承接（F408 fail-closed），删除原任务。防复发断言归 T5。
 - **T2 · 反坍缩链接线（F114/F506）**：
-  - **T2a 单评分坍缩检测（默认路径，零额外派发）**：codex.py 独立评分落地后（scores-subagent.json 解析处，~:99-106），调用 `scoring_bridge.check_single_scorer_collapse(scores)`；结果写入 t1-reports 的评分产物 JSON（新键 `collapse_check`）+ 疑似坍缩时 structlog WARN。确定性计算，无 token 成本。
+  - **T2a 单评分坍缩检测（默认路径，零额外派发）**：codex.py 独立评分落地后（scores-subagent.json 解析处，~:99-106），调用 `scoring_bridge.check_single_scorer_collapse(scores)`；结果写入 t1-reports 旁的**独立产物** `*-collapse-check.json`（不得写入 scores-subagent.json 本体——非数值键会被 parse_scores_dict 以 non_numeric_score_keys_dropped 丢弃并每次 WARN）+ 疑似坍缩时 structlog WARN。确定性计算，无 token 成本。**T4（坍缩语义修正）必须先于或随 T2a 落地**——否则早期 collapse_check 记录建立在误报语义上。
   - **T2b 双评分一致性（opt-in）**：config `dual_scorer=true` 时，codex 派发点追加第二次独立评分派发（prompt 同源、输出 `*-scores-subagent-2.json`），两份分数经 `scoring_bridge.validate_dual_scorer` 比对；`needs_arbitration=true` → 写 arbitration 记录（进 gate manifest，经 `_record_gate_manifest` 同层设施）+ WARN。测试一律 fixtures 驱动（G0.9 + 核心原则 8：禁止为验证触发真实 dispatch）。
-  - **T2c escalation_bridge 接线**：chapter_loop 既有 escalation 路径（:1094-1127）中从 resonance_trend.md 收集分数的代码段改经 `escalation_bridge.parse_resonance_scores`（该函数正是为此文件格式所写，chapter_loop:1443 注释自证格式兼容）。若实施核实该点不从 trend 文件收集分数，则 bridge 包装层判定冗余、记 deviation 移交 C37 处置——两种结局都消灭「实现但零调用」态。
-- **T3 · provenance 真实化（F113 残余）**：scored_by 改三值 `file | interactive | subagent`，词表以 `ScoredBy = Literal[...]` 落 `src/shenbi/contracts/enums.py`（lint_status_strings 只管 status/state/classification 键，非状态字面量不适用）；判定机制弃 argv 嗅探，改显式：codex 派发路由传 `--subagent`（既有）、CLI 交互模式传 `--interactive`、缺省（批文件调用）= `file`。
+  - **T2c escalation_bridge 对账（2026-08-31 二轮审查修正前提）**：阶段 3 二轮实读确认 chapter_loop 既有 escalation 路径的共振分数收集走 `_get_recent_resonance_scores`/`_parse_resonance_score` 读 `audits/chapter-N-resonance.md`，**不读 resonance_trend.md**——原「改经 parse_resonance_scores」前提不成立。T2c 改为对账任务：核实 `resonance_trend.md` 在生产是否有真实读方；(a) 若有（或 T5 能以 fixtures 驱动其语义归属点）则接线 `run_escalation_check`（注意 parse_resonance_scores 丢弃 val≤0 的行为须与该读方语义兼容）；(b) 若无 → escalation_bridge 包装层判定冗余，记 deviation 移交 C37（#51 死代码簇）删除处置。两结局都消灭「实现但零调用」态；**验收 2 的 escalation_bridge 分量按结局 (b) 自动豁免**。
+- **T3 · provenance 真实化（F113 残余）**：scored_by 改三值 `file | interactive | subagent`，词表以 `ScoredBy = Literal[...]` 落 `src/shenbi/contracts/enums.py`（lint_status_strings 只管 status/state/classification 键，非状态字面量不适用；既有消费者 `schemas/scores.py:24` 的 `scored_by: str = ""` 保持宽松 str、不强制收窄——避免破坏既有调用方）；判定机制弃 argv 嗅探，改显式：codex 派发路由传 `--subagent`（既有）、CLI 交互模式传 `--interactive`、缺省（批文件调用）= `file`。
 - **T4 · 坍缩判定修正（F120）**：坍缩定义 = 多维（≥2 有效维度）且非全零下全同；两个信号（all_identical、majority_at_single_value）同受豁免——全零结果两信号均不触发，单维结果 all_identical 不触发（majority 信号已有 ≥3 下限）。
 - **T5 · 护栏**：集成/单测断言——(a) 缺 progress.json 的 round → G3 FAIL 且目录内不出现新生成 progress.json（F794 防复发）；(b) T2a 坍缩检测结果出现在评分产物；(c) T2b 分歧用例产出 arbitration 记录、一致用例不产出（fixtures 驱动）；(d) 单维/全零 rubric 不报坍缩（F120）；(e) provenance 三值标注正确。
 
 ## 验收标准
 
 1. 构造无 progress.json 的 round 目录跑 G3：marker 为 **FAIL**（现行实现形态，无 BLOCKED 变体）且目录内**不出现**新生成 progress.json（F794 断言——注：该能力已由 PR #8 落地，本 spec 以 T5 测试锁定）。
-2. `git grep -n "scoring_bridge\|escalation_bridge" src/shenbi -- ':!*/orchestration/*'` 出现**调用表达式**（非注释/import-only）≥ 2 处（scoring_bridge 与 escalation_bridge 各 ≥1；以 T5 集成测试的行为断言为准，grep 仅辅助）。
-3. 单测（fixtures 驱动）：双评分一致/分歧两用例分别产出无 arbitration / 有 arbitration 记录（F114 断言）；单维、全零、多维非全零全同三用例的坍缩判定符合 T4 定义（F120 断言）。
+2. `git grep -n "scoring_bridge" src/shenbi -- ':!*/orchestration/*'` 出现**调用表达式**（非注释/import-only）≥ 1（scoring_bridge 的 T2a/T2b 接线；以 T5 集成测试的行为断言为准，grep 仅辅助）。escalation_bridge 分量条件于 T2c 结局：结局 (a) 接线则同样要求调用表达式 ≥1；结局 (b) deviation 移交 C37 则豁免。
+3. 单测（fixtures 驱动）：双评分一致/分歧两用例分别产出无 arbitration / 有 arbitration 记录（F114 断言；fixture 约定：第二评分文件 = 真实 subagent 评分产物的精确副本 + 文档化的受控 delta——G0.9 下不手写整份 fixture）；单维、全零、多维非全零全同三用例的坍缩判定符合 T4 定义（F120 断言）。
 4. `just check` 全绿。
 
 ## 风险与回滚
