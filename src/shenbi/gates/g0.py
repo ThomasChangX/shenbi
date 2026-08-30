@@ -227,20 +227,12 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     )
 
     # G0.4 — skill directory validation
-    missing_dirs: list[str] = []
     missing_md: list[str] = []
     for d in SKILLS.iterdir():
         if not d.is_dir() or d.name.startswith("_"):
             continue
         if not (d / "SKILL.md").exists():
             missing_md.append(d.name)
-    if missing_dirs:
-        return fail(
-            "G0",
-            checks + [{"id": "G0.4", "s": "FAIL", "r": f"dirs missing: {missing_dirs}"}],
-            "round_creation",
-            ["G0.4"],
-        )
     if missing_md:
         checks.append(
             {
@@ -364,13 +356,6 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         )
     checks.append({"id": "G0.6", "s": "PASS"})
 
-    # G0.7 — scoring.py self-test (manual verification)
-    scoring_py = TESTS / "scoring.py"
-    if scoring_py.exists():
-        checks.append({"id": "G0.7", "s": "PASS", "note": "scoring.py exists"})
-    else:
-        checks.append({"id": "G0.7", "s": "WARN", "r": "scoring.py not found"})
-
     # G0.8 — fixture reference integrity: scan all T1 generative scenarios
     # for references to tests/fixtures/ files; fail if any referenced fixture
     # does not exist. This prevents the "fill during iterative rounds" gap
@@ -447,7 +432,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         rd = Path(round_dir)
         t1_reports = rd / "t1-reports"
         if t1_reports.exists() and t1_reports.is_dir():
-            generative_scores = list(t1_reports.glob("*-generative-scores.json"))
+            generative_scores = list(t1_reports.glob("*-generative-scores*.json"))
             count = len(generative_scores)
             if count < total_skills:
                 checks.append(
@@ -528,15 +513,6 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
 
     # G0.12 — G4 checker coverage: every skill must have a G4 checker or
     # be explicitly exempted in tests/tiers/g4-exemptions.json
-    exempt_path = TESTS / "tiers" / "g4-exemptions.json"
-    exempt_skills = set()
-    if exempt_path.exists():
-        try:
-            exempt_data = jload(str(exempt_path))
-            for category in ("generative", "bughunt", "clean"):
-                exempt_skills.update(exempt_data.get(category, []))
-        except (json.JSONDecodeError, OSError):
-            pass  # tolerate malformed exemptions file; G0.12 reports coverage as-is
     # bug-hunt and clean have generic checkers (apply to ALL skills via
     # g4_generic_bughunt / g4_generic_clean). Generative has dedicated
     # checkers for 20 skills + g4_generic_generative fallback for the rest.

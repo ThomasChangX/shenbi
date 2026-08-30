@@ -29,41 +29,42 @@ def gate_G7(round_dir: str) -> str:
     mf: list[Any] = []
     rd = Path(round_dir)
 
-    # G7.1 — hallucinated skill names in summary.json
-    summary_path = rd / "summary.json"
-    if summary_path.exists():
-        try:
-            s = jload(str(summary_path))
-            actual = set(ALL_SKILLS) | set(
-                T1_SCAFFOLD_SKILLS
-            )  # F432: union keeps hallucination detection broad
-            summary_skills = set(s.get("t1_scores", {}).keys())
-            hallu = summary_skills - actual
-            if hallu:
-                mf.append(f"G7.1:hallucinated:{sorted(hallu)}")
-            else:
-                c.append(
-                    {
-                        "id": "G7.1",
-                        "s": "PASS",
-                        "skills_in_summary": len(summary_skills),
-                    }
-                )
-        except (json.JSONDecodeError, OSError):
-            mf.append("G7.1:summary.json_invalid")
+    # G7.1 — hallucinated skill names in t1-reports artifacts.
+    # (F464 spec #27: the old reader consumed summary.json t1_scores keys, which
+    # no writer ever populates — repointed to the real writer surface, the
+    # t1-reports/*.json files produced by the scoring dispatchers.)
+    summary_path = rd / "summary.json"  # kept for G7.5+ consumers below
+    reports_dir_g71 = rd / "t1-reports"
+    if reports_dir_g71.exists():
+        actual = set(ALL_SKILLS) | set(
+            T1_SCAFFOLD_SKILLS
+        )  # F432: union keeps hallucination detection broad
+        report_skills = set()
+        for rp in reports_dir_g71.glob("*.json"):
+            stem = rp.stem
+            for suffix in ("-scores-subagent", "-scores"):
+                stem = stem.removesuffix(suffix)
+            for skill in ALL_SKILLS:
+                if stem == skill or stem.startswith(skill + "-"):
+                    report_skills.add(skill)
+                    break
+        hallu = report_skills - actual
+        if hallu:
+            mf.append(f"G7.1:hallucinated:{sorted(hallu)}")
+        else:
+            c.append(
+                {
+                    "id": "G7.1",
+                    "s": "PASS",
+                    "skills_in_reports": len(report_skills),
+                }
+            )
+        # G7.1b — reverse coverage: every T1-scaffold skill has a report artifact
+        missing_in_reports = set(T1_SCAFFOLD_SKILLS) - report_skills  # F432
+        if missing_in_reports:
+            mf.append(f"G7.1:missing_coverage:{sorted(missing_in_reports)}")
     else:
-        mf.append("G7.1:summary.json_not_found")
-
-    # G7.1b — reverse coverage: every T1-scaffold skill must appear in summary.json (F432)
-    if summary_path.exists():
-        try:
-            s = jload(str(summary_path))
-            summary_skills = set(s.get("t1_scores", {}).keys())
-            missing_in_summary = set(T1_SCAFFOLD_SKILLS) - summary_skills  # F432
-            if missing_in_summary:
-                mf.append(f"G7.1:missing_coverage:{sorted(missing_in_summary)}")
-        except (json.JSONDecodeError, OSError):
-            pass  # malformed summary.json → reverse coverage check skipped (G7.1b)
+        c.append({"id": "G7.1", "s": "SKIP", "r": "no t1-reports directory"})
 
     # G7.5 — template placeholder detection
     no_dir = rd / "skill-output"
@@ -179,7 +180,7 @@ def gate_G7(round_dir: str) -> str:
         reports_dir = rd / reports_dir_name
         if not reports_dir.exists():
             continue
-        for score_file in reports_dir.glob("*-scores.json"):
+        for score_file in reports_dir.glob("*-scores*.json"):
             try:
                 score_mtime = score_file.stat().st_mtime
                 if marker_dir.exists():
@@ -204,7 +205,7 @@ def gate_G7(round_dir: str) -> str:
         if not reports_dir.exists():
             continue
         score_vectors: dict[tuple[Any, ...], list[str]] = {}
-        for score_file in reports_dir.glob("*-generative-scores.json"):
+        for score_file in reports_dir.glob("*-generative-scores*.json"):
             try:
                 data = jload(str(score_file))
                 # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}

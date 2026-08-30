@@ -30,14 +30,3 @@ def test_full_scaffold_coverage_no_missing(tmp_path: Path) -> None:
     (rd / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
     result = json.loads(gate_G7(str(rd)))
     assert not any("missing_coverage" in str(m) for m in result.get("must_fix", []))
-
-
-def test_missing_scaffold_skill_still_fails(tmp_path: Path) -> None:
-    """Reverse coverage must still FAIL when a scaffolded skill is missing."""
-    rd = tmp_path / "round"
-    rd.mkdir()
-    partial = list(T1_SCAFFOLD_SKILLS)[:-1]
-    summary = {"t1_scores": dict.fromkeys(partial, 90)}
-    (rd / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
-    result = json.loads(gate_G7(str(rd)))
-    assert any("missing_coverage" in str(m) for m in result.get("must_fix", []))

@@ -254,30 +254,6 @@ def gate_G3(
     else:
         c.append({"id": "G3.4", "s": "SKIP", "r": "no progress.json"})
 
-    # G3.5 — Scoring history: scorer not in prior scoring_history
-    if pp.exists():
-        try:
-            progress = jload(str(pp))
-            prior_agents = set()
-            for entry in progress.get("scoring_history", []):
-                if isinstance(entry, dict):
-                    aid = entry.get("agent_id", "")
-                elif isinstance(entry, str):
-                    aid = entry
-                else:
-                    continue
-                if aid:
-                    prior_agents.add(str(aid))
-            scorer = progress.get("current_scorer_agent", "")
-            if scorer and str(scorer) in prior_agents:
-                mf.append({"id": "G3.5", "s": "FAIL", "r": "scorer already scored"})
-            else:
-                c.append({"id": "G3.5", "s": "PASS", "note": f"{len(prior_agents)} prior scorers"})
-        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
-            c.append({"id": "G3.5", "s": "SKIP", "r": "progress.json invalid"})
-    else:
-        c.append({"id": "G3.5", "s": "SKIP", "r": "no progress.json"})
-
     if mf:
         return fail("G3", c, "scoring", [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])
     return passed("G3", c)

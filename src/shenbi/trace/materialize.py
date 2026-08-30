@@ -87,7 +87,6 @@ def materialize_progress(
         "remaining_generative": sorted(_pending("generative")),
         "remaining_bug_hunt": sorted(_pending("bug-hunt")),
         "remaining_clean": sorted(_pending("clean")),
-        "gate_blockers": [],
         "total_framework_skills": len(total_skills),
         "expected_chapters": init_chapters,
     }
