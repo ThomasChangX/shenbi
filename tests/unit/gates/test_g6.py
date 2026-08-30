@@ -57,7 +57,7 @@ class TestG6PipelineCheck:
         truth_dir = project_dir / "truth"
         truth_dir.mkdir(parents=True)
         (truth_dir / "pending_hooks.md").write_text(
-            "## hooks\n\n- id: hook-001\n  state: PENDING\n  max_distance: 5\n  plant_chapter: 1\n",
+            _table_hooks_md([("P0-1", "RELEVANT", 1, 5)]),
             encoding="utf-8",
         )
         result_str = gate_G6("long-form", str(round_dir), str(project_dir))
@@ -78,7 +78,7 @@ class TestG6PipelineCheck:
         truth_dir = project_dir / "truth"
         truth_dir.mkdir(parents=True)
         (truth_dir / "pending_hooks.md").write_text(
-            "## hooks\n\n- id: hook-001\n  state: PENDING\n",
+            _table_hooks_md([("P0-1", "RELEVANT", 1, 14)]),
             encoding="utf-8",
         )
         result_str = gate_G6("long-form", str(round_dir), str(project_dir))
@@ -92,6 +92,37 @@ class TestG6PipelineCheck:
         assert g67 is not None, "G6.7 must execute when pending_hooks.md exists"
         assert "density" in g67, "G6.7 must include density field even when chapters absent"
         assert g67["density"] is None, "density must be None when chapters/ is absent"
+
+
+def _table_hooks_md(rows: list[tuple[str, str, int, int]]) -> str:
+    """Build a production-format pending_hooks.md (SDD #21 R2): rows of
+    (hook_id, state, plant_chapter, max_distance) rendered as the lifecycle
+    + distance tables truth_readers parses.
+    """
+    lines = [
+        "---",
+        "last_chapter: 1",
+        "---",
+        "",
+        "### 本章操作",
+        "",
+        "| Hook ID | 操作 | 前状态 | 后状态 | 文本位置 |",
+        "|---------|------|--------|--------|---------|",
+    ]
+    for hid, state, _, _ in rows:
+        lines.append(f"| {hid} | (无操作) | {state} | {state} | ch1 |")
+    lines += [
+        "",
+        "### 距离上限逼近",
+        "",
+        "| Hook ID | 种植章 | 本章 | elapsed | max_distance | 距上限 | 状态 |",
+        "|---------|--------|------|---------|--------------|--------|------|",
+    ]
+    for hid, _, plant, maxd in rows:
+        lines.append(
+            f"| {hid} | {plant} | 1 | {1 - plant} | {maxd} | {maxd - (1 - plant)} | SAFE |"
+        )
+    return "\n".join(lines) + "\n"
 
 
 def _make_chapter(parent: Path, num: int, body: str) -> Path:
@@ -164,10 +195,9 @@ class TestG6ErrorPaths:
         _make_chapter(project_dir, 1, "正文内容。" * 400)
         truth = project_dir / "truth"
         truth.mkdir()
-        hooks = "## hooks\n"
-        for i in range(6):  # 6 hooks / 1 chapter = 6.0 > 3
-            hooks += f"\n- id: hook-{i:03d}\n  state: RESOLVED\n"
-        (truth / "pending_hooks.md").write_text(hooks, encoding="utf-8")
+        # 6 hooks / 1 chapter = 6.0 > 3
+        rows = [(f"P0-{i}", "RESOLVED", 1, 14) for i in range(1, 7)]
+        (truth / "pending_hooks.md").write_text(_table_hooks_md(rows), encoding="utf-8")
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any("G6.7:high_hook_density" in mf for mf in result["must_fix"])
 
@@ -182,7 +212,7 @@ class TestG6ErrorPaths:
         truth = project_dir / "truth"
         truth.mkdir()
         (truth / "pending_hooks.md").write_text(
-            "## hooks\n\n- id: hook-001\n  state: RESOLVED\n", encoding="utf-8"
+            _table_hooks_md([("P0-1", "RESOLVED", 1, 14)]), encoding="utf-8"
         )
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         assert any("G6.7:low_hook_density" in mf for mf in result["must_fix"])
@@ -198,7 +228,7 @@ class TestG6ErrorPaths:
         truth = project_dir / "truth"
         truth.mkdir()
         (truth / "pending_hooks.md").write_text(
-            "## hooks\n\n- id: hook-001\n  state: PENDING\n  max_distance: 3\n  plant_chapter: 1\n",
+            _table_hooks_md([("P0-1", "RELEVANT", 1, 3)]),  # ch10 - ch1 = 9 > 3
             encoding="utf-8",
         )
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
@@ -214,7 +244,7 @@ class TestG6ErrorPaths:
         truth = project_dir / "truth"
         truth.mkdir()
         (truth / "pending_hooks.md").write_text(
-            "## hooks\n\n- id: hook-001\n  state: PENDING\n", encoding="utf-8"
+            _table_hooks_md([("P0-1", "RELEVANT", 1, 14)]), encoding="utf-8"
         )
         result = _result_dict(gate_G6("long-form", str(round_dir), str(project_dir)))
         g67 = next(c for c in result["checks"] if c.get("id") == "G6.7")

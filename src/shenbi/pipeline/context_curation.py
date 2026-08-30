@@ -328,16 +328,18 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
             f"{h.get('last_reinforced', '?')} | {silence} | {urgency or 'advance'} |"
         )
 
-    # H* — from pending_hooks non-MH hooks.
+    # H* — from pending_hooks non-MH hooks. truth_readers returns None for
+    # fields the tables cannot supply (SDD #21 R2) — render "?" instead of
+    # the old fabricated 999 silence (which made every unknown hook URGENT).
     h_rows: list[str] = []
     for h in hooks:
-        if h.get("id", "").startswith("MH"):
+        if str(h.get("id", "")).startswith("MH"):
             continue
-        last_reinforced = h.get("last_reinforced", h.get("plant_chapter", 0))
-        silence = chapter - last_reinforced if last_reinforced else 999
+        last_reinforced = h.get("last_reinforced")
+        silence = chapter - last_reinforced if isinstance(last_reinforced, int) else "?"
         h_rows.append(
-            f"| {h['id']} | {h.get('content', '?')} | {h.get('state', '?')} | "
-            f"{h.get('last_reinforced', '?')} | {silence} | |"
+            f"| {h['id']} | {h.get('content') or '?'} | {h.get('state') or '?'} | "
+            f"{last_reinforced if last_reinforced is not None else '?'} | {silence} | |"
         )
 
     briefing = "## Hook 债务简报\n\n"
@@ -361,27 +363,17 @@ def _build_hook_debt_briefing(project_dir: Path, chapter: int) -> str:
 def _read_pending_hooks(project_dir: Path) -> list[dict[str, Any]]:
     """Read the pending hooks list from ``truth/pending_hooks.md``.
 
-    Parses YAML frontmatter. Returns an empty list when the file is missing,
-    empty, or has unparseable frontmatter (ramp-up tolerance).
+    Delegates to the single table-aware parser
+    :func:`shenbi.pipeline.truth_readers.read_pending_hooks` (SDD #21 R2) —
+    the production file is a Chinese markdown table format, not a frontmatter
+    ``hooks:`` list (the old frontmatter-only reader silently returned ``[]``
+    on every real project). Returns an empty list when the file is missing
+    (ramp-up tolerance). Fields that the tables cannot supply are ``None`` —
+    callers render ``?`` for them rather than fabricating defaults.
     """
-    hooks_file = project_dir / "truth" / "pending_hooks.md"
-    if not hooks_file.exists():
-        log.info("pending_hooks_missing", path=str(hooks_file))
-        return []
+    from shenbi.pipeline.truth_readers import read_pending_hooks
 
-    text = hooks_file.read_text(encoding="utf-8")
-    if text.startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
-            try:
-                fm = yaml.safe_load(parts[1]) or {}
-                hooks = fm.get("hooks", [])
-                if isinstance(hooks, list):
-                    return hooks
-            except Exception:
-                log.warning("pending_hooks_yaml_parse_error", path=str(hooks_file))
-
-    return []
+    return read_pending_hooks(project_dir)
 
 
 def _read_spine_master_hooks(project_dir: Path) -> list[dict[str, Any]]:

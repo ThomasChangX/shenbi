@@ -1488,10 +1488,14 @@ def _should_run_recall(project_dir: Path, chapter: int) -> bool:  # pyright: ign
         )
         return True
 
-    # Condition 1: any hook near max_distance
+    # Condition 1: any hook near max_distance. Fields the pending_hooks
+    # tables cannot supply are None (truth_readers contract, SDD #21 R2) —
+    # skip those explicitly instead of fabricating a 0/999 default.
     for h in hooks:
-        last_reinforced = h.get("last_reinforced", 0)
-        max_dist = h.get("max_distance", 0)
+        last_reinforced = h.get("last_reinforced")
+        max_dist = h.get("max_distance")
+        if not isinstance(last_reinforced, int) or not isinstance(max_dist, int):
+            continue
         if max_dist <= 0:
             continue
         silence = chapter - last_reinforced

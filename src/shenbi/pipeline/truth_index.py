@@ -167,14 +167,16 @@ def _index_characters(project_dir: Path, idx: TruthIndex) -> None:
 def _index_hooks(project_dir: Path, idx: TruthIndex) -> None:
     r"""Index hook records from truth/pending_hooks.md (dual-source).
 
-    Source 1 — YAML frontmatter ``hooks`` list: authoritative, written by
-    :mod:`shenbi.pipeline.hook_planting`. Carries the rich payload (state,
-    last_reinforced, max_distance, content).
+    Source 1 — the single table-aware parser
+    :func:`shenbi.pipeline.truth_readers.read_pending_hooks` (SDD #21 R2):
+    reads the production Chinese markdown tables (lifecycle post-state,
+    interval, distance). Authoritative for state/last_reinforced/
+    plant_chapter/max_distance; fields the tables cannot supply are ``None``.
 
-    Source 2 — markdown body: hook IDs (``P0-N`` / ``H\\d+`` / ``M\\d+``)
-    appearing anywhere in the body. Catches entries written by the LLM
-    track / state-settling path when the frontmatter list is absent or out
-    of sync (the production state). Body entries get a minimal payload.
+    Source 2 — YAML frontmatter ``hooks`` list (written by
+    :mod:`shenbi.pipeline.hook_planting`): SUPPLEMENTS only — adds hooks the
+    tables did not mention and fills ``None`` fields; never overrides a
+    table-derived value (audit r1 I2a arbitration rule).
     """
     hooks_file = project_dir / "truth" / "pending_hooks.md"
     if not hooks_file.exists():
@@ -182,29 +184,62 @@ def _index_hooks(project_dir: Path, idx: TruthIndex) -> None:
     text = hooks_file.read_text(encoding="utf-8")
     fm, body = _split_frontmatter(text)
 
-    # Source 1: frontmatter `hooks` list (existing behaviour).
+    from shenbi.pipeline.truth_readers import read_pending_hooks
+
+    for rec in read_pending_hooks(project_dir):
+        hook_id = str(rec["id"])
+        idx.hooks[hook_id] = IndexEntry(
+            category="hook",
+            entity_id=hook_id,
+            file="truth/pending_hooks.md",
+            ref=f"truth/pending_hooks.md#{hook_id}",
+            extra={
+                "state": rec.get("state"),
+                "last_reinforced": rec.get("last_reinforced"),
+                "max_distance": rec.get("max_distance"),
+                "plant_chapter": rec.get("plant_chapter"),
+                "content_keywords": rec.get("content", ""),
+                "source": "tables",
+            },
+        )
+
+    # Source 2: frontmatter `hooks` list — supplement-only.
     raw_hooks = fm.get("hooks")
     if isinstance(raw_hooks, list):
         for hook in raw_hooks:
-            if isinstance(hook, dict):
-                hook_id = str(hook.get("id", ""))
-                if not hook_id:
-                    continue
+            if not isinstance(hook, dict):
+                continue
+            hook_id = str(hook.get("id", ""))
+            if not hook_id:
+                continue
+            fm_fields = {
+                "state": hook.get("state"),
+                "last_reinforced": hook.get("last_reinforced"),
+                "max_distance": hook.get("max_distance"),
+                "content_keywords": hook.get("content", ""),
+            }
+            existing = idx.hooks.get(hook_id)
+            if existing is None:
                 idx.hooks[hook_id] = IndexEntry(
                     category="hook",
                     entity_id=hook_id,
                     file="truth/pending_hooks.md",
                     ref=f"truth/pending_hooks.md#{hook_id}",
                     extra={
-                        "state": hook.get("state", ""),
-                        "last_reinforced": hook.get("last_reinforced", 0),
-                        "max_distance": hook.get("max_distance", 0),
-                        "content_keywords": hook.get("content", ""),
+                        **{k: v for k, v in fm_fields.items() if v is not None},
                         "source": "frontmatter",
                     },
                 )
+                continue
+            # Fill only fields the tables could not supply.
+            for k, v in fm_fields.items():
+                if v is not None and not existing.extra.get(k):
+                    existing.extra[k] = v
 
-    # Source 2: body hook IDs — only add IDs not already captured above.
+    # Source 3: body hook-ID mentions — ID presence only (no fields), for
+    # hooks mentioned in prose that neither the tables nor the frontmatter
+    # list recorded. Feeds the plan-text hook-hit lookup; not a second
+    # field parser (structured fields come only from truth_readers).
     for hid_match in _HOOK_ID_RE.finditer(body):
         hook_id = hid_match.group(0)
         if hook_id in idx.hooks:
