@@ -53,7 +53,7 @@ def parse_markdown_table(text: str) -> dict[str, dict[str, str]]:
                 key = _MD_HEADER_TO_KEY.get(header[i], header[i])
                 row[key] = val
         rid = row.get("id")
-        if rid:
+        if rid and rid not in out:  # duplicate id: first row wins (F658)
             out[rid] = row
     return out
 

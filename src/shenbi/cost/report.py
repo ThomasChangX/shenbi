@@ -87,11 +87,9 @@ def main(argv: list[str] | None = None) -> int:
     p_report = sub.add_parser("report", help="Print the cost report for a project.")
     p_report.add_argument("project_dir", type=Path)
 
-    args = ap.parse_args(argv)
-    if args.cmd == "report":
-        if not args.project_dir.is_dir():
-            print(f"error: project dir not found: {args.project_dir}", file=sys.stderr)
-            return 2
-        print(render_report(args.project_dir))
-        return 0
-    return 2
+    args = ap.parse_args(argv)  # subparsers required=True: cmd is always set (F510)
+    if not args.project_dir.is_dir():
+        print(f"error: project dir not found: {args.project_dir}", file=sys.stderr)
+        return 2
+    print(render_report(args.project_dir))
+    return 0

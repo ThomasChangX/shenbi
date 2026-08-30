@@ -276,7 +276,10 @@ def main() -> None:
         parsed = parse_trend(arc_path, ARC_PAYOFF_DIMS)
         overall_series = parsed.get("overall", [])
         if len(overall_series) >= 2:
-            volume_scores = [score for score, _ in overall_series]
+            # Volume drift is evaluated over non-excluded chapters only —
+            # the former comprehension discarded the human_overridden flag
+            # and fed excluded chapters into the detector (F657).
+            volume_scores = [score for score, overridden in overall_series if not overridden]
             findings.extend(detect_volume_drift(volume_scores))
 
     for f in findings:

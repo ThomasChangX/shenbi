@@ -50,3 +50,13 @@ def test_no_false_drift_on_float_formatting() -> None:
     recs = [{"id": "h", "subtlety": 0.8}]  # YAML parses to float 0.8
     md = {"h": {"id": "h", "subtlety": "0.80"}}  # markdown table text "0.80"
     assert detect_cross_section_drift(recs, md) == []
+
+
+class TestSpec16:
+    def test_duplicate_id_first_wins(self):
+        """F658: a repeated table id keeps the FIRST row, not a silent overwrite."""
+        from shenbi.records.drift import parse_markdown_table
+
+        md = "## 活跃伏笔\n\n| id | title |\n|---|---|\n| F1 | first |\n| F1 | second |\n"
+        table = parse_markdown_table(md)
+        assert table["F1"]["title"] == "first"
