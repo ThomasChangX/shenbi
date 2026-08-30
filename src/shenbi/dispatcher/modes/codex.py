@@ -7,6 +7,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
+from typing import Any
 
 from shenbi.safe_write import safe_write
 
@@ -60,6 +61,35 @@ def _record_completion(
     safe_write(progress_path, json.dumps(progress, indent=2, ensure_ascii=False))
 
 
+def _record_collapse_check(
+    round_dir: Path, skill: str, test_type: str, scores: dict[Any, Any]
+) -> dict[str, object]:
+    """Persist single-scorer collapse check next to the scores file (spec #31 T2a).
+
+    Separate artifact (NOT a key inside scores-subagent.json): parse_scores_dict
+    drops non-numeric keys with a WARN, so embedding would be noise. Scores from
+    codex JSON carry str dimension keys — normalized to int here.
+    """
+    from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse
+
+    normalized: dict[int, float] = {}
+    for k, v in scores.items():
+        try:
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                normalized[int(k)] = float(v)
+        except (TypeError, ValueError):
+            continue
+    result = check_single_scorer_collapse(normalized)
+    out = round_dir / "t1-reports" / f"{skill}-{test_type}-collapse-check.json"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    safe_write(out, json.dumps(result, indent=2, ensure_ascii=False))
+    if result.get("collapse_suspected"):
+        log.warning(
+            "score_collapse_suspected", skill=skill, test_type=test_type, signals=result["signals"]
+        )
+    return result
+
+
 def dispatch_codex(
     skill: str,
     test_type: str,
@@ -104,6 +134,10 @@ def dispatch_codex(
         raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
 
     safe_write(scores_file, json.dumps(scores))
+
+    # spec #31 T2a (F114): deterministic collapse check on every independent
+    # scoring dispatch — first production consumer of scoring_bridge.
+    _record_collapse_check(round_dir, skill, test_type, scores)
 
     # Repo-root-relative (the only CWD-dependent path left in the dispatcher).
     # parents[4]: modes -> dispatcher -> shenbi -> src -> <repo root>.
