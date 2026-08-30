@@ -92,9 +92,13 @@ def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
     # An explicit empty list means "no system terms" and is kept as-is; the
     # metrics computation must then skip the regex instead of compiling "".
     system_terms = [t for t in raw_terms if isinstance(t, str) and t]
+    # F605 (audit T2 I-1): same guard class for pattern_fingerprints.
+    raw_fingerprints = dd.get("pattern_fingerprints", defaults.pattern_fingerprints)
+    if not isinstance(raw_fingerprints, list):
+        raw_fingerprints = defaults.pattern_fingerprints
     return DriftConfig(
         system_terms=system_terms,
-        pattern_fingerprints=list(dd.get("pattern_fingerprints", defaults.pattern_fingerprints)),
+        pattern_fingerprints=[p for p in raw_fingerprints if isinstance(p, str) and p],
     )
 
 

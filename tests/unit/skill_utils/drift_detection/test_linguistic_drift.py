@@ -278,3 +278,17 @@ def test_all_stats_and_metrics_run_on_real_chapter_corpus():
         stats = compute_all_stats({chapter.name: chapter.read_text(encoding="utf-8")})
         assert stats["ttr"]["total_chars"] >= 0
         assert "排比" in stats["rhetoric"]
+
+
+def test_bare_string_pattern_fingerprints_falls_back(tmp_path):
+    """Same F605 guard class for pattern_fingerprints (audit T2 I-1)."""
+    import json
+
+    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps({"drift_detection": {"pattern_fingerprints": "冷在"}}),
+        encoding="utf-8",
+    )
+    cfg = load_drift_config(tmp_path)
+    assert cfg.pattern_fingerprints == ["冷在", "冷知道"]  # bootstrap, not per-char
