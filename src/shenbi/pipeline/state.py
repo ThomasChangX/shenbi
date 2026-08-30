@@ -70,7 +70,6 @@ class PipelineConfig:
     #: truth in ``shenbi.config.thresholds`` so config / skills / gates can
     #: never drift apart again (root cause of E11).
     resonance_global_floor: int = DEFAULT_THRESHOLDS.resonance_global_floor
-    snapshot_retention_chapters: int = 50
 
 
 @dataclass
@@ -287,7 +286,6 @@ class PipelineState:
                 "style_learning_interval": self.config.style_learning_interval,
                 "genre_config_update_on_drift": self.config.genre_config_update_on_drift,
                 "resonance_global_floor": self.config.resonance_global_floor,
-                "snapshot_retention_chapters": self.config.snapshot_retention_chapters,
             },
         }
 
