@@ -33,7 +33,7 @@
   - `:65` `assert len(CHAPTER_STEPS) == 16` → `== 15`
   - `:68` `range(1, 17)` → `range(1, 16)`
   - `:282/296/309` `step_index = 15  # last step (chapter-revision)` → `= 14`（同注释）；后续若有以 15 为完成态的断言按新表（完成判定是 `step_index >= len(CHAPTER_STEPS)`，需逐处核语义后改）
-  - `:663-695`、`:763-772` 逐步测试：删除 pre-revision-snapshot 那一步的 `run_chapter_step` 调用与 `step_index == 14`（旧 15 号位）断言，后续索引整体 -1；顺带清理 `:663,666,692,763` 与 `test_chapter_loop_full.py:244,418` 的 `pre-revision-snapshot` 过时注释（对齐 Task 5 grep 门）
+  - `:663-695`、`:763-772` 逐步测试：删除 pre-revision-snapshot 那一步的 `run_chapter_step` 调用与 `step_index == 14`（旧 15 号位）断言，后续索引整体 -1；顺带清理 `:663,666,692,763` 与 `test_chapter_loop_full.py:244,418` 的 `pre-revision-snapshot` 过时注释（对齐 Task 5 grep 门）及 M2 注释腐化：`test_chapter_loop.py:654` docstring「step 16 (chapter-revision)…」→ 15、`:746-749`「Steps 15 (snapshot)… step 16」重写为移除后步骤、`test_chapter_loop_full.py:7` 管线顺序 docstring 删 snapshot 字样
 - [ ] **Step 2: 新增 characterization 测试**（加到 `tests/unit/pipeline/test_chapter_loop.py`）
 
 ```python
@@ -62,7 +62,7 @@ def test_revision_step_follows_sensitivity_audit():
 - Modify: `src/shenbi/pipeline/state_heal.py:3,76-95,107`（docstring 提及、`_heal_last_snapshot` 整函数、调用行）
 - Modify: `src/shenbi/pipeline/cli.py:785`（注释删 `last_snapshot` 字样，保留 retry_budget/revision_count heal 说明）
 - Test delete: `tests/unit/pipeline/test_snapshot_pruning.py`、`tests/unit/pipeline/test_last_snapshot.py`
-- Test modify: `tests/unit/pipeline/test_snapshot_coverage.py`（删 chapter_loop import 与其测试类 `TestGetCoreSnapshotFiles`/`TestHasMinimumChineseChars` 等，保留 crash_recovery 测试）、`tests/unit/pipeline/test_state_heal.py`（删 `test_heals_last_snapshot_from_disk`）、`tests/unit/pipeline/test_adaptive_triggers.py`（删 `_snapshot_chapter_files` import 与 `TestFileSnapshot` 类）
+- Test modify: `tests/unit/pipeline/test_snapshot_coverage.py`（删 chapter_loop import 与其测试类 `TestCoreSnapshotFiles`/`TestMinChineseChars`，保留 crash_recovery 测试）、`tests/unit/pipeline/test_state_heal.py`（删 `test_heals_last_snapshot_from_disk`）、`tests/unit/pipeline/test_adaptive_triggers.py`（删 `_snapshot_chapter_files` import 与 `TestFileSnapshot` 类）
 
 **Interfaces:**
 - Produces: `PipelineState` 无 `last_snapshot` 属性；`heal_state_counters` 返回不含 `last_snapshot_healed:` 动作
@@ -99,9 +99,11 @@ def test_revision_step_follows_sensitivity_audit():
 **Files:**
 - Modify: `docs/superpowers/audit-runs/2026-08-14/findings-ledger.md:63`（F303 状态 `specced` → `removed (spec #26 path 3)`）
 - Modify: `docs/superpowers/specs/INDEX.md` #57 条目（加「**2026-08-30 注记**: #26 已裁决路径 3（移除）——本 spec 按其 T0 大部分自动失效，存活面仅 T4 truth-files.yaml/词面协调，待其自身价值门复核」）
+- Modify: `docs/superpowers/specs/2026-08-16-audit-snapshot-unify-fix.md`（#57 spec 头加同义失效注记——其正文多处引用差分机制与 F351「step-15 空操作」，头部注记为权威失效声明，正文不逐条改）
+- Modify: `docs/superpowers/specs/2026-08-15-snapshot-subsystem-wiring-design.md`（本 spec 头 Status 加「三路裁决: 路径 3（移除）· 2026-08-30」——spec 自身在文档同步面内）
 - Modify: `tests/unit/contracts/test_registry_pipeline_producers.py:42-44`（D20 注释：`chapter_loop._snapshot_chapter_files` 已删，改指 `crash_recovery._snapshot_chapter_files`——grep 该注释实际文本后改写）
 
-- [ ] **Step 1: 三处文档改动** → **Step 2:** `uv run pytest tests/unit/contracts/test_registry_pipeline_producers.py -q` PASS → **Step 3:** `grep -rn "pre-revision-snapshot" --include="*.py" src/ tests/` 零输出（测试注释已在 T1 Step 1 清理；audit-runs 历史记录按 spec 豁免）→ **Step 4: Commit** `docs: sync F303 ledger + #57 invalidation note after spec #26 path-3 removal`
+- [ ] **Step 1: 五处文档改动** → **Step 2:** `uv run pytest tests/unit/contracts/test_registry_pipeline_producers.py -q` PASS → **Step 3:** `grep -rn "pre-revision-snapshot" --include="*.py" src/ tests/` 零输出（测试注释已在 T1 Step 1 清理；audit-runs 历史记录按 spec 豁免）→ **Step 4: Commit** `docs: sync F303 ledger + #57 invalidation note after spec #26 path-3 removal`
 
 ### Task 6: 契约生成物同步（deps.json）
 
