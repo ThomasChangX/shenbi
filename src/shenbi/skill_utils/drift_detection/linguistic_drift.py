@@ -63,6 +63,9 @@ class DriftResult:
     metrics: dict[str, float]
     deviations: dict[str, float]
     message: str
+    # F618 (spec #32): metrics whose baseline is 0 while current > 0 — the
+    # ratio is undefined (insufficient baseline), not fabricated drift.
+    insufficient_baseline: list[str] = field(default_factory=list)
 
 
 def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
@@ -102,10 +105,32 @@ def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
     )
 
 
+_SENTENCE_END_RE: Final = re.compile(r"[^。！？\n]*[。！？\n]")
+_SHORT_SENTENCE_MAX: Final = 15
+
+
 def _short_chain_chars(text: str) -> int:
-    """Count characters in chains of 3+ consecutive short sentences (<=15 chars)."""
-    short_sents = re.findall(r"(?:[^。！？\n]{1,15}[。！？\n]){3,}", text)
-    return sum(len(s) for s in short_sents)
+    """Count characters in chains of 3+ consecutive short sentences (<=15 chars).
+
+    F653 (spec #32): split on sentence terminators first, then measure each
+    sentence's full length. The previous unanchored regex could backtrack a
+    <=15-char tail out of a long sentence and absorb it into a chain; a
+    sentence counts as short only if its ENTIRE body (terminator excluded)
+    is <=15 chars.
+    """
+    total = 0
+    chain: list[str] = []
+    for sent in _SENTENCE_END_RE.findall(text):
+        if len(sent) - 1 <= _SHORT_SENTENCE_MAX:
+            chain.append(sent)
+            if len(chain) == 3:
+                # chain just completed — count all three founding sentences
+                total += sum(len(s) for s in chain)
+            elif len(chain) > 3:
+                total += len(sent)
+        else:
+            chain = []
+    return total
 
 
 def compute_linguistic_metrics(
@@ -213,6 +238,7 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
     mille): 30-50 -> WARN, 50-100 -> HARD, >100 -> ESCALATE.
     """
     deviations: dict[str, float] = {}
+    insufficient_baseline: list[str] = []
     max_deviation_ratio = 1.0
     trigger_metric: str | None = None
 
@@ -224,7 +250,14 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
     ]:
         base_val = baseline.get(metric, 0.0)
         curr_val = current.get(metric, 0.0)
-        ratio = (curr_val / base_val) if base_val > 0 else (6.0 if curr_val > 0 else 1.0)
+        if base_val <= 0:
+            # F618 (spec #32): zero baseline — ratio undefined, first sighting
+            # must not fabricate drift (previously a 6.0 sentinel forced WARN).
+            deviations[metric] = 1.0
+            if curr_val > 0:
+                insufficient_baseline.append(metric)
+            continue
+        ratio = curr_val / base_val
         deviations[metric] = round(ratio, 2)
         if ratio > max_deviation_ratio:
             max_deviation_ratio = ratio
@@ -268,12 +301,16 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
     else:
         message = "No linguistic drift detected."
 
+    if insufficient_baseline and not is_drift:
+        message += f" Insufficient baseline (zero) for: {', '.join(insufficient_baseline)}."
+
     return DriftResult(
         is_drift=is_drift,
         severity=severity,
         metrics=current,
         deviations=deviations,
         message=message,
+        insufficient_baseline=insufficient_baseline,
     )
 
 

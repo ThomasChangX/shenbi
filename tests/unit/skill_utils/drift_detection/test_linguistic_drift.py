@@ -292,3 +292,53 @@ def test_bare_string_pattern_fingerprints_falls_back(tmp_path):
     )
     cfg = load_drift_config(tmp_path)
     assert cfg.pattern_fingerprints == ["冷在", "冷知道"]  # bootstrap, not per-char
+
+
+# --- spec #32 Task 2: F618 zero-baseline must not fabricate drift (行为面) ---
+
+
+def test_zero_baseline_no_fabricated_drift():
+    """F618: baseline metric is 0 while current > 0 — a ratio is undefined, not
+    6.0. Must be marked insufficient_baseline, NOT is_drift (首见不触发).
+    """
+    baseline = {
+        "system_term_density": 0.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 0.0,
+    }
+    current = dict(baseline, system_term_density=40.0)
+    result = detect_drift(current, baseline)
+    assert not result.is_drift
+    assert "system_term_density" in result.insufficient_baseline
+
+
+def test_zero_baseline_severity_still_absolute():
+    """Zero-baseline must not trigger ratio drift, but absolute severity
+    thresholds still apply (40‰ > 30 → WARN).
+    """
+    baseline = {
+        "system_term_density": 0.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 0.0,
+    }
+    current = dict(baseline, system_term_density=40.0)
+    result = detect_drift(current, baseline)
+    assert result.severity == "WARN"
+    assert "ratio metrics within bounds" in result.message or not result.is_drift
+
+
+def test_positive_baseline_ratio_path_unchanged():
+    """Positive baseline keeps ratio semantics (>=5x still drifts)."""
+    baseline = {
+        "system_term_density": 2.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 10.0,
+    }
+    current = dict(baseline, system_term_density=12.0)  # 6x
+    assert detect_drift(current, baseline).is_drift is True

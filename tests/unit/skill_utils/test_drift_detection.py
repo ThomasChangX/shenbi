@@ -243,3 +243,80 @@ class TestSpec16VolumeExclusion:
         scores = [s for s, overridden in series if not overridden]
         assert scores == [90.0, 95.0]
         assert detect_volume_drift(scores) == []
+
+
+# --- spec #32 Task 2: F646 non-finite floats / F653 short-chain backtracking ---
+
+
+class TestSpec32TryFloatNonFinite:
+    def test_nan_returns_none(self):
+        """F646: float("nan") parses but is not finite — must be rejected."""
+        from shenbi.skill_utils.drift_detection.compute_drift import _try_float
+
+        assert _try_float("nan") is None
+
+    def test_inf_returns_none(self):
+        from shenbi.skill_utils.drift_detection.compute_drift import _try_float
+
+        assert _try_float("inf") is None
+        assert _try_float("Infinity") is None
+
+    def test_negative_inf_returns_none(self):
+        from shenbi.skill_utils.drift_detection.compute_drift import _try_float
+
+        assert _try_float("-inf") is None
+
+    def test_finite_values_still_parse(self):
+        from shenbi.skill_utils.drift_detection.compute_drift import _try_float
+
+        assert _try_float("7.3") == 7.3
+        assert _try_float("90") == 90.0
+        assert _try_float("pending") is None
+
+
+class TestSpec32ShortChain:
+    def test_long_sentence_tail_fragment_not_chain(self):
+        """F653: unanchored regex backtracks a <=15-char tail out of a long
+        sentence — a single long sentence must not count as a short chain.
+        """
+        from shenbi.skill_utils.drift_detection.linguistic_drift import _short_chain_chars
+
+        long_para = (
+            "林风站在废料场边缘久久望着远处燃烧的天际线而手指无意识地"
+            "摩挲着口袋里的金属碎片不知过了多久。"
+        )
+        assert _short_chain_chars(long_para) == 0
+
+    def test_mid_paragraph_real_short_chain_detected(self):
+        """A genuine run of 3 consecutive short (<=15 char) sentences embedded
+        after a long sentence must still be detected.
+        """
+        from shenbi.skill_utils.drift_detection.linguistic_drift import _short_chain_chars
+
+        text = (
+            "林风站在废料场边缘久久望着远处燃烧的天际线而手指无意识地摩挲着口袋里的金属碎片。"
+            "风起了。他回头。没有人。"
+        )
+        counted = _short_chain_chars(text)
+        # exactly the three short sentences (with terminators) — the long
+        # sentence's <=15-char tail must NOT be absorbed into the chain
+        # (current regex matches 28 chars here via backtracking)
+        assert counted == len("风起了。他回头。没有人。")
+
+    def test_two_short_sentences_not_chain(self):
+        from shenbi.skill_utils.drift_detection.linguistic_drift import _short_chain_chars
+
+        assert _short_chain_chars("风起了。他回头。") == 0
+
+    def test_long_tails_plus_two_shorts_not_chain(self):
+        """F653: two long sentences each contribute a <=15-char tail to the
+        regex, so even a mere 2-sentence short run must not count as a chain.
+        """
+        from shenbi.skill_utils.drift_detection.linguistic_drift import _short_chain_chars
+
+        text = (
+            "林风站在废料场边缘久久望着远处燃烧的天际线而手指无意识地摩挲着口袋里的金属碎片。"
+            "陈维民的声音从身后传来带着一丝不易察觉的颤抖似乎想说什么却又停住了。"
+            "风起了。他回头。"
+        )
+        assert _short_chain_chars(text) == 0
