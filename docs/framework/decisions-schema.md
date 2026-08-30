@@ -102,3 +102,4 @@ source of truth for the schema.
 | `chapter-revision` | review issues, strategies | deferred issues |
 | `state-settling` | state deltas, summaries | conflicts, resolutions |
 | `short-drafting` | outline elements, structure | length, tone shifts |
+| `genre-config` | config knobs, thresholds | threshold overrides |

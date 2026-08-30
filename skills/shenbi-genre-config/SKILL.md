@@ -345,3 +345,10 @@ cp genre-config.json genre-config.json.bak.YYYYMMDD
 | "禁用词越多越好" | 过多禁用词 = 写作束缚 = 创作质量下降 |
 | "审计全开" | 全开 = 误报率上升 + 审计耗时 = 写作流程被淹没 |
 | "自定义规则随便加" | 自定义规则 = 项目级硬约束；滥用 = 规则相互冲突 |
+
+## decisions sidecar 必填字段
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

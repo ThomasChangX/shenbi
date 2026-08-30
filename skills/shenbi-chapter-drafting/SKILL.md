@@ -158,3 +158,10 @@ PRE_WRITE_CHECK:
 | "PRE_WRITE_CHECK 浪费时间" | 5分钟自检省30分钟返工 |
 | "AI味读者看不出来" | 平台检测算法看得很清楚 |
 | "先写完再检查" | 写完再改 = 重写。边写边注意 = 一次过 |
+
+## decisions sidecar 必填字段
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

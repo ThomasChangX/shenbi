@@ -115,3 +115,10 @@ digraph market_radar {
 | "排行榜都是刷的，数据不可信" | 排行榜是相对信号；不可全信但可参考；剔除明显刷榜后仍有效 |
 | "我比排行榜编辑更懂市场" | 你的数据样本是 0；排行榜编辑的样本是百万级读者行为 |
 | "我这是创新题材，没法对标" | 没对标 ≠ 没市场；创新题材需要更大胆的开书策略 |
+
+## decisions sidecar 必填字段
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

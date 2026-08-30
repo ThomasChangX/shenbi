@@ -51,6 +51,7 @@
       ],
       "expected_outputs": [
         "context/chapter-*-context-decisions.json",
+        "plans/chapter-*-plan-decisions.json",
         "plans/chapter-*-plan.md",
         "truth/*.md"
       ],
@@ -74,7 +75,8 @@
         "audits/chapter-*.md",
         "chapters/chapter-*-decisions.json",
         "chapters/chapter-*.md",
-        "truth/*.md"
+        "truth/*.md",
+        "truth/state-settling-decisions.json"
       ],
       "g4_checker": "shenbi-chapter-drafting"
     },

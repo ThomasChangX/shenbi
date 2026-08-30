@@ -26,7 +26,7 @@ def _doc(selections: list[dict[str, object]]) -> dict[str, object]:
 
 def test_medium_without_rationale_error_names_medium():
     doc = _doc([{"target": "t", "selected": ["a"], "basis": "arc_relevance", "severity": "medium"}])
-    with pytest.raises(ValidationError, match="medium"):
+    with pytest.raises(ValidationError, match="REQUIRED for medium"):
         DecisionsDoc.model_validate(doc)
 
 
