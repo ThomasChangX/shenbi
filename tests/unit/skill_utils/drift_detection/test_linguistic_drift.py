@@ -198,3 +198,83 @@ def test_drift_threshold_semantics_unchanged_for_ratios():
     baseline = {"dialogue_density": 10.0, "system_term_density": 1.0}
     current = {"dialogue_density": 6.0, "system_term_density": 1.0}  # ratio 0.6 正常
     assert detect_drift(current, baseline).is_drift is False
+
+
+# --- spec #14 T2: F605 empty/malformed system_terms + F634 META stripping ---
+
+
+def test_empty_system_terms_density_is_zero(tmp_path):
+    """F605: explicit empty vocabulary must yield density 0.0, not ~1000 per mille."""
+    import json
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps({"drift_detection": {"system_terms": []}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    metrics = compute_linguistic_metrics("普通中文正文一句话。", project_dir=tmp_path)
+    assert metrics["system_term_density"] == 0.0
+
+
+def test_bare_string_system_terms_falls_back_to_bootstrap(tmp_path):
+    """F605: a bare string must not be iterated per-char; fall back to defaults."""
+    import json
+
+    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps({"drift_detection": {"system_terms": "参数"}}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    cfg = load_drift_config(tmp_path)
+    assert cfg.system_terms  # bootstrap fallback, not ["参", "数"]
+    assert "参数" in cfg.system_terms
+
+
+def test_non_string_system_terms_filtered(tmp_path):
+    import json
+
+    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
+
+    (tmp_path / "genre-config.json").write_text(
+        json.dumps({"drift_detection": {"system_terms": ["参数", 42, None, ""]}}),
+        encoding="utf-8",
+    )
+    cfg = load_drift_config(tmp_path)
+    assert cfg.system_terms == ["参数"]
+
+
+def test_meta_block_excluded_from_metrics():
+    """F634: <!--META-BEGIN-->…<!--META-END--> blocks are bookkeeping, not prose."""
+    meta = "<!--META-BEGIN-->参数 参数 参数 参数 格式串<!--META-END-->\n\n"
+    with_meta = meta + "普通中文正文一句话。"
+    without = "普通中文正文一句话。"
+    m1 = compute_linguistic_metrics(with_meta)
+    m2 = compute_linguistic_metrics(without)
+    assert m1["system_term_density"] == m2["system_term_density"]
+    assert m1["em_dash_density"] == m2["em_dash_density"]
+
+
+def test_meta_block_excluded_on_real_fixture():
+    """F634 acceptance: real chapter with META block (G0.9 real artifact)."""
+    from pathlib import Path
+
+    fixture = Path(__file__).resolve().parents[3] / "fixtures" / "z11" / "chapter-41-with-meta.md"
+    text = fixture.read_text(encoding="utf-8")
+    metrics = compute_linguistic_metrics(text)
+    # META block is system-term-dense; with stripping the density stays low.
+    assert metrics["system_term_density"] < 30.0
+
+
+def test_all_stats_and_metrics_run_on_real_chapter_corpus():
+    """Spec acceptance: full stats + metrics over real chapter fixtures, no crash."""
+    from pathlib import Path
+
+    from shenbi.skill_utils.style_learning.compute_stats import compute_all_stats
+
+    fixtures_dir = Path(__file__).resolve().parents[3] / "fixtures"
+    chapters = sorted(fixtures_dir.glob("chapter-*-draft.md"))
+    assert chapters, "expected real chapter fixtures to exist"
+    for chapter in chapters:
+        stats = compute_all_stats({chapter.name: chapter.read_text(encoding="utf-8")})
+        assert stats["ttr"]["total_chars"] >= 0
+        assert "排比" in stats["rhetoric"]

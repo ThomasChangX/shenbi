@@ -10,6 +10,7 @@ import re
 import sys
 from collections import Counter
 from pathlib import Path
+from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
 from shenbi.safe_write import safe_write
 from typing import Any
 
@@ -375,6 +376,8 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
 def compute_all_stats(texts: dict[str, str]) -> dict[str, Any]:
     """Run all statistical analyses on the given texts."""
     combined = "\n\n".join(texts.values())
+    # F634: META blocks are bookkeeping, not prose — strip before any stat.
+    combined = META_BLOCK_RE.sub("", combined)
     total_chars = len(combined.replace("\n", "").replace(" ", ""))
     sentences = segment_sentences(combined)
     paragraphs = segment_paragraphs(combined)

@@ -19,6 +19,8 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Final, Literal
 
+from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
+
 # R2 (F601): single source for the drift threshold. Dialogue collapse sets the
 # deviation ratio to exactly this value, so the trigger test must be >=.
 _DEVIATION_DRIFT_THRESHOLD: Final[float] = 5.0
@@ -81,11 +83,18 @@ def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
     except (json.JSONDecodeError, OSError):
         return DriftConfig()
     dd = raw.get("drift_detection", {}) if isinstance(raw, dict) else {}
+    defaults = DriftConfig()
+    raw_terms = dd.get("system_terms", defaults.system_terms)
+    # F605: a bare string would be iterated per-char by list(); a non-list
+    # value falls back to the bootstrap vocabulary.
+    if not isinstance(raw_terms, list):
+        raw_terms = defaults.system_terms
+    # An explicit empty list means "no system terms" and is kept as-is; the
+    # metrics computation must then skip the regex instead of compiling "".
+    system_terms = [t for t in raw_terms if isinstance(t, str) and t]
     return DriftConfig(
-        system_terms=list(dd.get("system_terms", DriftConfig().system_terms)),
-        pattern_fingerprints=list(
-            dd.get("pattern_fingerprints", DriftConfig().pattern_fingerprints)
-        ),
+        system_terms=system_terms,
+        pattern_fingerprints=list(dd.get("pattern_fingerprints", defaults.pattern_fingerprints)),
     )
 
 
@@ -105,11 +114,18 @@ def compute_linguistic_metrics(
         project_dir: Project root (used to load config-driven SYSTEM_TERMS).
     """
     cfg = load_drift_config(project_dir)
+    # F634: META blocks are bookkeeping, not prose — strip before any metric.
+    text = META_BLOCK_RE.sub("", text)
     text_len = max(len(text), 1)
 
     # M1: System term density — parametric language indicator
-    system_term_re = re.compile("|".join(re.escape(t) for t in cfg.system_terms))
-    system_term_density = len(system_term_re.findall(text)) / text_len * 1000
+    # F605: empty vocabulary must skip the regex — re.compile("") matches at
+    # every position and inflates the density to ~1000‰.
+    if cfg.system_terms:
+        system_term_re = re.compile("|".join(re.escape(t) for t in cfg.system_terms))
+        system_term_density = len(system_term_re.findall(text)) / text_len * 1000
+    else:
+        system_term_density = 0.0
 
     # M2: Em-dash density — enumeration separator in degraded prose
     em_dash_density = text.count("——") / text_len * 1000
