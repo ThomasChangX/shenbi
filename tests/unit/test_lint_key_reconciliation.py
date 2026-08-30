@@ -9,13 +9,6 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 
 
-def _run_lint(monkeypatch: pytest.MonkeyPatch, registry) -> int:
-    import tools.lint_key_reconciliation as lk
-
-    monkeypatch.setattr(lk, "READ_KEY_REGISTRY", registry)
-    return lk.main([])
-
-
 @pytest.mark.unit
 def test_orphan_read_key_warns_and_strict_fails(tmp_path, monkeypatch):
     import tools.lint_key_reconciliation as lk

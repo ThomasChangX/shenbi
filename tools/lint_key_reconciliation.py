@@ -41,6 +41,9 @@ class ReadKey:
     anchor: str  # "path: pattern" — where the reader lives
     read_pattern: str  # glob family or literal key the reader consumes
     writer_sources: list[str] = field(default_factory=list)  # "path: pattern"
+    # Glob-family reads whose reconciliation is the filename family itself
+    # (no shared code symbol) are exempt from the symbol-binding check.
+    binding_exempt: bool = False
 
 
 READ_KEY_REGISTRY: list[ReadKey] = [
@@ -58,12 +61,12 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "marker/G6-family",
         "src/shenbi/scoring.py: marker_filename",
         "gate-markers/G6-<pipeline>-<test_type>.json",
-        ['src/shenbi/gates/cli.py: write_gate_marker("G6"'],
+        ["src/shenbi/gates/shared.py: def marker_filename"],
     ),
     # --- g_reconcile status vocab (T4) ---
     ReadKey(
         "reconcile/status-key",
-        "src/shenbi/gates/g_reconcile.py: td.get",
+        "src/shenbi/gates/g_reconcile.py: .upper() == ",
         "skills.<skill>.<test_type>.status == done",
         ['src/shenbi/dispatcher/modes/codex.py: "status": "done"'],
     ),
@@ -129,7 +132,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "chapterloop/drift-guidance",
         "src/shenbi/pipeline/chapter_loop.py: _drift_guidance_triggered",
         "truth/audit_drift.md drift-finding lines",
-        ["src/shenbi/skill_utils/drift_detection/compute_drift.py: audit_path"],
+        ["src/shenbi/skill_utils/drift_detection/compute_drift.py: def _append_audit"],
     ),
     # --- pending hooks single parser (T5) ---
     ReadKey(
@@ -139,6 +142,29 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         ["src/shenbi/pipeline/truth_readers.py: def read_pending_hooks"],
     ),
     # --- avg G3 score contract keys (T5) ---
+    # --- rubric applicability lint face (T7; F104/F757 parser face was
+    # implemented by spec #9 R4 — this entry pins the reconciliation) ---
+    ReadKey(
+        "scoring/load-applicability",
+        "src/shenbi/scoring.py: def load_applicability",
+        "rubric Dimension Applicability table (dual shapes)",
+        ["src/shenbi/scoring.py: load_applicability"],  # same-file: local binding
+    ),
+    # --- F458 residual glob family ---
+    ReadKey(
+        "g0/generative-scores-glob",
+        "src/shenbi/gates/g0.py: *-generative-scores*.json",
+        "t1-reports/*-generative-scores*.json",
+        ["src/shenbi/dispatcher/modes/codex.py: -scores-subagent"],
+        binding_exempt=True,
+    ),
+    # --- F374 pre-rev backup exclusion ---
+    ReadKey(
+        "triggers/style-stale-excl-backup",
+        "src/shenbi/pipeline/triggers.py: -pre-rev.md",
+        "chapters/chapter-*.md excluding chapter-<N>-pre-rev.md",
+        ["src/shenbi/pipeline/chapter_loop.py: chapter-{chapter}-pre-rev.md"],
+    ),
     ReadKey(
         "cost/avg-g3-score",
         "src/shenbi/cost/report.py: _try_avg_g3_score",
@@ -146,6 +172,33 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         ['src/shenbi/scoring.py: "final_score": final'],
     ),
 ]
+
+
+def _binding_holds(rk: ReadKey) -> tuple[bool, str]:
+    """Check cross-file symbol binding for a reader key.
+
+    Assertion (b): when reader and writer live in different files, the
+    reader file must reference at least one writer symbol — otherwise the
+    reader could drift onto a hand-rolled format with all anchors intact.
+    """
+    r_path = rk.anchor.split(": ", 1)[0]
+    r_file = REPO / r_path
+    if not r_file.exists():
+        return False, f"reader file missing: {r_path}"
+    r_text = r_file.read_text(encoding="utf-8")
+    cross_file = [ws for ws in rk.writer_sources if ws.split(": ", 1)[0] != r_path]
+    if not cross_file:
+        return True, ""  # all writers live in the reader file — binding is local
+    for ws in cross_file:
+        pattern = ws.split(": ", 1)[1]
+        tokens = re.split(r"\W+", pattern)
+        ident = [t for t in tokens if t.isidentifier()]
+        if not ident:
+            continue
+        sym = max(ident, key=len)
+        if re.search(r"\b" + re.escape(sym) + r"\b", r_text):
+            return True, ""
+    return False, "reader file references no writer symbol (binding broken)"
 
 
 def _anchor_matches(anchor: str) -> tuple[bool, str]:
@@ -186,6 +239,12 @@ def main(argv: list[str] | None = None) -> int:
         ok, detail = _anchor_matches(rk.anchor)
         if not ok:
             violations.append(f"{rk.check_id}: reader anchor failed — {detail}")
+            continue
+        if rk.binding_exempt:
+            continue
+        ok, detail = _binding_holds(rk)
+        if not ok:
+            violations.append(f"{rk.check_id}: {detail}")
 
     if violations:
         level = "FAIL" if args.strict else "WARN"
