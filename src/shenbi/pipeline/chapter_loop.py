@@ -618,13 +618,15 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
             files.extend(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
 
     # F434: contract-declared decisions sidecars join the G4 file list.
-    # Existence-gated to avoid spurious FAILs; composite G4 re-partitions by
-    # file suffix, so appending the sidecar here cannot mis-route .md checks.
+    # Existence-gated to avoid spurious FAILs (matches phase_runner's
+    # pre-existing existence filter); composite G4 re-partitions by file
+    # suffix, so appending the sidecar here cannot mis-route .md checks.
     from shenbi.contracts import ContractError, load_contract
 
     try:
         contract = load_contract(step.skill)
-    except ContractError:
+    except ContractError as e:
+        log.warning("g4_decisions_contract_unavailable", skill=step.skill, error=str(e))
         contract = None
     if contract:
         from shenbi.pipeline.checkpoint import STAGING_DIR
@@ -637,7 +639,7 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
             if (project_dir / cand).exists() and cand not in files:
                 files.append(cand)
 
-    return files if files else []
+    return files
 
 
 def _handle_failure(

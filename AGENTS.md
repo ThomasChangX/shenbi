@@ -67,7 +67,7 @@ read as lightweight references.
 Key rules:
 - `kind: ephemeral` skills migrate to `kind: artifact` with decisions.json in writes
 - Schema: `shenbi-decisions-v1` (see `docs/framework/decisions-schema.md`)
-- P2.5 rationale rule: rationale FORBIDDEN on routine+low-severity, REQUIRED on manual_override + high-severity + adjustments
+- P2.5 rationale rule: rationale FORBIDDEN on routine+low-severity, REQUIRED on manual_override + medium/high-severity + adjustments
 - G2 validates decisions.json as `file_type="decisions"` (skips word count)
 - G4 validates schema + P2.5 rules
 - Downstream skills declare decisions.json in their `reads:`
