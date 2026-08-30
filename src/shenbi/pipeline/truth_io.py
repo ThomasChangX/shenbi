@@ -71,6 +71,12 @@ def _path_lock(path: Path) -> threading.Lock:
         return lock
 
 
+#: Public alias: sibling modules (dispatch_helper staging route, checkpoint
+#: commit merge) reuse the SAME per-path lock registry — a second registry
+#: would not mutually exclude with write_truth_file's locking (SDD #21 R3).
+path_lock = _path_lock
+
+
 def write_truth_file(
     project_dir: Path,
     filename: str,
@@ -462,3 +468,8 @@ def _serialize_yaml_records(records: list[dict[str, Any]], filename: str) -> str
     fm = {yaml_key: records}
     front = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     return f"---\n{front}\n---\n\n"
+
+
+#: Public alias for the separator-row predicate (used by the checkpoint-side
+#: keyed merge; single source, no duplicate regex).
+is_separator_row = _is_separator_row

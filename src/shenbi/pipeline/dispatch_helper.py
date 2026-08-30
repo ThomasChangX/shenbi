@@ -1141,6 +1141,44 @@ def _increment_units(content: str) -> list[str]:
     return units
 
 
+#: Staging-write metadata sidecar (SDD #21 R3): records each staged target's
+#: update_mode/key_field so the commit side can distinguish keyed-upsert
+#: targets (live-priority row merge) from plain whole-file replaces. Lives at
+#: the staging ROOT, so the commit-side ``staging/truth/*.md`` glob never
+#: picks it up, and ``clear_staging``'s rmtree removes it with the rest.
+_STAGING_META_NAME = ".staging-meta.json"
+
+
+def _staging_meta_path(project_dir: Path) -> Path:
+    return project_dir / "staging" / _STAGING_META_NAME
+
+
+def _update_staging_meta(project_dir: Path, rel_path: str, key_field: str) -> None:
+    """Record *rel_path*'s keyed-upsert semantics in the sidecar.
+
+    Read -> dict.update -> write (merge semantics; a second writer must never
+    erase the first writer's entries), guarded by the sidecar's own per-path
+    lock so concurrent staging writers cannot interleave.
+    """
+    from shenbi.pipeline.truth_io import path_lock
+
+    meta_path = _staging_meta_path(project_dir)
+    meta_path.parent.mkdir(parents=True, exist_ok=True)
+    # commit targets use the non-staging path form ("truth/<file>")
+    target = rel_path[len("staging/") :] if rel_path.startswith("staging/") else rel_path
+    with path_lock(meta_path):
+        meta: dict[str, dict[str, str]] = {}
+        if meta_path.exists():
+            try:
+                loaded = json.loads(meta_path.read_text(encoding="utf-8"))
+                if isinstance(loaded, dict):
+                    meta = loaded
+            except (OSError, ValueError):
+                log.warning("staging_meta_unreadable", path=str(meta_path))
+        meta[target] = {"update_mode": "append_dedup", "key_field": key_field}
+        safe_write(meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"))
+
+
 def _route_append_dedup_write(
     project_dir: Path, rel_path: str, content: str, *, key_field: str
 ) -> None:
@@ -1177,25 +1215,43 @@ def _route_append_dedup_write(
             DispatchResult) stays as defense for a future ``upsert_yaml``
             wiring, not a live path today.
     """
-    from shenbi.pipeline.truth_io import upsert_markdown_row, write_truth_file
+    from shenbi.pipeline.truth_io import path_lock, upsert_markdown_row, write_truth_file
 
     units = _increment_units(content)
 
     if rel_path.startswith(_STAGING_TRUTH_PREFIX):
         filename = rel_path[len(_STAGING_TRUTH_PREFIX) :]
-        base_path = project_dir / "truth" / filename
-        base = base_path.read_text(encoding="utf-8") if base_path.exists() else ""
-        merged = base
-        for unit in units:
-            merged = upsert_markdown_row(merged, unit, key_field)
         staged = project_dir / rel_path
         staged.parent.mkdir(parents=True, exist_ok=True)
-        safe_write(staged, merged)
+        live_path = project_dir / "truth" / filename
+        # SDD #21 R3: the merge base is CHAINED — an existing staging file
+        # for the same target is the base (it already carries this chapter's
+        # earlier writers' increments); only the FIRST writer falls back to
+        # the live file. Merging against live unconditionally let a second
+        # parallel writer (state-settling vs foreshadowing-lifecycle) drop
+        # the first writer's rows from staging (last-writer-wins, T7-03).
+        # The whole read-merge-write runs under the per-path lock
+        # (in-process threading; ThreadPoolExecutor is the only concurrency
+        # model here — cross-process locking is out of scope).
+        with path_lock(staged):
+            # Existence check INSIDE the lock: two threads that both see
+            # "no staging file yet" would each merge against live and the
+            # later safe_write would drop the earlier writer's rows.
+            base_is_staging = staged.exists()
+            if base_is_staging:
+                base = staged.read_text(encoding="utf-8")
+            else:
+                base = live_path.read_text(encoding="utf-8") if live_path.exists() else ""
+            merged = base
+            for unit in units:
+                merged = upsert_markdown_row(merged, unit, key_field)
+            safe_write(staged, merged)
+            _update_staging_meta(project_dir, rel_path, key_field)
         log.info(
             "truth_increment_staged",
             path=rel_path,
             key=key_field,
-            base=str(base_path),
+            base=str(staged if base_is_staging else live_path),
             merged_size=len(merged),
         )
         return
