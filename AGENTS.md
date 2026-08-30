@@ -68,8 +68,10 @@ Key rules:
 - `kind: ephemeral` skills migrate to `kind: artifact` with decisions.json in writes
 - Schema: `shenbi-decisions-v1` (see `docs/framework/decisions-schema.md`)
 - P2.5 rationale rule: rationale FORBIDDEN on routine+low-severity, REQUIRED on manual_override + medium/high-severity + adjustments
-- G2 validates decisions.json as `file_type="decisions"` (skips word count)
-- G4 validates schema + P2.5 rules
+- G2 validates decisions.json per file under `file_type="decisions"`: `.json` sidecars take the G2.dec branch (word count skipped); the `.md` main artifact falls through to chapter checks (spec #30 T1) — snapshot backups (`*snapshot*`) are exempt
+- G4 validates schema + P2.5 rules; pipeline G4 file lists include contract-declared decisions sidecars (spec #30 T2)
+- G2 and G4 share one decisions-JSON parse policy (`parse_decisions_payload`: concat detection + raw_decode recovery, fail-closed)
+- Producer declarations are reconciled across three sources (SKILL writes / truth-files.yaml / schema doc) by `tools/lint_decisions_sources.py` (runs in `just check`)
 - Downstream skills declare decisions.json in their `reads:`
 
 ### Field-Level Reads
