@@ -88,8 +88,9 @@ def _record_collapse_check(
     """
     normalized, dropped = _normalize_scores(scores)
     if dropped:
-        # Mirrors parse_scores_dict's non_numeric_score_keys_dropped WARN.
-        log.info(
+        # Mirrors parse_scores_dict's non_numeric_score_keys_dropped WARN
+        # (same severity: data-loss signal, not debug noise).
+        log.warning(
             "collapse_check_non_numeric_dropped", skill=skill, test_type=test_type, dropped=dropped
         )
     result = check_single_scorer_collapse(normalized)

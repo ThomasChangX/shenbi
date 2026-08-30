@@ -19,7 +19,7 @@
 - commit 走 Conventional Commits + 显式 pathspec（禁 `git add -A`）
 - 禁为验证触发真实 dispatch（核心原则 8）——所有 codex exec 测试用 monkeypatch 假 subprocess
 
-## 现状锚点（2026-08-31 main 3f02813a 实读）
+## 现状锚点（2026-08-31 main 3f02813a 实读；交付后注记：本 plan 交付时 dispatch_codex 已增 `dual: bool = False` 参数、坍缩/双评分 helper 已并入 codex.py、executor.py 调用点已接 dual 开关——锚点描述的是实施前基线）
 
 - `src/shenbi/scoring.py:303-337`：`check_scorer_agreement(scores_a, scores_b, threshold=5.0) -> dict`、`flag_score_collapse(scores) -> dict`（signals: all_identical / majority_at_single_value）
 - `src/shenbi/scoring.py:507`：`"scored_by": "subagent" if "--subagent" in sys.argv else "interactive"`
