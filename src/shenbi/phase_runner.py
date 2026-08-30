@@ -19,6 +19,7 @@ from typing import Any, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
+from shenbi.contracts.legacy import validate_skill_name
 from shenbi.logging import configure_logging, get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
@@ -146,6 +147,19 @@ def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
 def cmd_pre_skill(phase: str, skill: str, round_dir: str) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "pre-skill")
+    # T12-06 (spec #22 R3): reject non-kebab skill names fail-loud before join
+    try:
+        validate_skill_name(skill)
+    except ContractError:
+        emit_json(
+            {
+                "status": CommandStatus.ERROR,
+                "phase": phase,
+                "skill": skill,
+                "message": f"invalid skill name: {skill!r}",
+            }
+        )
+        sys.exit(1)
     # Validate skill exists
     skill_path = PROJECT / "skills" / skill / "SKILL.md"
     if not skill_path.exists():

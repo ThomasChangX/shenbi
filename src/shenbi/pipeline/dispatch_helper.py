@@ -601,7 +601,7 @@ def _build_skill_prompt(
             When provided, reads/writes resolve arc/stratum/volume/chapter
             families from it instead of the bare chapter number.
     """
-    from shenbi.contracts.legacy import ContractError, load_contract
+    from shenbi.contracts.legacy import ContractError, load_contract, validate_skill_name
 
     try:
         contract = load_contract(skill)
@@ -610,6 +610,9 @@ def _build_skill_prompt(
         raise
 
     # System prompt = SKILL.md (resolved from repo root, not CWD)
+    # (load_contract above already routes through _skill_path's validator;
+    # this explicit call is belt-and-braces for the local join below.)
+    validate_skill_name(skill)
     skill_file = _PROJECT_ROOT / "skills" / skill / "SKILL.md"
     if skill_file.exists():
         system_prompt = _strip_autogen_blocks(skill_file.read_text(encoding="utf-8"))

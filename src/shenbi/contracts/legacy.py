@@ -19,6 +19,7 @@ the contract-completeness lint (Part IV) does.
 from __future__ import annotations
 
 import fnmatch
+import re
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, TypedDict
@@ -51,7 +52,19 @@ class Contract(TypedDict):
     write_semantics: dict[str, dict[str, Any]]
 
 
+#: T12-06 (spec #22 R3): skill names are joined into repo paths at three
+#: sites — kebab-case only, fail-loud on traversal/separator/mixin names.
+SKILL_NAME_RE = re.compile(r"^[a-z0-9][a-z0-9-]*$")
+
+
+def validate_skill_name(skill: str) -> str:
+    if SKILL_NAME_RE.fullmatch(skill) is None:
+        raise ContractError("invalid skill name", skill=skill)
+    return skill
+
+
 def _skill_path(skill: str) -> Path:
+    validate_skill_name(skill)
     return SKILLS / skill / "SKILL.md"
 
 

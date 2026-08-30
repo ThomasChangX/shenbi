@@ -65,6 +65,11 @@ def generate_all() -> int:
     for platform_name, config in master["platforms"].items():
         fmt = config["format"]
         output_path = REPO_ROOT / config["output"]
+        # T12-06 (spec #22 R3): outputs must stay inside the repo root
+        if not output_path.resolve().is_relative_to(REPO_ROOT.resolve()):
+            raise ValueError(
+                f"platform {platform_name!r} output escapes repo root: {config['output']!r}"
+            )
         output_path.parent.mkdir(parents=True, exist_ok=True)
 
         if fmt not in GENERATORS:
