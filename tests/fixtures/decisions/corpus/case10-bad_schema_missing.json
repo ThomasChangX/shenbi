@@ -1,0 +1,58 @@
+{
+  "schema": "shenbi-decisions-v1",
+  "chapter": 30,
+  "timestamp": "2026-07-17T00:00:00+08:00",
+  "decisions": {
+    "structure": {
+      "narrative_mode": "walking_frame_without_dialogue",
+      "day_of_week": "Wednesday",
+      "vol2_day": 8,
+      "chapter_role": "advance_turn"
+    },
+    "p0_advances": {
+      "assessment_rhythm_evolution": {
+        "decision": "assessment_density_transitioned_from_discovery_presence_to_calendrical_presence",
+        "method": "walking_parameters_naturally_containing_density_without_explicit_checking",
+        "manifestation": "排队长度自动登记/机构入口密度在工作日水平中自然在场/评估作为参数而非信号"
+      },
+      "touch_classification_failure": {
+        "decision": "touch_residue_categorized_as_zero_class",
+        "method": "parameter_system_attempted_temperature→deformation→pressure→all_failed",
+        "effect": "perception_system_boundary_touched_by_itself"
+      },
+      "sensory_baseline_broadening": {
+        "decision": "food_steam_smell_in_weekday_baseline_as_saturday_residual",
+        "method": "naturally_present_in_walking_frame_without_separate_sensory_paragraph"
+      }
+    },
+    "p1_maintenance": {
+      "doorframe_equilibrium": {
+        "status": "maintained",
+        "detail": "new_baseline_offset_persists_no_expansion_or_shrink"
+      },
+      "MH_020_format_string": {
+        "status": "maintained",
+        "detail": "no_new_split_transition_or_tail_switch"
+      },
+      "MH_003_engine_sound": {
+        "status": "maintained",
+        "detail": "engine_has_own_calendar_overlapping_with_assessment"
+      },
+      "Phase_2": {
+        "status": "observed",
+        "detail": "condensation_interval_aligned_with_week_rhythm_no_causal_inference"
+      },
+      "MH_001": {
+        "status": "observed",
+        "detail": "post_saturday_state_no_change_trigger_in_elsewhere"
+      }
+    },
+    "budget": {
+      "estimated_word_count": "~5300",
+      "transition_word_count": 0,
+      "fatigue_word_count": 0,
+      "emotional_gradient_upgrade": "non_parametric_domain_touch_classification_failure",
+      "hook_type": "zero_category_persistence_as_open_tension"
+    }
+  }
+}

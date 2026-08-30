@@ -1,0 +1,118 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 17,
+  "produced_at": "2026-07-16T16:08:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-17-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-17-context.md",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context文件缺失，以truth/current_focus.md为主输入"]
+    },
+    {
+      "target": "context/chapter-17-context-decisions.json",
+      "selected": [],
+      "basis": "file_not_found",
+      "severity": "low",
+      "omitted": ["全部——context-decisions文件缺失"]
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "5. 修辞模式", "6. 标点密度", "7. 连接词密度", "风格学习汇总", "局限性"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第16章"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": ["第15章"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch16_physiological_anchor",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "军列触发场景三层生理锚点:颈动脉搏动(下颌线抵颈动脉区域→第二至五拍加快至~80区间→下降不回零)+呼吸节律(浅快→深长抑制→恢复后快于基线)+体温(体表热辐射速率增加+手机热交换平衡点变化)。与动作序列(蹲下/压低身形/抬头/贴墙)形成双层对照"
+    },
+    {
+      "issue_id": "drift_ch16_tactile_anchor",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "两个独立触觉锚点:(1)矮墙阴影中脸颊vs阳光下手臂温差(两至三度温差在一掌距离内分布);(2)地面振动传导通过掌心(轮轨地面传声超前空气传声约半秒);(3)砖石碎块温度+墙面灰阻力"
+    },
+    {
+      "issue_id": "drift_ch16_return_trigger",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "战争线从\"可观察信号\"→\"可感受的物理压迫\":军列编组五节(三到四辆中型车辆+自行火炮炮塔轮廓)→身体在声音识别前已蹲下→触发后基线不回零→冲突已启动不可逆。战争线从预备触发进入触发状态"
+    },
+    {
+      "issue_id": "plan_war_ground_trigger",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "军列从工业带深处开出(轮轨频率→负载判定→编组确认):内燃机车+五节平板(伪装网下轮式车辆轮廓+末节炮塔轮廓)+向城墙方向移动。林烽在声音识别前已蹲下→触觉(地面振动+风温差)+生理(颈动脉/呼吸/体温)+视觉(编组内容/方向)三层锚定。战争从可观察到可感受"
+    },
+    {
+      "issue_id": "plan_direction_drift_actionization",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "宽路暴露vs窄巷隐蔽主动选择:站在宽路入口完成风险评估→基于\"窄巷安全性更高\"结论主动选择窄巷→选择时知道自己为什么选窄巷(因为边缘有遮蔽/物理边界/预警空间)。偏移从Ch16被动感知(身体自动转向后被看见)→主动行为(意识认可的选择)。不包含阶级觉醒追问(\"为什么边缘安全\"不追问)"
+    },
+    {
+      "issue_id": "plan_mh020_functional_reveal",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "圆形加点今日触发(右下方→东偏北方向对应)+格式串[s]完整输出(13.3/12.7/13.1)+方向映射验证(持握角度变化→圆形加点偏移→外部固定参照物方向成像)。功能域从\"这是什么\"→\"这能告诉我什么\":系统能告诉方向有物体在测量范围内+测量数值+方向映射坐标。竖立标尺今日不出(条件未满足)。使用日常语汇：\"十三点三/十二点七/十三点一\"\"圆形加点的位置\"\"点和圆位置不对齐\""
+    },
+    {
+      "issue_id": "plan_volume_end_conflict_trigger",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "战争线实质性触发(地面可感变化已启动不可逆)+方向偏移行动化(主动选择完成)+MH-020功能域使用揭示(新信息门打开)。至少1条线触发实质性感知或对抗(战争线触发)。章末\"冲突已经启动并且不可逆\"\"他不确定明天是否还能继续走这些路\""
+    },
+    {
+      "issue_id": "plan_door_frame_new_cycle",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "新积累周期第一天:白纸起点/确认初始均匀状态后直接退出/增量≤5%。门框检查只用了前几日一半时间——确认动作无延伸"
+    },
+    {
+      "issue_id": "plan_emotional_baseline_leap",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "晨醒基线高于Ch16(呼吸先于光线/暗适应偏移/瞳孔调节变化/水间隔压缩/出门前停顿为跳动非犹豫/门廊无额外检查)+出门重心前移无停顿+军列触发后基线不可逆跃升(心率不回零/呼吸恢复快于基线/体温高于蹲下前/手机冷却新均衡态)+章末坐姿靠前约一掌/重心前倾/水温被体温拉平/坐位偏右/温度每天在升高"
+    },
+    {
+      "issue_id": "plan_volume_map_divergence_ch17",
+      "severity": "high",
+      "handling": "defer",
+      "rationale": "volume_map卷二KR1定位Ch17承接为\"赵铁柱带领军事训练，林烽用工程思维优化营地防御\"，但实际叙事仍为空袭后~第15天铁炉堡新常态第5天(战争线地面触发/偏移行动化/工业带边缘探索段)。偏差距灵火会线仍有显著距离,structural卷定义调整超出本章规划范围,继续defer"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 28000,
+    "limit": 32000,
+    "trim_applied": "none",
+    "notes": "context/chapter-17-context.md和context/chapter-17-context-decisions.json缺失(文件不存在)。以truth/current_focus.md(Ch17-19 focus items)为主输入+truth/subplot_board.md+truth/current_state.md+truth/audit_drift.md补位。token预算上调以覆盖多truth文件并行读取"
+  }
+}

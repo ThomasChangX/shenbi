@@ -257,7 +257,7 @@ awk -F'|' 'NR>2{gsub(/[ \t]/,"",$2); if($2 ~ /^(F|T|D)[0-9]/) print $2}' finding
 | Z1 | `src/shenbi/*.py`（顶层 19 文件，不含子目录） | 异常层次完整性（typed exceptions 全链使用）、phase_runner 状态机正确性、safe_write/幂等写、structlog 无 print、recovery 语义 |
 | Z2 | `src/shenbi/contracts/`、`src/shenbi/dispatcher/` | 契约单一信源、字段级 reads 过滤实现与 escape hatch（缺字段→全文件+WARN）、派发协议与重试参数 |
 | Z3 | `src/shenbi/pipeline/` | 状态机、并发调度、重试经济、truth 写路径幂等、token 计量（历史 P0 聚集区） |
-| Z4 | `src/shenbi/gates/`（含 g4 checkers） | 门函数幂等（纯验证无副作用）、decisions.json G4 schema、P2.5 rationale 规则（routine+low 禁 rationale / manual_override+high 必 rationale） |
+| Z4 | `src/shenbi/gates/`（含 g4 checkers） | 门函数幂等（纯验证无副作用）、decisions.json G4 schema、P2.5 rationale 规则（routine+low 禁 rationale / manual_override+medium/high 必 rationale） |
 | Z5 | `src/shenbi/audit/`、`src/shenbi/cost/`、`src/shenbi/orchestration/` | TokenLedger 接线（计量代码未接线 = dead-wire 模式）、审计波调度、成本分摊正确性 |
 | Z6 | `src/shenbi/records/`、`src/shenbi/trace/`、`src/shenbi/text/`、`src/shenbi/config/`、`src/shenbi/plugins/`、`src/shenbi/skill_utils/` | 确定性助手正确性（纯函数、边界）、序列化、配置治理、text 处理边界 |
 | Z7 | `tests/`（16 子目录，可拆 2-4 agent） | 测试真实性（走真实代码路径，非纯 mock）、fixture 真实性（G0.9：真实输出或上游生成副本，禁手写 mock）、覆盖缺口、测试自身 bug、golden/baseline 漂移、**skip/xfail 逐条处置**（D1⑪ 清单：`keep(理由)` / `enable(应启用)` / `stale(应删除)` / `masking(掩盖真实失败)`） |

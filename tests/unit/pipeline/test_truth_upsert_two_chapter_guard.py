@@ -112,6 +112,10 @@ def _settle_response(chapter: int) -> str:
         f"| hook-ch{chapter}-001 | GENUINE | STRUCTURAL | 0.6 | RISING | {chapter} | plant | PLANTED |\n"
         f"### FILE: staging/truth/chapter_summaries.md\n"
         f"| 第 {chapter} 章 | 第{chapter}章摘要：穿越负债开局后的推进{chapter} |\n"
+        f"### FILE: staging/truth/state-settling-decisions.json\n"
+        '{"$schema": "shenbi-decisions-v1", "skill": "shenbi-state-settling", '
+        '"chapter": ' + str(chapter) + ', "produced_at": "2026-08-31T00:00:00Z", '
+        '"selections": []}\n'
     )
 
 

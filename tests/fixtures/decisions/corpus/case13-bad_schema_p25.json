@@ -1,0 +1,110 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 10,
+  "produced_at": "2026-07-16T09:35:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-10-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "context/chapter-10-context.md",
+      "selected": ["route-a:林烽", "route-c:book_spine", "route-c:audit_drift", "route-c:style_profile"],
+      "basis": "pipeline_assembly",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第9章（推进/转折）", "Ch8→Ch9 短板修复追踪"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["Ch6→Ch9 短板修复追踪"]
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch9_reader_reward",
+      "severity": "high",
+      "handling": "explicit_callout",
+      "rationale": "章尾以时间线收敛（7月19日→距7/21晨哨不到两天）+催收员实体面孔+MH-020功能域定性+灰色系统银币级深化制造三重推进锚点，替代Ch8-Ch9连续悬停同构"
+    },
+    {
+      "issue_id": "drift_ch9_style_polishing",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "在认知密集场景中置入1处破折号（'——那三行字符不是瞬时的闪现——'认知断裂节奏变化）和1处省略号（'传感器。'段落后推断迟疑），信息聚集点以递进分层句法（'不是最紧迫的……但它是最安静的'）替代并列堆叠"
+    },
+    {
+      "issue_id": "plan_colllector_face_to_face",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收员正面出场——具象化：法令纹/灰褐色眼睛/不携带气味/腰间灵能抑制器轮廓/念编码时嘴唇几乎不动。三方案以手写纸条方式递交。不做肢体冲突，不做高声威胁。催收从'墙面通知'升级为'具体人际压迫'"
+    },
+    {
+      "issue_id": "plan_mh020_fourth_signal",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-020从温迹+白光+字符印迹升级为部分可读条目式输出+度量尾缀确认（三次交叉验证：磅秤/粮袋/货单）+状态栏新传感器图标出现。功能域定性为'感知域/传感器'（非翻译/非通讯/非地图）。max_distance计数危机通过功能方向确认解决"
+    },
+    {
+      "issue_id": "plan_door_point_relocation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门框'点'第二次定位：换用温度梯度（局部低温点→金属）和结构刚度分布（嵌入件交界面应力线）两个新感知维度。新增数据：位置（门框左偏下，距底部约一手掌）、材质（金属）、尺寸（一指节长）、嵌入深度（约一指节，垂直于门框轴向）、功能不确定"
+    },
+    {
+      "issue_id": "plan_gray_channel_first_formal",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "灰色第三组接货：7/19傍晚旧水塔东侧第二岔口→信号铁锹头朝西→新面孔接货人（帆布外套/下颌旧疤）→包裹全身感知（重心偏下/密封油布+麻绳/硬质内胆圆角棱边/非武器非工具）→北巷铁门交接→银币级报酬"
+    },
+    {
+      "issue_id": "plan_mh001_activation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "MH-001在接货返回途中激活：金属片产生持续均匀温升（+~2°C），区别于催收员的瞬时极化响应。确认包裹内容物在灵能维度上具有可检测信号强度，金属片作为被动元件产生材料极化响应。不做解读——仅建立关联"
+    },
+    {
+      "issue_id": "plan_timeline_convergence",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "章尾时间线明确收敛至7月19日晚→距7/21晨哨不到两天。催收方案三选、MH-020功能感知域定性、灰色系统银币级深化、门框金属件定位四线并置。章尾句以'明天还有一天。再下一个早上就是晨哨。'制造明确推进锚点"
+    },
+    {
+      "issue_id": "plan_debt_decision_deferred",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收还款决策推迟至Ch11：林烽在回来的路上已算清现金凑不够首付、延期需要灵能协会认证、一次性无法实现——认知为'这不是一个选择题，是一份形式完整的告知'——明确不做选择"
+    },
+    {
+      "issue_id": "plan_continuity_Ch7_cigarette",
+      "severity": "low",
+      "handling": "apply",
+      "rationale": "从Ch7催收通知/墙面贴纸推进到Ch10催收员出场，中间间隔Ch8-Ch9两章。Ch10开场以催收员抛烟→林烽捡烟→晚上把烟放在膝盖上→替代未做出动作，提供催收线的时空连续性锚点"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 15500,
+    "limit": 16000,
+    "trim_applied": "none"
+  }
+}

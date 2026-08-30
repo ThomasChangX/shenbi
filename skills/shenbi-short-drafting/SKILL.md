@@ -231,3 +231,12 @@ digraph short_drafting {
 | "审计太慢，跳过" | 跳过审计 = 30 章隐患积累 = 整书返工 |
 | "修订 3 轮不够就 5 轮" | 3 轮未通过 = 当前方向有结构问题，应回退 |
 | "短篇风格不用管" | 短篇篇幅小，风格波动 1 章就能让读者弃书 |
+
+## decisions sidecar 必填字段
+
+每次执行后**必须写出** `short/short-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

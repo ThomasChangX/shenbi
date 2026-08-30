@@ -24,6 +24,8 @@ contract:
   writes:
   - file: plans/chapter-N-plan.md
     mode: create_or_overwrite
+  - file: plans/chapter-N-plan-decisions.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -43,7 +45,7 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/current_state.md, truth/pending_hooks.md, truth/chapter_summaries.md, outline/volume_map.md, outline/story_frame.md, truth/current_focus.md, truth/author_intent.md
-- **Writes:** plans/chapter-N-plan.md
+- **Writes:** plans/chapter-N-plan.md, plans/chapter-N-plan-decisions.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
@@ -269,3 +271,12 @@ chapter_role: 高潮
 | hook 账列名 | ID/操作/推进方式/沉默章数 四列 | 列名不匹配 |
 | hook 操作有效性 | 仅使用 open/advance/resolve/defer | 使用不允许值 |
 | 沉默检测 | 无 defer + 沉默 ≥ 4 章的行（或已附激活方案） | 存在僵尸伏笔 |
+
+## decisions sidecar 必填字段
+
+每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

@@ -23,6 +23,7 @@ from shenbi.gates.shared import (
     bak_path,
     fail,
     jload,
+    parse_decisions_payload,
     passed,
     word_count_md,
     yload,
@@ -78,95 +79,41 @@ def gate_G2(
         # only handles JSON-syntax (G2.dec.1) and delegates the rest to the
         # contract layer. The numeric IDs G2.dec.{1,2,3} are preserved by the
         # decisions_err_to_g2_failures adapter.
+        # Per-file partition (spec #30 T1, T101/F438/F205): under
+        # file_type="decisions", only .json sidecars take the decisions branch;
+        # the .md main artifact falls through to the generic checks below with
+        # chapter semantics (eff_type) instead of silently bypassing G2.4+.
+        eff_type = file_type
         if file_type == "decisions":
-            # Skip non-JSON files — the decisions branch only validates JSON.
-            # Skills like chapter-drafting/context-composing produce BOTH a .md
-            # artifact and a sidecar decisions.json; when file_type="decisions"
-            # is applied uniformly to all outputs, the .md must not be parsed as
-            # JSON (it would FAIL G2.dec.1). .md files are validated by their own
-            # file_type gate instead.
-            if not fp.endswith(".json"):
-                continue  # skip .md files — decisions branch only validates JSON
-            # G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())
-            # (G4 retry feedback can cause LLM to concatenate old + new JSON under
-            # one ### FILE: marker. This catches it early.)
-            #
-            # CRITICAL ORDERING: json.loads() raises JSONDecodeError on concatenated JSON
-            # ("Extra data" error), so this check must execute first. If we placed it
-            # after data = json.loads(content), the line above would raise before the
-            # check is ever reached, making the check dead code.
-            if content.count('"$schema"') > 1:
-                mf.append(
-                    {
-                        "id": "G2.dec.4",
-                        "file": fp,
-                        "s": "FAIL",
-                        "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
-                    }
-                )
-                continue  # skip the json.loads() below for this file — it would raise
-
-            # G2.dec.1 — valid JSON (with multi-JSON concatenation recovery)
-            # Multi-JSON detection runs BEFORE json.loads(): if raw_decode()
-            # succeeds where json.loads() fails (due to concatenated JSON objects),
-            # extract only the first complete object and warn about truncation.
-            data: Any = None
-            try:
-                data = json.loads(content)
-            except json.JSONDecodeError:
-                # Recovery: attempt raw_decode() to extract first complete JSON object
-                decoder = json.JSONDecoder()
-                try:
-                    clean_data, end_pos = decoder.raw_decode(content)
-                    if isinstance(clean_data, dict):
-                        data = clean_data
-                        remaining = content[end_pos:].strip()
-                        if remaining:
-                            log.warning(
-                                "g2_decisions_multi_json_truncated",
-                                file=fp,
-                                original_len=len(content),
-                                recovered_len=end_pos,
-                                remaining_preview=remaining[:200],
-                            )
-                        else:
-                            # Trailing whitespace only — borderline valid, accept
-                            log.info(
-                                "g2_decisions_json_trailing_ws_recovered",
-                                file=fp,
-                                original_len=len(content),
-                                cleaned_len=end_pos,
-                            )
-                    else:
-                        mf.append(
-                            {
-                                "id": "G2.dec.1",
-                                "file": fp,
-                                "s": "FAIL",
-                                "r": f"recovered non-object JSON: {type(clean_data).__name__}",
-                            }
-                        )
-                        continue
-                except json.JSONDecodeError:
-                    mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
+            if not fp.endswith("-decisions.json"):
+                if Path(fp).suffix == ".json" and "snapshot" not in Path(fp).name:
+                    # Non-sidecar JSON (e.g. genre-config.json in a decisions-type
+                    # output set) is not DecisionsDoc material — fall through to
+                    # the generic G2.4 JSON-syntax check (PR #120 review: G2
+                    # must not schema-validate foreign JSON as decisions).
+                    pass
+                elif "snapshot" in Path(fp).name:
+                    # Backup files (chapter-revision's truth/state_snapshot-pre-rev.md)
+                    # are byte-copies of a prior chapter, not artifacts to gate —
+                    # chapter semantics would false-FAIL on frontmatter/word floor.
                     continue
-            if not isinstance(data, dict):
-                mf.append(
-                    {
-                        "id": "G2.dec.1",
-                        "file": fp,
-                        "s": "FAIL",
-                        "r": f"expected JSON object, got {type(data).__name__}",
-                    }
-                )
-                continue
-            # G2.dec.2/.3 — schema version, required keys, P2.5 rationale (DecisionsDoc)
-            try:
-                DecisionsDoc.model_validate(data)
-                checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
-            except ValidationError as e:
-                mf.extend(decisions_err_to_g2_failures(e, fp))
-            continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
+                else:
+                    eff_type = "chapter"  # .md main artifact validated as chapter
+            else:
+                # G2.dec.4/.1 — concat detection + strict loads + raw_decode
+                # recovery, shared with G4 via parse_decisions_payload
+                # (spec #30 T3/T6: same file, same verdict in both gates).
+                data, parse_failures = parse_decisions_payload(content, fp, "G2.dec")
+                if parse_failures:
+                    mf.extend(parse_failures)
+                    continue
+                # G2.dec.2/.3 — schema version, required keys, P2.5 rationale (DecisionsDoc)
+                try:
+                    DecisionsDoc.model_validate(data)
+                    checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
+                except ValidationError as e:
+                    mf.extend(decisions_err_to_g2_failures(e, fp))
+                continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
 
         # G2.4 — JSON syntax (if JSON file)
         if fp.endswith(".json"):
@@ -220,7 +167,7 @@ def gate_G2(
                     )
 
         # Chapter-specific checks
-        if file_type == "chapter":
+        if eff_type == "chapter":
             wc = word_count_md(fp)
 
             # G2.6 — word count >= floor
@@ -335,7 +282,7 @@ def gate_G2(
         # G2.13 — chapter contract: header + META-or-exemption (z11 F1301/F1302).
         # Scope: novel-output project chapters only — test-tier round chapters
         # (PRE/POST check-block shape) are a different artifact contract.
-        if file_type == "chapter":
+        if eff_type == "chapter":
             pm = re.search(r"novel-output/([^/]+)/", str(p))
             if pm is None:
                 checks.append(

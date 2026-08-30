@@ -14,6 +14,8 @@ contract:
   writes:
     - file: truth/character_matrix.md
       mode: create_or_overwrite
+    - file: truth/state-settling-decisions.json
+      mode: create_or_overwrite
   updates:
     - file: truth/current_state.md
       mode: append_dedup
@@ -45,7 +47,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/chapter-N.md, truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
-- **Writes:** truth/character_matrix.md
+- **Writes:** truth/character_matrix.md, truth/state-settling-decisions.json
 - **Updates:** truth/current_state.md, truth/particle_ledger.md, truth/emotional_arcs.md, truth/subplot_board.md, truth/pending_hooks.md, truth/chapter_summaries.md
 
 <!-- END AUTO-GENERATED -->
@@ -285,3 +287,12 @@ arc_log:
 ```
 
 3. Write updated character_matrix.md to disk.
+
+## decisions sidecar 必填字段
+
+每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

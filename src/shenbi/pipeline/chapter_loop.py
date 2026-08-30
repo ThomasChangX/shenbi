@@ -602,21 +602,69 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
 
     Single-file steps return one path. State-settling returns all
     staging/truth/*.md files because it writes multiple truth outputs.
-    Steps with no output return [].
+    Contract-declared decisions sidecars are APPENDED (spec #30 T2, F434) so
+    G4.dec runs for dual-product skills instead of SKIP — expansion never
+    short-circuits the state-settling glob. Steps with no output return [].
     """
     single = _resolve_g4_path(project_dir, step, chapter)
-    if single:
-        return [single]
+    files = [single] if single else []
+    from shenbi.pipeline.checkpoint import STAGING_DIR
 
     # State-settling writes multiple truth files to staging/
     if step.uses_staging and "state-settling" in step.skill:
-        from shenbi.pipeline.checkpoint import STAGING_DIR
-
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            return sorted(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
+            files.extend(
+                f"{STAGING_DIR}/truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))
+            )
 
-    return []
+    # F434: contract-declared decisions sidecars join the G4 file list.
+    # Existence-gated to avoid spurious FAILs (matches phase_runner's
+    # pre-existing existence filter); composite G4 re-partitions by file
+    # suffix, so appending the sidecar here cannot mis-route .md checks.
+    from shenbi.contracts import ContractError, load_contract
+
+    try:
+        contract = load_contract(step.skill)
+    except ContractError as e:
+        log.warning("g4_decisions_contract_unavailable", skill=step.skill, error=str(e))
+        contract = None
+    if contract:
+        for out in contract["writes"]:
+            if "decisions" not in Path(out).name:
+                continue
+            resolved = resolve_chapter_path(out, chapter)
+            cand = f"{STAGING_DIR}/{resolved}" if step.uses_staging else resolved
+            if (project_dir / cand).exists() and cand not in files:
+                files.append(cand)
+
+    return files
+
+
+def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None) -> list[str]:
+    """Contract-declared decisions sidecars that currently have a staged copy.
+
+    audit-T5 C1 (spec #30 T2 follow-up): staging commit sites historically
+    moved only *.md / hardcoded targets and then rmtree'd staging — a staged
+    sidecar validated by G4.dec was silently destroyed. Commit call sites use
+    this to include the sidecar in the same commit batch.
+    """
+    from shenbi.contracts import ContractError, load_contract
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    try:
+        contract = load_contract(skill)
+    except ContractError as e:
+        log.warning("staged_sidecar_contract_unavailable", skill=skill, error=str(e))
+        return []
+    targets: list[str] = []
+    for out in contract["writes"]:
+        if "decisions" not in Path(out).name:
+            continue
+        resolved = resolve_chapter_path(out, chapter) if chapter is not None else out
+        if (project_dir / STAGING_DIR / resolved).exists():
+            targets.append(resolved)
+    return targets
 
 
 def _handle_failure(
@@ -941,14 +989,20 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
         return False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
-        for src in staging_truth.glob("*.md"):
+        # sidecar via the shared contract-driven helper (audit-T5 C3; final
+        # review I2: one mechanism across all commit sites, no inline glob)
+        staged = sorted(staging_truth.glob("*.md")) + [
+            project_dir / STAGING_DIR / t
+            for t in staged_decisions_targets(project_dir, "shenbi-state-settling", chapter)
+        ]
+        for src in staged:
             dst = project_dir / "truth" / src.name
             dst.parent.mkdir(parents=True, exist_ok=True)
             safe_write(dst, src.read_bytes())
         log.info(
             "staging_auto_committed_state_settle",
             chapter=chapter,
-            files=len(list(staging_truth.glob("*.md"))),
+            files=len(staged),
         )
     else:
         log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
@@ -1148,8 +1202,9 @@ def _advance(
             from shenbi.pipeline.checkpoint import commit_staging, clear_staging
 
             target = resolve_chapter_path(step.output_path, chapter)
+            batch = [target] + staged_decisions_targets(project_dir, step.skill, chapter)
             try:
-                commit_staging(project_dir, [target])
+                commit_staging(project_dir, batch)
                 log.info("staging_auto_committed", chapter=chapter, target=target)
             except FileNotFoundError:
                 log.warning("staging_auto_commit_skipped_no_file", chapter=chapter, target=target)
@@ -1162,14 +1217,18 @@ def _advance(
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
-                for src in staging_truth.glob("*.md"):
+                staged = sorted(staging_truth.glob("*.md")) + [
+                    project_dir / STAGING_DIR / t
+                    for t in staged_decisions_targets(project_dir, step.skill, chapter)
+                ]
+                for src in staged:
                     dst = project_dir / "truth" / src.name
                     dst.parent.mkdir(parents=True, exist_ok=True)
                     safe_write(dst, src.read_bytes())
                 log.info(
                     "staging_auto_committed_state_settle",
                     chapter=chapter,
-                    files=len(list(staging_truth.glob("*.md"))),
+                    files=len(staged),
                 )
             else:
                 log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)

@@ -1,0 +1,83 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 20,
+  "produced_at": "2026-07-16T17:30:00+0800",
+  "revision_mode": "skip",
+  "skip_reason": "0 BLOCKING / 0 CRITICAL issues across all 11 audits; chapter passed resonance with 86/100; all Route C goals achieved; only audit error (em-dash density) is anti-detect surface issue delegated to shenbi-anti-detect per boundary rules",
+  "audit_summary": {
+    "total_reviews": 11,
+    "successful": 11,
+    "failed": 0,
+    "blocking": 0,
+    "critical": 0,
+    "resonance_score": 86,
+    "resonance_passed": true
+  },
+  "selections": [
+    {
+      "target": "audits/chapter-20-review-summary.md",
+      "selected": ["all"],
+      "basis": "required_input",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-20-resonance.md",
+      "selected": ["all"],
+      "basis": "required_input",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-20-anti-ai.md",
+      "selected": ["error_details", "suggested_fixes"],
+      "basis": "only_error_source",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-20-memo-compliance.md",
+      "selected": ["compliance_status", "deviations"],
+      "basis": "minor_deviations",
+      "severity": "low",
+      "omitted": ["full_justification"]
+    },
+    {
+      "target": "audits/chapter-20-pacing.md",
+      "selected": ["classification", "deficiencies"],
+      "basis": "minor_observations",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-20-dialogue.md",
+      "selected": ["summary"],
+      "basis": "no_dialogue_chapter",
+      "severity": "low",
+      "omitted": ["standard_checks_not_applicable"]
+    }
+  ],
+  "adjustments": [],
+  "delegation": [
+    {
+      "target_skill": "shenbi-anti-detect",
+      "issue": "Em-dash density 114 occurrences (2.41/100 chars) — structural tell triggering AI detection",
+      "priority": "P3",
+      "rationale": "Expression-layer structural tells only, no plot/character impact. Audit itself recommends bulk handling across chapters. Not within chapter-revision scope.",
+      "trigger": "blocking_in_revision_chain"
+    },
+    {
+      "target_skill": "none",
+      "issue": "Minor: 物资勘察段缺失 (MISSING), MH-003 叙事身份未激活 (PARTIAL)",
+      "priority": "P3",
+      "rationale": "Both MINOR. 物资勘察: emotional small reward already carried by doorframe + MH-001. MH-003: should be addressed in Ch21 when the hook returns, not in Ch20 revision.",
+      "trigger": "never"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 24000,
+    "limit": 35000,
+    "trim_applied": "none"
+  }
+}

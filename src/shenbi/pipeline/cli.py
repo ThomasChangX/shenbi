@@ -367,10 +367,14 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
     does not block the other. The staging directory is cleared afterwards.
     """
     from shenbi.pipeline.checkpoint import commit_staging
+    from shenbi.pipeline.chapter_loop import staged_decisions_targets
 
     if cp.type == CheckpointType.CHAPTER_MEMO:
         chapter = cp.chapter or 1
         targets = [f"plans/chapter-{chapter}-plan.md"]
+        # audit-T5 C1: contract-declared sidecar joins the same commit batch,
+        # otherwise clear_staging below silently destroys it.
+        targets += staged_decisions_targets(project_dir, "shenbi-chapter-planning", chapter)
     elif cp.type == CheckpointType.STATE_SETTLE:
         # I3: glob all staged truth files rather than hardcoding one.
         from shenbi.pipeline.checkpoint import STAGING_DIR
@@ -380,6 +384,7 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
             targets = [f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md"))]
         else:
             targets = []
+        targets += staged_decisions_targets(project_dir, "shenbi-state-settling", cp.chapter)
     else:
         return
 

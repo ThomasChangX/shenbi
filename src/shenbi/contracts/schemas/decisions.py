@@ -39,7 +39,7 @@ class Selection(BaseModel):
         if routine_low and has:
             raise ValueError("rationale FORBIDDEN for routine+low")
         if requires and not has:
-            raise ValueError("rationale REQUIRED for high/manual_override")
+            raise ValueError("rationale REQUIRED for medium/high-severity or manual_override")
         return self
 
 

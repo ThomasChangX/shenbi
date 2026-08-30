@@ -129,6 +129,75 @@ def word_count_md(fp: str | Path) -> int:
     return len(re.findall(r"[一-鿿]", c))
 
 
+def parse_decisions_payload(
+    content: str, file: str, prefix: str
+) -> tuple[dict[str, Any] | None, list[dict[str, Any]]]:
+    """Single decisions-JSON parse policy shared by G2 and G4 (spec #30 T3/T6).
+
+    Order: concatenated-multi-object detection first (strict loads would raise
+    "Extra data" before the check could run), then strict ``json.loads``,
+    then raw_decode first-object recovery with a warning. Recovery is a
+    diagnostic path — the recovered object is returned for schema validation
+    and can still FAIL; this helper never silently passes a file.
+
+    Returns ``(data, failures)``: exactly one is non-empty/None-free. IDs use
+    *prefix* (``G2.dec`` / ``G4.dec``) with the shared numeric suffixes
+    ``.4`` (concatenation) and ``.1`` (invalid JSON / non-object).
+    """
+    if content.count('"$schema"') > 1:
+        return None, [
+            {
+                "id": f"{prefix}.4",
+                "file": file,
+                "s": "FAIL",
+                "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
+            }
+        ]
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        try:
+            clean, end_pos = json.JSONDecoder().raw_decode(content)
+        except json.JSONDecodeError:
+            return None, [{"id": f"{prefix}.1", "file": file, "s": "FAIL", "r": "invalid JSON"}]
+        if not isinstance(clean, dict):
+            return None, [
+                {
+                    "id": f"{prefix}.1",
+                    "file": file,
+                    "s": "FAIL",
+                    "r": f"recovered non-object JSON: {type(clean).__name__}",
+                }
+            ]
+        remaining = content[end_pos:].strip()
+        if remaining:
+            log.warning(
+                "decisions_multi_json_truncated",
+                file=file,
+                original_len=len(content),
+                recovered_len=end_pos,
+                remaining_preview=remaining[:200],
+            )
+        else:
+            log.info(
+                "decisions_json_trailing_ws_recovered",
+                file=file,
+                original_len=len(content),
+                cleaned_len=end_pos,
+            )
+        return clean, []
+    if not isinstance(data, dict):
+        return None, [
+            {
+                "id": f"{prefix}.1",
+                "file": file,
+                "s": "FAIL",
+                "r": f"expected JSON object, got {type(data).__name__}",
+            }
+        ]
+    return data, []
+
+
 def fail(gid: str, checks: list[dict[str, Any]], blocked: str, must_fix: list[str]) -> str:
     """Return FAIL JSON string."""
     result: GateResult = {

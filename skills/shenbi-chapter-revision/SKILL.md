@@ -150,3 +150,12 @@ digraph chapter_revision_loop {
 | "直接全部重写更快" | 全部重写 = ±15% 限制失效 = 可能引入新问题 |
 | "3次修不好就放弃" | 回退到最佳版本比继续恶化好 |
 | "修订太慢了" | 修1章30分钟 vs 读者弃书无价 |
+
+## decisions sidecar 必填字段
+
+每次执行后**必须写出** `chapters/chapter-N-revision-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

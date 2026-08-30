@@ -225,3 +225,12 @@ digraph context_composing {
 | "hook 债务简报可以省略" | 不看债务 = 过期伏笔 = 读者信任流失 |
 | "爬坡期没有 L4，跳过大弧层就行" | 缺失层跳过加载，但 L1 近章范围须扩大补偿 |
 | "主线钩子和弧内钩子混着列就行" | MH* 来自书脊、H* 来自弧段，分级追踪才能定位长程债务 |
+
+## decisions sidecar 必填字段
+
+每次执行后**必须写出** `context/chapter-N-context-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
+- `$schema`: `shenbi-decisions-v1`（固定值）
+- `skill`: 本技能名
+- `chapter`: 章节号（非章节产物用 `null`）
+- `produced_at`: ISO-8601 时间戳
+- `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附

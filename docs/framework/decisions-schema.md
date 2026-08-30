@@ -65,6 +65,7 @@ source of truth for the schema.
 
 ### `selections[].severity`
 - `low` (default — rationale forbidden)
+- `medium` (rationale required)
 - `high` (P2.5 escape hatch — rationale required)
 
 ### `adjustments[].handling`
@@ -84,6 +85,7 @@ source of truth for the schema.
 | Condition | rationale field |
 |-----------|----------------|
 | routine basis + severity `low` | **FORBIDDEN** |
+| routine basis + severity `medium` | **REQUIRED** |
 | routine basis + severity `high` | **REQUIRED** |
 | `manual_override` (any severity) | **REQUIRED** |
 | `adjustments[]` (any) | **REQUIRED** |
@@ -100,3 +102,4 @@ source of truth for the schema.
 | `chapter-revision` | review issues, strategies | deferred issues |
 | `state-settling` | state deltas, summaries | conflicts, resolutions |
 | `short-drafting` | outline elements, structure | length, tone shifts |
+| `genre-config` | config knobs, thresholds | threshold overrides |
