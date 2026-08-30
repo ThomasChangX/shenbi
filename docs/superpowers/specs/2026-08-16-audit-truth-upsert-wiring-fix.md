@@ -19,13 +19,14 @@
 
 ### R2 · F868 volume-consolidation 盲覆写（P0，数据丢失级，原 spec 三 P0 之一仍存活）
 
-`skills/shenbi-volume-consolidation/SKILL.md`：reads（:6-10）**不含** `truth/volume_summaries.md`，writes 却整文件 `create_or_overwrite` 该文件（:12-13），正文指令又称「追加到 volume_summaries.md」（:72）——三重矛盾。实际行为：看不到现状的 LLM 整文件重建，旧卷摘要每卷丢失（F868 原始主张逐字成立）。
+`skills/shenbi-volume-consolidation/SKILL.md`：reads（:7-10）**不含** `truth/volume_summaries.md`，writes 却整文件 `create_or_overwrite` 该文件（:12-13），正文指令又称「追加到 volume_summaries.md」（:72）——三重矛盾。实际行为：看不到现状的 LLM 整文件重建，旧卷摘要每卷丢失（F868 原始主张逐字成立）。
 
 **修复方向**：`truth/volume_summaries.md` 进 reads；写语义与正文指令一致化——要么声明 `append_dedup` + `key: volume`（走既有 T2 路由），要么正文改为「读取既有文件、合并本卷行后输出全量」并保留 create_or_overwrite。实施时按文件实际表格结构定键轴，与 G4/lint 拦截面联动校验。
 
-### R3 · score-volume 声明段落错位（F814 残留，规范级）
+### R3 · append_dedup 声明形态漂移（F814 残留 + F840 功能性键错配）
 
-`skills/shenbi-score-volume/SKILL.md:17-19`：`append_dedup` 条目声明在 `writes:` 段且 `key: chapter`，`updates:` 为空。`write_semantics` 构建遍历 writes+updates 双段（`src/shenbi/contracts/legacy.py:178-196`），故**功能路由不受影响**（非数据丢失缺陷）——但与 state-settling / volume-consolidation 的 `updates:` 形态漂移，误导人工与下游对账。挪入 `updates:` 即可。
+- **F814 残留（规范级）**：`skills/shenbi-score-volume/SKILL.md:16-19` 的 `append_dedup` 条目声明在 `writes:` 段且 `updates:` 为空。`write_semantics` 构建遍历 writes+updates 双段（`src/shenbi/contracts/legacy.py:178-202`），功能路由不受影响——纯形态漂移，挪入 `updates:` 即可。
+- **F840（P2，功能性）**：`skills/shenbi-review-arc-payoff/SKILL.md:28-29` 对 `truth/arc_payoff_trend.md` 声明 `key: chapter`，但该文件行模板首列为 `volume`（:151-153「一行一卷」）。append_dedup 路由按首格 key 合入（`dispatch_helper.py:1383-1387`），卷键文件配 `key: chapter` 是键轴错配——声明键改 `volume`（findings-ledger 该条状态仍 open）。
 
 ## 修复目标
 
@@ -35,9 +36,9 @@
 
 ## 验收标准
 
-1. R1 新增单测：staging 派发写 `staging/truth/x.md` 后，审计账本记录的变更面含该文件（归一化键 `truth/x.md`），且无 `blocked:false` 空过记录；staging 内越权写被审计捕获。
-2. R2：volume-consolidation 的 reads 含 `truth/volume_summaries.md` 且写模式与正文指令一致；G4 对该技能通过。
-3. R3：score-volume 的 append_dedup 条目位于 `updates:` 段，`just check` 中 lint/G0 契约面全绿。
+1. R1 新增单测：staging 派发写 `staging/truth/x.md` 后，审计账本记录的变更面含该文件（归一化键 `truth/x.md`），且无 `blocked:false` 空过记录；staging 内越权写在被声明 glob 覆盖时可被审计捕获（watch 面为模式驱动，exact 路径技能的 staging 越权写不在视野——同既有 live 越权局限，不另立目标）。
+2. R2：volume-consolidation 的 reads 含 `truth/volume_summaries.md` 且写模式与正文指令一致（正文四处「追加/归档」语义点全部对齐）；G4 对该技能通过。
+3. R3：score-volume 的 append_dedup 条目位于 `updates:` 段；review-arc-payoff 的 `arc_payoff_trend` 声明键为 `volume`；`just check` 中 lint/G0 契约面全绿。
 4. `just check` 全绿。
 
 ## 风险与回滚
@@ -50,4 +51,4 @@
 
 C3（21 条，代表 F360）：F360 F814 F828 F840 F868 F869 F1101 F1104 F1105 F1175 T304 T701 T702 T703 T704 T705 T706 T707 T711 T712 T713
 
-**处置对照（2026-08-31）**：除 R1（staging 审计面）/R2（F868）/R3（F814 残留）外全部已在 main 交付（PR #43 / #88 / #60 / Spec 2 / SDD #21）。
+**处置对照（2026-08-31，阶段 3 审查复核）**：除 R1（staging 审计面）/R2（F868）/R3（F814 残留 + F840）外全部已在 main 交付（PR #43 / #88 / #60 / Spec 2 / SDD #21；F869 经抽查确认已解——state-settling 正文已统一 append_dedup 输出行指令）。
