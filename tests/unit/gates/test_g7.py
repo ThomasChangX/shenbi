@@ -195,3 +195,46 @@ def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G7(str(round_dir)))
     assert any("G7.16:phase:genesis:state=in_progress" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_parse_report_stem_contract(tmp_path: Path) -> None:
+    """Direct contract pin for the shared stem parser (final review M2)."""
+    from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
+
+    assert parse_report_stem("shenbi-worldbuilding-generative-scores-subagent", ALL_SKILLS) == (
+        "shenbi-worldbuilding"
+    )
+    assert parse_report_stem("shenbi-worldbuilding-generative", ALL_SKILLS) == (
+        "shenbi-worldbuilding"
+    )
+    assert parse_report_stem("hallucinated-skill-report", ALL_SKILLS) is None
+
+
+@pytest.mark.unit
+def test_g4_bughunt_alias_writes_canonical_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """--test-type bughunt (alias) writes the canonical bug-hunt marker (M2)."""
+    report = tmp_path / "bughunt-report.md"
+    report.write_text(
+        "# Bug\n## Detection\n\n`x.md:L1` violates 铁律.\nFalse positives: 0\n",
+        encoding="utf-8",
+    )
+    rd = tmp_path / "round"
+    import io
+    import sys
+
+    import shenbi.gates.cli as cli_mod
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["shenbi-validate", "G4", "worldbuilding", "--test-type", "bughunt", str(report), str(rd)],
+    )
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    rc = cli_mod.main()
+    assert rc == 0
+    assert (rd / "gate-markers" / "G4-shenbi-worldbuilding-bug-hunt.json").exists()
+    assert not (rd / "gate-markers" / "G4-shenbi-worldbuilding-bughunt.json").exists()
