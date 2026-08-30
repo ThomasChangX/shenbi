@@ -989,14 +989,17 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
         return False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
-        for src in staging_truth.glob("*.md"):
+        staged = sorted(staging_truth.glob("*.md")) + sorted(
+            staging_truth.glob("*decisions*.json")  # audit-T5 C3: sidecar too
+        )
+        for src in staged:
             dst = project_dir / "truth" / src.name
             dst.parent.mkdir(parents=True, exist_ok=True)
             safe_write(dst, src.read_bytes())
         log.info(
             "staging_auto_committed_state_settle",
             chapter=chapter,
-            files=len(list(staging_truth.glob("*.md"))),
+            files=len(staged),
         )
     else:
         log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)

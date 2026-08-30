@@ -45,7 +45,7 @@ decisions.json sidecar（Layer A）契约在 schema↔写方↔路由↔G2/G4 �
 
 ## 风险与回滚
 
-- 风险（修订 2026-08-31）：WARN-then-FAIL 滚动删除（阶段 3 I2）——pipeline 路径本就跳过 G2（executor.py，交付由 G4/G6 承担），爆炸面限于非管道 dispatch；Task 内以真实语料测试（15 例对撞套件）代替全量盘点。T3 放宽读取 schema 时防止把"尾随拼接"合法化——raw_decode 恢复仅用于告警归档，不静默放行（与 C13 F507 联动）。
+- 风险（修订 2026-08-31）：WARN-then-FAIL 滚动删除（阶段 3 I2）——pipeline 路径本就跳过 G2（executor.py，交付由 G4/G6 承担），爆炸面限于非管道 dispatch（src/shenbi/dispatcher/executor.py）；Task 内以真实语料测试（15 例对撞套件）代替全量盘点。T3 放宽读取 schema 时防止把"尾随拼接"合法化——raw_decode 恢复仅用于告警归档，不静默放行（与 C13 F507 联动）。
 - 回滚：T1/T2 独立 PR 可 revert；schema 变更保持 `shenbi-decisions-v1` 版本号不动（字段级兼容），避免下游 reads 断裂。
 
 ## 簇成员清单（与 phase4-clustering.md §2 机械对照）
