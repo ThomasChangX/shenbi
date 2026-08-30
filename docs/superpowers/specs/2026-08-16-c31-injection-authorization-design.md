@@ -7,7 +7,7 @@
 - 簇：C31（注入/越权安全面：prompt injection/路径穿越/env 继承），10 条，最高严重度 P1（T1201/F105/F308，均 verified），证据等级=实验佐证
 - 成员：T1201（代表）、F105、F308、F1161、T306、T307、T1202、T1204、T1206、T1207
 - 来源：thread-reports/T12.md、T3.md + Z1/Z3/Z11-b
-- 关系：supersede `2026-08-14-security-injection-design.md`（#22）的 T12-01（→T1206）/T12-04（→T1207）/T12-05（→T1204）与命令注入/env/路径穿越 P2 面
+- 关系：supersede `archive/2026-08-14-security-injection-design.md`（#22）的 T12-01（→T1206）/T12-04（→T1207）/T12-05（→T1204）与命令注入/env/路径穿越 P2 面
 
 ## 背景与根因
 四类信任边界缺失：
