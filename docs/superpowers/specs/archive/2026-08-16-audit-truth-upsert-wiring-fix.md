@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-31 — narrowed to live faces) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #117 · Revised 2026-08-31 — narrowed to live faces) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C3，21 条）| **代表 finding:** F360 | **严重度上限:** P0（F360/F868/F1101）| **涉及文件面:** src/shenbi/pipeline/truth_io.py（upsert 原语）、dispatch_helper 写路径、chapter_loop/staging 提交路由、skill_utils/（hook_planting、compute_drift）、约 20 个 append_dedup 技能 SKILL.md
 
 # truth 追加写路径接线（audit-truth-upsert-wiring）— Revised 2026-08-31
