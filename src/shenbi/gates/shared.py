@@ -187,6 +187,15 @@ def normalize_file_paths(
     return [str(p) for p in file_paths]
 
 
+def marker_filename(gate: str, target: str, test_type: str) -> str:
+    """Single source for gate-marker filenames (spec #27 T2).
+
+    Both the writer (write_gate_marker) and the reader
+    (scoring.check_gate_markers) must derive the name from here.
+    """
+    return f"{gate}-{target}-{test_type}.json"
+
+
 def write_gate_marker(
     gate: str,
     target: str,
@@ -209,7 +218,7 @@ def write_gate_marker(
             **result,
             "files_checked": [str(p) for p in (file_paths or [])],
         }
-        marker_file = marker_dir / f"{gate}-{target}-{test_type}.json"
+        marker_file = marker_dir / marker_filename(gate, target, test_type)
         safe_write(marker_file, json.dumps(marker, indent=2, ensure_ascii=False))
     except (json.JSONDecodeError, OSError):
         pass  # best-effort marker write; non-PASS or unreadable result → skip marker

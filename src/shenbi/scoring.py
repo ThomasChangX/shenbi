@@ -10,6 +10,7 @@ from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts.thresholds import TEST_PASS
+from shenbi.gates.shared import marker_filename
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
 
@@ -246,7 +247,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
         idx = rubric_p.parts.index("t1-skill")
         skill_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
         if skill_name:
-            marker_file = marker_dir / f"G4-{skill_name}-{test_type}.json"
+            marker_file = marker_dir / marker_filename("G4", skill_name, test_type or "")
             if not marker_file.exists():
                 missing.append(f"G4-{skill_name}-{test_type}")
 
@@ -264,7 +265,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
             phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
             if phase_name and phase_name in deps.get("t2-phases", {}):
                 for skill in deps["t2-phases"][phase_name].get("prerequisites", []):
-                    marker_file = marker_dir / f"G4-{skill}-generative.json"
+                    marker_file = marker_dir / marker_filename("G4", skill, "generative")
                     if not marker_file.exists():
                         missing.append(f"G4-{skill}-generative")
 
@@ -272,7 +273,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
         idx = rubric_p.parts.index("t3-pipeline")
         pipeline_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
         if pipeline_name:
-            marker_file = marker_dir / f"G6-{pipeline_name}-{test_type}.json"
+            marker_file = marker_dir / marker_filename("G6", pipeline_name, test_type or "")
             if not marker_file.exists():
                 missing.append(f"G6-{pipeline_name}-{test_type}")
 
