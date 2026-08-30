@@ -1,7 +1,7 @@
 > **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C20）| **代表 finding:** D104 | **簇规模:** 21 条 | **严重度上限:** P1
 > **范围:** skills/*/SKILL.md（约 20 个技能 frontmatter + 正文）、G4 契约 lint（已有雏形扩展）| **证据等级:** 实验佐证（Z8-a/b/c 三分区初审 + d1-03-frontmatter.log 74 skill 全量解析）
-> **与既有 spec 关系:** #23（z8-contract-drift）的 reads/writes 补全面（F953/F1002/F1011 等）并入本 spec 统一处置；本 spec 为其 2026-08-15 轮扩展与机制化（对账 lint），#23 待归档合并由协调者执行
+> **与既有 spec 关系:** #23（z8-contract-drift）的 reads/writes 补全面（F953/F1002/F1011 等）并入本 spec 统一处置；本 spec 为其 2026-08-15 轮扩展与机制化（对账 lint），#23 已归档（Rejected 2026-08-30，PR 归档见 archive）
 
 # C20 · 技能契约声明面断裂修复（skill-contract-declaration）
 

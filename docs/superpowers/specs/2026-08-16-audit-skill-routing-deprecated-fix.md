@@ -1,7 +1,7 @@
 > **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C21）| **代表 finding:** F873 | **簇规模:** 12 条 | **严重度上限:** P1
 > **范围:** skills/using-shenbi/SKILL.md（触发表）、tests/tiers/deps.json、GENESIS_STEPS、5+ 个技能 description、DEPRECATED 技能正文 | **证据等级:** 实验佐证（Z8-a/b/c/review-r1，F873/F887 verified）
-> **与既有 spec 关系:** #23 的 DEPRECATED 接线拆除面（F904/F950/F1004）并入本 spec；#9 的 deps.json 补登归 C22 词表对账，本 spec 只管路由/触发/描述契约
+> **与既有 spec 关系:** #23 的 DEPRECATED 接线拆除面（F904/F950/F1004）并入本 spec；#9 的 deps.json 补登归 C22 词表对账，本 spec 只管路由/触发/描述契约；#23 驳斥归档时补登其残留 **F905 双重调度语义面**（见 T1.6）
 
 # C21 · 技能注册与触发路由漂移修复（skill-routing-deprecated）
 
@@ -33,6 +33,7 @@
 3. deps.json：移除 DEPRECATED 技能注册（F816/F817/F819；与 C22 F231 对账门禁协同——本 spec 删条目，C22 立"deps.json ↔ 磁盘 ↔ using-shenbi 三向闭包"）
 4. F355：OPTIONAL_READS 清洗已移除技能死条目
 5. DEPRECATED 技能正文：自称"默认激活/每章必查"等现行语气改为明确的退役说明 + 后继指针（防 LLM 读正文复活旧链路）
+6. **F905 双重调度语义面（自 #23 补登，2026-08-30 驳斥对账）**：`src/shenbi/pipeline/chapter_loop.py:241-246` 固定 ChapterStep 14 派发 shenbi-review-sensitivity，同时 `src/shenbi/pipeline/audit_layer.py:46` GENRE_ACTIVATION_MATRIX 含 `"sensitivity"` 同名路由——每章可能双派发；且 matrix 头注释声称 "Core-circle dimensions are NOT here" 与 sensitivity/dialogue 在表内自相矛盾。裁决去重（单一触发源，按 C3/C20 契约定稿选定固定步骤或 genre 激活其一），dialogue（DEPRECATED，matrix `:49`）随 T1.1 拆除一并出表
 
 ### T2 · description 契约整改
 6. 违规清单机械收集：脚本解析 74 个 SKILL.md description，标记含功能描述从句者（启发式：无 "Use when"/触发条件结构、含 "building/generates/schedules" 类动词短语）——覆盖 F835/F842/F877/F878 + F815 前半
@@ -63,4 +64,4 @@
 
 ## 簇成员清单（12 条，自查用）
 
-F355, F815-F817, F819, F834-F835, F842, F873, F877-F878, F887（代表 F873）
+F355, F815-F817, F819, F834-F835, F842, F873, F877-F878, F887, F905（自 #23 补登，双重调度语义面）（代表 F873）

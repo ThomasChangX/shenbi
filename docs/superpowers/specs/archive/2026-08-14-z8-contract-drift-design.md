@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-30 · 总纲 #40 裁决 supersede → C20/C21/C22：R1/R1b/R2 分别由活跃 spec #58/#59/#60 按簇承接且证据全部存活于彼；R5 F1001 已由 C3 批次修复（5ce1a8e）；F907 已修；残留 F905 双重调度语义面补登 #59、F903 内部矛盾补登 #62；P2 成员条按总纲 §6 回写协议由 2026-08-16 新簇 merged 关账) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 6/7） | **依赖:** contract-single-source | **范围:** skills/ 契约（Z8-a/b/c 全量）| **核心洞察:** Z8 契约漂移族（DEPRECATED 接线、reads/writes 未声明、字段漂移、双重调度）——contract-single-source 只覆盖 F0-02/F201/F218/F115/F0-01 代表 5 条，本 spec 补完其余 P1
 
 # Z8 契约漂移补完（补齐 F）
