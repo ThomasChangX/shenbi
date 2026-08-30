@@ -2,6 +2,7 @@
 """Score a test report against its rubric. Output structured JSON."""
 
 import json
+import re
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -167,12 +168,15 @@ def filter_dimensions_by_test_type(
     return filtered if filtered else dimensions
 
 
+_INT_KEY_RE = re.compile(r"-?\d+")
+
+
 def parse_scores_dict(raw: dict[str, Any]) -> dict[int, Any]:
     """Convert JSON string-keyed scores to int-keyed, warning on dropped keys (F151)."""
     scores: dict[int, Any] = {}
     dropped: list[str] = []
     for k, v in raw.items():
-        if k.lstrip("-").isdigit():
+        if _INT_KEY_RE.fullmatch(k):
             scores[int(k)] = v
         else:
             dropped.append(k)
@@ -252,8 +256,10 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
             try:
                 deps = json.loads(deps_path.read_text(encoding="utf-8"))
             except json.JSONDecodeError as exc:
+                # Fail closed: a corrupt deps registry must not silently pass
+                # prerequisite marker verification (gates cannot be skipped).
                 log.error("t2_deps_json_corrupt", path=str(deps_path), error=str(exc))
-                return missing
+                return [f"t2_deps_json_corrupt:{deps_path.name}"]
             idx = rubric_p.parts.index("t2-phase")
             phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
             if phase_name and phase_name in deps.get("t2-phases", {}):
@@ -436,6 +442,7 @@ def main() -> dict[str, Any]:
             try:
                 # Prompt on stderr so stdout carries only the JSON payload (F157).
                 sys.stderr.write("Kill switch triggered? (y/n): ")
+                sys.stderr.flush()
                 ks_input = input().strip().lower()
                 if ks_input == "y":
                     kill_switch_triggered = True
@@ -447,6 +454,7 @@ def main() -> dict[str, Any]:
                 try:
                     # Prompt on stderr so stdout carries only the JSON payload (F157).
                     sys.stderr.write(f"  {d['num']}. {d['name']} [{d['weight']}%] (0-100): ")
+                    sys.stderr.flush()
                     raw_val = input()
                     val = int(raw_val)
                     if 0 <= val <= 100:

@@ -1206,3 +1206,10 @@ class TestSpec16MicroFixes:
             scores = parse_scores_dict(raw)
         assert scores == {1: 90, 2: 85, -3: 70}
         assert any(e.get("event") == "non_numeric_score_keys_dropped" for e in logs)
+
+    def test_parse_scores_dict_multi_hyphen_key_dropped(self) -> None:
+        """F151 follow-up: '--3' is not a valid dimension key, drop not crash."""
+        from shenbi.scoring import parse_scores_dict
+
+        scores = parse_scores_dict({"1": 90, "--3": 70})
+        assert scores == {1: 90}
