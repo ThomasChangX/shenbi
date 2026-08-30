@@ -173,6 +173,15 @@ def main() -> int:
         log.error("no_contracts_loaded", hint="run after the Task 13 migration")
         return 1
 
+    # Fail fast on a corrupt deps.json BEFORE any artifact writes (partial
+    # regeneration with a broken registry is worse than no regeneration).
+    try:
+        deps = json.loads(DEPS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        # Fail closed: organizational fields (t2-phases map) cannot be trusted.
+        log.error("deps_json_corrupt", path=str(DEPS_PATH), error=str(exc))
+        return 1
+
     # DAG + index
     _write_json(DAG_PATH, build_dag(contracts, registry))
     usage: dict[str, dict[str, list[str]]] = {}
@@ -194,12 +203,6 @@ def main() -> int:
     # The curated expected_outputs is OVERWRITTEN — it is the D4 drift surface
     # being regenerated, so we never compare against it (that would fail the
     # generator on its own first run). Correctness is the bijection self-check.
-    try:
-        deps = json.loads(DEPS_PATH.read_text(encoding="utf-8"))
-    except json.JSONDecodeError as exc:
-        # Fail closed: organizational fields (t2-phases map) cannot be trusted.
-        log.error("deps_json_corrupt", path=str(DEPS_PATH), error=str(exc))
-        return 1
     for phase_name, phase in deps.get("t2-phases", {}).items():
         generated = derive_expected_outputs(phase, contracts, registry)
         verify_bijection(generated, phase, contracts, registry)
