@@ -319,6 +319,12 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
     if not values:
         return {"collapse_suspected": False, "signals": []}
 
+    # spec #31 T4 (F120): collapse requires >=2 dimensions and a non-all-zero
+    # result. Single-dimension rubrics and all-zero kill-switch outcomes are
+    # legitimate and exempt from BOTH signals.
+    if len(values) < 2 or all(v == 0 for v in values):
+        return {"collapse_suspected": False, "signals": []}
+
     if len(set(values)) == 1:
         signals.append("all_identical")
 
