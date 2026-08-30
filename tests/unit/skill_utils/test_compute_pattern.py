@@ -302,3 +302,10 @@ def test_main_max_consecutive_includes_out_of_vocab(
     assert any(
         w["pattern"] == "未分类" and w["max_run"] == 4 for w in result["consecutive_warnings"]
     )
+
+
+@pytest.mark.unit
+def test_compute_consecutive_empty_label_does_not_crash() -> None:
+    """Stage-8 audit: falsy pattern labels never enter the run loop — no max() on empty."""
+    result = compute_consecutive(["引入", "", "引入"])
+    assert result == {"引入": 1}
