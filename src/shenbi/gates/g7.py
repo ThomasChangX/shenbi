@@ -40,10 +40,11 @@ def gate_G7(round_dir: str) -> str:
         # F432: scaffold roster keeps the known-skill universe broad; unknown
         # stems are the hallucination signal (a hallucinated report file
         # matches no real skill and must FAIL, not be silently dropped).
+        known = sorted(set(ALL_SKILLS) | set(T1_SCAFFOLD_SKILLS))  # hoisted (PR #108 review)
         report_skills = set()
         unmatched_stems: set[str] = set()
         for rp in reports_dir_g71.glob("*.json"):
-            matched = parse_report_stem(rp.stem, sorted(set(ALL_SKILLS) | set(T1_SCAFFOLD_SKILLS)))
+            matched = parse_report_stem(rp.stem, known)
             if matched:
                 report_skills.add(matched)
             else:
