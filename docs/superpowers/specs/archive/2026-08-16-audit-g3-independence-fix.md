@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design · Revised 2026-08-31（阶段 3 设计审查后重定基线：T1 已由 PR #8 承接移除；T2 dispute 路径与第二评分来源重设） | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #122) · Revised 2026-08-31（阶段 3 设计审查后重定基线：T1 已由 PR #8 承接移除；T2 dispute 路径与第二评分来源重设） | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C5，6 条）| **代表 finding:** F114/F506（原代表 F794 已修）| **严重度上限:** P1 | **涉及文件面:** src/shenbi/scoring.py、orchestration/scoring_bridge.py、escalation_bridge.py、pipeline/chapter_loop.py、dispatcher/modes/codex.py、pipeline/dispatch_helper.py（run_gate_g3）
 
 # G3 独立性与评分防坍缩接线（audit-g3-independence）
