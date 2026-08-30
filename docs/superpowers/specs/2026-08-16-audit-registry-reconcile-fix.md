@@ -19,7 +19,7 @@
 - **F756**（P2）：deps.json `_tool_hashes` 99 条中 66 条与磁盘不符（63 哈希过期 + 3 文件已删）
 - **T207**（P2）：迁移表 CLASSIFICATION 自称 authoritative，与 frontmatter 漂移 18 格（2 kind + 16 IO，11 技能），无对账 lint
 - **T208**（P2）：存在性双向 closure 零门禁（G0.15 只查 G4_CHECKER_SKILLS 单向；deps/index.md/REGISTRY 三源无门禁）
-- **T209**（P2）：词表死条目全量清单 + dag_key 与 normalize_to_glob 两个 canonicalizer 分歧（真实代码实测）
+- **T209**（P2）：词表死条目全量清单 + dag_key 与 normalize_to_glob 两个 canonicalizer 分歧（真实代码实测）；T203（自 #24 补登：dependency-dag.json 生成但零消费——唯一消费者是 CI idempotency git diff，随登记表对账裁决去留）
 - 其余：F242（review-checklist-N.json 56 实例 resolves 全 False——词表唯一无 pattern 覆盖的参数化概念）、F521（OWNERSHIP 死条目）、F755（t2 seed 与 deps.json 前置闭包漂移，12 skill 未入 seed）、F758（8 skill 仅 rubric 无场景但 deps 声称 pass T1）、F759（5 个 skills/ 目录游离三层测试体系外）、F823（import/analysis/01_overview.md 概念与实际 01_parse.md 命名漂移）、F888（short/outline.md 与 short/package.md 孤儿概念）、F895（pipeline-written 节漏 progress.json/config-change-log.jsonl/gate-markers）、F1005（master.json 0.2.0 vs pyproject 0.1.0）、F1017（lint_repo_consistency 的 _G4_DECISIONS_SKILLS 硬编码快照）、F1022（migrate_contract_to_frontmatter.py 一次性迁移器 + 第三份契约快照残留）、F1106（truth/state_snapshot-pre-rev.md 不在词表——静默同义词）、F1151（根级 truth/ 模板与项目内 truth/ 语义同名冲突）、F1152（bridge_tracker.md 未登记词表且 write-only 无读者）、T206（worldbuilding.py 声称 Auto-generated 但无生成器、不在 CI diff 范围）
 
 ## 目标

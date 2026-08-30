@@ -14,7 +14,7 @@
 - **双向清单漂移（P1 核心）**：F004/F1001（CI 缺 2 个阻断 lint，grep 零接线实跑 verified）、F005/F1002（just check 缺 CI 强制的 4 步：lock/两 lint/autocheck 幂等；**补充**：AGENTS.md 给的"等价命令"还缺 `-m "last"` 第二段 pytest，等价双向不成立）、F1003（ci.yml + .gitignore：`.codex-plugin/` 幂等 diff 恒空——目录被 gitignore，插件新鲜度门形同虚设）
 - **coverage 工件污染链**：D101（pytest-cov 在 --collect-only 阶段仍写 coverage 工件并以 16.08% FAIL 污染正式覆盖率文件，两次复现）、F770（M，同根：addopts 全局 --cov）、F1040（全局 addopts --cov + fail_under=85 使 just test/test-file 类运行测试全过也假失败退出非零——21.92% 现存产物实证，协调者抽验；与 AGENTS.md PR 协议 4 记述的 pre-push 覆盖率覆写事件同族）
 - **工具/hook 激活缺口**：F1038（pre-push hook 配置齐全但文档安装命令不激活）、F1011（audit-skill-descriptions.py 未接任何门）、F1012（check_fixture_mirror.py 仅 pre-commit，CI/just 缺席 + 缺 sys.path 锚定）、F1015（lint_status_strings.py CWD 敏感，异目录静默假绿——实跑 verified）、F1036（pre-push-check.sh:74 计数管道零命中即崩整钩——实跑重现）
-- **workflow 配置缺陷**：F1006（codeql push 无分支过滤全量扫）、F1007（pre-commit-autoupdate rc==1 语义误判——autofix 与真失败同返 1，从安装源码取证 verified）、F1021（release.yml 裸 git log 绕过 cliff 分组）、F1026（M，docs.yml 无 concurrency 取消组）、F1042（M，mkdocs 条件门失败静默跳过）、F911（plugin-manifest CI 强制描述失效）
+- **workflow 配置缺陷**：F1006（codeql push 无分支过滤全量扫）、F1007（pre-commit-autoupdate rc==1 语义误判——autofix 与真失败同返 1，从安装源码取证 verified）、F1021（release.yml 裸 git log 绕过 cliff 分组）、F1026（M，docs.yml 无 concurrency 取消组）、F1207（自 #24 补登：codeql.yml 仅 push+schedule 无 pull_request，SECURITY.md "every PR" 半句不成立；push-only 有 300-file-limit 设计理由，修复向 = SECURITY.md 声明对齐或 PR 触发补全，随 T3 workflow 面裁决）、F1042（M，mkdocs 条件门失败静默跳过）、F911（plugin-manifest CI 强制描述失效）
 - **gitignore/清洁面**：F1019（novel-output 先忽略后取反死行误导）、F1020（缺 run_pipeline.sh 产物条目）、T1504（novel-output 22.7MB/1260 文件反忽略入库 main：52 个 ~320KB 快照 + 119 staging，staging 与顶层忽略规则对冲——协调者抽证 25M/119）
 - **杂项**：F957（test_docs_accuracy 盲区：F901/F951 类断链无感穿过——防线面与 C17/C23 协同）、F1039（just clean 删跟踪文件 .gitkeep）
 
@@ -70,4 +70,4 @@
 
 ## 簇成员清单（24 条，自查用）
 
-D101, F004-F005, F770, F911, F957, F1001-F1003, F1006-F1007, F1011-F1012, F1015, F1019-F1021, F1026, F1036, F1038-F1040, F1042, T1504（代表 F004）
+D101, F004-F005, F770, F911, F957, F1001-F1003, F1006-F1007, F1011-F1012, F1015, F1019-F1021, F1207（自 #24 补登：codeql.yml 无 pull_request 触发 vs SECURITY.md:27 "every PR" 声明漂移）, F1026, F1036, F1038-F1040, F1042, T1504（代表 F004）

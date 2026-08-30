@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-30
-> **活跃 spec 数**：46
+> **活跃 spec 数**：45
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,12 +10,6 @@
 
 ## 执行队列
 
-
-### #24 · 全项目审查执行：工具与门禁链补完（补齐 G）
-
-- **文件**：`2026-08-14-tooling-gate-chain-design.md`
-- **状态**：Design | **优先级**：🟠 P1（补齐）
-- **内容**：lint 接线/发明值盲区（T201/T302/T9-01/F1212/F1214）、CLI 契约（F140）、并行波/重试（F301/F354/T501/T502）、助手接线（T14-01/03/04）、字段过滤接线（T301）
 
 ### #3 · 确定性技能替换审计：何时把 skill 从 LLM 提升到 Python
 
@@ -111,7 +105,7 @@
 - **文件**：`2026-08-16-audit-status-vocab-single-source-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C8，24 条；候选元根因 D 分簇一）
 - **状态**：Design | **优先级**：🟡 P2（面广量大）
-- **内容**：36 域仅 9 域在单源内（T901）、severity 六词表并立且 21.1% 生产越表（T903）、lint 三重覆盖洞（T905）、HARD_FAIL 越表（F402/F711）——按 F771 同族统一方向收编 enums.py + lint 补洞
+- **内容**：36 域仅 9 域在单源内（T901）、severity 六词表并立且 21.1% 生产越表（T903）、lint 三重覆盖洞（T905）、HARD_FAIL 越表（F402/F711）——按 F771 同族统一方向收编 enums.py + lint 补洞 + T204 G0.16 write_mode 只查存在不查合法值（自 #24 补登）
 
 ### #35 · 全项目审查执行：阈值/配置契约（簇 C9，P1）
 
@@ -293,7 +287,7 @@
 - **文件**：`2026-08-16-audit-registry-reconcile-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C22，29 条）
 - **状态**：Design | **优先级**：🟠 P1 | **依赖**：T209 canonicalizer 裁决先于 R2 词表闭包
-- **内容**：单一对账 lint 五规则（R1 技能闭包八面 / R2 词表闭包 / R3 哈希新鲜度 / R4 迁移表 / R5 glob 有效性）+ 存量修正（#9 R1 已实现 skill↔deps.json 闭包 lint，R1 并入时以 #9 实现为基线扩展；F432 G5_CHECKER_GLOBS 假 FAIL 生产面 / F1004 master.json 缺 15 技能 / F414 SHORT_MAP 缺 11 / F756 66 过期哈希 / F231 三方 74-69-69）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（待归档）
+- **内容**：单一对账 lint 五规则（R1 技能闭包八面 / R2 词表闭包 / R3 哈希新鲜度 / R4 迁移表 / R5 glob 有效性）+ 存量修正（#9 R1 已实现 skill↔deps.json 闭包 lint，R1 并入时以 #9 实现为基线扩展；F432 G5_CHECKER_GLOBS 假 FAIL 生产面 / F1004 master.json 缺 15 技能 / F414 SHORT_MAP 缺 11 / F756 66 过期哈希 / F231 三方 74-69-69）——phase4 §7 第 9 位（改动小拦截面大）；#9/#23 登记面并入（待归档）；T203 dependency-dag.json 生成零消费（自 #24 补登）
 
 ### #61 · 审计修复 C23：文档机械漂移（P1）
 
@@ -314,7 +308,7 @@
 - **文件**：`2026-08-16-audit-ci-just-sync-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C25，24 条）
 - **状态**：Design | **优先级**：🟠 P1 | **依赖**：是 C17/C20/C21/C22 新 lint 的承载前提（先于此执行）
-- **内容**：清单一源化（CI 调 just check，F004/F005/F1001/F1002 双向洞 + AGENTS.md 等价命令失真）+ coverage 工件隔离（D101 collect-only 污染 16.08% / F1040 just test 假失败，AGENTS.md PR 协议 4 制度化）+ hook/工具激活面（F1038/F1011/F1012/F1015/F1036）+ workflow 修复（F1006/F1007/F1021）+ T1504 novel-output 22.7MB 反忽略出库（与 C18 协同）
+- **内容**：清单一源化（CI 调 just check，F004/F005/F1001/F1002 双向洞 + AGENTS.md 等价命令失真）+ coverage 工件隔离（D101 collect-only 污染 16.08% / F1040 just test 假失败，AGENTS.md PR 协议 4 制度化）+ hook/工具激活面（F1038/F1011/F1012/F1015/F1036）+ workflow 修复（F1006/F1007/F1021）+ F1207 codeql.yml 无 pull_request vs SECURITY.md "every PR" 声明漂移（自 #24 补登）+ T1504 novel-output 22.7MB 反忽略出库（与 C18 协同）
 
 ### #64 · 审计修复 C26：shell/just 包装层注入（P1）
 
