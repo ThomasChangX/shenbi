@@ -119,7 +119,7 @@ def g4_generic_bughunt(
         # Must have false positive check (flexible: markdown bold, colon, dash separators)
         if not re.search(r"False positives?[^0-9]*0|误报[^0-9]*0", content, re.IGNORECASE):
             mf.append(f"G4.bh.no_false_positive_check:{fp_path}")
-        if not mf or all(not x.startswith("G4.bh.") for x in mf):
+        if not mf:
             c.append({"id": f"G4.bh.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.bh", "s": "SKIP", "r": "no files"})
@@ -169,7 +169,7 @@ def g4_generic_clean(
                     real_suggestions.append(m)
         if real_suggestions:
             mf.append(f"G4.cl.has_suggestions:{fp_path}:{real_suggestions}")
-        if not mf or all(not x.startswith("G4.cl.") for x in mf):
+        if not mf:
             c.append({"id": f"G4.cl.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.cl", "s": "SKIP", "r": "no files"})

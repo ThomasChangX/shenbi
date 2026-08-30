@@ -65,7 +65,7 @@ def g4_worldbuilding(
     else:
         mf.append("G4.genre_config.not_found")
 
-    # story_bible.md: 4 ## sections, prose density < 5%
+    # story_bible.md: 4 ## sections, bullet density <= 5% (FAIL above)
     sb = rp.read("world/story_bible.md")
     if sb.exists():
         content = sb.read_text(encoding="utf-8")
@@ -152,10 +152,14 @@ def g4_worldbuilding(
             if tp.exists():
                 try:
                     fm = yload(str(tp))
+                    tmpl_mf: list[str] = []
                     for field in ["type", "category", "status"]:
                         if field not in fm:
-                            mf.append(f"G4.truth.{tmpl}.missing_{field}")
-                    c.append({"id": f"G4.truth.{tmpl}", "s": "PASS"})
+                            tmpl_mf.append(f"G4.truth.{tmpl}.missing_{field}")
+                    if tmpl_mf:
+                        mf.extend(tmpl_mf)  # missing fields: no PASS for this template (F4A1)
+                    else:
+                        c.append({"id": f"G4.truth.{tmpl}", "s": "PASS"})
                 except Exception:
                     mf.append(f"G4.truth.{tmpl}.yaml_error")
             else:
