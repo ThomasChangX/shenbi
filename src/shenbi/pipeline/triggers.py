@@ -103,7 +103,12 @@ def _style_profile_is_stale(project_dir: Path) -> bool:
     chapters_dir = project_dir / "chapters"
     if not chapters_dir.exists():
         return False
-    chapter_count = len(list(chapters_dir.glob("chapter-*.md")))
+    # F374 (spec #27 T5): exclude pre-revision backups
+    # (_create_pre_revision_backup writes chapter-{N}-pre-rev.md) — they
+    # inflate the count and falsely trip the stale/self-heal path.
+    chapter_count = len(
+        [f for f in chapters_dir.glob("chapter-*.md") if not f.name.endswith("-pre-rev.md")]
+    )
     if chapter_count < 3:
         return False
 
@@ -322,9 +327,13 @@ def is_volume_boundary(chapter: int, project_dir: Path | str) -> bool:
 # Genre-config drift detection (section 6.6)
 # ---------------------------------------------------------------------------
 
+# F375/F643 (spec #27 T5): the drift writer's real format is
+# ``- [{kind}] {dim}: {detail}`` (skill_utils/drift_detection/compute_drift.py
+# _append_audit) — bracketed-tag list items, not ``warning:`` prose. The old
+# prose pattern matched zero production lines.
 _WARNING_RE = re.compile(
-    r"(?:warning|drift|fatigue)\s*[:\uff1a]\s*(.+)",
-    re.IGNORECASE,
+    r"^\s*-?\s*\[?(warning|drift|fatigue)\]?\s*[:\uff1a]\s*(.+)$",
+    re.IGNORECASE | re.MULTILINE,
 )
 
 
@@ -345,7 +354,7 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
     text = drift_file.read_text(encoding="utf-8")
     warnings: list[str] = []
     for m in _WARNING_RE.finditer(text):
-        warnings.append(m.group(1).strip())
+        warnings.append(m.group(2).strip())
 
     if not warnings:
         return False

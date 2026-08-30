@@ -21,14 +21,19 @@ def _try_avg_g3_score(project_dir: Path) -> float | None:
     # best-effort metric — never fail the report over it.
     candidates = list(project_dir.glob("**/*score*.json"))
     scores: list[float] = []
+    # F511 (spec #27 T5): only explicit contract keys count — the old scan
+    # averaged every numeric 0-100 value in the file (noise: weights,
+    # chapter numbers, token counts that happen to fall in range).
+    _SCORE_KEYS = ("final_score", "total_score", "score")
     for c in candidates:
         try:
             data = json.loads(c.read_text(encoding="utf-8"))
         except Exception:
             continue
         if isinstance(data, dict):
-            for v in data.values():
-                if isinstance(v, (int, float)) and 0 <= v <= 100:
+            for key in _SCORE_KEYS:
+                v = data.get(key)
+                if isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 100:
                     scores.append(float(v))
     if not scores:
         return None

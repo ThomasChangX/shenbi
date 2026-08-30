@@ -50,7 +50,7 @@ import yaml
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.pipeline.audit_aggregate import write_audit_aggregate
-from shenbi.pipeline.audit_layer import run_audit_layer
+from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, run_audit_layer
 from shenbi.pipeline.dispatch_helper import (
     DispatchResult,
     dispatch_skill,
@@ -317,6 +317,15 @@ CASCADABLE_AUDITS = [
     "anti-ai",
     "texture",
     "reader-pull",
+    # F341 (spec #27 T5): genre-activated dimensions and grouped reviews
+    # join the cascade universe — they have producers and history entries.
+    "era",
+    "fanfic",
+    "highpoint",
+    "group-factual",
+    "group-character",
+    "group-craft",
+    "group-plan",
 ]
 
 CASCADE_STREAK_LENGTH = 3  # N=3
@@ -1289,12 +1298,14 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
     to handle them (spec section 6.1 step 7b). Missing file or no triggered
     hooks are no-ops.
     """
-    hooks_file = project_dir / "truth" / "pending_hooks.md"
-    if not hooks_file.exists():
-        return
+    # F238 residual (spec #27 T5): route through the single parser
+    # (truth_readers.read_pending_hooks) instead of a local regex/scan.
+    from shenbi.pipeline.truth_readers import read_pending_hooks
 
-    text = hooks_file.read_text(encoding="utf-8")
-    triggered_count = _count_triggered_hooks(text)
+    hooks = read_pending_hooks(Path(project_dir))
+    triggered_count = sum(
+        1 for h in hooks if parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
+    )
     if triggered_count > 0:
         log.info("conditional_resolve_triggered", chapter=chapter, count=triggered_count)
         dispatch_skill(
@@ -1305,35 +1316,6 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
         )
     else:
         log.debug("no_triggered_hooks", chapter=chapter)
-
-
-def _count_triggered_hooks(text: str) -> int:
-    r"""Count hooks with state TRIGGERED in the pending_hooks.md content.
-
-    Parses YAML frontmatter (``---\\n...\\n---``) for a ``hooks`` list where
-    entries have a ``state`` field. State comparison goes through
-    :func:`parse_hook_state` (fix D22): case-insensitive, and the
-    non-canonical ``TRIGGER`` spelling folds to ``TRIGGERED``. Falls back to a
-    text scan for ``state: TRIGGERED`` when frontmatter is absent or malformed.
-    """
-    # Try YAML frontmatter first.
-    if text.startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
-            try:
-                fm = yaml.safe_load(parts[1]) or {}
-                hooks = fm.get("hooks", [])
-                if isinstance(hooks, list):
-                    return sum(
-                        1
-                        for h in hooks
-                        if isinstance(h, dict)
-                        and parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
-                    )
-            except Exception:
-                pass  # fall through to text scan
-    # Fallback: count literal occurrences.
-    return text.count("state: TRIGGERED")
 
 
 def _parse_resonance_score(report_path: Path) -> int | None:
@@ -1369,6 +1351,12 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
     # Pattern 3: Plain "Score: N" or "resonance_score: N"
     m = re.search(r"(?:Score|resonance_score)\s*:\s*(\d+)", text, re.IGNORECASE)
+    if m:
+        return int(m.group(1))
+
+    # Pattern 4 (F372, spec #27 T5): the skill's real product format is
+    # ``**结果**: 通过 (86/100)`` — anchored on the N/100 parenthetical.
+    m = re.search(r"\((\d+)\s*/\s*100\)", text)
     if m:
         return int(m.group(1))
 
@@ -1603,27 +1591,35 @@ def _any_audit_has_findings(state: PipelineState) -> bool:
     """
     project_dir = Path(state.project_dir)
     chapter = state.chapter_loop.current_chapter
-    audit_dir = project_dir / "audits"
 
-    for atype in [
-        "continuity",
-        "character",
-        "world-rules",
-        "pacing",
-        "dialogue",
-        "motivation",
-        "pov",
-        "memo-compliance",
-        "foreshadowing",
-        "anti-ai",
-        "texture",
-        "reader-pull",
-        "sensitivity",
-    ]:
-        af = audit_dir / f"chapter-{chapter}-{atype}.md"
+    # Scan list derives from the step table (single source) via
+    # audit_relative_path — group-* and genre-activated dimensions are
+    # covered instead of the old hardcoded 13-type list that missed them
+    # (F340/F369, spec #27 T5).
+    from shenbi.pipeline.audit_layer import audit_relative_path
+
+    names = {
+        audit_relative_path(chapter, step.skill)
+        for step in CHAPTER_STEPS
+        if getattr(step, "is_audit", False)
+    }
+    # Core-circle + cascadable + always-run families dispatch through the
+    # parallel-wave path, not the fixed step table — take them from the same
+    # vocab constants the wave dispatcher uses (single source).
+    for short in (*CORE_AUDITS, *ALWAYS_RUN, *CASCADABLE_AUDITS):
+        names.add(f"audits/chapter-{chapter}-{short}.md")
+    # genre-activated audits (era/fanfic/highpoint/...) dispatch through the
+    # activation matrix — include their families too
+    for skill in GENRE_ACTIVATION_MATRIX.values():
+        names.add(audit_relative_path(chapter, skill))
+    blocking_re = re.compile(r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|FAIL)\b)|(?:\*\*BLOCKING\*\*)", re.M)
+    for rel in sorted(names):
+        af = project_dir / rel  # audit_relative_path already carries audits/
         if af.exists():
             text = af.read_text(encoding="utf-8")
-            if "BLOCKING" in text or "FAIL" in text:
+            # F370: precise marker match, not bare substring ("FAIL" inside
+            # prose like "no FAIL conditions" must not trigger).
+            if "## BLOCKING" in text or blocking_re.search(text):
                 return True
     return False
 
@@ -2542,6 +2538,19 @@ def _run_chapter_step_impl(
         # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
         cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
+        # Per-skill history entries (F341/F726, spec #27 T5): the cascade
+        # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
+        for task, result in zip(core_tasks + genre_tasks, all_results, strict=True):
+            short = _audit_short_name(task.skill)
+            hard = sum(
+                1
+                for line in (result.stdout or "").splitlines()
+                if line.strip().upper().startswith(("BLOCKING", "CRITICAL"))
+            )
+            cs.audit_results[short] = {
+                "passed": bool(result.success) and hard == 0,
+                "hard_failures": hard,
+            }
 
         # Run revision routing after all reviews complete (spec §6.3).
         # In the serial path this is called after review-resonance; in the
