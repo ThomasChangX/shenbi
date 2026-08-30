@@ -55,6 +55,7 @@ def test_g4_bughunt_writes_marker(tmp_path):
     # G4 CLI 扩展形态：shenbi-validate G4 <skill> --test-type bug-hunt <files> <round-dir>
     # PASS 时必须写 marker_filename("G4", "<skill>", "bug-hunt")
     marker = tmp_path / "gate-markers" / "G4-shenbi-worldbuilding-bug-hunt.json"
+    # 先按 1.3 的 CLI 形态真实调起 shenbi-validate G4（非直接构造 marker）
     assert marker.exists()
 ```
 - [ ] **1.2 跑测确认失败**：`uv run pytest tests/unit/test_gates_cli.py -k bughunt_writes_marker -v` → FAIL（marker 不存在）
@@ -64,7 +65,7 @@ def test_g4_bughunt_writes_marker(tmp_path):
 uv run shenbi-validate G4 <skill> --test-type bug-hunt <fixture-files> <round-dir>   # 真实产出 marker（G0.9：非手写）
 uv run shenbi-score tests/tiers/t1-skill/<skill>/<rubric>.md <real-scores.json> --test-type bug-hunt --round-dir <round-dir>
 # 期望 exit 0（无 MARKER_MISSING exit 3）
-# scores 样本：复用 tests/ 既有真实 generative scores 文件 + filter_dimensions_by_test_type（scoring.py:410）按 bug-hunt 维度过滤——禁现场 dispatch 取样（SDD 核心原则 8）
+# scores 样本：scores.json 是 shenbi-score 的工具输入而非 skill 产物（G0.9 不适用；既有实践 = tests/unit/test_scoring.py:91-95 内联构造 {"1": 90, "2": 80}），同法构造 + filter_dimensions_by_test_type（def 于 scoring.py:133，调用点 :421）按 bug-hunt 维度过滤——禁现场 dispatch 取样（SDD 核心原则 8）
 ```
 - [ ] **1.5 兼容断言**：`tests/baselines/gate-outputs/G4-genre_config.json` 经读方逻辑解析不破坏（unit test 直接调 `check_gate_markers` 对构造 round-dir）
 - [ ] **1.6 commit**: `fix: marker protocol single source + bug-hunt/clean marker writers (spec #27 T2)`
