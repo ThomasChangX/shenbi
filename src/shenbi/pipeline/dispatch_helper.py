@@ -1451,7 +1451,7 @@ def _write_parsed_outputs(
             log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
             raise DispatchWriteFailureError(
                 f"wildcard write rejected: filename contains forbidden "
-                f'characters (" < > control): {rel_path!r}',
+                rf'characters (" < > [ \ control): {rel_path!r}',
                 signature="forbidden_filename",
             )
         matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)

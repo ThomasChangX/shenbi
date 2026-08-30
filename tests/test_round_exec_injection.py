@@ -9,10 +9,11 @@ string literal inside the double-quoted ``python3 -c`` command.
 
 The payload command must not contain ``/`` (it lives inside a directory
 name, which cannot embed a path separator), so the marker is created as
-``touch pwned-by-injection`` relative to the shell's working directory. The
-subprocess must NOT set cwd= (round-exec.sh:18 does a CWD-relative ``ls``;
-changing cwd would abort the script early and make the test vacuous), so the
-marker lands at Path.cwd() == repo root, asserted and cleaned up.
+``touch pwned-by-injection`` relative to the shell's working directory.
+round-exec.sh:18 does a CWD-relative ``ls tests/tiers/...``, so the
+subprocess cwd is explicitly anchored to REPO_ROOT (any other cwd would
+abort the script before the parameterized calls and make the test vacuous);
+the marker therefore lands at REPO_ROOT, asserted and cleaned up.
 """
 
 import json
@@ -58,19 +59,19 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
     (round_dir / "summary.json").write_text(json.dumps({"t1_scores": {}}), encoding="utf-8")
     (round_dir / "meta.json").write_text(json.dumps({"tier_target": "T1"}), encoding="utf-8")
 
-    assert not (Path.cwd() / PAYLOAD).exists(), "pre-existing marker file collision"
-
+    marker = REPO_ROOT / PAYLOAD
+    assert not marker.exists(), "pre-existing marker file collision"
     proc = subprocess.run(
         ["bash", str(REPO_ROOT / "tests" / "round-exec.sh"), "--validate", str(round_dir)],
         capture_output=True,
         text=True,
         timeout=30,
+        cwd=REPO_ROOT,
     )
 
     try:
-        assert not (Path.cwd() / PAYLOAD).exists(), "injection payload executed!"
+        assert not marker.exists(), "injection payload executed!"
     finally:
-        marker = Path.cwd() / PAYLOAD
         if marker.exists():
             marker.unlink()
     assert proc.returncode != 0
