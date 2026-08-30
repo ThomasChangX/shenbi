@@ -44,7 +44,6 @@ def materialize_progress(
     events = replay(round_dir)
     skills_state: dict[str, dict[str, dict[str, Any]]] = {}
     init_tier, init_chapters = tier, expected_chapters
-    done_counter = 0
     for e in events:
         if e.action == "INIT":
             payload = e.payload
@@ -59,8 +58,6 @@ def materialize_progress(
                 "status": str(payload.get("status", "done")),
                 "score": _as_float(payload.get("score"), 0.0),
             }
-            if sd[tt]["status"] in ("done", "skip"):
-                done_counter += 1
 
     all_skills_set = set(total_skills)
 
