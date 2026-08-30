@@ -249,10 +249,11 @@ def cmd_post_skill(
     # M8: use derived file_type instead of hardcoded "chapter".
     file_type = derive_file_type(skill)
     # Safety fallback: when chapter is unknown (non-pipeline T2), fall back to
-    # rglob. The fallback file_type must match what rglob finds (.md): G2's
-    # decisions branch only parses files typed "decisions" (non-JSON decisions
-    # files are skipped via continue), so typing rglob'd .md files as "decisions"
-    # would silently skip the word-count checks instead of running them.
+    # rglob. The fallback file_type must match what rglob finds (.md). Since
+    # spec #30 T1 the decisions type partitions per file (.json -> G2.dec,
+    # .md -> chapter checks), so typing rglob'd .md files as "decisions" would
+    # now run chapter checks — but "chapter" remains the honest type for a
+    # bare .md rglob sweep.
     if not output_files and chapter is None:
         output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
         file_type = "chapter"  # override: rglob finds .md, not decisions.json

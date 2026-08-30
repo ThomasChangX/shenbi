@@ -608,11 +608,10 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     """
     single = _resolve_g4_path(project_dir, step, chapter)
     files = [single] if single else []
+    from shenbi.pipeline.checkpoint import STAGING_DIR
 
     # State-settling writes multiple truth files to staging/
     if step.uses_staging and "state-settling" in step.skill:
-        from shenbi.pipeline.checkpoint import STAGING_DIR
-
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
             files.extend(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
@@ -629,8 +628,6 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
         log.warning("g4_decisions_contract_unavailable", skill=step.skill, error=str(e))
         contract = None
     if contract:
-        from shenbi.pipeline.checkpoint import STAGING_DIR
-
         for out in contract["writes"]:
             if "decisions" not in Path(out).name:
                 continue
@@ -655,7 +652,8 @@ def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None)
 
     try:
         contract = load_contract(skill)
-    except ContractError:
+    except ContractError as e:
+        log.warning("staged_sidecar_contract_unavailable", skill=skill, error=str(e))
         return []
     targets: list[str] = []
     for out in contract["writes"]:
@@ -989,9 +987,12 @@ def _auto_settle_parallel(state: PipelineState, project_dir: Path, chapter: int)
         return False
     staging_truth = project_dir / STAGING_DIR / "truth"
     if staging_truth.exists():
-        staged = sorted(staging_truth.glob("*.md")) + sorted(
-            staging_truth.glob("*decisions*.json")  # audit-T5 C3: sidecar too
-        )
+        # sidecar via the shared contract-driven helper (audit-T5 C3; final
+        # review I2: one mechanism across all commit sites, no inline glob)
+        staged = sorted(staging_truth.glob("*.md")) + [
+            project_dir / STAGING_DIR / t
+            for t in staged_decisions_targets(project_dir, "shenbi-state-settling", chapter)
+        ]
         for src in staged:
             dst = project_dir / "truth" / src.name
             dst.parent.mkdir(parents=True, exist_ok=True)
@@ -1214,17 +1215,18 @@ def _advance(
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
-                for src in sorted(staging_truth.glob("*.md")) + sorted(
-                    staging_truth.glob("*decisions*.json")
-                ):
+                staged = sorted(staging_truth.glob("*.md")) + [
+                    project_dir / STAGING_DIR / t
+                    for t in staged_decisions_targets(project_dir, step.skill, chapter)
+                ]
+                for src in staged:
                     dst = project_dir / "truth" / src.name
                     dst.parent.mkdir(parents=True, exist_ok=True)
                     safe_write(dst, src.read_bytes())
                 log.info(
                     "staging_auto_committed_state_settle",
                     chapter=chapter,
-                    files=len(list(staging_truth.glob("*.md")))
-                    + len(list(staging_truth.glob("*decisions*.json"))),
+                    files=len(staged),
                 )
             else:
                 log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)
