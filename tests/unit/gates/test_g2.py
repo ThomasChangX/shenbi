@@ -468,13 +468,12 @@ class TestG2DecisionsBranch:
         assert not any(c == "G2.7" for c in check_ids)
 
     def test_decisions_branch_skips_markdown_files(self, tmp_path: Path) -> None:
-        """C1: mixed .md + .json with file_type='decisions' must skip the .md.
+        """Spec #30 T1: mixed .md + .json with file_type='decisions' partitions per file.
 
         Skills like chapter-drafting/context-composing write BOTH a chapter.md
-        artifact and a sidecar decisions.json. When file_type='decisions' is
-        applied uniformly to all outputs, the .md file must be SKIPPED (it is
-        validated by its own file_type gate), not failed as 'invalid JSON'.
-        Regression guard for G2.dec.1 mis-firing on .md content.
+        artifact and a sidecar decisions.json. The .json takes the G2.dec
+        branch; the .md falls through with chapter semantics — it must NOT be
+        parsed as JSON (G2.dec.1 mis-fire) and must NOT bypass G2 entirely.
         """
         # A markdown file with non-JSON content (would FAIL json.loads).
         md_fp = tmp_path / "chapter-5.md"
@@ -510,8 +509,12 @@ class TestG2DecisionsBranch:
         assert dec_pass, f".json file was not validated: {data.get('checks', [])}"
         assert dec_pass[0]["s"] == "PASS"
 
-        # Overall the gate passes (the .md was skipped, not failed).
-        assert data["status"] == "PASS"
+        # Overall the gate fails on the .md's chapter semantics (tiny chapter
+        # violates G2.6 word-count floor) — the .md is validated, not skipped.
+        assert data["status"] == "FAIL"
+        assert any("G2.6" in mf and str(md_fp) in mf for mf in data.get("must_fix", [])), (
+            f".md file bypassed chapter checks: {data.get('must_fix', [])}"
+        )
 
     def test_g2_dec4_detects_concatenated_json(self, tmp_path: Path) -> None:
         """G2.dec.4 fails when multiple JSON objects exist in one file."""
