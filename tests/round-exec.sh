@@ -20,8 +20,9 @@ if [ "${1:-}" = "--validate" ]; then
   FRAMEWORK_SKILLS=$(ls tests/tiers/t1-skill/ | grep -v _template | sort)
   # ROUND_DIR is passed as argv (never interpolated) — round-exec is
   # injection-tested (tests/test_round_exec_injection.py).
-  # stderr passes through (no 2>/dev/null) — a failing reconciliation step
-  # must be visible, not silently vacuous (PR #108 review).
+  # stderr passes through (a failing reconciliation step must be visible,
+  # not silently vacuous — PR #108 review); `|| true` keeps the tolerant
+  # no-ops-on-error semantics under `set -euo pipefail` (PR #111 review).
   REPORT_SKILLS=$(python3 -c "
 import sys
 from pathlib import Path
@@ -30,7 +31,7 @@ from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
 for f in Path(sys.argv[1]).glob('*.json'):
     skill = parse_report_stem(f.stem, ALL_SKILLS)
     print(skill or f.stem)
-" "${ROUND_DIR}/t1-reports" | sort -u)
+" "${ROUND_DIR}/t1-reports" | sort -u || true)
   if [ -n "$REPORT_SKILLS" ]; then
     DIFF_OUTPUT=$(diff <(echo "$FRAMEWORK_SKILLS") <(echo "$REPORT_SKILLS") 2>/dev/null || true)
     if [ -n "$DIFF_OUTPUT" ]; then
