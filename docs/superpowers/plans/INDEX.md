@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #20/#21 plan 已交付归档；#22 plan 见下）
+（SDD #20/#21 plan 已交付归档；活跃 plan 仅 #22，见下）
 
 
 

@@ -58,6 +58,8 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
     (round_dir / "summary.json").write_text(json.dumps({"t1_scores": {}}), encoding="utf-8")
     (round_dir / "meta.json").write_text(json.dumps({"tier_target": "T1"}), encoding="utf-8")
 
+    assert not (Path.cwd() / PAYLOAD).exists(), "pre-existing marker file collision"
+
     proc = subprocess.run(
         ["bash", str(REPO_ROOT / "tests" / "round-exec.sh"), "--validate", str(round_dir)],
         capture_output=True,
