@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Rejected (2026-08-30 · 与活跃 spec 重复：master #40 裁决 supersede → C33/C7/C2/C34；R1b/R1 大半已在 main 修复，存活面全部有承接，残留 F1207/T203/T204 补登 #63/#60/#34) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 7/7） | **依赖:** gate-effectiveness | **范围:** 工具/门禁链（lint 接线、词表、重试、助手接线、CLI 契约）| **核心洞察:** 工具正确性洞（lint 未接线/发明值盲区/重试死码/助手半接线）使 CI 与门禁对真实缺陷零效力
 
 # 工具与门禁链补完（补齐 G）

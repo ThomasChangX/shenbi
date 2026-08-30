@@ -7,7 +7,7 @@
 - **F431 家族（jload ValueError/内层形状崩溃）**：except 元组加 ValueError/TypeError + isinstance 守卫（F440/F441/F459/F460/F465/F470/F471/F477/F485/F488/F489/F493/F497/F4A3 等 merged 实例随 F431 修复）
 - **采样截断家族**：检查语义站点读全文（F494/F496/F499/F4A5 随主条目）
 - **契约漂移/未声明读写**：frontmatter 对齐正文（随 #58 skill-contract-declaration spec；原 z8 #23 已归档 Rejected）
-- **死代码/半接线**：删除或接线（随 tooling-gate-chain / T14 接线矩阵）
+- **死代码/半接线**：删除或接线（随 #33 确定性 helper 接线矩阵；原 #24 tooling-gate-chain 已归档 Rejected）
 - **路径/参数错位**：改传正确目录/参数（随 gate-effectiveness R3/R8/R9）
 - **错误处理边界**：补 try/except 与结构化信封
 - **验收**：家族主条目修复后对应实例回归测试全过；`just check` 全绿

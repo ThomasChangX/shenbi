@@ -11,7 +11,7 @@
 - **同概念多词表**：T902（enums.Verdict 零 src 消费者，真实第二词表硬编码于 checker）；T903（severity 概念六词表并立，revision-decisions 生产 21.1% severity 值越一切词表——F211 的量化扩展）；T904（GateOutcome.status 重复定义 GateStatus 且缺 UNIMPLEMENTED）；T909（审批决定 approve/modify/reject vs approved/rejected 双词表）；F211（"所有 Literal 必须从此 import"被多处违反，decisions.Severity 与 enums.Severity 同名不同域）。
 - **无主域**：T906（progress.json skill status 域无枚举定义）、T907（ChapterState.status 自由串 + complete/completed 同族异形）、T908（"未实现"三形态 + CommandStatus 域外值 degraded）、T910（修订 mode 生产越表：reconstruction/no_op 不在任一词表且 G4 不校验）、T911（novel.json status 无主域无读写方）。
 - **生产越表实例**：F402/F711（g4/chapter_revision 返回未声明 "HARD_FAIL"，测试 pin）；F447（状态词表 lint 只拦"词表内"字面量，越表反逃逸——单源门禁盲区）。
-- **lint 失效**：T905（lint_status_strings 三重覆盖洞：面内拦截目标空集 + 越表逃逸率 100% + s 键/面外/CWD 三盲区，实跑 0 违规 exit=0）；F1016（lint_status_strings 自身缺陷）。
+- **lint 失效**：T905（lint_status_strings 三重覆盖洞：面内拦截目标空集 + 越表逃逸率 100% + s 键/面外/CWD 三盲区，实跑 0 违规 exit=0）；F1016（lint_status_strings 自身缺陷）、T204（自 #24 补登：G0.16 write_mode 只校验存在性不校验值合法性，拼写错误 mode 过门禁被当默认处理）。
 
 ## 修复目标
 
