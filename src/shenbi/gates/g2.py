@@ -329,7 +329,7 @@ def gate_G2(
         # G2.meta_ratio: WARN when META block proportion > 50%
         # (_check_meta_ratio already emits the WARN entry with file+r — the
         # former caller-side loop duplicated it, F481.)
-        meta_checks, _meta_failures = _check_meta_ratio(p)
+        meta_checks, _ = _check_meta_ratio(p)
         checks.extend(meta_checks)
 
         # G2.13 — chapter contract: header + META-or-exemption (z11 F1301/F1302).

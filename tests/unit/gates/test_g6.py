@@ -236,7 +236,7 @@ class TestG6ErrorPaths:
 
     @pytest.mark.unit
     def test_g6_unresolved_hooks_reported_in_check(self, tmp_path: Path) -> None:
-        """Unresolved hooks surface in the G6.7 check dict (status may still be PASS)."""
+        """Unresolved hooks surface in the G6.7 check dict (status becomes WARN when the sub-check has must_fix entries)."""
         round_dir = tmp_path / "round"
         round_dir.mkdir()
         project_dir = tmp_path / "project"
