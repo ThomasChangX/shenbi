@@ -338,3 +338,11 @@ def test_trailing_json_g2_g4_agree(fixture_path):
 - 覆盖：17 簇成员 → T1(F205/F438/T101) T2(F434/T103/F795) T3+T6(F237 残余/F791/T104) T5→Task4(F212/F431/F908/T108) T4→Task5(F439/T106) T7→Task7(T107) F1102→Task6 语料基线。验收 1→Task6+8；验收 2→Task1/2；验收 3→Task6；验收 4→阶段 7。无孤儿。
 - 无占位符：代码块均为实现形状，标注「以现有结构为准」处为核对指令非延后实现。
 - 类型一致：`_resolve_g4_files` 返回 `list[str]`；gate_G2 签名不变。
+
+## 终审（阶段 8）M 项处置记录 · 2026-08-31
+
+- 终审一轮 0C/3I/4M：I1（staged_decisions_targets 静默吞 ContractError）、I2（两处内联 sidecar glob 未走共享机制）、I3（phase_runner.py 陈旧注释）、M4（重复 import）→ 均已修（commit fc899236）
+- M5 case16 为 copy-then-degrade 构造（真实副本+尾随块），T104 判别用例，**不修（by design）**
+- M6 parse_decisions_payload 内 "FAIL" 字面量沿袭被替换的 g2 旧内联形态，**不修（既有模式）**
+- M7 plan 原写 sorted(set(files))，实现为插入序+dedupe guard，行为等价且保留主产物优先序，**不修（实现更优）**
+- 终审二轮 0C/0I/2M(新)：M1 契约驱动提交比旧 glob 严格（未声明 sidecar 会被清场丢弃）——by design（契约单源），观察缺口遗留；M2 本处置块
