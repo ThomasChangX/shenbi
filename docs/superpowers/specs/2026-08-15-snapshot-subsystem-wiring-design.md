@@ -27,7 +27,7 @@
 - src：`create_differential_snapshot` / `restore_from_snapshot`（snapshot_diff.py，模块整体去留随裁决——若无存活的库消费者则整模块删除）、`_prune_old_snapshots` / `_snapshot_chapter_files`（chapter_loop.py）、`cmd_rollback`（pipeline/cli.py）、`last_snapshot` state 字段与 `_heal_last_snapshot`（state_heal.py，处置规则见下）
 - tests（须同步删/改，否则 `just check` 悬挂 import 红；实际路径已核）：tests/pipeline/test_snapshot_diff.py、tests/unit/pipeline/{test_snapshot_pruning,test_last_snapshot,test_snapshot_coverage,test_adaptive_triggers,test_state_heal}.py（test_state_heal.py 的 `test_heals_last_snapshot` 随字段删除而删）、tests/unit/pipeline/test_cli_rollback_removed.py:14（直接 import cmd_rollback）、tests/unit/pipeline/test_cli.py:517-532（断言 cmd_rollback 保留——随其删除而反转向：断言不再存在）、tests/unit/contracts/test_registry_pipeline_producers.py:42（D20 注释面——若删 chapter_loop 版而 crash_recovery.py:155 同名函数存活，注释须改指向而非删）
 - **last_snapshot 路径 3 处置规则**（消除循环对账）：字段与 `_heal_last_snapshot` 一并删除——#57 路径 3 存活面 T4 不涉及该字段，且"永不写入仅可 heal 回填"的字段无存在价值；#57 如后续需要快照状态指针属其自身设计面
-- 文档同步面（M2 界定）：`grep -rn "pre-revision-snapshot"` 命中的非 archive 文档 + step 表注释（chapter_loop.py:133）+ pipeline/cli.py:785 的 last_snapshot 注释 + 本 spec + INDEX
+- 文档同步面（M2 界定）：`grep -rn "pre-revision-snapshot"` 命中的非 archive 文档（**audit-runs 历史审计记录与 tests 内注释不计入同步面**）+ step 表注释（chapter_loop.py:133）+ pipeline/cli.py:785 的 last_snapshot 注释 + 本 spec + INDEX
 
 ## 验收（按裁决路径定稿）
 - 路径 1/2：
