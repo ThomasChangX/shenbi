@@ -21,12 +21,12 @@
 
 - **文件**：`2026-08-15-snapshot-subsystem-wiring-design.md`
 - **系列**：2026-08-14 全项目审查（自 #6 拆分：设计审查裁决三路设计决策无法一行方向化）
-- **状态**：Design
+- **状态**：已裁决路径 3（移除）· 2026-08-30 实施中
 - **优先级**：🟠 P1
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：无（与 #6 的 closure step 10 契约对齐有衔接面，见各自内容字段）
 - **内容**：快照子系统**四机制**并存、pre-revision 路径零接线（F303；差分三件套死代码 / crash_recovery 应急快照已接线 / snapshot-manage skill 已接线 / restore-rollback 面全死）；三路裁决（接线 / 收敛后接线 / 移除）+ 按路径定稿验收；布局/命名/truth 覆盖收口归 #57，下游 #57 依赖本裁决
-- **对应 plan**：❌ 未写
+- **对应 plan**：✅ `plans/2026-08-30-snapshot-wiring-removal.md`
 
 ### #27 · 全项目审查执行：读方↔写方键空间对账（簇 C1，P0）
 

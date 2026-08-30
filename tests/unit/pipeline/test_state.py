@@ -112,3 +112,19 @@ class TestPipelineStateSerialization:
 
         state = PipelineState.default(project_dir="/tmp/novel")
         assert state.config.resonance_global_floor == DEFAULT_THRESHOLDS.resonance_global_floor
+
+
+def test_from_dict_tolerates_legacy_snapshot_keys():
+    """Pre-removal state files (spec #26 path 3) load cleanly.
+
+    Old states carry last_snapshot and config.snapshot_retention_chapters,
+    both removed by spec #26; from_dict must ignore them, not raise.
+    """
+    legacy = PipelineState.default("/tmp/x").to_dict()
+    legacy["last_snapshot"] = {"path": "snapshots/chapter-3.md", "chapter": 3}
+    legacy["config"]["snapshot_retention_chapters"] = 50
+
+    state = PipelineState.from_dict(legacy)
+
+    assert not hasattr(state, "last_snapshot")
+    assert not hasattr(state.config, "snapshot_retention_chapters")
