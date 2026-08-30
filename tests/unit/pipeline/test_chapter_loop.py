@@ -62,10 +62,10 @@ class TestChapterSteps:
         assert len(audit_skills) >= 6  # 6 domain-grouped audits (MERGE-2)
 
     def test_step_count(self):
-        assert len(CHAPTER_STEPS) == 16
+        assert len(CHAPTER_STEPS) == 15
 
     def test_step_nums_are_sequential(self):
-        assert [s.step_num for s in CHAPTER_STEPS] == list(range(1, 17))
+        assert [s.step_num for s in CHAPTER_STEPS] == list(range(1, 16))
 
     def test_chapter_planning_has_staging(self):
         cp = next(s for s in CHAPTER_STEPS if "chapter-planning" in s.skill)
@@ -274,12 +274,12 @@ class TestChapterCompletion:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     @patch("shenbi.pipeline.chapter_loop.run_gate_g4")
     def test_last_step_completes_chapter(self, mock_g4, mock_disp, tmp_path):
-        """Last step (chapter-revision, index 15) completes the chapter."""
+        """Last step (chapter-revision, index 14) completes the chapter."""
         mock_disp.return_value = DispatchResult(True, 0, "{}", "")
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 15  # last step (chapter-revision)
+        state.chapter_loop.step_index = 14  # last step (chapter-revision)
         run_chapter_step(state, tmp_path)
         assert state.chapter_loop.current_chapter == 2
         assert state.chapter_loop.step_index == 0
@@ -293,7 +293,7 @@ class TestChapterCompletion:
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 15  # last step (chapter-revision)
+        state.chapter_loop.step_index = 14  # last step (chapter-revision)
         state.chapter_loop.per_chapter_review_enabled = True
         result = run_chapter_step(state, tmp_path)
         assert result is True
@@ -306,7 +306,7 @@ class TestChapterCompletion:
         mock_g4.return_value = {"status": "PASS"}
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 15  # last step (chapter-revision)
+        state.chapter_loop.step_index = 14  # last step (chapter-revision)
         state.chapter_loop.per_chapter_review_enabled = False
         result = run_chapter_step(state, tmp_path)
         assert result is False
@@ -454,9 +454,10 @@ class TestGateFailurePaths:
         mock_g3.return_value = {"status": "FAIL"}
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = 16  # review-resonance
+        ridx = next(i for i, s_ in enumerate(CHAPTER_STEPS) if "review-resonance" in s_.skill)
+        state.chapter_loop.step_index = ridx  # review-resonance
         run_chapter_step(state, tmp_path)
-        assert state.chapter_loop.step_index == 16
+        assert state.chapter_loop.step_index == ridx
 
 
 @pytest.mark.last
@@ -606,7 +607,7 @@ class TestCountTriggeredHooks:
 # ---------------------------------------------------------------------------
 class TestRevisionRoutingIntegration:
     """After all reviews complete (parallel dispatch at _FIRST_AUDIT_IDX),
-    the router determines whether step 16 (chapter-revision) runs or is skipped.
+    the router determines whether step 15 (chapter-revision) runs or is skipped.
     """
 
     def _setup_parallel_audit_mocks(self, tmp_path, **kwargs):
@@ -651,7 +652,7 @@ class TestRevisionRoutingIntegration:
         return started
 
     def test_clean_audits_skip_revision(self, tmp_path):
-        """No blocking issues -> step 16 (chapter-revision) is skipped."""
+        """No blocking issues -> step 15 (chapter-revision) is skipped."""
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
             state = PipelineState.default(str(tmp_path))
@@ -660,14 +661,9 @@ class TestRevisionRoutingIntegration:
 
             # Run through parallel audit dispatch (advances past all audits)
             run_chapter_step(state, tmp_path)
-            # Now at step 15 (pre-revision-snapshot, index 14)
-            assert state.chapter_loop.step_index == 14
+            # Now at step 15 (chapter-revision, index 14)
 
-            # Step 15 (pre-revision-snapshot) is pipeline-internal; advances.
-            run_chapter_step(state, tmp_path)
-            assert state.chapter_loop.step_index == 15
-
-            # Step 16 (chapter-revision) is skipped due to NO_REVISION route.
+            # Step 15 (chapter-revision) is skipped due to NO_REVISION route.
             run_chapter_step(state, tmp_path)
             cs = state.chapter_loop.chapter_states["1"]
             assert cs.audit_results.get("revision_route") == RevisionRoute.NO_REVISION.value
@@ -678,7 +674,7 @@ class TestRevisionRoutingIntegration:
                 p.stop()
 
     def test_blocking_audits_route_revision(self, tmp_path):
-        """Blocking audit issues -> step 16 (chapter-revision) dispatches."""
+        """Blocking audit issues -> step 15 (chapter-revision) dispatches."""
         issues = [{"severity": "BLOCKING", "file": "audits/chapter-1-factual.md"}]
         mocks = self._setup_parallel_audit_mocks(
             tmp_path, issues=issues, blocking=True, route=RevisionRoute.REGENERATE
@@ -689,10 +685,8 @@ class TestRevisionRoutingIntegration:
             state.chapter_loop.step_index = _FIRST_AUDIT_IDX
 
             run_chapter_step(state, tmp_path)
-            # pre-revision-snapshot (pipeline-internal)
-            run_chapter_step(state, tmp_path)
 
-            # Step 16 needs _any_audit_has_findings=True to not be gated.
+            # Step 15 needs _any_audit_has_findings=True to not be gated.
             with patch(
                 "shenbi.pipeline.chapter_loop._any_audit_has_findings",
                 return_value=True,
@@ -743,10 +737,9 @@ class TestRevisionRoutingIntegration:
             for p in mocks.values():
                 p.stop()
 
-    def test_clean_audits_dont_skip_snapshot_or_drift(self, tmp_path):
-        """Steps 15 (snapshot) runs even when audits are clean.
-        Regression: _is_revision_skipped must only affect step 16
-        (chapter-revision), not the snapshot step that precedes it.
+    def test_clean_audits_complete_chapter_without_revision(self, tmp_path):
+        """Clean audits skip revision but still complete the chapter.
+        (Pre-revision-snapshot step removed per spec #26 path 3.)
         """
         mocks = self._setup_parallel_audit_mocks(tmp_path, route=RevisionRoute.NO_REVISION)
         try:
@@ -760,11 +753,7 @@ class TestRevisionRoutingIntegration:
             cs = state.chapter_loop.chapter_states["1"]
             assert cs.audit_results.get("revision_route") == RevisionRoute.NO_REVISION.value
 
-            # Step 15 (pre-revision-snapshot): pipeline-internal, always runs.
-            run_chapter_step(state, tmp_path)
-            assert state.chapter_loop.step_index == 15
-
-            # Step 16 (chapter-revision): skipped with NO_REVISION.
+            # Step 15 (chapter-revision): skipped with NO_REVISION.
             run_chapter_step(state, tmp_path)
             assert state.chapter_loop.current_chapter == 2
             assert state.chapter_loop.step_index == 0
@@ -793,13 +782,13 @@ class TestAuditLayerWiring:
         )
 
     def test_run_audit_layer_called_after_last_core_audit(self, tmp_path, monkeypatch):
-        """After step 16 (last is_audit step), run_audit_layer is called."""
+        """After the last is_audit step, run_audit_layer is called."""
         from shenbi.pipeline.state import PipelinePhase, PipelineState
 
         state = PipelineState.default(str(tmp_path))
         state.phase = PipelinePhase.CHAPTER_LOOP
         state.chapter_loop.current_chapter = 1
-        state.chapter_loop.step_index = _LAST_AUDIT_IDX  # position at step 16
+        state.chapter_loop.step_index = _LAST_AUDIT_IDX  # position at last audit step
 
         # Mock audit_layer to avoid actual dispatch
         called = []
@@ -811,7 +800,7 @@ class TestAuditLayerWiring:
             return AuditResult(blocking_found=False)
 
         monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
-        # Mock dispatch_skill for step 16
+        # Mock dispatch_skill for the audit step
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
             lambda *a, **kw: type("R", (), {"success": True})(),
@@ -1178,3 +1167,13 @@ class TestVolumeMapAlignment:
                 c for c in mock_log.warning.call_args_list if "volume_map_alignment" in str(c)
             ]
             assert len(warn_calls) == 0
+
+
+def test_step_table_has_no_pre_revision_snapshot():
+    skills = [s.skill for s in CHAPTER_STEPS]
+    assert "pipeline-pre-revision-snapshot" not in skills
+
+
+def test_revision_step_follows_sensitivity_audit():
+    skills = [s.skill for s in CHAPTER_STEPS]
+    assert skills.index("shenbi-review-sensitivity") + 1 == skills.index("shenbi-chapter-revision")

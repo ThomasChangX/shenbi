@@ -124,13 +124,15 @@ class ChapterStep:
     output_path: str = ""
 
 
-# Restructured CHAPTER_STEPS: 16 core steps (shrunk from 20 per Plan 18 Task 5).
+# Restructured CHAPTER_STEPS: 15 core steps (shrunk from 20 per Plan 18 Task 5;
+# pre-revision-snapshot removed per spec #26 path 3 — differential snapshot
+# subsystem dead-wired, rollback served by shenbi-snapshot-manage skill).
 # Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
 #   foreshadowing-recall, context-composing.
 # Merged: 3 foreshadowing skills → shenbi-foreshadowing-lifecycle (MERGE-1).
 # Merged: 7 serial core-circle auditors → domain-grouped calls (MERGE-2).
 # Added: 4 deterministic steps (volume-align, context-prepare, post-draft-extract,
-#   linguistic-drift-check, pre-revision-snapshot).
+#   linguistic-drift-check).
 # Conditional: intent-management, drift-guidance, snapshot-manage moved to
 #   CONDITIONAL_STEPS (invoked only when gates open).
 # NOTE: escalation-review is NOT a CHAPTER_STEPS entry — it is dispatched
@@ -246,16 +248,9 @@ CHAPTER_STEPS: list[ChapterStep] = [
         step_type="audit",
         is_audit=True,
     ),
-    # Step 15: Pre-revision snapshot (deterministic)
+    # Step 15: Chapter revision (LLM, conditional on audit findings)
     ChapterStep(
         15,
-        "pipeline-pre-revision-snapshot",
-        "pre-revision-snapshot",
-        step_type="checkpoint",
-    ),
-    # Step 16: Chapter revision (LLM, conditional on audit findings)
-    ChapterStep(
-        16,
         "shenbi-chapter-revision",
         "revision",
         step_type="core",

@@ -4,7 +4,7 @@ Verifies the complete per-chapter flow exercising all three layers together:
 staging (steps 2 + 7), context assembly (step 4), and the audit core circle
 (steps 10-16) + revision routing (after step 17). The brief's canonical flow
 is: plan(staging) -> checkpoint -> context -> draft -> settle(staging) ->
-checkpoint -> audit(7 core) -> resonance -> revision -> snapshot -> drift.
+checkpoint -> audit(7 core) -> resonance -> revision (pre-revision snapshot step removed, spec #26 path 3).
 
 The test drives the real chapter_loop orchestrator (``run_chapter_step``) and,
 for the CLI surface, ``main(["next", ...])``. Only the external subprocess
@@ -80,6 +80,14 @@ def chapter_state(tmp_path: Path) -> PipelineState:
     state = PipelineState.default(str(tmp_path))
     state.phase = PipelinePhase.CHAPTER_LOOP
     state.chapter_loop.current_chapter = 1
+    # Minimal token ledger so chapter completion's product-contract check
+    # (z11 F1313) sees a non-empty cost ledger. Dispatch is mocked in these
+    # tests, so no real ledger entries are ever appended.
+    (tmp_path / "cost").mkdir(exist_ok=True)
+    (tmp_path / "cost" / "token-ledger.jsonl").write_text(
+        '{"event": "dispatch", "skill": "test-setup", "total_tokens": 0}\n',
+        encoding="utf-8",
+    )
     return state
 
 
@@ -240,8 +248,8 @@ class TestFullChapterSequence:
         # review-resonance runs serially through the parallel_dispatch seam
         # (its contract updates shared truth files, F532/C32 R4; since the
         # R4 follow-up it retries via _dispatch_with_retry like wave members).
-        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
-        #  pre-revision-snapshot are pipeline-internal;
+        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check
+        #  are pipeline-internal;
         #  revision is skipped with NO_REVISION route).
         assert chapter_succeeds.dispatch.call_count == 4
         assert chapter_succeeds.serial_disp.call_count == 1
@@ -414,8 +422,8 @@ class TestAuditCircleAndRevisionRouting:
         # chapter-drafting, lifecycle, settling; review-resonance runs serially
         # through the parallel_dispatch seam (WRITE_SHARED contract writes,
         # F532/C32 R4; other audits are parallel-dispatched).
-        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check,
-        #  pre-revision-snapshot are pipeline-internal; revision is skipped).
+        # (volume-align, context-prepare, post-draft-extract, linguistic-drift-check
+        #  are pipeline-internal; revision is skipped).
         assert chapter_succeeds.dispatch.call_count == 4
         assert chapter_succeeds.serial_disp.call_count == 1
 
