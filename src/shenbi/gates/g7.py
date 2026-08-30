@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.gates.shared import (
+    parse_report_stem,
     ALL_SKILLS,
     PROJECT,
     T1_SCAFFOLD_SKILLS,
@@ -42,14 +43,7 @@ def gate_G7(round_dir: str) -> str:
         report_skills = set()
         unmatched_stems: set[str] = set()
         for rp in reports_dir_g71.glob("*.json"):
-            stem = rp.stem
-            for suffix in ("-scores-subagent", "-scores"):
-                stem = stem.removesuffix(suffix)
-            matched = ""
-            for skill in sorted(ALL_SKILLS, key=len, reverse=True):
-                if stem == skill or stem.startswith(skill + "-"):
-                    matched = skill
-                    break
+            matched = parse_report_stem(rp.stem, ALL_SKILLS)
             if matched:
                 report_skills.add(matched)
             else:

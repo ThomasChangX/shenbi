@@ -109,6 +109,8 @@ Examples:
                 return 1
             test_type = g4_args[i + 1]
             del g4_args[i : i + 2]
+        if test_type == "bughunt":
+            test_type = "bug-hunt"  # canonical marker family spelling
 
         def g4_arg(i: int, default: str | None = None) -> str | None:
             return g4_args[i] if i < len(g4_args) else default

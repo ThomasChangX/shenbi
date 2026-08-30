@@ -153,6 +153,21 @@ def passed(gid: str, checks: list[dict[str, Any]]) -> str:
     return json.dumps(result, indent=2, ensure_ascii=False)
 
 
+def parse_report_stem(stem: str, known_skills: "tuple[str, ...] | list[str]") -> str | None:
+    """Parse a t1-reports filename stem into its skill name (single parser).
+
+    Strips the production ``-scores`` / ``-scores-subagent`` suffixes
+    (dispatcher/modes/codex.py) and matches the longest known skill prefix.
+    Returns None for stems matching no known skill (hallucination signal).
+    """
+    for suffix in ("-scores-subagent", "-scores"):
+        stem = stem.removesuffix(suffix)
+    for skill in sorted(known_skills, key=len, reverse=True):
+        if stem == skill or stem.startswith(skill + "-"):
+            return skill
+    return None
+
+
 def find_report(
     reports_dir: str | Path, skill_name: str, test_type: str | None = None
 ) -> Path | None:

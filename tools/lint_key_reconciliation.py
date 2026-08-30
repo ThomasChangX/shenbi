@@ -88,13 +88,14 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "g7/report-artifacts",
         "src/shenbi/gates/g7.py: reports_dir_g71.glob",
         "t1-reports/*.json",
-        ["src/shenbi/dispatcher/modes/codex.py: -scores-subagent.json"],
+        ["src/shenbi/gates/shared.py: def parse_report_stem"],
     ),
     ReadKey(
         "g7/timeline-family",
         'src/shenbi/gates/g7.py: glob("*-scores*.json")',
         "t{1,2,3}-reports/*-scores*.json",
         ["src/shenbi/dispatcher/modes/codex.py: -scores-subagent.json"],
+        binding_exempt=True,
     ),
     # --- audit gate scan list (T5) ---
     ReadKey(

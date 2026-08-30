@@ -330,6 +330,11 @@ CASCADABLE_AUDITS = [
 
 CASCADE_STREAK_LENGTH = 3  # N=3
 
+_BLOCKING_MARKER_RE = re.compile(
+    r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL|FAIL)\b)|(?:\|\s*\*\*BLOCKING\*\*)",
+    re.M,
+)
+
 
 def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
     """N-chapter-streak cascade heuristic (Spec 8 Fix 8).
@@ -1584,7 +1589,11 @@ def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
 
 
 def _drift_guidance_triggered(state: PipelineState) -> bool:
-    """Check if drift guidance should run (3+ consecutive drift alerts)."""
+    """Run drift guidance when >= DRIFT_THRESHOLD drift findings accumulate.
+
+    Reads the real writer surface (truth/audit_drift.md); findings need not be
+    consecutive — count_drift_alerts totals entries in the rolling window.
+    """
     # F349 (spec #27 T5): the ghost ``state.drift_alerts`` field never existed
     # on PipelineState — the old getattr-default read made this permanently
     # False. The real drift-alert writer is truth/audit_drift.md
@@ -1622,16 +1631,14 @@ def _any_audit_has_findings(state: PipelineState) -> bool:
     # activation matrix — include their families too
     for skill in GENRE_ACTIVATION_MATRIX.values():
         names.add(audit_relative_path(chapter, skill))
-    blocking_re = re.compile(
-        r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|FAIL)\b)|(?:\|\s*\*\*BLOCKING\*\*)", re.M
-    )
     for rel in sorted(names):
         af = project_dir / rel  # audit_relative_path already carries audits/
         if af.exists():
             text = af.read_text(encoding="utf-8")
-            # F370: precise marker match, not bare substring ("FAIL" inside
-            # prose like "no FAIL conditions" must not trigger).
-            if "## BLOCKING" in text or blocking_re.search(text):
+            # F370: precise marker match, not bare substring (prose mentions
+            # of FAIL/BLOCKING must not trigger) — shared vocab with the
+            # per-skill cascade history counting below.
+            if _BLOCKING_MARKER_RE.search(text):
                 return True
     return False
 
@@ -2554,10 +2561,7 @@ def _run_chapter_step_impl(
         # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
         # hard_failures counts BLOCKING/CRITICAL markers in the audit report
         # artifact (the durable writer surface), not subprocess stdout.
-        blocking_re = re.compile(
-            r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL)\b)|(?:\|\s*\*\*BLOCKING\*\*)",
-            re.M,
-        )
+        blocking_re = _BLOCKING_MARKER_RE
         for task, result in zip(
             core_wave + core_serial + genre_wave + genre_serial,
             core_results + genre_results,
