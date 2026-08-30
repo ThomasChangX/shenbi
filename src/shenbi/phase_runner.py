@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-"""State machine for T2/T3 phase execution.
+"""State machine for T2 phase execution (T3 pipelines do not use phase-runner;
+see command-to-give.md).
 
 Usage:
     phase-runner.py start <phase> --round-dir <dir> --project-dir <dir>
@@ -31,7 +32,15 @@ PROJECT = TESTS.parent
 
 
 def load_deps() -> Any:
-    return json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
+    """Load tests/tiers/deps.json; exit structured on corruption (F145)."""
+    try:
+        return json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError) as exc:
+        log.error("t2_deps_json_corrupt", path=str(TESTS / "tiers" / "deps.json"), error=str(exc))
+        emit_json(
+            {"status": CommandStatus.ERROR, "phase": None, "reason": "t2 deps.json unreadable"}
+        )
+        sys.exit(1)
 
 
 def _sanitize_phase(phase: str) -> str:
@@ -209,6 +218,11 @@ def cmd_post_skill(
     project_dir: str | None,
     chapter: int | None = None,
 ) -> None:
+    # Keep configure_logging() here: direct (non-main) invocations — tests and
+    # library callers — rely on it; without it structlog defaults to stdout and
+    # pollutes the JSON stream. configure_logging() is idempotent (F162 audited:
+    # NOT redundant). Grep: tests/unit/test_phase_runner.py calls cmd_post_skill
+    # directly 8×; main():399 is the only src caller.
     configure_logging()
     state = load_state(round_dir, phase)
     require_state(state, ["started"], "post-skill")
@@ -228,10 +242,10 @@ def cmd_post_skill(
     # M8: use derived file_type instead of hardcoded "chapter".
     file_type = derive_file_type(skill)
     # Safety fallback: when chapter is unknown (non-pipeline T2), fall back to
-    # rglob. CRITICAL: the fallback file_type must match what rglob finds (.md).
-    # If derive_file_type returns "decisions" but rglob only finds .md files,
-    # G2's decisions branch would json.loads() markdown → crash. So the fallback
-    # must use file_type="chapter" (the type for .md files).
+    # rglob. The fallback file_type must match what rglob finds (.md): G2's
+    # decisions branch only parses files typed "decisions" (non-JSON decisions
+    # files are skipped via continue), so typing rglob'd .md files as "decisions"
+    # would silently skip the word-count checks instead of running them.
     if not output_files and chapter is None:
         output_files = [str(f) for f in proj.rglob("*.md") if f.stat().st_size > 0][:20]
         file_type = "chapter"  # override: rglob finds .md, not decisions.json
