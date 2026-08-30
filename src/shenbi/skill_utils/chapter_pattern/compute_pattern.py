@@ -79,28 +79,34 @@ def compute_consecutive(patterns: list[str]) -> dict[str, int]:
 
 
 def compute_entropy(patterns: list[str]) -> tuple[float, list[dict[str, Any]]]:
-    """Compute Shannon entropy H = -Σ(p_i × log₂(p_i))."""
+    """Compute Shannon entropy H = -Σ(p_i × log₂(p_i)).
+
+    F647 (spec #32): the sum runs over ALL labels present in the input (the
+    Counter as a whole) so the numerator and the denominator ``n`` stay
+    consistent — out-of-vocab labels previously dropped out of the sum and
+    systematically deflated the entropy. Vocab entries absent from the input
+    are still emitted as zero rows to keep the output grid stable.
+    """
     n = len(patterns)
     if n == 0:
         return 0.0, []
     counter = Counter(patterns)
     terms: list[dict[str, Any]] = []
     entropy = 0.0
+    for pattern, count in counter.items():
+        p = count / n
+        term = -p * math.log2(p)
+        terms.append(
+            {
+                "pattern": pattern,
+                "count": count,
+                "frequency": round(p, 4),
+                "p_log2p": round(term, 4),
+            }
+        )
+        entropy += term
     for pattern in PATTERNS:
-        count = counter.get(pattern, 0)
-        if count > 0:
-            p = count / n
-            term = -p * math.log2(p)
-            terms.append(
-                {
-                    "pattern": pattern,
-                    "count": count,
-                    "frequency": round(p, 4),
-                    "p_log2p": round(term, 4),
-                }
-            )
-            entropy += term
-        else:
+        if pattern not in counter:
             terms.append({"pattern": pattern, "count": 0, "frequency": 0, "p_log2p": 0})
     terms.sort(key=lambda x: x["count"], reverse=True)
     return round(entropy, 4), terms

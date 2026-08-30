@@ -38,6 +38,8 @@ class QualityThresholds:
     # System-term density, per mille. warn → G4 WARN, hard → G4 FAIL.
     system_term_density_warn: int = 30
     system_term_density_hard: int = 50
+    # Above this → escalation pause (spec #32 F644: single-sourced here).
+    system_term_density_escalate: int = 100
 
 
 #: Canonical default thresholds. Import this rather than re-hardcoding numbers.

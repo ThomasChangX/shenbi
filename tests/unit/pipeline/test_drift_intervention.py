@@ -11,7 +11,13 @@ from shenbi.skill_utils.drift_detection.linguistic_drift import (
 
 
 def test_intervention_triggers_on_degraded_text():
-    """3-tier intervention should fire when system term density exceeds thresholds."""
+    """3-tier intervention should fire when system term density exceeds thresholds.
+
+    Spec #32 F618 (Task 2, already merged): the normal sample has a ZERO baseline for
+    system_term_density / pattern_density, so the ratio path must NOT
+    fabricate drift (first sighting) — the intervention instead surfaces via
+    the absolute ESCALATE severity tier.
+    """
     normal = "林风站在山顶，望着远方。" * 20
     degraded = "冷在场于第七层深度。冷值7.3，在场度0.89。" * 20
 
@@ -19,8 +25,11 @@ def test_intervention_triggers_on_degraded_text():
     current = compute_linguistic_metrics(degraded)
     result = detect_drift(current, baseline)
 
-    assert result.is_drift
-    assert result.severity in ("WARN", "HARD", "ESCALATE")
+    # F618: zero baseline → ratio undefined → is_drift must stay False …
+    assert not result.is_drift
+    assert "system_term_density" in result.insufficient_baseline
+    # … but the absolute threshold still fires ESCALATE (125‰ > 100).
+    assert result.severity == "ESCALATE"
     assert len(result.message) > 20
 
 
