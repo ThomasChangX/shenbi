@@ -144,11 +144,11 @@ def read_frontmatter_contract(skill: str, skill_md: Path) -> dict[str, Any]:
     text = skill_md.read_text(encoding="utf-8")
     if not text.startswith("---"):
         raise ContractError("frontmatter missing", skill=skill)
-    parts = text.split("---", 2)
-    if len(parts) < 3:
+    fm = re.match(r"^---\n(.*?)\n---(?:\n|$)", text, re.DOTALL)  # F263: line-anchored
+    if not fm:
         raise ContractError("frontmatter unterminated", skill=skill)
     try:
-        data = yaml.safe_load(parts[1]) or {}
+        data = yaml.safe_load(fm.group(1)) or {}
     except yaml.YAMLError as e:
         raise ContractError("frontmatter malformed YAML", skill=skill) from e
     if not isinstance(data, dict):
@@ -232,11 +232,11 @@ def requires_independent_agent(skill: str) -> bool:
     text = path.read_text(encoding="utf-8")
     if not text.startswith("---"):
         return False
-    parts = text.split("---", 2)
-    if len(parts) < 3:
+    fm = re.match(r"^---\n(.*?)\n---(?:\n|$)", text, re.DOTALL)  # F263: line-anchored
+    if not fm:
         return False
     try:
-        data = yaml.safe_load(parts[1]) or {}
+        data = yaml.safe_load(fm.group(1)) or {}
     except yaml.YAMLError:
         return False
     return bool(data.get("requires_independent_agent", False))
