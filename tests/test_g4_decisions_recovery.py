@@ -32,7 +32,6 @@ def test_trailing_sample_g2_g4_agree(tmp_path: Path):
     render the same verdict (no G4 invalid_json vs G2 recovery divergence).
     """
     src = (FIX / "trailing-sample.json").read_text(encoding="utf-8")
-    # keep only the recovered payload shape meaningful for both gates
     fp = tmp_path / "chapter-9-decisions.json"
     fp.write_text(src, encoding="utf-8")
     g2s, g2m = _g2_verdict(fp)
@@ -62,5 +61,31 @@ def test_valid_plus_trailing_g2_passes_g4_must_match(tmp_path: Path):
     raw = (FIX / "valid-chapter-decisions.json").read_text(encoding="utf-8")
     fp = tmp_path / "chapter-9-decisions.json"
     fp.write_text(raw + "\n<<< stale second output block >>>", encoding="utf-8")
+    g4 = _g4_verdict(fp)
     assert _g2_verdict(fp)[0] == "PASS"
-    assert _g4_verdict(fp)[0] == "PASS", _g4_verdict(fp)
+    assert g4[0] == "PASS", g4
+
+
+def test_valid_nondict_json_both_fail(tmp_path: Path):
+    """Strict-loads non-dict (e.g. '[1,2]') fails identically in both gates."""
+    fp = tmp_path / "chapter-9-decisions.json"
+    fp.write_text("[1, 2]", encoding="utf-8")
+    assert _g2_verdict(fp)[0] == "FAIL"
+    assert _g4_verdict(fp)[0] == "FAIL"
+
+
+def test_recovered_nondict_both_fail(tmp_path: Path):
+    """raw_decode recovers a non-object (list + trailing junk) — FAIL in both."""
+    fp = tmp_path / "chapter-9-decisions.json"
+    fp.write_text("[1, 2] trailing junk", encoding="utf-8")
+    assert _g2_verdict(fp)[0] == "FAIL"
+    assert _g4_verdict(fp)[0] == "FAIL"
+
+
+def test_g4_concat_detection(tmp_path: Path):
+    """G4-side G4.dec.4: multiple $schema objects concatenated."""
+    fp = tmp_path / "chapter-9-decisions.json"
+    raw = (FIX / "valid-chapter-decisions.json").read_text(encoding="utf-8")
+    fp.write_text(raw + "\n" + raw, encoding="utf-8")
+    s, mf = _g4_verdict(fp)
+    assert s == "FAIL" and "G4.dec.4" in mf, (s, mf)
