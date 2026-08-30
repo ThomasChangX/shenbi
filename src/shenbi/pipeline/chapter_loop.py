@@ -354,15 +354,18 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
     if skill not in CASCADABLE_AUDITS:
         return False  # Unknown skill → run normally
 
-    # Need at least N=3 chapters of history to establish a streak.
-    recent = audit_history[-CASCADE_STREAK_LENGTH:]
+    # History is the flat per-chapter records produced by _get_audit_history
+    # ({skill, chapter, passed, hard_failures}) — filter to this skill
+    # (F726/spec #27 T5: the old per-chapter-map expectation never matched
+    # the writer's shape, making the cascade permanently False).
+    recent = [r for r in audit_history if r.get("skill") == skill][-CASCADE_STREAK_LENGTH:]
     if len(recent) < CASCADE_STREAK_LENGTH:
         return False
+    recent_chapters = {r.get("chapter") for r in recent}
+    if len(recent_chapters) < CASCADE_STREAK_LENGTH:
+        return False  # streak must span N distinct chapters
 
-    for chapter_results in recent:
-        result = chapter_results.get(skill)
-        if result is None:
-            return False  # No record for this skill in that chapter → no streak
+    for result in recent:
         if not result.get("passed", False):
             return False  # Did not pass → break streak
         if result.get("hard_failures", 0) > 0:
@@ -1360,6 +1363,7 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     if m:
         return int(m.group(1))
 
+    log.warning("resonance_score_unparseable", path=str(report_path))
     return None
 
 
@@ -1580,8 +1584,13 @@ def _is_volume_boundary(project_dir: Path, chapter: int) -> bool:
 
 def _drift_guidance_triggered(state: PipelineState) -> bool:
     """Check if drift guidance should run (3+ consecutive drift alerts)."""
-    alerts = getattr(state, "drift_alerts", [])
-    return len(alerts) >= 3
+    # F349 (spec #27 T5): the ghost ``state.drift_alerts`` field never existed
+    # on PipelineState — the old getattr-default read made this permanently
+    # False. The real drift-alert writer is truth/audit_drift.md
+    # (drift_detection._append_audit, ``- [{kind}] ...`` lines).
+    from shenbi.pipeline.triggers import count_drift_alerts
+
+    return count_drift_alerts(Path(state.project_dir)) >= 3
 
 
 def _any_audit_has_findings(state: PipelineState) -> bool:
@@ -1612,7 +1621,9 @@ def _any_audit_has_findings(state: PipelineState) -> bool:
     # activation matrix — include their families too
     for skill in GENRE_ACTIVATION_MATRIX.values():
         names.add(audit_relative_path(chapter, skill))
-    blocking_re = re.compile(r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|FAIL)\b)|(?:\*\*BLOCKING\*\*)", re.M)
+    blocking_re = re.compile(
+        r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|FAIL)\b)|(?:\|\s*\*\*BLOCKING\*\*)", re.M
+    )
     for rel in sorted(names):
         af = project_dir / rel  # audit_relative_path already carries audits/
         if af.exists():
@@ -2540,13 +2551,25 @@ def _run_chapter_step_impl(
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
         # Per-skill history entries (F341/F726, spec #27 T5): the cascade
         # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
-        for task, result in zip(core_tasks + genre_tasks, all_results, strict=True):
+        # hard_failures counts BLOCKING/CRITICAL markers in the audit report
+        # artifact (the durable writer surface), not subprocess stdout.
+        blocking_re = re.compile(
+            r"(?:^#{0,3}\s*##?\s*(?:BLOCKING|CRITICAL)\b)|(?:\|\s*\*\*BLOCKING\*\*)",
+            re.M,
+        )
+        for task, result in zip(
+            core_wave + core_serial + genre_wave + genre_serial,
+            core_results + genre_results,
+            strict=True,
+        ):
             short = _audit_short_name(task.skill)
-            hard = sum(
-                1
-                for line in (result.stdout or "").splitlines()
-                if line.strip().upper().startswith(("BLOCKING", "CRITICAL"))
-            )
+            report = project_dir / task.output_path
+            hard = 0
+            if report.exists():
+                try:
+                    hard = len(blocking_re.findall(report.read_text(encoding="utf-8")))
+                except OSError:
+                    log.warning("audit_report_unreadable", path=str(report))
             cs.audit_results[short] = {
                 "passed": bool(result.success) and hard == 0,
                 "hard_failures": hard,

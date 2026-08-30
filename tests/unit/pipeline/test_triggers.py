@@ -81,7 +81,9 @@ def _make_audit_drift(project_dir: Path, warning: str, count: int) -> Path:
     lines = ["# Audit Drift", ""]
     for ch in range(1, count + 1):
         lines.append(f"## Chapter {ch}")
-        lines.append(f"- warning: {warning}")
+        # Real writer format (compute_drift._append_audit, F375 spec #27):
+        # ``- [{kind}] {dim}: {detail}``
+        lines.append(f"- [below_mean_2sigma] {warning} (ch{ch})")
         lines.append("")
     drift.write_text("\n".join(lines), encoding="utf-8")
     return drift

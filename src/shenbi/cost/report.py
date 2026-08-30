@@ -35,6 +35,7 @@ def _try_avg_g3_score(project_dir: Path) -> float | None:
                 v = data.get(key)
                 if isinstance(v, (int, float)) and not isinstance(v, bool) and 0 <= v <= 100:
                     scores.append(float(v))
+                    break  # one score per file — no double counting
     if not scores:
         return None
     return sum(scores) / len(scores)
