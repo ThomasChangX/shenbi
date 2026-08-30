@@ -205,3 +205,13 @@ def test_g4_test_type_flag_writes_clean_marker(
     )
     assert rc == 0
     assert (rd / "gate-markers" / "G4-shenbi-worldbuilding-clean.json").exists()
+
+
+@pytest.mark.unit
+def test_g4_test_type_flag_without_value_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec #27 T2: dangling --test-type must error, not shift positionals."""
+    rc, out = _run(["G4", "worldbuilding", "--test-type"], monkeypatch)
+    assert rc == 1
+    assert "requires a value" in out

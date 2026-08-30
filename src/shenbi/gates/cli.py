@@ -24,6 +24,7 @@ from shenbi.gates.g_dispatch import gate_G_DISPATCH
 from shenbi.gates.g_reconcile import gate_G_RECONCILE
 from shenbi.gates.g_transition import gate_G_TRANSITION
 from shenbi.gates.shared import PROJECT, write_gate_marker
+from shenbi.status import GateStatus
 from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
@@ -103,9 +104,11 @@ Examples:
         test_type = "generative"
         if "--test-type" in g4_args:
             i = g4_args.index("--test-type")
-            if i + 1 < len(g4_args):
-                test_type = g4_args[i + 1]
-                del g4_args[i : i + 2]
+            if i + 1 >= len(g4_args):
+                emit_json({"status": GateStatus.FAIL, "error": "--test-type requires a value"})
+                return 1
+            test_type = g4_args[i + 1]
+            del g4_args[i : i + 2]
 
         def g4_arg(i: int, default: str | None = None) -> str | None:
             return g4_args[i] if i < len(g4_args) else default
@@ -116,11 +119,11 @@ Examples:
         rd = g4_arg(2, None)
 
         if skill_or_type in ("bughunt", "bug-hunt"):
+            # Legacy positional form: checker only, no marker (target "bug-hunt"
+            # matches no reader key — the reader derives skill names from rubric paths).
             result = gate_G4_bughunt(file_list)
-            write_gate_marker("G4", "bug-hunt", test_type, result, rd, file_list)
         elif skill_or_type == "clean":
             result = gate_G4_clean(file_list)
-            write_gate_marker("G4", "clean", test_type, result, rd, file_list)
         else:
             full_name = SHORT_MAP.get(skill_or_type, skill_or_type)
             if test_type in ("bug-hunt", "bughunt"):

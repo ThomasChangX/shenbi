@@ -1213,3 +1213,21 @@ class TestSpec16MicroFixes:
 
         scores = parse_scores_dict({"1": 90, "--3": 70})
         assert scores == {1: 90}
+
+
+@pytest.mark.unit
+def test_check_gate_markers_generative_backward_compat(tmp_path):
+    """Spec #27 T2: historical G4-*-generative.json markers stay readable."""
+    from shenbi.gates.shared import marker_filename
+    from shenbi.scoring import check_gate_markers
+
+    rd = tmp_path / "round"
+    md = rd / "gate-markers"
+    md.mkdir(parents=True)
+    legacy = Path("tests/baselines/gate-outputs/G4-genre_config.json")
+    target = md / marker_filename("G4", "shenbi-genre-config", "generative")
+    target.write_text(legacy.read_text(encoding="utf-8"), encoding="utf-8")
+    missing = check_gate_markers(
+        "tests/tiers/t1-skill/shenbi-genre-config/rubric.md", "generative", str(rd)
+    )
+    assert missing == []
