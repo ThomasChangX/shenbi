@@ -1,50 +1,50 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
-> **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C2，13 条）| **代表 finding:** F224 | **严重度上限:** P1（F224/F201）| **涉及文件面:** src/shenbi/dispatcher/（过滤链）、src/shenbi/contracts/fields.py、35 个技能 SKILL.md frontmatter fields 声明、truth 文件真实结构
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C2，13 条）| **代表 finding:** F224 | **严重度上限:** P1（F224/F201）| **涉及文件面:** scripts/lint_contract_fields.py、35 个技能 SKILL.md frontmatter fields 声明、skills/shenbi-state-settling 模板、truth 文件真实结构（生产树 novel-output/xinghuo-ranqiong）
 
-# Layer B 字段级 reads 机制修复（audit-layerb-field-reads）
+# Layer B 字段级 reads 机制修复（audit-layerb-field-reads）· 修订版 2026-08-31
 
-## 背景
+## 修订记录（价值门 REWRITE 裁决产物）
 
-AGENTS.md 承诺的 Layer B 字段级读取（技能以 dict-form `reads` 声明消费字段，dispatcher 过滤后注入，声明字段缺失时 escape-hatch 返回全文 + WARN）实现链断裂且声明面漂移，双面失效：
+2026-08-31 价值门复核（驳斥子 agent + 协调者逐条 VERIFY）发现原 spec 大部分主张已被 main 后续合并实现，缩窄至存活面：
 
-1. **实现层死线**：F224——字段过滤唯一生产调用点是不可达死代码（dd1fc62 回归），dispatcher 实际从不按字段过滤；F201——部分匹配时静默丢弃缺失声明字段（违反 escape-hatch 契约，无 WARN 无全文回退）。
-2. **声明层漂移**：F239 系统化全貌——19/35 个 dict-form fields 声明对真实 truth 文件零命中，另 4 个目标文件不存在。典型：F227（review-group-character 声明 `povMode`，genre-config.json 无此键）、F824（幻影 genre-config 键 prohibitions/maxNgramRepetition/coreImages）、F826/F827（pending_hooks 节名零命中 / chapter_summaries 节名分裂）、F839（review-arc-payoff 声明 volume_promise/arc_beats 不存在于真实 volume_map.md）、F844（pacingRules 幻影键 + 不存在的 REVIEW_EVIDENCE.md）、F845（current_state.md 目标节名在生产树 xinghuo-ranqiong 中不存在而 fixture 中存在）、F867（style-learning 模板编号/小节与全部下游字段读不一致）、F880（style-polishing DOT 读 prohibitions 但 frontmatter fields 只有 fatigueWords，过滤后不可见）、T303（AGENTS.md 示例字段自身零命中）。
+**已由 main 实现核销（不再属于本 spec）**：
+- T2/F201（escape-hatch）：`contracts/fields.py` `_filter_md`/`_filter_json` 均已实现「任一声明字段缺失 → 全文返回 + WARN」（PR #66 spec #9 R3，测试 `tests/unit/contracts/test_fields.py`）
+- T1/F224（管线过滤接线）：`pipeline/dispatch_helper.py:637-659` 已正确处理 dict-form reads 并调用 `filter_to_fields`，管线/API 路由可达且测试覆盖（`tests/unit/pipeline/test_field_filtering.py`）。原 spec「API/codex/IDE 三条派发路由各验证一次」的表述作废——standalone 路由（dispatcher/modes/）架构上不注入文件内容（codex exec 子代理自行读盘），无过滤对象；该残留面若要处理归 #25 的 F225 议题，非本 spec
+- T4（双匹配语义统一）：`fields.py` 的 `match_field` 已是单一匹配器，`scripts/lint_contract_fields.py` 直接 import 复用，无 lower/normalize 分叉
+- T5（lint 入 `just check`）：`just lint-contracts`（justfile:53-56）已含 `scripts/lint_contract_fields.py`，`just check` 覆盖
+- T3 大部：lint 全绿，35 个 dict-form 声明对 fixture 集合 100% 命中（F227/F824/F826/F827/F867 fixture 侧通过）
+- T6/T303：AGENTS.md Layer B 示例字段（主角状态/当前世界局势/活跃线索）与 fixture `tests/fixtures/snapshots/chapter-025/truth/current_state.md` 节名一致，lint 校验通过（fixture 侧）
 
-证据细节见 zone-reports/Z2、Z2-review-r1/r3、Z8-review-r2、Z8-b、Z8-c 与 thread-reports/T3.md。
+**存活面（本修订版的全部范围，R1-R5）**：
+lint 的校验基准是 `PROJECT_DIR = REPO_ROOT` 的 fixture 解析，从未覆盖生产树 `novel-output/xinghuo-ranqiong`——原 T3 的核心裁决「以生产树为准」被实际执行为「以 fixture 为准」，四个声明漂移实例存活且 lint 不可见。
 
 ## 修复目标
 
-1. 恢复实现链：dispatcher 字段过滤在生产路径真实执行；声明字段缺失时按 AGENTS.md escape-hatch 返回全文 + WARN。
-2. 恢复声明链：35 个 dict-form fields 声明对真实 truth 文件 100% 命中（或目标文件确不存在时修订声明）。
-3. 防复发：字段存在性 lint（声明字段 ∈ 真实文件节名/键集）进入 `just check`。
+恢复「声明字段 ∈ 生产树真实节名/键」的对账链，关闭 lint 的 fixture-only 盲区与样本跳过洞，并清理两处引用死亡。
 
-## 任务分解
+## 任务分解（修订版）
 
-- **T1 · 过滤链接线（F224）**：恢复 dispatcher 字段过滤的生产调用点（dd1fc62 回归点），并对 API/codex/IDE 三条派发路由各验证一次过滤生效。修复形状建议：过滤入口收敛到单一函数，路由层无法绕过。
-- **T2 · escape-hatch 兑现（F201）**：`contracts/fields.py:59-64` 部分匹配语义改为"任一声明字段缺失 → 全文返回 + WARN 日志"（对齐 AGENTS.md 契约原文），删除静默丢弃分支。
-- **T3 · 声明对账修复（F227/F239/F824/F826/F827/F839/F844/F845/F867/F880）**：以生产树（novel-output/xinghuo-ranqiong）+ tests/fixtures 真实产物为基准，逐技能二选一：修订 SKILL.md fields 声明至真实节名/键，或修订写方模板使声明节名真实存在。F845 类"生产树与 fixture 分裂"以生产树为准并修 fixture；F867 需同步全部下游字段读。
-- **T4 · 双匹配语义统一（T302 关联）**：extract_h2_sections（exact）与 lint（normalize lower）匹配语义统一为一个共享实现，避免 lint 说命中而运行时零命中。
-- **T5 · 字段存在性 lint**：扩展 `tools/lint_contracts.py`（或新增 lint_contract_fields.py——已在 justfile 但未入 CI，与 C25 联动）校验每个 dict-form reads 声明的字段/节名在对应 truth 文件（fixtures 或生产树快照）中存在。
-- **T6 · 文档同步（T303）**：AGENTS.md Layer B 示例字段改为经 T5 校验的真实字段。
+- **R1 · F845 生产树/fixture 分裂对账（核心）**：生产树 `novel-output/xinghuo-ranqiong/truth/current_state.md` 的 H2 为「系统演化阶段/参数当前位置/进行中的情节线/世界状态变化（第56章）」，与声明（chapter-planning、state-settling 等：主角状态/当前世界局势/活跃线索）零交集。以生产树为准：修订声明技能的 fields 至生产树节名 + 修 state-settling 写方模板使节名稳定可声明 + 同步 fixture（fixture 必须为生产树真实产物副本，G0.9/G0.11）。若「世界状态变化（第N章）」类动态节名不可声明，裁决为该节不入 fields（靠 escape-hatch 全文回退）并在声明处注明
+- **R2 · F839 volume_map 零命中 + lint 样本洞**：`skills/shenbi-review-arc-payoff/SKILL.md` 声明 `volume_promise`/`arc_beats`，但生产树 `outline/volume_map.md` 的 H2 为动态卷标题（第一卷：…），fields 语义结构性不适用（与 spec #65 的 volume_map 裁决一致：该文件不可 fields 化）。裁决：改为整文件读（去掉 fields 限定）；`scripts/lint_contract_fields.py` 的 `EXAMPLE_FIXTURES["outline/volume_map.md"] = None` no-sample 跳过洞补真实样本（生产树副本）使该路径进入校验
+- **R3 · F880 DOT/声明不一致**：`skills/shenbi-style-polishing/SKILL.md:49` DOT 指示读 genre-config 的 `prohibitions`，但 frontmatter fields 只声明 `fatigueWords`，且 genre-config 契约与全部真实样本无 `prohibitions` 键——DOT 指令指向幻影键。裁决：DOT 改为与真实键集一致（fatigueWords），不新增 schema 键（新增键归 genre-config 契约面 spec #35/#2 管）
+- **R4 · F844 残留死引用**：`skills/shenbi-review-pacing/SKILL.md:94` 引用 `skills/_shared/REVIEW_EVIDENCE.md`，该文件不存在（全仓唯一引用点）。裁决二选一：删除引用改为内联格式说明，或建立该共享文件；倾向删除（单引用点不值得建共享层）
+- **R5 · lint 入 CI**：`scripts/lint_contract_fields.py` 在 `just check` 但不在 `.github/workflows/ci.yml`（ci.yml:53-62 无此步）。虽 CI/just 同步属 #63（C25），但该行改动一行即闭合，随本 spec 顺带完成并在 deviations 注记与 #63 的分工（#63 做 CI↔just 清单一源化时纳入）
 
-## 批量清理（纯 M 成员）
+## 验收标准（修订版）
 
-本簇无 M 级成员（13 条全为 P1/P2）。
-
-## 验收标准
-
-1. 单测：构造部分匹配 truth 文件 → dispatcher 注入内容为全文且日志含 WARN（F201 断言）；三路由各一条过滤生效断言（F224 断言）。
-2. `uv run python tools/lint_contract_fields.py` exit 0，覆盖全部 35 个 dict-form 声明（F239 复验：零命中数从 19 降到 0）。
-3. 以 xinghuo-ranqiong 生产树 current_state.md 实跑任一声明技能派发的 dry-run，注入上下文含「主角状态」等声明字段（F845 断言）。
-4. `just check` 全绿。
+1. `uv run python scripts/lint_contract_fields.py` exit 0，且校验基准包含生产树样本（R1/R2 的样本不再是 None 跳过或 fixture-only）——F239 复验以生产树口径零命中
+2. 生产树 `current_state.md` 实跑 `filter_to_fields`（或其单测以生产树副本为 fixture）：chapter-planning 声明字段命中非空、无 escape-hatch WARN（F845 断言）
+3. `git grep prohibitions skills/shenbi-style-polishing/SKILL.md` 零输出（F880 断言）；`git grep REVIEW_EVIDENCE skills/` 零输出（F844 断言）
+4. `.github/workflows/ci.yml` 含 `lint_contract_fields` 步骤且 CI 全绿（R5 断言）
+5. `just check` 全绿；改 SKILL.md 契约面的技能 `just generate` 幂等 diff 为空
 
 ## 风险与回滚
 
-- 风险：T1 接线后过滤真实生效，可能暴露此前被"全文注入"掩盖的下游技能缺字段故障——需先跑 T5 lint 清零再开 T1，顺序不可倒置。F845 裁决"生产树为准"可能改变技能可见内容，随审回滚单技能声明即可。
-- 回滚：T1 过滤开关保留配置项（默认关→lint 清零后开），可单 PR revert；声明修订逐技能独立提交。
+- R1 改变技能可见内容面（fields 换节名）：逐技能独立提交，可单技能 revert；escape-hatch 兜底保证缺字段时全文回退不失败
+- R2 改整文件读会放大该技能输入（volume_map ~26KB）：token 面优化归 spec #65 的 extractor 方案，本 spec 只做正确性（声明诚实）
+- fixture 更新必须是生产树真实产物精确副本（G0.9），带哈希一致校验（G0.11）
 
 ## 簇成员清单（与 phase4-clustering.md §2 机械对照）
 
-C2（13 条，代表 F224）：
-
-F201 F224 F227 F239 F824 F826 F827 F839 F844 F845 F867 F880 T303
+C2（13 条，代表 F224）：F201 F224 F227 F239 F824 F826 F827 F839 F844 F845 F867 F880 T303
+（修订版状态：F201/F224/F227/F239 大部/F824/F826/F827/F867/T303 已核销；存活 = F839/F844/F845/F880 + F239 的生产树口径复验）
