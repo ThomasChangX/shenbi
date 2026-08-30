@@ -1,7 +1,7 @@
 # Spec 执行索引
 
 > **最后更新**：2026-08-30
-> **活跃 spec 数**：47
+> **活跃 spec 数**：46
 
 本页**只追踪活跃（待执行）spec**，按推荐执行顺序排列：优先级 🟥 Critical/🔴 P0 → 🟠 High/P1 → 🟡 Medium/P2 → ⚪ 批量，同级按编号升序。
 已完成/合并/驳回的 spec 移至 `archive/`（按日期排序），**本页不追踪归档**——归档历史查 `archive/` 目录与 `git log`。
@@ -10,12 +10,6 @@
 
 ## 执行队列
 
-
-### #23 · 全项目审查执行：Z8 契约漂移补完（补齐 F）
-
-- **文件**：`2026-08-14-z8-contract-drift-design.md`
-- **状态**：Design | **优先级**：🟠 P1（补齐）
-- **内容**：DEPRECATED 接线拆除（F904/F950/F1004）、reads/writes 声明补全（F953/F1002/F1011 等）、双重调度（F905/F906/F907）、内部矛盾（F903）、drift-guidance（F1001）
 
 ### #24 · 全项目审查执行：工具与门禁链补完（补齐 G）
 
@@ -292,7 +286,7 @@
 - **文件**：`2026-08-16-audit-skill-routing-deprecated-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C21，12 条）
 - **状态**：Design | **优先级**：🟠 P1 | **依赖**：GENESIS_STEPS 换 lifecycle 排在 C3/C20 契约定稿后
-- **内容**：F873（verified）触发表路由 14 个 DEPRECATED 且后继零触发行 + F887 GENESIS_STEPS 仍派发 plant + F816/F817/F819 deps.json 仍注册——三路由面拆除 + 后继触发行补齐 + description 契约整改（F835/F842/F877 when-to-use）+ 防回潮 lint（DEPRECATED⇒零路由）；#23 拆除面并入（待归档）
+- **内容**：F873（verified）触发表路由 14 个 DEPRECATED 且后继零触发行 + F887 GENESIS_STEPS 仍派发 plant + F816/F817/F819 deps.json 仍注册——三路由面拆除 + 后继触发行补齐 + description 契约整改（F835/F842/F877 when-to-use）+ 防回潮 lint（DEPRECATED⇒零路由）+ F905 双重调度语义面（自 #23 补登）；#23 拆除面并入（已归档 Rejected）
 
 ### #60 · 审计修复 C22：平行登记表对账门禁（P1）
 
@@ -313,7 +307,7 @@
 - **文件**：`2026-08-16-audit-docs-semantic-conflicts-fix.md`
 - **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C24，56 条最大文档簇）
 - **状态**：Design | **优先级**：🟡 P2 | **依赖**：阈值/词表类等 C9/C22/C16 定源后改引用
-- **内容**：裁决次序表（代码实值 > 最新设计 > 多数版本）+ DOT↔正文矛盾修复（F837/F852/F855，DOT 为权威）+ 缺失件补齐（F893 五技能缺 DOT 含 group-* 主力 / F801/F813 anti-rationalization 表）+ INDEX/spec 体系自洽（F935 排序 / F936 编号 / F938 重复 / F946-F950 勘误注）+ 术语/刻度统一（F885 X/10 vs /100）
+- **内容**：裁决次序表（代码实值 > 最新设计 > 多数版本）+ DOT↔正文矛盾修复（F837/F852/F855，DOT 为权威）+ 缺失件补齐（F893 五技能缺 DOT 含 group-* 主力 / F801/F813 anti-rationalization 表）+ INDEX/spec 体系自洽（F935 排序 / F936 编号 / F938 重复 / F946-F950 勘误注）+ 术语/刻度统一（F885 X/10 vs /100）+ F903 skill 内部矛盾族（自 #23 补登）
 
 ### #63 · 审计修复 C25：CI/just 双向同步漂移（P1）
 

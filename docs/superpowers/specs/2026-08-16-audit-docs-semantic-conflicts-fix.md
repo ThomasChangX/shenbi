@@ -10,7 +10,7 @@
 **根因**：同一规则在 spec/SKILL 正文/配置文档多处写下**互相矛盾的版本**（阈值、词表、流程、统计口径、状态机分支），无对账人无对账工具——读者（含 LLM agent）拿到哪个版本全凭运气，且矛盾会被后续修改继续放大（phase4 软残条 F764"零散不一致"打包条置本簇）。
 
 证据分组（56 条）：
-- **阈值/数值口径矛盾**：F707（代表：覆盖率阈值 78% vs 文档 ≥80% floor）、F848（ngram-methodology 示例 +15.9% 标注满足 ">0.20"；6 字窗口实为 4 个 5 字串）、F876（worldbuilding 声称 11 truth files 实列 12）、F850（MUTUAL_SECRET 三处枚举 4/4/3 态）、F919（目标字数 20 万 vs 10 万）
+- **阈值/数值口径矛盾**：F707（代表：覆盖率阈值 78% vs 文档 ≥80% floor）、F848（ngram-methodology 示例 +15.9% 标注满足 ">0.20"；6 字窗口实为 4 个 5 字串）、F876（worldbuilding 声称 11 truth files 实列 12）、F850（MUTUAL_SECRET 三处枚举 4/4/3 态）、F919（目标字数 20 万 vs 10 万）、F903（自 #23 补登 2026-08-30：shenbi-foreshadowing-resolve SKILL.md 内 CP 阈值三处矛盾——`:24` CP_THRESHOLDS {GREEN_MAX:50, RED_NOW:100, FORCE_NEXT_CHAPTER:200} vs `:66`"CP > 200 必须下章兑现" vs `:85` 示例 CP=80 判 RED 区（80<RED_NOW 100）vs `:180`"[RED区] 总 CP > 200"；同族含 #23 P2 清单 F1012-F1014 类 skill 内部阈值/词表矛盾）
 - **流程/状态机矛盾**：F837（memory-distill DOT 的 L2/L4 分支标签在 ch36 同时为真——互斥分支图漏跑 L2）、F852（intent-management DOT 无条件 Update vs 正文"若有变化则更新"）、F855（length-normalizing DOT 扩写路径无 ≥3000 复核节点）、F829（DOT 省略正文强制步骤）、F841（4 个 group-* 内嵌 Contract YAML 与 frontmatter 互换 + 陈旧行号）、F853（review-group-plan 引用错误技能名 shenbi-reader-pull）、F810/F813/F801（三个技能缺 anti-rationalization 表；F810 兼缺陷证据格式节与本 skill 无关 + relationship_map 命名漂移；F813 兼 escalation_check 命名与实际 helper 漂移）、F874（review-sensitivity 缺陷证据格式段引用残缺）、F847（4 个 review skill 空引用悬空）、F893（5 个现行技能缺 DOT，含 4 个主力审计 group-*）
 - **INDEX/spec 体系矛盾**：F935（INDEX 排序违反自身声明：🟠 P1 #26 排在 ⚪ #16 与 🟡 #25 之后）、F936（编号交叉引用 #6 不可解析：5 处引用但归档无编号标记）、F937（#4 依赖字段引用不存在 §J，实为 §2.9）、F938（spec 间 P2 条目逐字重复：T12-03/04/05/06 在 #19+#22）、F939（#17 总纲统计不闭合且加总差 1）、F940（#16 M 批量计数 98 vs unique 127 + 节结构损坏）、F941（#25 双重登记 PR 归因冲突）、F942（#5 设计 spec v1 遗留计数与自身矛盾：T1-T11 vs T1-T16 等）、F943（§9 预写文件名死链）、F944（T14 依据把活跃 #3 误标 archive）、F945（#3/INDEX "9 次实现"被纠正为"实现 16、接线 ~5"无勘误）、F946（#25 F1100 疑似误报——需勘误标注）、F949（truth-write-path R1 实证过期：ch55 现盘与描述不符）、F950（SDD prompt v6 "23 份全部产自同一轮"不实）、F913（goal-prompt 快照多处与现状矛盾）、F914（CHANGELOG "7-gate (G0-G7)" 自相矛盾）、F916（ADR-0009 shim 保留结论已失效）
 - **SKILL 正文杂项矛盾**：F788（calibration README 自相矛盾+尾部多余围栏）、F851（plot-thread-weaver "主线/中线"术语不一致 + P3 max_gap=16 缺省值清单缺失）、F854→C16（"11 个 truth 文件"硬编码）、F856（era-reference 两处历史年代存疑）、F857（review-era 双 era-reference.md 同名歧义）、F883（volume-consolidation 双"5"编号 + 两个冲突输出格式模板）、F885（score-* 中英混排 + 评分刻度 X/10 vs /100 不统一）、F879（using-shenbi 引用已移至 archive 的 spec 路径——断链机械面归 C23，语义歧义留此）、F764（M，零散不一致打包条）
@@ -43,7 +43,7 @@
 10. F1024（mypy 3.12→3.11 对齐支持底线）、T1307/F1025/F1028/F1157/T1505/F764 顺带清理
 
 ### 批量清理（M 级成员，29 条）
-F764、F829、F847-F848、F850-F857（含 F851/F853）、F879 之歧义半、F883、F885、F914-F916、F918-F919、F937、F941、F948、F950、F1025、F1028-F1029、F1157、T1002、T1307、T1505 —— 上文任务已逐条挂接，此处留 ID 清单供对账（部分 M 与 P2 同体合并处理）。
+F764、F829、F847-F848、F850-F857（含 F851/F853）、F879 之歧义半、F883、F885、F903、F914-F916、F918-F919、F937、F941、F948、F950、F1025、F1028-F1029、F1157、T1002、T1307、T1505 —— 上文任务已逐条挂接，此处留 ID 清单供对账（部分 M 与 P2 同体合并处理）。
 
 ## 验收标准（真实数据可复验）
 
