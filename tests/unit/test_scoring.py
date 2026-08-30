@@ -1178,3 +1178,31 @@ class TestScoringGatePath:
         assert not any("validate-gate.py" in str(p) for p in cmd), (
             f"scoring --tier T1 still references deleted validate-gate.py: {cmd}"
         )
+
+
+# --- Spec #16 micro-fixes (F151/F152) -------------------------------------
+
+
+class TestSpec16MicroFixes:
+    def test_kill_switch_detection_dimension_phrase_collected(self, tmp_path: Path) -> None:
+        """F152: '→ detection dimension = 0' style entries are kill switches too."""
+        rubric = tmp_path / "rubric.md"
+        rubric.write_text(
+            "## Kill Switches\n\n- plagiarism → detection dimension = 0\n",
+            encoding="utf-8",
+        )
+        _, kill_switches = load_rubric(str(rubric))
+        assert len(kill_switches) == 1
+        assert "detection dimension = 0" in kill_switches[0].lower()
+
+    def test_parse_scores_dict_drops_non_numeric_keys_with_warning(self) -> None:
+        """F151: non-numeric keys are dropped but loudly, not silently."""
+        from shenbi.scoring import parse_scores_dict
+
+        raw = {"1": 90, "2": 85, "notes": "extra", "-3": 70}
+        from structlog.testing import capture_logs
+
+        with capture_logs() as logs:
+            scores = parse_scores_dict(raw)
+        assert scores == {1: 90, 2: 85, -3: 70}
+        assert any(e.get("event") == "non_numeric_score_keys_dropped" for e in logs)
