@@ -1843,11 +1843,13 @@ def _dispatch_via_api(
             max_tokens=_get_skill_max_tokens(skill),
             timeout=api_timeout,
         )
+    except httpx.TimeoutException:
+        # Exception-TYPED timeout routing — message sniffing breaks silently
+        # when the provider library rewords its errors (F395, stage-8 review).
+        _handle_timeout_gracefully(skill, chapter)
+        log.error("api_call_timeout", skill=skill)
+        return DispatchResult(False, -1, "", "API call timed out")
     except Exception as exc:
-        # Only a genuine timeout deserves the timeout path; other failures
-        # (auth, rate limit, malformed request) must not masquerade as it (F395).
-        if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
-            _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
