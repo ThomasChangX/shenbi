@@ -204,6 +204,7 @@ REACHABLE = [f"x') and __import__('os').system('{PWN}') and ('1"]
 # pre-fix 按设计即通过（payload 不可达），post-fix 亦通过，仅作回归锚
 DEFENSE_IN_DEPTH = [
     "x') or __import__('os').system('id') and ('",
+    'x"d',          # spec 样本保真：双引号（单引号 python 字面量内为惰性）
     "x$(touch y)",
     "x`touch z`",
 ]
@@ -215,8 +216,8 @@ def test_validate_rejects_malicious_dirname(tmp_path: Path, name: str) -> None:
     evil = name
     round_dir = tmp_path / evil
     round_dir.mkdir()
-    # and 形 payload 依赖字面量 `<tmp>/x` 存在且为合法 JSON（open 成功后
-    # and 链才走到 os.system）
+    # and 形 payload 依赖字面量 `<tmp>/x` 存在（open 成功后 and 链才走到
+    # os.system；内容无关紧要，json.load 不会真的消费它）
     (tmp_path / "x").write_text("{}", encoding="utf-8")
     (round_dir / "summary.json").write_text(json.dumps({"t1_scores": {}}), encoding="utf-8")
     (round_dir / "meta.json").write_text(json.dumps({"tier_target": "T1"}), encoding="utf-8")
@@ -388,9 +389,8 @@ def _skill_path(skill: str) -> Path:
 
 `phase_runner.py` `cmd_pre_skill` 内 :150 前：
 ```python
-    validate_skill_name(skill)  # import 放文件顶部，与现有 contracts import 合并
     try:
-        validate_skill_name(skill)
+        validate_skill_name(skill)  # import 放文件顶部，与现有 contracts import 合并
     except ContractError:
         emit_json({"status": CommandStatus.ERROR, "phase": phase, "skill": skill,
                    "message": f"invalid skill name: {skill!r}"})
@@ -401,7 +401,7 @@ def _skill_path(skill: str) -> Path:
 `generate.py:67` 后：
 ```python
         output_path = REPO_ROOT / config["output"]
-        if not output_path.resolve().is_relative_to(REPO_ROOT):
+        if not output_path.resolve().is_relative_to(REPO_ROOT.resolve()):
             raise ValueError(
                 f"platform {platform_name!r} output escapes repo root: {config['output']!r}"
             )
