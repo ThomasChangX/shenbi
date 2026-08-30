@@ -28,4 +28,11 @@ def test_all_enums_complete() -> None:
         "CPZone",
         "ActorRole",
         "TriggerFailureStage",
+        "ScoredBy",
     }
+
+
+def test_scored_by_members() -> None:
+    from shenbi.contracts.enums import ScoredBy
+
+    assert set(get_args(ScoredBy)) == {"file", "interactive", "subagent"}

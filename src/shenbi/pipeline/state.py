@@ -70,6 +70,10 @@ class PipelineConfig:
     #: truth in ``shenbi.config.thresholds`` so config / skills / gates can
     #: never drift apart again (root cause of E11).
     resonance_global_floor: int = DEFAULT_THRESHOLDS.resonance_global_floor
+    #: spec #31 T2b: opt-in dual independent scoring per dispatch. Default
+    #: OFF — the AGENTS.md independence minimum (dispatcher never scores) is
+    #: already met by the subagent route; dual scoring doubles paid dispatches.
+    dual_scorer: bool = False
 
 
 @dataclass
@@ -286,6 +290,7 @@ class PipelineState:
                 "style_learning_interval": self.config.style_learning_interval,
                 "genre_config_update_on_drift": self.config.genre_config_update_on_drift,
                 "resonance_global_floor": self.config.resonance_global_floor,
+                "dual_scorer": self.config.dual_scorer,
             },
         }
 

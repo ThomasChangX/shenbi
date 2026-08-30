@@ -121,3 +121,31 @@ class TestGateMarkers:
 
         missing = check_gate_markers(str(rubric), "generative", str(rd))
         assert missing == []
+
+
+class TestCollapseSemanticsSpec31:
+    """F120: 单维/全零豁免 (spec #31 T4)。"""
+
+    @pytest.mark.unit
+    def test_single_dimension_no_collapse(self):
+        result = flag_score_collapse({1: 85})
+        assert result == {"collapse_suspected": False, "signals": []}
+
+    @pytest.mark.unit
+    def test_all_zero_multi_dim_exempt_both_signals(self):
+        # 5 维全 0（kill-switch 合法结果）：all_identical 与 majority 信号均不触发
+        result = flag_score_collapse(dict.fromkeys(range(1, 6), 0))
+        assert result == {"collapse_suspected": False, "signals": []}
+
+    @pytest.mark.unit
+    def test_multi_dim_identical_nonzero_still_collapses(self):
+        result = flag_score_collapse({1: 95, 2: 95, 3: 95})
+        assert result["collapse_suspected"] is True
+        assert "all_identical" in result["signals"]
+        assert any(s.startswith("majority_at_single_value") for s in result["signals"])
+
+    @pytest.mark.unit
+    def test_multi_dim_zero_mixed_identical_nonzero_collapses(self):
+        # 含 0 但非全零、其余全同非零 → 仍坍缩
+        result = flag_score_collapse({1: 0, 2: 95, 3: 95})
+        assert result["collapse_suspected"] is True

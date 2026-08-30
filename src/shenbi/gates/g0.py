@@ -435,7 +435,12 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         rd = Path(round_dir)
         t1_reports = rd / "t1-reports"
         if t1_reports.exists() and t1_reports.is_dir():
-            generative_scores = list(t1_reports.glob("*-generative-scores*.json"))
+            generative_scores = [
+                p
+                for p in t1_reports.glob("*-generative-scores*.json")
+                # spec #31: dual-scorer second file would double-count a skill.
+                if not p.name.endswith("-scores-subagent-2.json")
+            ]
             count = len(generative_scores)
             if count < total_skills:
                 checks.append(

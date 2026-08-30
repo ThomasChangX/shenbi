@@ -225,11 +225,12 @@ def passed(gid: str, checks: list[dict[str, Any]]) -> str:
 def parse_report_stem(stem: str, known_skills: "tuple[str, ...] | list[str]") -> str | None:
     """Parse a t1-reports filename stem into its skill name (single parser).
 
-    Strips the production ``-scores`` / ``-scores-subagent`` suffixes
+    Strips the production ``-scores`` / ``-scores-subagent`` (and the
+    dual-scorer ``-scores-subagent-2``, spec #31 T2b) suffixes
     (dispatcher/modes/codex.py) and matches the longest known skill prefix.
     Returns None for stems matching no known skill (hallucination signal).
     """
-    for suffix in ("-scores-subagent", "-scores"):
+    for suffix in ("-scores-subagent-2", "-scores-subagent", "-scores"):
         stem = stem.removesuffix(suffix)
     for skill in sorted(known_skills, key=len, reverse=True):
         if stem == skill or stem.startswith(skill + "-"):

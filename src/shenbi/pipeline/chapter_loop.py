@@ -1440,12 +1440,12 @@ def _build_resonance_trend_row(chapter: int, overall: int) -> str:
     ``Ch{N}`` — so framework and skill writers dedup onto the same row
     (SDD #21 R1; whole-cell key comparison makes ``Ch55 != 55`` two rows).
 
-    Format stays compatible with parse_resonance_scores
-    (src/shenbi/orchestration/escalation_bridge.py:15-25): it requires
+    Format stays parseable by the real trend reader
+    (skill_utils/drift_detection/compute_drift.py parse_trend): it requires
     >=7 cells and reads cells[6] as the overall score — unchanged here.
 
     Only the overall score (cs.resonance_score, an int) is available here;
-    the upstream parser _parse_resonance_score (chapter_loop.py:667) returns
+    the upstream parser _parse_resonance_score (chapter_loop.py:1389) returns
     int|None with no per-dimension breakdown. Columns without data use "-"
     placeholders so the column count stays at 9 (confidence column mirrors
     the skill's "-" convention; the last cell is blank like the skill's).
@@ -1456,7 +1456,7 @@ def _build_resonance_trend_row(chapter: int, overall: int) -> str:
     Column layout (split("|")[1:-1] yields exactly these cells):
         cells[0] = {N}       (key, matches skill contract)
         cells[1..5] = "-"    (placeholder: role + 4 dimensions)
-        cells[6] = {overall} (7th column — what parse_resonance_scores reads)
+        cells[6] = {overall} (7th column — what parse_trend reads)
         cells[7] = "-"       (placeholder confidence)
         cells[8] = ""        (human_overridden, blank like the skill)
     """

@@ -204,3 +204,27 @@ def test_gr_status_writer_case_no_false_fail(tmp_path: Path) -> None:
     must_fix = [m for m in result.get("must_fix", []) if "GR." in str(m)]
     assert result["status"] == "PASS", result
     assert not must_fix
+
+
+@pytest.mark.unit
+def test_gr2_skips_sidecar_artifacts(tmp_path: Path) -> None:
+    """Spec #31: collapse-check / dual-scorer sidecars must not spurious-FAIL GR.2."""
+    skill = "shenbi-worldbuilding"
+    round_dir = tmp_path / "round"
+    round_dir.mkdir()
+    (round_dir / "progress.json").write_text(
+        json.dumps({"skills": {skill: {"generative": {"status": "DONE"}}}}), encoding="utf-8"
+    )
+    reports = round_dir / "t1-reports"
+    reports.mkdir()
+    (reports / "shenbi-worldbuilding-generative-scores-subagent.json").write_text(
+        '{"score": 95}', encoding="utf-8"
+    )
+    (reports / "shenbi-worldbuilding-generative-collapse-check.json").write_text(
+        '{"collapse_suspected": false}', encoding="utf-8"
+    )
+    (reports / "shenbi-worldbuilding-generative-scores-subagent-2.json").write_text(
+        '{"score": 95}', encoding="utf-8"
+    )
+    result = _result_dict(gate_G_RECONCILE(str(round_dir)))
+    assert result["status"] == "PASS", result.get("must_fix")

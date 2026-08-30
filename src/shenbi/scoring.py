@@ -9,6 +9,7 @@ from pathlib import Path
 from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
+from shenbi.contracts.enums import ScoredBy
 from shenbi.contracts.thresholds import TEST_PASS
 from shenbi.gates.shared import marker_filename
 from shenbi.logging import configure_logging, get_logger
@@ -319,6 +320,12 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
     if not values:
         return {"collapse_suspected": False, "signals": []}
 
+    # spec #31 T4 (F120): collapse requires >=2 dimensions and a non-all-zero
+    # result. Single-dimension rubrics and all-zero kill-switch outcomes are
+    # legitimate and exempt from BOTH signals.
+    if len(values) < 2 or all(v == 0 for v in values):
+        return {"collapse_suspected": False, "signals": []}
+
     if len(set(values)) == 1:
         signals.append("all_identical")
 
@@ -333,6 +340,20 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
         "collapse_suspected": len(signals) > 0,
         "signals": signals,
     }
+
+
+def _resolve_scored_by() -> ScoredBy:
+    """Explicit provenance (spec #31 T3 / F113 residual).
+
+    Replaces the two-value argv sniff: codex dispatch passes ``--subagent``,
+    the interactive CLI passes ``--interactive``, and a default batch-file
+    invocation (no flags) is provenance ``file``.
+    """
+    if "--subagent" in sys.argv:
+        return "subagent"
+    if "--interactive" in sys.argv:
+        return "interactive"
+    return "file"
 
 
 def main() -> dict[str, Any]:
@@ -504,7 +525,7 @@ def main() -> dict[str, Any]:
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result: dict[str, Any] = {
         "_provenance": {
-            "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
+            "scored_by": _resolve_scored_by(),
             "timestamp": datetime.now(UTC).isoformat(),
             "gate_markers_verified": markers_ok,
             "round_dir": str(round_dir) if round_dir else None,

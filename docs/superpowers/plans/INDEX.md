@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-31
-> **活跃 plan 数**：0 | **已归档**：81（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：81（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #30 plan 已交付归档，见 `archive/2026-08-31-spec30-decisions-chain.md`，PR #120）
+- `2026-08-31-spec31-g3-independence.md`（SDD #31 G3 独立性与评分防坍缩接线，spec `2026-08-16-audit-g3-independence-fix.md`）— ✅ ready（阶段 5 审查通过）
 
 
 

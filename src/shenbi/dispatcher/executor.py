@@ -213,7 +213,16 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
     if mode == "codex":
         from shenbi.dispatcher.modes.codex import dispatch_codex
 
-        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id, output_files)
+        # spec #31 T2b: pipeline rounds opt into dual scoring via
+        # pipeline-state.json config.dual_scorer (default False, fail-open).
+        dual = False
+        if is_pipeline:
+            try:
+                state_data = json.loads((round_dir / "pipeline-state.json").read_text("utf-8"))
+                dual = bool(state_data.get("config", {}).get("dual_scorer", False))
+            except (json.JSONDecodeError, OSError):
+                log.warning("dual_scorer_config_unreadable", round_dir=str(round_dir))
+        rc = dispatch_codex(skill, test_type, round_dir, prompt, agent_id, output_files, dual=dual)
     else:
         from shenbi.dispatcher.modes.internal import dispatch_internal
 

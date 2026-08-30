@@ -81,12 +81,14 @@ class TestG3ErrorPaths:
         # Add a t1-reports dir with a low-score report to exercise the FAIL branch.
         reports = round_dir / "t1-reports"
         reports.mkdir()
-        (reports / "shenbi-test-generative.json").write_text(
+        (reports / "shenbi-test-generative-scores.json").write_text(
             json.dumps({"score": 50}), encoding="utf-8"
         )
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(round_dir)))
-        # Gate ran without crash; G3.2 may or may not appear.
-        assert result["status"] in ("PASS", "FAIL")
+        # Gate ran without crash; the low-score report now actually reaches
+        # G3.2 (suffixed name, not filtered as a sidecar).
+        assert result["status"] == "FAIL"
+        assert any("G3.2" in m for m in result.get("must_fix", []))
 
     def test_g30_returns_valid_json_with_gate_identifier(self) -> None:
         """All paths include gate == 'G3'."""
@@ -391,3 +393,30 @@ def test_g32_genuine_zero_score_not_overwritten() -> None:
 
     score, _ = _extract_score_fields({"final_score": 0, "1": 95})
     assert score == 0.0
+
+
+@pytest.mark.unit
+def test_g32_skips_sidecar_artifacts(tmp_path: Path) -> None:
+    """Spec #31: collapse-check / dual-scorer sidecars are not readiness reports.
+
+    A legit round (primary scores PASS) must not fail G3.2 merely because the
+    dispatcher's deterministic collapse-check.json (no score fields) sits in
+    t1-reports/.
+    """
+    rd = tmp_path / "round"
+    rd.mkdir()
+    reports = rd / "t1-reports"
+    reports.mkdir()
+    (reports / "sk-generative-scores-subagent.json").write_text(
+        json.dumps({"score": 95}), encoding="utf-8"
+    )
+    (reports / "sk-generative-collapse-check.json").write_text(
+        json.dumps({"collapse_suspected": False, "signals": []}), encoding="utf-8"
+    )
+    (reports / "sk-generative-scores-subagent-2.json").write_text(
+        json.dumps({"score": 95}), encoding="utf-8"
+    )
+    result = _result_dict(gate_G3(None, "generative", str(rd)))
+    g32 = [c for c in result["checks"] if c.get("id") == "G3.2"]
+    assert all(c.get("s") != "FAIL" for c in g32), result["must_fix"]
+    assert not any("collapse-check" in m or "subagent-2" in m for m in result.get("must_fix", []))

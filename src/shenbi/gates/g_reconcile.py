@@ -50,6 +50,11 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
             stem = rp.stem
             # F401: production report naming appends `-scores` / `-scores-subagent`
             # (subagent scoring, dispatcher/modes/codex.py) — strip before parsing.
+            # spec #31: sidecar artifacts (collapse-check, dual-scorer `-2`)
+            # are not per-skill reports — skip them or they parse as bogus
+            # skill/test_type pairs and spurious-FAIL with `status=?`.
+            if rp.name.endswith(("-collapse-check.json", "-scores-subagent-2.json")):
+                continue
             for suffix in ("-subagent", "-scores"):
                 stem = stem.removesuffix(suffix)
             matched = False
