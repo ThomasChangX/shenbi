@@ -26,7 +26,7 @@ contract:
     key: chapter
   - file: truth/arc_payoff_trend.md
     mode: append_dedup
-    key: chapter
+    key: volume
 ---
 <!-- AUTO-CHECK-START -->
 

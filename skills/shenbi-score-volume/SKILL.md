@@ -13,10 +13,10 @@ contract:
   writes:
   - file: audits/volume-N-score.md
     mode: create_or_overwrite
+  updates:
   - file: truth/volume_score_trend.md
     mode: append_dedup
     key: chapter
-  updates: []
 ---
 <!-- AUTO-CHECK-START -->
 
@@ -58,8 +58,8 @@ contract:
 ## 数据契约
 
 - **Reads:** truth/volume_summaries.md, outline/volume_map.md, truth/book_spine.md, benchmarks/anchors/, truth/volume_score_trend.md
-- **Writes:** audits/volume-N-score.md, truth/volume_score_trend.md
-- **Updates:** none
+- **Writes:** audits/volume-N-score.md
+- **Updates:** truth/volume_score_trend.md
 
 <!-- END AUTO-GENERATED -->
 

@@ -6,6 +6,7 @@ contract:
   kind: artifact
   reads:
   - chapters/chapter-N.md
+  - truth/volume_summaries.md
   - truth/chapter_summaries.md
   - truth/pending_hooks.md
   writes:
@@ -26,7 +27,7 @@ contract:
 
 ## 数据契约
 
-- **Reads:** chapters/chapter-N.md, truth/chapter_summaries.md, truth/pending_hooks.md
+- **Reads:** chapters/chapter-N.md, truth/volume_summaries.md, truth/chapter_summaries.md, truth/pending_hooks.md
 - **Writes:** truth/volume_summaries.md
 - **Updates:** truth/chapter_summaries.md
 
@@ -69,7 +70,7 @@ digraph volume_consolidation {
 
 ### 卷级叙事摘要
 
-追加到 `truth/volume_summaries.md`（如果不存在则创建）：
+读取既有 `truth/volume_summaries.md`（若存在），**保留全部既有卷章节原文不动**，将本卷章节追加到文件末尾，输出合并后的完整文件（文件不存在则按以下模板新建）：
 
 ```markdown
 # 卷级摘要
@@ -109,9 +110,9 @@ digraph volume_consolidation {
 2. 读取 `truth/chapter_summaries.md` 中本卷范围的逐章摘要
 3. 读取 `truth/pending_hooks.md` 提取本卷种下但未兑现的伏笔
 4. 合并逐章摘要为卷级叙事摘要（叙事弧线、关键事件含选择理由、角色成长、未兑现伏笔、尾声状态）
-5. 把本卷的逐章摘要归档（移入 `truth/volume_summaries.md` 或单独归档目录，但保留可回查入口）
+5. 把本卷的逐章摘要归档（并入 `truth/volume_summaries.md` 或单独归档目录，但保留可回查入口）
 5. 生成卷级长程记忆（精炼 ≤ 500 字）
-6. 追加到 `truth/volume_summaries.md`
+6. 读取既有 `truth/volume_summaries.md`（若存在），保留既有卷章节，将本卷卷级摘要章节追加进完整文件后输出
 7. 报告卷整合完成
 8. 输出卷整合汇总
 9. 卷 consolidation 完成后，触发 `shenbi-review-arc-payoff`（独立 agent）。未通过（overall <80 或 伏笔兑现质量 <15）→ 阻断下一卷推进，按处方修订；通过 → 放行下一卷（spec §6.1）
@@ -166,7 +167,7 @@ digraph volume_consolidation {
 
 ### 卷级叙事摘要（精确输出模板）
 
-追加到 `truth/volume_summaries.md`，必须严格遵循以下格式：
+在既有 `truth/volume_summaries.md` 内容基础上追加本卷章节（保留既有卷章节），输出完整文件，必须严格遵循以下格式：
 
 ```markdown
 # 卷级摘要
