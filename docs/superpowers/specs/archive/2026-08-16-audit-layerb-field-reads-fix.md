@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #114, 2026-08-31; Revised 2026-08-31 via PR #113) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C2，13 条）| **代表 finding:** F224 | **严重度上限:** P1（F224/F201）| **涉及文件面:** scripts/lint_contract_fields.py、35 个技能 SKILL.md frontmatter fields 声明、skills/shenbi-state-settling 模板、truth 文件真实结构（生产树 novel-output/xinghuo-ranqiong）
 
 # Layer B 字段级 reads 机制修复（audit-layerb-field-reads）· 修订版 2026-08-31

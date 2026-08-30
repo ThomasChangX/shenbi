@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-08-31-spec28-layerb-live-faces.md` `✅ ready`（spec #28 修订版 R1-R5：lint any-match/生产树对账/幻影键与死引用/CI 接线）
+（无——SDD #28 plan 已交付归档，见 `archive/2026-08-31-spec28-layerb-live-faces.md`，PR #114）
 
 
 
