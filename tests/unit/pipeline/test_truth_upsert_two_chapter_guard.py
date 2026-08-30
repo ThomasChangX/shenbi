@@ -118,15 +118,11 @@ def _settle_response(chapter: int) -> str:
 def _resonance_response(chapter: int, overall: int) -> str:
     """review-resonance's output for one chapter.
 
-    M1 NOTE (T5 review, key-format drift): resonance_trend has TWO writers —
-    this skill (LLM increment) and chapter_loop's programmatic
-    post-review persistence (``_build_resonance_trend_row``), both keyed by
-    the first cell. The skill's SKILL.md example shows a bare-``N`` first
-    cell while the programmatic writer uses ``Ch{N}``; mixing the two formats
-    would produce TWO rows for the same chapter (distinct keys — the exact M1
-    drift T3 will收口). This guard pins the SINGLE ``Ch{N}`` format — the one
-    the authoritative post-review writer uses — and asserts one row per
-    chapter under that consistent key format.
+    SDD #21 R1: resonance_trend's two writers (this skill increment and the
+    programmatic post-review persistence via ``_build_resonance_trend_row``)
+    share the bare-``{N}`` key from the skill contract. The historical
+    ``Ch{N}`` vs ``{N}`` drift produced two rows per chapter; both writers
+    now emit the 9-column bare-key contract row.
     """
     return (
         f"### FILE: audits/chapter-{chapter}-resonance.md\n"
@@ -180,7 +176,7 @@ def _resonance_chapter(
         project,
         "resonance_trend.md",
         _build_resonance_trend_row(chapter, overall),
-        mode="upsert_markdown_row",
+        mode="insert_markdown_row",
         key_field="chapter",
     )
 
@@ -244,11 +240,10 @@ class TestTwoChapterLoopFromFreshProject:
     def test_resonance_trend_one_row_per_chapter_despite_two_writers(
         self, tmp_project: Path, monkeypatch: pytest.MonkeyPatch
     ) -> None:
-        """The M1 invariant from the write-path side: the skill increment and
-        the programmatic post-review writer share the ``Ch{N}`` key, so a
-        chapter gets exactly ONE row even though two writers touch the file
-        per loop iteration. (Key-format drift between the two writers is the
-        M1 risk — pinned here under a single consistent format.)
+        """SDD #21 R1 acceptance: the skill increment and the programmatic
+        post-review writer share the bare ``{N}`` key, so a chapter gets
+        exactly ONE row even though two writers touch the file per loop
+        iteration.
         """
         _install_fake_llm(
             monkeypatch,
@@ -265,8 +260,8 @@ class TestTwoChapterLoopFromFreshProject:
 
         trend_rows = _data_rows(tmp_project / "truth" / "resonance_trend.md")
         assert len(trend_rows) == 2
-        assert sum(1 for r in trend_rows if r.startswith("| Ch1 |")) == 1
-        assert sum(1 for r in trend_rows if r.startswith("| Ch2 |")) == 1
+        assert sum(1 for r in trend_rows if r.startswith("| 1 |")) == 1
+        assert sum(1 for r in trend_rows if r.startswith("| 2 |")) == 1
 
     def test_all_row_keyed_settling_targets_accumulate(
         self, tmp_project: Path, monkeypatch: pytest.MonkeyPatch
@@ -334,4 +329,4 @@ class TestLoopContinuesFromRealPriorState:
 
         trend_rows = _data_rows(tmp_project / "truth" / "resonance_trend.md")
         assert len(trend_rows) == 1  # fresh file, chapter 2 only in this scenario
-        assert trend_rows[0].startswith("| Ch2 |")
+        assert trend_rows[0].startswith("| 2 |")

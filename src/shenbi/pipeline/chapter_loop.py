@@ -1382,25 +1382,34 @@ def _parse_resonance_score(report_path: Path) -> int | None:
 
 
 def _build_resonance_trend_row(chapter: int, overall: int) -> str:
-    """Build a 7-column markdown table row for resonance_trend.md.
+    """Build a 9-column markdown table row for resonance_trend.md.
 
-    Format MUST match what parse_resonance_scores
-    (src/shenbi/orchestration/escalation_bridge.py:15-17) reads:
-    lines starting with "|", split on "|", requires >=7 cells, reads
-    cells[6] (7th column) as the overall score.
+    Column layout matches the shenbi-review-resonance skill contract
+    (skills/shenbi-review-resonance/SKILL.md): a bare ``{N}`` key — NOT
+    ``Ch{N}`` — so framework and skill writers dedup onto the same row
+    (SDD #21 R1; whole-cell key comparison makes ``Ch55 != 55`` two rows).
+
+    Format stays compatible with parse_resonance_scores
+    (src/shenbi/orchestration/escalation_bridge.py:15-25): it requires
+    >=7 cells and reads cells[6] as the overall score — unchanged here.
 
     Only the overall score (cs.resonance_score, an int) is available here;
     the upstream parser _parse_resonance_score (chapter_loop.py:667) returns
     int|None with no per-dimension breakdown. Columns without data use "-"
-    placeholders so the column count stays at 7. Key column (cells[0]) is
-    Ch{N} for key-based dedup.
+    placeholders so the column count stays at 9 (confidence column mirrors
+    the skill's "-" convention; the last cell is blank like the skill's).
+    The caller persists this row with mode="insert_markdown_row" so a
+    skill-written rich row for the same chapter is never clobbered by this
+    placeholder row.
 
     Column layout (split("|")[1:-1] yields exactly these cells):
-        cells[0] = Ch{N}     (key)
-        cells[1..5] = "-"    (placeholder dimensions)
+        cells[0] = {N}       (key, matches skill contract)
+        cells[1..5] = "-"    (placeholder: role + 4 dimensions)
         cells[6] = {overall} (7th column — what parse_resonance_scores reads)
+        cells[7] = "-"       (placeholder confidence)
+        cells[8] = ""        (human_overridden, blank like the skill)
     """
-    return f"| Ch{chapter} | - | - | - | - | - | {overall} |"
+    return f"| {chapter} | - | - | - | - | - | {overall} | - |  |"
 
 
 # ---------------------------------------------------------------------------
@@ -3184,12 +3193,15 @@ def _run_chapter_step_impl(
             from shenbi.pipeline.truth_io import write_truth_file
 
             trend_row = _build_resonance_trend_row(chapter, overall)
+            # insert-only (SDD #21 R1): the review-resonance skill usually
+            # already wrote its rich 9-column row for this chapter during the
+            # dispatch above; the framework placeholder must not replace it.
             write_truth_file(
                 project_dir,
                 "resonance_trend.md",
                 trend_row,
-                mode="upsert_markdown_row",
-                key_field="chapter",  # dedup on first column (Ch{N})
+                mode="insert_markdown_row",
+                key_field="chapter",  # dedup on first column ({N})
             )
             log.info("resonance_score_persisted", chapter=chapter, overall=overall)
 

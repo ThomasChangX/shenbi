@@ -416,3 +416,54 @@ class TestConcurrentUpsertNoLostRows:
 
         content = (tmp_path / "truth" / filename).read_text(encoding="utf-8")
         assert content.count("same-key") == 1, "duplicate key not deduplicated"
+
+
+# --- SDD #21 R1: insert_markdown_row mode -----------------------------------
+
+
+def test_insert_mode_appends_when_key_absent(tmp_path: Path) -> None:
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(
+        tmp_path, "trend.md", "| 1 | a |", mode="insert_markdown_row", key_field="chapter"
+    )
+    write_truth_file(
+        tmp_path, "trend.md", "| 2 | b |", mode="insert_markdown_row", key_field="chapter"
+    )
+    text = (tmp_path / "truth" / "trend.md").read_text(encoding="utf-8")
+    assert "| 1 | a |" in text
+    assert "| 2 | b |" in text
+
+
+def test_insert_mode_skips_when_key_exists(tmp_path: Path) -> None:
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(
+        tmp_path, "trend.md", "| 1 | rich |", mode="insert_markdown_row", key_field="chapter"
+    )
+    write_truth_file(
+        tmp_path, "trend.md", "| 1 | placeholder |", mode="insert_markdown_row", key_field="chapter"
+    )
+    text = (tmp_path / "truth" / "trend.md").read_text(encoding="utf-8")
+    assert "rich" in text
+    assert "placeholder" not in text
+
+
+def test_has_markdown_row_whole_cell_semantics() -> None:
+    from shenbi.pipeline.truth_io import has_markdown_row
+
+    existing = "| chapter | x |\n|---|---|\n| 55 | a |"
+    assert has_markdown_row(existing, "| 55 | b |", "chapter")
+    assert not has_markdown_row(existing, "| Ch55 | b |", "chapter")  # whole-cell key
+    assert not has_markdown_row(existing, "not a table row", "chapter")
+
+
+def test_insert_mode_rejects_dict_data(tmp_path: Path) -> None:
+    import pytest
+
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    with pytest.raises(ValueError):
+        write_truth_file(
+            tmp_path, "trend.md", {"chapter": 1}, mode="insert_markdown_row", key_field="chapter"
+        )
