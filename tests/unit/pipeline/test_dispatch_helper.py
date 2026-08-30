@@ -947,3 +947,35 @@ def test_write_parsed_outputs_normalizes_chapter_header(tmp_path: Path) -> None:
     dh._write_parsed_outputs(resp, paths, tmp_path, skill="shenbi-chapter-drafting")
     text = (tmp_path / "chapters" / "chapter-3.md").read_text(encoding="utf-8")
     assert text.startswith("# Chapter 3:")
+
+
+def test_wildcard_write_rejects_quote_filename(tmp_path):
+    """T12-01 (spec #22 R1b): `"` in a wildcard-written filename must be
+    rejected with DispatchWriteFailureError before any mkdir/write.
+    """
+    from shenbi.exceptions import DispatchWriteFailureError
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    parsed = {'import/canon/x" auto="1.md': "evil"}
+    with pytest.raises(DispatchWriteFailureError):
+        _write_parsed_outputs(
+            response="",
+            output_paths=["import/canon/*.md"],
+            project_dir=tmp_path,
+            parsed=parsed,
+        )
+    assert not (tmp_path / "import").exists()
+
+
+def test_wildcard_write_accepts_normal_filename(tmp_path):
+    from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
+
+    parsed = {"import/canon/alice.md": "ok"}
+    written = _write_parsed_outputs(
+        response="",
+        output_paths=["import/canon/*.md"],
+        project_dir=tmp_path,
+        parsed=parsed,
+    )
+    assert written == ["import/canon/alice.md"]
+    assert (tmp_path / "import/canon/alice.md").read_text(encoding="utf-8") == "ok"

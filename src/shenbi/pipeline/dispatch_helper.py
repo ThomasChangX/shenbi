@@ -447,6 +447,11 @@ def _resolve_read_with_fallback(project_dir: Path, read_path: str) -> list[Path]
     return []
 
 
+#: T12-01 (spec #22 R1b): wrapper-breaking characters in wildcard-written
+#: filenames are rejected before any mkdir/write happens.
+FORBIDDEN_FILENAME_RE = re.compile(r'["<>[\x00-\x1f\\]')
+
+
 def _wildcard_to_regex(pattern: str) -> str:
     r"""Convert a glob-style pattern to a regex pattern string.
 
@@ -1439,6 +1444,13 @@ def _write_parsed_outputs(
         if rel_path in skip:
             log.info("write_skipped_noop", path=rel_path, skill=skill)
             continue
+        if FORBIDDEN_FILENAME_RE.search(rel_path):
+            log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
+            raise DispatchWriteFailureError(
+                f"wildcard write rejected: filename contains forbidden "
+                f'characters (" < > control): {rel_path!r}',
+                signature="forbidden_filename",
+            )
         matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
         if matching:
             if not content.strip():
