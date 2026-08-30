@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-30 · SDD #27 阶段 2 事实核实修订) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #107) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
 > **Ledger:** 本 spec 全部 F 编号属 `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（与 2026-08-14 ledger 撞号且语义不同；specs #8/#16 等 commit 引用的是 08-14 族，与本 spec 无重叠）
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C1，67 条）| **代表 finding:** F462 | **严重度上限:** P0（F340）| **涉及文件面:** src/shenbi/gates/（g0-g7、g_reconcile、cli）、scoring.py、pipeline/（chapter_loop、phase_runner、parallel_dispatch、audit_context_cache、trace/materialize）、新增 lint 对账工具
 
