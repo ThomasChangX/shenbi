@@ -66,6 +66,7 @@ EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     "truth/current_state.md": [
         FIXTURES_DIR / "snapshots" / "chapter-025" / "truth" / "current_state.md",
         FIXTURES_DIR / "truth-current_state.md",
+        FIXTURES_DIR / "truth-current_state-xinghuo.md",
     ],
     "truth/pending_hooks.md": [
         FIXTURES_DIR / "snapshots" / "chapter-025" / "truth" / "pending_hooks.md",

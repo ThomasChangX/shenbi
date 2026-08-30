@@ -124,3 +124,25 @@ class TestExtractH2SectionsSpec16:
         sections = extract_h2_sections(text)
         assert "Fake" not in sections
         assert "Real" in sections
+
+
+class TestProductionCurrentStateF845:
+    """Spec #28 R1/F845: revised fields must hit the production-tree copy."""
+
+    def test_production_current_state_declared_fields_hit_no_escape_hatch(self, monkeypatch):
+        from pathlib import Path
+
+        from shenbi.contracts import fields as fields_mod
+
+        prod = Path(__file__).resolve().parents[2] / "fixtures" / "truth-current_state-xinghuo.md"
+        text = prod.read_text(encoding="utf-8")
+        warns: list[str] = []
+        monkeypatch.setattr(
+            fields_mod.log, "warning", lambda event, **kw: warns.append(event), raising=True
+        )
+        filtered, matched = fields_mod.filter_to_fields(
+            text, ["系统演化阶段", "参数当前位置", "进行中的情节线"], str(prod)
+        )
+        assert matched is True
+        assert "系统演化阶段" in filtered
+        assert not warns  # no field_filter_missing_fields escape-hatch

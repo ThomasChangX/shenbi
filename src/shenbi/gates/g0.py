@@ -22,6 +22,9 @@ MIRROR_MAP: dict[str, str] = {
     "tests/fixtures/truth-pending_hooks-ch56.md": (
         "novel-output/xinghuo-ranqiong/truth/pending_hooks.md"
     ),
+    "tests/fixtures/truth-current_state-xinghuo.md": (
+        "novel-output/xinghuo-ranqiong/truth/current_state.md"
+    ),
 }
 
 

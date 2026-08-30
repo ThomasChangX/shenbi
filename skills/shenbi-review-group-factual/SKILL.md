@@ -50,7 +50,7 @@ This skill performs three independent factual-consistency audits in a **single L
 contract:
   reads:
     - {file: chapters/chapter-N.md}
-    - {file: truth/current_state.md, fields: [主角状态, 当前世界局势, 活跃线索]}
+    - {file: truth/current_state.md, fields: [系统演化阶段, 参数当前位置, 进行中的情节线]}
     - {file: truth/chapter_summaries.md, fields: [已完成章节]}
     - {file: world/rules.md}
     - {file: world/power_system.md}
