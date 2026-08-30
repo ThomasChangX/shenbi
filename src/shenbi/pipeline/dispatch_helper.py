@@ -126,9 +126,10 @@ def _compute_dispatch_timeout(
 
 
 def _handle_timeout_gracefully(skill_name: str, chapter: int | None) -> None:
-    """Graceful degradation on timeout.
+    """Log WARN on timeout (not a HARD failure).
 
-    Save partial LLM output, log WARN (not HARD failure).
+    Note: no partial output is saved here — the streaming callback persists
+    chunks as they arrive, so a timeout keeps whatever already landed (F395).
     """
     log.warning(
         "dispatch_timeout", skill=skill_name, chapter=chapter, resolution="saving_partial_output"
@@ -1840,7 +1841,10 @@ def _dispatch_via_api(
             timeout=api_timeout,
         )
     except Exception as exc:
-        _handle_timeout_gracefully(skill, chapter)
+        # Only a genuine timeout deserves the timeout path; other failures
+        # (auth, rate limit, malformed request) must not masquerade as it (F395).
+        if "timeout" in str(exc).lower() or "timed out" in str(exc).lower():
+            _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
