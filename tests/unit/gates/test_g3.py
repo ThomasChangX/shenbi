@@ -389,3 +389,28 @@ def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
     assert result["status"] == "FAIL"  # caught → FAIL, no exception propagated
+
+
+@pytest.mark.unit
+def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
+    """F130 (spec #27): canonical scoring.py output = final_score + nested
+    dimensions list — G3.2 must read final_score / flatten nested dims.
+    """
+    from shenbi.gates.g3 import _extract_score_fields
+
+    canonical = {
+        "final_score": 91.5,
+        "classification": "PASS (excellent)",
+        "dimensions": [
+            {"num": 1, "name": "A", "weight": 10, "score": 90},
+            {"num": 2, "name": "B", "weight": 5, "score": 95},
+        ],
+    }
+    score, dims = _extract_score_fields(canonical)
+    assert score == 91.5
+    assert dims == {1: 90.0, 2: 95.0}
+    # legacy flat shape still supported
+    legacy = {"total_score": 88, "1": 80, "2": 90}
+    score2, dims2 = _extract_score_fields(legacy)
+    assert score2 == 88
+    assert dims2 == {1: 80.0, 2: 90.0}

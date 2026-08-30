@@ -181,3 +181,26 @@ def test_g_reconcile_non_dict_progress_propagates_jload_error(make_project) -> N
     (round_dir / "progress.json").write_text("[1, 2]", encoding="utf-8")
     with pytest.raises(ValueError):
         gate_G_RECONCILE(str(round_dir))  # pins current behavior
+
+
+@pytest.mark.unit
+def test_gr_status_writer_case_no_false_fail(tmp_path: Path) -> None:
+    """F449/F710 (spec #27): writer emits lowercase "done" (codex.py) —
+    GR.1/GR.2 must accept it; uppercase DONE stays accepted (dual-form).
+    """
+    skill = "shenbi-worldbuilding"
+    rd = tmp_path / "round"
+    (rd / "t1-reports").mkdir(parents=True)
+    progress = {
+        "skills": {
+            skill: {"generative": {"status": "done"}},  # writer-canonical lowercase
+        }
+    }
+    (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
+    (rd / "t1-reports" / f"{skill}-generative-scores-subagent.json").write_text(
+        json.dumps({"score": 90}), encoding="utf-8"
+    )
+    result = _result_dict(gate_G_RECONCILE(str(rd)))
+    must_fix = [m for m in result.get("must_fix", []) if "GR." in str(m)]
+    assert result["status"] == "PASS", result
+    assert not must_fix
