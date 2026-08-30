@@ -30,7 +30,7 @@
 - **断言形态**：对每条 ReadKey 断言 (a) writer_sources 非空且锚点文件中模式仍存在（grep 复核）；(b) read_pattern 与 writer 产出命名族样本集交集非空。样本集取 `tests/fixtures/` 真实产物 + 写方代码构造的字面量。
 - **输出**：违规按 check_id 列出「读键 → 期望写方族 → 实际匹配数 0」；exit 1。
 - **WARN→FAIL 开关**：`--strict` flag；首周期接入 `just check` 时以 WARN 模式（exit 0 但打印）运行，一个合并周期后去 flag 升 FAIL（退役时点：本 spec PR 合并后的下一个涉及 gates/ 的 PR）。首批登记 T1-T5 涉及的 40+ 读键。
-- **前置依赖**：spec #31（gate-runner 路径协议，INDEX 记其为 C1 对账 lint 验收地基）——本 lint 的执行入口形状以 #31 落地形态为准；#31 未归档期间以独立 CLI 形态先行，不阻塞。
+- **前置依赖**：spec #48（gate-runner 路径协议，INDEX 记其为 C1 对账 lint 验收地基）——本 lint 的执行入口形状以 #31 落地形态为准；#31 未归档期间以独立 CLI 形态先行，不阻塞。
 
 # 读方↔写方键空间/命名族/格式对账（audit-reader-writer-key-reconciliation）
 
@@ -58,22 +58,22 @@ gate 检查器、管线解析器、词表触发器各自硬编码了对上游数
 
 ## 任务分解
 
-- **T1 · 死检查清剿（F340 的 F349/F406/F419 子面、F450-F455、F458 残存（G7.14/G7.15/G0.10 glob）、F464/F465、F467-F470）**：逐条二选一——补写方（若该数据确需产生）或删除检查（若数据已废弃）。修复形状建议：优先删检查与数据面（死数据 + 死检查一起清，与 C37 死代码簇衔接但本 spec 只处理"读键无写方"面）；.gate-lock（F467）裁决后落地——当前全仓无写方即无互斥效果，与 C11 并发簇联动。约束：触碰 gate 检查器时保持纯函数/幂等/structlog（AGENTS.md）。
+- **T1 · 死检查清剿（F340 的 F349/F406/F419 子面、F450-F455、F458 残存（G7.14/G7.15/G0.10 glob）、F464/F465/F466、F467/F468/F470、F639）**：逐条二选一——补写方（若该数据确需产生）或删除检查（若数据已废弃）。修复形状建议：优先删检查与数据面（死数据 + 死检查一起清，与 C37 死代码簇衔接但本 spec 只处理"读键无写方"面）；.gate-lock（F467）裁决后落地——当前全仓无写方即无互斥效果，与 C11 并发簇联动。约束：触碰 gate 检查器时保持纯函数/幂等/structlog（AGENTS.md）。
 - **T2 · marker 协议单源（F121/F129/F131/F463/F1111 空转面）**：marker 文件命名族（`G4-<skill>-<test-type>.json`）收敛为单一模块常量，写方（评分路径）与读方（marker 强制检查）都从该常量取值；bug-hunt/clean 类型补写方。读方兼容双命名族过渡（历史产物不破坏），旧命名族退役时点 = 下一涉及 scoring/marker 面的 PR。验收锚点：`shenbi-score --test-type bug-hunt` 不再 MARKER_MISSING exit 3。
 - **T3 · rubric 适用性残面（F122/F128/F137；F104/F757 解析面已由 #9 R4 核销，仅剩 T7 lint 面）**：scope 区间解析改全区间展开（"3-7"→{3..7}）；F128/F137 按 08-15 ledger 逐条对账（缺格默认语义、表头残面）；以真实 18 份 rubric 全量对账断言收尾。
 - **T4 · g_reconcile/评分读键对齐（F449/F710/F130/F435/F462）**：GR.1/GR.2 状态词表对齐唯一写方 `done`（消除 `DONE` 大小写死线）；G3.2 读键对齐 scoring 实际输出形状——`_compute_rubric_weighted_score` 回退（g3.py:26-60）是否覆盖 canonical `final_score`+嵌套 `dimensions`，不匹配则补；F435 在 cmd_post_skill 新形状（phase_runner.py:247-261）下核对 Route C 侧车索要行为。
-- **T5 · 管线触发器格式对账（F340/F369/F370/F349、F303/F341、F372、F374、F375/F643、F511、F891/F309/F312/F322/F364、F524 对账面、F238/F373 残面 chapter_loop.py:1311）**：`_any_audit_has_findings` 扫描名单从 `audit_suffix()` 单源派生（group-*/era/fanfic/highpoint 补入，消除 F340 P0 与 F369）；`"FAIL" in text` 改精确标记匹配（F370）；每个触发器/解析器以 `novel-output/xinghuo-ranqiong` 真实产物为基准写对账断言（解析非空/触发可达）；审计级联 CORE/CASCADABLE 词表补 group-* 短名与 era/fanfic/highpoint 维度；resonance 解析器按技能自产格式实样对齐；avg G3 分数抓取（cost/report.py:18-34）改为只取明确契约键（F511）。
+- **T5 · 管线触发器格式对账（F340/F369/F370、F303/F341、F372、F374、F375/F643、F511、F891/F309/F312/F322/F364、F524 对账面、F238/F373 残面 chapter_loop.py:1311）**：`_any_audit_has_findings` 扫描名单从 `audit_suffix()` 单源派生（group-*/era/fanfic/highpoint 补入，消除 F340 P0 与 F369）；`"FAIL" in text` 改精确标记匹配（F370）；每个触发器/解析器以 `novel-output/xinghuo-ranqiong` 真实产物为基准写对账断言（解析非空/触发可达）；审计级联 CORE/CASCADABLE 词表补 group-* 短名与 era/fanfic/highpoint 维度；resonance 解析器按技能自产格式实样对齐；avg G3 分数抓取（cost/report.py:18-34）改为只取明确契约键（F511）。
 - **T6 · 写而不读数据裁决（F222 核销/残面、F225/F229/F469/F527/F640、F240/F241/F629）**：逐字段裁决保留（补消费者）或删除；与 C37 联动。每字段终态 = 有消费者（grep 复核锚点）或已删除，二选一落验收。
 - **T7 · 对账 lint 落地**：`tools/lint_key_reconciliation.py`——对每个 gate/管线读键做"写方存在性"静态断言（读键命名族 ∈ 写方产出命名族），接入 `just check` 与 ci.yml lint 面（与 C25 联动）。
 - **T8 · 生产面修复验证**：F1103（revision_count/resonance_score 死字段）、F1107（BLOCKING 汇总抑制）、F1111（marker 空转/被覆写）、T105（context-decisions 断产静默落空）在修复后以 xinghuo-ranqiong 树复验。
 
 ## 批量清理（纯 M 成员）
 
-- F136（gate_markers_verified 空转记 true）、F241（ProgressDoc 键空间对齐）、F353（triggers G3 失败不写 last_trigger_failure，stage 值族补 "g3"）、F370（"FAIL" 裸子串匹配过宽→精确词匹配）、F444（memory-distill L5 把 book_spine 当蒸馏产物校验→文件族改对）——随 T1/T5 批量处置，不逐条开修复项。
+- F136（gate_markers_verified 空转记 true）、F353（triggers G3 失败不写 last_trigger_failure，stage 值族补 "g3"）、F444（memory-distill L5 把 book_spine 当蒸馏产物校验→文件族改对）——随 T1/T5 批量处置，不逐条开修复项。
 
 ## 验收标准
 
-1. `uv run shenbi-score <rubric> <scores.json> --test-type bug-hunt`（tests/fixtures 真实样本）exit 0，不再 MARKER_MISSING（F463 断言）；历史 round 产物（fixtures 中既有 `G4-*-generative.json` 样本）经读方解析不破坏（T2 双命名族过渡断言）。
+1. `uv run shenbi-score <rubric> <scores.json> --test-type bug-hunt --round-dir <fixture-round>`（tests/fixtures 真实样本 + 真实 round 目录）exit 0，不再 MARKER_MISSING（F463 断言——marker 检查仅在 --round-dir 传入时执行）；历史 marker 样本（`tests/baselines/gate-outputs/G4-genre_config.json`）经读方解析不破坏（T2 双命名族过渡断言）。
 2. `uv run shenbi-validate G_RECONCILE <dir>` 对真实 `*-scores-subagent.json` 报告零 `status=?` 假 FAIL（F449/F710 断言）。
 3. `uv run python tools/lint_key_reconciliation.py` exit 0（首周期 WARN 模式可 exit 0 但零 WARN 输出），且对 gate/管线读键清单（本 spec T1-T5 涉及的 40+ 读键）全量断言写方存在。
 4. 死检查清单复核：`git grep -n "G0.7\|GT.3\|\.gate-lock"` 确认删除或已接线，无恒 PASS 死分支残留。
@@ -82,7 +82,7 @@ gate 检查器、管线解析器、词表触发器各自硬编码了对上游数
 
 ## 风险与回滚
 
-- 风险：删除死检查可能移除"未来才接线"的占位门禁（如 .gate-lock 若 C11 需要锁标记文件）；T1 每条删除前核对 C11/C22 簇 spec 是否依赖同面。**依赖**：spec #31（gate-runner 路径协议）是 T7 对账 lint 验收的地基——#31 未归档期间 T7 以独立 CLI 先行（见 T7 设计节）。命名族收敛改动写方会破坏历史产物兼容——采用读方兼容双命名族过渡，退役时点见 T2。
+- 风险：删除死检查可能移除"未来才接线"的占位门禁（如 .gate-lock 若 C11 需要锁标记文件）；T1 每条删除前核对 C11/C22 簇 spec 是否依赖同面。**依赖**：spec #48（gate-runner 路径协议）是 T7 对账 lint 验收的地基——#48 未归档期间 T7 以独立 CLI 先行（见 T7 设计节）。命名族收敛改动写方会破坏历史产物兼容——采用读方兼容双命名族过渡，退役时点见 T2。
 - 回滚：T1-T6 逐任务独立提交（`fix: ...`），对账 lint（T7）单独 PR，可独立 revert；lint 先 WARN 一个周期再升 FAIL（开关形态见 T7 设计节）。
 
 ## 簇成员清单（与 phase4-clustering.md §2 机械对照）
