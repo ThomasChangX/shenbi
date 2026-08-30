@@ -1,4 +1,4 @@
-# Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan
+# Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122）
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
