@@ -91,6 +91,7 @@ def g4_generic_bughunt(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
     for fp_path in fps or []:
+        mf_before = len(mf)  # per-file PASS scoping (Copilot PR#103 review)
         p = resolve_input_path(fp_path, rd)
         if not p.exists():
             mf.append(f"G4.bh.not_found:{fp_path}")
@@ -119,7 +120,7 @@ def g4_generic_bughunt(
         # Must have false positive check (flexible: markdown bold, colon, dash separators)
         if not re.search(r"False positives?[^0-9]*0|误报[^0-9]*0", content, re.IGNORECASE):
             mf.append(f"G4.bh.no_false_positive_check:{fp_path}")
-        if not mf:
+        if len(mf) == mf_before:
             c.append({"id": f"G4.bh.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.bh", "s": "SKIP", "r": "no files"})
@@ -138,6 +139,7 @@ def g4_generic_clean(
     c: list[dict[str, Any]] = []
     mf: list[str] = []
     for fp_path in fps or []:
+        mf_before = len(mf)  # per-file PASS scoping (Copilot PR#103 review)
         p = resolve_input_path(fp_path, rd)
         if not p.exists():
             mf.append(f"G4.cl.not_found:{fp_path}")
@@ -169,7 +171,7 @@ def g4_generic_clean(
                     real_suggestions.append(m)
         if real_suggestions:
             mf.append(f"G4.cl.has_suggestions:{fp_path}:{real_suggestions}")
-        if not mf:
+        if len(mf) == mf_before:
             c.append({"id": f"G4.cl.{Path(fp_path).name}", "s": "PASS"})
     if not fps:
         c.append({"id": "G4.cl", "s": "SKIP", "r": "no files"})
