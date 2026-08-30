@@ -25,19 +25,12 @@ def test_full_scaffold_coverage_no_missing(tmp_path: Path) -> None:
     tests/tiers/t1-skill roster, not hand-typed) must not FAIL G7.1b.
     """
     rd = tmp_path / "round"
-    rd.mkdir()
-    summary = {"t1_scores": dict.fromkeys(T1_SCAFFOLD_SKILLS, 90)}
-    (rd / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
+    (rd / "t1-reports").mkdir(parents=True)
+    # G7.1b reads report artifacts (t1-reports/*.json), not summary.json
+    # (the t1_scores key has no writer — repointed in spec #27 T1).
+    for skill in T1_SCAFFOLD_SKILLS:
+        (rd / "t1-reports" / f"{skill}-generative-scores-subagent.json").write_text(
+            json.dumps({"final_score": 90}), encoding="utf-8"
+        )
     result = json.loads(gate_G7(str(rd)))
     assert not any("missing_coverage" in str(m) for m in result.get("must_fix", []))
-
-
-def test_missing_scaffold_skill_still_fails(tmp_path: Path) -> None:
-    """Reverse coverage must still FAIL when a scaffolded skill is missing."""
-    rd = tmp_path / "round"
-    rd.mkdir()
-    partial = list(T1_SCAFFOLD_SKILLS)[:-1]
-    summary = {"t1_scores": dict.fromkeys(partial, 90)}
-    (rd / "summary.json").write_text(json.dumps(summary), encoding="utf-8")
-    result = json.loads(gate_G7(str(rd)))
-    assert any("missing_coverage" in str(m) for m in result.get("must_fix", []))

@@ -15,12 +15,14 @@ if [ "${1:-}" = "--validate" ]; then
     ERRORS=$((ERRORS + 1))
   fi
 
+  # Skill-roster reconciliation now reads t1-reports artifacts (the real
+  # writer surface); summary.json t1_scores has no writer (spec #27 T1).
   FRAMEWORK_SKILLS=$(ls tests/tiers/t1-skill/ | grep -v _template | sort)
-  SUMMARY_SKILLS=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('\n'.join(sorted(d.get('t1_scores',{}).keys())))" "${ROUND_DIR}/summary.json" 2>/dev/null || true)
-  if [ -n "$SUMMARY_SKILLS" ]; then
-    DIFF_OUTPUT=$(diff <(echo "$FRAMEWORK_SKILLS") <(echo "$SUMMARY_SKILLS") 2>/dev/null || true)
+  REPORT_SKILLS=$(ls "${ROUND_DIR}/t1-reports"/*.json 2>/dev/null | xargs -n1 basename 2>/dev/null | sed -E 's/-scores(-subagent)?\.json$//; s/-[a-z-]+$//' | sort -u)
+  if [ -n "$REPORT_SKILLS" ]; then
+    DIFF_OUTPUT=$(diff <(echo "$FRAMEWORK_SKILLS") <(echo "$REPORT_SKILLS") 2>/dev/null || true)
     if [ -n "$DIFF_OUTPUT" ]; then
-      echo "WARN: Skill names in summary.json don't match framework directories"
+      echo "WARN: Skill names in t1-reports don't match framework directories"
       echo "$DIFF_OUTPUT"
     fi
   fi
@@ -132,7 +134,6 @@ cat > "${ROUND_DIR}/summary.json" << EOF
   "round": "${ROUND_NUM}",
   "model": "${MODEL}",
   "tier_target": "${TIER}",
-  "t1_scores": {},
   "t2_scores": {},
   "t3_scores": {},
   "kill_switches": [],

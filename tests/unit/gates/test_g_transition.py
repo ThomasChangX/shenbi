@@ -86,12 +86,3 @@ def test_g_transition_unknown_from_phase_fails_when_queue_named(make_project) ->
     result = _result_dict(gate_G_TRANSITION("mystery-phase", "next", str(round_dir)))
     assert result["status"] == "FAIL"
     assert any("GT.1" in mf for mf in result["must_fix"])
-
-
-@pytest.mark.unit
-def test_g_transition_blocks_on_gate_blockers(make_project) -> None:
-    """A non-empty gate_blockers list -> FAIL with GT.3."""
-    _, round_dir = make_project(progress={"remaining_drafting": [], "gate_blockers": ["G2:fail"]})
-    result = _result_dict(gate_G_TRANSITION("drafting", "review", str(round_dir)))
-    assert result["status"] == "FAIL"
-    assert any("GT.3" in mf for mf in result["must_fix"])

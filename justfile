@@ -14,6 +14,7 @@ install group="dev":
 check:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_repo_consistency.py
+    uv run python tools/lint_key_reconciliation.py --strict
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .

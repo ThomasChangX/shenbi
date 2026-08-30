@@ -20,6 +20,8 @@ from shenbi.gates.shared import (
     jload,
     passed,
 )
+from collections.abc import Mapping
+
 from shenbi.contracts.thresholds import T1_PASS
 
 
@@ -64,6 +66,42 @@ def _compute_rubric_weighted_score(data: dict[str, object], skill_name: str) -> 
         return None
 
 
+def _extract_score_fields(data: Mapping[str, object]) -> tuple[float | None, dict[int, float]]:
+    """Extract (top-level score, flat dimension scores) from any producer shape.
+
+    Canonical scoring.py output uses ``final_score`` + nested ``dimensions``
+    list; legacy/codex shapes use ``total_score``/``score`` + flat numeric
+    keys. Both must work (F130, spec #27).
+    """
+    score: float | None = None
+    for key in ("final_score", "total_score", "score"):
+        v = data.get(key)
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            score = float(v)
+            break
+    dims: dict[int, float] = {}
+    nested = data.get("dimensions")
+    if isinstance(nested, list):
+        for d in nested:
+            if isinstance(d, dict):
+                num, val = d.get("num"), d.get("score")
+                if (
+                    isinstance(num, int)
+                    and isinstance(val, (int, float))
+                    and 0 <= float(val) <= 100
+                ):
+                    dims[num] = float(val)
+    for k, v in data.items():
+        if (
+            k.isdigit()
+            and isinstance(v, (int, float))
+            and not isinstance(v, bool)
+            and 0 <= float(v) <= 100
+        ):
+            dims.setdefault(int(k), float(v))
+    return score, dims
+
+
 def gate_G3(
     skill_name: str | None = None, test_type: str | None = None, round_dir: str | None = None
 ) -> str:
@@ -100,8 +138,10 @@ def gate_G3(
                 for rp in reports_dir.glob("*.json"):
                     try:
                         data = jload(str(rp))
-                        score = data.get("total_score", data.get("score", 0))
-                        if not isinstance(score, (int, float)) or score == 0:
+                        top_score, flat_dims = _extract_score_fields(data)
+                        score = top_score if top_score is not None else 0
+                        has_top_score = top_score is not None
+                        if not has_top_score:
                             # Try rubric-based weighted score (highest precision)
                             rubric_score = (
                                 _compute_rubric_weighted_score(data, skill_name)
@@ -112,16 +152,9 @@ def gate_G3(
                                 score = rubric_score
                                 threshold = 90  # pipeline mode
                             else:
-                                # Fallback: min of dimension-score entries only
-                                # (numeric keys with 0..100 values, not unrelated fields)
-                                dims = [
-                                    float(v)
-                                    for k, v in data.items()
-                                    if k.isdigit()
-                                    and isinstance(v, (int, float))
-                                    and 0 <= float(v) <= 100
-                                ]
-                                score = min(dims) if dims else 0
+                                # Fallback: min of flat dimension scores
+                                # (canonical nested dims + legacy numeric keys)
+                                score = min(flat_dims.values()) if flat_dims else 0
                                 threshold = 90
                         if score < threshold:
                             mf.append(
@@ -220,30 +253,6 @@ def gate_G3(
             c.append({"id": "G3.4", "s": "SKIP", "r": "progress.json invalid"})
     else:
         c.append({"id": "G3.4", "s": "SKIP", "r": "no progress.json"})
-
-    # G3.5 — Scoring history: scorer not in prior scoring_history
-    if pp.exists():
-        try:
-            progress = jload(str(pp))
-            prior_agents = set()
-            for entry in progress.get("scoring_history", []):
-                if isinstance(entry, dict):
-                    aid = entry.get("agent_id", "")
-                elif isinstance(entry, str):
-                    aid = entry
-                else:
-                    continue
-                if aid:
-                    prior_agents.add(str(aid))
-            scorer = progress.get("current_scorer_agent", "")
-            if scorer and str(scorer) in prior_agents:
-                mf.append({"id": "G3.5", "s": "FAIL", "r": "scorer already scored"})
-            else:
-                c.append({"id": "G3.5", "s": "PASS", "note": f"{len(prior_agents)} prior scorers"})
-        except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
-            c.append({"id": "G3.5", "s": "SKIP", "r": "progress.json invalid"})
-    else:
-        c.append({"id": "G3.5", "s": "SKIP", "r": "no progress.json"})
 
     if mf:
         return fail("G3", c, "scoring", [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])

@@ -9,9 +9,9 @@ def test_three_chapter_zero_hard_streak_skips_cascaded_audit():
     # Previous N=3 chapters: 'dialogue' audit passed with zero HARD failures each time.
     # audit_history is most-recent-last; only the trailing N=3 entries are considered.
     audit_history = [
-        {"dialogue": {"passed": True, "hard_failures": 0}},
-        {"dialogue": {"passed": True, "hard_failures": 0}},
-        {"dialogue": {"passed": True, "hard_failures": 0}},
+        {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 2, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
     assert _should_skip_audit("dialogue", audit_history) is True
 
@@ -21,9 +21,9 @@ def test_hard_failure_in_streak_prevents_skip():
 
     # One of the previous 3 chapters had a HARD failure in 'dialogue' → do NOT skip.
     audit_history = [
-        {"dialogue": {"passed": True, "hard_failures": 0}},
-        {"dialogue": {"passed": False, "hard_failures": 1}},  # HARD failure
-        {"dialogue": {"passed": True, "hard_failures": 0}},
+        {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 2, "passed": False, "hard_failures": 1},  # HARD failure
+        {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
     assert _should_skip_audit("dialogue", audit_history) is False
 
@@ -133,18 +133,12 @@ def test_cascade_wiring_skips_dialogue_keeps_continuity():
     from shenbi.pipeline.chapter_loop import _should_skip_audit
 
     audit_history = [
-        {
-            "dialogue": {"passed": True, "hard_failures": 0},
-            "continuity": {"passed": True, "hard_failures": 0},
-        },
-        {
-            "dialogue": {"passed": True, "hard_failures": 0},
-            "continuity": {"passed": True, "hard_failures": 0},
-        },
-        {
-            "dialogue": {"passed": True, "hard_failures": 0},
-            "continuity": {"passed": True, "hard_failures": 0},
-        },
+        {"skill": "dialogue", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "continuity", "chapter": 1, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 2, "passed": True, "hard_failures": 0},
+        {"skill": "continuity", "chapter": 2, "passed": True, "hard_failures": 0},
+        {"skill": "dialogue", "chapter": 3, "passed": True, "hard_failures": 0},
+        {"skill": "continuity", "chapter": 3, "passed": True, "hard_failures": 0},
     ]
 
     # dialogue is cascadable and has a 3-chapter clean streak → skip

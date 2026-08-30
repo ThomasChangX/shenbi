@@ -319,14 +319,17 @@ class TestChapterCompletion:
 class TestConditionalResolve:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
     def test_triggered_hooks_dispatch_resolve(self, mock_disp, tmp_path):
+        # Real ch56 product (G0.9): P0-4 is TRIGGERED in the lifecycle table
+        import shutil
+
         from shenbi.pipeline.chapter_loop import _check_conditional_resolve
 
+        src = Path("tests/fixtures/pipeline/truth-pending_hooks-ch56.md")
+        if not src.exists():
+            src = next(Path("tests/fixtures").rglob("truth-pending_hooks-ch56.md"))
         hooks_file = tmp_path / "truth" / "pending_hooks.md"
         hooks_file.parent.mkdir(parents=True)
-        hooks_file.write_text(
-            "---\nhooks:\n  - id: H01\n    state: TRIGGERED\n---\nbody",
-            encoding="utf-8",
-        )
+        shutil.copyfile(src, hooks_file)
         state = PipelineState.default(str(tmp_path))
         _check_conditional_resolve(state, tmp_path, 1)
         assert mock_disp.called
@@ -520,14 +523,17 @@ class TestConditionalResolveIntegration:
 
     def test_track_step_with_triggered_hooks_dispatches_resolve(self, tmp_path):
         """_check_conditional_resolve dispatches resolve when TRIGGERED hooks exist."""
+        # Real ch56 product (G0.9): P0-4 is TRIGGERED in the lifecycle table
+        import shutil
+
         from shenbi.pipeline.chapter_loop import _check_conditional_resolve
 
+        src = Path("tests/fixtures/pipeline/truth-pending_hooks-ch56.md")
+        if not src.exists():
+            src = next(Path("tests/fixtures").rglob("truth-pending_hooks-ch56.md"))
         hooks_file = tmp_path / "truth" / "pending_hooks.md"
         hooks_file.parent.mkdir(parents=True)
-        hooks_file.write_text(
-            "---\nhooks:\n  - id: H01\n    state: TRIGGERED\n---\nbody",
-            encoding="utf-8",
-        )
+        shutil.copyfile(src, hooks_file)
         state = PipelineState.default(str(tmp_path))
         with patch("shenbi.pipeline.chapter_loop.dispatch_skill") as mock_disp:
             mock_disp.return_value = DispatchResult(True, 0, "{}", "")
@@ -538,68 +544,6 @@ class TestConditionalResolveIntegration:
             c[0][0] for c in mock_disp.call_args_list if "foreshadowing-resolve" in c[0][0]
         ]
         assert len(resolve_skills) >= 1
-
-
-class TestCountTriggeredHooks:
-    def test_yaml_frontmatter(self):
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "---\nhooks:\n  - id: H01\n    state: TRIGGERED\n  - id: H02\n    state: PLANTED\n---\nbody"
-        assert _count_triggered_hooks(text) == 1
-
-    def test_no_frontmatter_text_scan(self):
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "some hooks: state: TRIGGERED and state: TRIGGERED"
-        assert _count_triggered_hooks(text) == 2
-
-    def test_malformed_yaml_falls_back(self):
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "---\nnot: valid: yaml: [\n---\nstate: TRIGGERED"
-        assert _count_triggered_hooks(text) == 1
-
-    def test_no_hooks(self):
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "---\nhooks: []\n---\nnothing"
-        assert _count_triggered_hooks(text) == 0
-
-    # --- D22 canary: HookState enum (case-insensitive + non-canonical) ---
-
-    def test_lowercase_triggered_counted(self):
-        # D22 canary: lowercase 'triggered' must be recognized as TRIGGERED.
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "---\nhooks:\n  - id: H01\n    state: triggered\n---\nbody"
-        assert _count_triggered_hooks(text) == 1
-
-    def test_noncanonical_trigger_spelling_counted(self):
-        # SKILL.md:87 uses bare 'TRIGGER' — must fold to TRIGGERED.
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = "---\nhooks:\n  - id: H01\n    state: TRIGGER\n---\nbody"
-        assert _count_triggered_hooks(text) == 1
-
-    def test_expired_not_counted_as_triggered(self):
-        # D22 canary: state: EXPIRED loads and is NOT counted as TRIGGERED.
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        text = (
-            "---\nhooks:\n"
-            "  - id: H01\n    state: EXPIRED\n"
-            "  - id: H02\n    state: triggered\n"
-            "---\nbody"
-        )
-        assert _count_triggered_hooks(text) == 1
-
-    def test_all_six_states_only_triggered_counted(self):
-        from shenbi.pipeline.chapter_loop import _count_triggered_hooks
-
-        states = ["PLANTED", "RELEVANT", "TRIGGERED", "RESOLVED", "ARCHIVED", "EXPIRED"]
-        lines = "\n".join(f"  - id: H{i}\n    state: {s}" for i, s in enumerate(states))
-        text = f"---\nhooks:\n{lines}\n---\nbody"
-        assert _count_triggered_hooks(text) == 1
 
 
 # ---------------------------------------------------------------------------
@@ -1177,3 +1121,68 @@ def test_step_table_has_no_pre_revision_snapshot():
 def test_revision_step_follows_sensitivity_audit():
     skills = [s.skill for s in CHAPTER_STEPS]
     assert skills.index("shenbi-review-sensitivity") + 1 == skills.index("shenbi-chapter-revision")
+
+
+class TestAnyAuditHasFindings:
+    """F340/F369/F370 (spec #27 T5): scan list single-sourced from the step
+    table + audit vocabs + activation matrix; precise BLOCKING/FAIL markers.
+    """
+
+    def _state_with_audit(self, tmp_path, filename, content):
+        from shenbi.pipeline.state import PipelineState
+
+        proj = tmp_path / "proj"
+        (proj / "audits").mkdir(parents=True, exist_ok=True)
+        if filename is not None:
+            (proj / "audits" / filename).write_text(content, encoding="utf-8")
+        state = PipelineState(project_dir=str(proj))
+        state.chapter_loop.current_chapter = 3
+        return state
+
+    def test_group_factual_blocking_triggers(self, tmp_path):
+        """F340 P0: a group-* audit with a BLOCKING section must trigger
+        revision gating (old 13-type list missed the group family).
+        """
+        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+
+        state = self._state_with_audit(
+            tmp_path,
+            "chapter-3-group-factual.md",
+            "# 审计\n\n## BLOCKING Issues\n\n- 事实错误\n",
+        )
+        assert _any_audit_has_findings(state) is True
+
+    def test_genre_dimension_era_triggers(self, tmp_path):
+        """F369: genre-activated audit families (era/…) must be scanned."""
+        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+
+        state = self._state_with_audit(tmp_path, "chapter-3-era.md", "## BLOCKING\n时代错位\n")
+        assert _any_audit_has_findings(state) is True
+
+    def test_real_production_blocking_audit_triggers(self, tmp_path):
+        """F370: real BLOCKING product (xinghuo chapter audits) triggers;
+        prose mentions of FAIL must not (precise marker, not substring).
+        """
+        import shutil
+
+        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+
+        src = Path("novel-output/xinghuo-ranqiong/audits/chapter-2-memo-compliance.md")
+        if not src.exists():  # production tree not present in this checkout
+            pytest.skip("xinghuo-ranqiong production tree unavailable")
+        proj = tmp_path / "proj"
+        (proj / "audits").mkdir(parents=True)
+        shutil.copy(src, proj / "audits" / "chapter-3-pacing.md")
+        state = self._state_with_audit(tmp_path, None, "")
+        state.project_dir = str(proj)
+        # chapter-2-memo-compliance.md contains "## BLOCKING" (verified real product)
+        assert _any_audit_has_findings(state) is True
+
+    def test_prose_fail_mention_does_not_trigger(self, tmp_path):
+        """F370: bare 'FAIL' inside prose is not a marker."""
+        from shenbi.pipeline.chapter_loop import _any_audit_has_findings
+
+        state = self._state_with_audit(
+            tmp_path, "chapter-3-pacing.md", "本次审计未出现 FAIL 情况，一切正常。\n"
+        )
+        assert _any_audit_has_findings(state) is False

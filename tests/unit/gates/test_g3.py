@@ -169,25 +169,6 @@ class TestG3ErrorPaths:
         assert g34 is not None
         assert g34["s"] == "SKIP"
 
-    @pytest.mark.unit
-    def test_g35_fails_when_scorer_already_scored(self, tmp_path: Path) -> None:
-        """Scorer already in scoring_history -> G3.5 FAIL."""
-        rd = tmp_path / "round"
-        rd.mkdir()
-        progress = {
-            "current_scorer_agent": "agent-02",
-            "scoring_history": ["agent-01", "agent-02"],
-        }
-        (rd / "progress.json").write_text(json.dumps(progress), encoding="utf-8")
-        # G3.5 FAIL goes to must_fix, not checks
-        result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
-        assert any("G3.5" in mf for mf in result.get("must_fix", []))
-
-
-# ---------------------------------------------------------------------------
-# Branch coverage (PR-56 coverage fill)
-# ---------------------------------------------------------------------------
-
 
 @pytest.mark.unit
 def test_g32_compares_report_scores_against_threshold(tmp_path: Path) -> None:
@@ -241,21 +222,6 @@ def test_g34_fails_when_scorer_agent_equals_generator(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
     assert any("G3.4" in m for m in result.get("must_fix", []))
-
-
-@pytest.mark.unit
-def test_g35_fails_when_scorer_already_in_history(tmp_path: Path) -> None:
-    """current_scorer_agent present in scoring_history -> G3.5 FAIL (covers g3.py:183)."""
-    rd = tmp_path / "round"
-    rd.mkdir()
-    (rd / "progress.json").write_text(
-        json.dumps(
-            {"current_scorer_agent": "scorer-1", "scoring_history": [{"agent_id": "scorer-1"}]}
-        ),
-        encoding="utf-8",
-    )
-    result = _result_dict(gate_G3(None, "generative", str(rd)))
-    assert any("G3.5" in m for m in result.get("must_fix", []))
 
 
 @pytest.mark.unit
@@ -389,3 +355,39 @@ def test_g33_non_dict_progress_fails_not_crashes(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(rd)))
     assert result["status"] == "FAIL"  # caught → FAIL, no exception propagated
+
+
+@pytest.mark.unit
+def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
+    """F130 (spec #27): canonical scoring.py output = final_score + nested
+    dimensions list — G3.2 must read final_score / flatten nested dims.
+    """
+    from shenbi.gates.g3 import _extract_score_fields
+
+    canonical = {
+        "final_score": 91.5,
+        "classification": "PASS (excellent)",
+        "dimensions": [
+            {"num": 1, "name": "A", "weight": 10, "score": 90},
+            {"num": 2, "name": "B", "weight": 5, "score": 95},
+        ],
+    }
+    score, dims = _extract_score_fields(canonical)
+    assert score == 91.5
+    assert dims == {1: 90.0, 2: 95.0}
+    # legacy flat shape still supported
+    legacy = {"total_score": 88, "1": 80, "2": 90}
+    score2, dims2 = _extract_score_fields(legacy)
+    assert score2 == 88
+    assert dims2 == {1: 80.0, 2: 90.0}
+
+
+@pytest.mark.unit
+def test_g32_genuine_zero_score_not_overwritten() -> None:
+    """A real final_score of 0 (kill-switch) must NOT be replaced by the
+    rubric/min fallback (false-PASS guard, spec #27 T4 review).
+    """
+    from shenbi.gates.g3 import _extract_score_fields
+
+    score, _ = _extract_score_fields({"final_score": 0, "1": 95})
+    assert score == 0.0

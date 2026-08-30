@@ -3,7 +3,7 @@
 Canonical three-part format, same shape as the real fixture
 ``tests/fixtures/truth-pending_hooks.md``:
   1. YAML frontmatter ``hooks`` list — read by pipeline/context_curation.py,
-     pipeline/review_checklist.py, chapter_loop._count_triggered_hooks;
+     pipeline/review_checklist.py, truth_readers.read_pending_hooks (via chapter_loop._check_conditional_resolve);
   2. ``## hooks`` YAML body block — read by records/parser.parse_records
      (authority per spec New-F), audit/write_audit.py;
   3. ``## 活跃伏笔`` markdown table — read by records/drift.parse_markdown_table.

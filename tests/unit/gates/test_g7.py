@@ -32,82 +32,38 @@ class TestG7RoundClose:
 class TestG7ErrorPaths:
     """Error-path coverage for G7 round-close (PR-52 Step 7).
 
-    G7 reads ALL_SKILLS (from skills/) to validate summary.json coverage,
+    G7 reads ALL_SKILLS (from skills/) to validate t1-reports artifact coverage,
     scans round_dir/skill-output/ for placeholders and pending truth files,
     re-runs PASS gate markers. Tests use a round_dir under tmp_path and, where the gate
     references module-level constants, monkeypatch them.
     """
 
-    @pytest.mark.unit
-    def test_g7_hallucinated_skill_in_summary_fails(self, tmp_path: Path) -> None:
-        """A summary.json listing a skill not in ALL_SKILLS -> G7.1:hallucinated."""
-        round_dir = tmp_path / "round"
-        round_dir.mkdir()
-        (round_dir / "summary.json").write_text(
-            json.dumps({"t1_scores": {"shenbi-not-a-real-skill": {"generative": 95}}}),
-            encoding="utf-8",
-        )
-        result = _result_dict(gate_G7(str(round_dir)))
-        assert result["status"] == "FAIL"
-        assert any("G7.1:hallucinated" in mf for mf in result["must_fix"])
 
-    @pytest.mark.unit
-    def test_g7_missing_coverage_field_fails(self, tmp_path: Path) -> None:
-        """Reverse coverage: summary.json missing real skills -> G7.1:missing_coverage.
-
-        A summary.json with NO t1_scores means every ALL_SKILLS entry is
-        reported as missing coverage.
-        """
-        round_dir = tmp_path / "round"
-        round_dir.mkdir()
-        (round_dir / "summary.json").write_text(json.dumps({"t1_scores": {}}), encoding="utf-8")
-        result = _result_dict(gate_G7(str(round_dir)))
-        assert result["status"] == "FAIL"
-        assert any("G7.1:missing_coverage" in mf for mf in result["must_fix"])
-
-    @pytest.mark.unit
-    def test_g7_template_placeholders_in_skill_output_fails(self, tmp_path: Path) -> None:
-        """An output file with >10% '待填充' placeholder lines -> G7.5:placeholders."""
-        round_dir = tmp_path / "round"
-        so = round_dir / "skill-output" / "proj"
-        so.mkdir(parents=True)
-        (so / "chapter.md").write_text(
-            "\n".join(["待填充内容" for _ in range(5)] + ["正文内容。"]),
-            encoding="utf-8",
-        )
-        result = _result_dict(gate_G7(str(round_dir)))
-        assert any("G7.5:placeholders" in mf for mf in result["must_fix"])
-
-    @pytest.mark.unit
-    def test_g7_pending_truth_files_after_state_settling_fails(self, tmp_path: Path) -> None:
-        """A truth/*.md with frontmatter status: pending -> G7.6:pending_truth."""
-        round_dir = tmp_path / "round"
-        truth = round_dir / "skill-output" / "proj" / "truth"
-        truth.mkdir(parents=True)
-        (truth / "current_state.md").write_text(
-            "---\nstatus: pending\n---\n# Current State\n", encoding="utf-8"
-        )
-        result = _result_dict(gate_G7(str(round_dir)))
-        assert any("G7.6:pending_truth" in mf for mf in result["must_fix"])
-
-
-# ---------------------------------------------------------------------------
-# G7.1 / G7.13 / G7.14 / G7.15 / G7.16 branch coverage (PR-56 coverage fill)
-# ---------------------------------------------------------------------------
+@pytest.mark.unit
+def test_g7_template_placeholders_in_skill_output_fails(tmp_path: Path) -> None:
+    """An output file with >10% '待填充' placeholder lines -> G7.5:placeholders."""
+    round_dir = tmp_path / "round"
+    so = round_dir / "skill-output" / "proj"
+    so.mkdir(parents=True)
+    (so / "chapter.md").write_text(
+        "\n".join(["待填充内容" for _ in range(5)] + ["正文内容。"]),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G7(str(round_dir)))
+    assert any("G7.5:placeholders" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
-def test_g7_corrupt_summary_json_invalid(tmp_path: Path) -> None:
-    """Malformed summary.json -> G7.1:summary.json_invalid, not a crash.
-
-    Covers the G7.1/G7.1b except branches (g7.py:50-51, 63-64). jload
-    propagates json.JSONDecodeError on unparseable JSON, which G7 catches.
-    """
+def test_g7_pending_truth_files_after_state_settling_fails(tmp_path: Path) -> None:
+    """A truth/*.md with frontmatter status: pending -> G7.6:pending_truth."""
     round_dir = tmp_path / "round"
-    round_dir.mkdir()
-    (round_dir / "summary.json").write_text("{not valid json", encoding="utf-8")
+    truth = round_dir / "skill-output" / "proj" / "truth"
+    truth.mkdir(parents=True)
+    (truth / "current_state.md").write_text(
+        "---\nstatus: pending\n---\n# Current State\n", encoding="utf-8"
+    )
     result = _result_dict(gate_G7(str(round_dir)))
-    assert any("G7.1:summary.json_invalid" in mf for mf in result["must_fix"])
+    assert any("G7.6:pending_truth" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
@@ -239,3 +195,46 @@ def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
     )
     result = _result_dict(gate_G7(str(round_dir)))
     assert any("G7.16:phase:genesis:state=in_progress" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_parse_report_stem_contract(tmp_path: Path) -> None:
+    """Direct contract pin for the shared stem parser (final review M2)."""
+    from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
+
+    assert parse_report_stem("shenbi-worldbuilding-generative-scores-subagent", ALL_SKILLS) == (
+        "shenbi-worldbuilding"
+    )
+    assert parse_report_stem("shenbi-worldbuilding-generative", ALL_SKILLS) == (
+        "shenbi-worldbuilding"
+    )
+    assert parse_report_stem("hallucinated-skill-report", ALL_SKILLS) is None
+
+
+@pytest.mark.unit
+def test_g4_bughunt_alias_writes_canonical_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """--test-type bughunt (alias) writes the canonical bug-hunt marker (M2)."""
+    report = tmp_path / "bughunt-report.md"
+    report.write_text(
+        "# Bug\n## Detection\n\n`x.md:L1` violates 铁律.\nFalse positives: 0\n",
+        encoding="utf-8",
+    )
+    rd = tmp_path / "round"
+    import io
+    import sys
+
+    import shenbi.gates.cli as cli_mod
+
+    monkeypatch.setattr(
+        sys,
+        "argv",
+        ["shenbi-validate", "G4", "worldbuilding", "--test-type", "bughunt", str(report), str(rd)],
+    )
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    rc = cli_mod.main()
+    assert rc == 0
+    assert (rd / "gate-markers" / "G4-shenbi-worldbuilding-bug-hunt.json").exists()
+    assert not (rd / "gate-markers" / "G4-shenbi-worldbuilding-bughunt.json").exists()

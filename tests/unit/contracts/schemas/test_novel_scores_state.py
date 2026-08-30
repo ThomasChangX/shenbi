@@ -38,9 +38,8 @@ def test_d26_novel_config_loads_producer_shape():
     legacy key must be rejected by the model (forbid) since it is no longer the
     authoritative producer name.
 
-    (A full fixture round-trip is out of scope here — the fixture's ``genre``
-    is a list while the model declares ``str``; that is an unrelated shape gap.
-    This canary pins only the D26 field-name contract.)
+    (F240/spec #27 T6: genre is now ``str | list[str]`` — the real producer
+    writes a list. The full fixture round-trip below pins that contract.)
     """
     import json
     from pathlib import Path
@@ -56,6 +55,9 @@ def test_d26_novel_config_loads_producer_shape():
     # The legacy key is forbidden (extra: forbid).
     with pytest.raises(ValidationError):
         NovelConfig.model_validate({"target_words": 100000})
+    # F240 round-trip: the full real fixture (genre list) validates.
+    full = NovelConfig.model_validate(raw)
+    assert isinstance(full.genre, list)
 
 
 def test_d26_g6_reads_target_word_count():
@@ -114,7 +116,6 @@ def test_summary_ignore_allows_extra():
 def test_progress_defaults():
     p = ProgressDoc.model_validate({})
     assert p.skills == {}
-    assert p.scoring_history == []
 
 
 def test_summary_defaults():

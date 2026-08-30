@@ -22,4 +22,10 @@ def test_actor_role_members() -> None:
 
 
 def test_all_enums_complete() -> None:
-    assert set(ALL_ENUMS.keys()) == {"Severity", "Verdict", "CPZone", "ActorRole"}
+    assert set(ALL_ENUMS.keys()) == {
+        "Severity",
+        "Verdict",
+        "CPZone",
+        "ActorRole",
+        "TriggerFailureStage",
+    }

@@ -103,7 +103,12 @@ def _style_profile_is_stale(project_dir: Path) -> bool:
     chapters_dir = project_dir / "chapters"
     if not chapters_dir.exists():
         return False
-    chapter_count = len(list(chapters_dir.glob("chapter-*.md")))
+    # F374 (spec #27 T5): exclude pre-revision backups
+    # (_create_pre_revision_backup writes chapter-{N}-pre-rev.md) — they
+    # inflate the count and falsely trip the stale/self-heal path.
+    chapter_count = len(
+        [f for f in chapters_dir.glob("chapter-*.md") if not f.name.endswith("-pre-rev.md")]
+    )
     if chapter_count < 3:
         return False
 
@@ -322,10 +327,27 @@ def is_volume_boundary(chapter: int, project_dir: Path | str) -> bool:
 # Genre-config drift detection (section 6.6)
 # ---------------------------------------------------------------------------
 
+# F375/F643 (spec #27 T5): the drift writer's real format is
+# ``- [{kind}] {dim}: {detail}`` (skill_utils/drift_detection/compute_drift.py
+# _append_audit) with kind ∈ DriftKind — the old ``warning:`` prose pattern
+# matched zero production lines. Two capture groups: kind and dim. The stable
+# repeat-identity is kind+dim — the writer's detail embeds chapter-specific
+# text, so counting full strings could never reach the threshold.
+_DRIFT_KINDS = "monotonic_decline|below_mean_2sigma|volume_decline"
 _WARNING_RE = re.compile(
-    r"(?:warning|drift|fatigue)\s*[:\uff1a]\s*(.+)",
-    re.IGNORECASE,
+    rf"^\s*-\s*\[({_DRIFT_KINDS})\]\s*([^:\uff1a]+)[:\uff1a]",
+    re.IGNORECASE | re.MULTILINE,
 )
+
+
+def count_drift_alerts(project_dir: Path | str) -> int:
+    """Count drift-finding entries in ``truth/audit_drift.md`` (real writer)."""
+    if not project_dir:
+        return 0
+    drift_file = Path(project_dir) / AUDIT_DRIFT_PATH
+    if not drift_file.exists():
+        return 0
+    return len(_WARNING_RE.findall(drift_file.read_text(encoding="utf-8")))
 
 
 def check_genre_config_drift(project_dir: Path | str) -> bool:
@@ -345,7 +367,7 @@ def check_genre_config_drift(project_dir: Path | str) -> bool:
     text = drift_file.read_text(encoding="utf-8")
     warnings: list[str] = []
     for m in _WARNING_RE.finditer(text):
-        warnings.append(m.group(1).strip())
+        warnings.append(f"{m.group(1)}:{m.group(2).strip()}")
 
     if not warnings:
         return False
@@ -670,6 +692,15 @@ def run_triggered_skills(
                     chapter=chapter,
                     skill=step.skill,
                 )
+                # F353 (spec #27): record the G3 failure for post-mortem —
+                # stage vocab lives in enums (single source).
+                state.last_trigger_failure = {
+                    "chapter": chapter,
+                    "skill": step.skill,
+                    "mode": getattr(step, "mode", None),
+                    "stage": "g3",  # TriggerFailureStage vocab (enums.py)
+                    "timestamp": _iso_now(),
+                }
                 return False
 
         log.info(

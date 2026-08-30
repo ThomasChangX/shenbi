@@ -48,27 +48,17 @@ def gate_G5(
     prereqs = phase_data.get("prerequisites", [])
     rd = Path(round_dir) if round_dir else None
 
-    # G5.1: prereq T1 scores >= threshold (prefer summary.json, fallback to report file)
-    summary_data: dict[str, Any] = {}
-    if rd:
-        sp = rd / "summary.json"
-        if sp.exists():
-            try:
-                summary_data = jload(str(sp)).get("t1_scores", {})
-            except (json.JSONDecodeError, OSError):
-                pass  # malformed summary.json → fall back to per-report scores below
+    # G5.1: prereq T1 scores >= threshold (per-report files; the summary.json
+    # t1_scores preference was dead — no writer ever populates it, F464 spec #27)
     for pr in prereqs:
         score = 0
-        if pr in summary_data:
-            score = summary_data[pr].get("generative", 0)
-        else:
-            report = find_report(rd / "t1-reports", pr, "generative") if rd else None
-            if report and report.exists():
-                rdata = jload(str(report))
-                score = rdata.get("final_score", rdata.get("score", 0))
-            elif rd:
-                mf.append(f"G5.1:{pr}:no_report")
-                continue
+        report = find_report(rd / "t1-reports", pr, "generative") if rd else None
+        if report and report.exists():
+            rdata = jload(str(report))
+            score = rdata.get("final_score", rdata.get("score", 0))
+        elif rd:
+            mf.append(f"G5.1:{pr}:no_report")
+            continue
         if score < threshold:
             mf.append(f"G5.1:{pr}:score={score}<{threshold}")
 

@@ -253,3 +253,23 @@ def test_main_cli_negative_exits_zero_and_writes_nothing(tmp_path, capsys, monke
     assert capsys.readouterr().out == ""
     # §10: only positive cases write audit_drift — a clean series must not create it
     assert not (tmp_path / "truth" / "audit_drift.md").exists()
+
+
+def test_parse_trend_three_consumer_header_contract(tmp_path):
+    """F524 (spec #27 T5): both consumers (resonance_trend, arc_payoff) parse
+    the same writer header shape — column-mapped, not positional.
+    """
+    from shenbi.skill_utils.drift_detection.compute_drift import (
+        ARC_PAYOFF_DIMS,
+        RESONANCE_DIMS,
+    )
+
+    header = "| 章 | " + " | ".join(sorted(set(RESONANCE_DIMS) | set(ARC_PAYOFF_DIMS))) + " |"
+    sep = "|" + "---|" * (len(header.split("|")) - 2)
+    row = "| 3 | " + " | ".join(["85"] * (len(header.split("|")) - 3)) + " |"
+    trend = tmp_path / "trend.md"
+    trend.write_text(f"# trend\n\n{header}\n{sep}\n{row}\n", encoding="utf-8")
+    parsed_r = parse_trend(str(trend), dims=RESONANCE_DIMS)
+    parsed_a = parse_trend(str(trend), dims=ARC_PAYOFF_DIMS)
+    assert all(v == [(85.0, False)] for v in parsed_r.values()), parsed_r
+    assert all(v == [(85.0, False)] for v in parsed_a.values()), parsed_a

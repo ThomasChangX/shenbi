@@ -73,17 +73,32 @@ def test_conditional_snapshot_manage_runs():
     assert _should_run_step(state, step)
 
 
-def test_drift_guidance_triggered_by_alerts():
-    """shenbi-drift-guidance should run when 3+ consecutive drift alerts."""
+def test_drift_guidance_triggered_by_alerts(tmp_path):
+    """shenbi-drift-guidance runs when >=3 drift findings exist in
+    truth/audit_drift.md (the real writer surface, F349 spec #27).
+    """
+    truth = tmp_path / "truth"
+    truth.mkdir(parents=True)
+    drift = truth / "audit_drift.md"
+    drift.write_text(
+        "# Audit Drift\n\n"
+        "- [below_mean_2sigma] 情感落地: 低于均值 (ch1)\n"
+        "- [below_mean_2sigma] 情感落地: 低于均值 (ch2)\n"
+        "- [below_mean_2sigma] 情感落地: 低于均值 (ch3)\n",
+        encoding="utf-8",
+    )
     state = MagicMock()
-    state.drift_alerts = ["alert1", "alert2", "alert3"]
+    state.project_dir = str(tmp_path)
     step = MagicMock()
     step.skill = "shenbi-drift-guidance"
     step.conditional = True
 
     assert _should_run_step(state, step)
 
-    state.drift_alerts = ["alert1", "alert2"]
+    drift.write_text(
+        "# Audit Drift\n\n- [below_mean_2sigma] 情感落地: 低于均值 (ch1)\n",
+        encoding="utf-8",
+    )
     assert not _should_run_step(state, step)
 
 

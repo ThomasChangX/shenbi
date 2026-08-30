@@ -10,6 +10,7 @@ from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts.thresholds import TEST_PASS
+from shenbi.gates.shared import marker_filename
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
 
@@ -246,7 +247,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
         idx = rubric_p.parts.index("t1-skill")
         skill_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
         if skill_name:
-            marker_file = marker_dir / f"G4-{skill_name}-{test_type}.json"
+            marker_file = marker_dir / marker_filename("G4", skill_name, test_type or "")
             if not marker_file.exists():
                 missing.append(f"G4-{skill_name}-{test_type}")
 
@@ -264,7 +265,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
             phase_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
             if phase_name and phase_name in deps.get("t2-phases", {}):
                 for skill in deps["t2-phases"][phase_name].get("prerequisites", []):
-                    marker_file = marker_dir / f"G4-{skill}-generative.json"
+                    marker_file = marker_dir / marker_filename("G4", skill, "generative")
                     if not marker_file.exists():
                         missing.append(f"G4-{skill}-generative")
 
@@ -272,7 +273,7 @@ def check_gate_markers(rubric_path: str, test_type: str | None, round_dir: str |
         idx = rubric_p.parts.index("t3-pipeline")
         pipeline_name = rubric_p.parts[idx + 1] if idx + 1 < len(rubric_p.parts) else None
         if pipeline_name:
-            marker_file = marker_dir / f"G6-{pipeline_name}-{test_type}.json"
+            marker_file = marker_dir / marker_filename("G6", pipeline_name, test_type or "")
             if not marker_file.exists():
                 missing.append(f"G6-{pipeline_name}-{test_type}")
 
@@ -417,10 +418,14 @@ def main() -> dict[str, Any]:
                         pass  # Expected when gate output is not valid JSON (e.g. subprocess error)
 
     # Gate marker enforcement — MUST pass before scoring can proceed
+    # F136 (spec #27): provenance flag carries the REAL verification result,
+    # not the vacuous bool(round_dir and test_type).
+    markers_ok = False
     if test_type:
         dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
         if round_dir:
             missing = check_gate_markers(rubric_path, test_type, round_dir)
+            markers_ok = not missing
             if missing:
                 err = {
                     "status": ScoringStatus.MARKER_MISSING,
@@ -501,7 +506,7 @@ def main() -> dict[str, Any]:
         "_provenance": {
             "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
             "timestamp": datetime.now(UTC).isoformat(),
-            "gate_markers_verified": bool(round_dir and test_type),
+            "gate_markers_verified": markers_ok,
             "round_dir": str(round_dir) if round_dir else None,
             "scoring_tool": "scoring.py",
         },

@@ -150,3 +150,68 @@ def test_g_reconcile_dispatch(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -
     rc, out = _run(["G_RECONCILE", str(rd)], monkeypatch)
     assert rc == 0
     json.loads(out)
+
+
+@pytest.mark.unit
+def test_g4_test_type_flag_writes_bughunt_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec #27 T2: G4 --test-type bug-hunt writes G4-<skill>-bug-hunt.json marker.
+
+    Reader key (scoring.py check_gate_markers) derives the skill name from the
+    rubric path, so the writer target must be the full skill name.
+    """
+    report = tmp_path / "bughunt-report.md"
+    report.write_text(
+        "# Bug Hunt\n## Detection Summary\n\n`chapter-3.md:L42` violates 铁律.\n"
+        "False positives: 0\n",
+        encoding="utf-8",
+    )
+    rd = tmp_path / "round"
+    rc, out = _run(
+        [
+            "G4",
+            "worldbuilding",
+            "--test-type",
+            "bug-hunt",
+            str(report),
+            str(rd),
+        ],
+        monkeypatch,
+    )
+    assert rc == 0
+    marker = rd / "gate-markers" / "G4-shenbi-worldbuilding-bug-hunt.json"
+    assert marker.exists(), f"marker not written; cli output: {out}"
+    import json as _json
+
+    payload = _json.loads(marker.read_text(encoding="utf-8"))
+    assert payload["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_g4_test_type_flag_writes_clean_marker(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec #27 T2: G4 --test-type clean writes G4-<skill>-clean.json marker."""
+    report = tmp_path / "clean-report.md"
+    report.write_text(
+        "# Clean Run\n## Files Checked\n\n- chapter-3.md\n\nZero issues.\n",
+        encoding="utf-8",
+    )
+    rd = tmp_path / "round"
+    rc, _ = _run(
+        ["G4", "worldbuilding", "--test-type", "clean", str(report), str(rd)],
+        monkeypatch,
+    )
+    assert rc == 0
+    assert (rd / "gate-markers" / "G4-shenbi-worldbuilding-clean.json").exists()
+
+
+@pytest.mark.unit
+def test_g4_test_type_flag_without_value_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Spec #27 T2: dangling --test-type must error, not shift positionals."""
+    rc, out = _run(["G4", "worldbuilding", "--test-type"], monkeypatch)
+    assert rc == 1
+    assert "requires a value" in out

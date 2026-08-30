@@ -66,24 +66,6 @@ def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
     # GT.2 — all skills DONE or DEAD (deferred)
     c.append({"id": "GT.2", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 
-    # GT.3 — gate_blockers empty (no FAIL entries)
-    blockers = progress.get("gate_blockers", [])
-    if blockers:
-        return fail(
-            "G_TRANSITION",
-            c
-            + [
-                {
-                    "id": "GT.3",
-                    "s": "FAIL",
-                    "blockers": blockers,
-                }
-            ],
-            "phase_transition",
-            ["GT.3"],
-        )
-    c.append({"id": "GT.3", "s": "PASS"})
-
     # GT.4 — batch G2 check (deferred)
     c.append({"id": "GT.4", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
 

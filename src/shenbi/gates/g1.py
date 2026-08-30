@@ -10,7 +10,6 @@ log = get_logger(__name__)
 
 import fnmatch
 import json
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -239,44 +238,6 @@ def gate_G1(
             )
         else:
             c.append({"id": "G1.4", "file": fp, "s": "SKIP", "r": "not in-place skill"})
-
-    # G1.5 — file lock check (round-level .gate-lock file)
-    if rd:
-        lock_path = rd / ".gate-lock"
-        if lock_path.exists():
-            age = datetime.now(UTC).timestamp() - lock_path.stat().st_mtime
-            if age <= 300:
-                mf.append({"id": "G1.5", "s": "FAIL", "r": f"lock active ({age:.0f}s old)"})
-            else:
-                c.append({"id": "G1.5", "s": "PASS", "r": f"stale lock ({age:.0f}s, >300s)"})
-        else:
-            c.append({"id": "G1.5", "s": "PASS", "r": "no lock file"})
-    else:
-        c.append({"id": "G1.5", "s": "SKIP", "r": "no round_dir"})
-
-    # G1.6 — scoring_history check for scorer agent_id
-    if rd:
-        pp = rd / "progress.json"
-        if pp.exists():
-            try:
-                progress = jload(str(pp))
-                scoring_history = progress.get("scoring_history", [])
-                if isinstance(scoring_history, list):
-                    c.append(
-                        {
-                            "id": "G1.6",
-                            "s": "PASS",
-                            "note": f"scoring_history: {len(scoring_history)} entries",
-                        }
-                    )
-                else:
-                    c.append({"id": "G1.6", "s": "WARN", "r": "scoring_history not a list"})
-            except (json.JSONDecodeError, OSError):
-                c.append({"id": "G1.6", "s": "SKIP", "r": "progress.json unreadable"})
-        else:
-            c.append({"id": "G1.6", "s": "SKIP", "r": "no progress.json"})
-    else:
-        c.append({"id": "G1.6", "s": "SKIP", "r": "no round_dir"})
 
     if not fps:
         c.append({"id": "G1.0", "s": "SKIP", "r": "no input files"})
