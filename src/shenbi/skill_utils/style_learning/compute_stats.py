@@ -87,8 +87,15 @@ def segment_sentences(text: str) -> list[tuple[str, int]]:
         in_quote = bool(quote_stack) or ascii_quote_open
         if ch == "\n" or (ch in "。！？；" and not in_quote):
             flush()
-        elif quote_closed and len(current) >= 2 and current[-2] in "。！？；":
-            # F668: sentence-final punct right before a closing quote ends the sentence
+        elif (
+            quote_closed
+            and not quote_stack
+            and not ascii_quote_open
+            and len(current) >= 2
+            and current[-2] in "。！？；"
+        ):
+            # F668: sentence-final punct right before the OUTERMOST closing quote
+            # ends the sentence (nested inner closes do not split the outer one)
             flush()
     if current:
         flush()

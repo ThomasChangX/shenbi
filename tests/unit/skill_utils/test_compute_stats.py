@@ -530,3 +530,11 @@ def test_compute_ttr_empty_returns_full_key_set() -> None:
     assert ttr["total_chars"] == 0
     assert ttr["sliding_ttr_mean"] == 0
     assert ttr["sliding_ttr_std"] == 0
+
+
+@pytest.mark.unit
+def test_segment_sentences_nested_quote_inner_close_does_not_split() -> None:
+    """F668: only the outermost closing quote after sentence-final punct splits."""
+    sents = segment_sentences("「外层『内层。』外层继续。」他说。")
+    assert len(sents) == 2
+    assert sents[0][0] == "「外层『内层。』外层继续。」"
