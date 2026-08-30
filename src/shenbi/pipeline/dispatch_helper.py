@@ -552,6 +552,15 @@ def _input_key(full_path: Path, project_dir: Path) -> str:
         return str(full_path)
 
 
+def _escape_attr(value: str) -> str:
+    """T12-01 (spec #22 R1a): escape a filename for use inside a double-quoted
+    XML-ish attribute value. '&' first so entity output is not double-escaped.
+    """
+    return (
+        value.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+    )
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -778,7 +787,9 @@ def _build_skill_prompt(
             # (Spec 8 §3 Bug 2: the wrapper is </document>, NOT </doc>; the safest
             # approach is escaping every '<' rather than only replacing the tag.)
             safe_content = content.replace("<", "\u003c")
-            user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
+            user_parts.append(
+                f'<document name="{_escape_attr(fname)}">\n{safe_content}\n</document>'
+            )
     user_prompt = "\n".join(user_parts)
 
     # Task 13: Inject plan skeleton for shenbi-chapter-planning when volume_map exists.
