@@ -71,6 +71,12 @@ def _path_lock(path: Path) -> threading.Lock:
         return lock
 
 
+#: Public alias: sibling modules (dispatch_helper staging route, checkpoint
+#: commit merge) reuse the SAME per-path lock registry — a second registry
+#: would not mutually exclude with write_truth_file's locking (SDD #21 R3).
+path_lock = _path_lock
+
+
 def write_truth_file(
     project_dir: Path,
     filename: str,
@@ -99,9 +105,10 @@ def write_truth_file(
             YAML frontmatter is corrupt/unreadable (fail-loud, T706) — the
             file is left untouched for repair instead of being collapsed.
     """
-    if mode not in ("replace", "upsert_yaml", "upsert_markdown_row"):
+    if mode not in ("replace", "upsert_yaml", "upsert_markdown_row", "insert_markdown_row"):
         raise ValueError(
-            f"Unknown mode '{mode}'; expected 'replace', 'upsert_yaml', or 'upsert_markdown_row'"
+            f"Unknown mode '{mode}'; expected 'replace', 'upsert_yaml', 'upsert_markdown_row', "
+            "or 'insert_markdown_row'"
         )
 
     truth_dir = project_dir / "truth"
@@ -133,6 +140,28 @@ def write_truth_file(
                 log.info("truth_file_markdown_row_upserted", file=filename)
             else:
                 raise ValueError("upsert_markdown_row requires str or dict new_data")
+            return
+
+        if mode == "insert_markdown_row":
+            # T701 (SDD #21 R1): insert-only semantics — if the key already
+            # exists, skip (a richer row from another writer stays untouched);
+            # otherwise append. The existence check runs INSIDE the per-path
+            # lock so concurrent writer threads cannot interleave check and
+            # write (check-then-act race). Unlike upsert_markdown_row this
+            # never replaces an existing row: the framework placeholder row
+            # must not clobber a skill's rich row (dimension scores, role,
+            # confidence) written moments earlier in the same chapter.
+            if not isinstance(new_data, str):
+                raise ValueError("insert_markdown_row requires str new_data")
+            existing = path.read_text(encoding="utf-8") if path.exists() else ""
+            if has_markdown_row(existing, new_data, key_field or "chapter"):
+                log.info(
+                    "truth_file_markdown_row_insert_skipped", file=filename, key_field=key_field
+                )
+                return
+            merged = upsert_markdown_row(existing, new_data, key_field or "chapter")
+            safe_write(path, merged)
+            log.info("truth_file_markdown_row_inserted", file=filename)
             return
 
         if mode == "upsert_yaml":
@@ -328,6 +357,32 @@ def upsert_markdown_row(existing: str, new_row: str, key_name: str) -> str:
     return "\n".join(result_lines)
 
 
+def has_markdown_row(existing: str, new_row: str, key_name: str) -> bool:
+    """True if a table row with the new row's key already exists (SDD #21 R1).
+
+    Uses the same whole-cell key-column semantics as
+    :func:`upsert_markdown_row`. Rows that are not tables, lack the key
+    column, or have an empty key count as "not present" (insert proceeds —
+    symmetric with the data-preserving fallback in upsert).
+    """
+    new_cells = split_table_cells(new_row)
+    if new_cells is None:
+        return False
+    key_col = _key_column(existing, key_name)
+    if key_col >= len(new_cells):
+        return False
+    new_key = new_cells[key_col]
+    if not new_key:
+        return False
+    for line in existing.split("\n"):
+        cells = split_table_cells(line)
+        if cells is None or _is_separator_row(cells):
+            continue
+        if key_col < len(cells) and cells[key_col] == new_key:
+            return True
+    return False
+
+
 def _read_yaml_records(path: Path) -> list[dict[str, Any]]:
     """Read the YAML-fronted records list (e.g. frontmatter ``hooks:`` array).
 
@@ -413,3 +468,8 @@ def _serialize_yaml_records(records: list[dict[str, Any]], filename: str) -> str
     fm = {yaml_key: records}
     front = yaml.safe_dump(fm, allow_unicode=True, sort_keys=False).strip()
     return f"---\n{front}\n---\n\n"
+
+
+#: Public alias for the separator-row predicate (used by the checkpoint-side
+#: keyed merge; single source, no duplicate regex).
+is_separator_row = _is_separator_row

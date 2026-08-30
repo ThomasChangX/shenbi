@@ -113,33 +113,37 @@ def gate_G6(
     # G6.7: foreshadowing lifecycle (pending_hooks.md)
     hooks_path = pd / "truth" / "pending_hooks.md"
     if hooks_path.exists():
-        hook_text = hooks_path.read_text(encoding="utf-8")
-        # Parse YAML-like hook entries (after "## hooks" section)
-        hooks_section = hook_text.split("## hooks")[-1] if "## hooks" in hook_text else hook_text
-        # Extract hook blocks using regex
-        hook_blocks = re.split(r"\n- id:", hooks_section)
-        hook_blocks = ["id:" + b for b in hook_blocks if b.strip()]
-        total_hooks = len(hook_blocks)
+        # Single table-aware parser (SDD #21 R2): the production file is a
+        # Chinese markdown table format; the old ``## hooks``/``- id:``
+        # block parser never matched it and produced one fake "??" hook from
+        # the whole file body (F450). Fields the tables cannot supply are
+        # None — they are counted/logged explicitly as unknown, never folded
+        # into unresolved with fabricated defaults.
+        from shenbi.pipeline.truth_readers import read_pending_hooks
+
+        hook_records = read_pending_hooks(pd)
+        total_hooks = len(hook_records)
         unresolved = 0
+        unknown_state = 0
         exceeded: list[str] = []
         planted_chapters: list[int] = []
-        for block in hook_blocks:
-            hid_m = re.search(r"id:\s*(\S+)", block)
-            state_m = re.search(r"state:\s*(\S+)", block)
-            maxd_m = re.search(r"max_distance:\s*(\d+)", block)
-            plant_m = re.search(r"plant_chapter:\s*(\d+)", block)
-            hid = hid_m.group(1) if hid_m else "??"
-            state = state_m.group(1) if state_m else "??"
-            if state != "RESOLVED" and state != "resolved":
+        for rec in hook_records:
+            hid = str(rec["id"])
+            state = rec.get("state")
+            if state is None:
+                unknown_state += 1
+            elif state.upper() != "RESOLVED":
                 unresolved += 1
-            if maxd_m and plant_m:
-                maxd = int(maxd_m.group(1))
-                planted = int(plant_m.group(1))
+            maxd = rec.get("max_distance")
+            planted = rec.get("plant_chapter")
+            if isinstance(maxd, int) and isinstance(planted, int):
                 max_ch = max(nums) if nums else planted
                 if max_ch - planted > maxd:
                     exceeded.append(f"{hid}:planted={planted}:max_ch={max_ch}:maxd={maxd}")
-            if plant_m:
-                planted_chapters.append(int(plant_m.group(1)))
+            if isinstance(planted, int):
+                planted_chapters.append(planted)
+        if unknown_state:
+            mf.append(f"G6.7:unknown_state:{unknown_state}")
         if exceeded:
             mf.extend([f"G6.7:max_distance_exceeded:{x}" for x in exceeded])
         # Hook density
