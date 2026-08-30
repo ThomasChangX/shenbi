@@ -72,7 +72,7 @@ class TestCollapseSemanticsSpec31:
 - [ ] **Step 2: 跑测试确认失败**
 
 Run: `uv run pytest tests/unit/test_scoring_anti_collapse.py -k Spec31 -v`
-Expected: 4 FAIL（现行实现对单维/全零报 all_identical）
+Expected: 2 FAIL（test_single_dimension_no_collapse、test_all_zero_multi_dim_exempt_both_signals——另两例现行已通过，属语义锁定）
 
 - [ ] **Step 3: 最小实现**（scoring.py flag_score_collapse 内，在 `if not values: return` 之后插入）
 
@@ -167,7 +167,7 @@ provenance 字典改 `"scored_by": _resolve_scored_by(),`。
 
 - [ ] **Step 4: 检查 --interactive 分支既有消费面**
 
-Run: `uv run grep -rn "interactive" src/shenbi/scoring.py | head -20`（或等价 grep）确认 interactive 模式入口无 assumed provenance 依赖；跑 `uv run pytest tests/unit/test_scoring_anti_collapse.py tests/unit/test_scoring_provenance.py -q`
+Run: `grep -rn "interactive" src/shenbi/scoring.py | head -20` 确认 interactive 模式入口无 assumed provenance 依赖；跑 `uv run pytest tests/unit/test_scoring_anti_collapse.py tests/unit/test_scoring_provenance.py -q`
 Expected: PASS
 
 - [ ] **Step 5: Commit**
@@ -283,37 +283,41 @@ git commit -m "feat: wire scoring_bridge collapse check into codex scoring dispa
 - [ ] **Step 2: 写失败测试**（tests/unit/dispatcher/test_codex_dual_scorer.py）
 
 ```python
-"""spec #31 T2b: dual-scorer agreement, opt-in, fixtures-driven (G0.9).
+"""spec #31 T2b: dual-scorer agreement, opt-in, mocked-subprocess unit tests.
 
-第二评分文件 = 真实 subagent 评分产物精确副本 + 脚本化最小 delta（一个维度数值）。
+G0.9 注记：本测试的对象是 dispatch 控制流（subprocess 打桩），scores dict 是
+程序内构造的输入而非「真实技能产物 fixture」——dispatch 内部 JSON 协议不属于
+G0.9 管辖的 scenario fixture 面；第二评分 = 主评分的程序化副本 + 单维度受控 delta。
 """
 import json
 from pathlib import Path
-from unittest.mock import patch
 
 from shenbi.dispatcher.modes import codex as codex_mod
 
-REAL_SCORES = {  # tests/fixtures/calibration 真实产物形态的副本基线（见 Step 3 fixture 说明）
-    "1": 90, "2": 85, "3": 80, "4": 88, "5": 82,
-}
+REAL_SCORES = {"1": 90, "2": 85, "3": 80, "4": 88, "5": 82}
 
 
 def _fake_codex_exec(second_scores: dict):
-    """Return a subprocess.run fake: first call writes primary .raw, second writes dual .raw."""
+    """subprocess.run fake: codex-exec calls write .raw JSON; shenbi-score returns score."""
     calls = {"n": 0}
 
     def run(cmd, **kwargs):
+        if "shenbi-score" in cmd:  # scoring subprocess: no -o flag
+            calls["n"] += 1
+            return type("P", (), {"returncode": 0, "stderr": "", "stdout": json.dumps({"final_score": 85})})()
+        # codex exec: cmd 形如 ["codex","exec","-C",str(round_dir),"-o",str(raw_out),prompt]
         idx = calls["n"]
         calls["n"] += 1
-        # cmd 形如 ["codex","exec","-C",str(round_dir),"-o",str(raw_out),prompt]
         out_path = Path(cmd[cmd.index("-o") + 1])
+        out_path.parent.mkdir(parents=True, exist_ok=True)
         out_path.write_text(json.dumps(second_scores if idx == 1 else REAL_SCORES), encoding="utf-8")
-        rc_proc = type("P", (), {"returncode": 0, "stderr": "", "stdout": ""})()
-        if "shenbi-score" in cmd:  # score subprocess
-            rc_proc.stdout = json.dumps({"final_score": 85})
-        return rc_proc
+        return type("P", (), {"returncode": 0, "stderr": "", "stdout": ""})()
 
     return run, calls
+
+
+def _manifest(tmp_path):
+    return json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
 
 
 def test_dual_scorer_agreement_no_arbitration(tmp_path, monkeypatch):
@@ -323,7 +327,7 @@ def test_dual_scorer_agreement_no_arbitration(tmp_path, monkeypatch):
     rc = codex_mod.dispatch_codex("sk", "generative", tmp_path, "p", "a1")
     assert rc == 0
     assert calls["n"] >= 3  # 2×codex exec + ≥1 score
-    assert not (tmp_path / "gate-manifest" / "G3-arb").exists() or True  # 无仲裁记录断言见 manifest 测试
+    assert not (tmp_path / "pipeline-manifest.json").exists()  # 一致 → 无仲裁记录
 
 
 def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
@@ -333,12 +337,11 @@ def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
     monkeypatch.setenv("SHENBI_DUAL_SCORER", "1")
     rc = codex_mod.dispatch_codex("sk", "generative", tmp_path, "p", "a1")
     assert rc == 0
-    manifest_dir = tmp_path  # record_gate_result 以 project_dir 为 manifest 根
-    found = list(manifest_dir.rglob("*G3-arb*"))
-    assert found, "disputed dual scores must leave an arbitration record"
+    entries = _manifest(tmp_path)["gates"]["t1"]["0"]["sk"]["G3-arb"]  # list-append 结构
+    assert entries and entries[-1]["result"]["needs_arbitration"] is True
 ```
 
-- [ ] **Step 3: fixture 对齐**——若 `tests/fixtures/calibration/` 下有真实 subagent 评分 JSON，`REAL_SCORES` 改为 `json.loads(Path("tests/fixtures/<真实文件>").read_text())` 的副本并在测试头注释标 provenance；无则保留上表并在注释声明「真实 round 报告数值形态副本（tests/rounds 归档 round 的 scores-subagent.json 数值抄录）」——plan 执行时以实际存在者为准，G0.9 禁手写整份。
+- [ ] **Step 3: fixture 裁定（阶段 5 审查 I4 已核）**——`tests/fixtures/` 与 `tests/rounds/` 均无真实 subagent 评分 JSON。G0.9 裁定：本测试对象是 dispatch 控制流（subprocess 打桩），scores 是程序内输入而非技能产物 fixture，不构成 G0.9 违规；测试头已注记此裁定。第二评分恒为主评分程序化副本 + 单维度受控 delta（脚本化，非手写整份）。
 
 - [ ] **Step 4: 跑测试确认失败**
 
@@ -356,14 +359,14 @@ codex.py `dispatch_codex` 签名加 `dual: bool = False`（显式开关参数；
 
 `_run_dual_scorer_check`：第二次 codex exec（同 prompt，输出 `*-scores-subagent-2.json`）→ 解析 → `validate_dual_scorer(scores, scores2)` → `needs_arbitration` 时 `record_gate_result(gate_manifest_dir=round_dir, phase="t1", chapter=0, skill=skill, gate="G3-arb", result=agreement_dict)` + `log.warning("dual_scorer_dispute", ...)`。codex exec + JSON 抽取逻辑提取为 `_codex_exec_scores(round_dir: Path, prompt: str, out_file: Path) -> dict` 内部 helper，主/副派发共用（`scores_suffix` 参数取消——副文件名由 `_run_dual_scorer_check` 内部拼装，dispatch_codex 公开签名只加 `dual: bool = False`，最小爆炸面）。
 
-executor.py:216 附近：pipeline 轮从 `pipeline-state.json` 读 `config.dual_scorer`，为 True 时传 dual 开启（实现时以 executor 现有 state 读取模式为准——`executor.py:208` 已探测 pipeline-state.json）。
+executor.py:216 附近接线：executor.py:208 已探测 `(round_dir / "pipeline-state.json").exists()` 但从未读取其 config——实现为：存在时用 `shenbi.pipeline.state` 的既有反序列化入口加载（打开 state.py 确认 `from_json`/等价 loader 的实际名），取 `config.dual_scorer` 为 True 时向 dispatch_codex 传 `dual=True`。若 loader 不存在则读 JSON dict 的 `config.dual_scorer` 键（fail-open False）。
 
 shared.py 两处剥离序改 `("-scores-subagent-2", "-scores-subagent", "-scores")`；`find_report` 尝试序同改（dual 文件不是主评分文件，find_report 找主文件优先级不变——只在 parse_report_stem 剥离与 find_report 后备序中纳入，防 g_reconcile 把 dual 文件解析成独立技能）。
 
 - [ ] **Step 6: 回归**
 
 Run: `uv run pytest tests/unit/dispatcher/ tests/unit/gates/ -q`
-Expected: 全 PASS（g_reconcile 对 `-scores-subagent-2` 文件名的 stem 解析正确——如测试套未覆盖则补一例 `parse_report_stem("sk-generative-scores-subagent-2") == "sk"`）
+Expected: 全 PASS。补一例 stem 归一断言（注意：`parse_report_stem("sk-generative-scores-subagent-2")` 靠最长技能前缀匹配在改动前后都返回 "sk"——该例是行为锁定而非变更守护；变更的守护由 g_reconcile 既有测试套回归承担）
 
 - [ ] **Step 7: Commit**
 
@@ -411,20 +414,16 @@ git commit -m "docs: re-point resonance trend row docstring at real reader; fix 
 
 ```python
 """spec #31 T5: G3 must fail closed without fabricating progress.json (F794 guard)."""
-import json
-
 from shenbi.pipeline.dispatch_helper import run_gate_g3
 
 
 def test_g3_fail_closed_no_progress_fabrication(tmp_path):
     rd = tmp_path / "round"
     rd.mkdir()
-    result = json.loads(run_gate_g3(str(rd), "genesis", None, "sk", "generative"))
+    result = run_gate_g3("sk", rd)  # 签名: (skill, round_dir, chapter=None, phase=None) -> dict
     assert result["status"] == "FAIL"
     assert not (rd / "progress.json").exists()  # 不得自造
 ```
-
-（参数以 `dispatch_helper.py:2408-2451` 实际签名为准——实现时打开核对逐参名，若签名不符以源码为准修测试）
 
 - [ ] **Step 2: 跑通** `uv run pytest tests/unit/pipeline/test_g3_fail_closed_guard.py -v` → PASS（若现行签名/返回形态不同，修测试对齐真实形态——能力已由 #8 落地，本测试是锁定）
 
