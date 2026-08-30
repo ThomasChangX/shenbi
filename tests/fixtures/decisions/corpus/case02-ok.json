@@ -1,0 +1,71 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 38,
+  "produced_at": "2026-07-17T00:00:00Z",
+  "selections": [
+    {
+      "target": "plans/chapter-38-plan.md",
+      "selected": [
+        "tuesday_wednesday_doubleday",
+        "cold_in_winter_deepening_day2_day3",
+        "white_breath_inward_maintenance",
+        "intersection_offset_winter_1frame",
+        "touch_domain_conditional_sensory_frame",
+        "event_waiting_window",
+        "quiet_knows_fourth_tue_wed",
+        "mh020_decline_6point_5point",
+        "engine_sound_crossweek_confirmation",
+        "extradomain_signal_distance_registration",
+        "queue_second_third_position",
+        "assessment_window_micro_angle",
+        "light_pillar_19_20_21",
+        "walked_variation_continuation"
+      ],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": [
+        "season_announcement",
+        "touch_domain_extension",
+        "fourth_week_comparison",
+        "vol3_kr1_narrative"
+      ]
+    },
+    {
+      "target": "audit_drift",
+      "selected": [
+        "intersection_drift_as_emotional_anchor",
+        "touch_domain_sensory_frame_minimal",
+        "event_waiting_window_as_perceptible_event"
+      ],
+      "basis": "arc_relevance",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "ch37_drift_1_emotion_grounding",
+      "severity": "medium",
+      "handling": "explicit_callout",
+      "rationale": "岔路口偏移1帧在冬季——已知节奏异常作为情绪锚点——替代方向比较——不依赖读者对前章Saturday外扩记忆锚点"
+    },
+    {
+      "issue_id": "ch37_drift_2_scene_presence",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "触碰域感官帧在周三交付——自然信号在场时记录冷梯度波形差异——参数系统知道波形不同——1帧差异作为感官帧——非纯参数化登记"
+    },
+    {
+      "issue_id": "ch37_drift_3_reader_return",
+      "severity": "medium",
+      "handling": "compensate_via_pacing",
+      "rationale": "事件等待窗口在周三信号后扩展至3-4帧——参数系统在信号后帧等待——等待本身作为感知内容——已足够感受'事件发生了'的重量"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 6500,
+    "limit": 12000,
+    "trim_applied": "none"
+  }
+}

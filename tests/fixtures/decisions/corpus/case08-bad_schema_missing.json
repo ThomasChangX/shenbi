@@ -1,0 +1,51 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 26,
+  "produced_at": "2026-07-17T00:50:00Z",
+  "revision_mode": "spot-fix",
+  "selections": [
+    {
+      "target": "revision-mode",
+      "selected": ["spot-fix"],
+      "basis": "route_c_diagnosis: all targets achieved, no BLOCKING. Single surface-level issue: dash density. Rejected: rewrite (no structural issues), regenerate (targets achieved), constrained-regenerate (no工艺 issues)",
+      "severity": "low"
+    },
+    {
+      "target": "revision_scope",
+      "selected": [
+        "preserve_all_content",
+        "preserve_signature_dash_patterns",
+        "reduce_chain_dashes_50pct"
+      ],
+      "basis": "anti-ai audit recommendation: systematic ~50% dash reduction. Keep 不是A——是B negation pairs as character voice. Replace chain/perceptual dashes with periods/commas",
+      "severity": "low",
+      "omitted": [
+        "style_polishing",
+        "length_normalization",
+        "narrative_restructuring"
+      ]
+    },
+    {
+      "target": "delegation_boundary",
+      "selected": ["handle_within_chapter_revision"],
+      "basis": "anti-ai issue (dash density) per spec should delegate to shenbi-anti-detect, but this is the blocking item on the revision chain. Handling within chapter-revision as a spot-fix as permitted by the spec ('only handle when blocking'). All other audit dimensions passed clean — no additional delegation needed",
+      "severity": "low"
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_density_202",
+      "severity": "critical",
+      "handling": "spot-fix_punctuation",
+      "rationale": "Replace ~50% of em-dashes with periods (。) or commas (,) based on syntactic function. Signature negation pairs (不是A——是B, 不是测量——是) preserved as character voice markers — these constitute the novel's distinctive stream-of-consciousness style. Chain dashes in perceptual sequences (sensory enumeration, parallel modifiers) replaced with 。 or ， for cleaner rhythm. Scene breaks (-----) preserved. No content changed.",
+      "details": "202→101 dashes (50% reduction). All '不是X——是Y' negation pairs kept. All '-----' scene breaks kept. All mid-sentence chain dashes replaced with periods or commas per the anti-ai audit's suggested examples."
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 9000,
+    "chapter_word_count_estimate": 8500,
+    "length_change_pct": 0,
+    "pacing_notes": "No pacing change — punctuation adjustments only. Content/rhythm/sentence structure unchanged except for dash→period/comma replacements. POST_WRITE_SELF_CHECK meta-section preserved verbatim."
+  }
+}

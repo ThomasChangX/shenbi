@@ -1,0 +1,112 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "skill": "shenbi-chapter-drafting",
+  "chapter": 13,
+  "produced_at": "2026-07-16T11:30:00+0800",
+  "selections": [
+    {
+      "target": "plans/chapter-13-plan.md",
+      "selected": ["1. 当前任务", "3. 该兑现的 / 暂不掀的", "6. 章尾必须发生的改变", "8. 不要做"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_focus.md",
+      "selected": ["第13章核心", "第13章线优先级"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/current_state.md",
+      "selected": ["主角状态", "当前世界局势"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/audit_drift.md",
+      "selected": ["第12章", "Ch12→Ch13 短板修复追踪"],
+      "basis": "adjacent_to_target_chapter",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "truth/pending_hooks.md",
+      "selected": ["活跃伏笔", "距离上限逼近"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    },
+    {
+      "target": "style/style_profile.md",
+      "selected": ["8. 综合画像", "5. 修辞模式"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": ["1. 句长分布", "2. 段长分布", "3. TTR", "4. 高频ngram", "6. 标点密度", "7. 连接词密度"]
+    },
+    {
+      "target": "genre-config.json",
+      "selected": ["fatigueWords", "pacing", "chapterTypes"],
+      "basis": "volume_scope",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "drift_ch12_light_anchor",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "轻极在30天框架内通过行为落脚:灰尘运动观赏/鸟翼声感知/透气孔延长观察/空间细节关注替代时间焦虑——好奇心替代焦虑的感知模式转换"
+    },
+    {
+      "issue_id": "drift_ch12_sensory_density",
+      "severity": "high",
+      "handling": "compensate_via_pacing",
+      "rationale": "全章维持感官密度:每个认知段前锚定感觉细节(灰尘分布/银币触觉/折线视觉/引擎听觉/淤青视觉)——章尾以陶罐水温+光线色温+灰尘轨迹收束,无认知推理段替代感官锚定"
+    },
+    {
+      "issue_id": "plan_mh001_silver_test",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "银币接近门框金属件投影位置→金属片振动响应(两轮呼吸→自行消退)。非决定性证据,保持开放性:银币作为场路径中的共振体/催化剂,改变局部场阻抗特性"
+    },
+    {
+      "issue_id": "plan_mh003_signal_pattern",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "引擎声模式变化:低频持续→中频断续+双系统叠加干涉(相位滞后/周期性错位)。信号演化确认但引擎来源不揭示"
+    },
+    {
+      "issue_id": "plan_mh021_door_consequence",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "门框金属件周围灵能场热辐射梯度偏移确认操作痕迹可积累。不对门进行操作,不揭示门后内容"
+    },
+    {
+      "issue_id": "plan_mh020_first_output",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "折线实时绘制(双峰振荡模式+基线漂移)+12.4读数+圆形加点符号三度同屏。折线=过程量,数字=标量,圆形加点=位置/状态指示器——同一系统不同维度的并行输出"
+    },
+    {
+      "issue_id": "plan_class_awakening_seed",
+      "severity": "medium",
+      "handling": "apply",
+      "rationale": "墙根受伤人物触发非语言性方向偏移。通过坐姿/伤腿/空碗的行为编码建立与自身处境的潜层共鸣,方向偏移通过巷道选择承载——无宣言/无顿悟"
+    },
+    {
+      "issue_id": "plan_normal_adaptation",
+      "severity": "high",
+      "handling": "apply",
+      "rationale": "催收登记后新常态:身份标签化后的感知模式变化——听觉范围拓宽(鸟翼声),视觉关注偏移(灰尘分布/锈迹形态),空间好奇心替代时间焦虑。'没有待处理数组'直接陈述新常态但无安逸化"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 18000,
+    "limit": 18500,
+    "trim_applied": "none"
+  }
+}
