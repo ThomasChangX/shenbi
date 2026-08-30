@@ -34,13 +34,20 @@ PROJECT = TESTS.parent
 def load_deps() -> Any:
     """Load tests/tiers/deps.json; exit structured on corruption (F145)."""
     try:
-        return json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
+        deps = json.loads((TESTS / "tiers" / "deps.json").read_text(encoding="utf-8"))
     except (OSError, json.JSONDecodeError) as exc:
         log.error("t2_deps_json_corrupt", path=str(TESTS / "tiers" / "deps.json"), error=str(exc))
         emit_json(
-            {"status": CommandStatus.ERROR, "phase": None, "reason": "t2 deps.json unreadable"}
+            {"status": CommandStatus.ERROR, "phase": None, "message": "t2 deps.json unreadable"}
         )
         sys.exit(1)
+    if not isinstance(deps, dict):
+        log.error("t2_deps_json_not_object", type=type(deps).__name__)
+        emit_json(
+            {"status": CommandStatus.ERROR, "phase": None, "message": "t2 deps.json not an object"}
+        )
+        sys.exit(1)
+    return deps
 
 
 def _sanitize_phase(phase: str) -> str:
