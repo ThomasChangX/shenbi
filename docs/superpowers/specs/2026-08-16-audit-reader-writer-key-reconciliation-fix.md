@@ -19,7 +19,7 @@
 - F222：`glob` 字段已有消费者（contracts/graph.py:20,35 `normalize_to_glob`）；T6 仅核销
 - F1111：覆写面已由 gate_manifest 串行化解决（C32 R4）；空转面并入 T2（F121/F463）
 
-**孤儿归宿钉死（阶段 3 审查 C1 补）**：F340（P0）明确归 T5（`_any_audit_has_findings` 扫描名单收敛，与级联词表同一改动面）；F349/F406/F419 归 T1（死检查/死分支族）；F511 归 T5（avg G3 分数抓取噪声，cost/report.py:18-34）；F240/F241/F629 归 T6（写而不读/三方矛盾裁决）。
+**孤儿归宿钉死（阶段 3 审查 C1 补）**：F340（P0）明确归 T5（`_any_audit_has_findings` 扫描名单收敛，与级联词表同一改动面）；F349/F406/F419 归 T1（死检查/死分支族）；F511 归 T5（avg G3 分数抓取噪声，src/shenbi/cost/report.py:16-36（_try_avg_g3_score））；F240/F241/F629 归 T6（写而不读/三方矛盾裁决）。
 
 **存活确认（抽查 file:line）**：F340/F369/F370/F349（chapter_loop.py:1601-1626 扫描名单 13 型 + group-*/era/fanfic/highpoint 缺席）、F121/F463（scoring.py:249-428 marker 读方 vs gates/cli.py:121 硬编码 generative 唯一写方）、F449/F710（g_reconcile.py:40,65 `== "DONE"` vs codex.py:53 `"done"`）、死检查族全存活、T7 lint 工具不存在。约 50/67 条结构存活。
 
@@ -30,7 +30,7 @@
 - **断言形态**：对每条 ReadKey 断言 (a) writer_sources 非空且锚点文件中模式仍存在（grep 复核）；(b) read_pattern 与 writer 产出命名族样本集交集非空。样本集取 `tests/fixtures/` 真实产物 + 写方代码构造的字面量。
 - **输出**：违规按 check_id 列出「读键 → 期望写方族 → 实际匹配数 0」；exit 1。
 - **WARN→FAIL 开关**：`--strict` flag；首周期接入 `just check` 时以 WARN 模式（exit 0 但打印）运行，一个合并周期后去 flag 升 FAIL（退役时点：本 spec PR 合并后的下一个涉及 gates/ 的 PR）。首批登记 T1-T5 涉及的 40+ 读键。
-- **前置依赖**：spec #48（gate-runner 路径协议，INDEX 记其为 C1 对账 lint 验收地基）——本 lint 的执行入口形状以 #31 落地形态为准；#31 未归档期间以独立 CLI 形态先行，不阻塞。
+- **前置依赖**：spec #48（gate-runner 路径协议，INDEX 记其为 C1 对账 lint 验收地基）——本 lint 的执行入口形状以 #48 落地形态为准；#48 未归档期间以独立 CLI 形态先行，不阻塞。
 
 # 读方↔写方键空间/命名族/格式对账（audit-reader-writer-key-reconciliation）
 
@@ -73,8 +73,8 @@ gate 检查器、管线解析器、词表触发器各自硬编码了对上游数
 
 ## 验收标准
 
-1. `uv run shenbi-score <rubric> <scores.json> --test-type bug-hunt --round-dir <fixture-round>`（tests/fixtures 真实样本 + 真实 round 目录）exit 0，不再 MARKER_MISSING（F463 断言——marker 检查仅在 --round-dir 传入时执行）；历史 marker 样本（`tests/baselines/gate-outputs/G4-genre_config.json`）经读方解析不破坏（T2 双命名族过渡断言）。
-2. `uv run shenbi-validate G_RECONCILE <dir>` 对真实 `*-scores-subagent.json` 报告零 `status=?` 假 FAIL（F449/F710 断言）。
+1. `uv run shenbi-score <rubric> <scores.json> --test-type bug-hunt --round-dir <round>` exit 0（round 目录由 T2 实施时经 `shenbi-validate G4 <skill> <files> --test-type bug-hunt` 真实产出 marker 后构成——G0.9 禁手写 fixture；rubric/scores 引用 tests/ 既有真实样本），不再 MARKER_MISSING（F463 断言——marker 检查仅在 --round-dir 传入时执行）；历史 marker 样本（`tests/baselines/gate-outputs/G4-genre_config.json`）经读方解析不破坏（T2 双命名族过渡断言）。
+2. `uv run shenbi-validate G_RECONCILE <dir>` 对真实 `*-scores-subagent.json`（codex 写方产物；测试以 dispatcher/modes/codex.py 输出构造逻辑驱动的回归样本表达）报告零 `status=?` 假 FAIL（F449/F710 断言）。
 3. `uv run python tools/lint_key_reconciliation.py` exit 0（首周期 WARN 模式可 exit 0 但零 WARN 输出），且对 gate/管线读键清单（本 spec T1-T5 涉及的 40+ 读键）全量断言写方存在。
 4. 死检查清单复核：`git grep -n "G0.7\|GT.3\|\.gate-lock"` 确认删除或已接线，无恒 PASS 死分支残留。
 5. T6 字段终态：F225/F527/F640/F469/F240/F241/F629 每字段 grep 有消费者锚点或代码面已删除（逐字段清单落 plan 验收表）。
