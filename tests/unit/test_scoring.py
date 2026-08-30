@@ -1231,3 +1231,38 @@ def test_check_gate_markers_generative_backward_compat(tmp_path):
         "tests/tiers/t1-skill/shenbi-genre-config/rubric.md", "generative", str(rd)
     )
     assert missing == []
+
+
+@pytest.mark.unit
+def test_gate_markers_verified_reflects_real_check(tmp_path, capsys, monkeypatch):
+    """F136 (spec #27): provenance flag is the real marker-verification
+    result — False when no marker check ran, True when it passed.
+    """
+    import sys as _sys
+
+    import shenbi.scoring as scoring_mod
+
+    rd = tmp_path / "round"
+    rd.mkdir()
+    monkeypatch.setattr(scoring_mod, "check_gate_markers", lambda *a: [])
+    scores = tmp_path / "scores.json"
+    scores.write_text(json.dumps({str(i): 95 for i in range(1, 9)}), encoding="utf-8")
+
+    def _run_score(extra):
+        monkeypatch.setattr(
+            _sys,
+            "argv",
+            [
+                "shenbi-score",
+                "tests/tiers/t1-skill/shenbi-genre-config/rubric.md",
+                str(scores),
+                *extra,
+            ],
+        )
+        scoring_mod.main()
+        return json.loads(capsys.readouterr().out.splitlines()[-1])
+
+    out = _run_score(["--test-type", "generative", "--round-dir", str(rd)])
+    assert out["_provenance"]["gate_markers_verified"] is True
+    out2 = _run_score(["--test-type", "generative"])
+    assert out2["_provenance"]["gate_markers_verified"] is False

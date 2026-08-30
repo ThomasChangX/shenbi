@@ -418,10 +418,14 @@ def main() -> dict[str, Any]:
                         pass  # Expected when gate output is not valid JSON (e.g. subprocess error)
 
     # Gate marker enforcement — MUST pass before scoring can proceed
+    # F136 (spec #27): provenance flag carries the REAL verification result,
+    # not the vacuous bool(round_dir and test_type).
+    markers_ok = False
     if test_type:
         dimensions = filter_dimensions_by_test_type(dimensions, rubric_path, test_type)
         if round_dir:
             missing = check_gate_markers(rubric_path, test_type, round_dir)
+            markers_ok = not missing
             if missing:
                 err = {
                     "status": ScoringStatus.MARKER_MISSING,
@@ -502,7 +506,7 @@ def main() -> dict[str, Any]:
         "_provenance": {
             "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
             "timestamp": datetime.now(UTC).isoformat(),
-            "gate_markers_verified": bool(round_dir and test_type),
+            "gate_markers_verified": markers_ok,
             "round_dir": str(round_dir) if round_dir else None,
             "scoring_tool": "scoring.py",
         },

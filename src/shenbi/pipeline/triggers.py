@@ -692,6 +692,15 @@ def run_triggered_skills(
                     chapter=chapter,
                     skill=step.skill,
                 )
+                # F353 (spec #27): record the G3 failure for post-mortem —
+                # stage vocab lives in enums (single source).
+                state.last_trigger_failure = {
+                    "chapter": chapter,
+                    "skill": step.skill,
+                    "mode": getattr(step, "mode", None),
+                    "stage": "g3",  # TriggerFailureStage vocab (enums.py)
+                    "timestamp": _iso_now(),
+                }
                 return False
 
         log.info(
