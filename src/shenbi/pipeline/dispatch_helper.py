@@ -447,6 +447,11 @@ def _resolve_read_with_fallback(project_dir: Path, read_path: str) -> list[Path]
     return []
 
 
+#: T12-01 (spec #22 R1b): wrapper-breaking characters in wildcard-written
+#: filenames are rejected before any mkdir/write happens.
+FORBIDDEN_FILENAME_RE = re.compile(r'["<>[\x00-\x1f\\]')
+
+
 def _wildcard_to_regex(pattern: str) -> str:
     r"""Convert a glob-style pattern to a regex pattern string.
 
@@ -552,6 +557,15 @@ def _input_key(full_path: Path, project_dir: Path) -> str:
         return str(full_path)
 
 
+def _escape_attr(value: str) -> str:
+    """T12-01 (spec #22 R1a): escape a filename for use inside a double-quoted
+    XML-ish attribute value. '&' first so entity output is not double-escaped.
+    """
+    return (
+        value.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
+    )
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -587,7 +601,7 @@ def _build_skill_prompt(
             When provided, reads/writes resolve arc/stratum/volume/chapter
             families from it instead of the bare chapter number.
     """
-    from shenbi.contracts.legacy import ContractError, load_contract
+    from shenbi.contracts.legacy import ContractError, load_contract, validate_skill_name
 
     try:
         contract = load_contract(skill)
@@ -596,6 +610,9 @@ def _build_skill_prompt(
         raise
 
     # System prompt = SKILL.md (resolved from repo root, not CWD)
+    # (load_contract above already routes through _skill_path's validator;
+    # this explicit call is belt-and-braces for the local join below.)
+    validate_skill_name(skill)
     skill_file = _PROJECT_ROOT / "skills" / skill / "SKILL.md"
     if skill_file.exists():
         system_prompt = _strip_autogen_blocks(skill_file.read_text(encoding="utf-8"))
@@ -778,7 +795,9 @@ def _build_skill_prompt(
             # (Spec 8 §3 Bug 2: the wrapper is </document>, NOT </doc>; the safest
             # approach is escaping every '<' rather than only replacing the tag.)
             safe_content = content.replace("<", "\u003c")
-            user_parts.append(f'<document name="{fname}">\n{safe_content}\n</document>')
+            user_parts.append(
+                f'<document name="{_escape_attr(fname)}">\n{safe_content}\n</document>'
+            )
     user_prompt = "\n".join(user_parts)
 
     # Task 13: Inject plan skeleton for shenbi-chapter-planning when volume_map exists.
@@ -1428,6 +1447,13 @@ def _write_parsed_outputs(
         if rel_path in skip:
             log.info("write_skipped_noop", path=rel_path, skill=skill)
             continue
+        if FORBIDDEN_FILENAME_RE.search(rel_path):
+            log.error("wildcard_filename_rejected", path=rel_path, skill=skill)
+            raise DispatchWriteFailureError(
+                f"wildcard write rejected: filename contains forbidden "
+                rf'characters (" < > [ \ control): {rel_path!r}',
+                signature="forbidden_filename",
+            )
         matching = _resolve_all_wildcards(wildcard_patterns, rel_path, base_dir=project_dir)
         if matching:
             if not content.strip():

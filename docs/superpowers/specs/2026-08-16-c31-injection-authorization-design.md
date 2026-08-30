@@ -32,6 +32,7 @@
 
 ### R3 · 路径与参数边界（F105 + T1204 + T1202）
 - phase 参数白名单校验（`../` 拒绝 + 报错信封）；`_write_parsed_outputs` 每个输出路径 `resolve(strict=False)` 后校验 `is_relative_to(project_dir)`，symlink 先 resolve 再校验；carrier/机器行优先级反转（机器行最后写、解析取机器行）
+- 边界扩容（2026-08-30 自 #22 让渡）：`safe_write` 层同型 resolve+前缀校验（T12-05 残留「safe_write 零规范化」）；pipeline-state/gate-markers/scores 状态文件的 codex 写面预防性只读保护（T12-02 残留）并入本 R 路径边界范围
 - **验收**：穿越用例（`../escape.md`、symlink 指外）FAIL 且不落盘；正常相对路径全绿
 
 ### R4 · env 白名单与日志脱敏（T1207 + F1161）

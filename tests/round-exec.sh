@@ -16,7 +16,7 @@ if [ "${1:-}" = "--validate" ]; then
   fi
 
   FRAMEWORK_SKILLS=$(ls tests/tiers/t1-skill/ | grep -v _template | sort)
-  SUMMARY_SKILLS=$(python3 -c "import json; d=json.load(open('${ROUND_DIR}/summary.json')); print('\n'.join(sorted(d.get('t1_scores',{}).keys())))" 2>/dev/null || true)
+  SUMMARY_SKILLS=$(python3 -c "import json,sys; d=json.load(open(sys.argv[1])); print('\n'.join(sorted(d.get('t1_scores',{}).keys())))" "${ROUND_DIR}/summary.json" 2>/dev/null || true)
   if [ -n "$SUMMARY_SKILLS" ]; then
     DIFF_OUTPUT=$(diff <(echo "$FRAMEWORK_SKILLS") <(echo "$SUMMARY_SKILLS") 2>/dev/null || true)
     if [ -n "$DIFF_OUTPUT" ]; then
@@ -26,7 +26,7 @@ if [ "${1:-}" = "--validate" ]; then
   fi
 
   # Determine which report dir to check based on tier
-  TIER_TARGET=$(python3 -c "import json; print(json.load(open('${ROUND_DIR}/meta.json')).get('tier_target','T1'))" 2>/dev/null || echo "T1")
+  TIER_TARGET=$(python3 -c "import json,sys; print(json.load(open(sys.argv[1])).get('tier_target','T1'))" "${ROUND_DIR}/meta.json" 2>/dev/null || echo "T1")
   TIER_LOWER=$(echo "$TIER_TARGET" | tr '[:upper:]' '[:lower:]')
   REPORT_DIR="${TIER_LOWER}-reports"
 
@@ -90,27 +90,29 @@ mkdir -p "${ROUND_DIR}"/{t1-reports,t2-reports,t3-reports,skill-output,skill-tra
 # invoked an entry point never registered in pyproject.toml; mirror the
 # direct-write pattern from src/shenbi/dispatcher/modes/codex.py:_record_completion.
 python3 -c "
-import json
+import json, sys
+tier, expected, out = sys.argv[1], sys.argv[2], sys.argv[3]
 progress = {
     'completed_skill_names': [],
     'skills': {},
-    'tier': '${TIER}',
-    'expected_chapters': ${EXPECTED_CHAPTERS},
+    'tier': tier,
+    'expected_chapters': expected,
 }
-with open('${ROUND_DIR}/progress.json', 'w', encoding='utf-8') as f:
+with open(out, 'w', encoding='utf-8') as f:
     json.dump(progress, f, indent=2, ensure_ascii=False)
-"
+" "${TIER}" "${EXPECTED_CHAPTERS}" "${ROUND_DIR}/progress.json"
 
 # Override tokens
 TOKEN1=$(python3 -c "import secrets;print(secrets.token_hex(16))")
 TOKEN2=$(python3 -c "import secrets;print(secrets.token_hex(16))")
 TOKEN3=$(python3 -c "import secrets;print(secrets.token_hex(16))")
 python3 -c "
-import hashlib,json
-ts=['$TOKEN1','$TOKEN2','$TOKEN3']
-hs=[{'hash':hashlib.sha256(t.encode()).hexdigest(),'spent':False} for t in ts]
-json.dump({'tokens':hs},open('${ROUND_DIR}/.token-hashes.json','w'),indent=2)
-"
+import hashlib, json, sys
+out = sys.argv[1]
+ts = sys.argv[2:]
+hs = [{'hash': hashlib.sha256(t.encode()).hexdigest(), 'spent': False} for t in ts]
+json.dump({'tokens': hs}, open(out, 'w'), indent=2)
+" "${ROUND_DIR}/.token-hashes.json" "$TOKEN1" "$TOKEN2" "$TOKEN3"
 chmod 600 "${ROUND_DIR}/.token-hashes.json"
 
 # Keep existing meta.json and summary.json for backward compatibility

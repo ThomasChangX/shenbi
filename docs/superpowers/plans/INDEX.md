@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #20 z11 plan 已交付，见 `archive/2026-08-30-z11-output-contracts.md`，PR #82）
+（SDD #20/#21 plan 已交付归档；活跃 plan 仅 #22，见下）
 
 
 
@@ -42,6 +42,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 - `2026-08-30-truth-write-path.md`（SDD #21 truth 写路径，PR #88）
 - `2026-08-30-z11-output-contracts.md`（SDD #20 z11 产物契约，PR #82 + #83/#84/#85）
+- `2026-08-30-security-injection.md`（SDD #22 安全与提示注入修订版，✅ ready）
 
 - `2026-07-19-19-end-to-end-validation-protocol-plan.md`（4 阶段端到端验证，PR #19）
 - `2026-07-19-17-pipeline-infrastructure-and-resilience-plan.md`（崩溃恢复 + tenacity 重试 + JSON mode，PR #19）
