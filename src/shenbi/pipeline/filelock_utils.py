@@ -2,7 +2,7 @@
 
 Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section 2.4.
 
-- WriteLock: exclusive (fcntl LOCK_EX), used by next/review/resume/rollback/init
+- WriteLock: exclusive (fcntl LOCK_EX), used by next/review/resume/init
 - ReadLock: shared (fcntl LOCK_SH), used by status/chapters
 
 Both operate on the SAME lockfile (pipeline-state.json.lockfile) so that
