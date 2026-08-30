@@ -443,3 +443,90 @@ def test_segment_sentences_emits_trailing_sentence_without_terminator() -> None:
     sents = segment_sentences("第一句。没有句号结尾")
     assert len(sents) == 2
     assert sents[1][0] == "没有句号结尾"
+
+
+# --- spec #14 T1: segmentation & rhetoric fixes (F628/F668/F633/F656/F652/F663) ---
+
+
+@pytest.mark.unit
+def test_segment_sentences_splits_on_semicolon() -> None:
+    r"""F628: fullwidth ; belongs to SENT_ENDS, so it must terminate sentences too."""
+    sents = segment_sentences("前半句；后半句。")
+    assert len(sents) == 2
+    assert sents[0][0] == "前半句；"
+
+
+@pytest.mark.unit
+def test_segment_sentences_no_split_inside_cjk_quotes() -> None:
+    """F668: sentence-final punctuation inside “” stays in one sentence."""
+    sents = segment_sentences("“……。”他说。")
+    assert len(sents) == 2
+    assert sents[0][0] == "“……。”"
+
+
+@pytest.mark.unit
+def test_segment_sentences_no_split_inside_corner_quotes_across_semicolon() -> None:
+    """F668+F628: fullwidth ; inside 「」 does not split."""
+    sents = segment_sentences("他说「甲；乙；丙」然后离开。")
+    assert len(sents) == 1
+
+
+@pytest.mark.unit
+def test_segment_sentences_unbalanced_quote_escapes_at_newline() -> None:
+    r"""F668: unterminated quote must not swallow the rest — \n splits unconditionally."""
+    sents = segment_sentences("“未闭合的引号内容。继续。\n第二段第一句。")
+    assert len(sents) == 2
+    assert sents[1][0] == "第二段第一句。"
+
+
+@pytest.mark.unit
+def test_segment_sentences_ascii_quote_toggle() -> None:
+    """F668: ASCII " toggles quote state; 。 inside the pair does not split."""
+    sents = segment_sentences('"内文。"他说。')
+    assert len(sents) == 2
+    assert sents[0][0] == '"内文。"'
+
+
+@pytest.mark.unit
+def test_detect_rhetoric_long_unequal_sentences_not_parallel() -> None:
+    """F656: [:20] truncation made any 3 long sentences "parallel"; full lengths must not."""
+    long_a = "这是一段相当长的句子" * 5 + "甲。"  # >20 chars, unequal tails
+    long_b = "这是一段相当长的句子" * 4 + "乙乙乙。"
+    long_c = "这是一段相当长的句子" * 6 + "丙丙。"
+    result = detect_rhetoric(long_a + long_b + long_c)
+    assert result["排比"] == 0
+
+
+@pytest.mark.unit
+def test_detect_rhetoric_equal_length_sentences_parallel() -> None:
+    result = detect_rhetoric("他慢慢地走向前去。她静静地坐在那里。它轻轻地叫了一声。")
+    assert result["排比"] == 1
+
+
+@pytest.mark.unit
+def test_detect_rhetoric_repetition_deduped_across_ngram_lengths() -> None:
+    """F652: one repeated phrase must count once, not once per n-gram length."""
+    text = "风吹过山岗。" + "月光洒满大地然后" * 3 + "。"
+    result = detect_rhetoric(text)
+    assert result["反复"] == 1
+
+
+@pytest.mark.unit
+def test_detect_rhetoric_repetition_independent_phrases_counted_separately() -> None:
+    """F652: two disjoint repeated phrases (start vs end) count as 2."""
+    text = (
+        "主角笑了" * 3 + "之间隔着一大段互不重复的过渡文字甲乙丙丁戊己庚辛壬癸。" + "夜色渐深" * 3
+    )
+    result = detect_rhetoric(text)
+    assert result["反复"] == 2
+
+
+@pytest.mark.unit
+def test_compute_ttr_empty_returns_full_key_set() -> None:
+    """F663: early-exit branch must include content_ttr and total_chars."""
+    ttr = compute_ttr("")
+    assert ttr["global_ttr"] == 0
+    assert ttr["content_ttr"] == 0
+    assert ttr["total_chars"] == 0
+    assert ttr["sliding_ttr_mean"] == 0
+    assert ttr["sliding_ttr_std"] == 0
