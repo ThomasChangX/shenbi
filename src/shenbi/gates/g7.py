@@ -43,7 +43,7 @@ def gate_G7(round_dir: str) -> str:
         report_skills = set()
         unmatched_stems: set[str] = set()
         for rp in reports_dir_g71.glob("*.json"):
-            matched = parse_report_stem(rp.stem, ALL_SKILLS)
+            matched = parse_report_stem(rp.stem, sorted(set(ALL_SKILLS) | set(T1_SCAFFOLD_SKILLS)))
             if matched:
                 report_skills.add(matched)
             else:

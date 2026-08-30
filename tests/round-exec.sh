@@ -18,7 +18,17 @@ if [ "${1:-}" = "--validate" ]; then
   # Skill-roster reconciliation now reads t1-reports artifacts (the real
   # writer surface); summary.json t1_scores has no writer (spec #27 T1).
   FRAMEWORK_SKILLS=$(ls tests/tiers/t1-skill/ | grep -v _template | sort)
-  REPORT_SKILLS=$(ls "${ROUND_DIR}/t1-reports"/*.json 2>/dev/null | xargs -n1 basename 2>/dev/null | sed -E 's/-scores(-subagent)?\.json$//; s/-[a-z-]+$//' | sort -u)
+  # ROUND_DIR is passed as argv (never interpolated) — round-exec is
+  # injection-tested (tests/test_round_exec_injection.py).
+  REPORT_SKILLS=$(python3 -c "
+import sys
+from pathlib import Path
+sys.path.insert(0, 'src')
+from shenbi.gates.shared import ALL_SKILLS, parse_report_stem
+for f in Path(sys.argv[1]).glob('*.json'):
+    skill = parse_report_stem(f.stem, ALL_SKILLS)
+    print(skill or f.stem)
+" "${ROUND_DIR}/t1-reports" 2>/dev/null | sort -u)
   if [ -n "$REPORT_SKILLS" ]; then
     DIFF_OUTPUT=$(diff <(echo "$FRAMEWORK_SKILLS") <(echo "$REPORT_SKILLS") 2>/dev/null || true)
     if [ -n "$DIFF_OUTPUT" ]; then
