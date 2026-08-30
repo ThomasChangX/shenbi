@@ -508,7 +508,8 @@
       "shenbi-context-composing",
       "shenbi-memory-distill",
       "shenbi-score-arc",
-      "shenbi-score-volume"
+      "shenbi-score-volume",
+      "shenbi-volume-consolidation"
     ],
     "writes": [
       "shenbi-volume-consolidation"
@@ -567,10 +568,10 @@
       "shenbi-drift-guidance",
       "shenbi-score-volume"
     ],
-    "writes": [
+    "writes": [],
+    "updates": [
       "shenbi-score-volume"
-    ],
-    "updates": []
+    ]
   },
   "truth/arc_payoff_trend.md": {
     "reads": [

@@ -12,9 +12,11 @@ from shenbi.gates.g1 import BACKUP_SKILLS, derive_backup_skills
 
 
 def test_derive_includes_truth_updaters() -> None:
-    # phase-0: 16 skills update truth files (includes foreshadowing-lifecycle from Plan 18)
+    # phase-0: 17 skills update truth files (spec #29 R3 moved score-volume's
+    # append_dedup declaration from writes: into updates:, making it a derived
+    # truth-updater — behavior-identical routing, now counted)
     skills = derive_backup_skills()  # loads contracts + registry internally
-    assert len(skills) == 16
+    assert len(skills) == 17
     # spot-check a few that were missing from the old hardcoded list
     assert "shenbi-state-settling" in skills
     assert "shenbi-review-resonance" in skills  # was missing → G2.11 no-op

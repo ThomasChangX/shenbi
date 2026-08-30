@@ -25,7 +25,7 @@ import shutil
 import subprocess
 import sys
 import tomllib
-from collections.abc import Callable
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -2115,12 +2115,40 @@ def _dispatch_via_ide(
 # ---------------------------------------------------------------------------
 
 
+def _normalize_staged_snapshot(
+    snap: Mapping[str, str | None], declared: set[str]
+) -> dict[str, str | None]:
+    """Fold ``staging/<declared>`` snapshot keys back onto the declared relpath.
+
+    Spec #29 R1: staged writes land on ``staging/<contract-path>`` while the
+    audit's declared surface is the unprefixed contract path. Without this
+    fold, pre==post on the declared key and the staged write is invisible
+    (audit theater: a ``blocked:false`` no-op record). A present staged file
+    OVERRIDES the live key — the staged tree is what the dispatch just
+    produced and what a later commit would ship; a missing staged file
+    (``None``) never folds, so the live baseline survives and a staged write
+    that dropped live rows still diffs as a modification. Staged paths that
+    map to no declared key are kept verbatim so they surface as undeclared
+    writes.
+    """
+    out = dict(snap)
+    for key, value in snap.items():
+        if key.startswith("staging/"):
+            base = key[len("staging/") :]
+            if base in declared:
+                if value is not None:
+                    out[base] = value
+                out.pop(key, None)
+    return out
+
+
 def _with_write_audit(
     dispatch_fn: Callable[[], DispatchResult],
     skill: str,
     project_dir: Path,
     prompt: str,
     round_dir: Path | str | None = None,
+    uses_staging: bool = False,
 ) -> DispatchResult:
     """Wrap an in-process dispatch route (API / IDE CLI) with the Tier B write audit.
 
@@ -2129,7 +2157,9 @@ def _with_write_audit(
     dispatch -> post snapshot -> audit -> ledger record. The snapshot root is
     the pipeline project dir — the root ``_write_parsed_outputs`` actually
     writes to (the legacy route snapshots the framework repo root instead,
-    F519, out of scope here).
+    F519, out of scope here). With ``uses_staging=True`` the watch face is
+    extended to ``staging/<declared>`` and staged snapshot keys are folded
+    back onto the declared relpath before auditing (spec #29 R1).
 
     Audit-failure semantics match the legacy route except the last bullet
     (infra failures fail-open here; the legacy subprocess crashes instead):
@@ -2155,8 +2185,14 @@ def _with_write_audit(
     if chapter is None:
         chapter = extract_chapter(prompt)
     watch = derive_output_files(skill, chapter, ctx=path_ctx)
+    # Spec #29 R1: staged writes go to staging/<declared> — watch both and fold
+    # the staged keys back onto the declared relpath before auditing.
+    staged_watch = [f"staging/{p}" for p in watch] if uses_staging else []
+    declared_keys = set(watch)
     ledger_dir = Path(round_dir) if round_dir else project_dir
-    pre = snapshot_tree(project_dir, watch)
+    pre = _normalize_staged_snapshot(
+        snapshot_tree(project_dir, watch + staged_watch), declared_keys
+    )
     rc = DispatchResult(False, -1, "", "dispatch did not return a result")
     dispatch_exc: BaseException | None = None
     try:
@@ -2174,7 +2210,9 @@ def _with_write_audit(
         # Franklin Important: if dispatch crashes mid-write, still run the
         # post-snapshot + audit so write overreach is caught on failure paths.
         try:
-            post = snapshot_tree(project_dir, watch)
+            post = _normalize_staged_snapshot(
+                snapshot_tree(project_dir, watch + staged_watch), declared_keys
+            )
             result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
             audit_ok = record_audit_outcome(ledger_dir, skill, result)
         except Exception:
@@ -2258,6 +2296,7 @@ def dispatch_skill(
             pd,
             prompt,
             round_dir,
+            uses_staging=uses_staging,
         )
 
     # IDE CLI path (audited — C32 R3 / F518)
@@ -2275,6 +2314,7 @@ def dispatch_skill(
             pd,
             prompt,
             round_dir,
+            uses_staging=uses_staging,
         )
 
     # Legacy CLI subprocess path

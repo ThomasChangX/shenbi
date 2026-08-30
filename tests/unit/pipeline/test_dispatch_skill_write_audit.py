@@ -80,6 +80,118 @@ def test_api_route_records_write_audit(tmp_path: Path, monkeypatch: pytest.Monke
     assert "genre-config.json" in rec["checked_files"]
 
 
+def _fake_api_staged_writing(
+    staged_content: str,
+) -> Any:
+    """构造 fake _dispatch_via_api:只写 staging/<declared> 后返回成功(staging 派发形态)."""
+
+    def fake(skill: str, project_dir: Path, prompt: str, **kwargs: Any) -> dh.DispatchResult:
+        staged = project_dir / "staging" / "genre-config.json"
+        staged.parent.mkdir(parents=True, exist_ok=True)
+        staged.write_text(staged_content, encoding="utf-8")
+        return dh.DispatchResult(True, 0, "{}", "")
+
+    return fake
+
+
+# -- spec #29 R1:uses_staging 派发的 staged 写必须进入审计视野(归一化回声明键)--
+
+
+def test_staging_write_visible_to_audit(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Staged 声明写(staging/genre-config.json)经键归一化后以 genre-config.json
+    进入账本变更面——不再 pre==post 空过(audit theater 消除).
+    """
+    monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
+    _seed_genre_config(tmp_path)
+    staged_cfg = json.loads(GENRE_FIXTURE.read_text(encoding="utf-8"))
+    staged_cfg["approval"] = {}
+    staged_json = json.dumps(staged_cfg, ensure_ascii=False)
+    monkeypatch.setattr(dh, "_dispatch_via_api", _fake_api_staged_writing(staged_json))
+
+    # 观察缝:包装真实 audit_writes 捕获归一化后的 pre/post 快照(不 stub 审计本体)
+    import shenbi.audit.write_audit as wa
+
+    snaps: dict[str, dict[str, str | None]] = {}
+    real_audit_writes = wa.audit_writes
+
+    def capture(skill: str, pre: dict[str, str | None], post: dict[str, str | None], **kw: Any):
+        snaps["pre"], snaps["post"] = pre, post
+        return real_audit_writes(skill, pre, post, **kw)
+
+    monkeypatch.setattr(wa, "audit_writes", capture)
+
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT, uses_staging=True)
+
+    assert result.success is True
+    rec = _last_ledger_record(tmp_path)
+    assert rec["blocked"] is False
+    # 归一化键(无 staging/ 前缀)进入检查面,且 staged 内容真正到达审计器
+    assert "genre-config.json" in rec["checked_files"]
+    assert "staging/genre-config.json" not in rec["checked_files"]
+    assert snaps["post"]["genre-config.json"] == staged_json
+    assert snaps["pre"]["genre-config.json"] != staged_json
+
+
+def test_staging_rogue_key_write_blocked(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    """Staged JSON 内的越权字段(rogueKey)在归一化后仍被 OWNERSHIP 审计捕获."""
+    monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
+    _seed_genre_config(tmp_path)
+    staged_cfg = json.loads(GENRE_FIXTURE.read_text(encoding="utf-8"))
+    staged_cfg["rogueKey"] = "staged 越权"
+    monkeypatch.setattr(
+        dh,
+        "_dispatch_via_api",
+        _fake_api_staged_writing(json.dumps(staged_cfg, ensure_ascii=False)),
+    )
+
+    result = dh.dispatch_skill(SKILL, tmp_path, PROMPT, uses_staging=True)
+
+    assert result.success is False
+    assert result.returncode == 2
+    assert "rogueKey" in result.stderr
+    rec = _last_ledger_record(tmp_path)
+    assert rec["blocked"] is True
+
+
+def test_staging_wins_over_live_on_same_key(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """Live 与 staged 同键并存时,归一化后以 staged 内容(后写胜)参与审计——
+    与 commit_staging 的 staged-胜语义一致.
+    """
+    monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
+    # live 文件含 rogueKey 不被审计到:live 不变(pre==post),只看 staged 面
+    _seed_genre_config(tmp_path)
+    staged_cfg = json.loads(GENRE_FIXTURE.read_text(encoding="utf-8"))
+    staged_cfg["rogueKey"] = "staged 越权"
+    monkeypatch.setattr(
+        dh,
+        "_dispatch_via_api",
+        _fake_api_staged_writing(json.dumps(staged_cfg, ensure_ascii=False)),
+    )
+    dh.dispatch_skill(SKILL, tmp_path, PROMPT, uses_staging=True)
+    rec = _last_ledger_record(tmp_path)
+    assert any("rogueKey" in v for v in rec["violations"])
+
+
+def test_normalize_staged_snapshot_none_does_not_erase_live() -> None:
+    """A missing staged file (None) must not fold over the live baseline --
+    otherwise every staged write diffs as "added" and a staged file that
+    dropped live rows goes unnoticed (final review I1).
+    """
+    snap = {"truth/x.md": "live", "staging/truth/x.md": None, "staging/rogue.md": "r"}
+    out = dh._normalize_staged_snapshot(snap, {"truth/x.md"})
+    assert out["truth/x.md"] == "live"  # live baseline preserved
+    assert "staging/truth/x.md" not in out  # None staged key folded away
+    assert out["staging/rogue.md"] == "r"  # undeclared staged path kept verbatim
+
+
+def test_normalize_staged_snapshot_present_staged_overrides_live() -> None:
+    snap = {"truth/x.md": "live", "staging/truth/x.md": "staged"}
+    out = dh._normalize_staged_snapshot(snap, {"truth/x.md"})
+    assert out == {"truth/x.md": "staged"}
+
+
 # -- 越权语义与 legacy 路径一致:违规记 rc=2,不吞 --
 
 
@@ -166,7 +278,7 @@ def test_audit_infra_crash_preserves_dispatch_result(
     import shenbi.audit.write_audit as wa
     from shenbi.logging import configure_logging
 
-    # 生产形态:structlog 绑定 stderr(PrintLoggerFactory(sys.stderr))。单测默认
+    # 生产形态:structlog 绑定 stderr(PrintLoggerFactory(sys.stderr)).单测默认
     # 未 configure,structlog 走默认 stdout —— 先 configure 让本用例按生产流断言
     # (cache_logger_on_first_use=False 使其绑定 capsys 当前捕获的 sys.stderr;
     # 全局配置由 tests/conftest.py 的 _isolate_structlog_config 在 teardown 恢复).

@@ -12788,6 +12788,106 @@
     {
       "producer": "shenbi-book-spine-init",
       "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-chapter-revision",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-drift-guidance",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-lifecycle",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-plant",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-recall",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-resolve",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-foreshadowing-track",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-intent-management",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-memory-distill",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-relationship-map",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-arc-payoff",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-review-resonance",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-arc",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-stratum",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-score-volume",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-sequel-writing",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-state-settling",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-truth-sync",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-worldbuilding",
+      "consumer": "shenbi-volume-consolidation",
+      "file": "truth/volume_summaries.md"
+    },
+    {
+      "producer": "shenbi-book-spine-init",
+      "consumer": "shenbi-volume-consolidation",
       "file": "truth/chapter_summaries.md"
     },
     {
