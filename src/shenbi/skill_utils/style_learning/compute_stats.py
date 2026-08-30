@@ -87,6 +87,11 @@ def segment_sentences(text: str) -> list[tuple[str, int]]:
             ascii_quote_open = not ascii_quote_open
         in_quote = bool(quote_stack) or ascii_quote_open
         if ch == "\n" or (ch in "。！？；" and not in_quote):
+            if ch == "\n":
+                # reset quote state so an unterminated quote on one line cannot
+                # suppress splitting on later lines (Copilot review, PR #100)
+                quote_stack.clear()
+                ascii_quote_open = False
             flush()
         elif (
             quote_closed

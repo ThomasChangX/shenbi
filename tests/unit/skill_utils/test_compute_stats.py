@@ -538,3 +538,10 @@ def test_segment_sentences_nested_quote_inner_close_does_not_split() -> None:
     sents = segment_sentences("「外层『内层。』外层继续。」他说。")
     assert len(sents) == 2
     assert sents[0][0] == "「外层『内层。』外层继续。」"
+
+
+@pytest.mark.unit
+def test_segment_sentences_unterminated_quote_state_resets_at_newline() -> None:
+    """PR #100 review: quote state must reset at newline so later lines split normally."""
+    sents = segment_sentences("“未闭合引号。\n第一句。第二句。")
+    assert [s[0] for s in sents] == ["“未闭合引号。", "第一句。", "第二句。"]
