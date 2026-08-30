@@ -36,21 +36,26 @@ def gate_G7(round_dir: str) -> str:
     summary_path = rd / "summary.json"  # kept for G7.5+ consumers below
     reports_dir_g71 = rd / "t1-reports"
     if reports_dir_g71.exists():
-        actual = set(ALL_SKILLS) | set(
-            T1_SCAFFOLD_SKILLS
-        )  # F432: union keeps hallucination detection broad
+        # F432: scaffold roster keeps the known-skill universe broad; unknown
+        # stems are the hallucination signal (a hallucinated report file
+        # matches no real skill and must FAIL, not be silently dropped).
         report_skills = set()
+        unmatched_stems: set[str] = set()
         for rp in reports_dir_g71.glob("*.json"):
             stem = rp.stem
             for suffix in ("-scores-subagent", "-scores"):
                 stem = stem.removesuffix(suffix)
-            for skill in ALL_SKILLS:
+            matched = ""
+            for skill in sorted(ALL_SKILLS, key=len, reverse=True):
                 if stem == skill or stem.startswith(skill + "-"):
-                    report_skills.add(skill)
+                    matched = skill
                     break
-        hallu = report_skills - actual
-        if hallu:
-            mf.append(f"G7.1:hallucinated:{sorted(hallu)}")
+            if matched:
+                report_skills.add(matched)
+            else:
+                unmatched_stems.add(rp.stem)
+        if unmatched_stems:
+            mf.append(f"G7.1:hallucinated:{sorted(unmatched_stems)}")
         else:
             c.append(
                 {
@@ -64,7 +69,7 @@ def gate_G7(round_dir: str) -> str:
         if missing_in_reports:
             mf.append(f"G7.1:missing_coverage:{sorted(missing_in_reports)}")
     else:
-        c.append({"id": "G7.1", "s": "SKIP", "r": "no t1-reports directory"})
+        mf.append("G7.1:no_t1_reports")
 
     # G7.5 — template placeholder detection
     no_dir = rd / "skill-output"

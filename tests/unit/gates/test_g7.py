@@ -32,11 +32,38 @@ class TestG7RoundClose:
 class TestG7ErrorPaths:
     """Error-path coverage for G7 round-close (PR-52 Step 7).
 
-    G7 reads ALL_SKILLS (from skills/) to validate summary.json coverage,
+    G7 reads ALL_SKILLS (from skills/) to validate t1-reports artifact coverage,
     scans round_dir/skill-output/ for placeholders and pending truth files,
     re-runs PASS gate markers. Tests use a round_dir under tmp_path and, where the gate
     references module-level constants, monkeypatch them.
     """
+
+
+@pytest.mark.unit
+def test_g7_template_placeholders_in_skill_output_fails(tmp_path: Path) -> None:
+    """An output file with >10% '待填充' placeholder lines -> G7.5:placeholders."""
+    round_dir = tmp_path / "round"
+    so = round_dir / "skill-output" / "proj"
+    so.mkdir(parents=True)
+    (so / "chapter.md").write_text(
+        "\n".join(["待填充内容" for _ in range(5)] + ["正文内容。"]),
+        encoding="utf-8",
+    )
+    result = _result_dict(gate_G7(str(round_dir)))
+    assert any("G7.5:placeholders" in mf for mf in result["must_fix"])
+
+
+@pytest.mark.unit
+def test_g7_pending_truth_files_after_state_settling_fails(tmp_path: Path) -> None:
+    """A truth/*.md with frontmatter status: pending -> G7.6:pending_truth."""
+    round_dir = tmp_path / "round"
+    truth = round_dir / "skill-output" / "proj" / "truth"
+    truth.mkdir(parents=True)
+    (truth / "current_state.md").write_text(
+        "---\nstatus: pending\n---\n# Current State\n", encoding="utf-8"
+    )
+    result = _result_dict(gate_G7(str(round_dir)))
+    assert any("G7.6:pending_truth" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit

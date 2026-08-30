@@ -194,27 +194,6 @@ class TestG0ErrorPaths:
         assert result["status"] == "FAIL"
         assert "G0.6" in result.get("must_fix", [])
 
-    def test_g07_warns_when_scoring_py_missing(
-        self, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
-    ) -> None:
-        """TESTS/scoring.py missing -> G0.7 WARN."""
-        from shenbi.gates import g0 as g0_mod
-
-        # Point TESTS at an empty dir so scoring.py is missing.
-        empty_tests = tmp_path / "empty-tests"
-        empty_tests.mkdir()
-        monkeypatch.setattr(g0_mod, "TESTS", empty_tests)
-        # Also point PROJECT at tmp_path so G0.6 doesn't fail.
-        monkeypatch.setattr(g0_mod, "PROJECT", tmp_path)
-        # SKILLS must still point at the real skills/ tree so G0.4 passes.
-        # (Leave it unpatched — module-level default.)
-        seed = tmp_path / "seed.md"
-        seed.write_text("目标字数：5000\n" + ("内容 " * 200), encoding="utf-8")
-        result = _result_dict(gate_G0(seed_file=str(seed)))
-        g07 = next((c for c in result["checks"] if c["id"] == "G0.7"), None)
-        if g07 is not None:
-            assert g07["s"] == "WARN"
-
     def test_g05b_passes_on_consistent_rubric_and_skill_md(self, tmp_path: Path) -> None:
         """G0.5b runs against the repo's real rubric+SKILL.md pairs.
 

@@ -511,8 +511,8 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         }
     )
 
-    # G0.12 — G4 checker coverage: every skill must have a G4 checker or
-    # be explicitly exempted in tests/tiers/g4-exemptions.json
+    # G0.12 — G4 checker coverage: every skill must resolve to a G4 checker
+    # (dedicated or generic fallback) — none returns UNIMPLEMENTED
     # bug-hunt and clean have generic checkers (apply to ALL skills via
     # g4_generic_bughunt / g4_generic_clean). Generative has dedicated
     # checkers for 20 skills + g4_generic_generative fallback for the rest.

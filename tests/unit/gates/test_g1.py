@@ -39,7 +39,7 @@ class TestG1ErrorPaths:
     Source convention: file-level FAILs (G1.1 not-found/empty, G1.2 JSON
     parse, G1.3 YAML parse) are appended to mf list and stringified to
     must_fix entries like 'G1.1:/path/file.md'. Round-level checks (G1.4
-    in-place, G1.5 lock, G1.6 scoring_history) appear in checks list.
+    in-place) appear in checks list (G1.5/G1.6 removed — zero-writer, spec #27).
     """
 
     def test_g11_fails_when_file_not_found(self, tmp_path: Path) -> None:
