@@ -7,7 +7,7 @@ contract:
     - {file: plans/chapter-N-plan.md, fields: [7. 本章 hook 账]}
     - {file: chapters/chapter-N.md}
     - {file: truth/pending_hooks.md}
-    - {file: outline/volume_map.md, fields: [cross-volume bridges]}
+    - outline/volume_map.md
   writes: []
   updates:
     - file: truth/pending_hooks.md

@@ -81,7 +81,7 @@ reads (Layer B):
 contract:
   reads:
     - file: truth/current_state.md
-      fields: [主角状态, 当前世界局势, 活跃线索]
+      fields: [系统演化阶段, 参数当前位置, 进行中的情节线]
 ```
 
 The dispatcher filters file content to only declared fields before the LLM

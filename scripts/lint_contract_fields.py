@@ -46,9 +46,10 @@ FIXTURES_DIR = REPO_ROOT / "tests" / "fixtures"
 _FRONTMATTER_PARTS = 3
 
 # Representative example fixtures for runtime-only truth files.
-# Keyed by the declared contract path (parametric form). Values are searched
-# in order; the first existing file is used as the sample. ``None`` entries are
-# documented no-sample paths (skipped without warning).
+# Keyed by the declared contract path (parametric form). ALL existing files
+# in each list are collected as samples; a declaration passes if ANY sample
+# contains the field (spec #28 any-match). ``None`` entries are documented
+# no-sample paths (skipped without warning).
 EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     "plans/chapter-N-plan.md": [FIXTURES_DIR / "chapter-plan-example.md"],
     "style/style_profile.md": [FIXTURES_DIR / "style-profile-example.md"],
@@ -65,6 +66,7 @@ EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
     "truth/current_state.md": [
         FIXTURES_DIR / "snapshots" / "chapter-025" / "truth" / "current_state.md",
         FIXTURES_DIR / "truth-current_state.md",
+        FIXTURES_DIR / "truth-current_state-xinghuo.md",
     ],
     "truth/pending_hooks.md": [
         FIXTURES_DIR / "snapshots" / "chapter-025" / "truth" / "pending_hooks.md",
@@ -79,8 +81,8 @@ EXAMPLE_FIXTURES: dict[str, list[Path] | None] = {
         FIXTURES_DIR / "snapshots" / "chapter-025" / "truth" / "character_matrix.md",
         FIXTURES_DIR / "truth-character_matrix.md",
     ],
-    # Runtime-only, no representative fixture yet -> skipped (not a drift).
-    "outline/volume_map.md": None,
+    # Mirrored production sample (G0.11 hash-checked via g0.MIRROR_MAP).
+    "outline/volume_map.md": [FIXTURES_DIR / "volume-map-xinghuo.md"],
 }
 
 
@@ -109,38 +111,33 @@ def _field_unmatched(declared: str, actual: set[str]) -> bool:
     return not any(match_field(declared, h) for h in actual)
 
 
-def resolve_sample(path: str) -> Path | None:
-    """Resolve a declared (possibly parametric/runtime) path to an on-disk sample.
+def resolve_samples(path: str) -> list[Path]:
+    """Resolve a declared path to ALL on-disk samples (spec #28 any-match).
 
-    Order of preference:
-      1. The literal file under the project root (concrete, on-disk truth file).
-      2. A curated example fixture (see ``EXAMPLE_FIXTURES``).
-      3. A glob-resolved sample for parametric paths (``N``/``NNN`` -> ``*``).
-
-    Returns ``None`` when no representative sample exists (caller skips it).
+    Collects, in order: the literal file under the project root, every
+    existing curated fixture candidate (see ``EXAMPLE_FIXTURES``), and every
+    glob match for parametric paths (``N``/``NNN`` -> ``*``). Deduplicated,
+    order-stable. A declaration passes if ANY sample contains the declared
+    heading/key — real-product shapes vary across snapshots/projects, so
+    any-match across all real samples is the correct semantics; zero samples
+    means skip (no drift).
     """
+    found: list[Path] = []
     # 1. Concrete file at project root.
     literal = PROJECT_DIR / path
     if literal.is_file():
-        return literal
-
-    # 2. Curated example fixture.
+        found.append(literal)
+    # 2. Curated example fixtures.
     if path in EXAMPLE_FIXTURES:
-        candidates = EXAMPLE_FIXTURES[path]
-        if candidates is None:
-            return None  # documented no-sample path
-        for cand in candidates:
+        for cand in EXAMPLE_FIXTURES[path] or []:
             if cand.is_file():
-                return cand
-        return None
-
+                found.append(cand)
     # 3. Parametric glob resolution (e.g. chapters/chapter-N-decisions.json).
     pattern = path.replace("NNN", "*").replace("N", "*")
-    matches = sorted(globmod.glob(str(PROJECT_DIR / pattern)))
-    if matches:
-        return Path(matches[0])
-
-    return None
+    for m in sorted(globmod.glob(str(PROJECT_DIR / pattern))):
+        found.append(Path(m))
+    seen: set[Path] = set()
+    return [p for p in found if not (p in seen or seen.add(p))]
 
 
 def _parse_contract(skill_md: Path) -> dict[str, Any] | None:
@@ -171,20 +168,32 @@ def _check_read_item(skill_name: str, item: object) -> str | None:
         kind = type(fields).__name__
         return f"{skill_name}: {path} has non-list 'fields' ({kind})"
 
-    sample = resolve_sample(path)
-    # No representative sample on disk, or unsupported file type -> not a drift.
-    if sample is not None:
+    samples = resolve_samples(path)
+    # No representative samples on disk -> not a drift (skip).
+    if not samples:
+        return None
+    declared = [f for f in fields if isinstance(f, str)]
+    miss_count: dict[str, int] = {}
+    sample_count = 0
+    for sample in samples:
         actual = _extract_actual(path, sample)
-        if actual is not None:
-            declared = [f for f in fields if isinstance(f, str)]
-            missing = [f for f in declared if _field_unmatched(f, actual)]
-            if missing:
-                preview = ", ".join(sorted(actual)[:10]) or "(none)"
-                rel = sample.relative_to(REPO_ROOT)
-                issue = (
-                    f"{skill_name}: {path} declares fields {sorted(missing)} "
-                    f"not found in {rel} (actual: {preview})"
-                )
+        if actual is None:
+            continue
+        sample_count += 1
+        for f in declared:
+            if _field_unmatched(f, actual):
+                miss_count[f] = miss_count.get(f, 0) + 1
+    if sample_count:
+        truly_missing = sorted(f for f, n in miss_count.items() if n == sample_count)
+        if truly_missing:
+            rels = ", ".join(
+                str(s.relative_to(REPO_ROOT) if s.is_relative_to(REPO_ROOT) else s)
+                for s in samples[:3]
+            )
+            issue = (
+                f"{skill_name}: {path} declares fields {truly_missing} "
+                f"not found in any sample ({rels})"
+            )
     return issue
 
 

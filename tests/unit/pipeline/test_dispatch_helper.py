@@ -312,9 +312,9 @@ class TestTruthTemplates:
         _init_truth_templates(tmp_path)
         body = (tmp_path / "truth" / "current_state.md").read_text(encoding="utf-8")
         # chapter-planning/review-continuity declare these 3 fields.
-        assert "## 主角状态" in body
-        assert "## 当前世界局势" in body
-        assert "## 活跃线索" in body
+        assert "## 系统演化阶段" in body
+        assert "## 参数当前位置" in body
+        assert "## 进行中的情节线" in body
         assert "# Current State" in body
 
     def test_character_matrix_template_created(self, tmp_path):
@@ -365,9 +365,9 @@ class TestTruthTemplates:
         # Path(fp).name, making the canary vacuously pass.
         fields_map = {
             str(tmp_path / "truth" / "current_state.md"): [
-                "主角状态",
-                "当前世界局势",
-                "活跃线索",
+                "系统演化阶段",
+                "参数当前位置",
+                "进行中的情节线",
             ]
         }
         warnings = check_fields_exist("shenbi-chapter-planning", inputs, fields_map)

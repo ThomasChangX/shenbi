@@ -9,9 +9,9 @@ contract:
   - chapters/chapter-N.md
   - file: truth/current_state.md
     fields:
-    - 主角状态
-    - 当前世界局势
-    - 活跃线索
+    - 系统演化阶段
+    - 参数当前位置
+    - 进行中的情节线
   - file: truth/chapter_summaries.md
     fields:
     - 已完成章节

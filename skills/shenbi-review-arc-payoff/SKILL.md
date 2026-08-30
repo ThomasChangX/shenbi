@@ -8,10 +8,7 @@ contract:
   kind: report
   reads:
   - chapters/*.md
-  - file: outline/volume_map.md
-    fields:
-    - volume_promise
-    - arc_beats
+  - outline/volume_map.md
   - file: truth/pending_hooks.md
     fields:
     - 活跃伏笔
