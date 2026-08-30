@@ -281,10 +281,24 @@ def test_compute_transition_matrix_includes_out_of_vocab() -> None:
 
 
 @pytest.mark.unit
-def test_main_max_consecutive_includes_out_of_vocab() -> None:
+def test_main_max_consecutive_includes_out_of_vocab(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
     """F667: main() max_consecutive rows follow compute_consecutive keys."""
-    from shenbi.skill_utils.chapter_pattern import compute_pattern as cp
+    import io
+    import json
+    import sys
 
-    consecutive = cp.compute_consecutive(["未分类", "未分类", "未分类", "未分类"])
-    rows = [{"pattern": p, "max_run": consecutive[p]} for p in consecutive]
-    assert rows == [{"pattern": "未分类", "max_run": 4}]
+    from shenbi.skill_utils.chapter_pattern.compute_pattern import main
+
+    data = json.dumps([{"num": i, "pattern": "未分类"} for i in range(1, 5)])
+    monkeypatch.setattr(sys, "argv", ["compute_pattern.py", "-"])
+    monkeypatch.setattr(sys, "stdin", io.StringIO(data))
+    out = io.StringIO()
+    monkeypatch.setattr(sys, "stdout", out)
+    main()
+    result = json.loads(out.getvalue())
+    assert result["max_consecutive"] == [{"pattern": "未分类", "max_run": 4}]
+    assert any(
+        w["pattern"] == "未分类" and w["max_run"] == 4 for w in result["consecutive_warnings"]
+    )

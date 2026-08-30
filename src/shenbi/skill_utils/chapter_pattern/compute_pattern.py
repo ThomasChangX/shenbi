@@ -73,8 +73,7 @@ def compute_consecutive(patterns: list[str]) -> dict[str, int]:
     # F667: report every pattern present in the input, not just vocab entries —
     # out-of-vocab labels (e.g. 未分类) must not silently vanish.
     for pattern in sorted(set(patterns)):
-        pattern_runs = runs.get(pattern, [])
-        result[pattern] = max(pattern_runs) if pattern_runs else 0
+        result[pattern] = max(runs[pattern])
     return result
 
 
