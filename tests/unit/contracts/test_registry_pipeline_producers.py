@@ -39,8 +39,9 @@ SHARED = {
     "genre-config.json",
 }
 
-# D20: the real pipeline flatfile (chapter_loop._snapshot_chapter_files writes
-# snapshots/chapter-NNN-{timestamp}.md). The fictional directory concept
+# D20: the real pipeline flatfile (crash_recovery._snapshot_chapter_files
+# writes snapshots/chapter-N-{label}.md; the chapter_loop differential variant
+# was removed per spec #26 path 3). The fictional directory concept
 # snapshots/chapter-NNN/ must no longer be the snapshot concept name.
 D20_REAL_FLATFILE = "snapshots/chapter-NNN-*.md"
 D20_FICTIONAL_DIR_CONCEPT = "snapshots/chapter-NNN/manifest.json"

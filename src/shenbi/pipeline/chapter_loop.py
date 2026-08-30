@@ -124,7 +124,7 @@ class ChapterStep:
 
 
 # Restructured CHAPTER_STEPS: 15 core steps (shrunk from 20 per Plan 18 Task 5;
-# pre-revision-snapshot removed per spec #26 path 3 — differential snapshot
+# snapshot step removed per spec #26 path 3 — differential snapshot
 # subsystem dead-wired, rollback served by shenbi-snapshot-manage skill).
 # Deprecated skills removed: foreshadowing-plant, foreshadowing-track,
 #   foreshadowing-recall, context-composing.

@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1
+> **Date:** 2026-08-16 | **Status:** Design (大部分失效注记：#26 已于 2026-08-30 裁决路径 3——差分快照子系统整体移除，本 spec 按 T0 仅存活 T4 truth-files.yaml/词面协调面，待自身价值门复核) | **Severity:** 🟠 P1
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5 修复 spec（簇 C19）| **代表 finding:** F351 | **簇规模:** 12 条 | **严重度上限:** P1
 > **范围:** src/shenbi/pipeline/{snapshot_diff,chapter_loop,crash_recovery,state_heal}.py、docs/framework/truth-files.yaml、tests 快照族、novel-output 生产快照 | **证据等级:** 实验佐证（Z3-review-r1 + Z7-review-r2 + Z11-a 生产实证）
 > **与既有 spec 关系:** **依赖 #26**（2026-08-15-snapshot-subsystem-wiring-design.md，F303 三路裁决：接线/收敛后接线/移除）——本 spec 承接 #26 裁决结果，收口其未覆盖的布局单源化、TRUTH_FILES 完备性、命名统一与生产实证复验；执行顺序 #26 先决
