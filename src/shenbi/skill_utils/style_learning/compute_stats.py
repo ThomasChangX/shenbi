@@ -12,23 +12,12 @@ from collections import Counter
 from pathlib import Path
 from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
 from shenbi.safe_write import safe_write
+from shenbi.text.cjk import TTR_EXCLUDED_CHARS, count_punctuation as cjk_count_punctuation
 from typing import Any
 
 SENT_ENDS = re.compile(r"[。！？；\n]")
-# F668: directional quote pairs (aligned with cjk.PUNCTUATION_TOKENS 引号); ASCII " toggles.
+# F668: directional quote pairs (aligned with cjk pair counting); ASCII " toggles.
 QUOTE_PAIR = {"”": "“", "’": "‘", "」": "「", "』": "『"}
-PUNCT_MAP = {
-    "句号": "。",
-    "逗号": "，",
-    "感叹号": "！",
-    "问号": "？",
-    "破折号": "——",
-    "省略号": "……",
-    "顿号": "、",
-    "分号": "；",
-    "冒号": "：",
-    "引号": "\"\"''「」『』",
-}
 CONNECTIVES = {
     "时间": ["然后", "接着", "之后", "忽然", "突然", "此时", "随后", "立刻", "马上"],
     "转折": ["但是", "然而", "不过", "可是", "却", "但", "只是", "偏偏"],
@@ -201,7 +190,7 @@ def compute_paragraph_stats(paragraphs: list[dict[str, Any]]) -> dict[str, Any]:
 
 def compute_ttr(text: str) -> dict[str, Any]:
     """Compute Type-Token Ratio at character level for Chinese text."""
-    chars = [c for c in text if c.strip() and c not in "。，！？；：''「」『』（）——……、\n"]
+    chars = [c for c in text if c.strip() and c not in TTR_EXCLUDED_CHARS]
     if not chars:
         return {
             "global_ttr": 0,
@@ -256,13 +245,18 @@ def compute_ngrams(
 
 
 def compute_punctuation(text: str) -> dict[str, dict[str, float]]:
-    """Compute punctuation density per 1000 characters."""
+    """Compute punctuation density per 1000 characters.
+
+    F609: counting source is shenbi.text.cjk.count_punctuation (single source).
+    Bucket semantics inherited from cjk: 感叹号 includes half-width !, 破折号/
+    省略号 count whole tokens (no double counting), 引号 counts PAIRS (spec #32).
+    Output contract unchanged: {name: {count, per_1000}}.
+    """
     total_chars = len(text.replace("\n", "").replace(" ", ""))
     if total_chars == 0:
         return {}
     densities: dict[str, dict[str, float]] = {}
-    for name, chars in PUNCT_MAP.items():
-        count = sum(text.count(c) for c in chars)
+    for name, count in cjk_count_punctuation(text).items():
         per_1k = round(count * 1000 / total_chars, 1)
         densities[name] = {"count": count, "per_1000": per_1k}
     return densities

@@ -51,8 +51,45 @@ PUNCTUATION_TOKENS: dict[str, list[str]] = {
     "顿号": ["、"],
     "分号": ["；"],
     "冒号": ["：", ":"],
-    "引号": ['""', "''", "「」", "『』"],
 }
+# 引号 bucket is NOT in PUNCTUATION_TOKENS: it is pair-based (spec #32 F601).
+# The old two-char literals ('""', '「」', ...) only matched EMPTY pairs, so
+# any quote with content counted 0. Pair counting lives below.
+
+# Spec #32 F652: single exclusion set for TTR-style char filtering.
+# Includes CJK curly quotes “”‘’ (previously missing downstream).
+TTR_EXCLUDED_CHARS = "。，！？；：''“”‘’「」『』（）——……、\n"
+
+
+_PAIR_RE = re.compile(r"“[^“”]*”|‘[^‘’]*’|「[^「」]*」|『[^『』]*』|\"[^\"]*\"")
+
+
+def find_quote_spans(text: str) -> list[tuple[int, int]]:
+    """Return (start, end) spans of paired quotes, including the quote marks.
+
+    Inner quotes nested inside an outer pair are content of the outer span
+    (non-greedy per-form char classes). Unmatched open quotes yield nothing.
+    Empty pairs (“”) are valid spans.
+    """
+    return [(m.start(), m.end()) for m in _PAIR_RE.finditer(text)]
+
+
+def count_quote_pairs(text: str) -> int:
+    """Count paired quotes (引语数), content-bearing or empty (spec #32 F601)."""
+    return len(find_quote_spans(text))
+
+
+def dialogue_char_count(text: str) -> int:
+    """Characters inside paired quotes, including the quote marks themselves."""
+    return sum(end - start for start, end in find_quote_spans(text))
+
+
+def dialogue_char_ratio(text: str) -> float:
+    """dialogue_char_count / non-whitespace total chars; 0.0 when empty."""
+    total = len([c for c in text if not c.isspace()])
+    if total == 0:
+        return 0.0
+    return dialogue_char_count(text) / total
 
 
 def count_punctuation(text: str) -> dict[str, int]:
@@ -63,11 +100,15 @@ def count_punctuation(text: str) -> dict[str, int]:
 
     Note: half-width and full-width variants in the same bucket (e.g. ！ and !)
     are counted separately and summed. A string "！!" yields 2 for 感叹号.
+
+    引号 counts PAIRS (see count_quote_pairs), not per-char occurrences.
     """
-    return {
+    counts = {
         name: sum(text.count(token) for token in tokens)
         for name, tokens in PUNCTUATION_TOKENS.items()
     }
+    counts["引号"] = count_quote_pairs(text)
+    return counts
 
 
 _CJK_RE = re.compile(r"[\u4e00-\u9fff\u3400-\u4dbf\uf900-\ufaff]")
