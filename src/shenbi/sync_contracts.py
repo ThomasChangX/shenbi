@@ -20,7 +20,7 @@ from shenbi.contracts.graph import dag_key, normalize_to_glob
 from shenbi.contracts.schemas.registry import TruthFilesRegistry
 from shenbi.safe_write import safe_write
 from shenbi.gates.shared import ALL_SKILLS, PROJECT, SKILLS
-from shenbi.logging import get_logger
+from shenbi.logging import configure_logging, get_logger
 
 log = get_logger(__name__)
 
@@ -144,7 +144,8 @@ def render_body_into(skill_md: Path, contract: dict[str, Any]) -> None:
     text = skill_md.read_text(encoding="utf-8")
     m = re.match(r"^(---\n.*?\n---\n)(.*)$", text, flags=re.DOTALL)
     if not m:
-        return  # not a skill file with frontmatter
+        log.warning("skill_md_frontmatter_missing", path=str(skill_md))  # F130: not silent
+        return
     frontmatter, body = m.group(1), m.group(2)
     block = render_body_view(skill_md.parent.name, contract)
     pattern = re.compile(re.escape(BODY_BANNER) + r".*?" + re.escape(BODY_END) + r"\n?", re.DOTALL)
@@ -162,6 +163,7 @@ def _write_json(path: Path, data: Any) -> None:
 
 def main() -> int:
     """Regenerate all contract-derived artifacts; bail pre-migration (no contracts)."""
+    configure_logging()  # F159: main is a CLI entry — logs must respect the shared config
     registry = load_registry()
     contracts = load_all_contracts()
     if not contracts:
@@ -192,7 +194,12 @@ def main() -> int:
     # The curated expected_outputs is OVERWRITTEN — it is the D4 drift surface
     # being regenerated, so we never compare against it (that would fail the
     # generator on its own first run). Correctness is the bijection self-check.
-    deps = json.loads(DEPS_PATH.read_text(encoding="utf-8"))
+    try:
+        deps = json.loads(DEPS_PATH.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        # Fail closed: organizational fields (t2-phases map) cannot be trusted.
+        log.error("deps_json_corrupt", path=str(DEPS_PATH), error=str(exc))
+        return 1
     for phase_name, phase in deps.get("t2-phases", {}).items():
         generated = derive_expected_outputs(phase, contracts, registry)
         verify_bijection(generated, phase, contracts, registry)

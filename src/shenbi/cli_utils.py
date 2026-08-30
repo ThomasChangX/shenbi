@@ -17,6 +17,10 @@ def emit_json(data: Any) -> None:
     pipelines or other tools. Distinct from structlog logging which goes
     to stderr.
     """
-    sys.stdout.write(json.dumps(data, ensure_ascii=False))
-    sys.stdout.write("\n")
-    sys.stdout.flush()
+    try:
+        sys.stdout.write(json.dumps(data, ensure_ascii=False))
+        sys.stdout.write("\n")
+        sys.stdout.flush()
+    except BrokenPipeError:
+        # Downstream consumer (head/pipe) closed early — not an error worth a traceback (F160).
+        raise SystemExit(0) from None
