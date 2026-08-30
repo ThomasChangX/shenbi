@@ -20,7 +20,6 @@ class ProgressDoc(BaseModel):
     model_config = {"extra": "ignore"}
     skills: dict[str, Any] = {}
     completed_skill_names: list[str] = []
-    scoring_history: list[Any] = []
 
 
 class SummaryDoc(BaseModel):

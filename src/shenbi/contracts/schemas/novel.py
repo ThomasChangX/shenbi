@@ -15,7 +15,7 @@ from pydantic import BaseModel
 class NovelConfig(BaseModel):
     model_config = {"extra": "forbid"}
     title: str = ""
-    genre: str = ""
+    genre: str | list[str] = ""  # F240: real novel.json writes a list
     language: str = "zh"
     era: str = ""
     core_concept: str = ""

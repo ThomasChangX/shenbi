@@ -80,8 +80,6 @@ def materialize_progress(
     out: dict[str, Any] = {
         "round": Path(round_dir).name.split("-")[1] if "round-" in str(round_dir) else "???",
         "tier": init_tier,
-        "test_cycle_phase": "generative",
-        "subagent_completion_count": done_counter,
         "completed_skill_names": genuinely_done,
         "skills": skills_full,
         "remaining_generative": sorted(_pending("generative")),
