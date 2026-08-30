@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-31
-> **活跃 plan 数**：0 | **已归档**：82（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：82（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #31 plan 已交付归档，见 `archive/2026-08-31-spec31-g3-independence.md`，PR #122）
+- **2026-08-31-spec32-linguistic-drift-cjk.md** — SDD #32 簇 C6（15 LIVE findings，T1-T5），分支 fix/spec32-linguistic-drift-cjk
 
 
 
