@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Revised 2026-08-31（阶段 3 审查裁决回写）| **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #120) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C4，17 条）| **代表 finding:** F237 | **严重度上限:** P0（F1102/T101）| **涉及文件面:** src/shenbi/contracts/schemas/decisions.py、dispatcher/derive_file_type、gates/g2.py + g4/、5 个 decisions 生产技能 SKILL.md、docs/framework/decisions-schema.md、AGENTS.md P2.5 条款
 
 # decisions-sidecar 契约链修复（audit-decisions-chain）
