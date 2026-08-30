@@ -14,7 +14,7 @@
 ### #22 · 全项目审查执行：安全与提示注入（补齐 E）
 
 - **文件**：`2026-08-14-security-injection-design.md`
-- **状态**：Design（Revised 2026-08-30）| **优先级**：🟠 P1（补齐）
+- **状态**：Design (Revised 2026-08-30) | **优先级**：🟠 P1（补齐）
 - **内容**（修订收窄）：T12-01 属性半面（`<document name>` 转义 + wildcard 写文件名白名单）、T12-03 半面（round-exec.sh `python3 -c` 注入）、T12-06（skill 名词法校验 + generate.py output 穿越）——内容侧 F308/T12-02/T12-04/T12-05/run_pipeline.sh 已让渡 #45/#64/C32（见 spec 修订记录，禁双修）
 
 ### #23 · 全项目审查执行：Z8 契约漂移补完（补齐 F）

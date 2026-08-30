@@ -67,4 +67,4 @@
 - T12-01 属性侧（`<document name="{fname}">` 属性转义 + wildcard 写文件名白名单）由修订版 #22 R1 承接，本簇 R2 仅覆盖内容侧 `<` 转义——两 spec 分工，禁双修
 - T12-03 残留半面（tests/round-exec.sh `python3 -c` 插值）由修订版 #22 R2 承接，本簇不涉及
 - T12-06（skill 名词法校验 + plugins/generate.py output 穿越）由修订版 #22 R3 承接
-- T12-02 残留「状态文件只读保护」（pipeline-state/gate-markers/scores 对 codex 写面的预防性约束）与 T12-05 残留「safe_write 路径规范化」自 #22 让渡收口至本簇：前者并入 R3 路径边界范围，后者并入 R3（_write_parsed_outputs 之外 safe_write 层的同型 resolve+前缀校验）
+- T12-02 残留「状态文件只读保护」（pipeline-state/gate-markers/scores 对 codex 写面的预防性约束）与 T12-05 残留「safe_write 路径规范化」自 #22 让渡收口至本簇：前者并入 R3 路径边界范围，后者并入 R3（`_write_parsed_outputs` 之外 safe_write 层的同型 resolve+前缀校验）
