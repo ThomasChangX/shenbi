@@ -24,15 +24,16 @@
 **裁决输入**：四机制的覆盖面 diff（快照哪些文件、prune 策略、恢复语义）；`write_safety`/`WRITE_SHARED` 串行化约束（AGENTS.md 并发纪律）；磁盘成本（章级差分快照体积增长曲线——注意 `_prune_old_snapshots` 仅清 manifest 登记的平铺文件，差分目录与应急快照**永不 prune**，接线即无界增长，裁决须同时定 prune 策略或显式移交 #57）；**双写冲突**（路径 1/2 接线后 ③ skill 路径与差分路径并发写 `snapshots/` 的格式碰撞与分工——skill 写 `snapshots/chapter-NNN/*` 目录格式，与差分路径同名目录存在碰撞面）；**恢复面处置**（每条路径必须显式裁决 restore_from_snapshot 与 cmd_rollback 的归宿，禁止接线后残留零调用方的 restore 实现——那会复刻 F303 失败类）。
 
 **路径 3 死符号清单**（零残留的界定范围）：
-- src：`create_differential_snapshot` / `restore_from_snapshot`（snapshot_diff.py，模块整体去留随裁决——若无存活的库消费者则整模块删除）、`_prune_old_snapshots` / `_snapshot_chapter_files`（chapter_loop.py）、`cmd_rollback`（pipeline/cli.py）、`last_snapshot` state 字段与 `_heal_last_snapshot`（state_heal.py，字段去留须与 #57 对账）
-- tests（须同步删/改，否则 `just check` 悬挂 import 红）：tests/pipeline/test_snapshot_diff.py、tests/unit/{test_snapshot_pruning,test_last_snapshot,test_snapshot_coverage,test_adaptive_triggers}.py、tests/unit/contracts/test_registry_pipeline_producers.py:42（D20 注释面）
-- 文档同步面（M2 界定）：`grep -rn "pre-revision-snapshot"` 命中的非 archive 文档 + step 表注释（chapter_loop.py:133）+ 本 spec + INDEX
+- src：`create_differential_snapshot` / `restore_from_snapshot`（snapshot_diff.py，模块整体去留随裁决——若无存活的库消费者则整模块删除）、`_prune_old_snapshots` / `_snapshot_chapter_files`（chapter_loop.py）、`cmd_rollback`（pipeline/cli.py）、`last_snapshot` state 字段与 `_heal_last_snapshot`（state_heal.py，处置规则见下）
+- tests（须同步删/改，否则 `just check` 悬挂 import 红；实际路径已核）：tests/pipeline/test_snapshot_diff.py、tests/unit/pipeline/{test_snapshot_pruning,test_last_snapshot,test_snapshot_coverage,test_adaptive_triggers,test_state_heal}.py（test_state_heal.py 的 `test_heals_last_snapshot` 随字段删除而删）、tests/unit/pipeline/test_cli_rollback_removed.py:14（直接 import cmd_rollback）、tests/unit/pipeline/test_cli.py:517-532（断言 cmd_rollback 保留——随其删除而反转向：断言不再存在）、tests/unit/contracts/test_registry_pipeline_producers.py:42（D20 注释面——若删 chapter_loop 版而 crash_recovery.py:155 同名函数存活，注释须改指向而非删）
+- **last_snapshot 路径 3 处置规则**（消除循环对账）：字段与 `_heal_last_snapshot` 一并删除——#57 路径 3 存活面 T4 不涉及该字段，且"永不写入仅可 heal 回填"的字段无存在价值；#57 如后续需要快照状态指针属其自身设计面
+- 文档同步面（M2 界定）：`grep -rn "pre-revision-snapshot"` 命中的非 archive 文档 + step 表注释（chapter_loop.py:133）+ pipeline/cli.py:785 的 last_snapshot 注释 + 本 spec + INDEX
 
 ## 验收（按裁决路径定稿）
 - 路径 1/2：
-  - step 15 执行后（fixtures 驱动测试表达，G0.9——scenario 输入引用 tests/fixtures/ 真实产物）快照目录存在且含 manifest（**manifest 文件名以 snapshot-manage SKILL 契约钉定的命名为准，与 #6 R3 对齐**；差分默认 `snapshot-manifest.json` 须与契约命名对账后钉死单一值）
-  - last_snapshot 写入（格式——文件路径 vs 目录路径——与 state_heal `_heal_last_snapshot` 识别逻辑同一定稿，不许留下 heal 识别不了的写入格式）
-  - restore/rollback 面有显式归宿：cmd_rollback 实现接线，或删除，或保留 deferred 但带明确契约注记（三选一，禁止默认漂过）
+  - step 15 执行后（fixtures 驱动测试表达，G0.9——scenario 输入引用 tests/fixtures/ 真实产物）快照目录存在且含 manifest（**命名权威单源 = #57 T1「命名三套收敛为一套」；本 spec 钉契约现值 `snapshots/chapter-NNN/manifest.json`（SKILL.md writes 现值）为过渡值**，差分默认 `snapshot-manifest.json` 与契约现值的分歧由 #57 T1 终裁，#26 不锁死命名——若 #26 先于 #57 执行，接线实现按契约现值对齐）
+  - last_snapshot 写入（格式权威单源同上归 #57 T2/F317 终裁；#26 接线实现采用与 state_heal `_heal_last_snapshot` 现行识别逻辑兼容的格式，不许留下 heal 识别不了的写入格式——终格式的 heal 侧改造归 #57）
+  - restore/rollback 面有显式归宿：cmd_rollback 实现接线，或删除，或保留 deferred 但**落可验证工件**（SKILL.md 契约注记或 pipeline 文档章节，验收 = `git grep` 该注记存在；纯口头"注记"不合格）三选一，禁止默认漂过
   - `_snapshot_chapter_files` 无 pyright unused 标记
   - `just check` 全绿（含 prune 策略或其显式移交 #57 的注记）
 - 路径 3：死符号清单全清、上列 tests/文档同步面处理、`git grep create_differential_snapshot` 在 src/ 零残留（tests 按清单处理，归档文档不计）、`just check` 全绿
