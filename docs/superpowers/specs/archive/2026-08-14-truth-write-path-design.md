@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Done (PR #88) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 4/7） | **依赖:** data-loss-cluster | **范围:** truth 文件写路径（write_truth_file/upsert/staging/契约语义）| **核心洞察:** 双写者键格式漂移（T7-01）、结构化记录丢失（T7-02）、staging/committed 分叉（T7-03）、契约自相矛盾（T7-06）
 
 # Truth 写路径（补齐 D）
