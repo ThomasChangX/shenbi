@@ -81,12 +81,14 @@ class TestG3ErrorPaths:
         # Add a t1-reports dir with a low-score report to exercise the FAIL branch.
         reports = round_dir / "t1-reports"
         reports.mkdir()
-        (reports / "shenbi-test-generative.json").write_text(
+        (reports / "shenbi-test-generative-scores.json").write_text(
             json.dumps({"score": 50}), encoding="utf-8"
         )
         result = _result_dict(gate_G3("shenbi-worldbuilding", "generative", str(round_dir)))
-        # Gate ran without crash; G3.2 may or may not appear.
-        assert result["status"] in ("PASS", "FAIL")
+        # Gate ran without crash; the low-score report now actually reaches
+        # G3.2 (suffixed name, not filtered as a sidecar).
+        assert result["status"] == "FAIL"
+        assert any("G3.2" in m for m in result.get("must_fix", []))
 
     def test_g30_returns_valid_json_with_gate_identifier(self) -> None:
         """All paths include gate == 'G3'."""

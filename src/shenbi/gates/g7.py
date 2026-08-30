@@ -206,6 +206,10 @@ def gate_G7(round_dir: str) -> str:
             continue
         score_vectors: dict[tuple[Any, ...], list[str]] = {}
         for score_file in reports_dir.glob("*-generative-scores*.json"):
+            # spec #31: an agreeing dual-scorer pair is two identical score
+            # vectors by design — not a suspicious pattern.
+            if score_file.name.endswith("-scores-subagent-2.json"):
+                continue
             try:
                 data = jload(str(score_file))
                 # scoring.py output: {"dimensions": [{"num":1,"score":90},...], "final_score": ...}

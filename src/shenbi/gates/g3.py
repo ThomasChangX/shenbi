@@ -140,8 +140,10 @@ def gate_G3(
                     # second scores) are not readiness score reports — G3.2
                     # must only judge primary score files, else a legitimate
                     # collapse-check.json (no score fields → score 0) fails
-                    # the very rounds this gate protects.
-                    if not rp.name.endswith(("-scores.json", "-scores-subagent.json")):
+                    # the very rounds this gate protects. Blacklist (not a
+                    # -scores whitelist) keeps legacy unsuffixed report names
+                    # (find_report's accepted variants) in scope.
+                    if rp.name.endswith(("-collapse-check.json", "-scores-subagent-2.json")):
                         continue
                     try:
                         data = jload(str(rp))
