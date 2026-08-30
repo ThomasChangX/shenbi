@@ -97,21 +97,14 @@ def _record_collapse_check(
     return result
 
 
-def dispatch_codex(
-    skill: str,
-    test_type: str,
-    round_dir: Path,
-    prompt: str,
-    agent_id: str,
-    output_files: list[str] | None = None,
-) -> int:
-    """Dispatch via codex CLI."""
-    if not prompt:
-        raise SubAgentProtocolError("codex mode requires non-empty prompt")
+def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str) -> dict[str, Any]:
+    """Run one codex exec and extract the first JSON object as scores.
 
-    scores_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent.json"
-    scores_file.parent.mkdir(parents=True, exist_ok=True)
-    raw_out = scores_file.with_suffix(".raw")
+    Shared by the primary scoring dispatch and the opt-in dual-scorer second
+    dispatch (spec #31 T2b).
+    """
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+    raw_out = out_file.with_suffix(".raw")
 
     try:
         result = subprocess.run(
@@ -125,7 +118,7 @@ def dispatch_codex(
 
     if result.returncode != 0:
         log.error("codex_failed", rc=result.returncode, stderr=result.stderr)
-        return result.returncode
+        raise SubAgentProtocolError(f"codex exec failed with rc={result.returncode}")
 
     raw_text = raw_out.read_text(encoding="utf-8")
     match = re.search(r"\{[^{}]*\}", raw_text, re.DOTALL)
@@ -133,12 +126,91 @@ def dispatch_codex(
         log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
         raise SubAgentProtocolError("no JSON object found in codex output")
     try:
-        scores = json.loads(match.group(0))
+        scores: dict[str, Any] = json.loads(match.group(0))
     except json.JSONDecodeError as e:
         log.error(
             "codex_invalid_json", skill=skill, error=str(e), raw_output_preview=raw_text[:500]
         )
         raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
+    return scores
+
+
+def _run_dual_scorer_check(
+    round_dir: Path, skill: str, test_type: str, prompt: str, scores: dict[str, Any]
+) -> dict[str, Any] | None:
+    """Opt-in dual-scorer agreement check (spec #31 T2b, F114/F506).
+
+    Second independent codex dispatch → validate_dual_scorer comparison →
+    needs_arbitration writes a G3-arb record into the pipeline manifest and
+    WARNs. Disputes deliberately do NOT route through escalation_bridge:
+    check_escalation is cross-round resonance-slope detection, a different
+    mechanism (stage-3 review C2).
+    """
+    from shenbi.orchestration.scoring_bridge import validate_dual_scorer
+
+    second_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent-2.json"
+    try:
+        scores2 = _codex_exec_scores(round_dir, prompt, second_file, skill)
+    except (SubAgentProtocolError, SubAgentTimeoutError) as e:
+        # Second scorer is an enhancement, not a gate: log and skip.
+        log.warning("dual_scorer_second_dispatch_failed", skill=skill, error=str(e))
+        return None
+    safe_write(second_file, json.dumps(scores2))
+
+    norm_a: dict[int, float] = {}
+    for k, v in scores.items():
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            norm_a[int(k)] = float(v)
+    norm_b: dict[int, float] = {}
+    for k, v in scores2.items():
+        if isinstance(v, (int, float)) and not isinstance(v, bool):
+            norm_b[int(k)] = float(v)
+
+    agreement = validate_dual_scorer(norm_a, norm_b)
+    if agreement.get("needs_arbitration"):
+        from shenbi.gates.gate_manifest import record_gate_result
+
+        record_gate_result(
+            gate_manifest_dir=round_dir,
+            phase="t1",
+            chapter=0,
+            skill=skill,
+            gate="G3-arb",
+            result=agreement,
+        )
+        log.warning(
+            "dual_scorer_dispute",
+            skill=skill,
+            test_type=test_type,
+            disputed_dimensions=agreement.get("disputed_dimensions"),
+            max_diff=agreement.get("max_diff"),
+        )
+    return agreement
+
+
+def dispatch_codex(
+    skill: str,
+    test_type: str,
+    round_dir: Path,
+    prompt: str,
+    agent_id: str,
+    output_files: list[str] | None = None,
+    dual: bool = False,
+) -> int:
+    """Dispatch via codex CLI."""
+    if not prompt:
+        raise SubAgentProtocolError("codex mode requires non-empty prompt")
+
+    scores_file = round_dir / "t1-reports" / f"{skill}-{test_type}-scores-subagent.json"
+    try:
+        scores = _codex_exec_scores(round_dir, prompt, scores_file, skill)
+    except SubAgentTimeoutError:
+        raise
+    except SubAgentProtocolError as e:
+        # Historical behavior: codex exec failure logs and returns non-zero
+        # (callers treat rc as pass/fail only; the exact rc is not consumed).
+        log.error("codex_dispatch_failed", skill=skill, error=str(e))
+        return 1
 
     safe_write(scores_file, json.dumps(scores))
 
@@ -172,6 +244,11 @@ def dispatch_codex(
         return result.returncode
 
     final = json.loads(result.stdout).get("final_score", 0)
+
+    # spec #31 T2b: opt-in dual-scorer agreement check (default OFF).
+    if dual or os.environ.get("SHENBI_DUAL_SCORER") == "1":
+        _run_dual_scorer_check(round_dir, skill, test_type, prompt, scores)
+
     _record_completion(round_dir, skill, test_type, final, output_files=output_files)
     emit_json(json.loads(result.stdout))
     return 0
