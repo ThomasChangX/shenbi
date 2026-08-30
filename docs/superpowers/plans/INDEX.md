@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-30
-> **活跃 plan 数**：1 | **已归档**：78（见 `archive/`）
+> **活跃 plan 数**：0 | **已归档**：79（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-08-30-snapshot-wiring-removal.md`（SDD #26 快照子系统路径 3 移除，spec `2026-08-15-snapshot-subsystem-wiring-design.md`）— ✅ ready
+（无——SDD #26 plan 已交付归档，见 `archive/2026-08-30-snapshot-wiring-removal.md`，PR #105）
 
 
 
@@ -40,6 +40,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-08-30-snapshot-wiring-removal.md`（SDD #26 快照子系统路径 3 移除，PR #105）
 - `2026-08-30-truth-write-path.md`（SDD #21 truth 写路径，PR #88）
 - `2026-08-30-z11-output-contracts.md`（SDD #20 z11 产物契约，PR #82 + #83/#84/#85）
 - `2026-08-30-security-injection.md`（SDD #22 安全与提示注入修订版，PR #90 修订 + #91 交付）
