@@ -1,4 +1,4 @@
-> **Date:** 2026-08-14 | **Status:** Design (Revised 2026-08-30 · SDD #20 修订：R1 宿主/门禁具体化；R2 移交 C22＝spec #60（同主体跨轮 F1106/F1152/F1151 显式认领）；R3 架构改道 G1→settle 纯函数 + 验收 fixtures 化) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-14 | **Status:** Done (PR #82 + follow-ups #83/#84/#85) (Revised 2026-08-30 · SDD #20 修订：R1 宿主/门禁具体化；R2 移交 C22＝spec #60（同主体跨轮 F1106/F1152/F1151 显式认领）；R3 架构改道 G1→settle 纯函数 + 验收 fixtures 化) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-14 全项目审查（补齐 spec 3/7） | **依赖:** 无硬依赖；F302/F640/F324 修复本体分别归活跃 spec #36（C10）/#27 C1-T6/#37 C11-T4（F324 写入侧已由 PR #42 落地 `_shared.py::update_total_chapters`），本 spec 引用不重复实施 | **范围:** novel-output 产物契约（章节格式/truth 注册表/审计产物/滞留文件）| **核心洞察:** 真实项目产物与显式契约大面积背离（章节头/META/注册表），registry 三源分裂
 
 # 产物契约（Z11 补齐 C）
