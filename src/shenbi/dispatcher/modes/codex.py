@@ -62,15 +62,8 @@ def _record_completion(
     safe_write(progress_path, json.dumps(progress, indent=2, ensure_ascii=False))
 
 
-def _record_collapse_check(
-    round_dir: Path, skill: str, test_type: str, scores: dict[Any, Any]
-) -> dict[str, object]:
-    """Persist single-scorer collapse check next to the scores file (spec #31 T2a).
-
-    Separate artifact (NOT a key inside scores-subagent.json): parse_scores_dict
-    drops non-numeric keys with a WARN, so embedding would be noise. Scores from
-    codex JSON carry str dimension keys — normalized to int here.
-    """
+def _normalize_scores(scores: dict[Any, Any]) -> tuple[dict[int, float], list[str]]:
+    """str→int dimension keys, numeric-only values (bool exempt). Returns (normalized, dropped)."""
     normalized: dict[int, float] = {}
     dropped: list[str] = []
     for k, v in scores.items():
@@ -81,6 +74,19 @@ def _record_collapse_check(
                 dropped.append(str(k))
         except (TypeError, ValueError):
             dropped.append(str(k))
+    return normalized, dropped
+
+
+def _record_collapse_check(
+    round_dir: Path, skill: str, test_type: str, scores: dict[Any, Any]
+) -> dict[str, object]:
+    """Persist single-scorer collapse check next to the scores file (spec #31 T2a).
+
+    Separate artifact (NOT a key inside scores-subagent.json): parse_scores_dict
+    drops non-numeric keys with a WARN, so embedding would be noise. Scores from
+    codex JSON carry str dimension keys — normalized to int here.
+    """
+    normalized, dropped = _normalize_scores(scores)
     if dropped:
         # Mirrors parse_scores_dict's non_numeric_score_keys_dropped WARN.
         log.info(
@@ -157,27 +163,26 @@ def _run_dual_scorer_check(
         return None
     safe_write(second_file, json.dumps(scores2))
 
-    norm_a: dict[int, float] = {}
-    for k, v in scores.items():
-        if isinstance(v, (int, float)) and not isinstance(v, bool):
-            norm_a[int(k)] = float(v)
-    norm_b: dict[int, float] = {}
-    for k, v in scores2.items():
-        if isinstance(v, (int, float)) and not isinstance(v, bool):
-            norm_b[int(k)] = float(v)
+    norm_a, _dropped_a = _normalize_scores(scores)
+    norm_b, _dropped_b = _normalize_scores(scores2)
 
     agreement = validate_dual_scorer(norm_a, norm_b)
     if agreement.get("needs_arbitration"):
         from shenbi.gates.gate_manifest import record_gate_result
 
-        record_gate_result(
-            gate_manifest_dir=round_dir,
-            phase="t1",
-            chapter=0,
-            skill=skill,
-            gate="G3-arb",
-            result=agreement,
-        )
+        try:
+            record_gate_result(
+                gate_manifest_dir=round_dir,
+                phase="t1",
+                chapter=0,
+                skill=skill,
+                gate="G3-arb",
+                result=agreement,
+            )
+        except Exception:
+            # Manifest write failure must not crash dispatch — the dual check
+            # is an enhancement, not a gate (audit-T4 M1).
+            log.warning("dual_scorer_manifest_write_failed", skill=skill, exc_info=True)
         log.warning(
             "dual_scorer_dispute",
             skill=skill,
