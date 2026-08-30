@@ -48,7 +48,6 @@ TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
         "trace/compaction.py",
         "audit/record.py",
         "pipeline/checkpoint.py",
-        "pipeline/chapter_loop.py",
     }
 )
 

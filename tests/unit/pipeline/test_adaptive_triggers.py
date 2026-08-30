@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 
 from shenbi.pipeline.chapter_loop import (
@@ -10,7 +9,6 @@ from shenbi.pipeline.chapter_loop import (
     _should_run_drift,
     _should_run_recall,
     _should_run_step,
-    _snapshot_chapter_files,
 )
 
 
@@ -61,27 +59,6 @@ class TestAdaptiveRecall:
 class TestAdaptiveDrift:
     def test_insufficient_scores_returns_false(self, tmp_path: Path):
         assert _should_run_drift(tmp_path, chapter=5) is False
-
-
-class TestFileSnapshot:
-    def test_creates_timestamped_copy(self, tmp_path: Path):
-        (tmp_path / "chapters").mkdir()
-        chapter_file = tmp_path / "chapters" / "chapter-5.md"
-        chapter_file.write_text("# Chapter 5 content", encoding="utf-8")
-
-        _snapshot_chapter_files(tmp_path, chapter=5)
-
-        snap_dir = tmp_path / "snapshots"
-        assert snap_dir.exists()
-        # Differential snapshots create chapter subdirectories with a manifest.
-        chapter_snap_dir = snap_dir / "chapter-005"
-        assert chapter_snap_dir.exists()
-        manifest_file = chapter_snap_dir / "snapshot-manifest.json"
-        assert manifest_file.exists()
-        data = json.loads(manifest_file.read_text(encoding="utf-8"))
-        assert data["chapter"] == 5
-        # Verify the chapter file entry exists.
-        assert any("chapter-5.md" in f["path"] for f in data.get("files", []))
 
 
 class TestShouldRunStep:

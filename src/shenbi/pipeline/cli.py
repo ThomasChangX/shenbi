@@ -781,8 +781,8 @@ def cmd_resume(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
 
-            # Self-heal orphaned counters/pointers from disk (spec §3.4):
-            # retry_budget_consumed, revision_count, last_snapshot.
+            # Self-heal orphaned counters from disk (spec §3.4):
+            # retry_budget_consumed, revision_count.
             from shenbi.pipeline.state_heal import heal_state_counters
 
             heal_state_counters(state, project_dir)
