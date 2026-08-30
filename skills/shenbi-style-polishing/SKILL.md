@@ -46,7 +46,7 @@ contract:
 ```dot
 digraph style_polishing {
     "Read chapter content" -> "Read style/style_profile.md (if exists)";
-    "Read style/style_profile.md" -> "Read genre-config.json (fatigueWords + prohibitions)";
+    "Read style/style_profile.md" -> "Read genre-config.json (fatigueWords)";
     "Read genre-config.json" -> "Polish: sentence rhythm";
     "Polish: sentence rhythm" -> "Polish: paragraph breathing";
     "Polish: paragraph breathing" -> "Polish: word choice (replace fatigue words)";
