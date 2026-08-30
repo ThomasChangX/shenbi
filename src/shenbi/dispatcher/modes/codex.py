@@ -150,7 +150,9 @@ def _run_dual_scorer_check(
     needs_arbitration writes a G3-arb record into the pipeline manifest and
     WARNs. Disputes deliberately do NOT route through escalation_bridge:
     check_escalation is cross-round resonance-slope detection, a different
-    mechanism (stage-3 review C2).
+    mechanism (stage-3 review C2). The second dispatch reuses the identical
+    prompt — independence here means a second sampling of the same scoring
+    task (agreement probe), not an adversarial second opinion.
     """
     from shenbi.orchestration.scoring_bridge import validate_dual_scorer
 
@@ -251,7 +253,11 @@ def dispatch_codex(
     final = json.loads(result.stdout).get("final_score", 0)
 
     # spec #31 T2b: opt-in dual-scorer agreement check (default OFF).
-    if dual or os.environ.get("SHENBI_DUAL_SCORER") == "1":
+    env_dual = os.environ.get("SHENBI_DUAL_SCORER") == "1"
+    if dual or env_dual:
+        log.info(
+            "dual_scorer_enabled", skill=skill, source="env" if env_dual and not dual else "config"
+        )
         _run_dual_scorer_check(round_dir, skill, test_type, prompt, scores)
 
     _record_completion(round_dir, skill, test_type, final, output_files=output_files)

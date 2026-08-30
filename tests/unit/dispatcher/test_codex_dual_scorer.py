@@ -78,7 +78,8 @@ def test_dual_scorer_dispute_writes_arbitration(tmp_path, monkeypatch):
     rc = codex_mod.dispatch_codex("sk", "generative", tmp_path, "p", "a1")
     assert rc == 0
     entry = _manifest(tmp_path)["gates"]["t1"]["0"]["sk"]["G3-arb"]
-    if isinstance(entry, list):  # 首条为裸 dict，追加后才成 list（gate_manifest 语义）
+    # gate_manifest 语义：首条为裸 dict entry，追加后转 list（gates/gate_manifest.py:80-86）
+    if isinstance(entry, list):
         entry = entry[-1]
     assert entry["result"]["needs_arbitration"] is True
 
