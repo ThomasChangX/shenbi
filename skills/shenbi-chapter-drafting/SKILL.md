@@ -160,6 +160,8 @@ PRE_WRITE_CHECK:
 | "先写完再检查" | 写完再改 = 重写。边写边注意 = 一次过 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `chapters/chapter-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

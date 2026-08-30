@@ -117,6 +117,8 @@ digraph market_radar {
 | "我这是创新题材，没法对标" | 没对标 ≠ 没市场；创新题材需要更大胆的开书策略 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `context/market-radar-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

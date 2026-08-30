@@ -273,6 +273,8 @@ chapter_role: 高潮
 | 沉默检测 | 无 defer + 沉默 ≥ 4 章的行（或已附激活方案） | 存在僵尸伏笔 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `plans/chapter-N-plan-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

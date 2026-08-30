@@ -642,6 +642,31 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
     return files
 
 
+def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None) -> list[str]:
+    """Contract-declared decisions sidecars that currently have a staged copy.
+
+    audit-T5 C1 (spec #30 T2 follow-up): staging commit sites historically
+    moved only *.md / hardcoded targets and then rmtree'd staging — a staged
+    sidecar validated by G4.dec was silently destroyed. Commit call sites use
+    this to include the sidecar in the same commit batch.
+    """
+    from shenbi.contracts import ContractError, load_contract
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    try:
+        contract = load_contract(skill)
+    except ContractError:
+        return []
+    targets: list[str] = []
+    for out in contract["writes"]:
+        if "decisions" not in Path(out).name:
+            continue
+        resolved = resolve_chapter_path(out, chapter) if chapter is not None else out
+        if (project_dir / STAGING_DIR / resolved).exists():
+            targets.append(resolved)
+    return targets
+
+
 def _handle_failure(
     state: PipelineState,
     step: ChapterStep,
@@ -1171,8 +1196,9 @@ def _advance(
             from shenbi.pipeline.checkpoint import commit_staging, clear_staging
 
             target = resolve_chapter_path(step.output_path, chapter)
+            batch = [target] + staged_decisions_targets(project_dir, step.skill, chapter)
             try:
-                commit_staging(project_dir, [target])
+                commit_staging(project_dir, batch)
                 log.info("staging_auto_committed", chapter=chapter, target=target)
             except FileNotFoundError:
                 log.warning("staging_auto_commit_skipped_no_file", chapter=chapter, target=target)
@@ -1185,14 +1211,17 @@ def _advance(
 
             staging_truth = project_dir / STAGING_DIR / "truth"
             if staging_truth.exists():
-                for src in staging_truth.glob("*.md"):
+                for src in sorted(staging_truth.glob("*.md")) + sorted(
+                    staging_truth.glob("*decisions*.json")
+                ):
                     dst = project_dir / "truth" / src.name
                     dst.parent.mkdir(parents=True, exist_ok=True)
                     safe_write(dst, src.read_bytes())
                 log.info(
                     "staging_auto_committed_state_settle",
                     chapter=chapter,
-                    files=len(list(staging_truth.glob("*.md"))),
+                    files=len(list(staging_truth.glob("*.md")))
+                    + len(list(staging_truth.glob("*decisions*.json"))),
                 )
             else:
                 log.warning("staging_auto_commit_skipped_no_truth", chapter=chapter)

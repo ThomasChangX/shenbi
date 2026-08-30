@@ -289,6 +289,8 @@ arc_log:
 3. Write updated character_matrix.md to disk.
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `truth/state-settling-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

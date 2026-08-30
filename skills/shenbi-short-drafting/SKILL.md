@@ -233,6 +233,8 @@ digraph short_drafting {
 | "短篇风格不用管" | 短篇篇幅小，风格波动 1 章就能让读者弃书 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `short/short-N-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

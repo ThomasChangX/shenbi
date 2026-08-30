@@ -347,6 +347,8 @@ cp genre-config.json genre-config.json.bak.YYYYMMDD
 | "自定义规则随便加" | 自定义规则 = 项目级硬约束；滥用 = 规则相互冲突 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `genre-config-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

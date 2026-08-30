@@ -227,6 +227,8 @@ digraph context_composing {
 | "主线钩子和弧内钩子混着列就行" | MH* 来自书脊、H* 来自弧段，分级追踪才能定位长程债务 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `context/chapter-N-context-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）

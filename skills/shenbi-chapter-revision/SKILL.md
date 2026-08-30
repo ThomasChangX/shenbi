@@ -152,6 +152,8 @@ digraph chapter_revision_loop {
 | "修订太慢了" | 修1章30分钟 vs 读者弃书无价 |
 
 ## decisions sidecar 必填字段
+
+每次执行后**必须写出** `chapters/chapter-N-revision-decisions.json`（decisions sidecar，schema `shenbi-decisions-v1`）。必填字段：
 - `$schema`: `shenbi-decisions-v1`（固定值）
 - `skill`: 本技能名
 - `chapter`: 章节号（非章节产物用 `null`）
