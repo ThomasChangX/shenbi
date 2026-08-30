@@ -42,3 +42,15 @@ def test_dual_product_round_violating_chapter_fails():
 def test_valid_chapter_md_passes_under_decisions_type():
     r = _res([FIX / "chapter-full.md", FIX / "valid-chapter-decisions.json"])
     assert r.get("status") == "PASS", r
+
+
+def test_snapshot_backup_md_still_skipped(tmp_path):
+    """audit-T1 I1: revision backup copies are not artifacts — no chapter checks."""
+    snap = tmp_path / "state_snapshot-pre-rev.md"
+    snap.write_text("# snapshot\nshort", encoding="utf-8")
+    rev = tmp_path / "chapter-3-revision.md"
+    rev.write_text("# 第三章\n" + "正文" * 2500, encoding="utf-8")
+    r = _res([snap, rev])
+    assert not any(
+        c.get("file") == str(snap) and c.get("id") in ("G2.6", "G2.5") for c in r.get("checks", [])
+    ) and not any(str(snap) in m for m in r.get("must_fix", [])), r

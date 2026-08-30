@@ -602,11 +602,12 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
 
     Single-file steps return one path. State-settling returns all
     staging/truth/*.md files because it writes multiple truth outputs.
-    Steps with no output return [].
+    Contract-declared decisions sidecars are APPENDED (spec #30 T2, F434) so
+    G4.dec runs for dual-product skills instead of SKIP — expansion never
+    short-circuits the state-settling glob. Steps with no output return [].
     """
     single = _resolve_g4_path(project_dir, step, chapter)
-    if single:
-        return [single]
+    files = [single] if single else []
 
     # State-settling writes multiple truth files to staging/
     if step.uses_staging and "state-settling" in step.skill:
@@ -614,9 +615,29 @@ def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> lis
 
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            return sorted(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
+            files.extend(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
 
-    return []
+    # F434: contract-declared decisions sidecars join the G4 file list.
+    # Existence-gated to avoid spurious FAILs; composite G4 re-partitions by
+    # file suffix, so appending the sidecar here cannot mis-route .md checks.
+    from shenbi.contracts import ContractError, load_contract
+
+    try:
+        contract = load_contract(step.skill)
+    except ContractError:
+        contract = None
+    if contract:
+        from shenbi.pipeline.checkpoint import STAGING_DIR
+
+        for out in contract["writes"]:
+            if "decisions" not in Path(out).name:
+                continue
+            resolved = resolve_chapter_path(out, chapter)
+            cand = f"{STAGING_DIR}/{resolved}" if step.uses_staging else resolved
+            if (project_dir / cand).exists() and cand not in files:
+                files.append(cand)
+
+    return files if files else []
 
 
 def _handle_failure(

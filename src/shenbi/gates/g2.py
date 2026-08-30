@@ -85,6 +85,11 @@ def gate_G2(
         eff_type = file_type
         if file_type == "decisions":
             if not fp.endswith(".json"):
+                if "snapshot" in Path(fp).name:
+                    # Backup files (chapter-revision's truth/state_snapshot-pre-rev.md)
+                    # are byte-copies of a prior chapter, not artifacts to gate —
+                    # chapter semantics would false-FAIL on frontmatter/word floor.
+                    continue
                 eff_type = "chapter"  # .md main artifact validated as chapter
             else:
                 # G2.dec.4 — multi-JSON concatenation detection (MUST run BEFORE json.loads())
