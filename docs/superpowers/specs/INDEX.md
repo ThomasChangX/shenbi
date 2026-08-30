@@ -25,7 +25,7 @@
 - **优先级**：🟠 P1
 - **方法**：`systematic-debugging` 四阶段
 - **依赖**：无（与 #6 的 closure step 10 契约对齐有衔接面，见各自内容字段）
-- **内容**：快照子系统三机制并存零接线（F303）：chapter_loop 差分三件套死代码 / crash_recovery 平行实现 / cli rollback deferred；三路裁决（接线 / 收敛后接线 / 移除）+ 按路径定稿验收
+- **内容**：快照子系统**四机制**并存、pre-revision 路径零接线（F303；差分三件套死代码 / crash_recovery 应急快照已接线 / snapshot-manage skill 已接线 / restore-rollback 面全死）；三路裁决（接线 / 收敛后接线 / 移除）+ 按路径定稿验收；布局/命名/truth 覆盖收口归 #57，下游 #57 依赖本裁决
 - **对应 plan**：❌ 未写
 
 ### #27 · 全项目审查执行：读方↔写方键空间对账（簇 C1，P0）
