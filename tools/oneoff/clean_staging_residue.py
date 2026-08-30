@@ -23,7 +23,6 @@ from __future__ import annotations
 
 import argparse
 import json
-import re
 import sys
 from pathlib import Path
 
@@ -37,8 +36,6 @@ from shenbi.pipeline.truth_io import (
 from shenbi.safe_write import safe_write
 
 log = get_logger(__name__)
-
-_PLAN_RE = re.compile(r"chapter-(\d+)-plan\.md$")
 
 
 def _plan_actions(project_dir: Path) -> list[tuple[str, str]]:
