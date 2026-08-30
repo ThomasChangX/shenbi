@@ -918,29 +918,6 @@ def cmd_chapters(args: argparse.Namespace) -> int:
     return 0
 
 
-def cmd_rollback(args: argparse.Namespace) -> int:
-    """Rollback to a chapter snapshot.
-
-    Not yet implemented -- requires snapshot integration (deferred to a future
-    spec, see docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9).
-    The subparser registration has been removed so 'pipeline --help' does not
-    advertise this command. This function is retained for direct callers and
-    returns a non-zero exit code.
-    """
-    project_dir = Path(args.project_dir)
-    log.info("rollback_not_implemented", project_dir=str(project_dir), chapter=args.chapter)
-    emit_json(
-        {
-            "status": "not_implemented",
-            "message": (
-                "Rollback requires snapshot integration (deferred to future spec). "
-                "See docs/superpowers/specs/archive/2026-07-16-pipeline-maturity-and-bp-fixes-design.md §9."
-            ),
-        }
-    )
-    return 1
-
-
 def cmd_backfill_context(args: argparse.Namespace) -> int:
     """Re-run deterministic context assembly + curation for a chapter range.
 
