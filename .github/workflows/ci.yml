@@ -53,6 +53,7 @@ jobs:
       - name: Contract + repo-consistency lints (spec §5.5)
         run: |
           uv run python tools/lint_contracts.py
+          uv run python scripts/lint_contract_fields.py
           uv run python tools/lint_repo_consistency.py
       - name: Key reconciliation lint (spec 27 T7)
         run: uv run python tools/lint_key_reconciliation.py --strict
