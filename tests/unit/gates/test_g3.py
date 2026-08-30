@@ -414,3 +414,14 @@ def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
     score2, dims2 = _extract_score_fields(legacy)
     assert score2 == 88
     assert dims2 == {1: 80.0, 2: 90.0}
+
+
+@pytest.mark.unit
+def test_g32_genuine_zero_score_not_overwritten() -> None:
+    """A real final_score of 0 (kill-switch) must NOT be replaced by the
+    rubric/min fallback (false-PASS guard, spec #27 T4 review).
+    """
+    from shenbi.gates.g3 import _extract_score_fields
+
+    score, _ = _extract_score_fields({"final_score": 0, "1": 95})
+    assert score == 0.0

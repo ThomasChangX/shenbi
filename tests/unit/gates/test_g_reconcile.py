@@ -42,7 +42,7 @@ def test_gr2_production_scores_suffix_not_false_fail(tmp_path: Path) -> None:
 
     Production naming (dispatcher/modes/codex.py): `<skill>-<test_type>-scores.json`
     and `<skill>-<test_type>-scores-subagent.json`. With progress status DONE
-    (uppercase — F449 case normalization is out of scope, spec #27), the
+    (uppercase; F449 case tolerance now implemented in spec #27 T4 — both forms accepted), the
     suffix-stripped parser must reconcile them without `status=?` noise.
     """
     skill = "shenbi-worldbuilding"

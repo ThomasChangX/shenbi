@@ -92,7 +92,12 @@ def _extract_score_fields(data: Mapping[str, object]) -> tuple[float | None, dic
                 ):
                     dims[num] = float(val)
     for k, v in data.items():
-        if k.isdigit() and isinstance(v, (int, float)) and 0 <= float(v) <= 100:
+        if (
+            k.isdigit()
+            and isinstance(v, (int, float))
+            and not isinstance(v, bool)
+            and 0 <= float(v) <= 100
+        ):
             dims.setdefault(int(k), float(v))
     return score, dims
 
@@ -135,7 +140,8 @@ def gate_G3(
                         data = jload(str(rp))
                         top_score, flat_dims = _extract_score_fields(data)
                         score = top_score if top_score is not None else 0
-                        if score == 0:
+                        has_top_score = top_score is not None
+                        if not has_top_score:
                             # Try rubric-based weighted score (highest precision)
                             rubric_score = (
                                 _compute_rubric_weighted_score(data, skill_name)
