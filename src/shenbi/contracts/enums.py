@@ -9,6 +9,8 @@ CPZone = Literal["GREEN", "ORANGE", "RED"]
 ActorRole = Literal["GENERATOR", "SCORER", "GATE", "SKILL", "HUMAN", "SYSTEM"]
 # spec #27 F353: trigger failure stage vocab (pipeline/triggers last_trigger_failure)
 TriggerFailureStage = Literal["dispatch", "g4", "g3", "governance"]
+# spec #31 T3 (F113): scoring provenance — who produced the score.
+ScoredBy = Literal["file", "interactive", "subagent"]
 # v2 C4: object 非 type——Literal 是 _LiteralGenericAlias 不是 type，mypy strict 拒 dict[str,type]
 ALL_ENUMS: dict[str, Any] = {
     "Severity": Severity,
@@ -16,4 +18,5 @@ ALL_ENUMS: dict[str, Any] = {
     "CPZone": CPZone,
     "ActorRole": ActorRole,
     "TriggerFailureStage": TriggerFailureStage,
+    "ScoredBy": ScoredBy,
 }

@@ -341,6 +341,20 @@ def flag_score_collapse(scores: dict[int, Any]) -> dict[str, Any]:
     }
 
 
+def _resolve_scored_by() -> str:
+    """Explicit provenance (spec #31 T3 / F113 residual).
+
+    Replaces the two-value argv sniff: codex dispatch passes ``--subagent``,
+    the interactive CLI passes ``--interactive``, and a default batch-file
+    invocation (no flags) is provenance ``file``.
+    """
+    if "--subagent" in sys.argv:
+        return "subagent"
+    if "--interactive" in sys.argv:
+        return "interactive"
+    return "file"
+
+
 def main() -> dict[str, Any]:
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
@@ -510,7 +524,7 @@ def main() -> dict[str, Any]:
     final = compute_score(dimensions, scores, kill_switch_triggered)
     result: dict[str, Any] = {
         "_provenance": {
-            "scored_by": "subagent" if "--subagent" in sys.argv else "interactive",
+            "scored_by": _resolve_scored_by(),
             "timestamp": datetime.now(UTC).isoformat(),
             "gate_markers_verified": markers_ok,
             "round_dir": str(round_dir) if round_dir else None,
