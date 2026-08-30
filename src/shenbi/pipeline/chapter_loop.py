@@ -1,14 +1,14 @@
 """Chapter loop orchestrator: per-chapter step sequence with staging, context
 assembly, and G4 validation (spec section 6.1).
 
-The chapter loop runs 20 steps per chapter (the spec's 13-step loop expanded
-with individual audit-circle skills). Steps 2 (chapter-planning) and 7
+The chapter loop runs 15 steps per chapter (the spec's 13-step loop expanded
+with individual audit-circle skills; see CHAPTER_STEPS below). Steps 2 (chapter-planning) and 7
 (state-settling) write to ``staging/`` and are gated by human-review
 checkpoints. Step 4 (pipeline-context-assemble) materializes the three-route
 context package (section 7) before chapter-drafting consumes it.
 
-Each dispatched step runs G4 (skill-specific structure). Step 17
-(review-resonance) additionally runs G3 (scoring independence) because it is a
+Each dispatched step runs G4 (skill-specific structure). review-resonance
+additionally runs G3 (scoring independence) because it is a
 ``requires_independent_agent`` skill.
 
 dispatch/gate failures retry per spec section 11: up to
@@ -20,7 +20,7 @@ Steps 8-11 (audit genre circle + revision routing) are stubbed: W3T4
 implements the audit layer, W3T5 implements revision routing. Clear TODO
 markers indicate the integration points.
 Revision routing (W3T5) is integrated: after review-resonance the router
-determines the route and step 18 (chapter-revision) is skipped when no
+determines the route and chapter-revision is skipped when no
 revision is needed.
 
 The orchestrator is stateless itself: it mutates the passed-in
@@ -1937,7 +1937,7 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
     """Collect audit issues and determine the revision route (spec §6.3).
 
     Called after the review-resonance step succeeds. Stores the route in the
-    chapter's ``audit_results`` so that step 18 (chapter-revision) can decide
+    chapter's ``audit_results`` so that chapter-revision can decide
     whether to run or skip.
     """
     _create_pre_revision_backup(project_dir, chapter)
@@ -1981,7 +1981,7 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
 
 
 def _is_revision_skipped(state: PipelineState, chapter: int) -> bool:
-    """True if step 18 (chapter-revision) should be skipped for *chapter*.
+    """True if chapter-revision should be skipped for *chapter*.
 
     This only applies when the revision router has already run (after
     review-resonance) and determined ``RevisionRoute.NO_REVISION``. Steps
@@ -2527,7 +2527,7 @@ def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
 
 def _g3_parallel_wave(skills: list[str], project_dir: Path, chapter: int) -> list[dict[str, Any]]:
     """F345: run G3 (scoring independence) for requires_independent skills
-    after a parallel audit wave — the serial step loop runs G3 at step 17,
+    after a parallel audit wave — the serial step loop runs G3 at review-resonance,
     but the parallel wave previously bypassed it entirely.
 
     Fail-closed (F408): missing progress.json scores FAIL, honestly recorded.
@@ -2755,7 +2755,7 @@ def _run_chapter_step_impl(
         # Consolidate all results
         all_results = core_results + genre_results
         # F345: G3 scoring independence for audit skills riding the parallel
-        # wave / serial reviews (the step-loop G3 at step 17 only covers the
+        # wave / serial reviews (the step-loop G3 at review-resonance only covers the
         # serial chapter-step path). Recorded per-skill into the gate manifest.
         for rec in _g3_parallel_wave(
             [t.skill for t in core_tasks + genre_tasks], project_dir, chapter=chapter
@@ -2919,10 +2919,9 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # Step 18 (chapter-revision) is conditional -- skip when routing decided
-    # no revision is needed (spec §6.3, set during step 17 review-resonance).
-    # Scoped to the revision skill ONLY: snapshot (step 19) and drift (step
-    # 20) must always run regardless of the revision route.
+    # chapter-revision is conditional -- skip when routing decided no
+    # revision is needed (spec §6.3, route set during review-resonance).
+    # Scoped to the revision skill ONLY; other steps are unaffected.
     if step.skill == "shenbi-chapter-revision" and _is_revision_skipped(state, chapter):
         log.info("revision_step_skipped", chapter=chapter)
         state.add_step_done(chapter, step.skill)
@@ -3081,7 +3080,7 @@ def _run_chapter_step_impl(
             state.chapter_loop.retry_counts.pop(retry_key, None)
         # No hard fails → fall through to advance
 
-    # G3: scoring independence for requires_independent_agent skills (step 17).
+    # G3: scoring independence for requires_independent_agent skills.
     if requires_independent(step.skill):
         g3 = run_gate_g3(step.skill, project_dir, chapter=chapter, phase="chapter_loop")
         if not _gate_passed(g3):

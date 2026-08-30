@@ -2,7 +2,7 @@
 
 Verifies the complete per-chapter flow exercising all three layers together:
 staging (steps 2 + 7), context assembly (step 4), and the audit core circle
-(steps 10-16) + revision routing (after step 17). The brief's canonical flow
++ revision routing. The brief's canonical flow
 is: plan(staging) -> checkpoint -> context -> draft -> settle(staging) ->
 checkpoint -> audit(7 core) -> resonance -> revision (pre-revision snapshot step removed, spec #26 path 3).
 
@@ -97,7 +97,7 @@ def chapter_succeeds():
 
     Mocks dispatch/G4/G3, parallel review dispatch, safe_write, context
     retrieval (assemble + write), and revision routing (no audit issues ->
-    NO_REVISION -> step 18 skipped). Returns the started mocks so tests can
+    NO_REVISION -> revision skipped). Returns the started mocks so tests can
     assert call counts and arguments.
     """
     pkg = ContextPackage(
@@ -208,7 +208,7 @@ def _drive_three_segments(state: PipelineState, project_dir: Path) -> None:
 
 
 class TestFullChapterSequence:
-    """Drive a complete chapter through all 20 steps with all layers active."""
+    """Drive a complete chapter through all steps with all layers active."""
 
     def test_plan_checkpoint_raised_at_step_2(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -372,7 +372,7 @@ class TestContextAssemblyIntegration:
 
 
 class TestAuditCircleAndRevisionRouting:
-    """6 domain-grouped audits run in parallel, then revision routing decides step 16."""
+    """6 domain-grouped audits run in parallel, then revision routing decides the revision step."""
 
     def test_all_seven_core_audits_recorded(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
@@ -430,7 +430,7 @@ class TestAuditCircleAndRevisionRouting:
     def test_revision_dispatched_when_issues_found(
         self, chapter_state: PipelineState, tmp_path: Path
     ) -> None:
-        """Step 16 dispatches when audit issues are found and route != NO_REVISION."""
+        """Revision step dispatches when audit issues are found and route != NO_REVISION."""
         issues = [
             {
                 "severity": "CRITICAL",
