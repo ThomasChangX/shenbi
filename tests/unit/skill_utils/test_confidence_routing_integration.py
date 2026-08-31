@@ -1,6 +1,6 @@
 """Confidence-calibration tests (spec §8.2 / spec #33 T1b).
 
-The three-path ``route_block`` composition was deleted with the dead model
+The three-path routing composition was deleted with the dead model
 (spec #33 T1b): production routing authority is
 ``pipeline/revision_router.route_chapter_revision`` and the revision cap is
 ``pipeline/revision_router.MAX_AUTO_REVISIONS``. These tests retain the

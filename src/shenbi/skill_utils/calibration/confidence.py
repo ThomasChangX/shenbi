@@ -1,5 +1,7 @@
 """confidence.py — confidence calibration by anchor hit-rate (spec §8.2 置信度校准).
 
+Framework-side post-dispatch use (spec #33 T1b): pipeline/confidence_calibration.py.
+
 LLM scorers systematically over-report their own confidence. This helper
 downgrades a reported "high" confidence to "mid" when the scorer's anchor
 hit-rate — the fraction of high-confidence anchor judgments that were actually

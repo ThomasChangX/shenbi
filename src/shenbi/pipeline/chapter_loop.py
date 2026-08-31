@@ -29,6 +29,7 @@ The orchestrator is stateless itself: it mutates the passed-in
 
 from __future__ import annotations
 
+import filecmp
 import json
 import re
 import shutil as _shutil
@@ -1744,6 +1745,7 @@ def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
 # Revision routing helpers (spec §6.3, W3T5)
 # ---------------------------------------------------------------------------
 
+_CAP_ESCALATED_KEY = "revision_cap_escalated"
 _REVISION_ROUTE_KEY = "revision_route"
 
 
@@ -1830,22 +1832,27 @@ def _parse_and_persist_resonance(
             parse_reported_confidence,
             record_anchor_outcome,
         )
-        from shenbi.pipeline.revision_router import DEFAULT_RESONANCE_FLOOR
 
         high_anchors = _parse_high_anchor_count(report_path)
-        # Cross-signal ground truth (spec v8): a high-confidence anchor set is
-        # "correct" when the scored outcome held up (overall at/above floor).
-        record_anchor_outcome(
-            project_dir,
-            chapter,
-            high_anchors,
-            high_anchors if overall >= DEFAULT_RESONANCE_FLOOR else 0,
-        )
         reported = parse_reported_confidence(report_path)
+        # Calibrate FIRST (spec v8: multi-chapter accumulated history; the
+        # current chapter's own row joins the pool only afterwards).
         if reported is not None:
             calibrate_and_patch_trend(project_dir, chapter, reported, overall=overall)
         else:
             log.info("calibration_reported_missing", chapter=chapter)
+        # Cross-signal ground truth (spec v8): an anchor row is "correct" when
+        # the chapter's subsequent revision actually rewrote the text the
+        # anchors covered (pre-revision backup differs from current prose).
+        # Unverifiable chapters (no revision yet) record 0/0 — excluded from
+        # both numerator and denominator, never silently scored.
+        backup = project_dir / resolve_chapter_path("chapters/chapter-N-pre-rev.md", chapter)
+        current = project_dir / resolve_chapter_path("chapters/chapter-N.md", chapter)
+        if backup.exists() and current.exists() and not filecmp.cmp(backup, current, shallow=False):
+            record_anchor_outcome(project_dir, chapter, high_anchors, high_anchors)
+        else:
+            log.info("anchor_unverifiable", chapter=chapter, high_anchors=high_anchors)
+            record_anchor_outcome(project_dir, chapter, 0, 0)
 
 
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -1884,9 +1891,13 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
                 chapter=chapter,
                 revision_count=cs.revision_count,
             )
-            dispatch_escalation(
-                project_dir, chapter, context=f"revision cap exceeded for chapter {chapter}"
-            )
+            if not cs.audit_results.get(_CAP_ESCALATED_KEY):
+                dispatch_escalation(
+                    project_dir,
+                    chapter,
+                    context=f"revision cap exceeded for chapter {chapter}",
+                )
+                cs.audit_results[_CAP_ESCALATED_KEY] = True
 
     # Resonance floor check (spec §6.3). Full borderline/escalation handling
     # is deferred pending chapter_role calibration (Wave 4+); for now a

@@ -88,3 +88,35 @@ def test_revision_cap():
     assert not revision_cap_exceeded(0)
     assert not revision_cap_exceeded(2)
     assert revision_cap_exceeded(3)
+
+
+def test_parse_high_anchor_count(tmp_path: Path) -> None:
+    from shenbi.pipeline.chapter_loop import _parse_high_anchor_count
+
+    report = tmp_path / "r.md"
+    report.write_text(
+        "calibration: reported=high\nanchors: high=4 | 情感落地=L45 | 场景临场感=L12\n",
+        encoding="utf-8",
+    )
+    assert _parse_high_anchor_count(report) == 4
+    assert _parse_high_anchor_count(tmp_path / "missing.md") == 0
+
+
+def test_anchor_row_out_of_range_skipped(tmp_path: Path) -> None:
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    write_truth_file(
+        tmp_path,
+        "resonance_anchors.md",
+        "| 1 | 2 | 5 |",
+        mode="insert_markdown_row",
+        key_field="chapter",
+    )
+    write_truth_file(
+        tmp_path,
+        "resonance_anchors.md",
+        "| 2 | -1 | 0 |",
+        mode="insert_markdown_row",
+        key_field="chapter",
+    )
+    assert compute_anchor_hit_rate(tmp_path) is None  # no valid rows → cold start

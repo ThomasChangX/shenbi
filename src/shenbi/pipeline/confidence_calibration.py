@@ -66,11 +66,15 @@ def compute_anchor_hit_rate(project_dir: Path) -> HitRate | None:
         if len(cells) < 3 or not cells[0].isdigit():
             continue
         try:
-            total += int(cells[1])
-            correct += int(cells[2])
+            high, ok = int(cells[1]), int(cells[2])
         except ValueError:
             log.warning("anchor_row_unparseable", row=line[:40])
             continue
+        if high < 0 or ok < 0 or ok > high:
+            log.warning("anchor_row_out_of_range", row=line[:40])
+            continue
+        total += high
+        correct += ok
     if total < _MIN_ANCHOR_DENOMINATOR:
         log.info("calibration_insufficient_history", total=total)
         return None
