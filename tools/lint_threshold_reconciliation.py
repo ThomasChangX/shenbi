@@ -17,20 +17,24 @@ import json
 import re
 import sys
 from pathlib import Path
+from typing import Any
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_ALLOWLIST = REPO_ROOT / "tools" / "threshold_allowlist.json"
 RANGE_RE = re.compile(r"(\d+)\s*[-\u2013]\s*(\d+)\s*%?")  # hyphen or EN dash
-WINDOW = 3  # lines around the anchored pattern
 
 
-def _scan_entry(entry: dict) -> str | None:
+def _scan_entry(entry: dict[str, Any]) -> str | None:
     """Return a WARN line for a drifted/missing entry, else None.
 
     ``pattern`` selects the line(s); ``keyword`` (optional) narrows the scan
     to the text after its occurrence on that line — table rows pack several
     ranges per line (QUEST/FIRE/CONSTELLATION), so the keyword keeps the
-    comparison anchored to the column the checker actually enforces.
+    comparison anchored to the column the checker actually enforces. A
+    keyword that vanishes from its line is itself drift (``keyword_missing``),
+    never a silent fallback to the whole line. Comparison is against the
+    checker's hard union band only — per-volume drift inside that band needs
+    a machine-readable per-volume source and is out of scope for this lint.
     """
     file_path = REPO_ROOT / entry["file"]
     checker_path = REPO_ROOT / entry["checker"]
@@ -48,7 +52,12 @@ def _scan_entry(entry: dict) -> str | None:
     for line in lines:
         if entry["pattern"] not in line:
             continue
-        scope = line[line.index(keyword) + len(keyword) :] if keyword and keyword in line else line
+        if keyword and keyword not in line:
+            return (
+                f"WARN threshold_entry keyword_missing skill={entry['skill']} "
+                f"keyword={keyword} file={entry['file']}"
+            )
+        scope = line[line.index(keyword) + len(keyword) :] if keyword else line
         match = RANGE_RE.search(scope)
         if match is None:
             continue
