@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-31
-> **活跃 plan 数**：0 | **已归档**：85（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：85（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #34 plan 已交付归档，见 `archive/2026-08-31-spec34-status-vocab.md`，PR #129）
+- `2026-08-31-spec35-threshold-config-coherence.md`（SDD #35 阈值/配置契约 C9，✅ ready）
 
 
 

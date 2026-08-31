@@ -196,12 +196,14 @@ def test_real_fixture_still_valid():
 - [ ] **Step 3: 实现**（genre_config.py 追加两个 model_validator）
 
 ```python
-    from shenbi.contracts.ownership import _GENRE_KEYS  # 单一键集权威源（F214：禁止平行定义）
+# 模块级（genre_config.py 顶部 class 之前）：
+from shenbi.contracts.ownership import _GENRE_KEYS  # 单一键集权威源（F214：禁止平行定义）
 
-    _REQUIRED_TOP_KEYS = tuple(
-        k for k in _GENRE_KEYS if k != "tropeInventory"
-    )  # 8 必填 = _GENRE_KEYS 减可选 tropeInventory
+_REQUIRED_TOP_KEYS = tuple(
+    k for k in _GENRE_KEYS if k != "tropeInventory"
+)  # 8 必填 = _GENRE_KEYS 减可选 tropeInventory
 
+# class GenreConfig 内：
     @model_validator(mode="before")
     @classmethod
     def _top_level_keyset(cls, data: Any) -> Any:
@@ -293,7 +295,7 @@ def test_constellation_hard_band_covers_kaijuan():
 
 | Finding | 权威口径 | 改动 |
 |---|---|---|
-| F818 | 常量表 GREEN_MAX=50 / RED_NOW=100 / FORCE_NEXT_CHAPTER=200 | :124 区间判定改 `GREEN < 50, YELLOW 50-99, RED ≥ 100`；:85 计算示例 `CP = 80` 标签 `(RED 区)`→`(YELLOW 区)`、`5.6 (GREEN)`→`(GREEN)`；:66 铁律 1 改 `CP ≥ 100（RED）→ 下章必须兑现至少一条；CP ≥ 200 → 强制推进`；**chase-power.md:21-24 分档同步**为 `GREEN < 50, YELLOW 50-99, RED ≥ 100, ≥200 强制推进`（消除第三套体系） |
+| F818 | 常量表 GREEN_MAX=50 / RED_NOW=100 / FORCE_NEXT_CHAPTER=200 | :124 区间判定改 `GREEN < 50, YELLOW 50-99, RED ≥ 100`；:85 计算示例与 :120 兑现表内 `CP = 80` 的 `RED` 标签改 `YELLOW`（兑现表全表审计同标签）、`5.6 (GREEN)`→`(GREEN)`；:66 铁律 1 改 `CP ≥ 100（RED）→ 下章必须兑现至少一条；CP ≥ 200 → 强制推进`；**chase-power.md:21-24 分档同步**为 `GREEN < 50, YELLOW 50-99, RED ≥ 100, ≥200 强制推进`（消除第三套体系） |
 | F806 | :330-338 五档明细表（权威，逐值照抄） | :109-111 三档改为五档一致口径：`> 2.5 优秀 / 2.0-2.5 健康 / 1.5-2.0 轻度单调 / 1.0-1.5 中度单调 / ≤ 1.0 严重单调`（打开 :330-338 核对后逐字同步） |
 | F808 | revision-modes.md 六种枚举 | SKILL.md:116 `三种模式` → `六种模式（见 revision-modes.md）` |
 | F820 | lifecycle SKILL 六态机 | lifecycle-states.md 状态机补 `DORMANT`、`ACTIVE` 两态及转移边（与 shenbi-foreshadowing-lifecycle/SKILL.md:43-79 对齐） |
@@ -358,7 +360,7 @@ def test_no_hardcoded_fallback_names():
 
 **Interfaces:**
 - `lint_threshold_reconciliation.py`：读 allowlist `{ "entries": [ {"skill": "shenbi-pacing-design", "pattern": "CONSTELLATION", "file": "skills/shenbi-pacing-design/SKILL.md", "checker": "src/shenbi/contracts/skills/pacing_design.py", "bounds": [15, 40]} ] }`；对每条：在 file 中找 pattern 附近的 `\d+-\d+` 区间，若存在且与 bounds 不一致 → 打 WARN（结构化输出），**exit 0 恒成立**（WARN-only 首周期）；allowlist 条目 file/checker 任一缺失 → WARN
-- 初始 allowlist 至少含：CONSTELLATION [15,40]（Task 4 值）
+- 初始 allowlist 至少含：CONSTELLATION 按卷型表行（`pattern` 锚定开卷 30-40 行，bounds [15,40] 为各卷型并集；Task 4 已把散点行改为指针，扫描窗口须命中按卷型表行而非指针行）
 
 - [ ] **Step 1: 失败测试**
 
@@ -389,7 +391,7 @@ def test_lint_clean_on_repo_allowlist():
 - [ ] **Step 2: 红**（脚本不存在 →非零退出）
 - [ ] **Step 3: 实现**：argparse `--allowlist`（默认 `tools/threshold_allowlist.json`）；正则 `(\d+)\s*[-–]\s*(\d+)\s*%?` 在 pattern 行 ±3 行窗口内取区间；区间与 bounds 无交集 → `print(f"WARN threshold_drift skill={...} file={...} found={lo}-{hi} expected={bounds}")`；无区间或文件缺 → WARN；**不 sys.exit(1)**；写 `tools/threshold_allowlist.json`（CONSTELLATION [15,40] + genre-config 顶层键 8/9 口径一条可选）
 - justfile check recipe 在 `lint_helper_usage.py` 行后追加：`    uv run python tools/lint_threshold_reconciliation.py`
-- [ ] **Step 4: 绿 + 全量**：`uv run pytest tests/unit/tools/ -q`；`uv run python tools/lint_threshold_reconciliation.py` → exit 0 且（T1-T6 已落）无 WARN；`just check`
+- [ ] **Step 4: 绿 + 全量**：`uv run pytest tests/unit/tools/ -q`；`uv run python tools/lint_threshold_reconciliation.py` → exit 0（WARN-only 恒 exit 0；WARN 仅在映射条目漂移时出现）；`just check`
 - [ ] **Step 5: Commit**：`git add tools/lint_threshold_reconciliation.py tools/threshold_allowlist.json justfile tests/unit/tools/test_lint_threshold_reconciliation.py && git commit -m "feat: allowlist-driven threshold reconciliation lint, WARN-only, wired to just check (T5)"`
 
 ---
