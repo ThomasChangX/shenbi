@@ -149,6 +149,10 @@ def _emergency_cleanup(
             from shenbi.pipeline.machine import transact_state
 
             def _overlay(loaded: object) -> None:
+                # Wholesale reference copy: nested dataclass fields (genesis,
+                # chapter_loop) are replaced with the emergency state's
+                # objects — intentional for this terminal one-shot path; the
+                # in-memory emergency state is authoritative over disk.
                 # Overlay the in-memory emergency state onto the freshest
                 # on-disk state inside the same critical section (locked RMW
                 # instead of a blind overwrite).

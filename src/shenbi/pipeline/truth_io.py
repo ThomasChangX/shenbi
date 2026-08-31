@@ -68,13 +68,14 @@ def _path_lock(path: Path) -> Generator[None, None, None]:
     """Serialize same-path writers in-process AND cross-process (spec #37 T709).
 
     Layering: registry threading.Lock (in-process identity + refcount) then
-    flock on ``<path>.lockfile`` (cross-process). Skill-helper subprocesses
-    writing truth/** take the same lockfile, closing the bypass where
-    subprocess writers raced in-process RMW sections. On flock-unavailable
-    platforms this degrades to in-process-only (documented; POSIX is the
-    authoritative platform per the spec).
+    flock on ``<path>.lockfile`` (cross-process). Writers that honor this
+    lockfile — including subprocess helpers that take it explicitly — are
+    in the same mutual-exclusion domain (spec #37 T709). Subprocess writers
+    that go through safe_write/locked_transact only (directory flock) are
+    serialized with each other but NOT with per-path RMW sections; the
+    docstring of each such site declares its lock domain. On
+    flock-unavailable platforms this degrades to in-process-only.
     """
-    import fcntl
     import os
     import sys
 
@@ -98,6 +99,8 @@ def _path_lock(path: Path) -> Generator[None, None, None]:
         with thread_lock:
             if sys.platform != "win32":
                 try:
+                    import fcntl
+
                     lockfile.parent.mkdir(parents=True, exist_ok=True)
                     fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
                     fcntl.flock(fd, fcntl.LOCK_EX)  # blocking; held by close
@@ -108,14 +111,37 @@ def _path_lock(path: Path) -> Generator[None, None, None]:
             yield
     finally:
         if fd is not None:
-            import os as _os
-
-            _os.close(fd)
+            os.close(fd)
         with _REGISTRY_LOCK:
             entry = _PATH_LOCKS.get(key)
             if entry is not None:
                 thread_lock2, rc = entry
                 _PATH_LOCKS[key] = (thread_lock2, max(0, rc - 1))
+
+
+@contextmanager
+def truth_file_flock(path: Path) -> Generator[None, None, None]:
+    """Cross-process-only flock on ``<path>.lockfile`` (no in-process registry).
+
+    For short-lived subprocess helpers (e.g. compute_drift CLI) writing
+    truth/** files: taking the SAME lockfile as _path_lock puts them in the
+    same mutual-exclusion domain as in-process RMW sections (spec #37 T709).
+    """
+    import fcntl
+    import os
+    import sys
+
+    if sys.platform == "win32":  # pragma: no cover — POSIX-authoritative
+        yield
+        return
+    lockfile = path.parent / (path.name + ".lockfile")
+    lockfile.parent.mkdir(parents=True, exist_ok=True)
+    fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
+    try:
+        fcntl.flock(fd, fcntl.LOCK_EX)
+        yield
+    finally:
+        os.close(fd)
 
 
 #: Public alias: sibling modules (dispatch_helper staging route, checkpoint
