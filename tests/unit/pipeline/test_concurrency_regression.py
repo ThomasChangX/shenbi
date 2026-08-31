@@ -383,3 +383,17 @@ def test_config_trail_failure_rolls_back(tmp_path: Path, monkeypatch) -> None:
             "batch rationale long enough for governance rules",
         )
     assert _json.loads(cfg.read_text(encoding="utf-8")) == original  # rolled back
+
+
+def test_lint_bare_writes_clean() -> None:
+    """AC2: every bare write in src/shenbi is exempt or migrated."""
+    import subprocess
+    import sys as _sys
+
+    result = subprocess.run(
+        [_sys.executable, "tools/lint_bare_writes.py"],
+        capture_output=True,
+        text=True,
+        check=False,
+    )
+    assert result.returncode == 0, result.stdout

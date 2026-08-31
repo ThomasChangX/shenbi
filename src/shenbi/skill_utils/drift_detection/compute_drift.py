@@ -233,9 +233,11 @@ def _append_audit(findings: list[DriftFinding], audit_path: Path) -> None:
     for f in findings:
         lines.append(f"- [{f.kind.value}] {f.dim}: {f.detail}\n")
     lines.append("\n")
-    audit_path.parent.mkdir(parents=True, exist_ok=True)
-    with audit_path.open("a", encoding="utf-8") as fh:
-        fh.writelines(lines)
+    from shenbi.safe_write import locked_transact
+
+    # spec #37 T1 inventory: append under the directory lock (markdown file,
+    # so the JSONL append helper does not apply).
+    locked_transact(audit_path, lambda raw: (raw or "") + "".join(lines))
 
 
 def main() -> None:

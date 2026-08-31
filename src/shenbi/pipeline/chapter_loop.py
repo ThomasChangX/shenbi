@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import json
 import re
-import shutil as _shutil
 import time
 from dataclasses import dataclass
 from enum import StrEnum
@@ -1654,7 +1653,7 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
     """Create a backup of the chapter file before revision dispatch.
 
     Copies ``chapters/chapter-N.md`` to ``chapters/chapter-N-pre-rev.md``
-    using ``shutil.copy2`` which preserves metadata. If the chapter file
+    via safe_write (atomic + directory-locked, spec #37). If the chapter file
     does not exist, this is a no-op.
 
     This ensures the original prose is recoverable even if the revision
@@ -1670,7 +1669,9 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
         return
 
     backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
-    _shutil.copy2(chapter_path, backup_path)
+    # spec #37 T1 inventory: route the backup copy through safe_write (atomic
+    # + directory-locked) instead of a bare shutil.copy2.
+    safe_write(backup_path, chapter_path.read_bytes())
     log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
 
 
