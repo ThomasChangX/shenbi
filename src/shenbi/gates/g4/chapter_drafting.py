@@ -138,7 +138,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
     names: list[str] = []
     chars_dir = Path(project_dir) / "characters"
     if not chars_dir.exists():
-        return ["林烽", "他"]
+        return []
     protag = chars_dir / "protagonist.md"
     if protag.exists():
         text = protag.read_text(encoding="utf-8")
@@ -159,7 +159,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
                 except Exception:
                     pass  # malformed YAML frontmatter → fall back to regex name match above
     if not names:
-        names = ["林烽", "他"]
+        return []
     # Always include common pronoun
     if "他" not in names:
         names.append("他")
@@ -328,14 +328,22 @@ def g4_chapter_drafting(
                         c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
 
         # G4.cd.protagonist_presence: protagonist appears >= threshold times
-        protagonist_names = (
-            _load_protagonist_names(str(project_root)) if project_dir else ["林烽", "他"]
-        )
-        protagonist_issues = _check_protagonist_presence(content, protagonist_names)
-        if protagonist_issues:
-            mf.extend(protagonist_issues)
+        protagonist_names = _load_protagonist_names(str(project_root)) if project_dir else []
+        if not protagonist_names:
+            c.append(
+                {
+                    "id": "G4.cd.protagonist_presence",
+                    "file": fp,
+                    "s": GateStatus.SKIP,
+                    "r": "no protagonist data",
+                }
+            )
         else:
-            c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.PASS})
+            protagonist_issues = _check_protagonist_presence(content, protagonist_names)
+            if protagonist_issues:
+                mf.extend(protagonist_issues)
+            else:
+                c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

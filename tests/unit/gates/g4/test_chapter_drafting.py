@@ -181,3 +181,31 @@ def test_chapter_drafting_skill_has_meta_warning_block():
     assert "WARNING" in content or "IMPORTANT" in content
     assert "META" in content
     assert "strip" in content.lower() or "not prose" in content.lower()
+
+
+# --- Spec #35 (F443): no project-specific protagonist fallback -------------
+def test_no_protagonist_data_returns_empty(tmp_path: Path) -> None:
+    from shenbi.gates.g4.chapter_drafting import _load_protagonist_names
+
+    assert _load_protagonist_names(str(tmp_path)) == []
+
+
+def test_no_hardcoded_fallback_names() -> None:
+    import inspect
+
+    from shenbi.gates.g4 import chapter_drafting
+
+    assert "林烽" not in inspect.getsource(chapter_drafting)
+
+
+def test_absent_protagonist_data_skips_check(tmp_path: Path) -> None:
+    import json
+
+    from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+
+    # no characters/ dir at all → empty names → SKIP record, not FAIL
+    fp = tmp_path / "chapter-1.md"
+    fp.write_text("正文\n", encoding="utf-8")
+    r = json.loads(g4_chapter_drafting([str(fp)], project_dir=str(tmp_path)))
+    skip_checks = [c for c in r.get("checks", []) if c.get("id") == "G4.cd.protagonist_presence"]
+    assert any(c.get("s") == "SKIP" for c in skip_checks)
