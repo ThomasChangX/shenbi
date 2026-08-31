@@ -22,11 +22,10 @@ def _state_with_status(status: str) -> PipelineState:
     return PipelineState.from_dict({"chapter_loop": {"chapter_states": {"7": {"status": status}}}})
 
 
-def test_legacy_completed_normalized_to_complete(caplog: pytest.LogCaptureFixture) -> None:
+def test_legacy_completed_normalized_to_complete() -> None:
     state = _state_with_status("completed")
     cs = state.chapter_loop.chapter_states["7"]
     assert cs.status == "complete"
-    assert any("legacy_chapter_status_normalized" in r for r in caplog.messages) or True
 
 
 def test_canonical_values_load_untouched() -> None:

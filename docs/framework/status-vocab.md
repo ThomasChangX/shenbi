@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | GateStatus | shenbi.status.GateStatus | PASS\|FAIL\|SKIP\|WARN\|UNIMPLEMENTED | gates/shared.py 标记落盘、contracts/base.py GateOutcome.status（T904 合一注解） | gates/cli、scoring、phase_runner/executor |
 | PhaseState | shenbi.status.PhaseState | created\|started\|skills_done\|scored\|finalized | phase_runner | phase-state/*.json |
-| CommandStatus | shenbi.status.CommandStatus | ok\|blocked\|error\|exists\|degraded | phase_runner、pipeline/cli.py、pipeline/truth_embed.py | CLI 消费者（DEGRADED/NOT_IMPLEMENTED 为 T908 收编 degraded 越表值与 cli 未实现形态） |
+| CommandStatus | shenbi.status.CommandStatus | ok\|blocked\|error\|exists\|degraded | phase_runner、pipeline/cli.py、pipeline/truth_embed.py | CLI 消费者（DEGRADED 为 T908 收编 truth_embed 越表值；T9 行 35 的 cli not_implemented 形态已由先前 ERROR 化统一，不另立） |
 | ScoringStatus | shenbi.status.ScoringStatus | ok\|REJECT\|MARKER_MISSING\|UNIMPLEMENTED | scoring.py | dispatcher |
 | ScoreClassification | shenbi.status.ScoreClassification | PASS (excellent)\|PASS (acceptable)\|CONDITIONAL\|FAIL | scoring.classify | - |
 | SkillProgressStatus | shenbi.status.SkillProgressStatus | pending\|done\|skip | dispatcher/modes/codex.py、trace/materialize.py | gates/g_reconcile.py（容错读旧大写 DONE，T906） |
