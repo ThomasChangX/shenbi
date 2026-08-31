@@ -51,7 +51,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
-from shenbi.exceptions import DispatchWriteFailureError, TruthFileParseError
+from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -60,7 +60,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_prose_leakage,
     detect_write_failure,
 )
-from shenbi.safe_write import safe_write
+from shenbi.safe_write import locked_transact, safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -209,16 +209,19 @@ def _strip_autogen_blocks(text: str) -> str:
 # 10b: Genre-config per-chapter cache
 # ---------------------------------------------------------------------------
 
-_genre_config_cache: dict[int, dict[str, Any]] = {}
+# spec #37 T607: keyed by (project_dir, chapter) — a chapter-only key
+# cross-pollutes configs when one process serves multiple projects.
+_genre_config_cache: dict[tuple[str, int], dict[str, Any]] = {}
 
 
 def _load_genre_config_cached(project_dir: Path, chapter: int) -> dict[str, Any]:  # pyright: ignore[reportUnusedFunction]
     """Load genre-config.json with per-chapter cache. ~7 disk I/O -> 1."""
-    if chapter in _genre_config_cache:
-        return _genre_config_cache[chapter]
+    key = (str(project_dir), chapter)
+    if key in _genre_config_cache:
+        return _genre_config_cache[key]
     config_path = project_dir / "config" / "genre-config.json"
     config: dict[str, Any] = json.loads(config_path.read_text(encoding="utf-8"))
-    _genre_config_cache[chapter] = config
+    _genre_config_cache[key] = config
     return config
 
 
@@ -1128,17 +1131,22 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
     out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    existing = out.read_text(encoding="utf-8") if out.exists() else ""
-    for issue in issues:
-        existing += (
-            json.dumps(
-                {"file": str(file_path.relative_to(project_dir)), "finding": issue},
-                ensure_ascii=False,
+
+    def _append(existing: object) -> str:
+        text = str(existing) if existing else ""
+        for issue in issues:
+            text += (
+                json.dumps(
+                    {"file": str(file_path.relative_to(project_dir)), "finding": issue},
+                    ensure_ascii=False,
+                )
+                + "\n"
             )
-            + "\n"
-        )
-    safe_write(out, existing)
+        return text
+
+    # spec #37 F347/T601: read-modify-write under one critical section — the
+    # old read-outside-lock shape let concurrent per-chapter auditors drop lines.
+    locked_transact(out, _append)
 
 
 _TRUTH_DIR_PREFIX = "truth/"
@@ -2692,5 +2700,9 @@ def _record_gate_manifest(
             gate=gate,
             result=result,
         )
+    except ShenbiError:
+        # spec #37 F416: manifest corruption is fail-loud — envelope errors
+        # propagate; only transient failures are best-effort.
+        raise
     except Exception:
         log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)

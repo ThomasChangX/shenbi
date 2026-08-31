@@ -21,6 +21,7 @@ from typing import Any, cast
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.legacy import validate_skill_name
+from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
@@ -101,6 +102,10 @@ def _record_gate_manifest(
             gate=gate,
             result=result,
         )
+    except ShenbiError:
+        # spec #37 F416: manifest corruption is fail-loud — best-effort
+        # swallowing applies to transient errors only, not envelope errors.
+        raise
     except Exception:
         log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)
 

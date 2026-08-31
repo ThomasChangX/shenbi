@@ -421,18 +421,30 @@ def cmd_init(args: argparse.Namespace) -> int:
     )
     state_file = project_dir / "pipeline-state.json"
 
+    # spec #37 F327/T606: check + seed writes + save inside ONE WriteLock
+    # critical section — the old check(ReadLock)->write(unlocked)->save(WL)
+    # split let two concurrent inits both pass the existence check.
+    try:
+        with WriteLock(project_dir):
+            return _cmd_init_locked(args, project_dir, state_file)
+    except TimeoutError:
+        emit_json(
+            {
+                "status": CommandStatus.BLOCKED,
+                "message": "pipeline is busy — another process holds the write lock, retry shortly",
+            }
+        )
+        return 1
+
+
+def _cmd_init_locked(
+    args: argparse.Namespace,
+    project_dir: Path,
+    state_file: Path,
+) -> int:
     if state_file.exists():
         try:
-            with ReadLock(project_dir):
-                existing = load_state(project_dir)
-        except TimeoutError:
-            emit_json(
-                {
-                    "status": CommandStatus.BLOCKED,
-                    "message": "pipeline is busy — another process holds the write lock, retry shortly",
-                }
-            )
-            return 1
+            existing = load_state(project_dir)
         except Exception:
             emit_json(
                 {
@@ -498,8 +510,7 @@ def cmd_init(args: argparse.Namespace) -> int:
         state.chapter_loop.per_chapter_review_enabled = False
         log.info("auto_mode_enabled", project_dir=str(project_dir))
 
-    with WriteLock(project_dir):
-        save_state(project_dir, state)
+    save_state(project_dir, state)  # caller (_cmd_init_locked) holds WriteLock
 
     log.info("project_initialized", project_dir=str(project_dir))
     emit_json(
@@ -822,7 +833,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
             # on the first step dispatch.
             _verify_truth_integrity(state, project_dir)
 
-            # Auto-rebuild progress.json from trace if stale or missing (Task 12).
+            # Detect stale/missing progress.json (no rebuild — spec #37 F630 ruling b).
             from shenbi.pipeline.chapter_loop import _auto_rebuild_progress_if_stale  # pyright: ignore[reportPrivateUsage]
 
             _auto_rebuild_progress_if_stale(project_dir)
@@ -934,10 +945,6 @@ def cmd_backfill_context(args: argparse.Namespace) -> int:
     assemble_context(project_dir, plan_path) / write_context_file / curate_context
     signatures (spec §3.1 backfill).
     """
-    from shenbi.pipeline.context_assemble import assemble_context, write_context_file
-    from shenbi.pipeline.context_curation import curate_context
-    from shenbi.safe_write import safe_write
-
     project_path = Path(args.project_dir)
 
     chapters = args.chapters
@@ -947,6 +954,19 @@ def cmd_backfill_context(args: argparse.Namespace) -> int:
     else:
         ch = int(chapters)
         chapter_range = range(ch, ch + 1)
+
+    from shenbi.pipeline.filelock_utils import WriteLock
+
+    # spec #37 T605: backfill previously ran entirely outside L1 — concurrent
+    # pipeline commands could interleave with per-file context rewrites.
+    with WriteLock(project_path):
+        return _backfill_range(project_path, chapter_range)
+
+
+def _backfill_range(project_path: Path, chapter_range: range) -> int:
+    from shenbi.pipeline.context_assemble import assemble_context, write_context_file
+    from shenbi.pipeline.context_curation import curate_context
+    from shenbi.safe_write import safe_write
 
     for ch in chapter_range:
         try:

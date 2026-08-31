@@ -95,3 +95,7 @@ novel-output/
 # via git history).
 !novel-output/
 !novel-output/**
+
+# spec #37 lockfile debris (lazily reused, never committed)
+*.lockfile
+*.lock

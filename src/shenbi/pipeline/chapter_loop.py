@@ -31,7 +31,6 @@ from __future__ import annotations
 
 import json
 import re
-import shutil as _shutil
 import time
 from dataclasses import dataclass
 from enum import StrEnum
@@ -765,33 +764,12 @@ def _reset_retries(state: PipelineState, step: ChapterStep, chapter: int) -> Non
 # ---------------------------------------------------------------------------
 
 
-def _maybe_materialize_progress(state: PipelineState, chapter: int) -> None:
-    """Materialize progress.json from trace events every 5 steps.
-
-    The progress.json view is derived from trace events (spec §2.7). Without
-    periodic materialization, progress.json stays frozen at the last manual
-    update, even though trace events record every MARK_DONE.
-    """
-    steps_done = len(state.chapter_loop.chapter_states.get(str(chapter), ChapterState()).steps_done)
-    if steps_done % 5 == 0:
-        try:
-            from shenbi.trace.materialize import materialize_progress
-
-            total_skills = [step.skill for step in CHAPTER_STEPS]
-            materialize_progress(Path(state.project_dir), total_skills=total_skills)
-        except Exception:
-            pass  # Materialization is best-effort; failures should not block the pipeline.
-
-
 def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: ignore[reportUnusedFunction] -- called from cli.py:cmd_resume via local import
-    """Rebuild progress.json if trace events exist but progress is stale.
+    """Detect (but no longer rebuild) stale progress.json on pipeline resume.
 
-    Called on pipeline resume. Checks:
-    1. If progress.json is missing but trace events exist, rebuild it.
-    2. If trace events are newer than progress.json, rebuild it (stale).
-
-    This self-heals progress.json after crashes or if the process was killed
-    before materialization could run.
+    spec #37 F630 ruling (b): the zero-producer materialize rebuild is
+    removed — it would overwrite dispatcher/G3-written keys with an
+    all-pending shell. Staleness is logged for operators instead.
     """
     progress_path = project_dir / "progress.json"
     trace_dir = project_dir / "trace"
@@ -804,27 +782,16 @@ def _auto_rebuild_progress_if_stale(project_dir: Path) -> None:  # pyright: igno
         return
 
     if not progress_path.exists():
-        log.info("auto_rebuilding_progress_from_trace")
-        try:
-            from shenbi.trace.materialize import materialize_progress
-
-            total_skills = [step.skill for step in CHAPTER_STEPS]
-            materialize_progress(project_dir, total_skills=total_skills)
-        except Exception:
-            log.warning("auto_rebuild_progress_failed", exc_info=True)
+        # spec #37 F630 ruling (b): rebuild call sites removed — trace has
+        # zero INIT/MARK_DONE producers, so materialization would rebuild an
+        # all-pending shell over dispatcher/G3-written keys.
+        log.warning("progress_missing_no_auto_rebuild", project_dir=str(project_dir))
         return
 
     # Check staleness: trace has newer events than progress.json
     trace_mtime = max(p.stat().st_mtime for p in trace_events)
     if trace_mtime > progress_path.stat().st_mtime:
-        log.info("progress_stale_rebuilding_from_trace")
-        try:
-            from shenbi.trace.materialize import materialize_progress
-
-            total_skills = [step.skill for step in CHAPTER_STEPS]
-            materialize_progress(project_dir, total_skills=total_skills)
-        except Exception:
-            log.warning("auto_rebuild_progress_failed", exc_info=True)
+        log.info("progress_stale_detected_no_rebuild")
 
 
 # ---------------------------------------------------------------------------
@@ -1686,7 +1653,7 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
     """Create a backup of the chapter file before revision dispatch.
 
     Copies ``chapters/chapter-N.md`` to ``chapters/chapter-N-pre-rev.md``
-    using ``shutil.copy2`` which preserves metadata. If the chapter file
+    via safe_write (atomic + directory-locked, spec #37). If the chapter file
     does not exist, this is a no-op.
 
     This ensures the original prose is recoverable even if the revision
@@ -1702,7 +1669,9 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
         return
 
     backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
-    _shutil.copy2(chapter_path, backup_path)
+    # spec #37 T1 inventory: route the backup copy through safe_write (atomic
+    # + directory-locked) instead of a bare shutil.copy2.
+    safe_write(backup_path, chapter_path.read_bytes())
     log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
 
 
@@ -2741,9 +2710,6 @@ def _run_chapter_step_impl(
             CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
         )
 
-        # Materialize progress from trace events
-        _maybe_materialize_progress(state, chapter)
-
         if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
             return _complete_chapter(state, chapter)
 
@@ -3055,9 +3021,6 @@ def _run_chapter_step_impl(
     # Success: record, reset retries, advance.
     state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
-
-    # Materialize progress.json from trace every 5 steps (Task 12).
-    _maybe_materialize_progress(state, chapter)
 
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:

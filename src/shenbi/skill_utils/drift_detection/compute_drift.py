@@ -233,9 +233,14 @@ def _append_audit(findings: list[DriftFinding], audit_path: Path) -> None:
     for f in findings:
         lines.append(f"- [{f.kind.value}] {f.dim}: {f.detail}\n")
     lines.append("\n")
-    audit_path.parent.mkdir(parents=True, exist_ok=True)
-    with audit_path.open("a", encoding="utf-8") as fh:
-        fh.writelines(lines)
+    from shenbi.pipeline.truth_io import truth_file_flock
+    from shenbi.safe_write import locked_transact
+
+    # spec #37 T709: this runs as a CLI subprocess; taking the same per-path
+    # lockfile as in-process truth RMW sections closes the cross-process
+    # bypass (directory flock alone would not exclude them).
+    with truth_file_flock(audit_path):
+        locked_transact(audit_path, lambda raw: (raw or "") + "".join(lines))
 
 
 def main() -> None:

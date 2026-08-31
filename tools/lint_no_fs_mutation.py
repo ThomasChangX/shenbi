@@ -36,17 +36,15 @@ from pathlib import Path
 PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
     {
         "safe_write.py",
+        "append_helper.py",
         "trace/writer.py",
-        "cost/ledger.py",
         "config/config_coherence.py",
     }
 )
 
 TRANSITIONAL_ALLOWLIST: frozenset[str] = frozenset(
     {
-        "skill_utils/drift_detection/compute_drift.py",
         "trace/compaction.py",
-        "audit/record.py",
         "pipeline/checkpoint.py",
     }
 )

@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import os
 import sys
+import threading
 import time
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -22,6 +23,21 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 LOCKFILE_NAME = "pipeline-state.json.lockfile"
+
+# In-process holder self-check (spec #37): flock conflicts across fds even
+# within one process, so a second WriteLock acquisition by the same process
+# self-blocks to timeout. Emergency paths consult holder_mode() before
+# re-acquiring. Records lock mode + owning thread id; cleared in finally.
+_HOLDER_LOCK = threading.Lock()
+_HOLDER_MODE: dict[int, str] = {}  # thread id -> "read" | "write"
+
+
+def holder_mode() -> str | None:
+    """Return the L1 lock mode held by the *current thread*, or None."""
+    with _HOLDER_LOCK:
+        return _HOLDER_MODE.get(threading.get_ident())
+
+
 DEFAULT_WRITE_TIMEOUT = 300.0
 DEFAULT_READ_TIMEOUT = 30.0
 _POLL_INTERVAL = 0.05  # seconds between non-blocking flock retries
@@ -101,6 +117,8 @@ class WriteLock:
                 raise
         else:  # pragma: no cover
             _, self._release_fn = _windows_acquire(self._lockfile, self._timeout)
+        with _HOLDER_LOCK:
+            _HOLDER_MODE[threading.get_ident()] = "write"
         log.debug("write_lock_acquired", lockfile=str(self._lockfile))
         return self
 
@@ -113,6 +131,8 @@ class WriteLock:
         if self._release_fn is not None:  # pragma: no cover
             self._release_fn()
             self._release_fn = None
+        with _HOLDER_LOCK:
+            _HOLDER_MODE.pop(threading.get_ident(), None)
         log.debug("write_lock_released", lockfile=str(self._lockfile))
 
 
@@ -145,6 +165,8 @@ class ReadLock:
                 raise
         else:  # pragma: no cover
             _, self._release_fn = _windows_acquire(self._lockfile, self._timeout)
+        with _HOLDER_LOCK:
+            _HOLDER_MODE[threading.get_ident()] = "read"
         log.debug("read_lock_acquired", lockfile=str(self._lockfile))
         return self
 
@@ -157,4 +179,6 @@ class ReadLock:
         if self._release_fn is not None:  # pragma: no cover
             self._release_fn()
             self._release_fn = None
+        with _HOLDER_LOCK:
+            _HOLDER_MODE.pop(threading.get_ident(), None)
         log.debug("read_lock_released", lockfile=str(self._lockfile))

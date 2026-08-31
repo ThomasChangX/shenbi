@@ -8,7 +8,6 @@ structlog，绝不静默丢弃审计结果。
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -33,14 +32,19 @@ def record_audit_outcome(round_dir: Path, skill: str, result: AuditResult) -> bo
         "drift": list(result.drift),
         "checked_files": list(result.checked_files),
     }
+    from shenbi.append_helper import append_jsonl
+
     ledger = Path(round_dir) / "write-audit.jsonl"
-    ledger.parent.mkdir(parents=True, exist_ok=True)
-    with ledger.open("a", encoding="utf-8") as fh:
-        fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    # spec #37 F534: fsync + timestamp + directory lock via the shared
+    # append helper (the old bare open("a") had none of the three).
+    append_jsonl(ledger, record)
     # trace seam：Tier A（trace/）落地时生效；不在/签名失败时回退账本 + log
     try:
         from shenbi.trace.writer import TraceWriter
 
+        # TraceWriter.append serializes itself via trace_lock (spec #37
+        # F531) — wrapping another trace_lock here would self-deadlock
+        # (flock is not reentrant across fds).
         TraceWriter(round_dir).append(
             actor="write-audit",
             actor_role="GATE",

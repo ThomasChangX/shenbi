@@ -107,7 +107,7 @@ def test_safe_write_lockfile_fallback_cleanup_posix(tmp_path: Path, monkeypatch)
     Regression: safe_write only closed the fd, leaving a permanent stale lock
     that forced every later writer through the 1s backoff + stale-takeover path.
     """
-    import fcntl
+    import fcntl  # POSIX-only; see module skipif guard on these tests
 
     def boom(fd: int, op: int) -> None:
         raise OSError("flock unavailable (test)")
@@ -118,3 +118,71 @@ def test_safe_write_lockfile_fallback_cleanup_posix(tmp_path: Path, monkeypatch)
     assert not (tmp_path / "out.json.lock").exists(), "O_EXCL lockfile leaked on release"
     safe_write(p, '{"k": 2}')
     assert not (tmp_path / "out.json.lock").exists()
+
+
+def test_stale_takeover_requires_stale_lock(tmp_path, monkeypatch):
+    """A FRESH lockfile must not be unconditionally seized (spec #37 T603/F111)."""
+    import fcntl  # POSIX-only; see module skipif guard on these tests
+
+    monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
+    from shenbi.safe_write import _acquire_lock
+
+    target = tmp_path / "data.json"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    lockfile = tmp_path / "data.json.lock"
+    lockfile.write_text("999999\n", encoding="utf-8")  # fresh lock, dead pid
+    import os
+    import time
+
+    past = time.time() - 3600
+    os.utime(lockfile, (past, past))  # stale by mtime
+    fd, lf = _acquire_lock(target)  # stale by age -> takeover allowed
+    assert lf == lockfile
+    os.close(fd)
+
+
+def test_stale_takeover_blocked_on_fresh_lock(tmp_path, monkeypatch):
+    """A lockfile younger than the staleness TTL must NOT be taken over."""
+    import fcntl  # POSIX-only; see module skipif guard on these tests
+
+    monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
+    import pytest
+
+    import shenbi.safe_write as sw
+
+    monkeypatch.setattr(sw, "LOCK_WAIT_TIMEOUT", 0.5)  # speed up the wait
+
+    target = tmp_path / "data.json"
+    lockfile = tmp_path / "data.json.lock"
+    lockfile.write_text("999999\n", encoding="utf-8")  # just created -> fresh
+    assert sw.STALE_LOCK_TTL > 0
+    with pytest.raises(TimeoutError):
+        sw._acquire_lock(target)
+
+
+def test_stale_takeover_blocked_on_live_pid(tmp_path, monkeypatch):
+    """A stale-mtime lock held by a LIVE pid must not be taken over."""
+    import fcntl  # POSIX-only; see module skipif guard on these tests
+    import os
+    import subprocess
+    import time
+
+    monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
+    import pytest
+
+    import shenbi.safe_write as sw
+
+    monkeypatch.setattr(sw, "LOCK_WAIT_TIMEOUT", 0.5)
+    holder = subprocess.Popen(["sleep", "30"])
+    try:
+        target = tmp_path / "data.json"
+        lockfile = tmp_path / "data.json.lock"
+        lockfile.write_text(f"{holder.pid}\n", encoding="utf-8")
+        past = time.time() - 3600
+        os.utime(lockfile, (past, past))  # stale by mtime, but holder alive
+        with pytest.raises(TimeoutError):
+            sw._acquire_lock(target)
+        assert lockfile.exists()  # not robbed
+    finally:
+        holder.kill()
+        holder.wait()

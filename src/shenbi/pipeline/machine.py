@@ -6,6 +6,7 @@ Spec: docs/superpowers/specs/archive/2026-07-01-novel-pipeline-design.md Section
 from __future__ import annotations
 
 from datetime import UTC, datetime
+from collections.abc import Callable
 from pathlib import Path
 
 from shenbi.logging import get_logger
@@ -35,6 +36,26 @@ def load_state(project_dir: Path | str) -> PipelineState:
     state = PipelineState.from_json(state_file.read_text(encoding="utf-8"))
     log.debug("state_loaded", project_dir=str(project_dir), phase=state.phase.value)
     return state
+
+
+def transact_state(
+    project_dir: Path | str, mutator: Callable[[PipelineState], None]
+) -> PipelineState:
+    """Lock a whole read-modify-write cycle on pipeline-state.json (spec #37 T605).
+
+    WriteLock (L1) critical section around load -> mutator -> save. Replaces
+    the unlockable load/increment/save pattern that lost cross-writer updates.
+    """
+    from shenbi.pipeline.filelock_utils import WriteLock
+
+    with WriteLock(project_dir):
+        try:
+            state = load_state(project_dir)
+        except FileNotFoundError:
+            state = PipelineState(project_dir=str(project_dir))
+        mutator(state)
+        save_state(project_dir, state)
+        return state
 
 
 def save_state(project_dir: Path | str, state: PipelineState) -> None:
