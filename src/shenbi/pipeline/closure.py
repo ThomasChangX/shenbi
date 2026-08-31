@@ -147,7 +147,9 @@ def _current_volume(project_dir: Path) -> int:
 
 def _closure_step_context(step: ClosureStep, project_dir: Path) -> PathContext | None:
     """Per-step closure context (spec #6 R5): 2 -> final arc, 4/5 -> volume,
-    6 -> final chapter (F313), 10 -> final chapter (NNN dir).
+    6 -> final chapter (F313), 10 -> final chapter (NNN dir),
+    7 -> final chapter (spec #33 T1a-2: chapter-pattern's chapter-bound
+    context/chapter-pattern-input-N.json contract write must resolve).
     """
     from shenbi.pipeline._shared import read_total_chapters
 
@@ -158,7 +160,7 @@ def _closure_step_context(step: ClosureStep, project_dir: Path) -> PathContext |
         return PathContext(chapter=total, volume=len(read_volume_boundaries(project_dir)))
     if step.step_num == 2:
         return PathContext(chapter=total, arc=total // 12)
-    if step.step_num in (6, 10):
+    if step.step_num in (6, 7, 10):
         return PathContext(chapter=total)
     return None
 
