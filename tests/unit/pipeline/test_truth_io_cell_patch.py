@@ -103,8 +103,8 @@ def test_crlf_preserved(tmp_path: Path) -> None:
     f = tmp_path / "truth" / "t.md"
     _mk(f, HDR.replace("\n", "\r\n"))
     assert patch_markdown_table_cell(f, "5", "chapter", 7, "mid")
-    text = f.read_text(encoding="utf-8")
-    assert "\r\n" in text and " mid |" in text
+    raw = f.read_bytes().decode("utf-8")
+    assert "\r\n" in raw and " mid |" in raw
 
 
 def test_key_match_is_exact_not_normalized(tmp_path: Path) -> None:
