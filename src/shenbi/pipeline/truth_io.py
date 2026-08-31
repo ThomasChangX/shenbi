@@ -263,16 +263,23 @@ def patch_markdown_table_cell(
 
     Column location is positional (``cell_index``), not header-based: header
     placement is uncontrolled for append_dedup writers (spec #33 v8 ruling).
+    ``key_field`` is logging-only observability (position, not header, rules).
     Rows shorter than ``cell_index + 1`` are padded with ``-`` placeholders.
+    Key matching is exact whole-cell (consistent with upsert_markdown_row).
     Returns False when the file or the keyed row does not exist; header and
-    separator rows are never patched. Thread-safe via the per-path lock
-    registry (same rationale as ``insert_markdown_row``).
+    separator rows are never patched; negative cell_index is rejected.
+    Thread-safe via the per-path lock registry (same rationale as
+    ``insert_markdown_row``). Preserves the file's CRLF/LF convention.
     """
-    if not path.exists():
-        return False
     lock = _path_lock(path)
     with lock:
-        lines = path.read_text(encoding="utf-8").splitlines()
+        if not path.exists():
+            return False
+        # Bytes + decode: read_text() would translate CRLF to LF (universal
+        # newlines), silently rewriting the whole file's line endings.
+        raw = path.read_bytes().decode("utf-8")
+        had_crlf = "\r\n" in raw
+        lines = raw.splitlines()
         for idx, line in enumerate(lines):
             cells = split_table_cells(line)
             if cells is None:
@@ -284,13 +291,19 @@ def patch_markdown_table_cell(
                 nxt = split_table_cells(lines[idx + 1])
                 if nxt is not None and _is_separator_row(nxt):
                     continue
-            if _norm_cell(cells[0]) != _norm_cell(key):
+            # Exact whole-cell key match (consistent with upsert_markdown_row);
+            # _norm_cell would collide "5-2" with "52".
+            if cells[0] != key:
                 continue
             while len(cells) <= cell_index:
                 cells.append("-")
+            if cell_index < 0:
+                log.warning("truth_cell_patch_bad_index", cell_index=cell_index)
+                return False
             cells[cell_index] = value
             lines[idx] = "| " + " | ".join(c.strip() for c in cells) + " |"
-            safe_write(path, ("\n".join(lines) + "\n").encode("utf-8"))
+            sep = "\r\n" if had_crlf else "\n"
+            safe_write(path, (sep.join(lines) + sep).encode("utf-8"))
             log.info(
                 "truth_cell_patched",
                 path=str(path),

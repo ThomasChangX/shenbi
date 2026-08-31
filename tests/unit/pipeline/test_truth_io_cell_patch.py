@@ -81,3 +81,33 @@ def test_concurrent_patches_no_lost_update(tmp_path: Path) -> None:
     text = f.read_text(encoding="utf-8")
     for n in range(20):
         assert f"| {n} | - | - | - | - | - | {n} | v{n} |  |" in text
+
+
+def test_patch_is_idempotent(tmp_path: Path) -> None:
+    f = tmp_path / "truth" / "t.md"
+    _mk(f, HDR)
+    assert patch_markdown_table_cell(f, "5", "chapter", 7, "mid")
+    first = f.read_text(encoding="utf-8")
+    assert patch_markdown_table_cell(f, "5", "chapter", 7, "mid")
+    assert f.read_text(encoding="utf-8") == first
+
+
+def test_negative_cell_index_rejected(tmp_path: Path) -> None:
+    f = tmp_path / "truth" / "t.md"
+    _mk(f, HDR)
+    assert not patch_markdown_table_cell(f, "5", "chapter", -1, "x")
+    assert "| 5 |" in f.read_text(encoding="utf-8")  # untouched
+
+
+def test_crlf_preserved(tmp_path: Path) -> None:
+    f = tmp_path / "truth" / "t.md"
+    _mk(f, HDR.replace("\n", "\r\n"))
+    assert patch_markdown_table_cell(f, "5", "chapter", 7, "mid")
+    text = f.read_text(encoding="utf-8")
+    assert "\r\n" in text and " mid |" in text
+
+
+def test_key_match_is_exact_not_normalized(tmp_path: Path) -> None:
+    f = tmp_path / "truth" / "t.md"
+    _mk(f, "| 5-2 | a |\n")
+    assert not patch_markdown_table_cell(f, "52", "chapter", 1, "x")
