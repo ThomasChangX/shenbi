@@ -23,6 +23,10 @@ logger = structlog.get_logger(__name__)
 _shutdown_requested = False
 _emergency_flag = False
 _emergency_state: dict[str, Any] = {}
+# One-shot latch (spec #37 T604): signal path and atexit can BOTH fire
+# _emergency_cleanup on graceful shutdown — without this the state is saved
+# twice and two "emergency" snapshots are created.
+_cleanup_done = False
 
 
 def reset_emergency_state() -> None:
@@ -32,9 +36,10 @@ def reset_emergency_state() -> None:
     this (usually via an autouse fixture) to prevent cross-test contamination
     under xdist, where workers share module-level globals across test modules.
     """
-    global _shutdown_requested, _emergency_flag  # noqa: PLW0603
+    global _shutdown_requested, _emergency_flag, _cleanup_done  # noqa: PLW0603
     _shutdown_requested = False
     _emergency_flag = False
+    _cleanup_done = False
     _emergency_state.clear()
     # Restore default signal disposition so a second SIGTERM kills immediately.
     # (atexit handlers registered by register_emergency_handlers are NOT removed
@@ -105,6 +110,11 @@ def _emergency_cleanup(
     if state is None:
         state = _emergency_state.get("pipeline_state")
 
+    global _cleanup_done  # noqa: PLW0603
+    if _cleanup_done:
+        return  # one-shot latch: atexit after the signal path must not re-run
+    _cleanup_done = True
+
     if not project_dir or not state:
         return
 
@@ -120,11 +130,24 @@ def _emergency_cleanup(
         # Best-effort annotation only; must not abort the cleanup sequence.
         pass
 
-    # 2. Save pipeline state
+    # 2. Save pipeline state — under L1 unless this thread already holds it
+    # (flock conflicts across fds even in-process; a blind WriteLock here
+    # self-blocks to the 300s timeout when cleanup runs inside a locked
+    # critical section, e.g. via _check_emergency_flag under cmd_next).
     try:
+        from shenbi.pipeline.filelock_utils import WriteLock, holder_mode
         from shenbi.pipeline.machine import save_state
 
-        save_state(project_dir, state)
+        mode = holder_mode()
+        if mode == "write":
+            save_state(project_dir, state)  # already exclusive in this thread
+        elif mode == "read":
+            # Cannot release another frame's ReadLock from here; a direct
+            # WriteLock acquisition would deterministically self-deadlock.
+            logger.error("emergency_save_skipped_read_lock_holder")
+        else:
+            with WriteLock(project_dir):
+                save_state(project_dir, state)
         logger.info("pipeline_state_saved")
     except Exception as e:
         logger.error("pipeline_state_save_failed", error=str(e))

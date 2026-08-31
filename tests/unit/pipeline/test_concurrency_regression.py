@@ -169,3 +169,16 @@ def test_locked_transact_mutual_exclusion(tmp_path: Path) -> None:
     t1.join(timeout=25)
     t2.join(timeout=25)
     assert json.loads(target.read_text(encoding="utf-8"))["n"] == 2 * n
+
+
+def test_holder_mode_tracks_write_lock(tmp_path: Path) -> None:
+    """holder_mode reports the current thread's L1 mode (spec #37 v3r2)."""
+    from shenbi.pipeline.filelock_utils import ReadLock, WriteLock, holder_mode
+
+    assert holder_mode() is None
+    with WriteLock(tmp_path):
+        assert holder_mode() == "write"
+    assert holder_mode() is None
+    with ReadLock(tmp_path):
+        assert holder_mode() == "read"
+    assert holder_mode() is None
