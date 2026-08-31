@@ -1628,6 +1628,37 @@ def _record_usage_to_ledger(
         log.warning("ledger_record_failed", skill=skill_name, exc_info=True)
 
 
+def _record_estimate_row(
+    skill: str,
+    chapter: int | None,
+    prompt_text: str,
+    project_dir: Path | None,
+    attempt: int = 1,
+) -> None:
+    """Append a lower-bound estimated row (C10 spec #36 T5 / F796).
+
+    IDE/subprocess paths cannot report structured usage; the prompt estimate
+    is a floor, explicitly marked estimated=True so the report separates it
+    from metered rows. Fail-safe like _record_usage_to_ledger.
+    """
+    if project_dir is None:
+        log.warning("ledger_skip_no_project_dir", skill=skill)
+        return
+    try:
+        from shenbi.cost.estimate import estimate_prompt_tokens
+
+        est = estimate_prompt_tokens(prompt_text)
+        TokenLedger(project_dir).record(
+            skill,
+            chapter or 0,
+            {"prompt_tokens": est, "completion_tokens": 0, "total_tokens": est},
+            estimated=True,
+            attempt=attempt,
+        )
+    except Exception:
+        log.warning("ledger_estimate_record_failed", skill=skill, exc_info=True)
+
+
 def print_token_summary(state: Any) -> None:
     """Print token usage summary at end of pipeline.
 
@@ -2111,6 +2142,10 @@ def _dispatch_via_ide(
     if missing:
         log.error("ide_missing_outputs", skill=skill, missing=missing)
 
+    # C10 spec #36 T5 (F796): the IDE-CLI path reports no structured usage —
+    # record an estimated lower-bound row unconditionally (most call sites
+    # have no state; the block below is diagnostics only).
+    _record_estimate_row(skill, chapter, full_prompt, project_dir)
     # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
     # (codex exec stdout is prose, not a usage object). state is threaded so a
     # future codex --json or zcode usage-report feature can record here.
@@ -2382,6 +2417,8 @@ def dispatch_skill(
         )
     else:
         log.info("dispatch_subprocess_ok", skill=skill, rc=0)
+    # C10 spec #36 T5: legacy subprocess cannot report usage — estimated row.
+    _record_estimate_row(skill, chapter, prompt, pd)
     return DispatchResult(r.returncode == 0, r.returncode, r.stdout, r.stderr)
 
 
