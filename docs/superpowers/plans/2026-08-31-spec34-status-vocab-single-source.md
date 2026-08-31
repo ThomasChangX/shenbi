@@ -72,11 +72,11 @@
 - 合法值列以 `\|` 分隔；主词表列为 `module.Symbol` 全限定名。
 
 **Steps:**
-- [ ] 写登记表全 40+ 行（按上表裁决逐域落值；生产读写方列按 T9 矩阵 + 实施时 grep 核对）
-- [ ] enums.py:1 docstring 改：`"""词表登记见 docs/framework/status-vocab.md（唯一裁决依据）。本模块承载其中 enums 域。"""`；status.py 头部 docstring 同步指向登记表并删 "THE single definition" 绝对化表述
-- [ ] 测试：解析登记表 markdown（固定 5 列），断言 (a) 每行主词表符号可 import（`importlib`）(b) 合法值列 == 该符号实际 Literal 值/StrEnum 成员值集合（本 task 先覆盖已存在域，Task 5 扩为 lint 子检查）
-- [ ] `uv run pytest tests/unit/tools/test_status_vocab_registry.py -v` PASS
-- [ ] commit `feat: status-vocab registry (spec #34 T1) + dual-single-source docstring fix (T901)`
+- [x] 写登记表全 40+ 行（按上表裁决逐域落值；生产读写方列按 T9 矩阵 + 实施时 grep 核对）
+- [x] enums.py:1 docstring 改：`"""词表登记见 docs/framework/status-vocab.md（唯一裁决依据）。本模块承载其中 enums 域。"""`；status.py 头部 docstring 同步指向登记表并删 "THE single definition" 绝对化表述
+- [x] 测试：解析登记表 markdown（固定 5 列），断言 (a) 每行主词表符号可 import（`importlib`）(b) 合法值列 == 该符号实际 Literal 值/StrEnum 成员值集合（本 task 先覆盖已存在域，Task 5 扩为 lint 子检查）
+- [x] `uv run pytest tests/unit/tools/test_status_vocab_registry.py -v` PASS
+- [x] commit `feat: status-vocab registry (spec #34 T1) + dual-single-source docstring fix (T901)`
 
 ### Task 2: enums/status/base 收编 + 批量死代码（spec T2 + F221/F336/F352）
 
@@ -90,10 +90,10 @@
 - Test: 既有 `tests/unit/contracts/`、`tests/unit/gates/g4/` + 新增 `tests/unit/contracts/test_enums_consolidation.py`
 
 **Steps（每域独立 commit）:**
-- [ ] TDD：`test_enums_consolidation.py` 断言新 Literal 值集、`GateOutcome` 注解为 GateStatus、decisions.SeverityLevel 存在且旧名不存在
-- [ ] 逐域实施 + `uv run pytest tests/unit/contracts tests/unit/gates -x -q` + `uv run basedpyright src/shenbi/contracts/` 干净
-- [ ] F336/F352：改后跑 `uv run pytest tests/unit/pipeline -q` 全绿（genesis chapter=None 语义）
-- [ ] commits：`fix: consolidate status vocabularies into enums.py (spec #34 T2: T902/T904/F211/F221/F336/F352)`（可拆多笔）
+- [x] TDD：`test_enums_consolidation.py` 断言新 Literal 值集、`GateOutcome` 注解为 GateStatus、decisions.SeverityLevel 存在且旧名不存在
+- [x] 逐域实施 + `uv run pytest tests/unit/contracts tests/unit/gates -x -q` + `uv run basedpyright src/shenbi/contracts/` 干净
+- [x] F336/F352：改后跑 `uv run pytest tests/unit/pipeline -q` 全绿（genesis chapter=None 语义）
+- [x] commits：`fix: consolidate status vocabularies into enums.py (spec #34 T2: T902/T904/F211/F221/F336/F352)`（可拆多笔）
 
 ### Task 3: 无主域建域 + 兼容归一层（spec T4）
 
@@ -109,10 +109,10 @@
 - Test: `tests/unit/pipeline/test_chapter_status_vocab.py`（新增）+ 既有 pipeline/gates 测试
 
 **Steps:**
-- [ ] TDD：新测试覆盖 (a) from_dict `completed` 归一 `complete` + WARN（caplog 断言）(b) 非法 status 值 → ValueError 结构化 (c) RevisionMode alias (d) g_reconcile 兼容 "DONE"/"done"
-- [ ] 实施；`uv run pytest tests/unit/pipeline tests/unit/gates -x -q` 全绿
-- [ ] `uv run python -c "from shenbi.pipeline.state import PipelineState; PipelineState.from_dict({'chapter_loop':{'chapter_states':{'1':{'status':'completed'}}}})"` 归一无异常
-- [ ] commit `fix: establish ownerless status domains + compat normalizer (spec #34 T4: T906-T911)`
+- [x] TDD：新测试覆盖 (a) from_dict `completed` 归一 `complete` + WARN（caplog 断言）(b) 非法 status 值 → ValueError 结构化 (c) RevisionMode alias (d) g_reconcile 兼容 "DONE"/"done"
+- [x] 实施；`uv run pytest tests/unit/pipeline tests/unit/gates -x -q` 全绿
+- [x] `uv run python -c "from shenbi.pipeline.state import PipelineState; PipelineState.from_dict({'chapter_loop':{'chapter_states':{'1':{'status':'completed'}}}})"` 归一无异常
+- [x] commit `fix: establish ownerless status domains + compat normalizer (spec #34 T4: T906-T911)`
 
 ### Task 4: 生产越表修复 + G4 值域 + 复算脚本（spec T5 + F402/F711/T903/T204）
 
@@ -125,12 +125,12 @@
 - Test: `tests/unit/gates/g4/test_chapter_revision.py` 更新 + `tests/unit/tools/test_check_severity_vocab.py`（fixtures 驱动：用 `tests/fixtures/` 真实 revision-decisions 产物）
 
 **Steps:**
-- [ ] TDD：先改 test_chapter_revision 断言 FAIL+severity（红）→ 实施（绿）
-- [ ] `git grep -rn "HARD_FAIL" src/` 零命中（或仅 enums/登记表注释）
-- [ ] `uv run python tools/check_severity_vocab.py` → 输出 `out-of-vocab: 0/N (0.0%)`（N 动态统计，当前实值 152）exit 0
-- [ ] fixture 溯源（G0.9）：从 `novel-output/xinghuo-ranqiong/` 复制真实 revision-decisions 产物（含 blocking/critical/info 等越表原值）至 `tests/fixtures/revision-decisions/`，测试引用 fixtures 而非生产树
-- [ ] F441：`grep -rn '"id":' src/shenbi/scoring*.py src/shenbi/gates/g5*` 对无技能前缀的 checker check id 补 `<skill>:` 前缀（同步解 pin 相应测试）
-- [ ] commit `fix: production vocab violations — HARD_FAIL, severity/mode G4 value-domain checks (spec #34 T5)`
+- [x] TDD：先改 test_chapter_revision 断言 FAIL+severity（红）→ 实施（绿）
+- [x] `git grep -rn "HARD_FAIL" src/` 零命中（或仅 enums/登记表注释）
+- [x] `uv run python tools/check_severity_vocab.py` → 输出 `out-of-vocab: 0/N (0.0%)`（N 动态统计，当前实值 152）exit 0
+- [x] fixture 溯源（G0.9）：从 `novel-output/xinghuo-ranqiong/` 复制真实 revision-decisions 产物（含 blocking/critical/info 等越表原值）至 `tests/fixtures/revision-decisions/`，测试引用 fixtures 而非生产树
+- [x] F441：`grep -rn '"id":' src/shenbi/scoring*.py src/shenbi/gates/g5*` 对无技能前缀的 checker check id 补 `<skill>:` 前缀（同步解 pin 相应测试）
+- [x] commit `fix: production vocab violations — HARD_FAIL, severity/mode G4 value-domain checks (spec #34 T5)`
 
 ### Task 4.5: src 裸字面量机械转换（294 站点 → 枚举成员）
 
@@ -139,9 +139,9 @@
 - Test: 既有 gates 全量测试（StrEnum 与 str 相等，dict 相等断言不变绿转）
 
 **Steps:**
-- [ ] 用一次性脚本（AST 定位 + 按值映射到登记域成员，不入手仓）把 src 写点转换为 `GateStatus.PASS` 等成员表达式；手工复核非 PASS/FAIL/SKIP 的少数站点归属正确域
-- [ ] `uv run pytest tests/unit/gates -q` 全绿；`uv run basedpyright src/shenbi/` 干净
-- [ ] commit `refactor: convert bare status literals to enum members (294 sites, spec #34 T3 precondition)`
+- [x] 用一次性脚本（AST 定位 + 按值映射到登记域成员，不入手仓）把 src 写点转换为 `GateStatus.PASS` 等成员表达式；手工复核非 PASS/FAIL/SKIP 的少数站点归属正确域
+- [x] `uv run pytest tests/unit/gates -q` 全绿；`uv run basedpyright src/shenbi/` 干净
+- [x] commit `refactor: convert bare status literals to enum members (294 sites, spec #34 T3 precondition)`
 
 ### Task 5: lint 白名单反转 + 登记表对账 + 双面扫描（spec T3，最后落地）
 
@@ -158,10 +158,10 @@
 - exit 非 0 = 有违规；`just check` 既有接线（justfile:15,48）不变
 
 **Steps:**
-- [ ] TDD：对每面写红样本（裸 `{"s": "PASSED"}`、登记表漏域、`--scan-tree` 对 fixture 树越表值）
-- [ ] 实施；`uv run python tools/lint_status_strings.py --scan-tree novel-output` exit 0
-- [ ] `just check` 全绿（本 task 与 Task 1-4 同批已在分支上，无中间红窗口残留）
-- [ ] commit `feat: lint_status_strings inversion + registry reconciliation + tree scan (spec #34 T3)`
+- [x] TDD：对每面写红样本（裸 `{"s": "PASSED"}`、登记表漏域、`--scan-tree` 对 fixture 树越表值）
+- [x] 实施；`uv run python tools/lint_status_strings.py --scan-tree novel-output` exit 0
+- [x] `just check` 全绿（本 task 与 Task 1-4 同批已在分支上，无中间红窗口残留）
+- [x] commit `feat: lint_status_strings inversion + registry reconciliation + tree scan (spec #34 T3)`
 
 ### Task 6: 文档对齐 + 验收终跑（spec T6）
 
@@ -170,9 +170,9 @@
 - Modify: `docs/superpowers/specs/INDEX.md`（不动，归档期处理）
 
 **Steps:**
-- [ ] `git grep -l "PASS.*FAIL.*SKIP.*WARN" docs/ AGENTS.md` 逐处改为指向 `docs/framework/status-vocab.md`
-- [ ] AC 终跑五条（AC1 lint 双面 exit 0 / AC2 复算 0% / AC3 HARD_FAIL grep / AC4 对账子检查 / AC5 `just check`），输出粘贴 progress.md
-- [ ] commit `docs: align status vocab references to registry (spec #34 T6)`
+- [x] `git grep -l "PASS.*FAIL.*SKIP.*WARN" docs/ AGENTS.md` 逐处改为指向 `docs/framework/status-vocab.md`
+- [x] AC 终跑五条（AC1 lint 双面 exit 0 / AC2 复算 0% / AC3 HARD_FAIL grep / AC4 对账子检查 / AC5 `just check`），输出粘贴 progress.md
+- [x] commit `docs: align status vocab references to registry (spec #34 T6)`
 
 ## 验收覆盖表
 
