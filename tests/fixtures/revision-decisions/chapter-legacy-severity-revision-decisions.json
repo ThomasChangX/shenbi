@@ -1,0 +1,72 @@
+{
+  "$schema": "shenbi-decisions-v1",
+  "kind": "artifact",
+  "skill": "shenbi-chapter-revision",
+  "chapter": 15,
+  "produced_at": "2026-07-16T00:00:00+0800",
+  "route": "spot-fix",
+  "route_rationale": "唯一BLOCKING项为破折号溢出(craft级AI tell),无结构性/目标未达成问题。纯局部工艺修复。",
+  "selections": [
+    {
+      "target": "audits/chapter-15-anti-ai.md",
+      "selected": ["全部"],
+      "basis": "唯一BLOCKING审计:破折号溢出CRITICAL",
+      "severity": "critical",
+      "omitted": []
+    },
+    {
+      "target": "audits/chapter-15-motivation.md",
+      "selected": ["WARNING-2(章末外出决策节点)", "WARNING-1(机械声不追踪锚点)"],
+      "basis": "行为链完整性WARNING",
+      "severity": "warning",
+      "omitted": ["WARNING-3(北巷组员独立欲望)—需跨章解决"]
+    },
+    {
+      "target": "audits/chapter-15-resonance.md",
+      "selected": ["Route C目标达成确认"],
+      "basis": "确认无结构性重写需求",
+      "severity": "low",
+      "omitted": ["短板条目(情感光谱/嗅觉维度/六线程)—Ch16-17规划项"]
+    },
+    {
+      "target": "plans/chapter-15-plan.md",
+      "selected": ["1.当前任务", "6.章尾改变", "8.不要做"],
+      "basis": "确认所有deliverables已交付,无结构性问题",
+      "severity": "low",
+      "omitted": []
+    }
+  ],
+  "adjustments": [
+    {
+      "issue_id": "anti_ai_dash_overflow",
+      "category": "ai_tell",
+      "severity": "critical",
+      "pre_value": "74 dashes in story section",
+      "post_value": "7 dashes in story section (仅保留嵌套插入语和关键认知断裂处)",
+      "handling": "直接替换: 认知断裂→句号独立句(不是X→是Y→不是X是Y), 同层并置→句号隔离, 章末六条整理段→句号列表结构",
+      "rationale": "FORBIDDEN — routine critical fix, 仅记录数值。三层次策略: Layer1认知断裂转为句号+独立句, Layer2同层并置转为句号/冒号, Layer3章末整理段全面重写为句号列表。保留7处:2处嵌套插入语+1处staccato(脸——)+1处认知标记(不是选择——)+2处感知断裂(遮断的两次呼吸——警觉——)+1处决策转折(左转——选择)",
+      "strategy_detail": "不是X——Y → 不是X。是Y / X——但Y → X。但Y / X——Y(X:Y并列) → X。Y / 嵌套"X——a——Y" → 保留(从句合法插入) / 章末六条"X——Y" → "X。Y""
+    },
+    {
+      "issue_id": "motivation_chapter_end_decision",
+      "category": "behavior_chain",
+      "severity": "warning",
+      "handling": "insert_decision_node",
+      "rationale": "在'他站起来'前加触发句'今日的信息已经完成了闭合。没有新的信号加入。闭合本身唤起一个方向:去看看闭合之外还有什么。'——将'走出去'从宣告转变为可推演的判断结果",
+      "content_change": "insert ~40 chars before the final departure paragraph"
+    },
+    {
+      "issue_id": "motivation_mechanical_sound_no_track",
+      "category": "behavior_chain",
+      "severity": "minor",
+      "handling": "insert_body_anchor",
+      "rationale": "在'他继续走'前加'他的脚步没有转向声音的方向。步伐节奏未变。'——通过身体信号正面闭合判断环节,替代原否定式",
+      "content_change": "insert ~25 chars before '他继续走'"
+    }
+  ],
+  "budget": {
+    "context_tokens_estimate": 18500,
+    "limit": 20000,
+    "trim_applied": "none"
+  }
+}

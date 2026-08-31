@@ -13,7 +13,7 @@ def test_registry_has_full_domain_count() -> None:
     rows = parse_registry()
     # T9 matrix: 36 declared domains + ownerless production domains consolidated.
     # Exact count pins the registry against silent row loss.
-    assert len(rows) == 41, f"registry row count changed: {len(rows)}"
+    assert len(rows) == 42, f"registry row count changed: {len(rows)}"
 
 
 def test_every_row_resolves_with_equal_values() -> None:

@@ -39,6 +39,8 @@ RevisionStatus = Literal[
 ]
 # spec #34 T909: genre-config approval 值域（与 pipeline ReviewDecision 命令域分立）
 ApprovalDecision = Literal["approved", "rejected"]
+# spec #34 T204: write-semantics mode 值域（G0.16 此前只查存在性不查合法性）
+WriteMode = Literal["create_or_overwrite", "append_dedup", "merge_prose"]
 # spec #34 T911: novel.json status（生产两文件持值，立域不删字段）
 NovelStatus = Literal["worldbuilding", "worldbuilding_complete"]
 # v2 C4: object 非 type——Literal 是 _LiteralGenericAlias 不是 type，mypy strict 拒 dict[str,type]
@@ -55,4 +57,5 @@ ALL_ENUMS: dict[str, Any] = {
     "RevisionStatus": RevisionStatus,
     "ApprovalDecision": ApprovalDecision,
     "NovelStatus": NovelStatus,
+    "WriteMode": WriteMode,
 }

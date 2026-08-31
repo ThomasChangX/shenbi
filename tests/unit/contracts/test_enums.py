@@ -35,6 +35,7 @@ def test_all_enums_complete() -> None:
         "RevisionStatus",
         "ApprovalDecision",
         "NovelStatus",
+        "WriteMode",
     }
 
 

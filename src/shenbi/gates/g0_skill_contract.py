@@ -13,7 +13,7 @@ those errors).
 from __future__ import annotations
 
 from pathlib import Path
-from typing import Any
+from typing import get_args, Any
 
 import re
 import yaml
@@ -130,9 +130,16 @@ def check_skill_contracts(skills_dir: Path | None = None) -> list[str]:
         if overlap:
             issues.append(f"G0.sc.write_update_overlap:{skill_name}:{sorted(overlap)}")
 
-        # every write/update entry must declare a mode (semantics)
+        # every write/update entry must declare a mode (semantics); the mode
+        # value itself must be in the registered WriteMode domain (spec #34
+        # T204: 存在性之外加值合法性，拼写错误不再静默按默认处理)
+        from shenbi.contracts.enums import WriteMode  # local: avoid import cycle at module load
+
+        legal_modes = set(get_args(WriteMode))
         for path, meta in writes + updates:
             if "mode" not in meta:
                 issues.append(f"G0.sc.missing_write_semantics:{skill_name}:{path}")
+            elif meta["mode"] not in legal_modes:
+                issues.append(f"G0.sc.invalid_write_semantics:{skill_name}:{path}:{meta['mode']!r}")
 
     return issues

@@ -20,16 +20,16 @@ def g4_score_arc(
     for fp in fps or []:
         pf = resolve_input_path(fp, rd)
         if not pf.exists():
-            mf.append(f"G4.not_found:{fp}")
+            mf.append(f"G4.arc.not_found:{fp}")
             continue
         content = pf.read_text(encoding="utf-8")
         normalized = re.sub(r"\s+", "", content)
         if "RouteC" not in normalized:
-            mf.append("G4.no_route_c:must have Route C section")
+            mf.append("G4.arc.no_route_c:must have Route C section")
         if "RouteA" not in normalized and "锚点" not in content:
-            mf.append("G4.no_route_a:must have Route A anchor section")
+            mf.append("G4.arc.no_route_a:must have Route A anchor section")
     if not fps:
-        c.append({"id": "G4", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.arc", "s": "SKIP", "r": "no files"})
     if mf:
         return fail("G4-score-arc", c, "scoring", mf)
     return passed("G4-score-arc", c)

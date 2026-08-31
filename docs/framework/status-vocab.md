@@ -34,6 +34,7 @@
 | RevisionStatus | shenbi.contracts.enums.RevisionStatus | preserved\|skipped\|delegated\|reconstructed_from_cross_source_evidence | chapter-revision 技能 revision-decisions | G4（T9 行 38/39 同键合一） |
 | ApprovalDecision | shenbi.contracts.enums.ApprovalDecision | approved\|rejected | genre-config novel.json | contracts/skills/genre_config.py validator（T909：与 ReviewDecision 命令域互斥分立） |
 | NovelStatus | shenbi.contracts.enums.NovelStatus | worldbuilding\|worldbuilding_complete | worldbuilding 技能 novel.json | -（T911：有生产值立域） |
+| WriteMode | shenbi.contracts.enums.WriteMode | create_or_overwrite\|append_dedup\|merge_prose | SKILL.md write-semantics mode | gates/g0_skill_contract.py G0.16（spec #34 T204：值合法性校验） |
 | OutputKind | shenbi.contracts.legacy.OutputKind | artifact\|report\|ephemeral | SKILL 契约 kind | G0/G2 |
 | HookState | shenbi.contracts.schemas.hooks.HookState | PLANTED\|RELEVANT\|TRIGGERED\|RESOLVED\|ARCHIVED\|EXPIRED | foreshadowing-lifecycle | truth hooks（F815/F820 已立案族） |
 | RegistryKind | shenbi.contracts.schemas.registry.RegistryKind | benchmark\|chapter\|character\|config\|context\|decisions\|import\|outline\|plan\|reference\|report\|short\|snapshot\|style\|truth\|world | truth-files.yaml | registry loader（F445/F440 已立案族） |

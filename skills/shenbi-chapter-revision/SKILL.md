@@ -159,3 +159,4 @@ digraph chapter_revision_loop {
 - `chapter`: 章节号（非章节产物用 `null`）
 - `produced_at`: ISO-8601 时间戳
 - `selections`/`adjustments` 遵循 P2.5：medium/high severity、manual_override、adjustments 必附 ≤100 字 `rationale`；routine+low 禁附
+- `severity` 取值必须是 `low` / `medium` / `high` 三值之一（词表主域见 docs/framework/status-vocab.md#域清单 的 RevisionSeverity 行；G4 对越表值判 FAIL）；顶层 `status` 必须 ∈ `preserved|skipped|delegated|reconstructed_from_cross_source_evidence`，`mode` 必须 ∈ `spot-fix|regenerate|constrained-regenerate|reconstruction|no-revision`（G4 值域校验，spec #34）
