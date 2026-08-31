@@ -43,6 +43,9 @@
 | F221 ScoreReport 双定义 | skills/_scoring_base.py | schemas/scores.py:31 ScoreReport 零生产 import（F205 复核）→ 删除模块，_scoring_base 为唯一 |
 | F336/F352 chapter=0 vs None | state.py `current_chapter: int | None = None` | genesis.py:260 `chapter=0` 与 state.py:145 统一 None 为"genesis 未进章"语义，读方判 `is None`；登记"genesis 语义"注记 |
 | F441 check id 前缀 | scoring checker id | 值域 `"<skill>:<check-slug>"` 形态登记（id 命名词表），实施时对无前缀 checker 补技能前缀 |
+| G4Severity（hard/soft/warn） | chapter_loop.py:409 原位 | 独立登记域（G4_CHECK_MAP 内部自洽，不并入 enums.Severity——适用面互斥注记） |
+| linguistic_drift severity | linguistic_drift.py:56,221 原位 | 独立登记域 NONE/WARN/HARD/ESCALATE（未持久化，注记适用面） |
+| T302 extract_h2_sections/lint 匹配语义 | 登记表 Dangling 标记 | 挂 C2 T4 承接标记（spec 批量清理要求） |
 | escalation severity regex 域 | 消费 enums.Severity | revision_router.py:75-86 / parallel_dispatch.py:218-220 / audit_layer.py:157 大小写归一后比对 enums.Severity（regex 域不另立） |
 
 ---
@@ -82,7 +85,7 @@
 - Modify: `src/shenbi/contracts/base.py:29`（`status: GateStatus`，import shenbi.status）
 - Modify: `src/shenbi/contracts/schemas/decisions.py:16`（`Severity`→`SeverityLevel`，全仓 import 点同步改名）
 - Modify: `src/shenbi/gates/g4/review_resonance.py:25`（`_VERDICTS` 改 import `enums.ResonanceVerdict` 元组派生）
-- Delete: `src/shenbi/contracts/schemas/scores.py`（F221/F205 死模块；先 grep 确认零 src import、tests 引用改 _scoring_base 或删）
+- Delete: `src/shenbi/contracts/schemas/scores.py`（F221/F205 死模块；src 零 import 已复核）+ Delete: `tests/unit/contracts/schemas/test_novel_scores_state.py`（唯一消费方，import ScoreDimension/ScoreProvenance/ScoreReport 三符号——前两者无迁移目标，测试随死模块删除）
 - Modify: `src/shenbi/pipeline/state.py:145` + `src/shenbi/pipeline/genesis.py:260`（chapter=None 统一，读方 `== 0` 判定改 `is None`）
 - Test: 既有 `tests/unit/contracts/`、`tests/unit/gates/g4/` + 新增 `tests/unit/contracts/test_enums_consolidation.py`
 
@@ -97,11 +100,11 @@
 **Files:**
 - Modify: `src/shenbi/status.py`（SkillProgressStatus；CommandStatus 增 DEGRADED/NOT_IMPLEMENTED）
 - Modify: `src/shenbi/pipeline/state.py:98,~311`（ChapterStatus StrEnum；from_dict 归一 `completed→complete` + structlog WARN）
-- Modify: `src/shenbi/pipeline/chapter_loop.py:1034`、`src/shenbi/pipeline/error_handler.py:115`（写方改成员）
+- Modify: `src/shenbi/pipeline/chapter_loop.py:1036`、`src/shenbi/pipeline/error_handler.py:115`（写方改成员）
 - Modify: `src/shenbi/pipeline/truth_embed.py:247`（`CommandStatus.DEGRADED`）
-- Modify: `src/shenbi/dispatcher/modes/codex.py:44`、`src/shenbi/trace/materialize.py`（SkillProgressStatus）
+- Modify: `src/shenbi/dispatcher/modes/codex.py:55`（`{"status": "done"}` 写点）、`src/shenbi/trace/materialize.py`（SkillProgressStatus）
 - Modify: `src/shenbi/gates/g_reconcile.py:40,70`（比对 SkillProgressStatus.DONE.value，兼容旧大写 "DONE"）
-- Modify: `src/shenbi/revision_routing/route.py:28`、`src/shenbi/pipeline/revision_router.py:33`（import enums.RevisionMode；消费侧 `no_op` alias 归一 `no-revision`）
+- Modify: `src/shenbi/skill_utils/revision_routing/route.py:28`、`src/shenbi/pipeline/revision_router.py:33`（import enums.RevisionMode；消费侧 `no_op` alias 归一 `no-revision`）
 - Modify: `src/shenbi/contracts/skills/genre_config.py:41-44`（ApprovalDecision import 比对）
 - Test: `tests/unit/pipeline/test_chapter_status_vocab.py`（新增）+ 既有 pipeline/gates 测试
 
@@ -125,7 +128,20 @@
 - [ ] TDD：先改 test_chapter_revision 断言 FAIL+severity（红）→ 实施（绿）
 - [ ] `git grep -rn "HARD_FAIL" src/` 零命中（或仅 enums/登记表注释）
 - [ ] `uv run python tools/check_severity_vocab.py` → 输出 `out-of-vocab: 0/185 (0.0%)` exit 0
+- [ ] fixture 溯源（G0.9）：从 `novel-output/xinghuo-ranqiong/` 复制真实 revision-decisions 产物（含 blocking/critical/info 等越表原值）至 `tests/fixtures/revision-decisions/`，测试引用 fixtures 而非生产树
+- [ ] F441：`grep -rn '"id":' src/shenbi/scoring*.py src/shenbi/gates/g5*` 对无技能前缀的 checker check id 补 `<skill>:` 前缀（同步解 pin 相应测试）
 - [ ] commit `fix: production vocab violations — HARD_FAIL, severity/mode G4 value-domain checks (spec #34 T5)`
+
+### Task 4.5: src 裸字面量机械转换（294 站点 → 枚举成员）
+
+**Files:**
+- Modify: `src/shenbi/gates/g1.py`、`g5.py`、`g_reconcile.py` 等 grep 命中的全部 `{"s": "PASS"}`/`{"status": "..."}`/`{"state": "..."}`/`{"classification": "..."}` dict 字面量写点（AST 定位，约 294 处，289 处为 check-item `s` 键）
+- Test: 既有 gates 全量测试（StrEnum 与 str 相等，dict 相等断言不变绿转）
+
+**Steps:**
+- [ ] 用一次性脚本（AST 定位 + 按值映射到登记域成员，不入手仓）把 src 写点转换为 `GateStatus.PASS` 等成员表达式；手工复核非 PASS/FAIL/SKIP 的少数站点归属正确域
+- [ ] `uv run pytest tests/unit/gates -q` 全绿；`uv run basedpyright src/shenbi/` 干净
+- [ ] commit `refactor: convert bare status literals to enum members (294 sites, spec #34 T3 precondition)`
 
 ### Task 5: lint 白名单反转 + 登记表对账 + 双面扫描（spec T3，最后落地）
 
@@ -136,7 +152,7 @@
 **Interfaces（Consumes Task 1 登记表格式）:**
 - 新 CLI：`uv run python tools/lint_status_strings.py [--scan-tree DIR]`
 - 子检查三面：
-  1. **裸字面量面**（反转）：`Path(__file__).resolve().parents[1]` 锚定 repo 根，扫 `src/shenbi/**/*.py` + `tests/**/*.py`（status.py/enums.py 豁免），dict 键 `status/state/classification/s` 的值表达式里**任何**不在登记表全集的裸 str 字面量 = 违规（原"仅拦已知值"改为"拦一切裸值"，成员经枚举表达式不受影响）
+  1. **裸字面量面**（反转）：`Path(__file__).resolve().parents[1]` 锚定 repo 根，扫 `src/shenbi/**/*.py` + `tests/**/*.py`（status.py/enums.py 豁免），**src/shenbi 严格面**：dict 键 `status/state/classification/s` 的值表达式里出现**任何**裸 str 字面量 = 违规（仅枚举成员表达式合法——Task 4.5 已完成机械转换保证存量绿）；**tests/ 越表面**：tests 下同键裸字面量仅拦**不在登记表全集**的值（测试多为读侧断言，严格面会误伤；越表检测仍覆盖 T905 的 tests 盲区）
   2. **登记表对账面**：解析 status-vocab.md 全表 ↔ AST 提取 src/shenbi 全部 Literal/StrEnum 域，双向比对（代码域未登记/登记域不存在/值集不等 = 违规）
   3. **生产值面**（`--scan-tree`）：对给定树（AC1 用 `novel-output`）全部 .json 递归收集 status/severity/mode/decision 键值，越登记表全集（含 Task 3/4 容错映射）= 违规
 - exit 非 0 = 有违规；`just check` 既有接线（justfile:15,48）不变
