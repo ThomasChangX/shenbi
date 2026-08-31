@@ -248,3 +248,38 @@ def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
     seqs = [e.seq for e in events]
     assert len(seqs) == len(set(seqs))  # no duplicate seq
     assert len(events) == 4
+
+
+def test_gate_manifest_corrupt_fail_loud(tmp_path: Path) -> None:
+    """Corrupt manifest is preserved + raises, not silently reset (F416)."""
+    import pytest as _pytest
+
+    from shenbi.gates.gate_manifest import ManifestCorruptError, record_gate_result
+
+    (tmp_path / "pipeline-manifest.json").write_text("{not json", encoding="utf-8")
+    with _pytest.raises(ManifestCorruptError):
+        record_gate_result(tmp_path, "T1", 1, "skill", "G2", {"status": "PASS"})
+    assert (tmp_path / "pipeline-manifest.json.corrupt").exists()
+
+
+def test_gate_manifest_concurrent_writes_conserved(tmp_path: Path) -> None:
+    """Two threads' gate records both survive (F416 lock half)."""
+    from shenbi.gates.gate_manifest import record_gate_result
+
+    barrier = threading.Barrier(2)
+
+    def write_one(tag: str) -> None:
+        barrier.wait(timeout=10)
+        record_gate_result(tmp_path, "T1", 1, f"skill-{tag}", "G2", {"tag": tag})
+
+    t1 = threading.Thread(target=write_one, args=("a",))
+    t2 = threading.Thread(target=write_one, args=("b",))
+    t1.start()
+    t2.start()
+    t1.join(timeout=25)
+    t2.join(timeout=25)
+    import json as _json
+
+    data = _json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
+    skills = data["gates"]["T1"]["1"]
+    assert set(skills) == {"skill-a", "skill-b"}

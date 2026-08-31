@@ -1,37 +1,95 @@
 import json
+import os
+import sys
 import threading
-import structlog
+import time
+from contextlib import contextmanager
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any, cast
+
+import structlog
+
+from shenbi.exceptions import ShenbiError
 
 log = structlog.get_logger()
 GATE_MANIFEST_FILENAME = "pipeline-manifest.json"
 
+
+class ManifestCorruptError(ShenbiError):
+    """pipeline-manifest.json is unreadable/corrupt (fail-loud, spec #37 F416).
+
+    The old behavior silently reinitialized to an empty manifest, erasing
+    the audit history without any hard failure.
+    """
+
+
 # Thread safety: the manifest read-modify-write is NOT atomic. Concurrent
 # gate-marker writes (e.g. parallel audits) would race and clobber each
 # other's updates. Guard the whole read-merge-write with a per-path lock.
-# See Spec 12 §3.2 for the locking pattern.
+# Spec #37 F416: the lock must be CROSS-PROCESS — an in-process
+# threading.Lock does not exclude the phase_runner/codex subprocess writers
+# that share the same manifest directory.
 _MANIFEST_LOCKS: dict[str, threading.Lock] = {}
 _MANIFEST_LOCKS_GUARD = threading.Lock()
+_MANIFEST_LOCKFILE_SUFFIX = ".lockfile"
+_MANIFEST_LOCK_TIMEOUT = 30.0
 
 
-def _manifest_lock(manifest_dir: Path) -> threading.Lock:
-    """Return (creating if needed) a per-path lock for manifest writes."""
-    key = str(manifest_dir / GATE_MANIFEST_FILENAME)
+@contextmanager
+def _manifest_lock(manifest_dir: Path) -> Generator[None, None, None]:
+    """Per-path cross-process lock (in-process registry + flock lockfile)."""
+    lockfile = manifest_dir / (GATE_MANIFEST_FILENAME + _MANIFEST_LOCKFILE_SUFFIX)
+    lockfile.parent.mkdir(parents=True, exist_ok=True)
+    key = str(lockfile)
     with _MANIFEST_LOCKS_GUARD:
-        if key not in _MANIFEST_LOCKS:
-            _MANIFEST_LOCKS[key] = threading.Lock()
-        return _MANIFEST_LOCKS[key]
+        thread_lock = _MANIFEST_LOCKS.setdefault(key, threading.Lock())
+    with thread_lock:
+        fd: int | None = None
+        if sys.platform != "win32":
+            import fcntl
+
+            fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
+            deadline = time.monotonic() + _MANIFEST_LOCK_TIMEOUT
+            while True:
+                try:
+                    fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                    break
+                except BlockingIOError:
+                    if time.monotonic() > deadline:
+                        os.close(fd)
+                        raise TimeoutError(
+                            f"manifest lock timed out after {_MANIFEST_LOCK_TIMEOUT}s on {lockfile}"
+                        ) from None
+                    time.sleep(0.05)
+        try:
+            yield
+        finally:
+            if fd is not None:
+                os.close(fd)
 
 
 def _load_gate_manifest(manifest_dir: Path) -> dict[str, Any]:
-    """Load or initialize the pipeline manifest."""
+    """Load or initialize the pipeline manifest (fail-loud on corruption)."""
     manifest_file = manifest_dir / GATE_MANIFEST_FILENAME
     if manifest_file.exists():
         try:
             return cast(dict[str, Any], json.loads(manifest_file.read_text(encoding="utf-8")))
-        except (json.JSONDecodeError, OSError):
-            log.warning("manifest_corrupt_reinitializing")
+        except (json.JSONDecodeError, OSError) as e:
+            # F416 fail-loud: preserve a copy for forensics via safe_write
+            # (the corrupt original stays in place — no uncoordinated move),
+            # then surface a hard error instead of silently reinitializing.
+            corrupt = manifest_dir / (GATE_MANIFEST_FILENAME + ".corrupt")
+            try:
+                from shenbi.safe_write import safe_write
+
+                safe_write(corrupt, manifest_file.read_text(encoding="utf-8", errors="replace"))
+                log.error("manifest_corrupt_preserved", corrupt_path=str(corrupt), error=str(e))
+            except OSError:
+                log.error("manifest_corrupt_preservation_failed", error=str(e))
+            raise ManifestCorruptError(
+                f"pipeline manifest corrupt at {manifest_file}: {e}; corrupt copy at {corrupt}"
+            ) from e
     return {"version": "1.0", "gates": {}}
 
 
