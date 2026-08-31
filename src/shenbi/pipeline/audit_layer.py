@@ -78,6 +78,24 @@ _CRITICAL_GENRE_DIMS = frozenset(d for d in ("texture",) if d in GENRE_ACTIVATIO
 # arc-payoff and spinoff are triggered by volume boundaries / user marks rather
 # than chapter number, so they return False here and are activated elsewhere.
 # ---------------------------------------------------------------------------
+def _accumulate_pattern_input(project_dir: Path, chapter: int) -> None:
+    """Spec #33 T1a-2: accumulate the skill's classification input JSON."""
+    import json
+
+    src = project_dir / "context" / f"chapter-pattern-input-{chapter}.json"
+    if not src.exists():
+        log.warning("pattern_input_missing", chapter=chapter)
+        return
+    try:
+        payload = json.loads(src.read_text(encoding="utf-8"))
+    except (OSError, ValueError) as exc:
+        log.warning("pattern_input_unparseable", chapter=chapter, error=str(exc))
+        return
+    from shenbi.pipeline.helper_injection import accumulate_pattern_classification
+
+    accumulate_pattern_classification(project_dir, chapter, payload)
+
+
 BOUNDARY_TRIGGERS: dict[str, Callable[[int], bool]] = {
     "shenbi-review-long-span": lambda ch: ch % 24 == 0,
     "shenbi-review-arc-payoff": lambda ch: False,
@@ -183,6 +201,9 @@ def run_audit_layer(
             result.blocking_found = True
             result.issues.append(_issue(skill, chapter, "BLOCKING", "dispatch", rel_path))
             continue
+
+        if skill == "shenbi-chapter-pattern":
+            _accumulate_pattern_input(project_dir, chapter)
 
         g4 = run_gate_g4(skill, [rel_path], project_dir)
         if not _gate_passed(g4):

@@ -127,6 +127,7 @@
         "audits/stratum-*-score.md",
         "audits/volume-*-score.md",
         "audits/volume-*.md",
+        "context/chapter-pattern-input-N.json",
         "outline/*.md",
         "snapshots/chapter-*/*",
         "truth/*.md",

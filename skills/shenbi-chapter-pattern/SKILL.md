@@ -13,6 +13,8 @@ contract:
   writes:
   - file: outline/chapter_patterns.md
     mode: create_or_overwrite
+  - file: context/chapter-pattern-input-N.json
+    mode: create_or_overwrite
   updates: []
 ---
 <!-- AUTO-CHECK-START -->
@@ -26,7 +28,7 @@ contract:
 ## 数据契约
 
 - **Reads:** chapters/*.md, truth/chapter_summaries.md, genre-config.json
-- **Writes:** outline/chapter_patterns.md
+- **Writes:** outline/chapter_patterns.md, context/chapter-pattern-input-N.json
 - **Updates:** none
 
 <!-- END AUTO-GENERATED -->
@@ -40,13 +42,13 @@ contract:
 ```dot
 digraph chapter_pattern {
     "Read chapter history" -> "LLM: classify each chapter by 13 patterns";
-    "LLM: classify each chapter by 13 patterns" -> "Run compute_pattern.py on classifications";
+    "LLM: classify each chapter by 13 patterns" -> "Write classifications to context/chapter-pattern-input-<N>.json";
     "Run compute_pattern.py on classifications" -> "LLM reads JSON analytics output";
     "LLM reads JSON analytics output" -> "LLM writes pattern analysis report + suggestions";
 }
 ```
 
-**模式分类由 LLM 执行（判断性工作）。分类结果以 JSON 输入 `compute_pattern.py`（计算性工作），脚本输出熵、分布、连续运行等确定性分析。LLM 基于脚本输出撰写报告和建议。**
+**模式分类由 LLM 执行（判断性工作）。分类结果以 JSON 写入 `context/chapter-pattern-input-<N>.json`，框架自动累积到 `truth/chapter_patterns.md` 并在下一次派发 prompt 注入历史确定性分析（熵、分布、连续运行——见 `Helper Precompute (chapter pattern history)` 块）。LLM 基于注入块与当章分类撰写报告和建议，不要自行重算历史统计。**
 
 ## 铁律
 

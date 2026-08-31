@@ -21,6 +21,11 @@ from typing import Any
 import structlog
 
 from shenbi.pipeline.dispatch_helper import load_executor_config
+from shenbi.skill_utils.chapter_pattern.compute_pattern import (
+    check_distribution,
+    compute_consecutive,
+    compute_entropy,
+)
 from shenbi.skill_utils.style_learning.compute_stats import compute_all_stats
 
 log = structlog.get_logger(__name__)
@@ -86,4 +91,82 @@ def inject_helper_precompute(skill: str, project_dir: Path, user_prompt: str) ->
         block = _style_stats_block(project_dir)
         if block is not None:
             return block + user_prompt
+    if skill == "shenbi-chapter-pattern":
+        block = _pattern_history_block(project_dir)
+        if block is not None:
+            return block + user_prompt
     return user_prompt
+
+
+# ---------------------------------------------------------------------------
+# chapter-pattern structured accumulation (spec #33 T1a-2)
+# ---------------------------------------------------------------------------
+
+_PATTERN_TRUTH_FILE = "chapter_patterns.md"
+
+
+def accumulate_pattern_classification(
+    project_dir: Path, chapter: int, payload: list[dict[str, Any]]
+) -> None:
+    """Append one chapter's pattern classification as a keyed truth row.
+
+    Called after the shenbi-chapter-pattern dispatch (audit_layer boundary
+    wave) once the skill's classification input JSON is on disk. Rows are
+    ``| {N} | {pattern} |`` keyed on the chapter column; repeated runs for
+    the same chapter dedup onto one row via insert_markdown_row semantics.
+    """
+    from shenbi.pipeline.truth_io import write_truth_file
+
+    for entry in payload:
+        if "pattern" in entry:
+            write_truth_file(
+                project_dir,
+                _PATTERN_TRUTH_FILE,
+                f"| {chapter} | {entry['pattern']} |",
+                mode="insert_markdown_row",
+                key_field="chapter",
+            )
+            return
+    log.warning("pattern_classification_payload_unusable", chapter=chapter)
+
+
+def _read_pattern_history(project_dir: Path) -> list[str]:
+    truth = project_dir / "truth" / _PATTERN_TRUTH_FILE
+    if not truth.exists():
+        return []
+    patterns: list[str] = []
+    for line in truth.read_text(encoding="utf-8").splitlines():
+        cells = [c.strip() for c in line.strip().strip("|").split("|")]
+        if len(cells) >= 2 and cells[0].isdigit() and not set(cells[0]) <= {"-", ":"}:
+            patterns.append(cells[1])
+    return patterns
+
+
+def _pattern_history_block(project_dir: Path) -> str | None:
+    patterns = _read_pattern_history(project_dir)
+    if not patterns:
+        log.info("pattern_history_empty", skill="shenbi-chapter-pattern")
+        return None
+    consecutive = compute_consecutive(patterns)
+    entropy, entropy_detail = compute_entropy(patterns)
+    analytics: dict[str, Any] = {
+        "consecutive": consecutive,
+        "entropy": round(entropy, 4),
+        "entropy_detail": entropy_detail,
+        "distribution_check": check_distribution(patterns, 6),
+        "window": patterns[-20:],
+    }
+    block = (
+        "## Helper Precompute (chapter pattern history, deterministic)\n\n"
+        "```json\n" + json.dumps(analytics, ensure_ascii=False, indent=2) + "\n```\n\n"
+        "以上历史模式分析已由框架预计算（compute_pattern 确定性半），直接引用，不要重算。\n\n"
+    )
+    if len(block) > _MAX_BLOCK_CHARS:
+        log.warning(
+            "helper_block_skipped_oversize",
+            skill="shenbi-chapter-pattern",
+            size=len(block),
+            limit=_MAX_BLOCK_CHARS,
+        )
+        return None
+    return block
