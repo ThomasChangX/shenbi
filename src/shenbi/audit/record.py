@@ -41,6 +41,9 @@ def record_audit_outcome(round_dir: Path, skill: str, result: AuditResult) -> bo
     try:
         from shenbi.trace.writer import TraceWriter
 
+        # TraceWriter.append serializes itself via trace_lock (spec #37
+        # F531) — wrapping another trace_lock here would self-deadlock
+        # (flock is not reentrant across fds).
         TraceWriter(round_dir).append(
             actor="write-audit",
             actor_role="GATE",

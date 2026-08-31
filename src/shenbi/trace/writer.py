@@ -1,9 +1,10 @@
 """TraceWriter：append-only JSONL。seq 从现有 trace 接续；每条事件签名链前一条。
 首次创建对父目录 fsync（判据 7 I6a）；每条 append 后对文件 fsync（durability）。
 
-Concurrency: NOT thread/proc-safe — __init__ reads then append writes (TOCTOU).
-Current dispatch is sequential (spec: 顺序执行 topology), so this is safe.
-Concurrent dispatch needs flock or staging isolation (future work).
+Concurrency: append() is serialized by trace.jsonl.lockfile flock (spec #37
+F531/F536) and re-derives seq/prev_signature from the file inside the lock —
+the __init__ cache alone would go stale under concurrent writers. compaction
+(whole-file replace) takes the same lock.
 """
 
 from __future__ import annotations
@@ -74,27 +75,34 @@ class TraceWriter:
         payload: dict[str, object] | None = None,
         schema_version: int = 1,
     ) -> TraceEvent:
-        created = not self._path.exists()
-        if created:
-            self._path.parent.mkdir(parents=True, exist_ok=True)
-        event = TraceEvent.sign_and_new(
-            prev_signature=self._prev,
-            seq=self.next_seq(),
-            actor=actor,
-            actor_role=actor_role,
-            action=action,
-            target=target,
-            skill=skill,
-            gate=gate,
-            payload=payload or {},
-            schema_version=schema_version,
-        )
-        with self._path.open("a", encoding="utf-8") as fh:
-            fh.write(event.model_dump_json() + "\n")
-            fh.flush()
-            os.fsync(fh.fileno())
-        if created:
-            _fsync_dir(self._path.parent)  # 判据 7 I6a
-        self._seq = event.seq
-        self._prev = event.signature
-        return event
+        from shenbi.trace.locks import trace_lock
+
+        with trace_lock(self._path.parent):
+            # Re-derive from the file INSIDE the lock: the __init__ cache is
+            # stale the moment another writer appended (spec #37 F531).
+            self._seq = self._count_existing()
+            self._prev = self._last_sig_existing()
+            created = not self._path.exists()
+            if created:
+                self._path.parent.mkdir(parents=True, exist_ok=True)
+            event = TraceEvent.sign_and_new(
+                prev_signature=self._prev,
+                seq=self.next_seq(),
+                actor=actor,
+                actor_role=actor_role,
+                action=action,
+                target=target,
+                skill=skill,
+                gate=gate,
+                payload=payload or {},
+                schema_version=schema_version,
+            )
+            with self._path.open("a", encoding="utf-8") as fh:
+                fh.write(event.model_dump_json() + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+            if created:
+                _fsync_dir(self._path.parent)  # 判据 7 I6a
+            self._seq = event.seq
+            self._prev = event.signature
+            return event

@@ -45,7 +45,17 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             "truncated_at_seq": truncated_at,
         },
     )
-    # Write to temp, fsync, atomically replace, dir-fsync.
+    from shenbi.trace.locks import trace_lock
+
+    # spec #37 F619: the whole-file replace must exclude concurrent
+    # TraceWriter appends (crash-safety was already in place; this adds
+    # the mutual-exclusion half).
+    with trace_lock(path.parent):
+        return _compact_replace(path, head_event)
+
+
+def _compact_replace(path: Path, head_event: TraceEvent) -> TraceEvent:
+    """Write to temp, fsync, atomically replace, dir-fsync (caller holds trace_lock)."""
     content = head_event.model_dump_json() + "\n"
     fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix="trace.", suffix=".tmp")
     try:

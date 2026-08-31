@@ -182,3 +182,63 @@ def test_holder_mode_tracks_write_lock(tmp_path: Path) -> None:
     with ReadLock(tmp_path):
         assert holder_mode() == "read"
     assert holder_mode() is None
+
+
+def test_trace_writer_compaction_mutual_exclusion(tmp_path: Path) -> None:
+    """Concurrent compaction (whole-file replace) and append must not tear (F619)."""
+    from shenbi.trace.compaction import compact
+    from shenbi.trace.writer import TraceWriter
+
+    w = TraceWriter(tmp_path)
+    for i in range(5):
+        w.append(actor="seed", actor_role="GATE", action="TEST", target="t", payload={"i": i})
+    barrier = threading.Barrier(2)
+
+    def do_compact() -> None:
+        barrier.wait(timeout=10)
+        compact(tmp_path, snapshot={})
+
+    def do_append() -> None:
+        barrier.wait(timeout=10)
+        w.append(actor="a", actor_role="GATE", action="TEST", target="t", payload={"i": 99})
+
+    t1 = threading.Thread(target=do_compact)
+    t2 = threading.Thread(target=do_append)
+    t1.start()
+    t2.start()
+    t1.join(timeout=25)
+    t2.join(timeout=25)
+    lines = [
+        ln
+        for ln in (tmp_path / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        if ln.strip()
+    ]
+    for ln in lines:
+        json.loads(ln)  # no torn/garbled line survives
+
+
+def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
+    """Concurrent record_audit_outcome keeps the chain verifiable (F531/F536, spec AC4)."""
+    from shenbi.audit._shared import AuditResult
+    from shenbi.audit.record import record_audit_outcome
+    from shenbi.trace.replay import replay
+
+    barrier = threading.Barrier(4)
+
+    def write_one(i: int) -> None:
+        barrier.wait(timeout=10)
+        record_audit_outcome(
+            tmp_path,
+            f"skill-{i}",
+            AuditResult(skill=f"skill-{i}", violations=(), drift=(), checked_files=("a.md",)),
+        )
+
+    threads = [threading.Thread(target=write_one, args=(i,)) for i in range(4)]
+    for t in threads:
+        t.start()
+    for t in threads:
+        t.join(timeout=25)
+    events = replay(tmp_path)
+    seqs = [e.seq for e in events]
+    assert len(seqs) == len(set(seqs))  # no duplicate seq
+    assert len(events) == 4
