@@ -90,6 +90,7 @@ Introduce a new G4 sub-gate `G4.cd.title` that runs post-planning (when the titl
 ```python
 # g4/chapter_drafting.py -- new check
 
+
 def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str]:
     """G4.cd.title: Validate chapter title quality.
 
@@ -102,20 +103,28 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
     issues = []
 
     # HARD FAIL: Chapter number in title
-    if re.search(r'第\d+章', title):
-        issues.append("G4.cd.title:contains_chapter_number -- "
-                       "title must not include chapter number (SKILL.md:125)")
+    if re.search(r"第\d+章", title):
+        issues.append(
+            "G4.cd.title:contains_chapter_number -- "
+            "title must not include chapter number (SKILL.md:125)"
+        )
 
     # HARD FAIL: Duplicate title
     if title in previous_titles:
-        issues.append(f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- "
-                       f"title '{title}' already used")
+        issues.append(
+            f"G4.cd.title:duplicate_of_ch{previous_titles[title]} -- title '{title}' already used"
+        )
 
     # WARN: Day-of-week or date label
-    if re.search(r'(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|'
-                  r'周[一二三四五六日])', title):
-        issues.append("G4.cd.title:day_label_instead_of_thematic_name -- "
-                       "prefer thematic 1-4 character name over date label")
+    if re.search(
+        r"(Monday|Tuesday|Wednesday|Thursday|Friday|Saturday|Sunday|"
+        r"周[一二三四五六日])",
+        title,
+    ):
+        issues.append(
+            "G4.cd.title:day_label_instead_of_thematic_name -- "
+            "prefer thematic 1-4 character name over date label"
+        )
 
     return issues
 ```
@@ -137,24 +146,27 @@ Introduce `G4.cd.hook_fulfillment` that validates the chapter plan's hook ledger
 ```python
 # g4/chapter_drafting.py -- new check
 
+
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
     Extracts hook IDs from plan Section 7 (Hook Ledger) and searches
     for their presence in the chapter prose.
     """
-    plan_text = plan_path.read_text(encoding='utf-8')
-    chapter_text = chapter_path.read_text(encoding='utf-8')
+    plan_text = plan_path.read_text(encoding="utf-8")
+    chapter_text = chapter_path.read_text(encoding="utf-8")
 
     # Extract hook IDs from plan Section 7
-    plan_hooks = set(re.findall(r'MH-\d+', plan_text))
+    plan_hooks = set(re.findall(r"MH-\d+", plan_text))
     # Extract hook IDs from chapter body
-    chapter_hooks = set(re.findall(r'MH-\d+', chapter_text))
+    chapter_hooks = set(re.findall(r"MH-\d+", chapter_text))
 
     missing = plan_hooks - chapter_hooks
     if missing:
-        return [f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
-                f"but none found in chapter body"]
+        return [
+            f"G4.cd.hook_unfulfilled: plan requires hooks {sorted(missing)} "
+            f"but none found in chapter body"
+        ]
     return []
 ```
 
@@ -206,9 +218,7 @@ signals = check_escalation(
 )
 if not signals:
     # Generate deterministic summary instead of templated LLM report
-    _generate_deterministic_review_summary(
-        state.project_dir, state.chapter_loop.current_chapter
-    )
+    _generate_deterministic_review_summary(state.project_dir, state.chapter_loop.current_chapter)
     # Skip the escalation-review LLM dispatch
 else:
     dispatch_escalation(project_dir, chapter, context=...)
@@ -223,11 +233,11 @@ def _generate_deterministic_review_summary(project_dir: Path, chapter: int) -> N
     Only creates the summary file when escalation signals are absent.
     When escalation IS triggered, the LLM-based escalation-review handles it.
     """
-    audit_dir = project_dir / 'audits'
+    audit_dir = project_dir / "audits"
     results = {}
 
     for audit_type in ALL_AUDIT_TYPES:
-        audit_file = audit_dir / f'chapter-{chapter}-{audit_type}.md'
+        audit_file = audit_dir / f"chapter-{chapter}-{audit_type}.md"
         if audit_file.exists():
             # Parse the audit verdict from the file
             verdict = _parse_audit_verdict(audit_file)
@@ -238,7 +248,7 @@ def _generate_deterministic_review_summary(project_dir: Path, chapter: int) -> N
         return
 
     # Render summary from parsed results
-    summary_path = audit_dir / f'chapter-{chapter}-review-summary.md'
+    summary_path = audit_dir / f"chapter-{chapter}-review-summary.md"
     summary = _render_summary_template(chapter, results)
     safe_write(summary_path, summary)
 ```
@@ -255,6 +265,7 @@ Split the review checklist into two layers:
 ```python
 # review_checklist.py -- refactored generation
 
+
 def build_review_checklist(project_dir: Path, chapter: int) -> dict:
     """Build the full review checklist by merging static template with
     per-chapter dynamic deltas.
@@ -264,25 +275,16 @@ def build_review_checklist(project_dir: Path, chapter: int) -> dict:
 
     # Build dynamic deltas from current chapter state
     dynamic = {
-        'hook_deliverables': _extract_hook_deliverables(
-            project_dir, chapter
-        ),
-        'ai_blacklist_additions': _scan_recent_fatigue_patterns(
-            project_dir, chapter
-        ),
-        'transition_budget': _compute_transition_budget(
-            project_dir, chapter
-        ),
+        "hook_deliverables": _extract_hook_deliverables(project_dir, chapter),
+        "ai_blacklist_additions": _scan_recent_fatigue_patterns(project_dir, chapter),
+        "transition_budget": _compute_transition_budget(project_dir, chapter),
     }
 
     # Merge: dynamic overrides/extend static
     merged = dict(static)
-    merged['hook_deliverables'] = dynamic['hook_deliverables']
-    merged['ai_blacklist'] = (
-        static.get('ai_blacklist', []) +
-        dynamic['ai_blacklist_additions']
-    )
-    merged['transition_budget'] = dynamic['transition_budget']
+    merged["hook_deliverables"] = dynamic["hook_deliverables"]
+    merged["ai_blacklist"] = static.get("ai_blacklist", []) + dynamic["ai_blacklist_additions"]
+    merged["transition_budget"] = dynamic["transition_budget"]
 
     return merged
 ```
@@ -300,27 +302,26 @@ def _extract_hook_deliverables(project_dir: Path, chapter: int) -> list[dict]:
     Parses the plan's hook ledger table to identify hooks that this
     chapter must advance, resolve, or reference.
     """
-    plan_path = project_dir / 'plans' / f'chapter-{chapter}-plan.md'
+    plan_path = project_dir / "plans" / f"chapter-{chapter}-plan.md"
     if not plan_path.exists():
         return []
 
-    plan_text = plan_path.read_text(encoding='utf-8')
+    plan_text = plan_path.read_text(encoding="utf-8")
 
     deliverables = []
     # Parse the hook ledger table (typically a markdown table in Section 7)
     # Format: | Hook ID | Operation | Description |
-    for match in re.finditer(
-        r'\|\s*(MH-\d+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|',
-        plan_text
-    ):
+    for match in re.finditer(r"\|\s*(MH-\d+)\s*\|\s*(\w+)\s*\|\s*(.+?)\s*\|", plan_text):
         hook_id = match.group(1)
         operation = match.group(2)
         description = match.group(3).strip()
-        deliverables.append({
-            'hook_id': hook_id,
-            'operation': operation,
-            'description': description,
-        })
+        deliverables.append(
+            {
+                "hook_id": hook_id,
+                "operation": operation,
+                "description": description,
+            }
+        )
 
     return deliverables
 ```

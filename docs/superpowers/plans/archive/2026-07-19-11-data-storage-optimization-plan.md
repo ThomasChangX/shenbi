@@ -44,6 +44,7 @@ from shenbi.gates.gate_manifest import (
     GATE_MANIFEST_FILENAME,
 )
 
+
 def test_record_and_retrieve_gate_result():
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
@@ -77,9 +78,15 @@ def test_record_and_retrieve_gate_result():
 def test_manifest_structure_is_hierarchical():
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
-        record_gate_result(manifest_dir, "genesis", 0, "shenbi-worldbuilding", "G2", {"passed": True})
-        record_gate_result(manifest_dir, "chapter_loop", 1, "shenbi-chapter-drafting", "G4", {"passed": True})
-        record_gate_result(manifest_dir, "chapter_loop", 2, "shenbi-chapter-drafting", "G4", {"passed": False})
+        record_gate_result(
+            manifest_dir, "genesis", 0, "shenbi-worldbuilding", "G2", {"passed": True}
+        )
+        record_gate_result(
+            manifest_dir, "chapter_loop", 1, "shenbi-chapter-drafting", "G4", {"passed": True}
+        )
+        record_gate_result(
+            manifest_dir, "chapter_loop", 2, "shenbi-chapter-drafting", "G4", {"passed": False}
+        )
 
         manifest_file = manifest_dir / GATE_MANIFEST_FILENAME
         assert manifest_file.exists()
@@ -102,6 +109,7 @@ def test_concurrent_manifest_writes_do_not_lose_results():
     """The read-modify-write is NOT atomic; concurrent writers must be serialized
     by a per-path threading.Lock so no results are lost. See Spec §3.1.1."""
     import threading
+
     with tempfile.TemporaryDirectory() as tmp:
         manifest_dir = Path(tmp)
         n_writers = 10
@@ -185,6 +193,7 @@ def _load_gate_manifest(manifest_dir: Path) -> dict:
 def _save_gate_manifest(manifest_dir: Path, data: dict) -> None:
     """Atomically save the manifest using safe_write."""
     from shenbi.safe_write import safe_write
+
     manifest_file = manifest_dir / GATE_MANIFEST_FILENAME
     manifest_dir.mkdir(parents=True, exist_ok=True)
     safe_write(manifest_file, json.dumps(data, indent=2, ensure_ascii=False))
@@ -215,6 +224,7 @@ def record_gate_result(
 
         # Record timestamped entry
         import datetime
+
         entry = {
             "timestamp": datetime.datetime.utcnow().isoformat() + "Z",
             "gate": gate,
@@ -288,6 +298,7 @@ from shenbi.pipeline.snapshot_diff import (
     hash_file,
 )
 
+
 def test_differential_snapshot_stores_hashes_not_content():
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
@@ -322,7 +333,12 @@ def test_recent_chapter_snapshot_stores_full_content_ring_buffer():
         project_dir = Path(tmp)
         chapter_dir = project_dir / "chapters"
         chapter_dir.mkdir(parents=True)
-        chapters_text = {1: "第一章内容" * 50, 2: "第二章内容" * 50, 3: "第三章内容" * 50, 4: "第四章内容" * 50}
+        chapters_text = {
+            1: "第一章内容" * 50,
+            2: "第二章内容" * 50,
+            3: "第三章内容" * 50,
+            4: "第四章内容" * 50,
+        }
         for ch, text in chapters_text.items():
             (chapter_dir / f"chapter-{ch:03d}.md").write_text(text, encoding="utf-8")
 
@@ -334,13 +350,19 @@ def test_recent_chapter_snapshot_stores_full_content_ring_buffer():
             create_differential_snapshot(project_dir, ch, snapshot_base / f"chapter-{ch:03d}")
 
         # Chapter 2,3,4 are recent (within N=3 of latest=4) -> full content stored
-        snap_2 = json.loads((snapshot_base / "chapter-002" / "snapshot-manifest.json").read_text(encoding="utf-8"))
+        snap_2 = json.loads(
+            (snapshot_base / "chapter-002" / "snapshot-manifest.json").read_text(encoding="utf-8")
+        )
         ch2_entry = next(f for f in snap_2["files"] if "chapter-002" in f["path"])
-        assert "content" in ch2_entry, "Recent chapter (within ring buffer N=3) must store full content"
+        assert "content" in ch2_entry, (
+            "Recent chapter (within ring buffer N=3) must store full content"
+        )
         assert ch2_entry["content"] == chapters_text[2]
 
         # Chapter 1 is outside the ring buffer (1 < 4-2=2) -> hash-only, no content
-        snap_1 = json.loads((snapshot_base / "chapter-001" / "snapshot-manifest.json").read_text(encoding="utf-8"))
+        snap_1 = json.loads(
+            (snapshot_base / "chapter-001" / "snapshot-manifest.json").read_text(encoding="utf-8")
+        )
         ch1_entry = next(f for f in snap_1["files"] if "chapter-001" in f["path"])
         assert "content" not in ch1_entry, "Older snapshot (outside ring buffer) must be hash-only"
         assert "sha256" in ch1_entry
@@ -351,7 +373,9 @@ def test_snapshot_restores_truth_files():
         project_dir = Path(tmp)
         for sub in ["chapters", "truth"]:
             (project_dir / sub).mkdir(parents=True)
-        (project_dir / "chapters" / "chapter-001.md").write_text("chapter content", encoding="utf-8")
+        (project_dir / "chapters" / "chapter-001.md").write_text(
+            "chapter content", encoding="utf-8"
+        )
         truth_file = project_dir / "truth" / "current_state.md"
         original_truth = "主角状态：活跃"
         truth_file.write_text(original_truth, encoding="utf-8")
@@ -425,9 +449,17 @@ log = structlog.get_logger()
 RING_BUFFER_N = 3
 
 # Files that need full content backup (mutable truth files)
-TRUTH_FILES = {"current_state.md", "character_matrix.md", "current_focus.md",
-               "resonance_trend.md", "audit_drift.md", "emotional_arcs.md",
-               "chapter_summaries.md", "pending_hooks.md", "world_rules.md"}
+TRUTH_FILES = {
+    "current_state.md",
+    "character_matrix.md",
+    "current_focus.md",
+    "resonance_trend.md",
+    "audit_drift.md",
+    "emotional_arcs.md",
+    "chapter_summaries.md",
+    "pending_hooks.md",
+    "world_rules.md",
+}
 
 # Files only tracked by hash (immutable once written)
 HASH_ONLY_DIRS = {"chapters", "audits", "plans"}
@@ -513,10 +545,13 @@ def create_differential_snapshot(project_dir: Path, chapter: int, snapshot_dir: 
 
     manifest_file = snapshot_dir / "snapshot-manifest.json"
     manifest_file.write_text(json.dumps(manifest, indent=2, ensure_ascii=False), encoding="utf-8")
-    log.info("differential_snapshot_created", chapter=chapter,
-             file_count=len(manifest["files"]),
-             truth_count=len(manifest["truth_snapshot"]),
-             ring_buffer_full=include_full)
+    log.info(
+        "differential_snapshot_created",
+        chapter=chapter,
+        file_count=len(manifest["files"]),
+        truth_count=len(manifest["truth_snapshot"]),
+        ring_buffer_full=include_full,
+    )
 
 
 def restore_from_snapshot(project_dir: Path, chapter: int, snapshot_dir: Path) -> bool:
@@ -572,8 +607,12 @@ def restore_from_snapshot(project_dir: Path, chapter: int, snapshot_dir: Path) -
     if mismatches:
         log.warning("snapshot_hash_mismatches", chapter=chapter, files=mismatches)
 
-    log.info("snapshot_restored", chapter=chapter,
-             mismatches=len(mismatches), full_content_restored=restored_full)
+    log.info(
+        "snapshot_restored",
+        chapter=chapter,
+        mismatches=len(mismatches),
+        full_content_restored=restored_full,
+    )
     return True
 ```
 
@@ -619,6 +658,7 @@ from shenbi.pipeline.review_checklist import (
     get_checklist,
 )
 
+
 def test_get_checklist_merges_template_and_delta():
     with tempfile.TemporaryDirectory() as tmp:
         project_dir = Path(tmp)
@@ -633,7 +673,8 @@ def test_get_checklist_merges_template_and_delta():
             "sensitivity_flags": 0,
         }
         (context_dir / "review-checklist-template.json").write_text(
-            json.dumps(template, ensure_ascii=False), encoding="utf-8")
+            json.dumps(template, ensure_ascii=False), encoding="utf-8"
+        )
 
         delta = {
             "chapter": 5,
@@ -642,7 +683,8 @@ def test_get_checklist_merges_template_and_delta():
             "hook_deliverables": ["MH-001-advance"],
         }
         (context_dir / "review-checklist-chapter-005.json").write_text(
-            json.dumps(delta, ensure_ascii=False), encoding="utf-8")
+            json.dumps(delta, ensure_ascii=False), encoding="utf-8"
+        )
 
         merged = get_checklist(project_dir, 5)
         assert merged["ai_blacklist"] == ["avoid_word_1"]
@@ -682,10 +724,21 @@ import structlog
 
 log = structlog.get_logger()
 
-STATIC_FIELDS = {"ai_blacklist", "fatigue_warnings", "voice_constraints",
-                 "pov_mode", "world_rules_brief", "sensitivity_flags"}
-DYNAMIC_FIELDS = {"chapter", "transition_budget", "ending_constraints",
-                  "hook_deliverables", "fatigue_warnings_dynamic"}
+STATIC_FIELDS = {
+    "ai_blacklist",
+    "fatigue_warnings",
+    "voice_constraints",
+    "pov_mode",
+    "world_rules_brief",
+    "sensitivity_flags",
+}
+DYNAMIC_FIELDS = {
+    "chapter",
+    "transition_budget",
+    "ending_constraints",
+    "hook_deliverables",
+    "fatigue_warnings_dynamic",
+}
 
 
 def generate_static_template(project_dir: Path) -> dict:

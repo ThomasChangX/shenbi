@@ -62,7 +62,7 @@
 
 ```python
 # 检查章节正文是否包含主角名或主角相关代词
-protagonist_names = ['林烽', '他']  # 从 protagonist.md 读取
+protagonist_names = ["林烽", "他"]  # 从 protagonist.md 读取
 text = extract_prose(chapter_path)
 name_count = sum(text.count(n) for n in protagonist_names)
 if name_count < 3:

@@ -38,6 +38,7 @@
 
 ```python
 """Spec #28: lint_contract_fields multi-sample any-match semantics."""
+
 from __future__ import annotations
 
 import importlib.util
@@ -151,33 +152,31 @@ def resolve_samples(path: str) -> list[Path]:
 `_check_read_item` 中 `sample = resolve_sample(path)` 起的校验块整体替换为（any-match 聚合式：某字段在**全部**样本均无命中才 FAIL）：
 
 ```python
-    samples = resolve_samples(path)
-    if not samples:
-        return None  # no representative sample -> not a drift
-    declared = [f for f in fields if isinstance(f, str)]
-    miss_count: dict[str, int] = {}
-    sample_count = 0
-    for sample in samples:
-        actual = _extract_actual(path, sample)
-        if actual is None:
-            continue
-        sample_count += 1
-        for f in declared:
-            if _field_unmatched(f, actual):
-                miss_count[f] = miss_count.get(f, 0) + 1
-    issue = None
-    if sample_count:
-        truly_missing = sorted(f for f, n in miss_count.items() if n == sample_count)
-        if truly_missing:
-            rels = ", ".join(
-                str(s.relative_to(REPO_ROOT) if s.is_relative_to(REPO_ROOT) else s)
-                for s in samples[:3]
-            )
-            issue = (
-                f"{skill_name}: {path} declares fields {truly_missing} "
-                f"not found in any sample ({rels})"
-            )
-    return issue
+samples = resolve_samples(path)
+if not samples:
+    return None  # no representative sample -> not a drift
+declared = [f for f in fields if isinstance(f, str)]
+miss_count: dict[str, int] = {}
+sample_count = 0
+for sample in samples:
+    actual = _extract_actual(path, sample)
+    if actual is None:
+        continue
+    sample_count += 1
+    for f in declared:
+        if _field_unmatched(f, actual):
+            miss_count[f] = miss_count.get(f, 0) + 1
+issue = None
+if sample_count:
+    truly_missing = sorted(f for f, n in miss_count.items() if n == sample_count)
+    if truly_missing:
+        rels = ", ".join(
+            str(s.relative_to(REPO_ROOT) if s.is_relative_to(REPO_ROOT) else s) for s in samples[:3]
+        )
+        issue = (
+            f"{skill_name}: {path} declares fields {truly_missing} not found in any sample ({rels})"
+        )
+return issue
 ```
 
 `EXAMPLE_FIXTURES` 的 volume_map 条目替换：
@@ -245,13 +244,12 @@ def test_production_current_state_declared_fields_hit_no_escape_hatch(monkeypatc
     tree copy — non-empty output, no escape-hatch WARN (spy on structlog)."""
     from shenbi.contracts import fields as fields_mod
 
-    prod = (
-        Path(__file__).resolve().parents[2] / "fixtures" / "truth-current_state-xinghuo.md"
-    )
+    prod = Path(__file__).resolve().parents[2] / "fixtures" / "truth-current_state-xinghuo.md"
     text = prod.read_text(encoding="utf-8")
     warns: list[str] = []
     monkeypatch.setattr(
-        fields_mod.log, "warning",
+        fields_mod.log,
+        "warning",
         lambda event, **kw: warns.append(event),
         raising=True,
     )

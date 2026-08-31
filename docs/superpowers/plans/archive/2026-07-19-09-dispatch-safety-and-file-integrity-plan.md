@@ -41,6 +41,7 @@
 
 ```python
 """Tests for pre-revision backup safety."""
+
 import tempfile
 from pathlib import Path
 
@@ -141,14 +142,12 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
     """
     chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
     if not chapter_path.exists():
-        log.debug("pre_rev_backup_skip", chapter=chapter,
-                  reason="chapter file does not exist")
+        log.debug("pre_rev_backup_skip", chapter=chapter, reason="chapter file does not exist")
         return
 
     backup_path = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
     _shutil.copy2(chapter_path, backup_path)
-    log.info("pre_revision_backup_created", chapter=chapter,
-             size=chapter_path.stat().st_size)
+    log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
 ```
 
 Then integrate into `_route_revision_after_resonance` (around line 1021). At the top of the function, before any revision dispatch logic:
@@ -204,7 +203,8 @@ def test_content_guard_blocks_tiny_overwrite():
 
         # New content is 100 bytes — only 1.25% of original
         should_block, reason = _check_content_size_guard(
-            project_dir, "chapters/chapter-5.md", "x" * 100)
+            project_dir, "chapters/chapter-5.md", "x" * 100
+        )
 
         assert should_block is True
         assert "content_too_small" in reason.lower()
@@ -222,7 +222,8 @@ def test_content_guard_allows_legitimate_rewrite():
 
         # New content is 6000 bytes — 75% of original
         should_block, reason = _check_content_size_guard(
-            project_dir, "chapters/chapter-5.md", "x" * 6000)
+            project_dir, "chapters/chapter-5.md", "x" * 6000
+        )
 
         assert should_block is False
 
@@ -233,7 +234,8 @@ def test_content_guard_allows_new_files():
         project_dir = Path(tmp)
 
         should_block, reason = _check_content_size_guard(
-            project_dir, "chapters/chapter-55.md", "x" * 8000)
+            project_dir, "chapters/chapter-55.md", "x" * 8000
+        )
 
         assert should_block is False
 
@@ -249,7 +251,8 @@ def test_content_guard_skips_non_chapter_md():
         existing.write_text("a" * 8000)
 
         should_block, reason = _check_content_size_guard(
-            project_dir, "truth/current_state.md", "short")
+            project_dir, "truth/current_state.md", "short"
+        )
 
         assert should_block is False
 
@@ -265,7 +268,8 @@ def test_content_guard_skips_pre_rev_files():
         existing.write_text("a" * 8000)
 
         should_block, reason = _check_content_size_guard(
-            project_dir, "chapters/chapter-5-pre-rev.md", "short")
+            project_dir, "chapters/chapter-5-pre-rev.md", "short"
+        )
 
         assert should_block is False
 ```
@@ -383,6 +387,7 @@ git commit -m "feat: add content-size guard to prevent revision metadata overwri
 
 ```python
 """Tests for staging cleanup in auto-commit paths."""
+
 import tempfile
 from pathlib import Path
 
@@ -470,6 +475,7 @@ In `src/shenbi/pipeline/chapter_loop.py`, in `_advance` function. Find the auto-
 # To:
 if step.uses_staging and not requires_checkpoint:
     from shenbi.pipeline.checkpoint import commit_staging, clear_staging
+
     commit_staging(project_dir, [target])
     clear_staging(project_dir)  # Fix: clean staging after auto-commit
 ```
@@ -646,6 +652,7 @@ git commit -m "feat: add defensive residual staging cleanup at pipeline resume"
 
 ```python
 """Tests for snapshot coverage and emergency handler."""
+
 import signal
 import tempfile
 from pathlib import Path
@@ -660,20 +667,17 @@ from shenbi.pipeline.chapter_loop import (
 
 def test_starting_snapshot_triggers_at_ch1_step0():
     """Starting snapshot triggers at chapter 1, step index 0."""
-    assert _should_generate_starting_snapshot(
-        current_chapter=1, step_index=0) is True
+    assert _should_generate_starting_snapshot(current_chapter=1, step_index=0) is True
 
 
 def test_starting_snapshot_does_not_trigger_at_ch2():
     """No starting snapshot at chapter 2."""
-    assert _should_generate_starting_snapshot(
-        current_chapter=2, step_index=0) is False
+    assert _should_generate_starting_snapshot(current_chapter=2, step_index=0) is False
 
 
 def test_starting_snapshot_does_not_trigger_at_ch1_step1():
     """No starting snapshot mid-chapter."""
-    assert _should_generate_starting_snapshot(
-        current_chapter=1, step_index=5) is False
+    assert _should_generate_starting_snapshot(current_chapter=1, step_index=5) is False
 
 
 def test_starting_snapshot_triggers_at_ch2_when_ch1_missing():
@@ -684,9 +688,12 @@ def test_starting_snapshot_triggers_at_ch2_when_ch1_missing():
         snapshots_dir.mkdir(parents=True)
         # No chapter-1 snapshot exists
 
-        assert _should_generate_starting_snapshot(
-            current_chapter=2, step_index=0,
-            project_dir=project_dir) is True
+        assert (
+            _should_generate_starting_snapshot(
+                current_chapter=2, step_index=0, project_dir=project_dir
+            )
+            is True
+        )
 
 
 def test_starting_snapshot_skips_when_ch1_snapshot_exists():
@@ -698,9 +705,12 @@ def test_starting_snapshot_skips_when_ch1_snapshot_exists():
         # Create a chapter-1 snapshot marker
         (snapshots_dir / "chapter-1-snapshot.md").write_text("# snapshot")
 
-        assert _should_generate_starting_snapshot(
-            current_chapter=2, step_index=0,
-            project_dir=project_dir) is False
+        assert (
+            _should_generate_starting_snapshot(
+                current_chapter=2, step_index=0, project_dir=project_dir
+            )
+            is False
+        )
 
 
 def test_emergency_snapshot_registered():
@@ -721,6 +731,7 @@ def test_emergency_checkpoint_tracks_latest_chapter():
         _update_emergency_checkpoint(project_dir, chapter=56)
 
         import shenbi.pipeline.chapter_loop as cl
+
         assert cl._emergency_snapshot_chapter == 56
         assert cl._emergency_snapshot_project_dir == project_dir
 
@@ -1034,7 +1045,7 @@ def _has_minimum_chinese_chars(text: str, threshold: int = 500) -> bool:
     Returns:
         True if the text has >= ``threshold`` Chinese characters.
     """
-    count = sum(1 for c in text if '\u4e00' <= c <= '\u9fff')
+    count = sum(1 for c in text if "\u4e00" <= c <= "\u9fff")
     return count >= threshold
 ```
 
@@ -1051,8 +1062,11 @@ chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
 if chapter_path.exists():
     text = chapter_path.read_text(encoding="utf-8")
     if not _has_minimum_chinese_chars(text):
-        log.warning("snapshot_suspect_content", chapter=chapter,
-                    chinese_chars=sum(1 for c in text if '\u4e00' <= c <= '\u9fff'))
+        log.warning(
+            "snapshot_suspect_content",
+            chapter=chapter,
+            chinese_chars=sum(1 for c in text if "\u4e00" <= c <= "\u9fff"),
+        )
         # Still save snapshot, but mark as suspect
 ```
 
@@ -1109,6 +1123,7 @@ def test_lockfile_has_correct_permissions():
 def test_lockfile_permissions_are_set():
     """Verify os.chmod is called correctly on lockfile creation."""
     import stat
+
     with tempfile.TemporaryDirectory() as tmp:
         lockfile = Path(tmp) / "test.lock"
         # Create lockfile like _acquire_lock does
@@ -1264,7 +1279,7 @@ def _check_adjacent_budget(project_dir: Path, chapter: int) -> list[str]:
     curr_budget = curr_data.get("budget", {})
 
     if prev_budget and curr_budget and prev_budget == curr_budget:
-        return [f"G4.dec.budget_unchanged: chapters {chapter-1}-{chapter}"]
+        return [f"G4.dec.budget_unchanged: chapters {chapter - 1}-{chapter}"]
 
     return []
 ```

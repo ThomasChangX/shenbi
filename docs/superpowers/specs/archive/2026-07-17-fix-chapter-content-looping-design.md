@@ -37,7 +37,7 @@ def check_window_redundancy(chapter_texts, window_size=4, threshold=0.35):
     window = chapter_texts[-window_size:]
     max_sim = 0
     for i in range(len(window)):
-        for j in range(i+1, len(window)):
+        for j in range(i + 1, len(window)):
             sim = SequenceMatcher(None, window[i], window[j]).ratio()
             max_sim = max(max_sim, sim)
 

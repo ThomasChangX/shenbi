@@ -111,8 +111,9 @@ Ch 13: 230 字 (+17.9%) ← 连续 3 章同向 + > 20% = warning
 n-gram 计算可用简单 Python 脚本：
 ```python
 def ngrams(text, n=6):
-    text = ''.join(c for c in text if c.isalnum())
-    return [text[i:i+n] for i in range(len(text) - n + 1)]
+    text = "".join(c for c in text if c.isalnum())
+    return [text[i : i + n] for i in range(len(text) - n + 1)]
+
 
 def repetition_rate(current, historical):
     cur_set = set(ngrams(current))

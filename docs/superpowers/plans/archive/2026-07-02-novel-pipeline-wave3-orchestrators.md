@@ -28,7 +28,14 @@ from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
-from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill, run_gate_g4, run_gate_g3, requires_independent
+from shenbi.pipeline.dispatch_helper import (
+    DispatchResult,
+    dispatch_skill,
+    run_gate_g4,
+    run_gate_g3,
+    requires_independent,
+)
+
 
 class TestDispatchSkill:
     @patch("shenbi.pipeline.dispatch_helper.subprocess.run")
@@ -43,9 +50,11 @@ class TestDispatchSkill:
         result = dispatch_skill("shenbi-worldbuilding", tmp_path, "Build world")
         assert result.success is False
 
+
 class TestRequiresIndependent:
     def test_resonance_is_independent(self):
         assert requires_independent("shenbi-review-resonance") is True
+
     def test_worldbuilding_not_independent(self):
         assert requires_independent("shenbi-worldbuilding") is False
 ```
@@ -55,13 +64,16 @@ class TestRequiresIndependent:
 ```python
 # src/shenbi/pipeline/dispatch_helper.py
 """Dispatch + gate helpers. Reuses existing dispatch_with_write_audit for write-overreach detection."""
+
 from __future__ import annotations
 import json, subprocess, sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 from shenbi.logging import get_logger
+
 log = get_logger(__name__)
+
 
 @dataclass
 class DispatchResult:
@@ -70,23 +82,32 @@ class DispatchResult:
     stdout: str
     stderr: str
 
+
 def requires_independent(skill: str) -> bool:
     """Check if skill requires independent agent (G3 enforcement)."""
     from shenbi.contracts.legacy import requires_independent_agent
+
     try:
         return requires_independent_agent(skill)
     except Exception:
         return False
 
-def dispatch_skill(skill: str, project_dir: Path | str, prompt: str,
-                  test_type: str = "generative", round_dir: Path | str | None = None,
-                  timeout: int = 900) -> DispatchResult:
+
+def dispatch_skill(
+    skill: str,
+    project_dir: Path | str,
+    prompt: str,
+    test_type: str = "generative",
+    round_dir: Path | str | None = None,
+    timeout: int = 900,
+) -> DispatchResult:
     """Dispatch via shenbi-dispatch (which runs G1+G2 internally + write audit)."""
     rd = str(round_dir) if round_dir else str(project_dir)
     cmd = [sys.executable, "-m", "shenbi.dispatcher.cli", skill, test_type, rd, prompt]
     log.info("dispatch_start", skill=skill)
     r = subprocess.run(cmd, capture_output=True, text=True, timeout=timeout)
     return DispatchResult(r.returncode == 0, r.returncode, r.stdout, r.stderr)
+
 
 def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[str, Any]:
     """Run G4 after dispatch (pipeline adds G4 on top of dispatcher's G1+G2)."""
@@ -96,6 +117,7 @@ def run_gate_g4(skill: str, files: list[str], project_dir: Path | str) -> dict[s
         return json.loads(r.stdout)
     except (json.JSONDecodeError, ValueError):
         return {"status": "FAIL", "error": r.stderr}
+
 
 def run_gate_g3(skill: str, round_dir: Path | str) -> dict[str, Any]:
     """Run G3 independence check.
@@ -142,20 +164,26 @@ from shenbi.pipeline.genesis import GENESIS_STEPS, GenesisStep, run_genesis_step
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.state import GenesisState, PipelineState
 
+
 class TestGenesisSteps:
     def test_step_count(self):
         assert len(GENESIS_STEPS) == 17
+
     def test_story_arch_before_faction(self):
-        sa = next(i for i,s in enumerate(GENESIS_STEPS) if "story-architecture" in s.skill)
-        fb = next(i for i,s in enumerate(GENESIS_STEPS) if "faction-builder" in s.skill)
+        sa = next(i for i, s in enumerate(GENESIS_STEPS) if "story-architecture" in s.skill)
+        fb = next(i for i, s in enumerate(GENESIS_STEPS) if "faction-builder" in s.skill)
         assert sa < fb
+
     def test_foreshadowing_plant_genesis_mode(self):
         fp = next(s for s in GENESIS_STEPS if "foreshadowing-plant" in s.skill)
         assert fp.mode == "genesis"
+
     def test_foundation_review_last(self):
         assert "foundation-review" in GENESIS_STEPS[-1].skill
+
     def test_foundation_review_path(self):
         assert "foundation/review_report.md" in GENESIS_STEPS[-1].output_path
+
 
 class TestRunGenesisStep:
     @patch("shenbi.pipeline.genesis.dispatch_skill")
@@ -186,14 +214,23 @@ class TestRunGenesisStep:
 ```python
 # src/shenbi/pipeline/genesis.py
 """Genesis orchestrator: 17 steps, G4 after each, conditional index update."""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from shenbi.logging import get_logger
-from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill, run_gate_g4, requires_independent, run_gate_g3
+from shenbi.pipeline.dispatch_helper import (
+    DispatchResult,
+    dispatch_skill,
+    run_gate_g4,
+    requires_independent,
+    run_gate_g3,
+)
 from shenbi.pipeline.state import CheckpointType, GenesisState, PipelineState
 from shenbi.pipeline.machine import set_checkpoint
+
 log = get_logger(__name__)
+
 
 @dataclass
 class GenesisStep:
@@ -203,35 +240,53 @@ class GenesisStep:
     output_path: str = ""
     optional: bool = False
 
+
 GENESIS_STEPS: list[GenesisStep] = [
     GenesisStep(1, "shenbi-worldbuilding", output_path="world/story_bible.md"),
     GenesisStep(2, "shenbi-genre-config", output_path="genre-config.json"),
-    GenesisStep(3, "shenbi-character-design", mode="genesis", output_path="characters/protagonist.md"),
+    GenesisStep(
+        3, "shenbi-character-design", mode="genesis", output_path="characters/protagonist.md"
+    ),
     GenesisStep(4, "shenbi-story-architecture", output_path="outline/story_frame.md"),
     GenesisStep(5, "shenbi-faction-builder", output_path="world/factions.md"),
     GenesisStep(6, "shenbi-volume-outlining", output_path="outline/volume_map.md"),
     GenesisStep(7, "shenbi-pacing-design", output_path="outline/rhythm_principles.md"),
     GenesisStep(8, "shenbi-plot-thread-weaver", output_path="outline/thread_map.md"),
-    GenesisStep(9, "shenbi-foreshadowing-plant", mode="genesis", output_path="truth/pending_hooks.md"),
+    GenesisStep(
+        9, "shenbi-foreshadowing-plant", mode="genesis", output_path="truth/pending_hooks.md"
+    ),
     GenesisStep(10, "shenbi-power-system", output_path="world/power_system.md"),
     GenesisStep(11, "shenbi-location-builder", output_path="world/locations.md"),
     GenesisStep(12, "shenbi-relationship-map", output_path="characters/relationships.md"),
     GenesisStep(13, "shenbi-book-spine-init", output_path="truth/book_spine.md"),
     GenesisStep(14, "shenbi-intent-management", output_path="truth/author_intent.md"),
     GenesisStep(15, "shenbi-style-learning", output_path="style/style_profile.md"),
-    GenesisStep(16, "shenbi-anchor-curate", output_path="benchmarks/anchors/AC-001.md", optional=True),
+    GenesisStep(
+        16, "shenbi-anchor-curate", output_path="benchmarks/anchors/AC-001.md", optional=True
+    ),
     GenesisStep(17, "shenbi-foundation-review", output_path="foundation/review_report.md"),
 ]
 
 # Skills whose writes include truth/chapter/style/outline/characters/world files
 # (gate truth-index/embed updates on this — spec §3.2 step 4)
 _INDEX_UPDATE_SKILLS = {
-    "shenbi-worldbuilding", "shenbi-character-design", "shenbi-faction-builder",
-    "shenbi-story-architecture", "shenbi-volume-outlining", "shenbi-pacing-design",
-    "shenbi-plot-thread-weaver", "shenbi-foreshadowing-plant", "shenbi-power-system",
-    "shenbi-location-builder", "shenbi-relationship-map", "shenbi-book-spine-init",
-    "shenbi-intent-management", "shenbi-style-learning", "shenbi-anchor-curate",
+    "shenbi-worldbuilding",
+    "shenbi-character-design",
+    "shenbi-faction-builder",
+    "shenbi-story-architecture",
+    "shenbi-volume-outlining",
+    "shenbi-pacing-design",
+    "shenbi-plot-thread-weaver",
+    "shenbi-foreshadowing-plant",
+    "shenbi-power-system",
+    "shenbi-location-builder",
+    "shenbi-relationship-map",
+    "shenbi-book-spine-init",
+    "shenbi-intent-management",
+    "shenbi-style-learning",
+    "shenbi-anchor-curate",
 }
+
 
 def _update_indexes(project_dir: Path, skill: str) -> None:
     """Conditionally update truth-index and truth-embed after skill execution."""
@@ -239,12 +294,14 @@ def _update_indexes(project_dir: Path, skill: str) -> None:
         return
     try:
         from shenbi.pipeline.truth_index import build_index
+
         idx = build_index(project_dir)
         # Write index to project_dir/truth-index.json
         (project_dir / "truth-index.json").write_text(idx.to_json(), encoding="utf-8")
         log.info("truth_index_updated", skill=skill)
     except Exception as e:
         log.warning("truth_index_update_failed", skill=skill, error=str(e))
+
 
 def run_genesis_step(state: PipelineState, project_dir: Path) -> bool:
     """Execute next genesis step. Returns True if checkpoint reached or all done."""
@@ -263,6 +320,7 @@ def run_genesis_step(state: PipelineState, project_dir: Path) -> bool:
     if not result.success:
         log.error("genesis_dispatch_failed", step=step.step_num, skill=step.skill)
         from shenbi.pipeline.error_handler import handle_dispatch_failure
+
         retry_counts = state.genesis.retry_counts.get(step.skill, 0) + 1
         state.genesis.retry_counts[step.skill] = retry_counts
         if handle_dispatch_failure(state, step.skill, retry_counts):
@@ -271,8 +329,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path) -> bool:
             # Max retries exceeded -> escalation
             from shenbi.pipeline.machine import set_checkpoint
             from shenbi.pipeline.state import CheckpointType
-            set_checkpoint(state, CheckpointType.ESCALATION,
-                          context=f"Genesis step {step.step_num} ({step.skill}) failed after {retry_counts} attempts")
+
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                context=f"Genesis step {step.step_num} ({step.skill}) failed after {retry_counts} attempts",
+            )
             return True  # checkpoint reached
     # G4 validation
     g4 = run_gate_g4(step.skill, [step.output_path], project_dir)
@@ -293,9 +355,12 @@ def run_genesis_step(state: PipelineState, project_dir: Path) -> bool:
     # Check if all steps done
     if state.genesis.current_step >= len(GENESIS_STEPS):
         state.genesis.state = GenesisState.CHECKPOINT_PENDING
-        set_checkpoint(state, CheckpointType.GENESIS_COMPLETE,
-                       artifact="foundation/review_report.md",
-                       context="Review all genesis outputs before entering chapter loop.")
+        set_checkpoint(
+            state,
+            CheckpointType.GENESIS_COMPLETE,
+            artifact="foundation/review_report.md",
+            context="Review all genesis outputs before entering chapter loop.",
+        )
         return True
     return False
 ```
@@ -328,22 +393,27 @@ from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, ChapterStep, run_chapter
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.state import PipelineState, CheckpointType
 
+
 class TestChapterSteps:
     def test_foreshadowing_plant_after_planning(self):
-        cp = next(i for i,s in enumerate(CHAPTER_STEPS) if "chapter-planning" in s.skill)
-        fp = next(i for i,s in enumerate(CHAPTER_STEPS) if "foreshadowing-plant" in s.skill)
+        cp = next(i for i, s in enumerate(CHAPTER_STEPS) if "chapter-planning" in s.skill)
+        fp = next(i for i, s in enumerate(CHAPTER_STEPS) if "foreshadowing-plant" in s.skill)
         assert cp < fp
+
     def test_state_settling_before_track(self):
-        ss = next(i for i,s in enumerate(CHAPTER_STEPS) if "state-settling" in s.skill)
-        ft = next(i for i,s in enumerate(CHAPTER_STEPS) if "foreshadowing-track" in s.skill)
+        ss = next(i for i, s in enumerate(CHAPTER_STEPS) if "state-settling" in s.skill)
+        ft = next(i for i, s in enumerate(CHAPTER_STEPS) if "foreshadowing-track" in s.skill)
         assert ss < ft
+
     def test_context_assembly_before_drafting(self):
-        ca = next(i for i,s in enumerate(CHAPTER_STEPS) if "context-assemble" in s.skill)
-        cd = next(i for i,s in enumerate(CHAPTER_STEPS) if "chapter-drafting" in s.skill)
+        ca = next(i for i, s in enumerate(CHAPTER_STEPS) if "context-assemble" in s.skill)
+        cd = next(i for i, s in enumerate(CHAPTER_STEPS) if "chapter-drafting" in s.skill)
         assert ca < cd
+
     def test_audit_skills_present(self):
         audit_skills = [s.skill for s in CHAPTER_STEPS if "review-" in s.skill]
         assert len(audit_skills) >= 7  # at least core circle
+
 
 class TestRunChapterStep:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
@@ -362,14 +432,23 @@ class TestRunChapterStep:
 ```python
 # src/shenbi/pipeline/chapter_loop.py
 """Chapter loop orchestrator with full step sequence, staging, context assembly, G4."""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from shenbi.logging import get_logger
-from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill, run_gate_g4, requires_independent, run_gate_g3
+from shenbi.pipeline.dispatch_helper import (
+    DispatchResult,
+    dispatch_skill,
+    run_gate_g4,
+    requires_independent,
+    run_gate_g3,
+)
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import CheckpointType, PipelineState
+
 log = get_logger(__name__)
+
 
 @dataclass
 class ChapterStep:
@@ -382,35 +461,113 @@ class ChapterStep:
     is_audit: bool = False
     output_path: str = ""  # G4 validates this file after dispatch (must be non-empty)
 
+
 # Full 13-step + sub-steps from spec §6.1
 CHAPTER_STEPS: list[ChapterStep] = [
-    ChapterStep(1, "shenbi-intent-management", "intent-management", output_path="truth/current_focus.md"),
-    ChapterStep(2, "shenbi-chapter-planning", "chapter-planning", checkpoint=CheckpointType.CHAPTER_MEMO, uses_staging=True, output_path="plans/chapter-N-plan.md"),
-    ChapterStep(3, "shenbi-foreshadowing-plant", "foreshadowing-plant", output_path="truth/pending_hooks.md"),
+    ChapterStep(
+        1, "shenbi-intent-management", "intent-management", output_path="truth/current_focus.md"
+    ),
+    ChapterStep(
+        2,
+        "shenbi-chapter-planning",
+        "chapter-planning",
+        checkpoint=CheckpointType.CHAPTER_MEMO,
+        uses_staging=True,
+        output_path="plans/chapter-N-plan.md",
+    ),
+    ChapterStep(
+        3, "shenbi-foreshadowing-plant", "foreshadowing-plant", output_path="truth/pending_hooks.md"
+    ),
     ChapterStep(4, "pipeline-context-assemble", "context-assembly", calls_context_assembly=True),
     ChapterStep(5, "shenbi-context-composing", "context-composing", output_path=""),
-    ChapterStep(6, "shenbi-chapter-drafting", "chapter-drafting", output_path="chapters/chapter-N.md"),
-    ChapterStep(7, "shenbi-state-settling", "state-settling", checkpoint=CheckpointType.STATE_SETTLE, uses_staging=True, output_path=""),
-    ChapterStep(8, "shenbi-foreshadowing-track", "foreshadowing-track", output_path="truth/pending_hooks.md"),
-    ChapterStep(9, "shenbi-foreshadowing-recall", "foreshadowing-recall", output_path="truth/foreshadowing_recall_result.md"),
+    ChapterStep(
+        6, "shenbi-chapter-drafting", "chapter-drafting", output_path="chapters/chapter-N.md"
+    ),
+    ChapterStep(
+        7,
+        "shenbi-state-settling",
+        "state-settling",
+        checkpoint=CheckpointType.STATE_SETTLE,
+        uses_staging=True,
+        output_path="",
+    ),
+    ChapterStep(
+        8, "shenbi-foreshadowing-track", "foreshadowing-track", output_path="truth/pending_hooks.md"
+    ),
+    ChapterStep(
+        9,
+        "shenbi-foreshadowing-recall",
+        "foreshadowing-recall",
+        output_path="truth/foreshadowing_recall_result.md",
+    ),
     # foreshadowing-resolve is conditional — handled in run_chapter_step logic
     # Audit layer: core circle (7 skills, serial, BLOCKING stops)
-    ChapterStep(10, "shenbi-review-anti-ai", "audit:anti-ai", is_audit=True, output_path="audits/chapter-N-anti-ai.md"),
-    ChapterStep(11, "shenbi-review-continuity", "audit:continuity", is_audit=True, output_path="audits/chapter-N-continuity.md"),
-    ChapterStep(12, "shenbi-review-character", "audit:character", is_audit=True, output_path="audits/chapter-N-character.md"),
-    ChapterStep(13, "shenbi-review-pacing", "audit:pacing", is_audit=True, output_path="audits/chapter-N-pacing.md"),
-    ChapterStep(14, "shenbi-review-foreshadowing", "audit:foreshadowing", is_audit=True, output_path="audits/chapter-N-foreshadowing.md"),
-    ChapterStep(15, "shenbi-review-memo-compliance", "audit:memo-compliance", is_audit=True, output_path="audits/chapter-N-memo-compliance.md"),
-    ChapterStep(16, "shenbi-review-pov", "audit:pov", is_audit=True, output_path="audits/chapter-N-pov.md"),
+    ChapterStep(
+        10,
+        "shenbi-review-anti-ai",
+        "audit:anti-ai",
+        is_audit=True,
+        output_path="audits/chapter-N-anti-ai.md",
+    ),
+    ChapterStep(
+        11,
+        "shenbi-review-continuity",
+        "audit:continuity",
+        is_audit=True,
+        output_path="audits/chapter-N-continuity.md",
+    ),
+    ChapterStep(
+        12,
+        "shenbi-review-character",
+        "audit:character",
+        is_audit=True,
+        output_path="audits/chapter-N-character.md",
+    ),
+    ChapterStep(
+        13,
+        "shenbi-review-pacing",
+        "audit:pacing",
+        is_audit=True,
+        output_path="audits/chapter-N-pacing.md",
+    ),
+    ChapterStep(
+        14,
+        "shenbi-review-foreshadowing",
+        "audit:foreshadowing",
+        is_audit=True,
+        output_path="audits/chapter-N-foreshadowing.md",
+    ),
+    ChapterStep(
+        15,
+        "shenbi-review-memo-compliance",
+        "audit:memo-compliance",
+        is_audit=True,
+        output_path="audits/chapter-N-memo-compliance.md",
+    ),
+    ChapterStep(
+        16, "shenbi-review-pov", "audit:pov", is_audit=True, output_path="audits/chapter-N-pov.md"
+    ),
     # Genre circle handled dynamically by audit_sub_orchestrator (spec §6.2)
     # review-resonance (independent agent, G3 required)
-    ChapterStep(17, "shenbi-review-resonance", "review-resonance", output_path="audits/chapter-N-resonance.md"),
+    ChapterStep(
+        17,
+        "shenbi-review-resonance",
+        "review-resonance",
+        output_path="audits/chapter-N-resonance.md",
+    ),
     # Revision routing (conditional)
-    ChapterStep(18, "shenbi-chapter-revision", "revision (conditional)", output_path="chapters/chapter-N.md"),
+    ChapterStep(
+        18, "shenbi-chapter-revision", "revision (conditional)", output_path="chapters/chapter-N.md"
+    ),
     # Snapshot + drift + escalation
-    ChapterStep(19, "shenbi-snapshot-manage", "snapshot-manage", output_path="snapshots/chapter-NNN/"),
-    ChapterStep(20, "shenbi-drift-guidance", "drift-guidance", output_path="truth/drift_guidance.md"),
+    ChapterStep(
+        19, "shenbi-snapshot-manage", "snapshot-manage", output_path="snapshots/chapter-NNN/"
+    ),
+    ChapterStep(
+        20, "shenbi-drift-guidance", "drift-guidance", output_path="truth/drift_guidance.md"
+    ),
 ]
+
 
 def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     """Execute next chapter step. Returns True if checkpoint reached."""
@@ -428,6 +585,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     if step.calls_context_assembly:
         try:
             from shenbi.pipeline.context_assemble import assemble_context, write_context_file
+
             pkg = assemble_context(project_dir, f"plans/chapter-{chapter}-plan.md")
             write_context_file(project_dir, chapter, pkg)
         except Exception as e:
@@ -437,15 +595,20 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     prompt = f"Execute {step.skill} for chapter {chapter}. Project dir: {project_dir}"
     if step.uses_staging:
         from shenbi.pipeline.checkpoint import staging_path
+
         prompt += f". Write output to staging/ directory."
 
     # Skip dispatch for orchestrator modules (not dispatchable skills)
     if step.skill.startswith("pipeline-"):
         state.chapter_loop.step_index = step_idx + 1
         if step.checkpoint is not None:
-            set_checkpoint(state, step.checkpoint, chapter=chapter,
-                          artifact=f"chapter-{chapter}/{step.name}",
-                          context=f"Review {step.name} for chapter {chapter}")
+            set_checkpoint(
+                state,
+                step.checkpoint,
+                chapter=chapter,
+                artifact=f"chapter-{chapter}/{step.name}",
+                context=f"Review {step.name} for chapter {chapter}",
+            )
             return True
         if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
             state.chapter_loop.current_chapter += 1
@@ -457,6 +620,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     if not result.success:
         log.error("chapter_step_failed", chapter=chapter, step=step.step_num)
         from shenbi.pipeline.error_handler import handle_dispatch_failure
+
         retry_key = f"ch{chapter}-{step.skill}"
         retry_counts = state.chapter_loop.retry_counts.get(retry_key, 0) + 1
         state.chapter_loop.retry_counts[retry_key] = retry_counts
@@ -465,13 +629,19 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         else:
             from shenbi.pipeline.machine import set_checkpoint
             from shenbi.pipeline.state import CheckpointType
-            set_checkpoint(state, CheckpointType.ESCALATION, chapter=chapter,
-                          context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {retry_counts} attempts")
+
+            set_checkpoint(
+                state,
+                CheckpointType.ESCALATION,
+                chapter=chapter,
+                context=f"Chapter {chapter} step {step.step_num} ({step.skill}) failed after {retry_counts} attempts",
+            )
             return True
 
     # G4 validation — for staging steps, validate the staging copy
     if step.uses_staging:
         from shenbi.pipeline.checkpoint import staging_path
+
         g4_file = str(staging_path(project_dir, step.output_path)) if step.output_path else ""
     else:
         g4_file = step.output_path if hasattr(step, "output_path") and step.output_path else ""
@@ -496,6 +666,7 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
         # All core-circle audits done -> run genre/boundary
         from shenbi.pipeline.audit_layer import run_audit_layer
         import json
+
         gc_path = project_dir / "genre-config.json"
         gc = json.loads(gc_path.read_text()) if gc_path.exists() else {}
         audit_result = run_audit_layer(project_dir, chapter, gc)
@@ -506,8 +677,10 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
     # Revision routing after all audits + resonance
     if "review-resonance" in step.skill:
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+
         # Parse ALL audit reports for this chapter to build revision diagnosis
         import glob as _glob
+
         audit_files = _glob.glob(str(project_dir / "audits" / f"chapter-{chapter}-*.md"))
         issues = []
         blocking = False
@@ -515,28 +688,50 @@ def run_chapter_step(state: PipelineState, project_dir: Path) -> bool:
             audit_text = Path(af).read_text(encoding="utf-8")
             if "BLOCKING" in audit_text:
                 blocking = True
-                issues.append({"category": "unmet_goal", "severity": "BLOCKING",
-                              "evidence": af, "id": Path(af).stem})
+                issues.append(
+                    {
+                        "category": "unmet_goal",
+                        "severity": "BLOCKING",
+                        "evidence": af,
+                        "id": Path(af).stem,
+                    }
+                )
             elif "CRITICAL" in audit_text:
-                issues.append({"category": "craft", "severity": "CRITICAL",
-                              "evidence": af, "id": Path(af).stem})
+                issues.append(
+                    {
+                        "category": "craft",
+                        "severity": "CRITICAL",
+                        "evidence": af,
+                        "id": Path(af).stem,
+                    }
+                )
         route = route_chapter_revision(issues=issues, blocking=blocking)
         if route != RevisionRoute.NO_REVISION:
-            log.info("revision_routed", chapter=chapter, route=route.value,
-                    issues=len(issues), blocking=blocking)
+            log.info(
+                "revision_routed",
+                chapter=chapter,
+                route=route.value,
+                issues=len(issues),
+                blocking=blocking,
+            )
     # Advance
     state.chapter_loop.step_index = step_idx + 1
     # Checkpoint
     if step.checkpoint is not None:
-        set_checkpoint(state, step.checkpoint, chapter=chapter,
-                       artifact=f"chapter-{chapter}/{step.name}",
-                       context=f"Review {step.name} for chapter {chapter}")
+        set_checkpoint(
+            state,
+            step.checkpoint,
+            chapter=chapter,
+            artifact=f"chapter-{chapter}/{step.name}",
+            context=f"Review {step.name} for chapter {chapter}",
+        )
         return True
     # Chapter complete?
     if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
         state.chapter_loop.current_chapter += 1
         state.chapter_loop.step_index = 0
     return False
+
 
 def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Check if foreshadowing-resolve should run (TRIGGERED hooks detected).
@@ -545,6 +740,7 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
     dispatches foreshadowing-resolve to handle them (spec §6.1 step 7b).
     """
     import yaml
+
     hooks_file = project_dir / "truth" / "pending_hooks.md"
     if not hooks_file.exists():
         return
@@ -555,11 +751,16 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
             fm = yaml.safe_load(parts[1]) or {}
             hooks = fm.get("hooks", [])
             if isinstance(hooks, list):
-                triggered = [h for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"]
+                triggered = [
+                    h for h in hooks if isinstance(h, dict) and h.get("state") == "TRIGGERED"
+                ]
                 if triggered:
                     log.info("conditional_resolve_triggered", chapter=chapter, count=len(triggered))
-                    dispatch_skill("shenbi-foreshadowing-resolve", project_dir,
-                                  f"Resolve {len(triggered)} TRIGGERED hooks for chapter {chapter}.")
+                    dispatch_skill(
+                        "shenbi-foreshadowing-resolve",
+                        project_dir,
+                        f"Resolve {len(triggered)} TRIGGERED hooks for chapter {chapter}.",
+                    )
                 else:
                     log.info("no_triggered_hooks", chapter=chapter)
 ```
@@ -588,21 +789,32 @@ git commit -m "feat: add chapter loop with staging+context+G4+audit core circle 
 # tests/unit/pipeline/test_audit_layer.py
 from __future__ import annotations
 import pytest
-from shenbi.pipeline.audit_layer import GENRE_ACTIVATION_MATRIX, BOUNDARY_TRIGGERS, run_audit_layer, AuditResult
+from shenbi.pipeline.audit_layer import (
+    GENRE_ACTIVATION_MATRIX,
+    BOUNDARY_TRIGGERS,
+    run_audit_layer,
+    AuditResult,
+)
+
 
 class TestActivationMatrix:
     def test_era_maps_to_review_era(self):
         assert GENRE_ACTIVATION_MATRIX["era"] == "shenbi-review-era"
+
     def test_sensitivity_maps(self):
         assert GENRE_ACTIVATION_MATRIX["sensitivity"] == "shenbi-review-sensitivity"
+
     def test_all_9_genre_skills_mapped(self):
         assert len(GENRE_ACTIVATION_MATRIX) == 9
+
 
 class TestBoundaryTriggers:
     def test_long_span_24(self):
         assert BOUNDARY_TRIGGERS["review-long-span"](24) is True
+
     def test_long_span_23(self):
         assert BOUNDARY_TRIGGERS["review-long-span"](23) is False
+
     def test_chapter_pattern_6(self):
         assert BOUNDARY_TRIGGERS["chapter-pattern"](6) is True
 ```
@@ -615,10 +827,12 @@ class TestBoundaryTriggers:
 
 Spec §6.2.
 """
+
 from __future__ import annotations
 from dataclasses import dataclass, field
 from pathlib import Path
 from shenbi.logging import get_logger
+
 log = get_logger(__name__)
 
 # Genre-circle: dimension key -> review skill (spec §6.2 activation matrix)
@@ -642,12 +856,14 @@ BOUNDARY_TRIGGERS: dict[str, object] = {
     "shenbi-chapter-pattern": lambda ch: ch % 6 == 0,
 }
 
+
 @dataclass
 class AuditResult:
     blocking_found: bool = False
     critical_found: bool = False
     audit_reports: list[str] = field(default_factory=list)
     issues: list[dict[str, object]] = field(default_factory=list)
+
 
 def get_active_genre_audits(genre_config: dict[str, object]) -> list[str]:
     """Determine which genre-circle audits to run based on genre-config.json."""
@@ -659,11 +875,15 @@ def get_active_genre_audits(genre_config: dict[str, object]) -> list[str]:
                 active.append(skill)
     return active
 
+
 def get_active_boundary_audits(chapter: int) -> list[str]:
     """Determine which boundary-circle audits to run."""
     return [skill for skill, trigger in BOUNDARY_TRIGGERS.items() if trigger(chapter)]
 
-def run_audit_layer(project_dir: Path, chapter: int, genre_config: dict[str, object]) -> AuditResult:
+
+def run_audit_layer(
+    project_dir: Path, chapter: int, genre_config: dict[str, object]
+) -> AuditResult:
     """Run genre + boundary audits after core circle passes. Returns aggregated result."""
     result = AuditResult()
     genre_active = get_active_genre_audits(genre_config)
@@ -672,12 +892,18 @@ def run_audit_layer(project_dir: Path, chapter: int, genre_config: dict[str, obj
     for skill in all_active:
         log.info("audit_dispatch", skill=skill, chapter=chapter)
         from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
-        disp_result = dispatch_skill(skill, project_dir,
-                                     f"Execute {skill} audit for chapter {chapter}.")
+
+        disp_result = dispatch_skill(
+            skill, project_dir, f"Execute {skill} audit for chapter {chapter}."
+        )
         if disp_result.success:
             result.audit_reports.append(f"audits/chapter-{chapter}-{skill}.md")
             # Check for BLOCKING in audit output
-            audit_file = project_dir / "audits" / f"chapter-{chapter}-{skill.replace('shenbi-review-','')}.md"
+            audit_file = (
+                project_dir
+                / "audits"
+                / f"chapter-{chapter}-{skill.replace('shenbi-review-', '')}.md"
+            )
             if audit_file.exists():
                 content = audit_file.read_text(encoding="utf-8")
                 if "BLOCKING" in content:
@@ -711,20 +937,29 @@ from __future__ import annotations
 import pytest
 from shenbi.pipeline.revision_router import RevisionRoute, route_chapter_revision, SPECIALIST_SKILLS
 
+
 class TestSpecialistSkills:
     def test_polishing_mapped(self):
         assert SPECIALIST_SKILLS["craft_expression"] == "shenbi-style-polishing"
+
     def test_anti_detect_mapped(self):
         assert SPECIALIST_SKILLS["ai_tell"] == "shenbi-anti-detect"
+
     def test_length_mapped(self):
         assert SPECIALIST_SKILLS["word_count"] == "shenbi-length-normalizing"
 
+
 class TestRouteChapterRevision:
     def test_craft_only_routes_to_spot_fix(self):
-        route = route_chapter_revision(issues=[{"category":"craft","severity":"CRITICAL"}], blocking=False)
+        route = route_chapter_revision(
+            issues=[{"category": "craft", "severity": "CRITICAL"}], blocking=False
+        )
         assert route == RevisionRoute.SPOT_FIX
+
     def test_blocking_routes_to_regenerate(self):
-        route = route_chapter_revision(issues=[{"category":"unmet_goal","severity":"BLOCKING"}], blocking=True)
+        route = route_chapter_revision(
+            issues=[{"category": "unmet_goal", "severity": "BLOCKING"}], blocking=True
+        )
         assert route == RevisionRoute.REGENERATE
 ```
 
@@ -737,15 +972,18 @@ class TestRouteChapterRevision:
 Spec §6.3. Wraps shenbi.skill_utils.revision_routing.route.route_revision
 and adds specialist skill delegation.
 """
+
 from __future__ import annotations
 from enum import StrEnum
 from typing import Any
+
 
 class RevisionRoute(StrEnum):
     SPOT_FIX = "spot-fix"
     REGENERATE = "regenerate"
     CONSTRAINED_REGENERATE = "constrained-regenerate"
     NO_REVISION = "no-revision"
+
 
 # Specialist skill delegation (spec §6.3 chapter-revision 委派边界)
 SPECIALIST_SKILLS: dict[str, str] = {
@@ -754,11 +992,13 @@ SPECIALIST_SKILLS: dict[str, str] = {
     "word_count": "shenbi-length-normalizing",
 }
 
+
 def route_chapter_revision(issues: list[dict[str, Any]], blocking: bool) -> RevisionRoute:
     """Route revision based on audit issues. Reuses existing route_revision logic."""
     if not issues:
         return RevisionRoute.NO_REVISION
     from shenbi.skill_utils.revision_routing.route import route_revision, RevisionMode
+
     diagnosis = {"issues": issues}
     mode = route_revision(diagnosis)
     if mode == RevisionMode.SPOT_FIX:
@@ -793,17 +1033,21 @@ Critical fixes: triggers cover ALL spec §6.4 cases (L2/L4/volume/style/score/ex
 from shenbi.pipeline.triggers import check_triggers, TriggerResult
 from shenbi.pipeline.state import PipelineState
 
+
 def test_ch12_l2():
     r = check_triggers(PipelineState.default("/x"), chapter=12, total_chapters=67)
     assert r.l2_distill and r.style_learning
+
 
 def test_ch36_l4():
     r = check_triggers(PipelineState.default("/x"), chapter=36, total_chapters=67)
     assert r.l4_distill
 
+
 def test_last_chapter_closure():
     r = check_triggers(PipelineState.default("/x"), chapter=67, total_chapters=67)
     assert r.book_closure
+
 
 def test_ch12_not_l4():
     r = check_triggers(PipelineState.default("/x"), chapter=12, total_chapters=67)
@@ -815,8 +1059,11 @@ def test_ch12_not_l4():
 from shenbi.pipeline.closure import CLOSURE_STEPS, run_closure_step
 from shenbi.pipeline.state import PipelineState, ClosureState
 
+
 def test_step_count():
     assert len(CLOSURE_STEPS) == 10
+
+
 def test_foreshadowing_resolve_first():
     assert "foreshadowing-resolve" in CLOSURE_STEPS[0].skill
 ```
@@ -826,9 +1073,11 @@ def test_foreshadowing_resolve_first():
 ```python
 # src/shenbi/pipeline/triggers.py
 """Complete trigger system. Spec §6.4."""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from shenbi.pipeline.state import PipelineState
+
 
 @dataclass
 class TriggerResult:
@@ -841,12 +1090,16 @@ class TriggerResult:
     score_stratum: bool = False
     score_volume: bool = False
 
+
 def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> TriggerResult:
     r = TriggerResult()
     if chapter % 12 == 0:
-        r.l2_distill = True; r.style_learning = True; r.score_arc = True
+        r.l2_distill = True
+        r.style_learning = True
+        r.score_arc = True
     if chapter % 36 == 0:
-        r.l4_distill = True; r.score_stratum = True
+        r.l4_distill = True
+        r.score_stratum = True
     # Volume boundary detection would read volume_map; simplified here
     if chapter >= total_chapters:
         r.book_closure = True
@@ -856,6 +1109,7 @@ def check_triggers(state: PipelineState, chapter: int, total_chapters: int) -> T
 ```python
 # src/shenbi/pipeline/closure.py
 """Closure orchestrator with runner. Spec §8."""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
@@ -863,11 +1117,16 @@ from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4
 from shenbi.pipeline.state import CheckpointType, ClosureState, PipelineState
 from shenbi.pipeline.machine import set_checkpoint
+
 log = get_logger(__name__)
+
 
 @dataclass
 class ClosureStep:
-    step_num: int; skill: str; output_path: str = ""
+    step_num: int
+    skill: str
+    output_path: str = ""
+
 
 CLOSURE_STEPS: list[ClosureStep] = [
     ClosureStep(1, "shenbi-foreshadowing-resolve", "truth/pending_hooks.md"),
@@ -882,13 +1141,18 @@ CLOSURE_STEPS: list[ClosureStep] = [
     ClosureStep(10, "shenbi-snapshot-manage", "final-snapshot/"),
 ]
 
+
 def run_closure_step(state: PipelineState, project_dir: Path) -> bool:
     """Execute next closure step."""
     idx = state.closure_step
     if idx >= len(CLOSURE_STEPS):
         state.closure = ClosureState.CHECKPOINT_PENDING
-        set_checkpoint(state, CheckpointType.BOOK_CLOSURE, artifact="final-snapshot/",
-                       context="Review final book before completion.")
+        set_checkpoint(
+            state,
+            CheckpointType.BOOK_CLOSURE,
+            artifact="final-snapshot/",
+            context="Review final book before completion.",
+        )
         return True
     step = CLOSURE_STEPS[idx]
     result = dispatch_skill(step.skill, project_dir, f"Execute {step.skill} for book closure.")
@@ -931,6 +1195,7 @@ git commit -m "feat: add complete triggers + closure runner (wave3b task6)"
 from shenbi.pipeline.state import PipelineState, PipelinePhase, GenesisState
 from shenbi.pipeline.transitions import *
 
+
 def test_genesis_to_chapter_loop():
     state = PipelineState.default("/x")
     state.genesis.state = GenesisState.CHECKPOINT_PENDING
@@ -938,17 +1203,20 @@ def test_genesis_to_chapter_loop():
     assert state.phase == PipelinePhase.CHAPTER_LOOP
     assert state.chapter_loop.current_chapter == 1
 
+
 def test_chapter_to_closure():
     state = PipelineState.default("/x")
     state.phase = PipelinePhase.CHAPTER_LOOP
     transition_chapter_to_closure(state)
     assert state.phase == PipelinePhase.CLOSURE
 
+
 def test_closure_to_completed():
     state = PipelineState.default("/x")
     state.phase = PipelinePhase.CLOSURE
     transition_closure_to_completed(state)
     assert state.phase == PipelinePhase.COMPLETED
+
 
 def test_to_failed():
     state = PipelineState.default("/x")
@@ -961,8 +1229,10 @@ def test_to_failed():
 ```python
 # src/shenbi/pipeline/transitions.py
 """Phase transitions. Spec §3.1 state transition table."""
+
 from __future__ import annotations
 from shenbi.pipeline.state import ClosureState, GenesisState, PipelinePhase, PipelineState
+
 
 def transition_genesis_to_chapter_loop(state: PipelineState) -> None:
     state.phase = PipelinePhase.CHAPTER_LOOP
@@ -970,13 +1240,16 @@ def transition_genesis_to_chapter_loop(state: PipelineState) -> None:
     state.chapter_loop.current_chapter = 1
     state.chapter_loop.step_index = 0
 
+
 def transition_chapter_to_closure(state: PipelineState) -> None:
     state.phase = PipelinePhase.CLOSURE
     state.closure = ClosureState.IN_PROGRESS
 
+
 def transition_closure_to_completed(state: PipelineState) -> None:
     state.phase = PipelinePhase.COMPLETED
     state.closure = ClosureState.COMPLETED
+
 
 def transition_to_failed(state: PipelineState, reason: str) -> None:
     state.phase = PipelinePhase.FAILED
@@ -1005,9 +1278,11 @@ git commit -m "feat: add phase transition logic (wave3c task7)"
 from shenbi.pipeline.state import PipelineState
 from shenbi.pipeline.error_handler import handle_dispatch_failure
 
+
 def test_first_failure_allows_retry():
     state = PipelineState.default("/x")
     assert handle_dispatch_failure(state, "shenbi-worldbuilding", 1) is True  # retry
+
 
 def test_third_failure_escalates():
     state = PipelineState.default("/x")
@@ -1019,14 +1294,17 @@ def test_third_failure_escalates():
 ```python
 # src/shenbi/pipeline/error_handler.py
 """Error handling and retry logic. Spec §11."""
+
 from __future__ import annotations
 from shenbi.logging import get_logger
 from shenbi.pipeline.state import PipelineState
+
 log = get_logger(__name__)
 
 MAX_DISPATCH_RETRIES = 2  # 3 total attempts (1 + 2 retries)
 MAX_AUDIT_RETRIES = 3
 MAX_REVISION_RETRIES = 3
+
 
 def handle_dispatch_failure(state: PipelineState, skill: str, attempt: int) -> bool:
     """Returns True if retry should happen, False if escalation needed."""
@@ -1036,11 +1314,13 @@ def handle_dispatch_failure(state: PipelineState, skill: str, attempt: int) -> b
     log.error("dispatch_escalation", skill=skill, attempts=attempt)
     return False
 
+
 def handle_audit_blocking(state: PipelineState, chapter: int, revision_count: int) -> bool:
     """Returns True if revision should retry, False if escalation."""
     if revision_count < MAX_REVISION_RETRIES:
         return True
     return False
+
 
 def handle_scoring_failure(state: PipelineState, exit_code: int) -> bool:
     """Returns True if retry should happen (exit 2/3), False if give up."""
@@ -1076,6 +1356,7 @@ class TestNextCommandLoop:
     @patch("shenbi.pipeline.genesis.run_gate_g4")
     def test_next_loops_to_checkpoint(self, mock_g4, mock_disp, tmp_path, sample_seed_content):
         from shenbi.pipeline.cli import main
+
         seed = tmp_path / "seed.md"
         seed.write_text(sample_seed_content)
         project = tmp_path / "novel"
@@ -1102,8 +1383,13 @@ def cmd_next(args: argparse.Namespace) -> int:
         emit_json({"status": "error", "message": "project not found"})
         return 1
     if is_at_checkpoint(state):
-        emit_json({"status": "blocked", "message": "pending checkpoint requires review",
-                      "checkpoint": state.pending_checkpoint.type.value})
+        emit_json(
+            {
+                "status": "blocked",
+                "message": "pending checkpoint requires review",
+                "checkpoint": state.pending_checkpoint.type.value,
+            }
+        )
         return 1
     from shenbi.pipeline.genesis import run_genesis_step
     from shenbi.pipeline.chapter_loop import run_chapter_step
@@ -1119,6 +1405,7 @@ def cmd_next(args: argparse.Namespace) -> int:
             # Check closure trigger BEFORE running next step (after a chapter completes)
             if state.chapter_loop.step_index == 0 and state.chapter_loop.current_chapter > 1:
                 import json
+
                 novel_path = project_dir / "novel.json"
                 if novel_path.exists():
                     total = json.loads(novel_path.read_text()).get("total_chapters", 0)
@@ -1131,10 +1418,13 @@ def cmd_next(args: argparse.Namespace) -> int:
             if checkpoint_reached and state.chapter_loop.step_index == 0:
                 # Chapter just completed — check if triggers should fire
                 import json as _json
+
                 _novel_path = project_dir / "novel.json"
                 if _novel_path.exists():
                     _total = _json.loads(_novel_path.read_text()).get("total_chapters", 0)
-                    _triggers = check_triggers(state, state.chapter_loop.current_chapter - 1, _total)
+                    _triggers = check_triggers(
+                        state, state.chapter_loop.current_chapter - 1, _total
+                    )
                     # Note: triggers return what SHOULD fire; actual dispatch of
                     # memory-distill/score-arc/etc. happens in a trigger execution
                     # step that would be added to CHAPTER_STEPS or run inline here.
@@ -1142,33 +1432,54 @@ def cmd_next(args: argparse.Namespace) -> int:
                     _ch = state.chapter_loop.current_chapter - 1
                     if _triggers.l2_distill:
                         log.info("trigger_fired", trigger="L2_distill", chapter=_ch)
-                        dispatch_skill("shenbi-memory-distill", project_dir,
-                                      f"Run L2 arc distill for chapters ending at {_ch}.")
+                        dispatch_skill(
+                            "shenbi-memory-distill",
+                            project_dir,
+                            f"Run L2 arc distill for chapters ending at {_ch}.",
+                        )
                         if _triggers.score_arc:
-                            dispatch_skill("shenbi-score-arc", project_dir,
-                                          f"Score arc ending at chapter {_ch}.")
+                            dispatch_skill(
+                                "shenbi-score-arc",
+                                project_dir,
+                                f"Score arc ending at chapter {_ch}.",
+                            )
                     if _triggers.l4_distill:
                         log.info("trigger_fired", trigger="L4_distill")
-                        dispatch_skill("shenbi-memory-distill", project_dir,
-                                      f"Run L4 stratum distill for chapters ending at {_ch}.")
+                        dispatch_skill(
+                            "shenbi-memory-distill",
+                            project_dir,
+                            f"Run L4 stratum distill for chapters ending at {_ch}.",
+                        )
                         if _triggers.score_stratum:
-                            dispatch_skill("shenbi-score-stratum", project_dir,
-                                          f"Score stratum ending at chapter {_ch}.")
+                            dispatch_skill(
+                                "shenbi-score-stratum",
+                                project_dir,
+                                f"Score stratum ending at chapter {_ch}.",
+                            )
                     if _triggers.style_learning:
                         log.info("trigger_fired", trigger="style_learning")
-                        dispatch_skill("shenbi-style-learning", project_dir,
-                                      f"Update style profile from recent chapters.")
+                        dispatch_skill(
+                            "shenbi-style-learning",
+                            project_dir,
+                            f"Update style profile from recent chapters.",
+                        )
         elif state.phase.value == "closure":
             checkpoint_reached = run_closure_step(state, project_dir)
         else:
             break  # completed or failed
     save_state(project_dir, state)
     if is_at_checkpoint(state):
-        emit_json({"status": "checkpoint", "type": state.pending_checkpoint.type.value,
-                      "artifact": state.pending_checkpoint.artifact})
+        emit_json(
+            {
+                "status": "checkpoint",
+                "type": state.pending_checkpoint.type.value,
+                "artifact": state.pending_checkpoint.artifact,
+            }
+        )
     else:
         emit_json({"status": "ok", "phase": state.phase.value})
     return 0
+
 
 # Also fix cmd_review to handle staging commit on approve:
 def cmd_review(args: argparse.Namespace) -> int:
@@ -1177,13 +1488,16 @@ def cmd_review(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
     except FileNotFoundError:
-        emit_json({"status": "error", "message": "project not found"}); return 1
+        emit_json({"status": "error", "message": "project not found"})
+        return 1
     if not is_at_checkpoint(state):
-        emit_json({"status": "error", "message": "no pending checkpoint"}); return 1
+        emit_json({"status": "error", "message": "no pending checkpoint"})
+        return 1
     decision = ReviewDecision(args.decision)
     # Staging commit on approve
     if decision == ReviewDecision.APPROVE:
         from shenbi.pipeline.checkpoint import commit_staging, clear_staging
+
         cp_type = state.pending_checkpoint.type
         if cp_type in (CheckpointType.CHAPTER_MEMO, CheckpointType.STATE_SETTLE):
             # Commit staging files for this chapter
@@ -1199,11 +1513,13 @@ def cmd_review(args: argparse.Namespace) -> int:
         clear_staging(project_dir)
     elif decision == ReviewDecision.REJECT:
         from shenbi.pipeline.checkpoint import clear_staging
+
         clear_staging(project_dir)
     clear_checkpoint(state, decision)
     save_state(project_dir, state)
     emit_json({"status": "ok", "decision": decision.value})
     return 0
+
 
 # Fix cmd_resume to transition phases after checkpoint approve:
 def cmd_resume(args: argparse.Namespace) -> int:
@@ -1212,7 +1528,8 @@ def cmd_resume(args: argparse.Namespace) -> int:
         with WriteLock(project_dir):
             state = load_state(project_dir)
     except FileNotFoundError:
-        emit_json({"status": "error", "message": "project not found"}); return 1
+        emit_json({"status": "error", "message": "project not found"})
+        return 1
     # If last checkpoint was approved, handle phase transitions
     if state.checkpoint_history:
         last = state.checkpoint_history[-1]
@@ -1222,13 +1539,15 @@ def cmd_resume(args: argparse.Namespace) -> int:
                 transition_chapter_to_closure,
                 transition_closure_to_completed,
             )
+
             if last["type"] == "genesis-complete":
                 transition_genesis_to_chapter_loop(state)
                 save_state(project_dir, state)
             elif last["type"] == "book-closure":
                 transition_closure_to_completed(state)
                 save_state(project_dir, state)
-                emit_json({"status": "completed"}); return 0
+                emit_json({"status": "completed"})
+                return 0
     # Otherwise, continue with next
     return cmd_next(args)
 ```

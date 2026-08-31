@@ -80,7 +80,7 @@ def g4_chapter_revision(files: list[Path]) -> list[str]:
     """专门的 revision 输出检查器。"""
     issues = []
     for f in files:
-        if f.suffix != '.json':
+        if f.suffix != ".json":
             continue
         try:
             data = json.loads(f.read_text())
@@ -89,19 +89,19 @@ def g4_chapter_revision(files: list[Path]) -> list[str]:
             continue
 
         # HARD: 必须有 changes 字段
-        changes = data.get('changes', data.get('revisions', []))
+        changes = data.get("changes", data.get("revisions", []))
         if not changes:
             # 允许空 changes 但要求明确的 skip rationale
-            route = data.get('route', data.get('mode', ''))
-            rationale = data.get('rationale', data.get('skip_reason', ''))
-            if route not in ('no_op', 'auto_skip', 'skip') or len(str(rationale)) < 50:
+            route = data.get("route", data.get("mode", ""))
+            rationale = data.get("rationale", data.get("skip_reason", ""))
+            if route not in ("no_op", "auto_skip", "skip") or len(str(rationale)) < 50:
                 issues.append(f"G4.rev.empty_changes_no_rationale:{f.name}")
 
         # HARD: 如果有 changes，每个 change 必须有 description 或 reason
         if isinstance(changes, list) and len(changes) > 0:
             for i, change in enumerate(changes):
                 if isinstance(change, dict):
-                    desc = change.get('description', change.get('reason', change.get('change', '')))
+                    desc = change.get("description", change.get("reason", change.get("change", "")))
                     if len(str(desc)) < 20:
                         issues.append(f"G4.rev.change_{i}_no_detail:{f.name}")
 
@@ -135,9 +135,9 @@ rev_file = project_dir / f"chapters/chapter-{state.current_chapter}-revision-dec
 if rev_file.exists():
     try:
         data = json.loads(rev_file.read_text())
-        changes = data.get('changes', [])
-        route = data.get('route', '')
-        if len(changes) == 0 and route not in ('no_op', 'auto_skip'):
+        changes = data.get("changes", [])
+        route = data.get("route", "")
+        if len(changes) == 0 and route not in ("no_op", "auto_skip"):
             logger.warning("revision_no_changes", chapter=state.current_chapter)
     except json.JSONDecodeError:
         logger.error("revision_json_invalid", chapter=state.current_chapter)

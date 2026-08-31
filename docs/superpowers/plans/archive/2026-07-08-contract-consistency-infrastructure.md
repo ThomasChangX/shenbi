@@ -82,9 +82,13 @@ Schema-first immediate cutover. Build all shared modules and models first; consu
 # tests/unit/contracts/test_paths.py
 import pytest
 from shenbi.contracts.paths import (
-    resolve_chapter_path, resolve_volume_path, extract_chapter,
-    resolve_or_skip, UnresolvedPathError,
+    resolve_chapter_path,
+    resolve_volume_path,
+    extract_chapter,
+    resolve_or_skip,
+    UnresolvedPathError,
 )
+
 
 class TestResolveChapterPath:
     def test_nnn_zero_pads(self):
@@ -109,6 +113,7 @@ class TestResolveChapterPath:
     def test_none_without_placeholder_passes(self):
         assert resolve_chapter_path("truth/current_state.md", None) == "truth/current_state.md"
 
+
 class TestResolveVolumePath:
     def test_volume_no_zero_pad(self):
         assert resolve_volume_path("audits/volume-N-payoff.md", 3) == "audits/volume-3-payoff.md"
@@ -116,6 +121,7 @@ class TestResolveVolumePath:
     def test_volume_none_raises(self):
         with pytest.raises(UnresolvedPathError):
             resolve_volume_path("audits/volume-N-payoff.md", None)
+
 
 class TestExtractChapter:
     def test_word_boundary(self):
@@ -127,6 +133,7 @@ class TestExtractChapter:
 
     def test_case_insensitive(self):
         assert extract_chapter("CHAPTER 12") == 12
+
 
 class TestResolveOrSkip:
     def test_genesis_skips_placeholder(self):
@@ -154,17 +161,22 @@ executor/closure versions corrupted any path containing uppercase N
 (e.g. import/canon/01_SECTION.md -> 01_SECTIO5.md). The bounded regex here
 only replaces N at separator boundaries.
 """
+
 from __future__ import annotations
 import re
+
 
 class UnresolvedPathError(ValueError):
     """Path contains a chapter/volume placeholder but no context was provided."""
 
+
 _BOUND_N = re.compile(r"(?<=[-/])N(?=[-./]|$)")
 _NNN = "NNN"
 
+
 def _bounded_replace_n(path: str, value: int) -> str:
     return _BOUND_N.sub(str(value), path)
+
 
 def resolve_chapter_path(path: str, chapter: int | None) -> str:
     if chapter is None:
@@ -174,6 +186,7 @@ def resolve_chapter_path(path: str, chapter: int | None) -> str:
     result = path.replace(_NNN, f"{chapter:03d}")
     return _bounded_replace_n(result, chapter)
 
+
 def resolve_volume_path(path: str, volume: int | None) -> str:
     if volume is None:
         if _BOUND_N.search(path):
@@ -181,9 +194,11 @@ def resolve_volume_path(path: str, volume: int | None) -> str:
         return path
     return _bounded_replace_n(path, volume)
 
+
 def extract_chapter(text: str) -> int | None:
     m = re.search(r"\bchapter\s+(\d+)\b", text, re.IGNORECASE)
     return int(m.group(1)) if m else None
+
 
 def resolve_or_skip(path: str, chapter: int | None) -> str | None:
     """Genesis-mode helper: returns None if path has unresolvable placeholder."""
@@ -223,6 +238,7 @@ git commit -m "feat: add contracts/paths.py single resolver (replaces 4 divergen
 # tests/unit/contracts/test_fields.py
 from shenbi.contracts.fields import match_field, filter_to_fields, extract_h2_sections
 
+
 class TestMatchField:
     def test_exact_match(self):
         assert match_field("1. 当前任务", "1. 当前任务") is True
@@ -245,6 +261,7 @@ class TestMatchField:
         # U+200B carries semantic meaning; do NOT fold
         assert match_field("ab", "a\u200bb") is False
 
+
 class TestFilterToFields:
     MD = "# Title\n\n## 1. 当前任务\n内容A\n\n## 2. 世界设定\n内容B\n\n## 3. 其他\n内容C\n"
 
@@ -262,6 +279,7 @@ class TestFilterToFields:
 
     def test_json_projects_keys(self):
         import json
+
         data = json.dumps({"fatigueWords": [], "pacing": "fast", "other": "x"})
         result, matched = filter_to_fields(data, ["fatigueWords", "pacing"], "genre-config.json")
         assert matched is True
@@ -284,6 +302,7 @@ Canonical rule: strip + fold ASCII whitespace AND U+3000 to single ASCII space;
 do NOT lowercase (preserves Chinese heading semantics);
 do NOT fold zero-width chars (U+200B carries semantic meaning).
 """
+
 from __future__ import annotations
 import json
 import re
@@ -294,11 +313,14 @@ log = structlog.get_logger()
 # Fold ASCII whitespace + U+3000 (fullwidth space). Explicitly excludes U+200B/200C/200D.
 _WS_FOLD = re.compile(r"[\s\u3000]+")
 
+
 def _normalize_ws(s: str) -> str:
     return _WS_FOLD.sub(" ", s).strip()
 
+
 def match_field(declared: str, heading: str) -> bool:
     return _normalize_ws(declared) == _normalize_ws(heading)
+
 
 def extract_h2_sections(text: str) -> dict[str, str]:
     sections: dict[str, str] = {}
@@ -316,6 +338,7 @@ def extract_h2_sections(text: str) -> dict[str, str]:
         sections[current_heading] = "\n".join(current_body).strip()
     return sections
 
+
 def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
     sections = extract_h2_sections(text)
     matched: dict[str, str] = {}
@@ -326,6 +349,7 @@ def _filter_md(text: str, fields: list[str]) -> tuple[str, bool]:
         log.warning("field_filter_no_match", fields=fields, available=list(sections.keys()))
         return text, False
     return "\n\n".join(f"## {h}\n{b}" for h, b in matched.items()), True
+
 
 def _filter_json(text: str, fields: list[str]) -> tuple[str, bool]:
     try:
@@ -340,6 +364,7 @@ def _filter_json(text: str, fields: list[str]) -> tuple[str, bool]:
         log.warning("field_filter_no_match", fields=fields, available=list(data.keys()))
         return text, False
     return json.dumps(projected, ensure_ascii=False, indent=2), True
+
 
 def filter_to_fields(text: str, fields: list[str], path: str) -> tuple[str, bool]:
     """Returns (filtered_text, matched_any). Caller decides WARN vs FAIL on matched=False."""
@@ -389,13 +414,16 @@ REGISTRY = {
     "globs": [{"pattern": "truth/*.md"}, {"pattern": "chapters/chapter-*.md"}],
 }
 
+
 def test_exact_concept_passthrough():
     assert dag_key("truth/current_state.md", REGISTRY) == "truth/current_state.md"
+
 
 def test_glob_match_folds_to_glob():
     # A path matching a declared glob folds to that glob pattern
     key = dag_key("truth/other.md", REGISTRY)
     assert key == "truth/*.md"
+
 
 def test_parametric_resolves_to_glob():
     # chapters/chapter-N.md (parametric) -> its declared glob chapters/chapter-*.md
@@ -416,8 +444,10 @@ Read `src/shenbi/sync_contracts.py` lines 33-89 (the existing `normalize_to_glob
 """Glob-aware DAG key normalization. Extracted from sync_contracts.py so that
 G5.2 (runtime WARN), lint_contract_graph (CI FAIL), and sync_contracts (DAG
 generation) all use IDENTICAL matching semantics."""
+
 from __future__ import annotations
 import fnmatch
+
 
 def normalize_to_glob(path: str, registry: dict) -> str:
     for p in registry.get("patterns", []):
@@ -427,6 +457,7 @@ def normalize_to_glob(path: str, registry: dict) -> str:
         if fnmatch.fnmatch(path, g["pattern"]):
             return str(g["pattern"])
     return path
+
 
 def dag_key(path: str, registry: dict) -> str:
     for g in registry.get("globs", []):
@@ -468,40 +499,53 @@ git commit -m "refactor: extract dag_key to contracts/graph.py (shared by G5.2/l
 from pathlib import Path
 from shenbi.paths import RoundPaths
 
+
 def test_read_prefers_round_dir(tmp_path):
-    rd = tmp_path / "round"; rd.mkdir()
-    pd = tmp_path / "project"; pd.mkdir()
-    (rd / "truth").mkdir(); (pd / "truth").mkdir()
+    rd = tmp_path / "round"
+    rd.mkdir()
+    pd = tmp_path / "project"
+    pd.mkdir()
+    (rd / "truth").mkdir()
+    (pd / "truth").mkdir()
     (rd / "truth" / "current_state.md").write_text("ROUND")
     (pd / "truth" / "current_state.md").write_text("PROJECT")
     rp = RoundPaths(round_dir=rd, project_dir=pd, repo_root=tmp_path)
     assert rp.read("truth/current_state.md").read_text() == "ROUND"
 
+
 def test_read_falls_back_to_project_dir(tmp_path):
-    pd = tmp_path / "project"; (pd / "truth").mkdir(parents=True)
+    pd = tmp_path / "project"
+    (pd / "truth").mkdir(parents=True)
     (pd / "truth" / "current_state.md").write_text("PROJECT")
-    rp = RoundPaths(round_dir=tmp_path/"round", project_dir=pd, repo_root=tmp_path)
+    rp = RoundPaths(round_dir=tmp_path / "round", project_dir=pd, repo_root=tmp_path)
     assert rp.read("truth/current_state.md").read_text() == "PROJECT"
+
 
 def test_write_always_round_dir(tmp_path):
     rd = tmp_path / "round"
-    rp = RoundPaths(round_dir=rd, project_dir=tmp_path/"project", repo_root=tmp_path)
+    rp = RoundPaths(round_dir=rd, project_dir=tmp_path / "project", repo_root=tmp_path)
     p = rp.write("chapters/chapter-5.md")
     assert str(rd) in str(p)
 
+
 def test_backup_same_root_as_write(tmp_path):
     rd = tmp_path / "round"
-    rp = RoundPaths(round_dir=rd, project_dir=tmp_path/"project", repo_root=tmp_path)
+    rp = RoundPaths(round_dir=rd, project_dir=tmp_path / "project", repo_root=tmp_path)
     w = rp.write("truth/current_state.md")
     b = rp.backup("truth/current_state.md")
     assert b == w.with_name(w.name + ".bak")
 
+
 def test_chapter_substitution(tmp_path):
-    rp = RoundPaths(round_dir=tmp_path/"round", project_dir=tmp_path/"project", repo_root=tmp_path)
+    rp = RoundPaths(
+        round_dir=tmp_path / "round", project_dir=tmp_path / "project", repo_root=tmp_path
+    )
     assert "chapter-5" in str(rp.read("chapters/chapter-N.md", chapter=5))
+
 
 def test_frozen(tmp_path):
     import dataclasses
+
     rp = RoundPaths(tmp_path, tmp_path, tmp_path)
     with pytest.raises(dataclasses.FrozenInstanceError):
         rp.round_dir = tmp_path  # type: ignore
@@ -519,16 +563,18 @@ Expected: FAIL `ModuleNotFoundError`
 """RoundPaths: the single path-resolution authority for one dispatch/run.
 Encapsulates three roots (round_dir / project_dir / repo_root) and eliminates
 bare-string path joins and silent CWD fallbacks."""
+
 from __future__ import annotations
 from dataclasses import dataclass
 from pathlib import Path
 from shenbi.contracts.paths import resolve_chapter_path
 
+
 @dataclass(frozen=True)
 class RoundPaths:
-    round_dir: Path    # this round's workspace (outputs, markers, state)
+    round_dir: Path  # this round's workspace (outputs, markers, state)
     project_dir: Path  # the novel project root (novel.json, world/, chapters/, truth/)
-    repo_root: Path    # repo root (SKILL.md, fixtures, rubric, validate-gate.py)
+    repo_root: Path  # repo root (SKILL.md, fixtures, rubric, validate-gate.py)
 
     def read(self, rel: str, chapter: int | None = None) -> Path:
         resolved = resolve_chapter_path(rel, chapter)
@@ -581,11 +627,18 @@ import pytest
 from pydantic import ValidationError
 from shenbi.contracts.schemas.decisions import DecisionsDoc, Selection, Adjustment
 
+
 def _doc(**kw):
-    base = {"$schema": "shenbi-decisions-v1", "skill": "x", "chapter": 5,
-            "selections": [], "produced_at": "2026-07-08T00:00:00Z"}
+    base = {
+        "$schema": "shenbi-decisions-v1",
+        "skill": "x",
+        "chapter": 5,
+        "selections": [],
+        "produced_at": "2026-07-08T00:00:00Z",
+    }
     base.update(kw)
     return base
+
 
 class TestDecisionsDoc:
     def test_minimal_valid(self):
@@ -600,26 +653,45 @@ class TestDecisionsDoc:
         with pytest.raises(ValidationError):
             DecisionsDoc.model_validate(_doc(**{"$schema": "v2"}))
 
+
 class TestSelectionP25:
     def test_routine_low_forbids_rationale(self):
         with pytest.raises(ValidationError):
-            Selection.model_validate({
-                "target": "t.md", "selected": [], "basis": "arc_relevance",
-                "severity": "low", "omitted": [], "rationale": "should fail"
-            })
+            Selection.model_validate(
+                {
+                    "target": "t.md",
+                    "selected": [],
+                    "basis": "arc_relevance",
+                    "severity": "low",
+                    "omitted": [],
+                    "rationale": "should fail",
+                }
+            )
 
     def test_high_requires_rationale(self):
         with pytest.raises(ValidationError):
-            Selection.model_validate({
-                "target": "t.md", "selected": [], "basis": "arc_relevance",
-                "severity": "high", "omitted": []
-            })
+            Selection.model_validate(
+                {
+                    "target": "t.md",
+                    "selected": [],
+                    "basis": "arc_relevance",
+                    "severity": "high",
+                    "omitted": [],
+                }
+            )
 
     def test_manual_override_requires_rationale(self):
-        Selection.model_validate({
-            "target": "t.md", "selected": [], "basis": "manual_override",
-            "severity": "low", "omitted": [], "rationale": "ok"
-        })  # passes
+        Selection.model_validate(
+            {
+                "target": "t.md",
+                "selected": [],
+                "basis": "manual_override",
+                "severity": "low",
+                "omitted": [],
+                "rationale": "ok",
+            }
+        )  # passes
+
 
 class TestAdjustment:
     def test_rationale_required(self):
@@ -628,8 +700,9 @@ class TestAdjustment:
 
     def test_severity_medium_allowed(self):
         # doc example uses medium; validator never checked it before; keep permissive
-        Adjustment.model_validate({"issue_id": "x", "severity": "medium",
-                                    "handling": "ignore", "rationale": "ok"})
+        Adjustment.model_validate(
+            {"issue_id": "x", "severity": "medium", "handling": "ignore", "rationale": "ok"}
+        )
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -644,6 +717,7 @@ Expected: FAIL `ModuleNotFoundError`
 """Single source of truth for decisions.json validation.
 Replaces hand-rolled checks in g2.py, g4/decisions_validator.py, g4/_decisions_schema.py.
 Field shapes from phase-0 investigation of tests/unit/gates/test_g4_decisions.py."""
+
 from __future__ import annotations
 from typing import Literal
 from pydantic import BaseModel, Field, model_validator
@@ -657,6 +731,7 @@ Basis = Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "
 Severity = Literal["low", "high"]
 Handling = Literal["compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"]
 Trim = Literal["none", "oldest_first", "lowest_relevance", "manual"]
+
 
 class Selection(BaseModel):
     model_config = {"extra": "forbid"}
@@ -673,12 +748,16 @@ class Selection(BaseModel):
         if has and len(self.rationale) > _RATIONALE_MAX_CHARS:
             raise ValueError(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars")
         requires = self.severity == "high" or self.basis == "manual_override"
-        routine_low = self.basis in {"arc_relevance", "volume_scope", "adjacent_to_target_chapter"} and self.severity == "low"
+        routine_low = (
+            self.basis in {"arc_relevance", "volume_scope", "adjacent_to_target_chapter"}
+            and self.severity == "low"
+        )
         if routine_low and has:
             raise ValueError("rationale FORBIDDEN for routine+low")
         if requires and not has:
             raise ValueError("rationale REQUIRED for high/manual_override")
         return self
+
 
 class Adjustment(BaseModel):
     model_config = {"extra": "forbid"}
@@ -693,11 +772,13 @@ class Adjustment(BaseModel):
             raise ValueError(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars")
         return self
 
+
 class Budget(BaseModel):
     model_config = {"extra": "forbid"}
     context_tokens_estimate: int
     limit: int
     trim_applied: Trim
+
 
 class DecisionsDoc(BaseModel):
     model_config = {"extra": "forbid"}
@@ -752,25 +833,32 @@ from shenbi.contracts.schemas.registry import TruthFilesRegistry
 
 REAL_YAML = Path(__file__).resolve().parents[4] / "docs" / "framework" / "truth-files.yaml"
 
+
 def test_loads_real_truth_files_yaml():
     import yaml
+
     data = yaml.safe_load(REAL_YAML.read_text(encoding="utf-8"))
     reg = TruthFilesRegistry.model_validate(data)
     assert len(reg.concepts) > 50  # 61 concepts
+
 
 def test_empty_concepts_rejected():
     with pytest.raises(ValidationError):
         TruthFilesRegistry.model_validate({"concepts": []})
 
+
 def test_real_yaml_has_patterns_and_globs():
     import yaml
+
     data = yaml.safe_load(REAL_YAML.read_text(encoding="utf-8"))
     reg = TruthFilesRegistry.model_validate(data)
     assert len(reg.patterns) > 0
     assert len(reg.globs) > 0
 
+
 def test_producer_default_skill():
     from shenbi.contracts.schemas.registry import RegistryConcept
+
     c = RegistryConcept(name="x.md", kind="truth")
     assert c.producer == "skill"
 ```
@@ -789,10 +877,24 @@ from typing import Literal
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 RegistryKind = Literal[
-    "benchmark", "chapter", "character", "config", "context", "decisions",
-    "import", "outline", "plan", "reference", "report", "short",
-    "snapshot", "style", "truth", "world",
+    "benchmark",
+    "chapter",
+    "character",
+    "config",
+    "context",
+    "decisions",
+    "import",
+    "outline",
+    "plan",
+    "reference",
+    "report",
+    "short",
+    "snapshot",
+    "style",
+    "truth",
+    "world",
 ]
+
 
 class RegistryConcept(BaseModel):
     model_config = {"extra": "forbid"}
@@ -801,14 +903,17 @@ class RegistryConcept(BaseModel):
     producer: Literal["skill", "pipeline", "external", "shared"] = "skill"
     glob: str | None = None
 
+
 class RegistryPattern(BaseModel):
     model_config = {"extra": "forbid"}
     parametric: str
     glob: str
 
+
 class RegistryGlob(BaseModel):
     model_config = {"extra": "forbid"}
     pattern: str
+
 
 class TruthFilesRegistry(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
@@ -865,13 +970,17 @@ from shenbi.contracts.schemas.deps import DepsDoc, phase_of
 
 REAL = Path(__file__).resolve().parents[4] / "tests" / "tiers" / "deps.json"
 
+
 def _load():
     import json
+
     return DepsDoc.model_validate(json.loads(REAL.read_text(encoding="utf-8")))
+
 
 def test_loads_real_deps_json():
     d = _load()
     assert "genesis" in d.t2_phases
+
 
 def test_real_phases_have_g4_note():
     d = _load()
@@ -879,13 +988,16 @@ def test_real_phases_have_g4_note():
     noted = [p for p in d.t2_phases.values() if p.g4_note]
     assert len(noted) >= 1
 
+
 def test_phase_of_locates_skill():
     d = _load()
     assert phase_of(d, "shenbi-worldbuilding") == "genesis"
 
+
 def test_phase_of_unknown_returns_none():
     d = _load()
     assert phase_of(d, "shenbi-nonexistent") is None
+
 
 def test_extra_rejected():
     with pytest.raises(ValidationError):
@@ -906,8 +1018,10 @@ D19 resolution: G3.1's per-skill prerequisite check was a dead function
 (deps.json never stored per-skill prereq data — 'prerequisites' is a phase
 member roster, not per-skill). The model exposes phase_of() for skill->phase
 lookup; G3.1 prerequisite logic is deleted (see Task in Phase 2)."""
+
 from __future__ import annotations
 from pydantic import BaseModel, Field
+
 
 class PhaseDeps(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
@@ -916,11 +1030,13 @@ class PhaseDeps(BaseModel):
     g4_checker: str | None = None
     g4_note: str | None = Field(default=None, alias="_g4_note")
 
+
 class PipelineDeps(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
     min_chapter_ratio: float = 0.0
     expected_outputs: list[str] = []
     prerequisites: list[str] = []
+
 
 class OutOfPipeline(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
@@ -929,6 +1045,7 @@ class OutOfPipeline(BaseModel):
     t1_only_drafting_phase: list[str] = []
     note: str = Field(default="", alias="_note")
 
+
 class DepsDoc(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
     t2_phases: dict[str, PhaseDeps] = Field(default_factory=dict, alias="t2-phases")
@@ -936,6 +1053,7 @@ class DepsDoc(BaseModel):
     tool_hashes: dict[str, str] = Field(default_factory=dict, alias="_tool_hashes")
     out_of_pipeline: OutOfPipeline = Field(default_factory=OutOfPipeline, alias="_out_of_pipeline")
     calibration_hashes: dict[str, str] = Field(default_factory=dict, alias="_calibration_hashes")
+
 
 def phase_of(deps: DepsDoc, skill: str) -> str | None:
     for pname, p in deps.t2_phases.items():
@@ -979,24 +1097,32 @@ from shenbi.contracts.schemas.scores import ScoreReport
 from shenbi.contracts.schemas.state import ProgressDoc, SummaryDoc
 from shenbi.contracts.schemas.adapt import pydantic_err_to_gate_failures
 
+
 def test_novel_forbid():
     with pytest.raises(ValidationError):
         NovelConfig.model_validate({"title": "x", "bogus": True})
+
 
 def test_progress_ignore_allows_extra():
     # producer-uncontrolled: extra ignored, doesn't fail
     p = ProgressDoc.model_validate({"skills": {}, "unknown_key": 1})
     assert p.model_dump().get("skills") == {} or True  # ignore model dump shape
 
+
 def test_summary_ignore_allows_extra():
     SummaryDoc.model_validate({"t1_scores": {}, "anything": 1})
 
+
 def test_score_report_shape():
-    ScoreReport.model_validate({
-        "dimensions": [{"num": 1, "name": "x", "weight": 1.0, "score": 90}],
-        "final_score": 90, "classification": "pass",
-        "_provenance": {"scored_by": "a", "timestamp": "t"},
-    })
+    ScoreReport.model_validate(
+        {
+            "dimensions": [{"num": 1, "name": "x", "weight": 1.0, "score": 90}],
+            "final_score": 90,
+            "classification": "pass",
+            "_provenance": {"scored_by": "a", "timestamp": "t"},
+        }
+    )
+
 
 def test_adapter_maps_to_gate_failures():
     try:
@@ -1020,6 +1146,7 @@ Expected: FAIL `ModuleNotFoundError`
 from __future__ import annotations
 from pydantic import BaseModel
 
+
 class NovelConfig(BaseModel):
     model_config = {"extra": "forbid"}
     title: str = ""
@@ -1035,9 +1162,11 @@ class NovelConfig(BaseModel):
     themes: list[str] = []
     mode: str = ""
 
+
 # src/shenbi/contracts/schemas/scores.py
 from __future__ import annotations
 from pydantic import BaseModel, Field
+
 
 class ScoreDimension(BaseModel):
     model_config = {"extra": "forbid"}
@@ -1046,6 +1175,7 @@ class ScoreDimension(BaseModel):
     weight: float = 0.0
     score: float
 
+
 class ScoreProvenance(BaseModel):
     model_config = {"extra": "forbid"}
     scored_by: str = ""
@@ -1053,6 +1183,7 @@ class ScoreProvenance(BaseModel):
     gate_markers_verified: bool = False
     round_dir: str = ""
     scoring_tool: str = ""
+
 
 class ScoreReport(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
@@ -1063,10 +1194,12 @@ class ScoreReport(BaseModel):
     kill_switches: list[str] = []
     provenance: ScoreProvenance | None = Field(default=None, alias="_provenance")
 
+
 # src/shenbi/contracts/schemas/state.py
 # producer-uncontrolled (shell heredoc / missing writers): extra: ignore until writer unification (spec 2)
 from __future__ import annotations
 from pydantic import BaseModel
+
 
 class ProgressDoc(BaseModel):
     model_config = {"extra": "ignore"}
@@ -1074,21 +1207,28 @@ class ProgressDoc(BaseModel):
     completed_skill_names: list[str] = []
     scoring_history: list = []
 
+
 class SummaryDoc(BaseModel):
     model_config = {"extra": "ignore"}
     t1_scores: dict = {}
     t2_scores: dict = {}
     t3_scores: dict = {}
 
+
 # src/shenbi/contracts/schemas/adapt.py
 from __future__ import annotations
 from pydantic import ValidationError
 
+
 def pydantic_err_to_gate_failures(err: ValidationError, file_path: str, prefix: str) -> list[dict]:
     """Map pydantic ValidationError to gate micro-failure dicts {id, file, s, r}."""
     return [
-        {"id": f"{prefix}.{e['type']}", "file": file_path, "s": "FAIL",
-         "r": f"{'.'.join(str(x) for x in e['loc'])}: {e['msg']}"}
+        {
+            "id": f"{prefix}.{e['type']}",
+            "file": file_path,
+            "s": "FAIL",
+            "r": f"{'.'.join(str(x) for x in e['loc'])}: {e['msg']}",
+        }
         for e in err.errors()
     ]
 ```
@@ -1154,6 +1294,7 @@ if file_type == "decisions":
     from shenbi.contracts.schemas.decisions import DecisionsDoc
     from shenbi.contracts.schemas.adapt import decisions_err_to_g2_failures
     from pydantic import ValidationError
+
     try:
         data = jload(str(p))
     except (json.JSONDecodeError, OSError):
@@ -1253,6 +1394,7 @@ def test_section_path_not_corrupted():
     """C2: uppercase N mid-token must NOT be replaced by chapter substitution.
     Old _resolve_chapter_path did str.replace('N',...) unbounded → '01_SECTIO5.md'."""
     from shenbi.contracts.paths import resolve_chapter_path
+
     assert resolve_chapter_path("import/canon/01_SECTION.md", 5) == "import/canon/01_SECTION.md"
 ```
 
@@ -1344,13 +1486,14 @@ git commit -m "refactor: chapter_loop + closure use shared resolvers (C1: 4th re
 # tests/unit/gates/test_g1_backup.py
 from shenbi.gates.g1 import derive_backup_skills
 
+
 def test_derive_includes_truth_updaters():
     # phase-0: 15 skills update truth files
     skills = derive_backup_skills()  # loads contracts + registry internally
     # spot-check a few that were missing from the old hardcoded list
     assert "shenbi-state-settling" in skills
     assert "shenbi-review-resonance" in skills  # was missing → G2.11 no-op
-    assert "shenbi-memory-distill" in skills     # was missing
+    assert "shenbi-memory-distill" in skills  # was missing
 ```
 
 - [ ] **Step 2: Implement derive_backup_skills in g1.py**
@@ -1360,6 +1503,7 @@ def test_derive_includes_truth_updaters():
 import fnmatch
 from shenbi.contracts.legacy import load_contract, load_registry
 from shenbi.gates.shared import SKILLS
+
 
 def derive_backup_skills() -> frozenset[str]:
     """Auto-derive skills needing .bak: updates intersect truth-kind concepts."""
@@ -1376,6 +1520,7 @@ def derive_backup_skills() -> frozenset[str]:
                 result.add(skill)
                 break
     return frozenset(result)
+
 
 BACKUP_SKILLS = derive_backup_skills()  # computed at import; covers 15 truth-updaters
 ```
@@ -1430,10 +1575,19 @@ Run: `just check` → commit `refactor: G5.2 uses glob-aware dag_key matching (W
 # tests/unit/gates/test_g4_signatures.py
 def test_gate_g4_accepts_project_dir_and_repo_root(tmp_path):
     from shenbi.gates.g4.generic import gate_G4
+
     # Must accept the new params without error (even if it doesn't use them yet for this skill)
-    result = gate_G4("shenbi-worldbuilding", "generative", [], str(tmp_path),
-                     project_dir=str(tmp_path), repo_root=str(tmp_path))
-    import json; data = json.loads(result)
+    result = gate_G4(
+        "shenbi-worldbuilding",
+        "generative",
+        [],
+        str(tmp_path),
+        project_dir=str(tmp_path),
+        repo_root=str(tmp_path),
+    )
+    import json
+
+    data = json.loads(result)
     assert data["skill"] == "shenbi-worldbuilding"  # ran, didn't crash on signature
 ```
 
@@ -1480,7 +1634,9 @@ git commit -m "refactor: thread project_dir/repo_root through gate_G4 call chain
 
 For each hardcoded checker (`worldbuilding`, `story_architecture`, `relationship_map`, `plot_thread_weaver`, `power_system`, `volume_outlining`, `foreshadowing_track`, `faction_builder`, `location_builder`, `pacing_design`): replace `pd = resolve_g4_base(rd); pd / "world/..."` with:
 ```python
-rp = RoundPaths(round_dir=Path(rd), project_dir=Path(project_dir or rd), repo_root=Path(repo_root or PROJECT))
+rp = RoundPaths(
+    round_dir=Path(rd), project_dir=Path(project_dir or rd), repo_root=Path(repo_root or PROJECT)
+)
 world = rp.read("world/story_bible.md")
 ```
 For the inline-fallback checkers (generic.py ×3, score_arc, decisions_validator, length_normalizing, foreshadowing_plant, anti_detect, state_settling): replace `base = Path(rd) if rd else Path.cwd()` with the same RoundPaths construction (or, for checkers that only need the round_dir base, keep `base = Path(rd)` and RAISE if rd is None rather than CWD-fallback).
@@ -1545,7 +1701,9 @@ git commit -m "refactor: delete resolve_g4_base CWD fallback (all callers now pa
 
 ```python
 # codex.py:58 — replace:
-rubric_path = Path(os.environ.get("RUBRIC", str(rp.repo(f"tests/tiers/t1-skill/{skill}/rubric.md"))))
+rubric_path = Path(
+    os.environ.get("RUBRIC", str(rp.repo(f"tests/tiers/t1-skill/{skill}/rubric.md")))
+)
 ```
 (Keep `RUBRIC` env override for testing.)
 
@@ -1590,6 +1748,7 @@ PIPELINE_PRODUCED = {
     "audits/chapter-N-review-summary.md",
 }
 
+
 def test_pipeline_files_marked_pipeline_producer():
     reg = load_registry()
     for name in PIPELINE_PRODUCED:
@@ -1629,20 +1788,25 @@ import subprocess, sys
 REPO = Path(__file__).resolve().parents[3]
 LINT = REPO / "tools" / "lint_contract_graph.py"
 
+
 def test_clean_repo_has_zero_orphan_reads():
     # phase-0 found 0 orphans; lint should pass (exit 0)
     r = subprocess.run([sys.executable, str(LINT)], capture_output=True, text=True, cwd=REPO)
     assert r.returncode == 0, f"orphan reads:\n{r.stdout}\n{r.stderr}"
 
+
 def test_detects_injected_orphan(monkeypatch, tmp_path):
     """Canary #1: a contract with a read no skill produces → ORPHAN_READ FAIL + exact message."""
     from shenbi.contracts import graph as g
+
     # Inject a synthetic contract set with one orphan read
     fake_contracts = {
         "shenbi-test": {"reads": ["truth/does-not-exist.md"], "writes": [], "updates": []},
     }
     monkeypatch.setattr("shenbi.sync_contracts.load_all_contracts", lambda: fake_contracts)
-    orphan, dangling = __import__("tools.lint_contract_graph", fromlist=["find_closure_violations"]).find_closure_violations()
+    orphan, dangling = __import__(
+        "tools.lint_contract_graph", fromlist=["find_closure_violations"]
+    ).find_closure_violations()
     assert any(skill == "shenbi-test" and "truth/does-not-exist.md" in f for skill, f in orphan)
 ```
 
@@ -1652,10 +1816,14 @@ def test_detects_injected_orphan(monkeypatch, tmp_path):
 # tools/lint_contract_graph.py
 """Closure check: every read must have a producer (skill/pipeline/external).
 ORPHAN_READ → exit 1 (block PR). DANGLING_WRITE → stderr WARN."""
+
 import sys
 from shenbi.contracts.graph import dag_key
 from shenbi.contracts.legacy import load_registry
-from shenbi.sync_contracts import load_all_contracts  # I4: it's in sync_contracts (verified line 55)
+from shenbi.sync_contracts import (
+    load_all_contracts,
+)  # I4: it's in sync_contracts (verified line 55)
+
 
 def find_closure_violations():
     contracts = load_all_contracts()
@@ -1684,6 +1852,7 @@ def find_closure_violations():
             dangling.append((next(iter(sks)), key))
     return orphan, dangling
 
+
 def main():
     orphan, dangling = find_closure_violations()
     for skill, f in orphan:
@@ -1691,6 +1860,7 @@ def main():
     for skill, f in dangling:
         print(f"DANGLING_WRITE (warn): skill={skill} writes={f} no consumer", file=sys.stderr)
     sys.exit(1 if orphan else 0)
+
 
 if __name__ == "__main__":
     main()
@@ -1777,7 +1947,9 @@ def test_g610_not_skipped_when_style_exists(tmp_path):
 `g3.py:79-106`: delete the `deps.get(skill_name)` prerequisite logic. Replace with:
 
 ```python
-c.append({"id": "G3.1", "s": "SKIP", "r": "per-skill prerequisites not modeled (G3.2 covers readiness)"})
+c.append(
+    {"id": "G3.1", "s": "SKIP", "r": "per-skill prerequisites not modeled (G3.2 covers readiness)"}
+)
 ```
 
 Add canary:
@@ -1823,15 +1995,18 @@ Create `src/shenbi/contracts/schemas/hooks.py`:
 ```python
 from enum import Enum
 
+
 class HookState(str, Enum):
     PLANTED = "PLANTED"
     RELEVANT = "RELEVANT"
     TRIGGERED = "TRIGGERED"
     RESOLVED = "RESOLVED"
-    ARCHIVED = "ARCHIVED"   # phase-0: foreshadowing-track SKILL.md:72
-    EXPIRED = "EXPIRED"     # phase-0: SKILL.md:73,120
+    ARCHIVED = "ARCHIVED"  # phase-0: foreshadowing-track SKILL.md:72
+    EXPIRED = "EXPIRED"  # phase-0: SKILL.md:73,120
+
 
 _NONCANONICAL = {"TRIGGER": HookState.TRIGGERED}  # SKILL.md:87 uses TRIGGER
+
 
 def parse_hook_state(raw: str) -> HookState:
     if raw in _NONCANONICAL:

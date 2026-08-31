@@ -147,7 +147,7 @@ class TestCheckProseLeakage:
 
     def test_unfinished_ending_flagged(self, tmp_path):
         p = tmp_path / "chapter-56.md"
-        p.write_text("他走到门前，准备：" , encoding="utf-8")
+        p.write_text("他走到门前，准备：", encoding="utf-8")
         issues = check_prose_leakage(p)
         assert any("G4.pi.unfinished_ending" in i for i in issues)
 
@@ -185,8 +185,7 @@ class TestCheckAuditCompleteness:
         # Short AND no verdict AND has preamble — at least one of these fires.
         assert len(issues) >= 1
         assert any(
-            ("too_short" in i) or ("aborted_stub" in i) or ("no_verdict" in i)
-            for i in issues
+            ("too_short" in i) or ("aborted_stub" in i) or ("no_verdict" in i) for i in issues
         )
 
     def test_complete_audit_no_issues(self, tmp_path):
@@ -378,20 +377,16 @@ def check_audit_completeness(path: Path) -> list[str]:
 
     if len(text) < _AUDIT_MIN_BYTES:
         issues.append(
-            f"G4.ac.too_short:{path.name} — audit file is {len(text)} bytes, "
-            f"likely aborted stub"
+            f"G4.ac.too_short:{path.name} — audit file is {len(text)} bytes, likely aborted stub"
         )
 
     has_verdict = any(marker in text for marker in VERDICT_MARKERS)
     if not has_verdict:
         issues.append(
-            f"G4.ac.no_verdict:{path.name} — audit file contains no "
-            f"verdict/conclusion marker"
+            f"G4.ac.no_verdict:{path.name} — audit file contains no verdict/conclusion marker"
         )
 
-    has_only_preamble = (
-        any(marker in text for marker in PREAMBLE_MARKERS) and not has_verdict
-    )
+    has_only_preamble = any(marker in text for marker in PREAMBLE_MARKERS) and not has_verdict
     if has_only_preamble:
         issues.append(
             f"G4.ac.aborted_stub:{path.name} — audit file contains only "
@@ -531,13 +526,10 @@ class TestWriteParsedOutputsIntegrity:
         from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
 
         response = (
-            "### FILE: chapters/chapter-1.md\n"
-            "由于沙箱限制，我无法直接写文件。请使用现有内容。\n"
+            "### FILE: chapters/chapter-1.md\n由于沙箱限制，我无法直接写文件。请使用现有内容。\n"
         )
         with pytest.raises(DispatchWriteFailureError):
-            _write_parsed_outputs(
-                response, ["chapters/chapter-1.md"], tmp_path
-            )
+            _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
         # The file must NOT have been written.
         assert not (tmp_path / "chapters" / "chapter-1.md").exists()
 
@@ -545,12 +537,9 @@ class TestWriteParsedOutputsIntegrity:
         from shenbi.pipeline.dispatch_helper import _write_parsed_outputs
 
         response = (
-            "### FILE: chapters/chapter-56.md\n"
-            f"正文……\nNow the decisions JSON:\n{'段落' * 200}\n"
+            f"### FILE: chapters/chapter-56.md\n正文……\nNow the decisions JSON:\n{'段落' * 200}\n"
         )
-        written = _write_parsed_outputs(
-            response, ["chapters/chapter-56.md"], tmp_path
-        )
+        written = _write_parsed_outputs(response, ["chapters/chapter-56.md"], tmp_path)
         # The write succeeds; leakage is a post-write warning.
         assert written == ["chapters/chapter-56.md"]
         assert (tmp_path / "chapters" / "chapter-56.md").exists()
@@ -561,9 +550,7 @@ class TestWriteParsedOutputsIntegrity:
         aborted = "所有输入文件已确认。现在执行完整的伏笔审计……"
         response = f"### FILE: audits/chapter-32-foreshadowing.md\n{aborted}\n"
         # Aborted stub writes (it is not a write-failure) but is flagged.
-        written = _write_parsed_outputs(
-            response, ["audits/chapter-32-foreshadowing.md"], tmp_path
-        )
+        written = _write_parsed_outputs(response, ["audits/chapter-32-foreshadowing.md"], tmp_path)
         assert written == ["audits/chapter-32-foreshadowing.md"]
 
     def test_clean_output_passes_through(self, tmp_path):
@@ -571,9 +558,7 @@ class TestWriteParsedOutputsIntegrity:
 
         clean_prose = "林烽推开门，走进教室。" * 200
         response = f"### FILE: chapters/chapter-1.md\n{clean_prose}\n"
-        written = _write_parsed_outputs(
-            response, ["chapters/chapter-1.md"], tmp_path
-        )
+        written = _write_parsed_outputs(response, ["chapters/chapter-1.md"], tmp_path)
         assert written == ["chapters/chapter-1.md"]
 ```
 
@@ -695,10 +680,7 @@ def _write_parsed_outputs(
         # 3-6. POST-WRITE INTEGRITY (fixed order; collect all issues).
         issues: list[str] = []
         name = full_path.name
-        is_chapter = (
-            _CHAPTER_NUM_RE.match(Path(name).stem) is not None
-            and not _is_audit_file(name)
-        )
+        is_chapter = _CHAPTER_NUM_RE.match(Path(name).stem) is not None and not _is_audit_file(name)
         is_audit = _is_audit_file(name)
 
         if is_chapter:
@@ -711,9 +693,7 @@ def _write_parsed_outputs(
             issues += check_audit_line_refs(full_path, chapter_path)
 
         for issue in issues:
-            log.warning(
-                "llm_output_integrity_issue", path=str(full_path), finding=issue
-            )
+            log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)
 
     if create_truth_templates and any("*" in p for p in output_paths):
         _init_truth_templates(project_dir)
@@ -763,9 +743,7 @@ class TestRetryWriteConfirmation:
         from shenbi.exceptions import DispatchWriteFailureError
         from shenbi.pipeline.dispatch_helper import build_retry_feedback
 
-        err = DispatchWriteFailureError(
-            "write failed", signature="由于沙箱限制，我无法直接写文件"
-        )
+        err = DispatchWriteFailureError("write failed", signature="由于沙箱限制，我无法直接写文件")
         feedback = build_retry_feedback(err)
         assert "CRITICAL" in feedback
         assert "write access" in feedback
@@ -840,20 +818,16 @@ git commit -m "feat(dispatch): add write-capability confirmation to retry prompt
 First, modify the post-write loop in `_write_parsed_outputs` (Task 3) to also persist findings. Replace the `for issue in issues:` block with:
 
 ```python
-        for issue in issues:
-            log.warning(
-                "llm_output_integrity_issue", path=str(full_path), finding=issue
-            )
-        if issues:
-            _append_integrity_findings(project_dir, full_path, issues)
+for issue in issues:
+    log.warning("llm_output_integrity_issue", path=str(full_path), finding=issue)
+if issues:
+    _append_integrity_findings(project_dir, full_path, issues)
 ```
 
 And add the helper near `_resolve_chapter_for_audit`:
 
 ```python
-def _append_integrity_findings(
-    project_dir: Path, file_path: Path, issues: list[str]
-) -> None:
+def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[str]) -> None:
     """Persist post-write integrity findings for the G4 checker to read."""
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
@@ -903,7 +877,12 @@ class TestG4PostWriteIntegrity:
         _write_findings(
             tmp_path,
             56,
-            [{"file": "chapters/chapter-56.md", "finding": "G4.pi.model_leakage:chapter-56.md — leak"}],
+            [
+                {
+                    "file": "chapters/chapter-56.md",
+                    "finding": "G4.pi.model_leakage:chapter-56.md — leak",
+                }
+            ],
         )
         result = g4_post_write_integrity(tmp_path, chapter=56)
         assert result["status"] == "FAIL"
@@ -913,7 +892,12 @@ class TestG4PostWriteIntegrity:
         _write_findings(
             tmp_path,
             1,
-            [{"file": "chapters/chapter-1.md", "finding": "G4.pi.fence_imbalance:chapter-1.md — odd"}],
+            [
+                {
+                    "file": "chapters/chapter-1.md",
+                    "finding": "G4.pi.fence_imbalance:chapter-1.md — odd",
+                }
+            ],
         )
         result = g4_post_write_integrity(tmp_path, chapter=1)
         assert result["status"] == "WARN"
@@ -975,13 +959,14 @@ def g4_post_write_integrity(project_dir: Path, *, chapter: int) -> dict:
 Then register it in the G4 router. In `gate_G4` (around line 160-245), add a call after the per-skill checker runs:
 
 ```python
-    # Post-write integrity findings (spec 19 §3.6) — apply to every chapter.
-    from shenbi.gates.g4.generic import g4_post_write_integrity
-    chapter_num = _chapter_number_from_paths(file_paths)  # existing helper, if any
-    if chapter_num is not None:
-        pwi = g4_post_write_integrity(Path(project_dir), chapter=chapter_num)
-        for c in pwi["checks"]:
-            checks.append(c)
+# Post-write integrity findings (spec 19 §3.6) — apply to every chapter.
+from shenbi.gates.g4.generic import g4_post_write_integrity
+
+chapter_num = _chapter_number_from_paths(file_paths)  # existing helper, if any
+if chapter_num is not None:
+    pwi = g4_post_write_integrity(Path(project_dir), chapter=chapter_num)
+    for c in pwi["checks"]:
+        checks.append(c)
 ```
 
 > If `_chapter_number_from_paths` does not exist, extract the chapter number from any `chapter-NN` path in `file_paths` with `re.search(r"chapter-(\d+)", ...)`.

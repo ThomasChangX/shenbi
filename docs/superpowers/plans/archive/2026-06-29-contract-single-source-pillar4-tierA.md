@@ -119,8 +119,12 @@ def test_signature_chains_prev() -> None:
 
 
 def test_canonical_payload_is_order_independent() -> None:
-    a = canonical_payload(TraceEvent.sign_and_new(GENESIS_PREV, **_base_kwargs(payload={"a": 1, "b": 2})))
-    b = canonical_payload(TraceEvent.sign_and_new(GENESIS_PREV, **_base_kwargs(payload={"b": 2, "a": 1})))
+    a = canonical_payload(
+        TraceEvent.sign_and_new(GENESIS_PREV, **_base_kwargs(payload={"a": 1, "b": 2}))
+    )
+    b = canonical_payload(
+        TraceEvent.sign_and_new(GENESIS_PREV, **_base_kwargs(payload={"b": 2, "a": 1}))
+    )
     assert a == b
 
 
@@ -146,6 +150,7 @@ trace 篡改可见（G7 校验）。canonical_payload 用排序键，去引号/�
 
 v5 spec 成功判据 7/11：完整性靠 hash 链 + compaction 边界 + LEGACY 锚。
 """
+
 from __future__ import annotations
 
 import hashlib
@@ -159,16 +164,25 @@ from shenbi.contracts.enums import ActorRole
 GENESIS_PREV = "0" * 64  # 链首/compaction 后的合法前驱锚
 
 _SIGNED_FIELDS = (
-    "seq", "ts", "actor", "actor_role", "action",
-    "target", "skill", "gate", "payload", "schema_version",
+    "seq",
+    "ts",
+    "actor",
+    "actor_role",
+    "action",
+    "target",
+    "skill",
+    "gate",
+    "payload",
+    "schema_version",
 )
 
 
 def canonical_payload(event: "TraceEvent") -> str:
     """排序键 JSON，消除 dict 顺序/引号差异（语义 round-trip 基础）。"""
     core = {k: getattr(event, k) for k in _SIGNED_FIELDS}
-    return json.dumps(core, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
-                      default=_json_default)
+    return json.dumps(
+        core, sort_keys=True, ensure_ascii=False, separators=(",", ":"), default=_json_default
+    )
 
 
 def _json_default(obj: object) -> object:
@@ -294,6 +308,7 @@ def test_new_writer_resumes_existing_trace(tmp_path: Path) -> None:
 """TraceWriter：append-only JSONL。seq 从现有 trace 接续；每条事件签名链前一条。
 首次创建对父目录 fsync（判据 7 I6a）；每条 append 后对文件 fsync（durability）。
 """
+
 from __future__ import annotations
 
 import json
@@ -340,18 +355,31 @@ class TraceWriter:
         return self._prev
 
     def append(
-        self, *, actor: str, actor_role: ActorRole, action: str, target: str,
-        skill: str | None = None, gate: str | None = None,
-        payload: dict[str, object] | None = None, schema_version: int = 1,
+        self,
+        *,
+        actor: str,
+        actor_role: ActorRole,
+        action: str,
+        target: str,
+        skill: str | None = None,
+        gate: str | None = None,
+        payload: dict[str, object] | None = None,
+        schema_version: int = 1,
     ) -> TraceEvent:
         created = not self._path.exists()
         if created:
             self._path.parent.mkdir(parents=True, exist_ok=True)
         event = TraceEvent.sign_and_new(
             prev_signature=self._prev,
-            seq=self.next_seq(), actor=actor, actor_role=actor_role, action=action,
-            target=target, skill=skill, gate=gate,
-            payload=payload or {}, schema_version=schema_version,
+            seq=self.next_seq(),
+            actor=actor,
+            actor_role=actor_role,
+            action=action,
+            target=target,
+            skill=skill,
+            gate=gate,
+            payload=payload or {},
+            schema_version=schema_version,
         )
         with self._path.open("a", encoding="utf-8") as fh:
             fh.write(event.model_dump_json() + "\n")
@@ -428,6 +456,7 @@ def test_replay_drops_bad_signature(tmp_path: Path) -> None:
 """replay：逐行读 trace.jsonl，校验签名链。首条（JSON 解析失败 或 签名不匹配）
 即视为撕裂/篡改边界，截断其后所有内容（判据 7 I6b torn-line 恢复）。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -500,8 +529,13 @@ from shenbi.trace.versioning import (
 
 def _ev(sv: int) -> TraceEvent:
     return TraceEvent.sign_and_new(
-        prev_signature="0" * 64, seq=1, actor="d", actor_role="GATE",
-        action="A", target="t", schema_version=sv,
+        prev_signature="0" * 64,
+        seq=1,
+        actor="d",
+        actor_role="GATE",
+        action="A",
+        target="t",
+        schema_version=sv,
     )
 
 
@@ -534,6 +568,7 @@ def test_migrate_old_to_current() -> None:
 """事件版本化（判据 7 I6c + N5）。schema_version 单调非递减；未知更高版本→fail；
 旧→新迁移函数注册在 MIGRATIONS。当前只有 v1，迁移逻辑为恒等（结构扩展点）。
 """
+
 from __future__ import annotations
 
 from typing import Callable
@@ -626,8 +661,13 @@ def test_verify_chain_detects_gap(tmp_path: Path) -> None:
     # N1 fix: compact() rewrote the file, so the old TraceWriter is stale.
     # Use a FRESH writer so the second COMPACTION chains from the real last sig.
     w = TraceWriter(tmp_path)
-    w.append(actor="d", actor_role="GATE", action="COMPACTION", target="trace.jsonl",
-             payload={"prev_compaction_seq": 99, "snapshot": {}, "truncated_at_seq": 1})
+    w.append(
+        actor="d",
+        actor_role="GATE",
+        action="COMPACTION",
+        target="trace.jsonl",
+        payload={"prev_compaction_seq": 99, "snapshot": {}, "truncated_at_seq": 1},
+    )
     evs = replay(tmp_path)
     issues = verify_chain(evs)
     assert any("gap" in i.lower() or "monotonic" in i.lower() for i in issues)
@@ -643,6 +683,7 @@ payload={prev_compaction_seq, snapshot, truncated_at_seq}。旧事件被截断�
 历史保存在 snapshot。verify_chain 校验 COMPACTION 的 prev_compaction_seq
 链单调无缺口；首条可为 None（LEGACY_MIGRATION 合法锚）。
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -672,8 +713,12 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
 
     # Build the new COMPACTION head as the sole event (seq=1, prev=GENESIS).
     head_event = TraceEvent.sign_and_new(
-        prev_signature=GENESIS_PREV, seq=1,
-        actor="system", actor_role="GATE", action="COMPACTION", target="trace.jsonl",
+        prev_signature=GENESIS_PREV,
+        seq=1,
+        actor="system",
+        actor_role="GATE",
+        action="COMPACTION",
+        target="trace.jsonl",
         payload={
             "prev_compaction_seq": prev_compaction_seq,
             "snapshot": snapshot,
@@ -772,8 +817,13 @@ def test_safe_write_accepts_bytes(tmp_path: Path) -> None:
 def test_safe_write_traces_when_round_given(tmp_path: Path) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
-    safe_write(rd / "progress.json", "{}", round_dir=rd,
-               trace_action="MATERIALIZE", trace_target="progress.json")
+    safe_write(
+        rd / "progress.json",
+        "{}",
+        round_dir=rd,
+        trace_action="MATERIALIZE",
+        trace_target="progress.json",
+    )
     assert (rd / "trace.jsonl").exists()
     rec = json.loads((rd / "trace.jsonl").read_text(encoding="utf-8").strip())
     assert rec["action"] == "MATERIALIZE"
@@ -791,6 +841,7 @@ on flock-unavailable, falls back to a lockfile (M5). Optionally appends a
 trace event via TraceWriter. ASCII docstring: matches src/shenbi/*.py whose
 ruff ignore list omits RUF002 (ambiguous-unicode-in-docstring).
 """
+
 from __future__ import annotations
 
 import os
@@ -862,8 +913,11 @@ def safe_write(
         from shenbi.trace.writer import TraceWriter  # local import to avoid circular dependency
 
         TraceWriter(round_dir).append(
-            actor="safe_write", actor_role="GATE", action=trace_action,
-            target=trace_target or path.name, payload={"path": str(path)},
+            actor="safe_write",
+            actor_role="GATE",
+            action=trace_action,
+            target=trace_target or path.name,
+            payload={"path": str(path)},
         )
 ```
 
@@ -903,15 +957,27 @@ def test_materialize_from_init_and_marks(tmp_path: Path) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
     w = TraceWriter(rd)
-    w.append(actor="d", actor_role="GATE", action="INIT", target="progress.json",
-             payload={"tier": "T1", "expected_chapters": 5})
+    w.append(
+        actor="d",
+        actor_role="GATE",
+        action="INIT",
+        target="progress.json",
+        payload={"tier": "T1", "expected_chapters": 5},
+    )
     for tt in ("generative", "bug-hunt", "clean"):
-        w.append(actor="d", actor_role="GATE", action="MARK_DONE", target="progress.json",
-                 payload={"skill": "shenbi-a", "test_type": tt, "score": 94.0, "status": "done"})
+        w.append(
+            actor="d",
+            actor_role="GATE",
+            action="MARK_DONE",
+            target="progress.json",
+            payload={"skill": "shenbi-a", "test_type": tt, "score": 94.0, "status": "done"},
+        )
     prog = materialize_progress(rd, total_skills=SKILLS)
     assert prog["completed_skill_names"] == ["shenbi-a"]
     assert prog["tier"] == "T1"
-    assert json.loads((rd / "progress.json").read_text(encoding="utf-8"))["completed_skill_names"] == ["shenbi-a"]
+    assert json.loads((rd / "progress.json").read_text(encoding="utf-8"))[
+        "completed_skill_names"
+    ] == ["shenbi-a"]
 
 
 def test_materialize_empty_trace(tmp_path: Path) -> None:
@@ -930,8 +996,13 @@ def test_materialize_partial_skill_per_phase_queue(tmp_path: Path) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
     w = TraceWriter(rd)
-    w.append(actor="d", actor_role="GATE", action="MARK_DONE", target="progress.json",
-             payload={"skill": "shenbi-a", "test_type": "generative", "score": 94.0, "status": "done"})
+    w.append(
+        actor="d",
+        actor_role="GATE",
+        action="MARK_DONE",
+        target="progress.json",
+        payload={"skill": "shenbi-a", "test_type": "generative", "score": 94.0, "status": "done"},
+    )
     prog = materialize_progress(rd, total_skills=SKILLS)
     # shenbi-a done on generative only -> NOT fully complete, NOT in remaining_generative
     assert "shenbi-a" not in prog["completed_skill_names"]
@@ -949,6 +1020,7 @@ def test_materialize_partial_skill_per_phase_queue(tmp_path: Path) -> None:
 重放 INIT/MARK_DONE 重建 progress dict，经 safe_write 落盘。语义对齐
 update_progress.py（三个 test_type 均 done/skip → completed）。
 """
+
 from __future__ import annotations
 
 import json
@@ -993,8 +1065,10 @@ def materialize_progress(
             skill = str(payload.get("skill"))
             tt = str(payload.get("test_type"))
             sd = skills_state.setdefault(skill, _empty_skill())  # I2: default three-pending
-            sd[tt] = {"status": str(payload.get("status", "done")),
-                      "score": float(payload.get("score", 0.0))}
+            sd[tt] = {
+                "status": str(payload.get("status", "done")),
+                "score": float(payload.get("score", 0.0)),
+            }
             if sd[tt]["status"] in ("done", "skip"):
                 done_counter += 1
 
@@ -1003,7 +1077,8 @@ def materialize_progress(
     # I1 fix: per-phase pending (mirror cmd_rebuild_queues semantics)
     def _pending(test_type: str) -> set[str]:
         return all_skills_set - {
-            sn for sn, sd in skills_state.items()
+            sn
+            for sn, sd in skills_state.items()
             if sd.get(test_type, {}).get("status") in ("done", "skip")
         }
 
@@ -1011,10 +1086,7 @@ def materialize_progress(
         all_skills_set - (_pending("generative") | _pending("bug-hunt") | _pending("clean"))
     )
     # I2 fix: unmarked skills get three-pending structure (not empty)
-    skills_full = {
-        skill: skills_state.get(skill, _empty_skill())
-        for skill in sorted(total_skills)
-    }
+    skills_full = {skill: skills_state.get(skill, _empty_skill()) for skill in sorted(total_skills)}
     out: dict[str, Any] = {
         "round": Path(round_dir).name.split("-")[1] if "round-" in str(round_dir) else "???",
         "tier": init_tier,
@@ -1112,6 +1184,7 @@ hash chain to detect tampering; validates the COMPACTION chain (LEGACY anchor)
 + schema_version monotonicity. Never mutates files (criteria 7/11). ASCII
 docstring: matches gates/*.py whose ruff ignore list omits RUF002.
 """
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -1194,10 +1267,16 @@ from shenbi.trace.migrate import migrate_from_progress
 def test_migrate_from_existing_progress(tmp_path: Path) -> None:
     rd = tmp_path / "round"
     rd.mkdir()
-    (rd / "progress.json").write_text(json.dumps({
-        "round": "001", "tier": "T1",
-        "completed_skill_names": ["shenbi-a"],
-    }), encoding="utf-8")
+    (rd / "progress.json").write_text(
+        json.dumps(
+            {
+                "round": "001",
+                "tier": "T1",
+                "completed_skill_names": ["shenbi-a"],
+            }
+        ),
+        encoding="utf-8",
+    )
     e = migrate_from_progress(rd)
     assert e.action == "LEGACY_MIGRATION"
     assert "progress_sha256" in e.payload
@@ -1210,6 +1289,7 @@ def test_migrate_idempotent(tmp_path: Path) -> None:
     (rd / "progress.json").write_text("{}", encoding="utf-8")
     migrate_from_progress(rd)
     from shenbi.trace.replay import replay
+
     before = len(replay(rd))
     migrate_from_progress(rd)
     after = len(replay(rd))
@@ -1248,8 +1328,10 @@ def migrate_from_progress(round_dir: Path) -> TraceEvent:
         snapshot = {}
     w = TraceWriter(round_dir)
     return w.append(
-        actor="system", actor_role="GATE",
-        action="LEGACY_MIGRATION", target="progress.json",
+        actor="system",
+        actor_role="GATE",
+        action="LEGACY_MIGRATION",
+        target="progress.json",
         payload={
             "progress_sha256": hashlib.sha256(raw.encode("utf-8")).hexdigest(),
             "progress_snapshot": {
@@ -1278,6 +1360,7 @@ git commit -m "feat(trace): add migrate_from_progress (LEGACY_MIGRATION + file-s
 ```python
 # src/shenbi/trace/__init__.py
 """Tier A 事件溯源：append-only trace.jsonl（spec 支柱四 Tier A）。"""
+
 from shenbi.trace.compaction import compact, verify_chain
 from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
 from shenbi.trace.materialize import materialize_progress
@@ -1287,10 +1370,19 @@ from shenbi.trace.versioning import CURRENT_VERSION, assert_monotonic, migrate_t
 from shenbi.trace.writer import TraceWriter
 
 __all__ = [
-    "CURRENT_VERSION", "GENESIS_PREV", "TraceEvent", "TraceWriter",
-    "canonical_payload", "sign", "replay", "compact", "verify_chain",
-    "materialize_progress", "migrate_from_progress",
-    "assert_monotonic", "migrate_to_current",
+    "CURRENT_VERSION",
+    "GENESIS_PREV",
+    "TraceEvent",
+    "TraceWriter",
+    "canonical_payload",
+    "sign",
+    "replay",
+    "compact",
+    "verify_chain",
+    "materialize_progress",
+    "migrate_from_progress",
+    "assert_monotonic",
+    "migrate_to_current",
 ]
 ```
 

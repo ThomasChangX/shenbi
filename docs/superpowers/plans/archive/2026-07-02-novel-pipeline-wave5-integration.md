@@ -19,12 +19,14 @@
 ```python
 # tests/integration/pipeline/test_genesis_to_loop.py
 """Verify genesis completes 17 steps, checkpoint fires, approve transitions to chapter-loop."""
+
 from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.machine import load_state
+
 
 @pytest.fixture
 def seeded_project(tmp_path, sample_seed_content):
@@ -33,6 +35,7 @@ def seeded_project(tmp_path, sample_seed_content):
     project = tmp_path / "novel"
     main(["init", str(seed), "--project-dir", str(project)])
     return project
+
 
 class TestGenesisToLoop:
     @patch("shenbi.pipeline.genesis.dispatch_skill")
@@ -83,12 +86,14 @@ git commit -m "test: genesis-to-loop phase transition integration (wave5 task1)"
 # tests/integration/pipeline/test_chapter_loop_full.py
 """Verify chapter loop: plan(staging) -> checkpoint -> context -> draft -> settle(staging)
 -> checkpoint -> audit(7 core) -> resonance -> revision -> snapshot -> drift."""
+
 from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import pytest
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.machine import load_state
+
 
 class TestChapterLoopFull:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
@@ -100,6 +105,7 @@ class TestChapterLoopFull:
 
         # Set up state directly in chapter-loop phase
         from shenbi.pipeline.state import PipelineState, PipelinePhase, GenesisState
+
         project = tmp_path / "novel"
         project.mkdir()
         state = PipelineState.default(str(project))
@@ -107,6 +113,7 @@ class TestChapterLoopFull:
         state.genesis.state = GenesisState.COMPLETED
         state.chapter_loop.current_chapter = 1
         from shenbi.pipeline.machine import save_state
+
         save_state(project, state)
 
         main(["next", str(project)])
@@ -174,6 +181,7 @@ git commit -m "docs: add spec coverage matrix for all waves (wave5 task3)"
 ```python
 # tests/integration/pipeline/test_full_flows.py
 """Comprehensive cross-wave integration tests."""
+
 from __future__ import annotations
 from pathlib import Path
 from unittest.mock import patch, MagicMock
@@ -181,6 +189,7 @@ import pytest
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.machine import load_state
 from shenbi.pipeline.dispatch_helper import DispatchResult
+
 
 class TestStagingIntegration:
     @patch("shenbi.pipeline.chapter_loop.dispatch_skill")
@@ -216,38 +225,48 @@ class TestStagingIntegration:
         main(["review", str(project), "approve"])
         assert (project / "plans" / "chapter-1-plan.md").exists()
 
+
 class TestRevisionRouting:
     def test_revision_routes_craft_to_polishing(self):
         """Verify revision router correctly routes craft issues to polishing."""
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+
         route = route_chapter_revision(
-            issues=[{"category": "craft", "severity": "CRITICAL"}], blocking=False)
+            issues=[{"category": "craft", "severity": "CRITICAL"}], blocking=False
+        )
         assert route == RevisionRoute.SPOT_FIX
 
     def test_revision_routes_blocking_to_regenerate(self):
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+
         route = route_chapter_revision(
-            issues=[{"category": "unmet_goal", "severity": "BLOCKING"}], blocking=True)
+            issues=[{"category": "unmet_goal", "severity": "BLOCKING"}], blocking=True
+        )
         assert route == RevisionRoute.REGENERATE
+
 
 class TestTriggerSystem:
     def test_l2_trigger_at_ch12(self):
         from shenbi.pipeline.triggers import check_triggers
         from shenbi.pipeline.state import PipelineState
+
         r = check_triggers(PipelineState.default("/x"), 12, 67)
         assert r.l2_distill and r.score_arc
 
     def test_closure_trigger_at_last_chapter(self):
         from shenbi.pipeline.triggers import check_triggers
         from shenbi.pipeline.state import PipelineState
+
         r = check_triggers(PipelineState.default("/x"), 67, 67)
         assert r.book_closure
+
 
 class TestErrorHandling:
     def test_dispatch_failure_increments_retry(self):
         """Verify handle_dispatch_failure returns True for first retries, False on max."""
         from shenbi.pipeline.error_handler import handle_dispatch_failure
         from shenbi.pipeline.state import PipelineState
+
         state = PipelineState.default("/x")
         assert handle_dispatch_failure(state, "test-skill", 1) is True  # retry
         assert handle_dispatch_failure(state, "test-skill", 2) is True  # retry
@@ -256,10 +275,12 @@ class TestErrorHandling:
     def test_scoring_failure_exit_code_routing(self):
         from shenbi.pipeline.error_handler import handle_scoring_failure
         from shenbi.pipeline.state import PipelineState
+
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 2) is True   # validation fail -> retry
-        assert handle_scoring_failure(state, 3) is True   # marker missing -> retry
+        assert handle_scoring_failure(state, 2) is True  # validation fail -> retry
+        assert handle_scoring_failure(state, 3) is True  # marker missing -> retry
         assert handle_scoring_failure(state, 1) is False  # other error -> give up
+
 
 class TestClosureFlow:
     @patch("shenbi.pipeline.closure.dispatch_skill")
@@ -302,9 +323,11 @@ class TestRevisionRoutingFromAuditResults:
         audits_dir = project / "audits"
         audits_dir.mkdir(parents=True)
         (audits_dir / "chapter-5-continuity.md").write_text(
-            "## Audit Report\n\nSeverity: BLOCKING\nIssue: Timeline contradiction")
+            "## Audit Report\n\nSeverity: BLOCKING\nIssue: Timeline contradiction"
+        )
 
         import glob
+
         audit_files = glob.glob(str(audits_dir / "chapter-5-*.md"))
         issues, blocking = [], False
         for af in audit_files:
@@ -327,9 +350,11 @@ class TestRevisionRoutingFromAuditResults:
         audits_dir = project / "audits"
         audits_dir.mkdir(parents=True)
         (audits_dir / "chapter-5-pacing.md").write_text(
-            "## Audit Report\n\nSeverity: CRITICAL\nIssue: Pacing too slow")
+            "## Audit Report\n\nSeverity: CRITICAL\nIssue: Pacing too slow"
+        )
 
         import glob
+
         audit_files = glob.glob(str(audits_dir / "chapter-5-*.md"))
         issues, blocking = [], False
         for af in audit_files:
@@ -347,6 +372,7 @@ class TestRevisionRoutingFromAuditResults:
     def test_clean_chapter_no_revision(self):
         """When no audit issues found, revision routing returns NO_REVISION."""
         from shenbi.pipeline.revision_router import route_chapter_revision, RevisionRoute
+
         route = route_chapter_revision(issues=[], blocking=False)
         assert route == RevisionRoute.NO_REVISION
 ```

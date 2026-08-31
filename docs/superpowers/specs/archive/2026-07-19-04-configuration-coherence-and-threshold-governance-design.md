@@ -63,6 +63,7 @@ Create a G0 check that validates internal consistency of `genre-config.json`:
 ```python
 # src/shenbi/gates/g0_config_coherence.py (new)
 
+
 def check_config_coherence(project_dir: Path) -> list[str]:
     """Validate genre-config.json internal consistency."""
     issues = []
@@ -75,7 +76,7 @@ def check_config_coherence(project_dir: Path) -> list[str]:
         issues.append(
             f"G0.cc.threshold_mismatch:resonance_floor "
             f"config={config_floor} vs skill={skill_floor} — "
-            f"chapters scoring {config_floor}-{skill_floor-1} will pass state "
+            f"chapters scoring {config_floor}-{skill_floor - 1} will pass state "
             f"gate but fail audit skill silently"
         )
 
@@ -113,15 +114,18 @@ Define numeric thresholds in ONE location and have all consumers reference it:
 
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class QualityThresholds:
     """Single source of truth for all quality thresholds."""
+
     resonance_global_floor: int = 65  # Used by BOTH state routing AND audit skill
     resonance_revision_trigger: int = 60  # Below this → force revision
     word_count_floor: int = 3000  # Minimum CJK characters per chapter
     protagonist_mention_floor: int = 3  # Minimum protagonist name mentions
     system_term_density_warn: int = 30  # per mille
     system_term_density_hard: int = 50  # per mille
+
 
 DEFAULT_THRESHOLDS = QualityThresholds()
 

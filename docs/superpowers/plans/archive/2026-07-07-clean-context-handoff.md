@@ -126,9 +126,7 @@ class TestP25RationaleRules:
         assert "FORBIDDEN" in errors[0] or "forbidden" in errors[0].lower()
 
     def test_routine_low_severity_without_rationale_passes(self) -> None:
-        errors = validate_selection_rationale(
-            basis="arc_relevance", severity="low", rationale=None
-        )
+        errors = validate_selection_rationale(basis="arc_relevance", severity="low", rationale=None)
         assert errors == []
 
     def test_routine_high_severity_without_rationale_fails(self) -> None:
@@ -165,9 +163,7 @@ class TestP25RationaleRules:
         assert any("100" in e for e in errors)
 
     def test_invalid_basis_fails(self) -> None:
-        errors = validate_selection_rationale(
-            basis="invalid_basis", severity="low", rationale=None
-        )
+        errors = validate_selection_rationale(basis="invalid_basis", severity="low", rationale=None)
         assert any("basis" in e.lower() for e in errors)
 
     def test_adjustment_without_rationale_fails(self) -> None:
@@ -204,14 +200,14 @@ DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 
 VALID_BASIS = {
     "adjacent_to_target_chapter",  # routine: chapters near target
-    "arc_relevance",               # routine: related to current arc
-    "volume_scope",                # routine: within current volume
-    "manual_override",             # anomaly: human/skill explicitly overrode routine
+    "arc_relevance",  # routine: related to current arc
+    "volume_scope",  # routine: within current volume
+    "manual_override",  # anomaly: human/skill explicitly overrode routine
 }
 
 VALID_SEVERITY = {
-    "low",     # default for routine decisions — rationale forbidden
-    "high",    # high-stakes routine decision — rationale required (P2.5 escape hatch)
+    "low",  # default for routine decisions — rationale forbidden
+    "high",  # high-stakes routine decision — rationale required (P2.5 escape hatch)
 }
 
 VALID_HANDLING = {
@@ -228,9 +224,7 @@ ROUTINE_BASIS = VALID_BASIS - {"manual_override"}
 _RATIONALE_MAX_CHARS = 100
 
 
-def validate_selection_rationale(
-    basis: str, severity: str, rationale: str | None
-) -> list[str]:
+def validate_selection_rationale(basis: str, severity: str, rationale: str | None) -> list[str]:
     """Validate P2.5 rationale rules for a selections[] entry.
 
     Returns list of error strings (empty = valid).
@@ -249,18 +243,12 @@ def validate_selection_rationale(
     is_routine_low = basis in ROUTINE_BASIS and severity != "high"
 
     if is_routine_low and rationale is not None:
-        errors.append(
-            f"rationale FORBIDDEN for routine basis {basis!r} with severity {severity!r}"
-        )
+        errors.append(f"rationale FORBIDDEN for routine basis {basis!r} with severity {severity!r}")
     elif needs_rationale and not rationale:
-        errors.append(
-            f"rationale REQUIRED for basis {basis!r} with severity {severity!r}"
-        )
+        errors.append(f"rationale REQUIRED for basis {basis!r} with severity {severity!r}")
 
     if rationale and len(rationale) > _RATIONALE_MAX_CHARS:
-        errors.append(
-            f"rationale exceeds {_RATIONALE_MAX_CHARS} chars (got {len(rationale)})"
-        )
+        errors.append(f"rationale exceeds {_RATIONALE_MAX_CHARS} chars (got {len(rationale)})")
 
     return errors
 
@@ -303,20 +291,24 @@ git commit -m "feat: add decisions schema v1 module with P2.5 rationale rules"
 ```python
 # Append to tests/unit/test_contract.py
 
+
 @pytest.mark.unit
 class TestDecisionsRegistryPaths:
     def test_context_decisions_json_resolves(self) -> None:
         from shenbi.contracts.legacy import load_registry, resolves
+
         registry = load_registry()
         assert resolves("context/chapter-N-context-decisions.json", registry)
 
     def test_chapter_decisions_json_resolves(self) -> None:
         from shenbi.contracts.legacy import load_registry, resolves
+
         registry = load_registry()
         assert resolves("chapters/chapter-N-decisions.json", registry)
 
     def test_decisions_kind_in_registry(self) -> None:
         from shenbi.contracts.registry import bootstrap_registry
+
         reg = bootstrap_registry()
         assert reg.get("context/chapter-N-context-decisions.json") == "decisions"
         assert reg.get("chapters/chapter-N-decisions.json") == "decisions"
@@ -384,6 +376,7 @@ git commit -m "feat: register decisions.json paths in truth-files.yaml (M1+M2)"
 
 ```python
 # Append to tests/unit/test_dispatcher_executor.py
+
 
 @pytest.mark.unit
 def test_derive_file_type_returns_decisions_for_context_composing_after_migration(
@@ -513,11 +506,13 @@ git commit -m "feat: add derive_file_type decisions branch (M3)"
 ```python
 # Append to tests/unit/gates/test_g2.py
 
+
 class TestG2DecisionsBranch:
     """G2.dec.* — decisions.json validation (M4)."""
 
     def test_valid_decisions_json_passes(self, tmp_path: Path) -> None:
         import json
+
         decisions = {
             "$schema": "shenbi-decisions-v1",
             "skill": "shenbi-context-composing",
@@ -542,6 +537,7 @@ class TestG2DecisionsBranch:
 
     def test_wrong_schema_version_fails_g2_dec_2(self, tmp_path: Path) -> None:
         import json
+
         decisions = {
             "$schema": "wrong-version",
             "skill": "shenbi-context-composing",
@@ -558,6 +554,7 @@ class TestG2DecisionsBranch:
 
     def test_missing_required_keys_fails_g2_dec_3(self, tmp_path: Path) -> None:
         import json
+
         decisions = {
             "$schema": "shenbi-decisions-v1",
             "skill": "shenbi-context-composing",
@@ -573,6 +570,7 @@ class TestG2DecisionsBranch:
     def test_decisions_does_not_trigger_word_count(self, tmp_path: Path) -> None:
         """Critical: G2.6/G2.7 word count must NOT run on decisions files."""
         import json
+
         decisions = {
             "$schema": "shenbi-decisions-v1",
             "skill": "shenbi-context-composing",
@@ -613,32 +611,40 @@ The G2.3 block (lines 56-62) currently looks like:
 Insert the decisions branch **immediately after** line 62 (the `continue` in the G2.3 except block), before the G2.4 JSON syntax check at line 64:
 
 ```python
-        # G2.dec — decisions.json validation (M4)
-        # Placed after G2.3 (content is now available) and before G2.4/G2.5.
-        if file_type == "decisions":
-            # G2.dec.1 — valid JSON
-            try:
-                data = json.loads(content)
-            except json.JSONDecodeError:
-                mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
-                continue
-            # G2.dec.2 — schema version
-            if data.get("$schema") != "shenbi-decisions-v1":
-                mf.append({
-                    "id": "G2.dec.2", "file": fp, "s": "FAIL",
-                    "r": f"schema version mismatch: {data.get('$schema')}",
-                })
-            # G2.dec.3 — required keys
-            required = {"skill", "chapter", "selections", "produced_at"}
-            missing = required - data.keys()
-            if missing:
-                mf.append({
-                    "id": "G2.dec.3", "file": fp, "s": "FAIL",
-                    "r": f"missing keys: {missing}",
-                })
-            else:
-                checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
-            continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
+# G2.dec — decisions.json validation (M4)
+# Placed after G2.3 (content is now available) and before G2.4/G2.5.
+if file_type == "decisions":
+    # G2.dec.1 — valid JSON
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        mf.append({"id": "G2.dec.1", "file": fp, "s": "FAIL", "r": "invalid JSON"})
+        continue
+    # G2.dec.2 — schema version
+    if data.get("$schema") != "shenbi-decisions-v1":
+        mf.append(
+            {
+                "id": "G2.dec.2",
+                "file": fp,
+                "s": "FAIL",
+                "r": f"schema version mismatch: {data.get('$schema')}",
+            }
+        )
+    # G2.dec.3 — required keys
+    required = {"skill", "chapter", "selections", "produced_at"}
+    missing = required - data.keys()
+    if missing:
+        mf.append(
+            {
+                "id": "G2.dec.3",
+                "file": fp,
+                "s": "FAIL",
+                "r": f"missing keys: {missing}",
+            }
+        )
+    else:
+        checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
+    continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
 ```
 
 **Why this placement works**: `content` is assigned at line 58 inside the G2.3 try block. If G2.3 succeeds (the normal path), `content` is available when we reach the decisions branch. If G2.3 fails, the `continue` at line 62 skips the decisions branch entirely — which is correct (a file that can't be read as UTF-8 shouldn't be parsed as JSON either). The `continue` at the end of the decisions branch skips G2.4-G2.10 (JSON syntax recheck, frontmatter, word count, placeholders, truth diff) — all of which are irrelevant or harmful for decisions.json files.
@@ -671,13 +677,12 @@ git commit -m "feat: add G2 decisions validation branch with word-count skip (M4
 ```python
 # Append to tests/unit/test_phase_runner.py
 
+
 @pytest.mark.unit
 class TestPostSkillOutputDiscovery:
     """M5: phase_runner uses derive_output_files instead of rglob."""
 
-    def test_post_skill_passes_derived_file_type_not_hardcoded_chapter(
-        self, tmp_path, monkeypatch
-    ):
+    def test_post_skill_passes_derived_file_type_not_hardcoded_chapter(self, tmp_path, monkeypatch):
         """M8: G2 must receive derive_file_type(skill), not hardcoded 'chapter'."""
         import shenbi.phase_runner as pr
         from shenbi.status import PhaseState
@@ -692,6 +697,7 @@ class TestPostSkillOutputDiscovery:
 
         # Create state file
         import json
+
         state = {"phase": "drafting", "state": PhaseState.STARTED, "steps": []}
         (state_dir / "drafting.json").write_text(json.dumps(state))
 
@@ -724,9 +730,7 @@ class TestPostSkillOutputDiscovery:
         assert len(captured_file_type) > 0
         assert captured_file_type[0] == "decisions"
 
-    def test_post_skill_uses_derive_output_files_not_rglob(
-        self, tmp_path, monkeypatch
-    ):
+    def test_post_skill_uses_derive_output_files_not_rglob(self, tmp_path, monkeypatch):
         """M5: output_files comes from derive_output_files, not rglob.
         When chapter is provided, derive_output_files is the sole source —
         rglob fallback does NOT fire (it only fires when chapter is None)."""
@@ -774,7 +778,10 @@ class TestPostSkillOutputDiscovery:
         # Pass chapter=5 so the rglob fallback does NOT fire.
         # With chapter provided, derive_output_files is the sole source.
         pr.cmd_post_skill(
-            "drafting", "shenbi-chapter-drafting", str(round_dir), str(project_dir),
+            "drafting",
+            "shenbi-chapter-drafting",
+            str(round_dir),
+            str(project_dir),
             chapter=5,
         )
 
@@ -835,9 +842,13 @@ def cmd_post_skill(phase: str, skill: str, round_dir: str, project_dir: str | No
         g2 = run_gate("G2", [",".join(output_files), "chapter", str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
 
+
 # After:
 def cmd_post_skill(
-    phase: str, skill: str, round_dir: str, project_dir: str | None,
+    phase: str,
+    skill: str,
+    round_dir: str,
+    project_dir: str | None,
     chapter: int | None = None,
 ) -> None:
     state = load_state(round_dir, phase)
@@ -845,11 +856,13 @@ def cmd_post_skill(
     assert project_dir is not None
     proj = Path(project_dir)
     from shenbi.dispatcher.executor import derive_file_type, derive_output_files
+
     # M5: use contract-declared outputs instead of rglob heuristic.
     # chapter must be provided for chapter-parametric skills; when None
     # (non-pipeline T2), derive_output_files returns [] for parametric paths.
     output_files = [
-        p for p in derive_output_files(skill, chapter, proj)
+        p
+        for p in derive_output_files(skill, chapter, proj)
         if Path(p).exists() and Path(p).stat().st_size > 0
     ]
     # M8: use derived file_type instead of hardcoded "chapter".
@@ -899,6 +912,7 @@ git commit -m "feat: phase_runner uses derive_output_files + derive_file_type (M
 
 ```python
 # Append to tests/unit/pipeline/test_dispatch_helper.py
+
 
 class TestMultiFileOutputFormat:
     """M6: when contract has multiple writes, prompt reminds about schema."""
@@ -1220,7 +1234,11 @@ class TestPreWriteCheckOverlap:
         for skill in NL_ARTIFACT_SKILLS:
             skill_md = SKILLS_DIR / skill / "SKILL.md"
             if not skill_md.exists():
-                results[skill] = {"exists": False, "pre_write_check": False, "post_write_self_check": False}
+                results[skill] = {
+                    "exists": False,
+                    "pre_write_check": False,
+                    "post_write_self_check": False,
+                }
                 continue
             content = skill_md.read_text(encoding="utf-8")
             results[skill] = {
@@ -1410,8 +1428,13 @@ class TestG4DecisionsValidation:
             "chapter": 5,
             "produced_at": "2026-07-07T12:00:00Z",
             "selections": [
-                {"target": "truth/audit_drift.md", "selected": ["drift_1"],
-                 "basis": "adjacent_to_target_chapter", "severity": "low", "omitted": []}
+                {
+                    "target": "truth/audit_drift.md",
+                    "selected": ["drift_1"],
+                    "basis": "adjacent_to_target_chapter",
+                    "severity": "low",
+                    "omitted": [],
+                }
             ],
         }
         fp = tmp_path / "chapter-5-context-decisions.json"
@@ -1427,9 +1450,14 @@ class TestG4DecisionsValidation:
             "chapter": 5,
             "produced_at": "2026-07-07T12:00:00Z",
             "selections": [
-                {"target": "truth/audit_drift.md", "selected": ["drift_1"],
-                 "basis": "arc_relevance", "severity": "low", "omitted": [],
-                 "rationale": "should not be here"}
+                {
+                    "target": "truth/audit_drift.md",
+                    "selected": ["drift_1"],
+                    "basis": "arc_relevance",
+                    "severity": "low",
+                    "omitted": [],
+                    "rationale": "should not be here",
+                }
             ],
         }
         fp = tmp_path / "chapter-5-context-decisions.json"
@@ -1445,8 +1473,13 @@ class TestG4DecisionsValidation:
             "chapter": 5,
             "produced_at": "2026-07-07T12:00:00Z",
             "selections": [
-                {"target": "world/rules.md", "selected": ["rule_1"],
-                 "basis": "manual_override", "severity": "low", "omitted": ["rule_2"]}
+                {
+                    "target": "world/rules.md",
+                    "selected": ["rule_1"],
+                    "basis": "manual_override",
+                    "severity": "low",
+                    "omitted": ["rule_2"],
+                }
             ],
         }
         fp = tmp_path / "chapter-5-context-decisions.json"
@@ -1462,8 +1495,13 @@ class TestG4DecisionsValidation:
             "chapter": 5,
             "produced_at": "2026-07-07T12:00:00Z",
             "selections": [
-                {"target": "truth/arcs/arc-N.md", "selected": ["climax"],
-                 "basis": "arc_relevance", "severity": "high", "omitted": []}
+                {
+                    "target": "truth/arcs/arc-N.md",
+                    "selected": ["climax"],
+                    "basis": "arc_relevance",
+                    "severity": "high",
+                    "omitted": [],
+                }
             ],
         }
         fp = tmp_path / "chapter-5-context-decisions.json"
@@ -1480,8 +1518,7 @@ class TestG4DecisionsValidation:
             "produced_at": "2026-07-07T12:00:00Z",
             "selections": [],
             "adjustments": [
-                {"issue_id": "drift_1", "severity": "medium",
-                 "handling": "compensate_via_pacing"}
+                {"issue_id": "drift_1", "severity": "medium", "handling": "compensate_via_pacing"}
             ],
         }
         fp = tmp_path / "chapter-5-context-decisions.json"
@@ -1605,6 +1642,7 @@ def make_composite_checker(
     Returns FAIL if either checker fails; aggregates all checks and must_fix items.
     Both checkers always run (even if the first fails) to collect all failures.
     """
+
     def composite(fps: list[str], rd: str | None = None) -> str:
         import json
 
@@ -1623,9 +1661,7 @@ def make_composite_checker(
             decisions_data = {"status": "FAIL", "checks": [], "must_fix": ["unparseable"]}
 
         combined_checks = existing_data.get("checks", []) + decisions_data.get("checks", [])
-        combined_must_fix = (
-            existing_data.get("must_fix", []) + decisions_data.get("must_fix", [])
-        )
+        combined_must_fix = existing_data.get("must_fix", []) + decisions_data.get("must_fix", [])
 
         if combined_must_fix:
             return fail(
@@ -1635,6 +1671,7 @@ def make_composite_checker(
                 combined_must_fix,
             )
         return passed(f"G4-composite-{existing_checker.__name__}", combined_checks)
+
     return composite
 ```
 
@@ -1892,28 +1929,28 @@ def _filter_to_fields(text: str, fields: list[str], path: str) -> str:
 In `_build_skill_prompt`, replace **only** lines 149-161 (the read loop, from `input_texts: dict[str, str] = {}` through the `else: raw_inputs[resolved] = ...` line). The truncation logic at lines 162-191 stays intact and consumes the `raw_inputs` dict:
 
 ```python
-    # Read contract inputs with field-level filtering (Layer B)
-    # Replaces only the read loop (lines 149-161). Truncation logic (162-191) stays.
-    input_texts: dict[str, str] = {}
-    raw_inputs: dict[str, str] = {}
-    fields_map = contract.get("read_fields", {})   # Layer B: consume stored field map
-    for read_path in contract.get("reads", []):
-        resolved = _resolve_path(read_path, chapter)
-        full_path = project_dir / resolved
-        if full_path.exists():
-            try:
-                raw_text = full_path.read_text(encoding="utf-8")
-            except Exception:
-                raw_text = f"[binary or unreadable: {resolved}]"
-            # Layer B: filter to declared fields if available
-            fields = fields_map.get(resolved) or fields_map.get(read_path)
-            if fields:
-                raw_text = _filter_to_fields(raw_text, fields, resolved)
-            raw_inputs[resolved] = raw_text
-        else:
-            raw_inputs[resolved] = f"[file not found: {resolved}]"
-    # --- existing truncation logic at lines 162-191 continues from here, unchanged ---
-    # It reads raw_inputs and applies _INPUT_MAX_CHARS_TOTAL / _INPUT_MAX_CHARS_PER_FILE
+# Read contract inputs with field-level filtering (Layer B)
+# Replaces only the read loop (lines 149-161). Truncation logic (162-191) stays.
+input_texts: dict[str, str] = {}
+raw_inputs: dict[str, str] = {}
+fields_map = contract.get("read_fields", {})  # Layer B: consume stored field map
+for read_path in contract.get("reads", []):
+    resolved = _resolve_path(read_path, chapter)
+    full_path = project_dir / resolved
+    if full_path.exists():
+        try:
+            raw_text = full_path.read_text(encoding="utf-8")
+        except Exception:
+            raw_text = f"[binary or unreadable: {resolved}]"
+        # Layer B: filter to declared fields if available
+        fields = fields_map.get(resolved) or fields_map.get(read_path)
+        if fields:
+            raw_text = _filter_to_fields(raw_text, fields, resolved)
+        raw_inputs[resolved] = raw_text
+    else:
+        raw_inputs[resolved] = f"[file not found: {resolved}]"
+# --- existing truncation logic at lines 162-191 continues from here, unchanged ---
+# It reads raw_inputs and applies _INPUT_MAX_CHARS_TOTAL / _INPUT_MAX_CHARS_PER_FILE
 ```
 
 **What NOT to change**: The block starting with `# Apply per-file cap and proportional total budget` (line 162) through `input_texts[fname] = text` (line 191) must remain exactly as-is. It reads `raw_inputs` (which our modified loop populates) and produces `input_texts` (which the rest of `_build_skill_prompt` consumes). Our change only affects how `raw_inputs` is populated — filtering is applied before truncation, so truncated content is already field-filtered.
@@ -1992,11 +2029,10 @@ class TestCheckFieldsExist:
 
     def test_warns_when_json_key_missing(self, tmp_path: Path) -> None:
         import json
+
         fp = tmp_path / "config.json"
         fp.write_text(json.dumps({"a": 1}), encoding="utf-8")
-        warnings = check_fields_exist(
-            "shenbi-skill", [str(fp)], {str(fp): ["a", "missing_key"]}
-        )
+        warnings = check_fields_exist("shenbi-skill", [str(fp)], {str(fp): ["a", "missing_key"]})
         assert len(warnings) == 1
         assert "missing_key" in warnings[0]
 ```
@@ -2249,6 +2285,7 @@ def lint_skill(skill_dir: Path) -> list[str]:
             if not full_path.exists():
                 # Try resolving parametric path by finding a sample file
                 import glob as _glob
+
                 # Convert parametric patterns: N → *, NNN → *
                 glob_pattern = path.replace("NNN", "*").replace("N", "*")
                 glob_path = str(PROJECT_DIR / glob_pattern)

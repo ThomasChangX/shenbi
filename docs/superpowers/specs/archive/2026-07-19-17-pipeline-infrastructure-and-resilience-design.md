@@ -212,14 +212,18 @@ class FileOutput(BaseModel):
     path: str
     content: str
 
+
 class SkillOutput(BaseModel):
     files: list[FileOutput]
     decisions: dict | None = None
 
+
 response = client.chat.completions.create(
-    model=model, messages=messages,
+    model=model,
+    messages=messages,
     response_format={"type": "json_object"},
-    temperature=temp, max_tokens=max_tok,
+    temperature=temp,
+    max_tokens=max_tok,
 )
 output = SkillOutput.model_validate_json(response.choices[0].message.content)
 ```
@@ -232,6 +236,7 @@ CLI backend retains `### FILE:` regex fallback. API path uses 0 regex.
 
 ```python
 from tenacity import retry, stop_after_attempt, wait_exponential_jitter, retry_if_exception_type
+
 
 @retry(
     stop=stop_after_attempt(3),
@@ -328,8 +333,10 @@ Also transcode or remove `report-example.txt` (GBK-encoded public domain text mi
 ```python
 Severity = Literal["low", "medium", "high"]
 
+
 class Selection(BaseModel):
     severity: Severity = "low"
+
 
 class Adjustment(BaseModel):
     severity: Severity  # was: str
@@ -374,9 +381,9 @@ Update or remove the claim that orchestration is "a placeholder." Pipeline `next
 #### Signal handlers
 
 ```python
-def register_emergency_handlers(project_dir: Path, state: 'PipelineState'):
-    _emergency_state['project_dir'] = project_dir
-    _emergency_state['pipeline_state'] = state
+def register_emergency_handlers(project_dir: Path, state: "PipelineState"):
+    _emergency_state["project_dir"] = project_dir
+    _emergency_state["pipeline_state"] = state
     signal.signal(signal.SIGTERM, _handle_emergency_signal)
     signal.signal(signal.SIGINT, _handle_emergency_signal)
     atexit.register(_emergency_cleanup)
@@ -413,7 +420,9 @@ for step in CHAPTER_STEPS:
 ```python
 if cl.current_step and cl.current_step.startswith("EMERGENCY_SHUTDOWN"):
     logger.warning("resuming_from_emergency_shutdown", ...)
-    cl.current_step = CHAPTER_STEPS[cl.step_index].skill if cl.step_index < len(CHAPTER_STEPS) else ""
+    cl.current_step = (
+        CHAPTER_STEPS[cl.step_index].skill if cl.step_index < len(CHAPTER_STEPS) else ""
+    )
     save_pipeline_state(project_dir, state)
 ```
 
@@ -424,12 +433,13 @@ if cl.current_step and cl.current_step.startswith("EMERGENCY_SHUTDOWN"):
 **File:** `src/shenbi/pipeline/dispatch_helper.py`
 
 ```python
-_META_PATTERN = re.compile(r'<!--META-BEGIN-->.*?<!--META-END-->', re.DOTALL)
+_META_PATTERN = re.compile(r"<!--META-BEGIN-->.*?<!--META-END-->", re.DOTALL)
+
 
 def _strip_meta_for_non_drafting(skill_name: str, text: str) -> str:
-    if skill_name in ('shenbi-chapter-drafting', 'shenbi-chapter-revision'):
+    if skill_name in ("shenbi-chapter-drafting", "shenbi-chapter-revision"):
         return text
-    return _META_PATTERN.sub('', text)
+    return _META_PATTERN.sub("", text)
 ```
 
 Saves 16-31% input per non-drafting call (13 auditors + state-settling + lifecycle).
@@ -481,12 +491,15 @@ End-of-run summary: per-skill avg/min/max times.
 **File:** `src/shenbi/pipeline/dispatch_helper.py`
 
 ```python
-if hasattr(response, 'usage'):
+if hasattr(response, "usage"):
     usage = response.usage
-    logger.info("llm_token_usage", skill=skill_name,
-                prompt_tokens=usage.prompt_tokens,
-                completion_tokens=usage.completion_tokens,
-                total_tokens=usage.total_tokens)
+    logger.info(
+        "llm_token_usage",
+        skill=skill_name,
+        prompt_tokens=usage.prompt_tokens,
+        completion_tokens=usage.completion_tokens,
+        total_tokens=usage.total_tokens,
+    )
     _record_token_usage(state, skill_name, usage)
 ```
 
@@ -506,8 +519,14 @@ Non-API paths (codex CLI) approximate from progress tracking.
 def _record_step_done(state, chapter, skill_name):
     # ... existing logic ...
     from shenbi.trace.writer import write_event
-    write_event(project_dir, event_type="MARK_DONE", skill=skill_name,
-                chapter=chapter, timestamp=datetime.now(timezone.utc).isoformat())
+
+    write_event(
+        project_dir,
+        event_type="MARK_DONE",
+        skill=skill_name,
+        chapter=chapter,
+        timestamp=datetime.now(timezone.utc).isoformat(),
+    )
 ```
 
 Materialize progress every 5 steps or at chapter completion. Auto-rebuild on resume if trace has events but progress.json is stale.
@@ -543,6 +562,7 @@ def _compute_dispatch_timeout(chapter_path: Path | None = None) -> int:
     else:
         extra = 0
     return min(base + extra, 1800)  # max 30 min
+
 
 # state-settling gets 2x multiplier
 if skill_name == "shenbi-state-settling":

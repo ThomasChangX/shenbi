@@ -104,33 +104,35 @@ chapter-N.md (30KB)
 ```python
 # src/shenbi/pipeline/scr_extractor.py
 
+
 @dataclass
 class StructuredChapterRepresentation:
     chapter: int
     extracted_at: str
 
     # Facts-Only fields (deterministic, high precision)
-    character_locations: list[dict]       # [{name, location, evidence, line_range}]
-    dialogue_segments: list[dict]         # [{speaker, text, line_range, tags}]
-    event_timeline: list[dict]            # [{description, line_range, characters_involved}]
-    emotional_markers: list[dict]         # [{character, emotion, evidence, confidence}]
-    hook_appearances: list[dict]          # [{hook_id, line_range, context}]
-    world_refs: list[dict]               # [{element, category, line_range}]
-    pov_shifts: list[dict]               # [{from_pov, to_pov, line_range}]
-    decision_points: list[dict]           # [{character, decision, cause_chain, effect, line_range}]
-    paragraph_stats: dict                 # {count, lengths, dialogue_density, etc.}
-    sensitive_hits: list[dict]            # [{word, line_range, surrounding_context}]
-    fatigue_word_hits: list[dict]         # [{word, count, line_ranges}]
-    transition_markers: list[dict]        # [{marker, line_range}]
+    character_locations: list[dict]  # [{name, location, evidence, line_range}]
+    dialogue_segments: list[dict]  # [{speaker, text, line_range, tags}]
+    event_timeline: list[dict]  # [{description, line_range, characters_involved}]
+    emotional_markers: list[dict]  # [{character, emotion, evidence, confidence}]
+    hook_appearances: list[dict]  # [{hook_id, line_range, context}]
+    world_refs: list[dict]  # [{element, category, line_range}]
+    pov_shifts: list[dict]  # [{from_pov, to_pov, line_range}]
+    decision_points: list[dict]  # [{character, decision, cause_chain, effect, line_range}]
+    paragraph_stats: dict  # {count, lengths, dialogue_density, etc.}
+    sensitive_hits: list[dict]  # [{word, line_range, surrounding_context}]
+    fatigue_word_hits: list[dict]  # [{word, count, line_ranges}]
+    transition_markers: list[dict]  # [{marker, line_range}]
 
     # Smart-Excerpting fields (original text preserved)
-    opening_paragraph: str                # 原始开头段落
-    closing_paragraph: str                # 原始结尾段落
-    implicit_info_passages: list[str]     # 隐式情感/关系的原始段落
+    opening_paragraph: str  # 原始开头段落
+    closing_paragraph: str  # 原始结尾段落
+    implicit_info_passages: list[str]  # 隐式情感/关系的原始段落
 
     # Metadata
     total_chinese_chars: int
-    extraction_confidence: float          # 0-1, 基于提取规则的覆盖率
+    extraction_confidence: float  # 0-1, 基于提取规则的覆盖率
+
 
 def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentation:
     """每章一次：确定性提取结构化章节表示。
@@ -140,13 +142,12 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
     - Map-Reduce: Map 阶段——一次扫描，多维输出
     - 高召回低精确：宁可多提取，不漏关键信息
     """
-    chapter_text = (project_dir / 'chapters' / f'chapter-{chapter}.md').read_text()
+    chapter_text = (project_dir / "chapters" / f"chapter-{chapter}.md").read_text()
     prose = extract_prose(chapter_text)  # 剥离 META 块
 
     scr = StructuredChapterRepresentation(
         chapter=chapter,
         extracted_at=datetime.now(timezone.utc).isoformat(),
-
         # 每项提取独立运行，可并行
         character_locations=_extract_character_locations(prose),
         dialogue_segments=_extract_dialogue_segments(prose),
@@ -160,17 +161,15 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
         sensitive_hits=_scan_sensitive_words(prose),
         fatigue_word_hits=_scan_fatigue_words(prose),
         transition_markers=_scan_transition_markers(prose),
-
         opening_paragraph=_extract_opening(prose),
         closing_paragraph=_extract_closing(prose),
         implicit_info_passages=_extract_implicit_passages(prose),
-
-        total_chinese_chars=sum(1 for c in prose if '\u4e00' <= c <= '\u9fff'),
+        total_chinese_chars=sum(1 for c in prose if "\u4e00" <= c <= "\u9fff"),
         extraction_confidence=_compute_confidence(prose),
     )
 
     # 缓存到磁盘
-    cache_path = project_dir / 'context' / f'chapter-{chapter}-scr.json'
+    cache_path = project_dir / "context" / f"chapter-{chapter}-scr.json"
     safe_write(cache_path, json.dumps(asdict(scr), ensure_ascii=False, indent=2))
 
     return scr
@@ -182,25 +181,32 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
 # dispatch_helper.py: 在 _build_skill_prompt 中
 
 SCR_CONSUMER_MAP = {
-    'shenbi-chapter-planning': ['volume_node', 'character_locations', 'event_timeline'],
-    'shenbi-state-settling': ['character_locations', 'emotional_markers',
-                               'event_timeline', 'hook_appearances', 'implicit_info_passages'],
-    'shenbi-foreshadowing-lifecycle': ['hook_appearances', 'pending_hooks'],
-    'shenbi-review-continuity': ['event_timeline', 'character_locations', 'world_refs'],
-    'shenbi-review-character': ['dialogue_segments', 'emotional_markers', 'implicit_info_passages'],
-    'shenbi-review-world-rules': ['world_refs', 'world_rules_summary'],
-    'shenbi-review-pacing': ['event_timeline', 'paragraph_stats'],
-    'shenbi-review-memo-compliance': ['plan_checklist', 'event_timeline'],
-    'shenbi-review-foreshadowing': ['hook_appearances', 'pending_hooks'],
-    'shenbi-review-pov': ['pov_shifts'],
-    'shenbi-review-dialogue': ['dialogue_segments'],       # + original text preserved
-    'shenbi-review-motivation': ['decision_points', 'implicit_info_passages'],
-    'shenbi-review-reader-pull': ['opening_paragraph', 'closing_paragraph'],
-    'shenbi-review-sensitivity': ['sensitive_hits'],
+    "shenbi-chapter-planning": ["volume_node", "character_locations", "event_timeline"],
+    "shenbi-state-settling": [
+        "character_locations",
+        "emotional_markers",
+        "event_timeline",
+        "hook_appearances",
+        "implicit_info_passages",
+    ],
+    "shenbi-foreshadowing-lifecycle": ["hook_appearances", "pending_hooks"],
+    "shenbi-review-continuity": ["event_timeline", "character_locations", "world_refs"],
+    "shenbi-review-character": ["dialogue_segments", "emotional_markers", "implicit_info_passages"],
+    "shenbi-review-world-rules": ["world_refs", "world_rules_summary"],
+    "shenbi-review-pacing": ["event_timeline", "paragraph_stats"],
+    "shenbi-review-memo-compliance": ["plan_checklist", "event_timeline"],
+    "shenbi-review-foreshadowing": ["hook_appearances", "pending_hooks"],
+    "shenbi-review-pov": ["pov_shifts"],
+    "shenbi-review-dialogue": ["dialogue_segments"],  # + original text preserved
+    "shenbi-review-motivation": ["decision_points", "implicit_info_passages"],
+    "shenbi-review-reader-pull": ["opening_paragraph", "closing_paragraph"],
+    "shenbi-review-sensitivity": ["sensitive_hits"],
 }
 
-def inject_scr_context(skill_name: str, scr: StructuredChapterRepresentation,
-                       existing_inputs: dict) -> dict:
+
+def inject_scr_context(
+    skill_name: str, scr: StructuredChapterRepresentation, existing_inputs: dict
+) -> dict:
     """将 SCR 的相关字段注入 LLM 上下文，替代原始文件。
 
     对于 Facts-Only 调用：完全替代 chapter-N.md
@@ -218,10 +224,10 @@ def inject_scr_context(skill_name: str, scr: StructuredChapterRepresentation,
             scr_context[field] = value
 
     # 替换 chapter-N.md 为 SCR 字段
-    if 'chapters/chapter-' in str(existing_inputs):
+    if "chapters/chapter-" in str(existing_inputs):
         del existing_inputs[list(existing_inputs.keys())[0]]  # 移除原始章节
 
-    existing_inputs['_scr_extracted'] = json.dumps(scr_context, ensure_ascii=False, indent=2)
+    existing_inputs["_scr_extracted"] = json.dumps(scr_context, ensure_ascii=False, indent=2)
     return existing_inputs
 ```
 

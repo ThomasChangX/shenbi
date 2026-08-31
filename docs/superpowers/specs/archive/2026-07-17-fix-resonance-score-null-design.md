@@ -45,10 +45,10 @@ def parse_resonance_scores(audit_path):
     """从 resonance 审计报告中解析分数。"""
     text = audit_path.read_text()
     scores = {}
-    for match in re.finditer(r'\|\s*(\S+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\S+)\s*\|', text):
+    for match in re.finditer(r"\|\s*(\S+)\s*\|\s*(\d+)\s*\|\s*(\d+)\s*\|\s*(\S+)\s*\|", text):
         dim, score, max_score, conf = match.groups()
-        scores[dim] = {'score': int(score), 'max': int(max_score), 'confidence': conf}
-    overall = sum(s['score'] for s in scores.values())
+        scores[dim] = {"score": int(score), "max": int(max_score), "confidence": conf}
+    overall = sum(s["score"] for s in scores.values())
     return scores, overall
 ```
 
@@ -57,8 +57,8 @@ def parse_resonance_scores(audit_path):
 在 resonance G4 通过后：
 ```python
 scores, overall = parse_resonance_scores(resonance_audit_path)
-ch_state['resonance_score'] = overall
-ch_state['resonance_dimensions'] = scores
+ch_state["resonance_score"] = overall
+ch_state["resonance_dimensions"] = scores
 ```
 
 ### 3.3 追加到 resonance_trend.md
@@ -66,7 +66,7 @@ ch_state['resonance_dimensions'] = scores
 依赖 Spec CN3（追加模式）：
 ```python
 trend_row = f"| {chapter} | {chapter_role} | {scores['情感落地']['score']} | ... | {overall} | {confidence} | |"
-append_to_truth(project_dir, 'resonance_trend.md', trend_row)
+append_to_truth(project_dir, "resonance_trend.md", trend_row)
 ```
 
 ---

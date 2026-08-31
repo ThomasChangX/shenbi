@@ -36,6 +36,7 @@
 ```python
 # tests/unit/cost/test_pricing.py
 """Tests for the pricing module (spec §3.3)."""
+
 from __future__ import annotations
 
 import pytest
@@ -87,7 +88,9 @@ class TestEstimateCost:
         monkeypatch.delenv("SHENBI_LLM_MODEL", raising=False)
         rates = PRICING[DEFAULT_PRICING_MODEL]
         usage = {"prompt_tokens": 1_000_000, "completion_tokens": 1_000_000}
-        expected = rates["input"] * usage["prompt_tokens"] + rates["output"] * usage["completion_tokens"]
+        expected = (
+            rates["input"] * usage["prompt_tokens"] + rates["output"] * usage["completion_tokens"]
+        )
         assert estimate_cost(usage) == pytest.approx(expected)
 
     def test_unknown_model_falls_back_to_default(self):
@@ -120,6 +123,7 @@ The dispatch path resolves the model as
 ``_DEFAULT_MODEL``. Pricing MUST use that same default so cost reflects what
 ran; do NOT hardcode gpt-4o here.
 """
+
 from __future__ import annotations
 
 import os
@@ -200,6 +204,7 @@ NOT gpt-4o. estimate_cost falls back to default for unknown models."
 ```python
 # tests/unit/cost/test_ledger.py
 """Tests for the TokenLedger JSONL persistence (spec §3.2)."""
+
 from __future__ import annotations
 
 import json
@@ -239,8 +244,12 @@ class TestRecord:
 class TestSummarize:
     def test_summarize_aggregates_by_skill_and_chapter(self, tmp_path: Path):
         led = TokenLedger(tmp_path)
-        led.record("drafting", 1, {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150})
-        led.record("drafting", 2, {"prompt_tokens": 200, "completion_tokens": 100, "total_tokens": 300})
+        led.record(
+            "drafting", 1, {"prompt_tokens": 100, "completion_tokens": 50, "total_tokens": 150}
+        )
+        led.record(
+            "drafting", 2, {"prompt_tokens": 200, "completion_tokens": 100, "total_tokens": 300}
+        )
         led.record("review", 1, {"prompt_tokens": 30, "completion_tokens": 20, "total_tokens": 50})
 
         s = led.summarize()
@@ -289,6 +298,7 @@ Expected: FAIL with `ModuleNotFoundError: No module named 'shenbi.cost.ledger'`
 Each API dispatch appends one self-contained record. Aggregation reads all
 lines; a partial/corrupt line is skipped, never crashing the report.
 """
+
 from __future__ import annotations
 
 import json
@@ -443,6 +453,7 @@ aggregates by skill/chapter/total; corrupt lines skipped not fatal."
 ```python
 # tests/unit/pipeline/test_dispatch_usage_capture.py
 """Tests that _dispatch_via_api records response.usage to the ledger (spec §3.1)."""
+
 from __future__ import annotations
 
 import json
@@ -467,15 +478,15 @@ class TestUsageCapture:
         usage = SimpleNamespace(prompt_tokens=111, completion_tokens=222, total_tokens=333)
         # NOTE: _write_parsed_outputs expects "### FILE: <path>" markers
         # (see dispatch_helper._parse_file_outputs).
-        fake_resp = _fake_response(
-            "### FILE: chapters/chapter-1.md\nbody\n", usage=usage
-        )
+        fake_resp = _fake_response("### FILE: chapters/chapter-1.md\nbody\n", usage=usage)
 
-        with patch("shenbi.pipeline.dispatch_helper.OpenAI") as mock_openai, \
-                patch(
-                    "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-                    return_value=("sys", "user", ["chapters/chapter-1.md"]),
-                ):
+        with (
+            patch("shenbi.pipeline.dispatch_helper.OpenAI") as mock_openai,
+            patch(
+                "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+                return_value=("sys", "user", ["chapters/chapter-1.md"]),
+            ),
+        ):
             mock_openai.return_value.chat.completions.create.return_value = fake_resp
             from shenbi.pipeline.dispatch_helper import _dispatch_via_api
 
@@ -492,14 +503,14 @@ class TestUsageCapture:
     def test_missing_usage_does_not_crash(self, tmp_path: Path, monkeypatch):
         """An endpoint that omits response.usage must not break dispatch."""
         monkeypatch.setenv("SHENBI_LLM_API_KEY", "test-key")
-        fake_resp = _fake_response(
-            "### FILE: chapters/chapter-1.md\nbody\n", usage=None
-        )
-        with patch("shenbi.pipeline.dispatch_helper.OpenAI") as mock_openai, \
-                patch(
-                    "shenbi.pipeline.dispatch_helper._build_skill_prompt",
-                    return_value=("sys", "user", ["chapters/chapter-1.md"]),
-                ):
+        fake_resp = _fake_response("### FILE: chapters/chapter-1.md\nbody\n", usage=None)
+        with (
+            patch("shenbi.pipeline.dispatch_helper.OpenAI") as mock_openai,
+            patch(
+                "shenbi.pipeline.dispatch_helper._build_skill_prompt",
+                return_value=("sys", "user", ["chapters/chapter-1.md"]),
+            ),
+        ):
             mock_openai.return_value.chat.completions.create.return_value = fake_resp
             from shenbi.pipeline.dispatch_helper import _dispatch_via_api
 
@@ -517,49 +528,49 @@ Expected: FAIL (no ledger file created — usage discarded).
 In `src/shenbi/pipeline/dispatch_helper.py`, after the `output_text = response.choices[0].message.content or ""` line (around line 446) and before the `_write_parsed_outputs` call, insert the usage capture. The existing block is:
 
 ```python
-    output_text = response.choices[0].message.content or ""
-    log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
+output_text = response.choices[0].message.content or ""
+log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
 
-    written = _write_parsed_outputs(
-        output_text, output_paths, project_dir, create_truth_templates=True
-    )
+written = _write_parsed_outputs(output_text, output_paths, project_dir, create_truth_templates=True)
 ```
 
 Change it to:
 
 ```python
-    output_text = response.choices[0].message.content or ""
-    log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
+output_text = response.choices[0].message.content or ""
+log.info("api_dispatch_complete", skill=skill, output_length=len(output_text), model=model)
 
-    # NEW (spec §3.1): capture response.usage — free data the API already
-    # returns — and persist to the cost ledger. Defensive: some OpenAI-
-    # compatible endpoints omit usage.
-    usage_obj = getattr(response, "usage", None)
-    if usage_obj is not None:
-        usage = {
-            "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
-            "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
-            "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
-        }
-        log.info(
-            "llm_token_usage",
-            skill=skill,
-            chapter=chapter,
-            model=model,
-            **usage,
-        )
-        try:
-            from shenbi.cost.ledger import TokenLedger
-
-            TokenLedger(project_dir).record(skill, chapter or 0, usage, model=model)
-        except Exception as exc:
-            # Cost accounting must NEVER break a dispatch.
-            log.warning("ledger_record_failed", skill=skill, error=str(exc))
-
-    written = _write_parsed_outputs(
-        output_text, output_paths, project_dir,
-        create_truth_templates=True,
+# NEW (spec §3.1): capture response.usage — free data the API already
+# returns — and persist to the cost ledger. Defensive: some OpenAI-
+# compatible endpoints omit usage.
+usage_obj = getattr(response, "usage", None)
+if usage_obj is not None:
+    usage = {
+        "prompt_tokens": getattr(usage_obj, "prompt_tokens", 0) or 0,
+        "completion_tokens": getattr(usage_obj, "completion_tokens", 0) or 0,
+        "total_tokens": getattr(usage_obj, "total_tokens", 0) or 0,
+    }
+    log.info(
+        "llm_token_usage",
+        skill=skill,
+        chapter=chapter,
+        model=model,
+        **usage,
     )
+    try:
+        from shenbi.cost.ledger import TokenLedger
+
+        TokenLedger(project_dir).record(skill, chapter or 0, usage, model=model)
+    except Exception as exc:
+        # Cost accounting must NEVER break a dispatch.
+        log.warning("ledger_record_failed", skill=skill, error=str(exc))
+
+written = _write_parsed_outputs(
+    output_text,
+    output_paths,
+    project_dir,
+    create_truth_templates=True,
+)
 ```
 
 - [ ] **Step 4: Run test to verify it passes**
@@ -598,6 +609,7 @@ omit usage; cost accounting never breaks dispatch."
 ```python
 # tests/unit/cost/test_estimate.py
 """Tests for the pre-flight prompt token estimator (spec §3.4)."""
+
 from __future__ import annotations
 
 import logging
@@ -641,7 +653,9 @@ class TestContextLimits:
 class TestWarnIfOverBudget:
     def test_small_prompt_no_warning(self, caplog):
         with caplog.at_level(logging.WARNING):
-            warned = warn_if_over_budget("short", "deepseek-v4-flash", logger=logging.getLogger("t"))
+            warned = warn_if_over_budget(
+                "short", "deepseek-v4-flash", logger=logging.getLogger("t")
+            )
         assert warned is False
 
     def test_huge_prompt_warns(self):
@@ -653,7 +667,9 @@ class TestWarnIfOverBudget:
 
     def test_unknown_model_uses_default_no_crash(self):
         # Must not raise on an unknown model.
-        warned = warn_if_over_budget("a" * 10000, "totally-unknown-model", logger=logging.getLogger("t"))
+        warned = warn_if_over_budget(
+            "a" * 10000, "totally-unknown-model", logger=logging.getLogger("t")
+        )
         assert warned in (True, False)
 ```
 
@@ -672,6 +688,7 @@ Rough heuristic only — ~4 chars/token for ASCII, ~1.5 chars/token for CJK.
 Used to WARN before an assembled prompt risks exceeding the model context
 window (expensive API failure). Not a hard gate.
 """
+
 from __future__ import annotations
 
 import logging
@@ -785,6 +802,7 @@ only, not a gate."
 ```python
 # tests/unit/cost/test_report.py
 """Tests for the cost report CLI (spec §3.5)."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -795,8 +813,12 @@ from shenbi.cost.report import main, render_report
 
 def _seed_ledger(tmp_path: Path) -> None:
     led = TokenLedger(tmp_path)
-    led.record("drafting", 1, {"prompt_tokens": 1000, "completion_tokens": 500, "total_tokens": 1500})
-    led.record("drafting", 2, {"prompt_tokens": 2000, "completion_tokens": 500, "total_tokens": 2500})
+    led.record(
+        "drafting", 1, {"prompt_tokens": 1000, "completion_tokens": 500, "total_tokens": 1500}
+    )
+    led.record(
+        "drafting", 2, {"prompt_tokens": 2000, "completion_tokens": 500, "total_tokens": 2500}
+    )
     led.record("review", 1, {"prompt_tokens": 300, "completion_tokens": 100, "total_tokens": 400})
 
 
@@ -843,6 +865,7 @@ Usage: shenbi-cost report <project_dir>
 Prints total cost, per-skill breakdown (% of total), per-chapter average, and
 cost-per-quality-point when an average G3 score is discoverable.
 """
+
 from __future__ import annotations
 
 import argparse
@@ -915,8 +938,7 @@ def render_report(project_dir: Path | str) -> str:
     if avg_score and avg_score > 0:
         cpq = total_cost / avg_score
         lines.append(
-            f"- **Cost per quality point**: ${cpq:.6f} "
-            f"(total_cost / avg_g3_score={avg_score:.1f})"
+            f"- **Cost per quality point**: ${cpq:.6f} (total_cost / avg_g3_score={avg_score:.1f})"
         )
 
     return "\n".join(lines) + "\n"

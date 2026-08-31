@@ -178,8 +178,10 @@ Modify `write_gate_marker()` to write into the central manifest:
 # keyed by manifest path so concurrent gate-marker writes (e.g. parallel audits)
 # do not race and clobber each other's updates. See Spec 12 §3.2 locking pattern.
 import threading
+
 _MANIFEST_LOCKS: dict[str, threading.Lock] = {}
 _MANIFEST_LOCKS_GUARD = threading.Lock()
+
 
 def _manifest_lock(manifest_path: Path) -> threading.Lock:
     """Return (creating if needed) a per-path lock for manifest writes."""
@@ -189,25 +191,26 @@ def _manifest_lock(manifest_path: Path) -> threading.Lock:
             _MANIFEST_LOCKS[key] = threading.Lock()
         return _MANIFEST_LOCKS[key]
 
+
 def record_gate_result(project_dir, phase, chapter, skill, gate, result):
-    manifest_path = project_dir / 'gate-markers' / 'pipeline-manifest.json'
+    manifest_path = project_dir / "gate-markers" / "pipeline-manifest.json"
 
     with _manifest_lock(manifest_path):  # guard the whole read-merge-write
         if manifest_path.exists():
             manifest = json.loads(manifest_path.read_text())
         else:
-            manifest = {'pipeline': str(project_dir.name), 'gates': {}}
+            manifest = {"pipeline": str(project_dir.name), "gates": {}}
 
         phase_key = phase  # 'genesis' or 'chapter_loop'
-        chapter_key = str(chapter) if chapter else 'genesis'
+        chapter_key = str(chapter) if chapter else "genesis"
 
-        gates = manifest.setdefault('gates', {})
+        gates = manifest.setdefault("gates", {})
         phases = gates.setdefault(phase_key, {})
         chapters = phases.setdefault(chapter_key, {})
         skills = chapters.setdefault(skill, {})
         skills[gate] = result
 
-        manifest['updated_at'] = datetime.now(UTC).isoformat()
+        manifest["updated_at"] = datetime.now(UTC).isoformat()
         safe_write(manifest_path, json.dumps(manifest, ensure_ascii=False, indent=2))
 ```
 
@@ -222,18 +225,18 @@ Also update callers:
 Read from manifest first, fall back to old per-file format:
 
 ```python
-def get_gate_result(project_dir, skill, gate='G4'):
+def get_gate_result(project_dir, skill, gate="G4"):
     # Priority: new manifest format
-    manifest_path = project_dir / 'gate-markers' / 'pipeline-manifest.json'
+    manifest_path = project_dir / "gate-markers" / "pipeline-manifest.json"
     if manifest_path.exists():
         manifest = json.loads(manifest_path.read_text())
-        for phase, chapters in manifest.get('gates', {}).items():
+        for phase, chapters in manifest.get("gates", {}).items():
             for chapter, skills in chapters.items():
                 if skill in skills and gate in skills[skill]:
                     return skills[skill][gate]
 
     # Fallback: old per-file format
-    old_path = project_dir / 'gate-markers' / f'{gate}-{skill}-generative.json'
+    old_path = project_dir / "gate-markers" / f"{gate}-{skill}-generative.json"
     if old_path.exists():
         return json.loads(old_path.read_text())
 
@@ -293,8 +296,8 @@ The static template is regenerated only when its source data changes:
 ```python
 def get_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
     """Merge static template with per-chapter delta to produce full checklist."""
-    template_path = project_dir / 'context' / 'review-checklist-template.json'
-    delta_path = project_dir / 'context' / f'review-checklist-chapter-{chapter}.json'
+    template_path = project_dir / "context" / "review-checklist-template.json"
+    delta_path = project_dir / "context" / f"review-checklist-chapter-{chapter}.json"
 
     template = json.loads(template_path.read_text()) if template_path.exists() else {}
     delta = json.loads(delta_path.read_text()) if delta_path.exists() else {}
@@ -386,12 +389,12 @@ def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
     snap_path = snap_dir / f"chapter-{chapter:03d}-{timestamp}.json"
 
     manifest = {
-        'chapter': chapter,
-        'timestamp': timestamp,
-        'label': None,
-        'files': {},
-        'audit_files': {},
-        'truth_snapshot': {}
+        "chapter": chapter,
+        "timestamp": timestamp,
+        "label": None,
+        "files": {},
+        "audit_files": {},
+        "truth_snapshot": {},
     }
 
     # 1. Hash chapter file (immutable); ring-buffer full content for recent chapters
@@ -401,46 +404,46 @@ def _snapshot_chapter_files(project_dir: Path, chapter: int) -> None:
     latest_chapter = _latest_chapter_number(snap_dir)  # highest chapter seen so far
     chapter_file = project_dir / "chapters" / f"chapter-{chapter}.md"
     if chapter_file.exists():
-        file_content = chapter_file.read_text(encoding='utf-8')
-        content_bytes = file_content.encode('utf-8')
+        file_content = chapter_file.read_text(encoding="utf-8")
+        content_bytes = file_content.encode("utf-8")
         record = {
-            'path': f"chapters/chapter-{chapter}.md",
-            'sha256': hashlib.sha256(content_bytes).hexdigest(),
-            'size': len(content_bytes)
+            "path": f"chapters/chapter-{chapter}.md",
+            "sha256": hashlib.sha256(content_bytes).hexdigest(),
+            "size": len(content_bytes),
         }
         if chapter >= latest_chapter - 2:  # ring buffer for recent chapters (N=3)
             record["content"] = file_content  # enables revision rollback
-        manifest['files']['chapter'] = record
+        manifest["files"]["chapter"] = record
 
     # 2. Hash plan file (write-once); same ring-buffer treatment for recent chapters
     plan_file = project_dir / "plans" / f"chapter-{chapter}-plan.md"
     if plan_file.exists():
-        file_content = plan_file.read_text(encoding='utf-8')
-        content_bytes = file_content.encode('utf-8')
+        file_content = plan_file.read_text(encoding="utf-8")
+        content_bytes = file_content.encode("utf-8")
         record = {
-            'path': f"plans/chapter-{chapter}-plan.md",
-            'sha256': hashlib.sha256(content_bytes).hexdigest(),
-            'size': len(content_bytes)
+            "path": f"plans/chapter-{chapter}-plan.md",
+            "sha256": hashlib.sha256(content_bytes).hexdigest(),
+            "size": len(content_bytes),
         }
         if chapter >= latest_chapter - 2:  # ring buffer for recent chapters (N=3)
             record["content"] = file_content
-        manifest['files']['plan'] = record
+        manifest["files"]["plan"] = record
 
     # 3. Hash audit files (immutable post-generation)
     audit_dir = project_dir / "audits"
     if audit_dir.exists():
         for af in sorted(audit_dir.glob(f"chapter-{chapter}-*.md")):
             content = af.read_bytes()
-            manifest['audit_files'][af.name] = {
-                'sha256': hashlib.sha256(content).hexdigest(),
-                'size': len(content)
+            manifest["audit_files"][af.name] = {
+                "sha256": hashlib.sha256(content).hexdigest(),
+                "size": len(content),
             }
 
     # 4. Full content for truth files (mutable, accumulating state)
     truth_dir = project_dir / "truth"
     if truth_dir.exists():
         for tf in sorted(truth_dir.glob("*.md")):
-            manifest['truth_snapshot'][tf.name] = tf.read_text(encoding='utf-8')
+            manifest["truth_snapshot"][tf.name] = tf.read_text(encoding="utf-8")
 
     safe_write(snap_path, json.dumps(manifest, ensure_ascii=False, indent=2))
 
@@ -458,38 +461,42 @@ def restore_from_snapshot(project_dir: Path, snapshot_path: Path) -> None:
     manifest = json.loads(snapshot_path.read_text())
 
     # 1. Restore truth files (the only content stored in full)
-    for name, content in manifest['truth_snapshot'].items():
-        safe_write(project_dir / 'truth' / name, content)
+    for name, content in manifest["truth_snapshot"].items():
+        safe_write(project_dir / "truth" / name, content)
 
     # 2. Verify chapter and audit file integrity via hash comparison;
     #    for files whose full content was stored (ring buffer, recent chapters),
     #    restore them — this is what enables revision-rollback to recover the
     #    PREVIOUS chapter content after a revision overwrite.
-    for key, info in manifest['files'].items():
-        original_path = project_dir / info['path']
+    for key, info in manifest["files"].items():
+        original_path = project_dir / info["path"]
         if "content" in info:
             # Recent-chapter ring buffer: full content was snapshotted — restore it.
             safe_write(original_path, info["content"])
         elif original_path.exists():
             # Older snapshot: hash-only. Verify integrity, do not restore.
             current_hash = hashlib.sha256(original_path.read_bytes()).hexdigest()
-            if current_hash != info['sha256']:
-                log.warning("snapshot_hash_mismatch",
-                           file=info['path'],
-                           snapshot_hash=info['sha256'],
-                           current_hash=current_hash)
+            if current_hash != info["sha256"]:
+                log.warning(
+                    "snapshot_hash_mismatch",
+                    file=info["path"],
+                    snapshot_hash=info["sha256"],
+                    current_hash=current_hash,
+                )
 
     # 3. Audit files: verify existence and hash (no restore needed --
     #    they are immutable historical records)
-    for name, info in manifest.get('audit_files', {}).items():
-        af = project_dir / 'audits' / name
+    for name, info in manifest.get("audit_files", {}).items():
+        af = project_dir / "audits" / name
         if af.exists():
             current_hash = hashlib.sha256(af.read_bytes()).hexdigest()
-            if current_hash != info['sha256']:
-                log.warning("snapshot_audit_hash_mismatch",
-                           file=name,
-                           snapshot_hash=info['sha256'],
-                           current_hash=current_hash)
+            if current_hash != info["sha256"]:
+                log.warning(
+                    "snapshot_audit_hash_mismatch",
+                    file=name,
+                    snapshot_hash=info["sha256"],
+                    current_hash=current_hash,
+                )
 ```
 
 #### 3.3.4 Snapshot Naming Convention

@@ -151,6 +151,7 @@ Current Route C (lines 44-49, 175-184) loads only `book_spine.md`, `audit_drift.
 ```python
 # Add to _ROUTE_C_FILES or as a separate function call in assemble_context()
 
+
 def _load_volume_context(project_dir: Path, chapter: int) -> str:
     """Extract current volume context from volume_map.md for the given chapter.
 
@@ -160,11 +161,11 @@ def _load_volume_context(project_dir: Path, chapter: int) -> str:
     - Expected chapter content per volume_map
     - Next cross-volume bridge activation chapter
     """
-    vm_path = project_dir / 'outline' / 'volume_map.md'
+    vm_path = project_dir / "outline" / "volume_map.md"
     if not vm_path.exists():
         return ""
 
-    volume_map = vm_path.read_text(encoding='utf-8')
+    volume_map = vm_path.read_text(encoding="utf-8")
 
     # Determine which volume this chapter belongs to
     from shenbi.pipeline.triggers import read_volume_boundaries

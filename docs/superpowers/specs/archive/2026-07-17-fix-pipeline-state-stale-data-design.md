@@ -34,13 +34,15 @@ def _count_audits_on_disk(project_dir, chapter):
     audit_dir = project_dir / "audits"
     return len(list(audit_dir.glob(f"chapter-{chapter}-*.md")))
 
+
 # 状态保存前
 actual_audits = _count_audits_on_disk(project_dir, chapter)
 if actual_audits != recorded_audits:
-    logger.warning("audit_count_mismatch", chapter=chapter,
-                   recorded=recorded_audits, actual=actual_audits)
+    logger.warning(
+        "audit_count_mismatch", chapter=chapter, recorded=recorded_audits, actual=actual_audits
+    )
     # 自愈
-    ch_state['audit_count'] = actual_audits
+    ch_state["audit_count"] = actual_audits
 ```
 
 ### 2.2 所有审计类型注册

@@ -111,16 +111,20 @@
 ```python
 # src/shenbi/contracts/paths.py
 
+
 class UnresolvedPathError(ValueError):
     """路径含章节/卷占位符但无上下文。"""
+
 
 # 共享有界替换原语(内部)
 _BOUND_N = re.compile(r"(?<=[-/])N(?=[-./]|$)")
 _BOUND_NNN = "NNN"  # 直接 replace,无歧义
 
+
 def _bounded_replace_n(path: str, value: int | str) -> str:
     """有界替换裸 N:仅在分隔符边界,防腐蚀 SECTIO_N_/NPC 等。"""
     return _BOUND_N.sub(str(value), path)
+
 
 def resolve_chapter_path(path: str, chapter: int | None) -> str:
     """单一次章节占位符替换。NNN→3位补零, N→裸数字(有界)。
@@ -134,6 +138,7 @@ def resolve_chapter_path(path: str, chapter: int | None) -> str:
     result = path.replace(_BOUND_NNN, f"{chapter:03d}")
     return _bounded_replace_n(result, chapter)
 
+
 def resolve_volume_path(path: str, volume: int | None) -> str:
     """单一次卷占位符替换。N→裸数字(有界,无补零)。
 
@@ -146,6 +151,7 @@ def resolve_volume_path(path: str, volume: int | None) -> str:
             raise UnresolvedPathError(path)
         return path
     return _bounded_replace_n(path, volume)
+
 
 def extract_chapter(text: str) -> int | None:
     """单一次章节提取。统一用词边界正则(消除 subchapter 误匹配)。"""
@@ -180,12 +186,14 @@ from dataclasses import dataclass
 from pathlib import Path
 from shenbi.contracts.paths import resolve_chapter_path
 
+
 @dataclass(frozen=True)
 class RoundPaths:
     """一次 dispatch/run 中所有路径解析的唯一出口。frozen 防误改。"""
-    round_dir: Path    # 本轮工作区(产物、markers、state)
+
+    round_dir: Path  # 本轮工作区(产物、markers、state)
     project_dir: Path  # 小说项目根(novel.json, world/, chapters/, truth/)
-    repo_root: Path    # 仓库根(SKILL.md, fixtures, rubric, validate-gate.py)
+    repo_root: Path  # 仓库根(SKILL.md, fixtures, rubric, validate-gate.py)
 
     def read(self, rel: str, chapter: int | None = None) -> Path:
         """reads 可来自 round_dir(本轮中间产物)或 project_dir(持久库)。
@@ -302,16 +310,17 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 
+
 # 阶段 0 调查核实:完整字段清单(来自 tests/unit/gates/test_g4_decisions.py 的真实实例)
 # 注意:Adjustment.severity 不套用 VALID_SEVERITY —— doc 示例用 "medium",
 # 现有 validator 从不校验 adjustment.severity;套用会拒绝 doc 自己的示例。
 class Selection(BaseModel):
     model_config = {"extra": "forbid"}
-    target: str                          # 选择的 truth 文件路径
-    selected: list[str]                  # 被选中的条目 ID
+    target: str  # 选择的 truth 文件路径
+    selected: list[str]  # 被选中的条目 ID
     basis: Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"]
     severity: Literal["low", "high"] = "low"
-    omitted: list[str] = []              # 被排除的条目 ID
+    omitted: list[str] = []  # 被排除的条目 ID
     rationale: str | None = None
 
     @model_validator(mode="after")
@@ -323,12 +332,16 @@ class Selection(BaseModel):
         ...
         return self
 
+
 class Adjustment(BaseModel):
     model_config = {"extra": "forbid"}
     issue_id: str
-    severity: str                        # 不枚举(doc 用 medium;validator 从不校验)
-    handling: Literal["compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"]
-    rationale: str                       # adjustments 总是要求 rationale(≤100 chars)
+    severity: str  # 不枚举(doc 用 medium;validator 从不校验)
+    handling: Literal[
+        "compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"
+    ]
+    rationale: str  # adjustments 总是要求 rationale(≤100 chars)
+
 
 class Budget(BaseModel):
     model_config = {"extra": "forbid"}
@@ -344,20 +357,22 @@ class Budget(BaseModel):
         ...
         return self
 
+
 class DecisionsDoc(BaseModel):
     model_config = {"extra": "forbid"}
     schema_: str = Field(alias="$schema")
     skill: str
-    chapter: int                          # 真实实例均为 int
+    chapter: int  # 真实实例均为 int
     selections: list[Selection] = []
     adjustments: list[Adjustment] = []
-    budget: Budget | None = None          # 文档定义,真实实例从未出现(保留建模)
+    budget: Budget | None = None  # 文档定义,真实实例从未出现(保留建模)
     produced_at: str
 
     @field_validator("schema_")
     @classmethod
     def check_version(cls, v):
-        if v != DECISIONS_SCHEMA_VERSION: raise ValueError(...)
+        if v != DECISIONS_SCHEMA_VERSION:
+            raise ValueError(...)
         return v
 ```
 
@@ -368,10 +383,24 @@ class DecisionsDoc(BaseModel):
 # plan/reference/report/short/snapshot/style/truth/world
 # Literal 必须覆盖全部,否则加载时 reject 一半 registry。
 RegistryKind = Literal[
-    "benchmark", "chapter", "character", "config", "context", "decisions",
-    "import", "outline", "plan", "reference", "report", "short",
-    "snapshot", "style", "truth", "world",
+    "benchmark",
+    "chapter",
+    "character",
+    "config",
+    "context",
+    "decisions",
+    "import",
+    "outline",
+    "plan",
+    "reference",
+    "report",
+    "short",
+    "snapshot",
+    "style",
+    "truth",
+    "world",
 ]
+
 
 class RegistryConcept(BaseModel):
     model_config = {"extra": "forbid"}
@@ -380,26 +409,30 @@ class RegistryConcept(BaseModel):
     producer: Literal["skill", "pipeline", "external", "shared"] = "skill"  # ← Producer Registry
     glob: str | None = None
 
+
 class RegistryPattern(BaseModel):
     model_config = {"extra": "forbid"}
     parametric: str
     glob: str
 
+
 class RegistryGlob(BaseModel):
     model_config = {"extra": "forbid"}
     pattern: str
+
 
 class TruthFilesRegistry(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
     # 阶段0核实:真实文件无 version 字段。Optional,默认 1;新版必须显式声明。
     version: int = 1
     concepts: list[RegistryConcept]
-    patterns: list[RegistryPattern] = []    # 阶段0核实:legacy.resolves() 读此键,必须建模
-    globs: list[RegistryGlob] = []          # 阶段0核实:legacy.resolves() 读此键,必须建模
+    patterns: list[RegistryPattern] = []  # 阶段0核实:legacy.resolves() 读此键,必须建模
+    globs: list[RegistryGlob] = []  # 阶段0核实:legacy.resolves() 读此键,必须建模
 
     @field_validator("version")
     def check_supported(cls, v):
-        if v != 1: raise ValueError(f"unsupported registry version {v}, expected 1")
+        if v != 1:
+            raise ValueError(f"unsupported registry version {v}, expected 1")
         return v
 
     @model_validator(mode="after")
@@ -429,15 +462,17 @@ class TruthFilesRegistry(BaseModel):
 #   - populate_by_name=True 允许两种键名加载
 class PhaseDeps(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
-    prerequisites: list[str] = []          # phase 的 skill 成员花名册(非 per-skill 前置!)
-    expected_outputs: list[str] = []       # sync_contracts 重新生成
-    g4_checker: str | None = None          # 该 phase 的 G4 checker 名(g4/dispatch 读)
+    prerequisites: list[str] = []  # phase 的 skill 成员花名册(非 per-skill 前置!)
+    expected_outputs: list[str] = []  # sync_contracts 重新生成
+    g4_checker: str | None = None  # 该 phase 的 G4 checker 名(g4/dispatch 读)
     g4_note: str | None = Field(default=None, alias="_g4_note")  # 阶段0核实:5个phase有此字段
+
 
 class PipelineDeps(BaseModel):
     model_config = {"extra": "forbid"}
-    min_chapter_ratio: float = 0.0         # g6 读
+    min_chapter_ratio: float = 0.0  # g6 读
     expected_outputs: list[str] = []
+
 
 class OutOfPipeline(BaseModel):
     model_config = {"extra": "forbid"}
@@ -445,6 +480,7 @@ class OutOfPipeline(BaseModel):
     t1_only_meta: list[str] = []
     t1_only_drafting_phase: list[str] = []
     note: str = Field(default="", alias="_note")
+
 
 class DepsDoc(BaseModel):
     model_config = {"extra": "forbid", "populate_by_name": True}
@@ -460,6 +496,7 @@ class DepsDoc(BaseModel):
             if skill in pdeps.prerequisites:
                 return pname
         return None
+
 
 # D19 修复(第二轮 review 重写 — 原方案语义错误):
 # G3.1 的原始意图(g3.py:85-98)是"T1 per-skill 前置依赖要有 t1-report"。
@@ -537,8 +574,8 @@ def find_closure_violations(contracts, registry):
     # pipeline 产物也算合法 producer
     pipeline_produced = {c.name for c in registry.concepts if c.producer == "pipeline"}
 
-    orphan_reads = []      # FAIL
-    dangling_writes = []   # WARN
+    orphan_reads = []  # FAIL
+    dangling_writes = []  # WARN
 
     for skill, c in contracts.items():
         for f in c["reads"]:

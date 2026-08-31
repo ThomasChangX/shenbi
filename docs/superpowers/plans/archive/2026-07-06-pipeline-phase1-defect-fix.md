@@ -54,6 +54,7 @@ The spec reorders the root cause analysis's original sequence (A3→A8→A5→A4
 import json
 from pathlib import Path
 
+
 class TestGenreActivationCamelCase:
     """Tests that GENRE_ACTIVATION_MATRIX matches real genre-config.json format."""
 
@@ -62,6 +63,7 @@ class TestGenreActivationCamelCase:
         fixture_path = Path("tests/fixtures/genre-config-example.json")
         if not fixture_path.exists():
             import pytest
+
             pytest.skip("fixture not available")
         gc = json.loads(fixture_path.read_text(encoding="utf-8"))
         result = get_active_genre_audits(gc)
@@ -86,10 +88,15 @@ class TestGenreActivationCamelCase:
 
     def test_core_circle_keys_not_in_genre_circle(self):
         """antiAi, character, pacing, continuity, foreshadowing are core circle — not genre."""
-        gc = {"auditDimensions": {
-            "antiAi": True, "character": True, "pacing": True,
-            "continuity": True, "foreshadowing": True
-        }}
+        gc = {
+            "auditDimensions": {
+                "antiAi": True,
+                "character": True,
+                "pacing": True,
+                "continuity": True,
+                "foreshadowing": True,
+            }
+        }
         result = get_active_genre_audits(gc)
         assert len(result) == 0, f"Core circle keys should not activate genre audits: {result}"
 
@@ -144,10 +151,17 @@ GENRE_ACTIVATION_MATRIX: dict[str, str] = {
 }
 
 # Core-circle keys that must not be activated by the genre circle
-_CORE_CIRCLE_KEYS = frozenset({
-    "antiAi", "character", "pacing", "continuity",
-    "foreshadowing", "memoCompliance", "pov",
-})
+_CORE_CIRCLE_KEYS = frozenset(
+    {
+        "antiAi",
+        "character",
+        "pacing",
+        "continuity",
+        "foreshadowing",
+        "memoCompliance",
+        "pov",
+    }
+)
 
 
 def get_active_genre_audits(genre_config: Mapping[str, object]) -> list[str]:
@@ -212,6 +226,7 @@ git commit -m "fix: align genre-config activation matrix with real fixture camel
 
 ```python
 # src/shenbi/pipeline/state.py:88-93 — modify ChapterState
+
 
 @dataclass
 class ChapterState:
@@ -285,6 +300,7 @@ git commit -m "fix: add audit_retry_count to ChapterState for audit BLOCKING rev
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append at end of file
 
+
 class TestAuditLayerWiring:
     """Tests that run_audit_layer is called after core circle and handles BLOCKING."""
 
@@ -300,13 +316,14 @@ class TestAuditLayerWiring:
 
         # Mock audit_layer to avoid actual dispatch
         called = []
+
         def fake_run_audit(project_dir, chapter, gc):
             called.append((chapter, gc))
             from shenbi.pipeline.audit_layer import AuditResult
+
             return AuditResult(blocking_found=False)
-        monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit
-        )
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
         # Mock dispatch_skill for step 16
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
@@ -334,21 +351,21 @@ class TestAuditLayerWiring:
         # Mock audit_layer returning BLOCKING
         def fake_run_audit(project_dir, chapter, gc):
             from shenbi.pipeline.audit_layer import AuditResult
+
             r = AuditResult(blocking_found=True)
             r.issues = [{"skill": "test", "severity": "BLOCKING"}]
             return r
-        monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit
-        )
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
 
         revisions = []
+
         def fake_dispatch(skill, project_dir, prompt):
             if "chapter-revision" in skill:
                 revisions.append(prompt)
             return type("R", (), {"success": True})()
-        monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch
-        )
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch)
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.run_gate_g4",
             lambda *a, **kw: {"status": "PASS"},
@@ -370,12 +387,12 @@ class TestAuditLayerWiring:
 
         def fake_run_audit(project_dir, chapter, gc):
             from shenbi.pipeline.audit_layer import AuditResult
+
             r = AuditResult(blocking_found=True)
             r.issues = [{"skill": "test", "severity": "BLOCKING"}]
             return r
-        monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit
-        )
+
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.run_audit_layer", fake_run_audit)
         monkeypatch.setattr(
             "shenbi.pipeline.chapter_loop.dispatch_skill",
             lambda *a, **kw: type("R", (), {"success": True})(),
@@ -388,7 +405,9 @@ class TestAuditLayerWiring:
         run_chapter_step(state, tmp_path)
         cs = state.chapter_loop.chapter_states.get("1")
         assert cs is not None
-        assert cs.audit_retry_count > 0, f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
+        assert cs.audit_retry_count > 0, (
+            f"audit_retry_count should be > 0, got {cs.audit_retry_count}"
+        )
 ```
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -491,13 +510,15 @@ git commit -m "fix: wire audit layer into chapter_loop with BLOCKING revision lo
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append
 
+
 class TestResolveG4Files:
     """Tests _resolve_g4_files for multi-file steps like state-settling."""
 
     def test_state_settling_returns_staging_truth_files(self, tmp_path):
         """State-settling step globs staging/truth/*.md."""
         from shenbi.pipeline.chapter_loop import (
-            CHAPTER_STEPS, _resolve_g4_files,
+            CHAPTER_STEPS,
+            _resolve_g4_files,
         )
 
         # Find state-settling step (step 7, index 6)
@@ -520,8 +541,10 @@ class TestResolveG4Files:
     def test_state_settling_empty_staging_returns_empty(self, tmp_path):
         """No staging/truth/ dir → returns empty list, no crash."""
         from shenbi.pipeline.chapter_loop import (
-            CHAPTER_STEPS, _resolve_g4_files,
+            CHAPTER_STEPS,
+            _resolve_g4_files,
         )
+
         ss_step = [s for s in CHAPTER_STEPS if "state-settling" in s.skill][0]
         files = _resolve_g4_files(tmp_path, ss_step, chapter=5)
         assert files == []
@@ -529,8 +552,10 @@ class TestResolveG4Files:
     def test_non_state_settling_returns_single_file(self, tmp_path):
         """Non-state-settling steps return single path unchanged."""
         from shenbi.pipeline.chapter_loop import (
-            CHAPTER_STEPS, _resolve_g4_files,
+            CHAPTER_STEPS,
+            _resolve_g4_files,
         )
+
         drafting_step = CHAPTER_STEPS[5]  # step 6: chapter-drafting
         files = _resolve_g4_files(tmp_path, drafting_step, chapter=3)
         assert len(files) == 1
@@ -557,9 +582,8 @@ Expected: FAIL — `_resolve_g4_files` does not exist yet
 ```python
 # src/shenbi/pipeline/chapter_loop.py — add after _resolve_g4_path (line 279)
 
-def _resolve_g4_files(
-    project_dir: Path, step: ChapterStep, chapter: int
-) -> list[str]:
+
+def _resolve_g4_files(project_dir: Path, step: ChapterStep, chapter: int) -> list[str]:
     """Return list of file paths for G4 validation.
 
     Single-file steps return one path. State-settling returns all
@@ -576,10 +600,7 @@ def _resolve_g4_files(
 
         staging_truth = project_dir / STAGING_DIR / "truth"
         if staging_truth.exists():
-            return sorted(
-                f"{STAGING_DIR}/truth/{p.name}"
-                for p in staging_truth.glob("*.md")
-            )
+            return sorted(f"{STAGING_DIR}/truth/{p.name}" for p in staging_truth.glob("*.md"))
 
     return []
 ```
@@ -637,6 +658,7 @@ git commit -m "fix: resolve state-settling G4 empty file list with staging glob 
 
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append
+
 
 class TestStateSettleFailureWiring:
     """Tests that state-settling failure calls handle_state_settle_failure."""
@@ -731,6 +753,7 @@ git commit -m "fix: wire handle_state_settle_failure for state-settling dispatch
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append
 
+
 class TestScoringFailureWiring:
     """Tests review-resonance exit code handling."""
 
@@ -745,9 +768,11 @@ class TestScoringFailureWiring:
         state.chapter_loop.step_index = 16  # review-resonance is index 16
 
         called = []
+
         def fake_scoring_failure(s, exit_code):
             called.append(exit_code)
             return True  # should retry
+
         monkeypatch.setattr(
             "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
         )
@@ -779,6 +804,7 @@ class TestScoringFailureWiring:
 
         def fake_scoring_failure(s, exit_code):
             return True
+
         monkeypatch.setattr(
             "shenbi.pipeline.error_handler.handle_scoring_failure", fake_scoring_failure
         )
@@ -950,6 +976,7 @@ git commit -m "fix: wire handle_scoring_failure for review-resonance exit codes 
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append
 
+
 class TestEscalationWiring:
     """Tests that escalation-review is dispatched before ESCALATION checkpoint."""
 
@@ -966,16 +993,16 @@ class TestEscalationWiring:
         state.config.max_revision_retries = 3
 
         call_order = []
+
         def fake_dispatch_skill(skill, project_dir, prompt):
             call_order.append(("dispatch", skill))
             return type("R", (), {"success": False})()
+
         def fake_dispatch_escalation(project_dir, chapter, context=""):
             call_order.append(("escalation", chapter))
             return True
 
-        monkeypatch.setattr(
-            "shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch_skill
-        )
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.dispatch_skill", fake_dispatch_skill)
         monkeypatch.setattr(
             "shenbi.pipeline.revision_router.dispatch_escalation", fake_dispatch_escalation
         )
@@ -1020,6 +1047,7 @@ git commit -m "fix: wire escalation-review dispatch before raising ESCALATION ch
 
 ```python
 # tests/unit/pipeline/test_chapter_loop.py — append
+
 
 class TestResonanceScoreParser:
     """Tests _parse_resonance_score from audit reports."""
@@ -1068,6 +1096,7 @@ Expected: FAIL — `_parse_resonance_score` does not exist
 
 ```python
 # src/shenbi/pipeline/chapter_loop.py — add after _count_triggered_hooks (line 499)
+
 
 def _parse_resonance_score(report_path: Path) -> int | None:
     """Extract resonance score from a review-resonance audit report.
@@ -1169,6 +1198,7 @@ git commit -m "fix: parse resonance score from audit report and store in Chapter
 ```python
 # tests/unit/pipeline/test_triggers.py — append
 
+
 class TestTotalChaptersRecompute:
     """Tests _count_total_chapters and _update_total_chapters."""
 
@@ -1192,14 +1222,13 @@ class TestTotalChaptersRecompute:
 
         vmap = tmp_path / "truth"
         vmap.mkdir(parents=True)
-        (vmap / "volume_map.md").write_text(
-            "## Volume 1\nChapters: 8\n## Volume 2\nChapters: 12\n"
-        )
+        (vmap / "volume_map.md").write_text("## Volume 1\nChapters: 8\n## Volume 2\nChapters: 12\n")
         assert _count_total_chapters(tmp_path) == 20
 
     def test_count_total_chapters_missing_file(self, tmp_path):
         """Missing volume_map.md → 0, no crash."""
         from shenbi.pipeline.triggers import _count_total_chapters
+
         assert _count_total_chapters(tmp_path) == 0
 
     def test_update_total_chapters_updates_novel_json(self, tmp_path):
@@ -1236,6 +1265,7 @@ Expected: FAIL — functions don't exist
 ```python
 # src/shenbi/pipeline/triggers.py — add after TRIGGER_STEPS definition (~line 70)
 
+
 def _count_total_chapters(project_dir: Path) -> int:
     """Parse volume_map.md and sum all volume chapter counts."""
     vmap = project_dir / "truth" / "volume_map.md"
@@ -1268,9 +1298,7 @@ def _update_total_chapters(state: PipelineState) -> None:
     old_total = data.get("total_chapters", 0)
     if new_total != old_total:
         data["total_chapters"] = new_total
-        novel_json.write_text(
-            json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8"
-        )
+        novel_json.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
         log.info("total_chapters_updated", old=old_total, new=new_total)
 ```
 
@@ -1327,6 +1355,7 @@ git commit -m "fix: recompute total_chapters from volume_map after volume expans
 ```python
 # src/shenbi/pipeline/state.py:97-103
 
+
 @dataclass
 class ChapterLoopStateData:
     current_chapter: int = 0
@@ -1351,7 +1380,7 @@ class ChapterLoopStateData:
 ```python
 # src/shenbi/pipeline/state.py — in ChapterLoopStateData construction, add:
 
-modify_feedback=cl_data.get("modify_feedback"),
+modify_feedback = (cl_data.get("modify_feedback"),)
 ```
 
 - [ ] **Step 4: Run state tests**
@@ -1387,13 +1416,17 @@ git commit -m "fix: add modify_feedback field to ChapterLoopStateData for MODIFY
 ```python
 # tests/unit/pipeline/test_cli.py — append
 
+
 class TestModifyDecision:
     """Tests that MODIFY rolls back step cursor and stores feedback."""
 
     def test_modify_chapter_memo_rolls_back_step_index(self, tmp_path, monkeypatch):
         """MODIFY on CHAPTER_MEMO checkpoint resets step_index to 1."""
         from shenbi.pipeline.state import (
-            PipelineState, CheckpointType, CheckpointData, PipelinePhase,
+            PipelineState,
+            CheckpointType,
+            CheckpointData,
+            PipelinePhase,
         )
         from shenbi.pipeline.machine import set_checkpoint
 
@@ -1402,8 +1435,9 @@ class TestModifyDecision:
         state.chapter_loop.current_chapter = 3
         state.chapter_loop.step_index = 2  # after chapter-planning
 
-        set_checkpoint(state, CheckpointType.CHAPTER_MEMO, chapter=3,
-                       artifact="plans/chapter-3-plan.md")
+        set_checkpoint(
+            state, CheckpointType.CHAPTER_MEMO, chapter=3, artifact="plans/chapter-3-plan.md"
+        )
 
         # Simulate MODIFY: step_index should roll back to 1 (chapter-planning is CHAPTER_STEPS[1])
         from shenbi.pipeline.cli import ReviewDecision

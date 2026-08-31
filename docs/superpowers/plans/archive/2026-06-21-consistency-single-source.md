@@ -51,6 +51,7 @@ Values are chosen to **equal the existing serialized strings**, so this Part is 
 
 ```python
 """Typed status vocabulary — enums serialize to the existing wire values."""
+
 from __future__ import annotations
 
 import pytest
@@ -408,6 +409,7 @@ The primary enforcement is the typed structures from Tasks 1–2. This lint is t
 
 ```python
 """The bare-status-string lint flags status-vocab dict values outside status.py."""
+
 from __future__ import annotations
 
 import ast
@@ -480,6 +482,7 @@ to the ``"status"`` dict key (the result-envelope emit site). This avoids false
 positives on check-item dicts like ``{"id": "G3.1", "s": "PASS"}`` (key "s") and
 on read-comparisons (``x == "FAIL"``), which are not emit sites.
 """
+
 from __future__ import annotations
 
 import ast
@@ -512,22 +515,17 @@ class _Visitor(ast.NodeVisitor):
     def visit_Dict(self, node: ast.Dict) -> None:
         # node.keys may contain None (for ** unpacks); pair with values by index.
         for k, v in zip(node.keys, node.values, strict=False):
-            if (
-                _is_status_key(k)
-                and isinstance(v, ast.Constant)
-                and _is_status_value(v.value)
-            ):
-                self.violations.append(f"{self.filename}:{v.lineno}: bare status string {v.value!r}")
+            if _is_status_key(k) and isinstance(v, ast.Constant) and _is_status_value(v.value):
+                self.violations.append(
+                    f"{self.filename}:{v.lineno}: bare status string {v.value!r}"
+                )
         self.generic_visit(node)
 
     def visit_Assign(self, node: ast.Assign) -> None:
         # d["status"] = "PASS"  →  Subscript target keyed by "status"
         if isinstance(node.value, ast.Constant) and _is_status_value(node.value.value):
             for tgt in node.targets:
-                if (
-                    isinstance(tgt, ast.Subscript)
-                    and _is_status_key(tgt.slice)
-                ):
+                if isinstance(tgt, ast.Subscript) and _is_status_key(tgt.slice):
                     self.violations.append(
                         f"{self.filename}:{node.lineno}: bare status string {node.value.value!r}"
                     )
@@ -633,6 +631,7 @@ Makes the frontmatter `contract` block the one editable location and `contract.l
 
 ```python
 """contract.load_contract: one loader, schema-validated, registry-resolved."""
+
 from __future__ import annotations
 
 from pathlib import Path
@@ -655,9 +654,7 @@ _TEST_REGISTRY = (
 )
 
 
-def _setup(
-    monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str, body: str
-) -> None:
+def _setup(monkeypatch: pytest.MonkeyPatch, tmp_path: Path, name: str, body: str) -> None:
     skill_dir = tmp_path / name
     skill_dir.mkdir(parents=True)
     (skill_dir / "SKILL.md").write_text(body, encoding="utf-8")
@@ -776,6 +773,7 @@ Validation layers (spec §4.2, all "impossible to land"):
 A per-skill load does NOT check cross-skill completeness (that needs the DAG);
 the contract-completeness lint (Part IV) does.
 """
+
 from __future__ import annotations
 
 from enum import StrEnum
@@ -795,9 +793,9 @@ class ContractError(FrameworkError):
 
 
 class OutputKind(StrEnum):
-    ARTIFACT = "artifact"   # writes a durable project file -> G2 chapter/truth validation
-    REPORT = "report"       # emits a persisted report (path declared in writes) -> G2 report-type
-    EPHEMERAL = "ephemeral" # transient guidance, no persisted artifact -> output gates skip
+    ARTIFACT = "artifact"  # writes a durable project file -> G2 chapter/truth validation
+    REPORT = "report"  # emits a persisted report (path declared in writes) -> G2 report-type
+    EPHEMERAL = "ephemeral"  # transient guidance, no persisted artifact -> output gates skip
 
 
 class Contract(TypedDict):
@@ -861,16 +859,17 @@ def _validate(raw: dict[str, Any], skill: str, registry: dict[str, Any]) -> Cont
         kind = OutputKind(raw["kind"])
     except ValueError:
         raise ContractError(
-            "contract.kind invalid", skill=skill, kind=raw["kind"], allowed=[k.value for k in OutputKind]
+            "contract.kind invalid",
+            skill=skill,
+            kind=raw["kind"],
+            allowed=[k.value for k in OutputKind],
         ) from None
 
     out: dict[str, Any] = {"kind": kind}
     for field in ("reads", "writes", "updates"):
         val = raw.get(field)
         if not isinstance(val, list) or not all(isinstance(x, str) for x in val):
-            raise ContractError(
-                f"contract.{field} must be a list[str]", skill=skill, field=field
-            )
+            raise ContractError(f"contract.{field} must be a list[str]", skill=skill, field=field)
         for p in val:
             if not resolves(p, registry):
                 raise ContractError(
@@ -1063,7 +1062,12 @@ def test_derive_input_files_uses_contract_loader(
 
     monkeypatch.setattr(
         "shenbi.dispatcher.executor.load_contract",
-        lambda skill: {"kind": "artifact", "reads": ["plans/chapter-N-plan.md"], "writes": ["chapters/chapter-N.md"], "updates": []},
+        lambda skill: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-N-plan.md"],
+            "writes": ["chapters/chapter-N.md"],
+            "updates": [],
+        },
     )
     assert exec_mod.derive_input_files("shenbi-x") == ["plans/chapter-N-plan.md"]
     assert exec_mod.derive_output_files("shenbi-x") == ["chapters/chapter-N.md"]
@@ -1175,8 +1179,14 @@ def test_derive_input_files_delegates_to_loader(monkeypatch: pytest.MonkeyPatch)
     from shenbi.dispatcher import executor as exec_mod
 
     monkeypatch.setattr(
-        exec_mod, "load_contract",
-        lambda s: {"kind": "artifact", "reads": ["plans/chapter-N-plan.md"], "writes": [], "updates": []},
+        exec_mod,
+        "load_contract",
+        lambda s: {
+            "kind": "artifact",
+            "reads": ["plans/chapter-N-plan.md"],
+            "writes": [],
+            "updates": [],
+        },
     )
     assert exec_mod.derive_input_files("shenbi-x") == ["plans/chapter-N-plan.md"]
     assert exec_mod.derive_output_files("shenbi-x") == []
@@ -1222,6 +1232,7 @@ Derives `expected_outputs`, the producer/consumer DAG, the registry usage index,
 
 ```python
 """Generator: expected_outputs (parametric->glob), DAG, index — from contracts."""
+
 from __future__ import annotations
 
 import pytest
@@ -1258,8 +1269,11 @@ def test_dag_edge_from_producer_to_consumer() -> None:
         "A": {"writes": ["chapters/chapter-N.md"], "updates": [], "reads": []},
         "B": {"writes": [], "updates": [], "reads": ["chapters/chapter-N.md"]},
     }
-    reg = {"patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
-           "globs": [], "concepts": []}
+    reg = {
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [],
+        "concepts": [],
+    }
     dag = build_dag(contracts, reg)
     assert {"producer": "A", "consumer": "B", "file": "chapters/chapter-N.md"} in dag["edges"]
 
@@ -1284,8 +1298,11 @@ def test_derive_expected_outputs_normalizes_and_dedups() -> None:
         "A": {"writes": ["chapters/chapter-N.md"], "updates": [], "reads": []},
         "B": {"writes": [], "updates": ["chapters/chapter-N.md"], "reads": []},
     }
-    reg = {"patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
-           "globs": [], "concepts": []}
+    reg = {
+        "patterns": [{"parametric": "chapters/chapter-N.md", "glob": "chapters/chapter-*.md"}],
+        "globs": [],
+        "concepts": [],
+    }
     assert derive_expected_outputs(phase, contracts, reg) == ["chapters/chapter-*.md"]
 
 
@@ -1319,6 +1336,7 @@ derives:
   * docs/framework/truth-files.index.json (per-file usage)
   * the auto-rendered body 数据契约 view (OD-1)
 """
+
 from __future__ import annotations
 
 import re
@@ -1374,9 +1392,7 @@ def dag_key(path: str, registry: dict[str, Any]) -> str:
     return normalize_to_glob(path, registry)
 
 
-def build_dag(
-    contracts: dict[str, dict[str, Any]], registry: dict[str, Any]
-) -> dict[str, Any]:
+def build_dag(contracts: dict[str, dict[str, Any]], registry: dict[str, Any]) -> dict[str, Any]:
     """skill B reads file X that skill A writes/updates => A -> B.
 
     Matching is glob-aware (via dag_key) so a concrete producer write and a glob
@@ -1428,9 +1444,14 @@ def verify_bijection(
     """
     members: list[str] = phase.get("prerequisites", [])
     expected = sorted(
-        {normalize_to_glob(f, registry)
-         for s in members for f in [*contracts.get(s, {}).get("writes", []),
-                                    *contracts.get(s, {}).get("updates", [])]}
+        {
+            normalize_to_glob(f, registry)
+            for s in members
+            for f in [
+                *contracts.get(s, {}).get("writes", []),
+                *contracts.get(s, {}).get("updates", []),
+            ]
+        }
     )
     assert generated == expected, f"bijection broken: {generated} != {expected}"
 ```
@@ -1499,7 +1520,11 @@ def main() -> int:
     _write_json(DAG_PATH, build_dag(contracts, registry))
     usage: dict[str, dict[str, list[str]]] = {}
     for skill, c in contracts.items():
-        for role, files in (("reads", c["reads"]), ("writes", c["writes"]), ("updates", c["updates"])):
+        for role, files in (
+            ("reads", c["reads"]),
+            ("writes", c["writes"]),
+            ("updates", c["updates"]),
+        ):
             for f in files:
                 usage.setdefault(f, {"reads": [], "writes": [], "updates": []})[role].append(skill)
     _write_json(INDEX_PATH, usage)
@@ -1597,6 +1622,7 @@ Each inconsistency class is blocked at the cheapest checkpoint (spec §4.2). Lin
 
 ```python
 """Contract lints: every in-pipeline skill loads; report consumed => persisted."""
+
 from __future__ import annotations
 
 from tools.lint_contracts import find_completeness_violations
@@ -1608,7 +1634,12 @@ def test_report_consumed_downstream_without_writes_is_flagged() -> None:
     dag = {"edges": [{"producer": "R", "consumer": "X", "file": "audits/chapter-N-anti-ai.md"}]}
     contracts = {
         "R": {"kind": "report", "reads": [], "writes": [], "updates": []},
-        "X": {"kind": "artifact", "reads": ["audits/chapter-N-anti-ai.md"], "writes": [], "updates": []},
+        "X": {
+            "kind": "artifact",
+            "reads": ["audits/chapter-N-anti-ai.md"],
+            "writes": [],
+            "updates": [],
+        },
     }
     vios = find_completeness_violations(contracts, dag, _REG)
     assert any(v["skill"] == "R" for v in vios)
@@ -1617,8 +1648,18 @@ def test_report_consumed_downstream_without_writes_is_flagged() -> None:
 def test_report_with_persisted_writes_is_clean() -> None:
     dag = {"edges": [{"producer": "R", "consumer": "X", "file": "audits/chapter-N-anti-ai.md"}]}
     contracts = {
-        "R": {"kind": "report", "reads": [], "writes": ["audits/chapter-N-anti-ai.md"], "updates": []},
-        "X": {"kind": "artifact", "reads": ["audits/chapter-N-anti-ai.md"], "writes": [], "updates": []},
+        "R": {
+            "kind": "report",
+            "reads": [],
+            "writes": ["audits/chapter-N-anti-ai.md"],
+            "updates": [],
+        },
+        "X": {
+            "kind": "artifact",
+            "reads": ["audits/chapter-N-anti-ai.md"],
+            "writes": [],
+            "updates": [],
+        },
     }
     assert find_completeness_violations(contracts, dag, _REG) == []
 
@@ -1626,10 +1667,22 @@ def test_report_with_persisted_writes_is_clean() -> None:
 def test_glob_read_satisfied_by_concrete_report_write() -> None:
     """The completeness check is glob-aware: a concrete audit write satisfies
     a glob audit read (the real drift-guidance → review-* case)."""
-    dag = {"edges": [{"producer": "reviewer", "consumer": "drift", "file": "audits/chapter-N-*.md"}]}
+    dag = {
+        "edges": [{"producer": "reviewer", "consumer": "drift", "file": "audits/chapter-N-*.md"}]
+    }
     contracts = {
-        "reviewer": {"kind": "report", "reads": [], "writes": ["audits/chapter-N-anti-ai.md"], "updates": []},
-        "drift": {"kind": "report", "reads": ["audits/chapter-N-*.md"], "writes": ["truth/drift_guidance.md"], "updates": []},
+        "reviewer": {
+            "kind": "report",
+            "reads": [],
+            "writes": ["audits/chapter-N-anti-ai.md"],
+            "updates": [],
+        },
+        "drift": {
+            "kind": "report",
+            "reads": ["audits/chapter-N-*.md"],
+            "writes": ["truth/drift_guidance.md"],
+            "updates": [],
+        },
     }
     assert find_completeness_violations(contracts, dag, _REG) == []
 ```
@@ -1651,6 +1704,7 @@ Expected: FAIL (`ModuleNotFoundError`).
 2. completeness — a REPORT skill consumed downstream (per DAG) declares a
    persisted writes path (kills the "report only" drift).
 """
+
 from __future__ import annotations
 
 import sys
@@ -1702,7 +1756,11 @@ def find_completeness_violations(
             if tag not in seen:
                 seen.add(tag)
                 vios.append(
-                    {"skill": producer, "file": e["file"], "reason": "report consumed downstream but no persisted write"}
+                    {
+                        "skill": producer,
+                        "file": e["file"],
+                        "reason": "report consumed downstream but no persisted write",
+                    }
                 )
     return vios
 
@@ -1750,6 +1808,7 @@ git commit -m "feat(lint): contract schema + completeness lints (spec §5.5 #1,#
 
 ```python
 """Repo lints: body-ban, loader-uniqueness, terminology, section-headers."""
+
 from __future__ import annotations
 
 import pytest
@@ -1804,7 +1863,9 @@ def test_hook_pool_synonym_flagged() -> None:
 @pytest.mark.unit
 def test_banned_output_header_flagged() -> None:
     md = "# X\n\n## 输出契约\n\nbody\n"
-    assert ("skills/x/SKILL.md", "输出契约") in find_section_header_deviants([("skills/x/SKILL.md", md)])
+    assert ("skills/x/SKILL.md", "输出契约") in find_section_header_deviants(
+        [("skills/x/SKILL.md", md)]
+    )
 
 
 @pytest.mark.unit
@@ -1817,9 +1878,12 @@ def test_legitimate_non_canonical_header_not_flagged() -> None:
 @pytest.mark.unit
 def test_loader_uniqueness_flags_contract_key_outside_contract_py() -> None:
     py = 'd = yload(p); c = d["contract"]\n'
-    assert "src/shenbi/other.py" in find_extra_contract_key_readers(
-        [("src/shenbi/other.py", py), ("src/shenbi/contract.py", py)]
-    )[0]
+    assert (
+        "src/shenbi/other.py"
+        in find_extra_contract_key_readers(
+            [("src/shenbi/other.py", py), ("src/shenbi/contract.py", py)]
+        )[0]
+    )
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -2057,6 +2121,7 @@ frontmatter to add the `contract:` block, and strips the hand-written body
 
 Run once:  uv run python tools/migrate_contract_to_frontmatter.py
 """
+
 from __future__ import annotations
 
 import re
@@ -2069,7 +2134,17 @@ SKILLS = REPO / "skills"
 # (kind, reads, writes, updates) — the authoritative table from Task 12 Step 1.
 # Empty list = []. All paths MUST exist in truth-files.yaml (load_contract enforces).
 CLASSIFICATION: dict[str, dict[str, object]] = {
-    "shenbi-chapter-drafting": {"kind": "artifact", "reads": ["plans/chapter-N-plan.md", "style/style_profile.md", "genre-config.json", "truth/audit_drift.md"], "writes": ["chapters/chapter-N.md"], "updates": []},
+    "shenbi-chapter-drafting": {
+        "kind": "artifact",
+        "reads": [
+            "plans/chapter-N-plan.md",
+            "style/style_profile.md",
+            "genre-config.json",
+            "truth/audit_drift.md",
+        ],
+        "writes": ["chapters/chapter-N.md"],
+        "updates": [],
+    },
     # ... (paste the FULL table from Step 1 here; one entry per skill) ...
 }
 
