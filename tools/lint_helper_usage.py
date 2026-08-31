@@ -13,7 +13,14 @@ Out-of-scope dead instructions (e.g. drift-guidance's ``python -m
 drift_detection``) are deliberately not listed — they are recorded as T5
 follow-up candidates in the spec.
 
-Exit 0 = clean (or only ALLOWED exemptions); exit 1 = WARN findings.
+Exit 0 = clean (exempt lines skipped); exit 1 = WARN findings.
+
+Recall/precision boundaries (deliberate, WARN-level lint): the keyword
+window is narrow — reworded recomputation instructions without the matched
+keywords (e.g. 句长分布 phrasing) will NOT be caught; and prohibition
+phrasings are excluded via a negative lookbehind so compliant "don't
+recompute" guidance does not false-positive. No fatigue-word ALLOWED entry
+is needed: the patterns never targeted it.
 """
 
 from __future__ import annotations
@@ -33,7 +40,7 @@ CAPABILITY_PATTERNS = [
         r"python -m shenbi\.skill_utils\."
         r"(style_learning|chapter_pattern|calibration|review_resonance)",
         r"运行 `compute_stats\.py`",
-        r"自行(计算|统计|计数).{0,12}(转折词|变异系数|CV|熵)",
+        r"(?<!不要)(?<!不得)(?<!禁止)(?<!无需)自行(计算|统计|计数).{0,12}(转折词|变异系数|CV|熵)",
         r"手算(校准|降级)",
     )
 ]

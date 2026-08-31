@@ -41,3 +41,8 @@ def test_allowed_exemption_suppresses(tmp_path: Path, monkeypatch) -> None:
 
 def test_patterns_cover_transition_recurrence(tmp_path: Path) -> None:
     assert any(p.search("LLM 需自行计算转折词密度") for p in CAPABILITY_PATTERNS)
+
+
+def test_prohibition_wording_not_flagged(tmp_path: Path) -> None:
+    skill = _mk(tmp_path, "不要自行计算转折词密度——读注入块。\n")
+    assert lint_skill(skill) == []
