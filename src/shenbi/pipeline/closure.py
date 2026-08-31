@@ -257,7 +257,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     without dispatching -- the step is blocked pending review.
 
     After step 10 completes, ``state.closure`` is set to ``COMPLETED`` and the
-    function returns True. Calling again after completion is a no-op that keeps
+    function returns True. Calling again after completion just re-renders the cost report; it keeps
     ``closure == COMPLETED``.
 
     Returns True if a checkpoint was reached, the step is blocked at a pending

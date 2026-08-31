@@ -78,7 +78,23 @@ def render_report(project_dir: Path | str) -> str:
     if by_chapter:
         ch_costs = [c["estimated_cost_usd"] for c in by_chapter.values()]
         avg = sum(ch_costs) / len(ch_costs)
-        lines += ["", f"- **Per-chapter average cost**: ${avg:.4f}"]
+        lines += [
+            "",
+            f"- **Per-chapter average cost**: ${avg:.4f}",
+            "  - note: this equals total cost / chapter count "
+            "(by-chapter buckets carry no independent signal)",
+        ]
+
+    # C10 spec #36 T5: IDE/subprocess estimate rows are lower bounds ($0
+    # priced) — break them out so they never masquerade as metered totals.
+    est_rows = [r for r in TokenLedger(project_dir).iter_records() if r.estimated]
+    if est_rows:
+        est_tokens = sum(r.total_tokens for r in est_rows)
+        lines += [
+            "",
+            f"- **Estimated (lower-bound) rows**: {len(est_rows)} calls / "
+            f"{est_tokens:,} tokens (IDE/subprocess paths; $0 priced, not in cost totals)",
+        ]
 
     avg_score = _try_avg_g3_score(Path(project_dir))
     if avg_score and avg_score > 0:

@@ -63,7 +63,7 @@ def test_closure_completed_renders_report(tmp_path):
     state = SimpleNamespace(
         closure_step=len(clo.CLOSURE_STEPS),
         closure=None,
-        closure_retries={},
+        closure_retry_counts={},
         project_dir=str(tmp_path),
     )
     assert clo.run_closure_step(cast(PipelineState, state), tmp_path) is True
