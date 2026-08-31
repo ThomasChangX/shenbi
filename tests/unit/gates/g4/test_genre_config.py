@@ -85,3 +85,74 @@ def test_fails_on_banned_word_without_replacement(tmp_path: Path) -> None:
     gc = _write_gc(tmp_path, bad)
     r = _result(g4_genre_config([gc]))
     assert r["status"] == "FAIL"
+
+
+# --- Spec #35 (F232/F214): approval required + keyset bound ----------------
+_FIXTURE = Path("tests/fixtures/genre-config-example.json")
+
+
+def _real_config() -> dict[str, Any]:
+    return json.loads(_FIXTURE.read_text(encoding="utf-8"))
+
+
+@pytest.mark.unit
+def test_fails_when_approval_missing(tmp_path: Path) -> None:
+    bad = _real_config()
+    bad.pop("approval")
+    gc = _write_gc(tmp_path, bad)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "FAIL"
+    assert any("approval" in m for m in r.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_approval_empty(tmp_path: Path) -> None:
+    bad = _real_config()
+    bad["approval"] = {}
+    gc = _write_gc(tmp_path, bad)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "FAIL"
+    assert any("approval" in m for m in r.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_on_unknown_top_level_key(tmp_path: Path) -> None:
+    bad = _real_config()
+    bad["rogueKey"] = 1
+    gc = _write_gc(tmp_path, bad)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "FAIL"
+    assert any("rogueKey" in m for m in r.get("must_fix", []))
+
+
+@pytest.mark.unit
+def test_fails_when_required_key_missing(tmp_path: Path) -> None:
+    bad = _real_config()
+    bad.pop("pacing")
+    gc = _write_gc(tmp_path, bad)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "FAIL"
+
+
+@pytest.mark.unit
+def test_trope_inventory_optional(tmp_path: Path) -> None:
+    cfg = _real_config()
+    cfg.pop("tropeInventory")
+    gc = _write_gc(tmp_path, cfg)
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_real_fixture_still_valid(tmp_path: Path) -> None:
+    gc = _write_gc(tmp_path, _real_config())
+    r = _result(g4_genre_config([gc]))
+    assert r["status"] == "PASS"
+
+
+@pytest.mark.unit
+def test_keyset_authority_is_ownership() -> None:
+    from shenbi.contracts.ownership import GENRE_KEYS
+    from shenbi.contracts.skills.genre_config import _REQUIRED_TOP_KEYS
+
+    assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {"tropeInventory"}

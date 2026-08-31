@@ -28,6 +28,7 @@ contract:
 - chapter type count
 - disabled dimensions have rules
 - fatigue word count
+- top level keyset
 
 <!-- AUTO-CHECK-END -->
 
@@ -190,7 +191,7 @@ digraph genre_config {
 ### 1. 备份
 
 ```bash
-cp genre-config.json genre-config.json.bak.YYYYMMDD
+cp genre-config.json genre-config.json.bak
 ```
 
 ### 2. 修改
@@ -221,7 +222,7 @@ cp genre-config.json genre-config.json.bak.YYYYMMDD
 ## 配置修改建议
 
 **修改时间**: YYYY-MM-DD
-**备份**: genre-config.json.bak.YYYYMMDD
+**备份**: genre-config.json.bak
 
 ### 变更 diff
 
@@ -293,13 +294,13 @@ cp genre-config.json genre-config.json.bak.YYYYMMDD
 | customRules | array | 否 | 每项含 id/description/enforcement/example，enforcement ∈ {warning, blocking} |
 | approval | object | 是 | **REQUIRED**。含 reviewer/decision/date，decision ∈ {approved, rejected}。缺失即不合格 |
 
-**顶层字段数**：恰好 8 个（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）。
+**顶层字段**：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 1 可选（tropeInventory）。
 
 ### 可自动检查的计数规则
 
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 顶层字段数 | = 8 | ≠ 8 |
+| 顶层键集 | 8 必填 + 可选 tropeInventory，不得有未知键 | 缺必填键或出现未知键 |
 | approval 字段存在 | 必须 | 缺失 |
 | approval.decision | approved 或 rejected | 其他值 |
 | 禁用词数 | ≤ 50 | > 50 |

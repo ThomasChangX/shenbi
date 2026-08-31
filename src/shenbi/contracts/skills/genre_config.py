@@ -12,7 +12,11 @@ from typing import Any
 from typing import get_args
 
 from shenbi.contracts.enums import ApprovalDecision
+from shenbi.contracts.ownership import GENRE_KEYS
 from pydantic import BaseModel, Field, model_validator
+
+# Single-source keyset authority (F214): 8 required = GENRE_KEYS minus optional tropeInventory.
+_REQUIRED_TOP_KEYS = tuple(k for k in GENRE_KEYS if k != "tropeInventory")
 
 
 class GenreConfig(BaseModel):
@@ -26,6 +30,8 @@ class GenreConfig(BaseModel):
     5. chapterTypes count must be 6-10
     6. auditDimensions count must be 5-10
     7. Every disabled auditDimension must have a customRules reason
+    8. approval.decision is required (no approval = invalid config)
+    9. Top-level keyset = 8 required keys + optional tropeInventory
     """
 
     model_config = {"extra": "ignore"}
@@ -39,6 +45,21 @@ class GenreConfig(BaseModel):
     updated: str = ""
     version: str = ""
 
+    @model_validator(mode="before")
+    @classmethod
+    def _top_level_keyset(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+        for key in data:
+            if key not in GENRE_KEYS:
+                raise ValueError(
+                    f"unknown top-level key '{key}' (allowed: 8 required + optional tropeInventory)"
+                )
+        missing = [k for k in _REQUIRED_TOP_KEYS if k not in data]
+        if missing:
+            raise ValueError(f"missing required top-level keys: {missing}")
+        return data
+
     @model_validator(mode="after")
     def _approval_decision_valid(self) -> GenreConfig:
         decision = self.approval.get("decision", "")
@@ -46,6 +67,8 @@ class GenreConfig(BaseModel):
             raise ValueError(
                 f"approval.decision must be one of {get_args(ApprovalDecision)}, got '{decision}'"
             )
+        if not self.approval or not self.approval.get("decision"):
+            raise ValueError("approval.decision is required (rule 8)")
         return self
 
     @model_validator(mode="after")

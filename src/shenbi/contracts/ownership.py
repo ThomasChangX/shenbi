@@ -35,7 +35,7 @@ class FileOwnership:
 
 # —— 参考 OWNERSHIP 条目（Tier B 审计消费；完整迁移见「支柱一续」）——
 # genre-config.json：真实 9 顶层键（fixture 亲手核对，见计划「fixture 核对」节）
-_GENRE_KEYS = frozenset(
+GENRE_KEYS = frozenset(
     {
         "approval",
         "auditDimensions",
@@ -72,7 +72,7 @@ _HOOK_KEYS_NEW_RECORD = frozenset(
 
 OWNERSHIP: dict[tuple[str, str], FileOwnership] = {
     ("shenbi-genre-config", "genre-config.json"): FileOwnership(
-        level="field", write_keys=_GENRE_KEYS
+        level="field", write_keys=GENRE_KEYS
     ),
     # foundation-review 读 tropeInventory（声明 read；写集为空）
     ("shenbi-foundation-review", "genre-config.json"): FileOwnership(
