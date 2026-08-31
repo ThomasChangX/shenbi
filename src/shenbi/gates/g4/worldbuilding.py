@@ -1,6 +1,7 @@
 """G4 checker for shenbi-worldbuilding."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import json
 import re
@@ -42,13 +43,13 @@ def g4_worldbuilding(
                 if f not in d or not d[f]:
                     mf.append(f"G4.novel.missing_{f}")
                 else:
-                    c.append({"id": f"G4.novel.{f}", "s": "PASS"})
+                    c.append({"id": f"G4.novel.{f}", "s": GateStatus.PASS})
             # target_words / target_word_count (both accepted)
             tw = d.get("target_words") or d.get("target_word_count")
             if not tw:
                 mf.append("G4.novel.missing_target_words")
             else:
-                c.append({"id": "G4.novel.target_words", "s": "PASS"})
+                c.append({"id": "G4.novel.target_words", "s": GateStatus.PASS})
         except (json.JSONDecodeError, OSError):
             mf.append("G4.novel.invalid_json")
     else:
@@ -59,7 +60,7 @@ def g4_worldbuilding(
     if gc_path.exists():
         try:
             jload(str(gc_path))
-            c.append({"id": "G4.genre_config", "s": "PASS"})
+            c.append({"id": "G4.genre_config", "s": GateStatus.PASS})
         except (json.JSONDecodeError, OSError):
             mf.append("G4.genre_config.invalid_json")
     else:
@@ -82,7 +83,7 @@ def g4_worldbuilding(
         if bullet_density > 0.05:
             mf.append(f"G4.sb.bullet_density:{bullet_density:.1%}")
         if len(sections) >= 4 and bullet_density <= 0.05:
-            c.append({"id": "G4.sb", "s": "PASS", "sections": len(sections)})
+            c.append({"id": "G4.sb", "s": GateStatus.PASS, "sections": len(sections)})
     else:
         mf.append("G4.sb.not_found")
 
@@ -110,14 +111,14 @@ def g4_worldbuilding(
                 c.append(
                     {
                         "id": "G4.rules",
-                        "s": "PASS",
+                        "s": GateStatus.PASS,
                         "count": rule_count,
                         "testable": testable_count,
                         "note": "heading-format rules accepted without per-rule testable markers",
                     }
                 )
         elif 1 <= rule_count <= 10 and testable >= rule_count:
-            c.append({"id": "G4.rules", "s": "PASS", "count": rule_count})
+            c.append({"id": "G4.rules", "s": GateStatus.PASS, "count": rule_count})
     else:
         mf.append("G4.rules.not_found")
 
@@ -134,7 +135,7 @@ def g4_worldbuilding(
         if loc_count < 3 or loc_count > 5:
             mf.append(f"G4.locations.count:{loc_count}")
         else:
-            c.append({"id": "G4.locations", "s": "PASS", "count": loc_count})
+            c.append({"id": "G4.locations", "s": GateStatus.PASS, "count": loc_count})
     else:
         mf.append("G4.locations.not_found")
 
@@ -159,7 +160,7 @@ def g4_worldbuilding(
                     if tmpl_mf:
                         mf.extend(tmpl_mf)  # missing fields: no PASS for this template (F4A1)
                     else:
-                        c.append({"id": f"G4.truth.{tmpl}", "s": "PASS"})
+                        c.append({"id": f"G4.truth.{tmpl}", "s": GateStatus.PASS})
                 except Exception:
                     mf.append(f"G4.truth.{tmpl}.yaml_error")
             else:

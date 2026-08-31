@@ -1,6 +1,7 @@
 """G4 checker for shenbi-faction-builder."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -41,7 +42,7 @@ def g4_faction_builder(
         if len(factions) < 2:
             mf.append(f"G4.factions.count:{len(factions)}<2")
         else:
-            c.append({"id": "G4.factions.count", "s": "PASS", "count": len(factions)})
+            c.append({"id": "G4.factions.count", "s": GateStatus.PASS, "count": len(factions)})
             valid = 0
             for match in re.finditer(r"## 势力[：:].*?\n(?=## 势力|\Z)", content, re.DOTALL):
                 faction_text = match.group()
@@ -54,7 +55,7 @@ def g4_faction_builder(
             if valid < 2:
                 mf.append(f"G4.factions.complete:{valid}/{len(factions)}")
             else:
-                c.append({"id": "G4.factions.complete", "s": "PASS", "complete": valid})
+                c.append({"id": "G4.factions.complete", "s": GateStatus.PASS, "complete": valid})
 
     if mf:
         return fail("G4-faction-builder", c, "scoring", mf)

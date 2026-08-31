@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -123,7 +125,7 @@ def gate_G3(
     c.append(
         {
             "id": "G3.1",
-            "s": "SKIP",
+            "s": GateStatus.SKIP,
             "r": "per-skill prerequisites not modeled (G3.2 covers readiness)",
         }
     )
@@ -170,19 +172,26 @@ def gate_G3(
                                 {
                                     "id": "G3.2",
                                     "file": rp.name,
-                                    "s": "FAIL",
+                                    "s": GateStatus.FAIL,
                                     "score": score,
                                     "threshold": threshold,
                                 }
                             )
                         else:
-                            c.append({"id": "G3.2", "file": rp.name, "s": "PASS", "score": score})
+                            c.append(
+                                {
+                                    "id": "G3.2",
+                                    "file": rp.name,
+                                    "s": GateStatus.PASS,
+                                    "score": score,
+                                }
+                            )
                     except (json.JSONDecodeError, ValueError, OSError):  # F444
                         continue  # malformed score file → skip, score next report
         except (json.JSONDecodeError, ValueError, OSError):  # F444
-            c.append({"id": "G3.2", "s": "SKIP", "r": "acceptance.json invalid"})
+            c.append({"id": "G3.2", "s": GateStatus.SKIP, "r": "acceptance.json invalid"})
     else:
-        c.append({"id": "G3.2", "s": "SKIP", "r": "no acceptance.json"})
+        c.append({"id": "G3.2", "s": GateStatus.SKIP, "r": "no acceptance.json"})
 
     # G3.3 — Output files passed G2
     # (F444 boundary: only the codex dispatch route records output_files into
@@ -232,21 +241,23 @@ def gate_G3(
                 try:
                     g2_data = json.loads(g2_raw)
                     if g2_data.get("status") == "FAIL":
-                        mf.append({"id": "G3.3", "s": "FAIL", "r": "G2 check failed on outputs"})
+                        mf.append(
+                            {"id": "G3.3", "s": GateStatus.FAIL, "r": "G2 check failed on outputs"}
+                        )
                     else:
-                        c.append({"id": "G3.3", "s": "PASS"})
+                        c.append({"id": "G3.3", "s": GateStatus.PASS})
                 except json.JSONDecodeError:
-                    mf.append({"id": "G3.3", "s": "FAIL", "r": "G2 result unparseable"})
+                    mf.append({"id": "G3.3", "s": GateStatus.FAIL, "r": "G2 result unparseable"})
             else:
-                c.append({"id": "G3.3", "s": "SKIP", "r": "no output_files"})
+                c.append({"id": "G3.3", "s": GateStatus.SKIP, "r": "no output_files"})
         except (
             json.JSONDecodeError,
             ValueError,
             OSError,
         ):  # F444: jload raises ValueError on non-dict
-            mf.append({"id": "G3.3", "s": "FAIL", "r": "progress.json invalid"})
+            mf.append({"id": "G3.3", "s": GateStatus.FAIL, "r": "progress.json invalid"})
     else:
-        c.append({"id": "G3.3", "s": "SKIP", "r": "no progress.json"})
+        c.append({"id": "G3.3", "s": GateStatus.SKIP, "r": "no progress.json"})
 
     # G3.4 — Agent ID isolation: scorer != generator
     if pp.exists():
@@ -255,13 +266,13 @@ def gate_G3(
             # Kant I2: call scoring_independence_status (single-source from pillar5)
             verdict, reason = scoring_independence_status(progress, skill_name or "")
             if verdict == "FAIL":
-                mf.append({"id": "G3.4", "s": "FAIL", "r": reason})
+                mf.append({"id": "G3.4", "s": GateStatus.FAIL, "r": reason})
             else:
-                c.append({"id": "G3.4", "s": "PASS"})
+                c.append({"id": "G3.4", "s": GateStatus.PASS})
         except (json.JSONDecodeError, ValueError, OSError):  # F444: jload ValueError on non-dict
-            c.append({"id": "G3.4", "s": "SKIP", "r": "progress.json invalid"})
+            c.append({"id": "G3.4", "s": GateStatus.SKIP, "r": "progress.json invalid"})
     else:
-        c.append({"id": "G3.4", "s": "SKIP", "r": "no progress.json"})
+        c.append({"id": "G3.4", "s": GateStatus.SKIP, "r": "no progress.json"})
 
     if mf:
         return fail("G3", c, "scoring", [x["id"] + ":" + x.get("file", x.get("r", "")) for x in mf])

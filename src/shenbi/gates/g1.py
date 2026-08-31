@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -196,28 +198,28 @@ def gate_G1(
 
         # G1.1 — file exists and non-empty
         if not p.exists():
-            mf.append({"id": "G1.1", "file": fp, "s": "FAIL", "r": "not found"})
+            mf.append({"id": "G1.1", "file": fp, "s": GateStatus.FAIL, "r": "not found"})
             continue
         if p.stat().st_size == 0:
-            mf.append({"id": "G1.1", "file": fp, "s": "FAIL", "r": "empty"})
+            mf.append({"id": "G1.1", "file": fp, "s": GateStatus.FAIL, "r": "empty"})
             continue
-        c.append({"id": "G1.1", "file": fp, "s": "PASS"})
+        c.append({"id": "G1.1", "file": fp, "s": GateStatus.PASS})
 
         # G1.2 — JSON files parse successfully
         if fp.endswith(".json"):
             try:
                 jload(fp)
-                c.append({"id": "G1.2", "file": fp, "s": "PASS"})
+                c.append({"id": "G1.2", "file": fp, "s": GateStatus.PASS})
             except (json.JSONDecodeError, OSError):
-                mf.append({"id": "G1.2", "file": fp, "s": "FAIL", "r": "JSON parse error"})
+                mf.append({"id": "G1.2", "file": fp, "s": GateStatus.FAIL, "r": "JSON parse error"})
 
         # G1.3 — YAML frontmatter parses successfully
         if fp.endswith(".md"):
             try:
                 fm = yload(fp)
-                c.append({"id": "G1.3", "file": fp, "s": "PASS", "has_fm": bool(fm)})
+                c.append({"id": "G1.3", "file": fp, "s": GateStatus.PASS, "has_fm": bool(fm)})
             except Exception:
-                mf.append({"id": "G1.3", "file": fp, "s": "FAIL", "r": "YAML parse error"})
+                mf.append({"id": "G1.3", "file": fp, "s": GateStatus.FAIL, "r": "YAML parse error"})
 
         # G1.4 — create .bak for in-place modifying skills (decision via pure helper)
         target_dict = dict(targets)
@@ -226,21 +228,28 @@ def gate_G1(
             if not bak.exists():
                 try:
                     safe_write(bak, Path(fp).read_bytes())
-                    c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak created"})
+                    c.append({"id": "G1.4", "file": fp, "s": GateStatus.PASS, "r": ".bak created"})
                 except OSError:
-                    mf.append({"id": "G1.4", "file": fp, "s": "FAIL", "r": "cannot create .bak"})
+                    mf.append(
+                        {"id": "G1.4", "file": fp, "s": GateStatus.FAIL, "r": "cannot create .bak"}
+                    )
             else:
-                c.append({"id": "G1.4", "file": fp, "s": "PASS", "r": ".bak exists"})
+                c.append({"id": "G1.4", "file": fp, "s": GateStatus.PASS, "r": ".bak exists"})
         elif skill_name and skill_name in BACKUP_SKILLS and not rd:
             # Skill is in-place but backups are impossible without round_dir.
             c.append(
-                {"id": "G1.4", "file": fp, "s": "SKIP", "r": "no round_dir — cannot create .bak"}
+                {
+                    "id": "G1.4",
+                    "file": fp,
+                    "s": GateStatus.SKIP,
+                    "r": "no round_dir — cannot create .bak",
+                }
             )
         else:
-            c.append({"id": "G1.4", "file": fp, "s": "SKIP", "r": "not in-place skill"})
+            c.append({"id": "G1.4", "file": fp, "s": GateStatus.SKIP, "r": "not in-place skill"})
 
     if not fps:
-        c.append({"id": "G1.0", "s": "SKIP", "r": "no input files"})
+        c.append({"id": "G1.0", "s": GateStatus.SKIP, "r": "no input files"})
 
     if mf:
         return fail(

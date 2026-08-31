@@ -1,6 +1,7 @@
 """G4 checker for shenbi-power-system."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -42,37 +43,37 @@ def g4_power_system(
         if table_rows < 5:
             mf.append(f"G4.ps.level_table_rows:{table_rows}<5")
         else:
-            c.append({"id": "G4.ps.level_table", "s": "PASS", "rows": table_rows})
+            c.append({"id": "G4.ps.level_table", "s": GateStatus.PASS, "rows": table_rows})
 
         # 进阶规则
         if not re.search(r"进阶规则|## 进阶|进阶级", content):
             mf.append("G4.ps.advancement_rules")
         else:
-            c.append({"id": "G4.ps.advancement", "s": "PASS"})
+            c.append({"id": "G4.ps.advancement", "s": GateStatus.PASS})
 
         # 能力边界
         if not re.search(r"能力边界|能做|不能做", content):
             mf.append("G4.ps.ability_boundaries")
         else:
-            c.append({"id": "G4.ps.boundaries", "s": "PASS"})
+            c.append({"id": "G4.ps.boundaries", "s": GateStatus.PASS})
 
         # 代价机制
         if not re.search(r"代价机制|## 代价|代价类型", content):
             mf.append("G4.ps.cost")
         else:
-            c.append({"id": "G4.ps.cost", "s": "PASS"})
+            c.append({"id": "G4.ps.cost", "s": GateStatus.PASS})
 
         # 力量天花板
         if not re.search(r"力量上限|力量天花板|顶端|最高境界", content):
             mf.append("G4.ps.ceiling")
         else:
-            c.append({"id": "G4.ps.ceiling", "s": "PASS"})
+            c.append({"id": "G4.ps.ceiling", "s": GateStatus.PASS})
 
         # 跨级战斗参考
         if not re.search(r"跨级战斗|越级", content):
             mf.append("G4.ps.cross_level")
         else:
-            c.append({"id": "G4.ps.cross_level", "s": "PASS"})
+            c.append({"id": "G4.ps.cross_level", "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-power-system", c, "scoring", mf)

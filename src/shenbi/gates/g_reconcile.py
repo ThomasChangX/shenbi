@@ -11,7 +11,7 @@ log = get_logger(__name__)
 from pathlib import Path
 from typing import Any
 
-from shenbi.status import SkillProgressStatus
+from shenbi.status import GateStatus, SkillProgressStatus
 from shenbi.gates.shared import (
     ALL_SKILLS,
     find_report,
@@ -83,17 +83,25 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
                     {
                         "id": "GR.2",
                         "file": rp.name,
-                        "s": "SKIP",
+                        "s": GateStatus.SKIP,
                         "r": "cannot parse skill/test_type from filename",
                     }
                 )
 
     # GR.3 / GR.4 — deferred
     c.append(
-        {"id": "GR.3", "s": "UNIMPLEMENTED", "note": "cross-file hash check not yet implemented"}
+        {
+            "id": "GR.3",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "cross-file hash check not yet implemented",
+        }
     )
     c.append(
-        {"id": "GR.4", "s": "UNIMPLEMENTED", "note": "agent trace consistency not yet implemented"}
+        {
+            "id": "GR.4",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "agent trace consistency not yet implemented",
+        }
     )
     if mf:
         return fail("G_RECONCILE", c, "reconcile", mf)

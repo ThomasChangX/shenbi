@@ -1,6 +1,7 @@
 """G4 checker for shenbi-length-normalizing."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 
 from shenbi.gates.shared import (
@@ -37,7 +38,7 @@ def g4_length_normalizing(
         if "## 归一化报告" not in content:
             mf.append(f"G4.ln.no_report:{fp}")
             continue
-        c.append({"id": "G4.ln.report", "file": fp, "s": "PASS"})
+        c.append({"id": "G4.ln.report", "file": fp, "s": GateStatus.PASS})
 
         # Detect "no normalization needed" case
         no_action = (
@@ -50,7 +51,7 @@ def g4_length_normalizing(
                 {
                     "id": "G4.ln.word_count",
                     "file": fp,
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "wc": wc,
                     "note": "no normalization needed",
                 }
@@ -63,10 +64,10 @@ def g4_length_normalizing(
         elif wc > 10000:
             mf.append(f"G4.ln.above_ceiling:{fp}:{wc}>10000")
         else:
-            c.append({"id": "G4.ln.word_count", "file": fp, "s": "PASS", "wc": wc})
+            c.append({"id": "G4.ln.word_count", "file": fp, "s": GateStatus.PASS, "wc": wc})
 
     if not fps:
-        c.append({"id": "G4.ln", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.ln", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-length-normalizing", c, "scoring", mf)

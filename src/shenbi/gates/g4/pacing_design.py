@@ -4,6 +4,7 @@ Uses PacingDesign.from_markdown + model_validate instead of keyword checks.
 """
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 
 from pathlib import Path
 from typing import Any
@@ -48,7 +49,7 @@ def g4_pacing_design(
             if not model.beats:
                 mf.append("G4.pd.no_beat_data")
             else:
-                c.append({"id": "G4.pd.validated", "s": "PASS"})
+                c.append({"id": "G4.pd.validated", "s": GateStatus.PASS})
         except ValidationError as e:
             for err in e.errors()[:5]:
                 mf.append(f"G4.pd.{err['loc']}: {err['msg']}")

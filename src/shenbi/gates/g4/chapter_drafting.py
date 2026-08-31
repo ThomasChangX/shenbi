@@ -1,6 +1,7 @@
 """G4 checker for shenbi-chapter-drafting."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -190,13 +191,13 @@ def g4_chapter_drafting(
         if "## PRE_WRITE_CHECK" not in content:
             mf.append(f"G4.pre_check:{fp}")
         else:
-            c.append({"id": "G4.pre_check", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.pre_check", "file": fp, "s": GateStatus.PASS})
 
         # POST_WRITE_SELF_CHECK
         if "## POST_WRITE_SELF_CHECK" not in content:
             mf.append(f"G4.post_check:{fp}")
         else:
-            c.append({"id": "G4.post_check", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.post_check", "file": fp, "s": GateStatus.PASS})
 
         # Transition word density ≤ 1/1000 (relaxed from 1/3000 for automated gen)
         tc = count_transition_words(content)
@@ -208,7 +209,7 @@ def g4_chapter_drafting(
                 {
                     "id": "G4.transition",
                     "file": fp,
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "density": f"{tc}/{wc}",
                 }
             )
@@ -229,7 +230,7 @@ def g4_chapter_drafting(
                 {
                     "id": "G4.fatigue",
                     "file": fp,
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "hits": fatigue_hits,
                 }
             )
@@ -247,13 +248,13 @@ def g4_chapter_drafting(
         if meta_hits:
             mf.append(f"G4.meta:{fp}:{meta_hits}")
         else:
-            c.append({"id": "G4.meta", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.meta", "file": fp, "s": GateStatus.PASS})
 
         # Word count ≥ floor (3000)
         if wc < CHAPTER_WORD_FLOOR:
             mf.append(f"G4.word_count:{fp}:{wc}<{CHAPTER_WORD_FLOOR}")
         else:
-            c.append({"id": "G4.word_count", "file": fp, "s": "PASS", "wc": wc})
+            c.append({"id": "G4.word_count", "file": fp, "s": GateStatus.PASS, "wc": wc})
 
         # G4.cd.content_uniqueness: check this chapter against all other chapters
         if rd:
@@ -282,7 +283,7 @@ def g4_chapter_drafting(
                             {
                                 "id": "G4.cd.content_uniqueness",
                                 "file": fp,
-                                "s": "PASS",
+                                "s": GateStatus.PASS,
                                 "max_overlap": f"{max_overlap:.0%}",
                             }
                         )
@@ -306,7 +307,7 @@ def g4_chapter_drafting(
                 {
                     "id": "G4.cd.scene_concreteness",
                     "file": fp,
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "visual_paragraphs": visual_p_count,
                 }
             )
@@ -324,7 +325,7 @@ def g4_chapter_drafting(
                     if not (has_q or has_t):
                         mf.append(f"G4.cd.no_hook:{fp}")
                     else:
-                        c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": "PASS"})
+                        c.append({"id": "G4.cd.chapter_end_hook", "file": fp, "s": GateStatus.PASS})
 
         # G4.cd.protagonist_presence: protagonist appears >= threshold times
         protagonist_names = (
@@ -334,7 +335,7 @@ def g4_chapter_drafting(
         if protagonist_issues:
             mf.extend(protagonist_issues)
         else:
-            c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-chapter-drafting", c, "scoring", mf)

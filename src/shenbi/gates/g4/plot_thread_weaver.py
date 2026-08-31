@@ -1,6 +1,7 @@
 """G4 checker for shenbi-plot-thread-weaver."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -48,20 +49,20 @@ def g4_plot_thread_weaver(
         if not lines_found:
             mf.append("G4.pt.lines:missing_A/B/C")
         else:
-            c.append({"id": "G4.pt.lines", "s": "PASS", "found": lines_found[:3]})
+            c.append({"id": "G4.pt.lines", "s": GateStatus.PASS, "found": lines_found[:3]})
 
         # 线索推进表 (table format)
         table_rows = len(re.findall(r"^\|.+\|$", content, re.MULTILINE))
         if table_rows < 3:
             mf.append(f"G4.pt.table:{table_rows}<3")
         else:
-            c.append({"id": "G4.pt.table", "s": "PASS", "rows": table_rows})
+            c.append({"id": "G4.pt.table", "s": GateStatus.PASS, "rows": table_rows})
 
         # 空白检测
         if "空白" not in content:
             mf.append("G4.pt.blank_detection")
         else:
-            c.append({"id": "G4.pt.blank_detection", "s": "PASS"})
+            c.append({"id": "G4.pt.blank_detection", "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-plot-thread-weaver", c, "scoring", mf)

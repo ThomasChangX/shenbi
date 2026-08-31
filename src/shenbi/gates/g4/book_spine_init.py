@@ -1,6 +1,7 @@
 """G4 checker for shenbi-book-spine-init."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 
 from shenbi.gates.shared import fail, passed, resolve_input_path
@@ -28,7 +29,7 @@ def g4_book_spine_init(
             if section not in content:
                 mf.append(f"G4.bsi.missing_section:{section}")
     if not fps:
-        c.append({"id": "G4.bsi", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.bsi", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-book-spine-init", c, "scoring", mf)
     return passed("G4-book-spine-init", c)

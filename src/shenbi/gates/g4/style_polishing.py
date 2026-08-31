@@ -1,6 +1,7 @@
 """G4 checker for shenbi-style-polishing."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 from pathlib import Path
 
@@ -34,7 +35,7 @@ def g4_style_polishing(
         if "## 润色说明" not in content:
             mf.append(f"G4.sp.no_report:{fp}")
         else:
-            c.append({"id": "G4.sp.report", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.sp.report", "file": fp, "s": GateStatus.PASS})
 
         # Word count change ratio within [0.85, 1.15]
         # Check the .bak sibling (pre-polish version) at the same resolved
@@ -52,14 +53,14 @@ def g4_style_polishing(
                         {
                             "id": "G4.sp.word_ratio",
                             "file": fp,
-                            "s": "PASS",
+                            "s": GateStatus.PASS,
                             "before": wc_before,
                             "after": wc_after,
                         }
                     )
 
     if not fps:
-        c.append({"id": "G4.sp", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.sp", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-style-polishing", c, "scoring", mf)

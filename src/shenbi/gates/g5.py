@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -96,7 +98,7 @@ def gate_G5(
                 {
                     "id": "G5.2",
                     "pair": f"{up}->{down}",
-                    "s": "WARN",
+                    "s": GateStatus.WARN,
                     "missing": sorted(missing),
                 }
             )
@@ -190,9 +192,11 @@ def gate_G5(
         if conflicts:
             mf.extend([f"G5.3:{x}" for x in conflicts[:10]])
         else:
-            c.append({"id": "G5.3", "s": "PASS", "note": "no cross-skill conflicts detected"})
+            c.append(
+                {"id": "G5.3", "s": GateStatus.PASS, "note": "no cross-skill conflicts detected"}
+            )
     else:
-        c.append({"id": "G5.3", "s": "SKIP", "r": "need project_dir for this check"})
+        c.append({"id": "G5.3", "s": GateStatus.SKIP, "r": "need project_dir for this check"})
 
     # G5.4: expected outputs
     for pattern in phase_data.get("expected_outputs", []):
@@ -202,13 +206,20 @@ def gate_G5(
             if not matches:
                 mf.append(f"G5.4:{pattern}:no_matches")
             else:
-                c.append({"id": "G5.4", "pattern": pattern, "s": "PASS", "matches": len(matches)})
+                c.append(
+                    {
+                        "id": "G5.4",
+                        "pattern": pattern,
+                        "s": GateStatus.PASS,
+                        "matches": len(matches),
+                    }
+                )
         elif project_dir:
             p = Path(project_dir) / pattern
             if not p.exists():
                 mf.append(f"G5.4:{pattern}:not_found")
             else:
-                c.append({"id": "G5.4", "pattern": pattern, "s": "PASS"})
+                c.append({"id": "G5.4", "pattern": pattern, "s": GateStatus.PASS})
 
     # G5.5 checker → file pattern mapping (each checker only validates semantically relevant files)
     G5_CHECKER_GLOBS = {
@@ -280,14 +291,14 @@ def gate_G5(
                                     {
                                         "id": "G5.5",
                                         "file": str(fp),
-                                        "s": "WARN",
+                                        "s": GateStatus.WARN,
                                         "r": f"G4-{pr} check unavailable",
                                     }
                                 )
         if not any(x.startswith("G5.5:") for x in mf):
-            c.append({"id": "G5.5", "s": "PASS", "note": "G4 regression check on outputs"})
+            c.append({"id": "G5.5", "s": GateStatus.PASS, "note": "G4 regression check on outputs"})
     else:
-        c.append({"id": "G5.5", "s": "SKIP", "r": "no phase outputs defined"})
+        c.append({"id": "G5.5", "s": GateStatus.SKIP, "r": "no phase outputs defined"})
 
     if mf:
         return fail("G5", c, "scoring", mf)

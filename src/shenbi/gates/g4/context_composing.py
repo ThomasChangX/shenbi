@@ -1,6 +1,7 @@
 """G4 checker for shenbi-context-composing."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 import re
 from typing import Any
 
@@ -83,7 +84,7 @@ def g4_context_composing(
             mf.append(f"G4.cc.sections:missing_{missing}")
         else:
             fmt = "P1-P7" if has_p_format else "route-based"
-            c.append({"id": "G4.cc.sections", "file": fp, "s": "PASS", "format": fmt})
+            c.append({"id": "G4.cc.sections", "file": fp, "s": GateStatus.PASS, "format": fmt})
 
         # Reject obsolete flat-model titles
         obsolete = [s for s in OBSOLETE_SECTIONS if s in content]
@@ -101,7 +102,7 @@ def g4_context_composing(
                     {
                         "id": "G4.cc.p1p2",
                         "file": fp,
-                        "s": "PASS",
+                        "s": GateStatus.PASS,
                         "p1_len": len(p1_content),
                         "p2_len": len(p2_content),
                     }
@@ -111,13 +112,18 @@ def g4_context_composing(
             route_count = len(re.findall(r"## route-[abc]:", content))
             if route_count >= 2:
                 c.append(
-                    {"id": "G4.cc.routes", "file": fp, "s": "PASS", "route_count": route_count}
+                    {
+                        "id": "G4.cc.routes",
+                        "file": fp,
+                        "s": GateStatus.PASS,
+                        "route_count": route_count,
+                    }
                 )
             else:
                 mf.append(f"G4.cc.routes:only_{route_count}_routes")
 
     if not fps:
-        c.append({"id": "G4.cc", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.cc", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-context-composing", c, "scoring", mf)

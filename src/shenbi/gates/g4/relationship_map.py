@@ -1,6 +1,7 @@
 """G4 checker for shenbi-relationship-map."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -41,7 +42,7 @@ def g4_relationship_map(
         if len(pairs) < 3:
             mf.append(f"G4.rm.pairs:{len(pairs)}<3")
         else:
-            c.append({"id": "G4.rm.pairs", "s": "PASS", "count": len(pairs)})
+            c.append({"id": "G4.rm.pairs", "s": GateStatus.PASS, "count": len(pairs)})
             valid = 0
             boundary_enums = {"SYMMETRIC", "ASYMMETRIC", "ISOLATED", "MUTUAL_SECRET"}
             for match in re.finditer(
@@ -56,14 +57,14 @@ def g4_relationship_map(
             if valid < 3:
                 mf.append(f"G4.rm.complete:{valid}/{len(pairs)}")
             else:
-                c.append({"id": "G4.rm.complete", "s": "PASS", "complete": valid})
+                c.append({"id": "G4.rm.complete", "s": GateStatus.PASS, "complete": valid})
 
     # truth/character_matrix.md: must exist (SKILL.md Updates target)
     cm_path = rp.read("truth/character_matrix.md")
     if cm_path.exists():
         cm_content = cm_path.read_text(encoding="utf-8")
         if len(cm_content.strip()) > 0:
-            c.append({"id": "G4.rm.character_matrix", "s": "PASS"})
+            c.append({"id": "G4.rm.character_matrix", "s": GateStatus.PASS})
         else:
             mf.append("G4.rm.character_matrix.empty")
     else:

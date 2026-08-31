@@ -1,6 +1,7 @@
 """G4 checker for shenbi-anti-detect."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 
@@ -32,7 +33,7 @@ def g4_anti_detect(
         if "## 改写报告" not in content:
             mf.append(f"G4.ad.no_report:{fp}")
         else:
-            c.append({"id": "G4.ad.report", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ad.report", "file": fp, "s": GateStatus.PASS})
 
         # Check for applied techniques (table rows or numbered list)
         # Only search within the 改写报告 section to avoid false positives
@@ -44,12 +45,12 @@ def g4_anti_detect(
         )
 
         if has_techniques:
-            c.append({"id": "G4.ad.techniques", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ad.techniques", "file": fp, "s": GateStatus.PASS})
         else:
             mf.append(f"G4.ad.no_techniques:{fp}")
 
     if not fps:
-        c.append({"id": "G4.ad", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.ad", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-anti-detect", c, "scoring", mf)

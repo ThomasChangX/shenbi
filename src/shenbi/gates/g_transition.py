@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -52,7 +54,7 @@ def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
             [
                 {
                     "id": "GT.1",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "phase": from_phase,
                     "remaining": len(remaining),
                     "items": remaining[:10],
@@ -61,15 +63,15 @@ def gate_G_TRANSITION(from_phase: str, to_phase: str, round_dir: str) -> str:
             "phase_transition",
             ["GT.1"],
         )
-    c.append({"id": "GT.1", "s": "PASS", "phase": from_phase})
+    c.append({"id": "GT.1", "s": GateStatus.PASS, "phase": from_phase})
 
     # GT.2 — all skills DONE or DEAD (deferred)
-    c.append({"id": "GT.2", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
+    c.append({"id": "GT.2", "s": GateStatus.UNIMPLEMENTED, "note": "not yet implemented"})
 
     # GT.4 — batch G2 check (deferred)
-    c.append({"id": "GT.4", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
+    c.append({"id": "GT.4", "s": GateStatus.UNIMPLEMENTED, "note": "not yet implemented"})
 
     # GT.5 — next phase input files (deferred)
-    c.append({"id": "GT.5", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
+    c.append({"id": "GT.5", "s": GateStatus.UNIMPLEMENTED, "note": "not yet implemented"})
 
     return passed("G_TRANSITION", c)

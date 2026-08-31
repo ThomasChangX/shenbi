@@ -1,6 +1,7 @@
 """G4 checker for shenbi-score-stratum."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 
 import re
@@ -29,7 +30,7 @@ def g4_score_stratum(
         if "RouteA" not in normalized and "锚点" not in content:
             mf.append("G4.str.no_route_a:must have Route A anchor section")
     if not fps:
-        c.append({"id": "G4.str", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.str", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-score-stratum", c, "scoring", mf)
     return passed("G4-score-stratum", c)

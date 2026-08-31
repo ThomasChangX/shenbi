@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -53,7 +55,7 @@ def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
             [
                 {
                     "id": "GD.1",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "missing": sorted(missing),
                     "completed": len(completed),
                     "total": len(all_skills),
@@ -62,10 +64,18 @@ def gate_G_DISPATCH(phase: str, round_dir: str) -> str:
             "phase_completion",
             ["GD.1"],
         )
-    c = [{"id": "GD.1", "s": "PASS", "completed": len(completed)}]
+    c = [{"id": "GD.1", "s": GateStatus.PASS, "completed": len(completed)}]
 
     # GD.2 / GD.3 — deferred
-    c.append({"id": "GD.2", "s": "UNIMPLEMENTED", "note": "PENDING check not yet implemented"})
-    c.append({"id": "GD.3", "s": "UNIMPLEMENTED", "note": "DEAD bypass check not yet implemented"})
+    c.append(
+        {"id": "GD.2", "s": GateStatus.UNIMPLEMENTED, "note": "PENDING check not yet implemented"}
+    )
+    c.append(
+        {
+            "id": "GD.3",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "DEAD bypass check not yet implemented",
+        }
+    )
 
     return passed("G_DISPATCH", c)

@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -55,7 +57,7 @@ def gate_G7(round_dir: str) -> str:
             c.append(
                 {
                     "id": "G7.1",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "skills_in_reports": len(report_skills),
                 }
             )
@@ -81,9 +83,9 @@ def gate_G7(round_dir: str) -> str:
         if placeholders:
             mf.append(f"G7.5:placeholders:{placeholders}")
         else:
-            c.append({"id": "G7.5", "s": "PASS"})
+            c.append({"id": "G7.5", "s": GateStatus.PASS})
     else:
-        c.append({"id": "G7.5", "s": "SKIP", "r": "skill-output/ not found"})
+        c.append({"id": "G7.5", "s": GateStatus.SKIP, "r": "skill-output/ not found"})
 
     # G7.6 — truth files: status != pending (YAML parse, exact match)
     # Walk one level deeper to find project subdirectories
@@ -105,16 +107,38 @@ def gate_G7(round_dir: str) -> str:
         if pending:
             mf.append(f"G7.6:pending_truth:{pending}")
         else:
-            c.append({"id": "G7.6", "s": "PASS"})
+            c.append({"id": "G7.6", "s": GateStatus.PASS})
     else:
-        c.append({"id": "G7.6", "s": "SKIP", "r": "truth/ not found"})
+        c.append({"id": "G7.6", "s": GateStatus.SKIP, "r": "truth/ not found"})
 
     # G7.2 / G7.3 / G7.4 / G7.8 — sampled / deferred
-    c.append({"id": "G7.2", "s": "UNIMPLEMENTED", "note": "skill-traces check not yet implemented"})
-    c.append({"id": "G7.3", "s": "UNIMPLEMENTED", "note": "t1-reports check not yet implemented"})
-    c.append({"id": "G7.4", "s": "UNIMPLEMENTED", "note": "expected outputs not yet implemented"})
     c.append(
-        {"id": "G7.8", "s": "UNIMPLEMENTED", "note": "gate_blockers check not yet implemented"}
+        {
+            "id": "G7.2",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "skill-traces check not yet implemented",
+        }
+    )
+    c.append(
+        {
+            "id": "G7.3",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "t1-reports check not yet implemented",
+        }
+    )
+    c.append(
+        {
+            "id": "G7.4",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "expected outputs not yet implemented",
+        }
+    )
+    c.append(
+        {
+            "id": "G7.8",
+            "s": GateStatus.UNIMPLEMENTED,
+            "note": "gate_blockers check not yet implemented",
+        }
     )
 
     # G7.13 — Gate re-run verification
@@ -170,9 +194,11 @@ def gate_G7(round_dir: str) -> str:
             except Exception as e:
                 mf.append(f"G7.13:{mf_path.stem}:rerun_error:{e}")
         if not any(x.startswith("G7.13:") for x in mf):
-            c.append({"id": "G7.13", "s": "PASS", "note": "all markers verified by re-run"})
+            c.append(
+                {"id": "G7.13", "s": GateStatus.PASS, "note": "all markers verified by re-run"}
+            )
     else:
-        c.append({"id": "G7.13", "s": "SKIP", "r": "no gate-markers directory"})
+        c.append({"id": "G7.13", "s": GateStatus.SKIP, "r": "no gate-markers directory"})
 
     # G7.14 — Score timeline consistency
     timeline_warnings: list[str] = []
@@ -194,9 +220,9 @@ def gate_G7(round_dir: str) -> str:
                 continue  # stat() failed on a score/marker file → skip timeline check for it
     if timeline_warnings:
         for tw in timeline_warnings:
-            c.append({"id": "G7.14", "s": "WARN", "detail": tw})
+            c.append({"id": "G7.14", "s": GateStatus.WARN, "detail": tw})
     else:
-        c.append({"id": "G7.14", "s": "PASS", "note": "timeline consistent"})
+        c.append({"id": "G7.14", "s": GateStatus.PASS, "note": "timeline consistent"})
 
     # G7.15 — Score pattern suspiciousness
     pattern_warnings: list[dict[str, Any]] = []
@@ -238,9 +264,9 @@ def gate_G7(round_dir: str) -> str:
                 )
     if pattern_warnings:
         for pw in pattern_warnings:
-            c.append({"id": "G7.15", "s": "WARN", **pw})
+            c.append({"id": "G7.15", "s": GateStatus.WARN, **pw})
     else:
-        c.append({"id": "G7.15", "s": "PASS", "note": "no duplicate patterns"})
+        c.append({"id": "G7.15", "s": GateStatus.PASS, "note": "no duplicate patterns"})
 
     # G7.16 — Phase state verification
     if summary_path.exists():
@@ -261,7 +287,11 @@ def gate_G7(round_dir: str) -> str:
                     mf.append(f"G7.16:pipeline:{pipe_name}:no_G6_marker")
             if not any(x.startswith("G7.16:") for x in mf):
                 c.append(
-                    {"id": "G7.16", "s": "PASS", "note": "phase state and gate markers verified"}
+                    {
+                        "id": "G7.16",
+                        "s": GateStatus.PASS,
+                        "note": "phase state and gate markers verified",
+                    }
                 )
         except (json.JSONDecodeError, OSError):
             pass  # malformed summary.json → G7.16 phase-state check skipped
@@ -281,7 +311,7 @@ def gate_G7(round_dir: str) -> str:
     c.append(
         {
             "id": "G7.AUDIT",
-            "s": "WARN" if audit_warnings else "PASS",
+            "s": GateStatus.WARN if audit_warnings else "PASS",
             "audit_warnings": audit_warnings,
         }
     )

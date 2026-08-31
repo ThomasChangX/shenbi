@@ -6,6 +6,7 @@ a per-dimension 评分明细 table, a 校准门判定 verdict, and file+line evi
 """
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 
 import re
 from pathlib import Path
@@ -98,7 +99,7 @@ def g4_review_resonance(
         if missing_cols:
             mf.append(f"G4.rr.detail_table:{Path(fp).name}:missing_{missing_cols}")
         else:
-            c.append({"id": "G4.rr.detail_table", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.rr.detail_table", "file": fp, "s": GateStatus.PASS})
 
         # 2. 校准门判定 section with a 判定 line carrying a valid verdict.
         has_calibration = "校准门判定" in content
@@ -112,7 +113,7 @@ def g4_review_resonance(
         if not has_calibration or verdict is None:
             mf.append(f"G4.rr.verdict:{Path(fp).name}:no_valid_verdict")
         else:
-            c.append({"id": "G4.rr.verdict", "file": fp, "s": "PASS", "v": verdict})
+            c.append({"id": "G4.rr.verdict", "file": fp, "s": GateStatus.PASS, "v": verdict})
 
         # 3. Evidence must carry at least one file + line reference
         # (Lnn / line nn / path:nn). The detail table is the canonical
@@ -121,10 +122,10 @@ def g4_review_resonance(
         if not has_location:
             mf.append(f"G4.rr.evidence:{Path(fp).name}:no_file_line_ref")
         else:
-            c.append({"id": "G4.rr.evidence", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.rr.evidence", "file": fp, "s": GateStatus.PASS})
 
     if not fps:
-        c.append({"id": "G4.rr", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.rr", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-review-resonance", c, "scoring", mf)

@@ -5,6 +5,8 @@ verify that test scenarios reference only tests/fixtures/ paths, not
 project-relative paths.
 """
 
+from shenbi.status import GateStatus
+
 import re
 from pathlib import Path
 from typing import Any
@@ -44,12 +46,24 @@ def check_scenario_file_purity(
             for r, skills in sorted(impure_refs.items())
         )
         return (
-            [{"id": "G0.9", "s": "FAIL", "r": f"scenarios contain non-fixture paths: {detail}"}],
+            [
+                {
+                    "id": "G0.9",
+                    "s": GateStatus.FAIL,
+                    "r": f"scenarios contain non-fixture paths: {detail}",
+                }
+            ],
             "scenarios contain non-fixture paths",
             ["G0.9: replace project paths with tests/fixtures/ equivalents"],
         )
     return (
-        [{"id": "G0.9", "s": "PASS", "note": "all scenario input paths reference tests/fixtures/"}],
+        [
+            {
+                "id": "G0.9",
+                "s": GateStatus.PASS,
+                "note": "all scenario input paths reference tests/fixtures/",
+            }
+        ],
         None,
         [],
     )
@@ -86,7 +100,7 @@ def check_scenario_dir_purity(t1_skill_dir: Path) -> list[dict[str, Any]]:
         return [
             {
                 "id": "G0.9c",
-                "s": "WARN",
+                "s": GateStatus.WARN,
                 "r": f"{count} non-fixture directory references found: {detail}",
                 "note": "not blocking; fix incrementally",
             }
@@ -94,7 +108,7 @@ def check_scenario_dir_purity(t1_skill_dir: Path) -> list[dict[str, Any]]:
     return [
         {
             "id": "G0.9c",
-            "s": "PASS",
+            "s": GateStatus.PASS,
             "note": "all scenario directory paths reference tests/fixtures/",
         }
     ]
@@ -127,7 +141,7 @@ def check_skill_md_purity(
             [
                 {
                     "id": "G0.9b",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": f"SKILL.md files contain tests/fixtures/ paths (use project paths, not test paths): {detail}",
                 }
             ],
@@ -137,7 +151,13 @@ def check_skill_md_purity(
             ],
         )
     return (
-        [{"id": "G0.9b", "s": "PASS", "note": "no SKILL.md files leak test fixture paths"}],
+        [
+            {
+                "id": "G0.9b",
+                "s": GateStatus.PASS,
+                "note": "no SKILL.md files leak test fixture paths",
+            }
+        ],
         None,
         [],
     )

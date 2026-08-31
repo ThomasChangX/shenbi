@@ -3,6 +3,8 @@
 Extracted from g6.py to keep file length under 500 lines.
 """
 
+from shenbi.status import GateStatus
+
 import re
 from pathlib import Path
 from typing import Any
@@ -16,7 +18,10 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
     Returns (checks, mf_entries).
     """
     if not chapters:
-        return ([{"id": "G6.4", "s": "SKIP", "r": "need chapters/ for continuity check"}], [])
+        return (
+            [{"id": "G6.4", "s": GateStatus.SKIP, "r": "need chapters/ for continuity check"}],
+            [],
+        )
 
     violations: list[str] = []
     day_pat = re.compile(r"第\s*(\d+)\s*(?:天|日|夜)")
@@ -72,7 +77,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         [
             {
                 "id": "G6.4",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "chapters": len(chapters),
                 "note": "timeline and info-state ok",
             }
@@ -87,7 +92,7 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
     Returns (checks, mf_entries).
     """
     if not chapters:
-        return ([{"id": "G6.5", "s": "SKIP", "r": "need chapters/ for pacing check"}], [])
+        return ([{"id": "G6.5", "s": GateStatus.SKIP, "r": "need chapters/ for pacing check"}], [])
 
     ch_types: list[dict[str, Any]] = []
     for ch in chapters:
@@ -156,7 +161,10 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
     if len(ch_types) >= 8 and not peaks:
         mf.append("G6.5:no_action_peaks")
 
-    return ([{"id": "G6.5", "s": "PASS", "ch_types": ch_types, "action_peaks": len(peaks)}], mf)
+    return (
+        [{"id": "G6.5", "s": GateStatus.PASS, "ch_types": ch_types, "action_peaks": len(peaks)}],
+        mf,
+    )
 
 
 def check_style_consistency(
@@ -171,7 +179,7 @@ def check_style_consistency(
             [
                 {
                     "id": "G6.10",
-                    "s": "SKIP",
+                    "s": GateStatus.SKIP,
                     "r": "need style/style_profile.md and chapters/ for style check",
                 }
             ],
@@ -220,7 +228,7 @@ def check_style_consistency(
             [
                 {
                     "id": "G6.10",
-                    "s": "SKIP",
+                    "s": GateStatus.SKIP,
                     "r": "could not extract style ranges from style_profile.md",
                 }
             ],
@@ -268,7 +276,7 @@ def check_style_consistency(
         [
             {
                 "id": "G6.10",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "ranges": ranges,
                 "chapters_sampled": min(10, len(chapters)),
             }

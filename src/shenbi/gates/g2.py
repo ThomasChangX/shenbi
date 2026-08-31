@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -57,21 +59,21 @@ def gate_G2(
         p = Path(fp)
         # G2.1 — exists
         if not p.exists():
-            mf.append({"id": "G2.1", "file": fp, "s": "FAIL", "r": "not found"})
+            mf.append({"id": "G2.1", "file": fp, "s": GateStatus.FAIL, "r": "not found"})
             continue
         # G2.2 — non-empty
         if p.stat().st_size == 0:
-            mf.append({"id": "G2.2", "file": fp, "s": "FAIL", "r": "empty"})
+            mf.append({"id": "G2.2", "file": fp, "s": GateStatus.FAIL, "r": "empty"})
             continue
-        checks.append({"id": "G2.1", "file": fp, "s": "PASS"})
-        checks.append({"id": "G2.2", "file": fp, "s": "PASS"})
+        checks.append({"id": "G2.1", "file": fp, "s": GateStatus.PASS})
+        checks.append({"id": "G2.2", "file": fp, "s": GateStatus.PASS})
 
         # G2.3 — UTF-8
         try:
             content = p.read_text(encoding="utf-8")
-            checks.append({"id": "G2.3", "file": fp, "s": "PASS"})
+            checks.append({"id": "G2.3", "file": fp, "s": GateStatus.PASS})
         except Exception:
-            mf.append({"id": "G2.3", "file": fp, "s": "FAIL"})
+            mf.append({"id": "G2.3", "file": fp, "s": GateStatus.FAIL})
             continue
 
         # G2.dec — decisions.json validation (M4)
@@ -110,7 +112,7 @@ def gate_G2(
                 # G2.dec.2/.3 — schema version, required keys, P2.5 rationale (DecisionsDoc)
                 try:
                     DecisionsDoc.model_validate(data)
-                    checks.append({"id": "G2.dec", "file": fp, "s": "PASS"})
+                    checks.append({"id": "G2.dec", "file": fp, "s": GateStatus.PASS})
                 except ValidationError as e:
                     mf.extend(decisions_err_to_g2_failures(e, fp))
                 continue  # CRITICAL: skip G2.4-G2.10 (word count etc.) for JSON decisions
@@ -119,9 +121,9 @@ def gate_G2(
         if fp.endswith(".json"):
             try:
                 jload(fp)
-                checks.append({"id": "G2.4", "file": fp, "s": "PASS"})
+                checks.append({"id": "G2.4", "file": fp, "s": GateStatus.PASS})
             except (json.JSONDecodeError, OSError):
-                mf.append({"id": "G2.4", "file": fp, "s": "FAIL"})
+                mf.append({"id": "G2.4", "file": fp, "s": GateStatus.FAIL})
 
         # G2.5 — YAML frontmatter (only for structured data files, not creative prose)
         # truth/, outline/, plans/, snapshots/ files must have frontmatter.
@@ -139,7 +141,7 @@ def gate_G2(
                         {
                             "id": "G2.5",
                             "file": fp,
-                            "s": "FAIL",
+                            "s": GateStatus.FAIL,
                             "r": "structured data file requires YAML frontmatter",
                         }
                     )
@@ -148,20 +150,22 @@ def gate_G2(
                         {
                             "id": "G2.5",
                             "file": fp,
-                            "s": "PASS",
+                            "s": GateStatus.PASS,
                             "has_frontmatter": has_fm,
                             "required": must_have,
                         }
                     )
             except Exception:
                 if must_have:
-                    mf.append({"id": "G2.5", "file": fp, "s": "FAIL", "r": "YAML parse error"})
+                    mf.append(
+                        {"id": "G2.5", "file": fp, "s": GateStatus.FAIL, "r": "YAML parse error"}
+                    )
                 else:
                     checks.append(
                         {
                             "id": "G2.5",
                             "file": fp,
-                            "s": "SKIP",
+                            "s": GateStatus.SKIP,
                             "r": "YAML parse error on non-structured file",
                         }
                     )
@@ -176,14 +180,14 @@ def gate_G2(
                     {
                         "id": "G2.6",
                         "file": fp,
-                        "s": "FAIL",
+                        "s": GateStatus.FAIL,
                         "expected": f">= {CHAPTER_WORD_FLOOR}",
                         "actual": wc,
                         "resolution": "run length-normalizing --mode expand",
                     }
                 )
             else:
-                checks.append({"id": "G2.6", "file": fp, "s": "PASS", "word_count": wc})
+                checks.append({"id": "G2.6", "file": fp, "s": GateStatus.PASS, "word_count": wc})
 
             # G2.7 — word count ceiling
             is_important = _is_important_chapter(fp, project_dir or "")
@@ -193,7 +197,7 @@ def gate_G2(
                     {
                         "id": "G2.7",
                         "file": fp,
-                        "s": "FAIL",
+                        "s": GateStatus.FAIL,
                         "expected": f"<= {ceiling}",
                         "actual": wc,
                         "is_important": is_important,
@@ -204,7 +208,7 @@ def gate_G2(
                     {
                         "id": "G2.7",
                         "file": fp,
-                        "s": "PASS",
+                        "s": GateStatus.PASS,
                         "ceiling": ceiling,
                         "is_important": is_important,
                     }
@@ -212,15 +216,15 @@ def gate_G2(
 
             # G2.8 — PRE_WRITE_CHECK
             if "## PRE_WRITE_CHECK" not in content:
-                mf.append({"id": "G2.8", "file": fp, "s": "FAIL"})
+                mf.append({"id": "G2.8", "file": fp, "s": GateStatus.FAIL})
             else:
-                checks.append({"id": "G2.8", "file": fp, "s": "PASS"})
+                checks.append({"id": "G2.8", "file": fp, "s": GateStatus.PASS})
 
             # G2.9 — POST_WRITE_SELF_CHECK
             if "## POST_WRITE_SELF_CHECK" not in content:
-                mf.append({"id": "G2.9", "file": fp, "s": "FAIL"})
+                mf.append({"id": "G2.9", "file": fp, "s": GateStatus.FAIL})
             else:
-                checks.append({"id": "G2.9", "file": fp, "s": "PASS"})
+                checks.append({"id": "G2.9", "file": fp, "s": GateStatus.PASS})
 
         # G2.10 — template placeholder detection (10% threshold, chapter files only)
         lines = content.split("\n")
@@ -231,12 +235,12 @@ def gate_G2(
                     {
                         "id": "G2.10",
                         "file": fp,
-                        "s": "FAIL",
+                        "s": GateStatus.FAIL,
                         "r": f"template placeholder: {placeholder_ratio:.0%}",
                     }
                 )
             else:
-                checks.append({"id": "G2.10", "file": fp, "s": "PASS"})
+                checks.append({"id": "G2.10", "file": fp, "s": GateStatus.PASS})
 
         # G2.11 — truth files: .bak comparison (line-by-line diff)
         if file_type == "truth" and round_dir:
@@ -256,22 +260,24 @@ def gate_G2(
                         {
                             "id": "G2.11",
                             "file": fp,
-                            "s": "FAIL",
+                            "s": GateStatus.FAIL,
                             "r": f"{len(removals)} lines removed from truth file",
                             "removed_lines": removals[:5],
                         }
                     )
                 else:
-                    checks.append({"id": "G2.11", "file": fp, "s": "PASS"})
+                    checks.append({"id": "G2.11", "file": fp, "s": GateStatus.PASS})
 
         # G2.12 — file completeness (sentence-final punctuation, chapter files only)
         last = content.strip().split("\n")[-1].strip() if content.strip() else ""
         sentence_enders = ("。", "！", "？", "…", "」", "』", '"', "）", ")", "---")
         ends_ok = last.endswith(sentence_enders) or last.startswith("#")
         if not ends_ok and last:
-            checks.append({"id": "G2.12", "file": fp, "s": "WARN", "r": "may be truncated"})
+            checks.append(
+                {"id": "G2.12", "file": fp, "s": GateStatus.WARN, "r": "may be truncated"}
+            )
         else:
-            checks.append({"id": "G2.12", "file": fp, "s": "PASS"})
+            checks.append({"id": "G2.12", "file": fp, "s": GateStatus.PASS})
 
         # G2.meta_ratio: WARN when META block proportion > 50%
         # (_check_meta_ratio already emits the WARN entry with file+r — the
@@ -286,7 +292,12 @@ def gate_G2(
             pm = re.search(r"novel-output/([^/]+)/", str(p))
             if pm is None:
                 checks.append(
-                    {"id": "G2.13", "file": fp, "s": "SKIP", "r": "not a novel-output chapter"}
+                    {
+                        "id": "G2.13",
+                        "file": fp,
+                        "s": GateStatus.SKIP,
+                        "r": "not a novel-output chapter",
+                    }
                 )
             else:
                 project = pm.group(1)
@@ -298,14 +309,16 @@ def gate_G2(
                     and int(m.group(1)) in load_chapter_exemptions().get(project, set())
                 )
                 if header_ok and meta_ok:
-                    checks.append({"id": "G2.13", "file": fp, "s": "PASS"})
+                    checks.append({"id": "G2.13", "file": fp, "s": GateStatus.PASS})
                 else:
                     reasons = []
                     if not header_ok:
                         reasons.append("missing '# Chapter N:' header")
                     if not meta_ok:
                         reasons.append("missing META block (not exempted)")
-                    mf.append({"id": "G2.13", "file": fp, "s": "FAIL", "r": "; ".join(reasons)})
+                    mf.append(
+                        {"id": "G2.13", "file": fp, "s": GateStatus.FAIL, "r": "; ".join(reasons)}
+                    )
 
     if mf:
         return fail(
@@ -346,7 +359,7 @@ def _check_meta_ratio(
         check: dict[str, Any] = {
             "id": "G2.meta_ratio",
             "file": str(file_path),
-            "s": "WARN" if ratio > 0.5 else "PASS",
+            "s": GateStatus.WARN if ratio > 0.5 else "PASS",
             "ratio": f"{ratio:.1%}",
             "meta_chars": meta_chars,
             "total_chars": total_chars,

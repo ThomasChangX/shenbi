@@ -1,6 +1,7 @@
 """G4 checker for shenbi-chapter-planning."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 
@@ -40,11 +41,11 @@ def g4_chapter_planning(
             missing = [i for i in range(1, 9) if i not in sections_found]
             mf.append(f"G4.cp.sections:{len(sections_found)}/8_missing_{missing}")
         else:
-            c.append({"id": "G4.cp.sections", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.cp.sections", "file": fp, "s": GateStatus.PASS})
 
         # chapter_role token — drives review-resonance threshold calibration (spec §5.1)
         if re.search(r"chapter_role\s*[:：]\s*(高潮|兑现|推进|转折|过渡|铺垫)", content):
-            c.append({"id": "G4.cp.chapter_role", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.cp.chapter_role", "file": fp, "s": GateStatus.PASS})
         else:
             mf.append(f"G4.cp.missing_chapter_role:{fp}")
 
@@ -62,18 +63,18 @@ def g4_chapter_planning(
                     {
                         "id": f"G4.cp.golden_{n}",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": f"golden rule '{golden[n]}' not found in chapter {n}",
                     }
                 )
             else:
-                c.append({"id": f"G4.cp.golden_{n}", "file": fp, "s": "PASS"})
+                c.append({"id": f"G4.cp.golden_{n}", "file": fp, "s": GateStatus.PASS})
         else:
             c.append(
                 {
                     "id": "G4.cp.golden",
                     "file": fp,
-                    "s": "SKIP",
+                    "s": GateStatus.SKIP,
                     "r": f"N={n}, golden-3 only for N=1,2,3",
                 }
             )
@@ -86,12 +87,12 @@ def g4_chapter_planning(
                 {
                     "id": "G4.cp.s5_choice",
                     "file": fp,
-                    "s": "WARN",
+                    "s": GateStatus.WARN,
                     "r": "section 5 missing 关键抉择 keyword",
                 }
             )
         else:
-            c.append({"id": "G4.cp.s5_choice", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.cp.s5_choice", "file": fp, "s": GateStatus.PASS})
 
         # Section 7: hook operation names (per SKILL.md, section 7 is 本章 hook 账)
         s7_match = re.search(r"## 7\..*?\n(?=## 8\.|\Z)", content, re.DOTALL)
@@ -101,7 +102,9 @@ def g4_chapter_planning(
         if not found_ops:
             mf.append(f"G4.cp.s7_hook_ops:{fp}")
         else:
-            c.append({"id": "G4.cp.s7_hook_ops", "file": fp, "s": "PASS", "ops": found_ops})
+            c.append(
+                {"id": "G4.cp.s7_hook_ops", "file": fp, "s": GateStatus.PASS, "ops": found_ops}
+            )
 
         # Defer-silence rule (SKILL.md section 7 可自动检查规则; spec #9 R2):
         # rows with 操作=defer and 沉默章数 >= 4 require an 激活方案 or ABANDON
@@ -114,10 +117,10 @@ def g4_chapter_planning(
         ):
             mf.append(f"G4.cp.s7_defer_silence:{fp}")
         else:
-            c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.cp.s7_defer_silence", "file": fp, "s": GateStatus.PASS})
 
     if not fps:
-        c.append({"id": "G4.cp", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.cp", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-chapter-planning", c, "scoring", mf)
