@@ -5,11 +5,9 @@
 
 from __future__ import annotations
 
-import json
 from pathlib import Path
 from typing import Any
 
-from shenbi.safe_write import safe_write
 from shenbi.status import SkillProgressStatus
 from shenbi.trace.replay import replay
 
@@ -44,6 +42,7 @@ def materialize_progress(
     """
     events = replay(round_dir)
     skills_state: dict[str, dict[str, dict[str, Any]]] = {}
+    trace_known: set[tuple[str, str]] = set()  # (skill, test_type) MARK_DONE-derived
     init_tier, init_chapters = tier, expected_chapters
     for e in events:
         if e.action == "INIT":
@@ -55,6 +54,7 @@ def materialize_progress(
             skill = str(payload.get("skill"))
             tt = str(payload.get("test_type"))
             sd = skills_state.setdefault(skill, _empty_skill())  # I2: default three-pending
+            trace_known.add((skill, tt))
             sd[tt] = {
                 "status": str(payload.get("status", SkillProgressStatus.DONE)),
                 "score": _as_float(payload.get("score"), 0.0),
@@ -87,11 +87,52 @@ def materialize_progress(
         "total_framework_skills": len(total_skills),
         "expected_chapters": init_chapters,
     }
-    safe_write(
-        Path(round_dir) / "progress.json",
-        json.dumps(out, indent=2, ensure_ascii=False),
+    # spec #37 F630: merge into existing progress.json instead of
+    # wholesale-replacing it — materialize-owned top-level keys win, foreign
+    # top-level keys survive, and skills entries merge per skill/test_type
+    # so trace-unknown completions (e.g. dispatcher/G3-written DONE entries)
+    # are preserved.
+    progress_path = Path(round_dir) / "progress.json"
+    owned_top = {
+        "round",
+        "tier",
+        "completed_skill_names",
+        "skills",
+        "remaining_generative",
+        "remaining_bug_hunt",
+        "remaining_clean",
+        "total_framework_skills",
+        "expected_chapters",
+    }
+
+    def _merge(existing: dict[str, Any]) -> dict[str, Any]:
+        merged: dict[str, Any] = {k: v for k, v in existing.items() if k not in owned_top}
+        merged.update(out)
+        old_skills = existing.get("skills")
+        if isinstance(old_skills, dict):
+            for skill, entry in out.get("skills", {}).items():
+                old_entry = old_skills.get(skill)
+                if not (isinstance(old_entry, dict) and isinstance(entry, dict)):
+                    continue
+                # Trace-UNKNOWN pairs keep the existing value (e.g. a
+                # dispatcher/G3-written DONE); trace-known pairs take the
+                # replayed value.
+                merged_entry = {
+                    tt: (val if (skill, tt) in trace_known else dict(old_entry).get(tt, val))
+                    for tt, val in entry.items()
+                }
+                for tt, old_val in old_entry.items():
+                    if tt not in merged_entry:
+                        merged_entry[tt] = old_val
+                merged["skills"][skill] = merged_entry
+        return merged
+
+    from shenbi.safe_write import locked_transact
+
+    locked_transact(
+        progress_path,
+        _merge,
         round_dir=Path(round_dir),
         trace_action="MATERIALIZE",
-        trace_target="progress.json",
     )
     return out

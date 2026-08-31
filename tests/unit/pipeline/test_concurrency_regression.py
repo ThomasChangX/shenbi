@@ -323,3 +323,12 @@ def test_path_lock_registry_bounded() -> None:
     for i in range(1000):
         truth_io._path_lock(Path(f"/tmp/nonexistent-{i}.json"))
     assert len(truth_io._PATH_LOCKS) <= truth_io._PATH_LOCKS_MAX
+
+
+def test_periodic_materialize_removed() -> None:
+    """The zero-event periodic materialize call sites are gone (F630 ruling b)."""
+    from shenbi.pipeline import chapter_loop
+
+    assert not hasattr(chapter_loop, "_maybe_materialize_progress")
+    source = Path(chapter_loop.__file__).read_text(encoding="utf-8")
+    assert "materialize_progress(Path(state.project_dir)" not in source
