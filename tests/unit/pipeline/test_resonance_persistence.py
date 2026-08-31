@@ -14,7 +14,7 @@ chapter is never replaced.
 import tempfile
 from pathlib import Path
 
-from shenbi.pipeline.chapter_loop import _build_resonance_trend_row
+from shenbi.pipeline.chapter_loop import build_resonance_trend_row
 
 SKILL_RICH_ROW_55 = "| 55 | 推进/转折 | 18 | 12 | 23 | 17 | 70 | mid |  |"
 
@@ -25,7 +25,7 @@ def _cells(row: str) -> list[str]:
 
 def test_trend_row_has_nine_columns_with_overall_in_column_7():
     """Row has exactly 9 cells; overall score in cells[6] (7th column)."""
-    row = _build_resonance_trend_row(chapter=5, overall=70)
+    row = build_resonance_trend_row(chapter=5, overall=70)
     assert row.startswith("|")
     cells = _cells(row)
     assert len(cells) == 9, f"Expected 9 cells, got {len(cells)}: {row}"
@@ -36,13 +36,13 @@ def test_trend_row_has_nine_columns_with_overall_in_column_7():
 
 def test_trend_row_key_column_is_bare_chapter_number():
     """Key column (cells[0]) is {N} — matches the skill contract key."""
-    row = _build_resonance_trend_row(chapter=12, overall=55)
+    row = build_resonance_trend_row(chapter=12, overall=55)
     assert _cells(row)[0] == "12"
 
 
 def test_trend_row_has_placeholder_columns_for_missing_dims():
     """Columns without available data use '-' placeholders (not omitted)."""
-    row = _build_resonance_trend_row(chapter=3, overall=42)
+    row = build_resonance_trend_row(chapter=3, overall=42)
     cells = _cells(row)
     for idx in range(1, 6):
         assert cells[idx] == "-", f"cell {idx} should be '-' placeholder, got {cells[idx]}"
@@ -66,7 +66,7 @@ def test_persist_via_write_truth_file_round_trips_through_reader():
         write_truth_file(
             project_dir,
             "resonance_trend.md",
-            _build_resonance_trend_row(chapter=7, overall=88),
+            build_resonance_trend_row(chapter=7, overall=88),
             mode="insert_markdown_row",
             key_field="chapter",
         )
@@ -95,14 +95,14 @@ def test_insert_mode_does_not_replace_existing_row():
         write_truth_file(
             project_dir,
             "resonance_trend.md",
-            _build_resonance_trend_row(chapter=9, overall=60),
+            build_resonance_trend_row(chapter=9, overall=60),
             mode="insert_markdown_row",
             key_field="chapter",
         )
         write_truth_file(
             project_dir,
             "resonance_trend.md",
-            _build_resonance_trend_row(chapter=9, overall=65),
+            build_resonance_trend_row(chapter=9, overall=65),
             mode="insert_markdown_row",
             key_field="chapter",
         )
@@ -135,7 +135,7 @@ def test_framework_placeholder_never_clobbers_skill_rich_row():
         write_truth_file(
             project_dir,
             "resonance_trend.md",
-            _build_resonance_trend_row(chapter=55, overall=70),
+            build_resonance_trend_row(chapter=55, overall=70),
             mode="insert_markdown_row",
             key_field="chapter",
         )

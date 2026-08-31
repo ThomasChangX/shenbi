@@ -61,11 +61,9 @@ contract:
 
 1. **独立评分** — 本技能产出评分/审核判断，必须在 context-cleaned 独立 subagent 执行；drafting/planning agent 不得给自己的产出评分（spec §8.1）。
 2. **锚点先行（anchor-first）** — 打分前先对照本技能的共鸣锚点集（每维度高/中/低三档，spec §8.2；锚点文件路径由 dispatch 时传入，见 scenario 锚点映射）。被评段的定位必须相对锚点可解释：高于锚点 X / 介于 X 与 Y / 低于 Y。锚点缺失 → 降置信度 + flag，**不得跳过维度**（spec §9）。
-3. **先确定性** — 评分员的 LLM 判断只产出 4 维度分数 + 自报置信度。**校准门阈值、置信度降级、§5.4 分流、修订上限**全部由确定性 helper 计算，不得手算手判：
-   - 分流：`python -m shenbi.skill_utils.review_resonance --overall <分> --threshold <校准阈值> --confidence <校准后置信度> --prior-revisions <次数> --floor <维度=分:子地板> ...`
-   - 置信度降级：`python -m shenbi.skill_utils.calibration --reported <自报> --high-confidence <锚点命中率> --threshold 0.8`
+3. **先确定性** — 评分员的 LLM 判断只产出 4 维度分数 + 自报置信度。**校准门阈值按 chapter_role 表取值；置信度降级由框架在派发后自动执行**（锚点命中率校准，spec #33 T1b）：评分员只按输出格式报告自报置信度，框架解析后复算并校准降级、patch 进 trend 行 confidence 单元格，不得手算手判降级。修订分流与修订上限同样由框架（revision_router）确定性执行，本技能不做分流计算。
 4. **show-not-tell 证据** — 每个维度分数必须落到「原文行号 + 引述」，证情绪是 show 还是 tell，**禁止**用「写得很感人」「文笔流畅」这类无锚点的评价话术。
-5. **置信度必报** — 每个维度报 high/mid/low，overall 报 high/mid/low。**裸置信度不可信**：自报 high 但锚点命中率 < 0.8 → 校准降级为 mid（spec §8.2），降级后的置信度才用于 §5.4 分流。
+5. **置信度必报** — 每个维度报 high/mid/low，overall 报 high/mid/low，且报告含机器可解析校准行（见输出格式）。**裸置信度不可信**：框架按锚点命中率（< 0.8 降级）自动校准（spec §8.2、spec #33 T1b），trend 行的 confidence 单元格以框架校准后值为准——技能写自报原值即可。
 
 ## 流程
 
@@ -78,12 +76,9 @@ digraph review_resonance {
     "载入锚点 (高/中/低)" -> "评 4 维度 (情感落地 30 / 场景临场感 25 / 文笔质感 25 / 读者回报 20)";
     "评 4 维度" -> "校准门: 按 chapter_role 选 overall 阈值 + 维度子地板";
     "校准门" -> "置信度校准: 锚点命中率 → high/mid/low";
-    "置信度校准" -> "§5.4 分流 (确定性 routing)";
-    "§5.4 分流 (确定性 routing)" -> "判定?";
-    "判定?" -> "写报告 + 追加 resonance_trend 行" [label="明确通过"];
-    "判定?" -> "报告=修订反馈 → chapter-revision" [label="明确失败 (<2 次修订)"];
-    "判定?" -> "标记待人机复核" [label="边界/不确定"];
-    "判定?" -> "升级人因复核 (不再自动修订)" [label="明确失败但已达 2 次上限"];
+    "置信度校准" -> "框架校准 (派发后自动)";
+    "框架校准 (派发后自动)" -> "写报告 + 追加 resonance_trend 行";
+    "写报告 + 追加 resonance_trend 行" -> "框架分流 (revision_router 确定性执行)";
 }
 ```
 
@@ -111,11 +106,11 @@ digraph review_resonance {
 
 > **子地板 rationale**：高潮章强制「情感落地≥20」（情感交付是高潮章的核心交付物）；过渡章强制「读者回报≥12」（过渡章也必须给读者增量，否则=水章）。推进章不设维度子地板——其主交付维度随情节而变（信息/转折/关系），固定子地板不合理，由 overall≥65 兜底。`chapter_role` 未声明不得静默降级或跳过：按推进阈值评 + 报告 flag，**flag 聚合后批量处理，不逐章阻塞**（spec §5.1）。
 
-**阻断规则**：overall 或任一子地板未达 → **阻断**，按 §5.4 三路径分流。
+**阻断规则**：overall 或任一子地板未达 → **阻断**，框架 revision_router 按审计问题确定性分流（spot-fix / regenerate / constrained-regenerate），修订上限由框架强制（同章累计修订 > 2 次 → 升级人因复核）。
 
-## 置信度守护与分流（§5.4）
+## 置信度守护（框架自动，spec #33 T1b）
 
-每维度报置信度（high/mid/low）+ overall。阻断时分三条路径（用确定性 helper `route_block` 判定，消除「clear-fail 走哪」的歧义）：
+每维度报置信度（high/mid/low）+ overall。置信度校准与修订分流由框架确定性执行（原 §5.4 三路径 helper 已删除——生产路由权威是 `pipeline/revision_router`，锚点命中率校准派发后自动运行）。历史路径表保留作语义参考：
 
 | 情形 | 条件 | 路径 |
 |------|------|------|
@@ -152,6 +147,18 @@ digraph review_resonance {
 ### 共鸣短板（写入 audit_drift）
 > 仅 append 本维度短板条目，不覆盖已有内容；最终权威版本由 `shenbi-drift-guidance` 合并重写（见该 skill 单一写者声明）。
 - [维度] [短板描述] → 下章 PRE_WRITE_CHECK 防范建议
+
+### 机器可解析校准块（框架消费，必须包含）
+
+报告末尾固定两行，供框架解析（spec #33 T1b）：
+
+```
+calibration: reported=<overall 自报 high|mid|low>
+anchors: high=<高置信锚点数> | 情感落地=<行号> | 场景临场感=<行号> | 文笔质感=<行号> | 读者回报=<行号>
+```
+
+- `reported=` 行驱动框架的置信度校准（锚点命中率 < 0.8 时框架把 trend 行 confidence 降级 patch）
+- `anchors: high=` 计数 + 各维度锚点证据行号由框架累积为锚点命中率历史（truth/resonance_anchors.md，框架写，技能不写该文件）
 
 ### 趋势（写入 resonance_trend）
 - 第 N 章 情感落地 22 | 近 3 章均值 24 | 趋势: 持平
@@ -219,7 +226,7 @@ digraph review_resonance {
 | 「过渡章没高潮很正常，不该扣分」 | 过渡章不与高潮章比 overall（阈值按 `chapter_role` 校准），但仍必须给「读者回报≥12」，否则=水章 |
 | 「情绪我说了就算」 | 情绪是 show 还是 tell 必须落到「最强情绪 + 触发行」；tell 化的情绪节拍= 情感落地失分 |
 | 「置信度我自己报 high 就 high」 | LLM 评分员系统性自报偏高；锚点命中率 < 0.8 的 high 必须校准降级为 mid |
-| 「评不过就多修几次总会过」 | 同章 resonance 驱动修订上限 2 次，第 3 次仍 clear-fail 必须人因介入，禁止无限重试 |
+| 「评不过就多修几次总会过」 | 同章累计修订上限 2 次（框架 revision_router 强制），第 3 次仍 clear-fail 必须人因介入，禁止无限重试 |
 | 「锚点对不上，我就按经验评」 | 锚点缺失 → 降置信度 + flag，不得静默跳过维度（spec §9） |
 
 ## 缺陷证据格式

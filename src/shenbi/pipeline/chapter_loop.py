@@ -1386,6 +1386,19 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
         log.debug("no_triggered_hooks", chapter=chapter)
 
 
+_HIGH_ANCHOR_RE = None  # compiled lazily to avoid import-order issues
+
+
+def _parse_high_anchor_count(report_path: Path) -> int:
+    """Count high-confidence anchors declared in the report's anchors block."""
+    import re as _re
+
+    if not report_path.exists():
+        return 0
+    match = _re.search(r"anchors:\s*high=(\d+)", report_path.read_text(encoding="utf-8"))
+    return int(match.group(1)) if match else 0
+
+
 def _parse_resonance_score(report_path: Path) -> int | None:
     """Extract resonance score from a review-resonance audit report.
 
@@ -1432,7 +1445,7 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     return None
 
 
-def _build_resonance_trend_row(chapter: int, overall: int) -> str:
+def build_resonance_trend_row(chapter: int, overall: int) -> str:
     """Build a 9-column markdown table row for resonance_trend.md.
 
     Column layout matches the shenbi-review-resonance skill contract
@@ -1796,7 +1809,7 @@ def _parse_and_persist_resonance(
     if overall is not None:
         from shenbi.pipeline.truth_io import write_truth_file
 
-        trend_row = _build_resonance_trend_row(chapter, overall)
+        trend_row = build_resonance_trend_row(chapter, overall)
         # insert-only (SDD #21 R1): the review-resonance skill usually
         # already wrote its rich 9-column row for this chapter during the
         # dispatch; the framework placeholder must not replace it.
@@ -1808,6 +1821,31 @@ def _parse_and_persist_resonance(
             key_field="chapter",  # dedup on first column ({N})
         )
         log.info("resonance_score_persisted", chapter=chapter, overall=overall)
+
+        # Spec #33 T1b: post-dispatch confidence calibration. The skill's
+        # self-reported confidence is recalibrated against accumulated anchor
+        # hit-rate and patched into the winning trend row's confidence cell.
+        from shenbi.pipeline.confidence_calibration import (
+            calibrate_and_patch_trend,
+            parse_reported_confidence,
+            record_anchor_outcome,
+        )
+        from shenbi.pipeline.revision_router import DEFAULT_RESONANCE_FLOOR
+
+        high_anchors = _parse_high_anchor_count(report_path)
+        # Cross-signal ground truth (spec v8): a high-confidence anchor set is
+        # "correct" when the scored outcome held up (overall at/above floor).
+        record_anchor_outcome(
+            project_dir,
+            chapter,
+            high_anchors,
+            high_anchors if overall >= DEFAULT_RESONANCE_FLOOR else 0,
+        )
+        reported = parse_reported_confidence(report_path)
+        if reported is not None:
+            calibrate_and_patch_trend(project_dir, chapter, reported, overall=overall)
+        else:
+            log.info("calibration_reported_missing", chapter=chapter)
 
 
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -1835,6 +1873,20 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
             route=route.value,
             revision_count=cs.revision_count,
         )
+        # Spec #33 T1b: revision-loop cap (migrated from the deleted
+        # review_resonance.routing dead model). Exceeding the cap escalates
+        # instead of auto-revising forever.
+        from shenbi.pipeline.revision_router import revision_cap_exceeded
+
+        if revision_cap_exceeded(cs.revision_count):
+            log.warning(
+                "revision_cap_exceeded",
+                chapter=chapter,
+                revision_count=cs.revision_count,
+            )
+            dispatch_escalation(
+                project_dir, chapter, context=f"revision cap exceeded for chapter {chapter}"
+            )
 
     # Resonance floor check (spec §6.3). Full borderline/escalation handling
     # is deferred pending chapter_role calibration (Wave 4+); for now a
