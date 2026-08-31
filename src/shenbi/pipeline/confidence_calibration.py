@@ -135,13 +135,16 @@ def record_anchor_outcome_from_report(
 ) -> None:
     """Record one chapter's anchor outcome using the block-level cross-signal.
 
-    Spec v8: an anchor judgment is "correct" when the chapter's subsequent
-    revision actually rewrote the text the anchor covered. Ground truth =
-    pre-revision backup vs current prose line diff; anchor line numbers are
-    relocated within a ±5-line window (line drift after revision). Anchors
-    that cannot be located in any changed region and chapters without a
-    revision record 0/0 (unverifiable — excluded from numerator and
-    denominator, disclosed via log, never silently scored).
+    Spec v8 block-level cross-signal: an anchor judgment is "correct" when
+    the chapter's preceding revision actually rewrote the text the anchor
+    covered. Called from the resonance re-parse, which runs BEFORE the next
+    revision's backup exists — so on a first pass the row is 0/0
+    (unverifiable), and on a re-score pass the diff measures the revision
+    that just happened. Ground truth = pre-revision backup vs current prose
+    line diff; anchor line numbers relocate within a ±5-line window. Rows
+    with a ``high=``/dimension-line parse shortfall are 0/0 (unverifiable —
+    excluded from numerator and denominator, disclosed via log, never
+    silently scored).
     """
     import difflib
 
@@ -158,6 +161,10 @@ def record_anchor_outcome_from_report(
         record_anchor_outcome(project_dir, chapter, 0, 0)
         return
     dim_lines = [int(m) for m in _ANCHOR_LINE_RE.findall(anchor_match.group(2))]
+    if not dim_lines:
+        log.info("anchor_unverifiable", chapter=chapter, reason="parse_shortfall")
+        record_anchor_outcome(project_dir, chapter, 0, 0)
+        return
     if not backup.exists() or not current.exists():
         log.info("anchor_unverifiable", chapter=chapter, reason="no_revision_backup")
         record_anchor_outcome(project_dir, chapter, 0, 0)
@@ -176,7 +183,9 @@ def record_anchor_outcome_from_report(
             changed.extend(range(j1 + 1, j2 + 1))  # 1-based lines
     window = {ln + d for ln in changed for d in range(-5, 6)}
     correct = sum(1 for ln in dim_lines if ln in window)
-    record_anchor_outcome(project_dir, chapter, high_anchors, correct)
+    # Denominator = parsed dimension anchors, not the declared high= count:
+    # keeps numerator and denominator consistent under format drift.
+    record_anchor_outcome(project_dir, chapter, len(dim_lines), correct)
     log.info(
         "anchor_outcome_recorded",
         chapter=chapter,

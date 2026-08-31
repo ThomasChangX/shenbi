@@ -160,3 +160,26 @@ def test_anchor_outcome_unverifiable_without_backup(tmp_path: Path) -> None:
     record_anchor_outcome_from_report(tmp_path, 5, report, high_anchors=3)
     text = (tmp_path / "truth" / "resonance_anchors.md").read_text(encoding="utf-8")
     assert "| 5 | 0 | 0 |" in text  # excluded from numerator AND denominator
+
+
+def test_anchor_parse_shortfall_unverifiable(tmp_path: Path) -> None:
+    from shenbi.pipeline.confidence_calibration import record_anchor_outcome_from_report
+
+    (tmp_path / "chapters").mkdir()
+    (tmp_path / "chapters" / "chapter-5-pre-rev.md").write_text("a\n", encoding="utf-8")
+    (tmp_path / "chapters" / "chapter-5.md").write_text("b\n", encoding="utf-8")
+    report = tmp_path / "r.md"
+    report.write_text("anchors: high=3 | 情感落地=1\n", encoding="utf-8")  # 1/4 dims
+    record_anchor_outcome_from_report(tmp_path, 5, report, high_anchors=3)
+    assert "| 5 | 0 | 0 |" in (tmp_path / "truth" / "resonance_anchors.md").read_text(
+        encoding="utf-8"
+    )
+
+
+def test_no_report_unverifiable(tmp_path: Path) -> None:
+    from shenbi.pipeline.confidence_calibration import record_anchor_outcome_from_report
+
+    record_anchor_outcome_from_report(tmp_path, 9, tmp_path / "missing.md", high_anchors=2)
+    assert "| 9 | 0 | 0 |" in (tmp_path / "truth" / "resonance_anchors.md").read_text(
+        encoding="utf-8"
+    )
