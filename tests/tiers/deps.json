@@ -370,7 +370,6 @@
     "src/shenbi/contracts/schemas/decisions.py": "sha256:de57332f90df839aff5ab10b709cbb390c01d037beb5e0a57194b2aaeb990d92",
     "src/shenbi/contracts/schemas/__init__.py": "sha256:8400b820b83361a05fd08920d415e03b3d81bc1228319d4f5770e0de6654e280",
     "src/shenbi/contracts/schemas/adapt.py": "sha256:6aec5f0d1c051ca8359ab4ba3794583957f8b20c16f9869d6efd4b7bf1646b15",
-    "src/shenbi/contracts/schemas/scores.py": "sha256:4afca4e0fb9857df30ba1ffa3d36617408b6c9fabb84e9ab80b9b8892978b779",
     "src/shenbi/contracts/schemas/state.py": "sha256:91ff8ae355e9741fcdda6cc7b4f08333d37a18fedecf2cf6d888b35fc03e0dc2",
     "src/shenbi/contracts/skills/pacing_design.py": "sha256:2219ae0b24625368a0bc072d9886f03bf5f3f5ad1cb2f5ddf8993cb126f0e554",
     "src/shenbi/contracts/skills/score_arc.py": "sha256:c60dd677b77d96865fbb1f5f60374a14415d3f658f678f3b51a47b1b379db0b0",
