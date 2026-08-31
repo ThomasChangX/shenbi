@@ -271,7 +271,8 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
         # read as "no drift" to the reviewer the ESCALATE pause hands it to.
         message = (
             f"Severity {severity}: system term density {stm_density:.1f} per mille "
-            f"(absolute threshold breach; ratio metrics within bounds)."
+            f"(absolute threshold breach; ratio checks "
+            f"{'skipped for zero-baseline metrics' if insufficient_baseline else 'within bounds'})."
         )
     else:
         message = "No linguistic drift detected."

@@ -86,7 +86,7 @@ def dialogue_char_count(text: str) -> int:
 
 def dialogue_char_ratio(text: str) -> float:
     """dialogue_char_count / non-whitespace total chars; 0.0 when empty."""
-    total = len([c for c in text if not c.isspace()])
+    total = sum(1 for c in text if not c.isspace())
     if total == 0:
         return 0.0
     return dialogue_char_count(text) / total

@@ -103,7 +103,7 @@ class TestParallelWaveResonance:
         assert "resonance_below_floor" not in capsys.readouterr().err
 
     def test_resonance_trend_updated(self, tmp_path: Path, monkeypatch) -> None:
-        state = _run_wave(tmp_path, monkeypatch, _REPORT_HIGH)
+        _run_wave(tmp_path, monkeypatch, _REPORT_HIGH)
         trend = tmp_path / "truth" / "resonance_trend.md"
         assert trend.exists()
         content = trend.read_text(encoding="utf-8")
