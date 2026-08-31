@@ -154,6 +154,11 @@ def _load_executor_config() -> dict[str, Any]:
     return _executor_config_cache[0]
 
 
+def load_executor_config() -> dict[str, Any]:
+    """Public accessor (spec #33 T1a): helper_injection reads the cached config."""
+    return _load_executor_config()
+
+
 # ---------------------------------------------------------------------------
 # 10a: META block stripping for non-drafting LLM calls
 # ---------------------------------------------------------------------------
@@ -824,6 +829,14 @@ def _build_skill_prompt(
                 user_prompt = skeleton_header + skeleton + skeleton_footer + "\n\n" + user_prompt
             except Exception as e:
                 log.warning("plan_skeleton_inject_failed", skill=skill, error=str(e))
+
+    # Inject deterministic helper precompute blocks (spec #33 T1a).
+    try:
+        from shenbi.pipeline.helper_injection import inject_helper_precompute
+
+        user_prompt = inject_helper_precompute(skill, project_dir, user_prompt)
+    except Exception as e:
+        log.warning("helper_inject_failed", skill=skill, error=str(e))
 
     # Inject shared review checklist for review skills (Phase 2.3).
     if _is_review_skill(skill) and chapter is not None:

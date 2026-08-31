@@ -41,14 +41,14 @@ contract:
 
 ```dot
 digraph style_learning {
-    "Read source chapters" -> "Run compute_stats.py on chapter files";
-    "Run compute_stats.py on chapter files" -> "LLM reads JSON stats output";
+    "Read source chapters" -> "Read Helper Precompute block (framework-injected)";
+    "Read Helper Precompute block (framework-injected)" -> "LLM reads JSON stats output";
     "LLM reads JSON stats output" -> "LLM writes style_profile.md (stats + prose)";
     "LLM writes style_profile.md (stats + prose)" -> "Done";
 }
 ```
 
-**第一步必须运行** `python -m shenbi.skill_utils.style_learning <chapter_files> --output /tmp/style-stats.json`。**禁止跳过此步直接用 LLM 估算统计值。**
+**第一步读取框架注入**：派发 prompt 已含 `## Helper Precompute (style stats, deterministic)` JSON 块（框架运行 compute_all_stats 预计算）。**直接引用该块统计值，禁止 LLM 自行估算或重算统计值。**（旧的自执行脚本指令已由框架接线取代，本地手动复现可用 skill_utils.style_learning CLI。）
 
 ## Bootstrap 模式 (Genesis 阶段)
 
