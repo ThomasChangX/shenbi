@@ -197,11 +197,13 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
     _validate_changes(config, staged, changes, rationale)
 
     # Phase 2: commit — write config, then append trail entries. A trail
-    # failure mid-batch rolls the config back to the pre-batch content and
-    # re-raises (spec #37 F605: config and audit trail must not diverge).
+    # failure mid-batch rolls the config back to the pre-batch parsed content
+    # (covers both missing and existing files) and appends a compensating
+    # ROLLBACK trail entry, then re-raises (spec #37 F605: config and audit
+    # trail must not diverge in either direction).
     entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]
     config_path = project_dir / "genre-config.json"
-    original_content = config_path.read_text(encoding="utf-8") if config_path.exists() else None
+    rollback_content = json.dumps(config, ensure_ascii=False, indent=2)
     safe_write(config_path, json.dumps(staged, ensure_ascii=False, indent=2))
     try:
         for key, old_value, new_value in entries:
@@ -214,8 +216,21 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
                 rationale=rationale,
             )
     except BaseException:
-        if original_content is not None:
-            safe_write(config_path, original_content)
+        safe_write(config_path, rollback_content)
+        try:
+            from shenbi.append_helper import append_jsonl
+
+            append_jsonl(
+                project_dir / AUDIT_TRAIL_NAME,
+                {
+                    "key": "batch",
+                    "old": "committed",
+                    "new": "rolled_back",
+                    "rationale": f"trail append failed mid-batch; batch reverted: {rationale}",
+                },
+            )
+        except OSError:
+            log.error("config_rollback_trail_entry_failed", exc_info=True)
         raise
 
 
