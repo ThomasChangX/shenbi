@@ -132,6 +132,25 @@ class _Visitor(ast.NodeVisitor):
                 self._check_value(k.value, v, node.lineno, line_text)
         self.generic_visit(node)
 
+    def visit_AnnAssign(self, node: ast.AnnAssign) -> None:
+        tgt = node.target
+        if (
+            isinstance(tgt, ast.Subscript)
+            and isinstance(tgt.slice, ast.Constant)
+            and tgt.slice.value in STATUS_KEYS
+            and node.value is not None
+        ):
+            self._check_value(tgt.slice.value, node.value, node.lineno)
+        self.generic_visit(node)
+
+    def visit_Call(self, node: ast.Call) -> None:
+        # dict(s="PASS", ...) keyword-constructor emit sites
+        if isinstance(node.func, ast.Name) and node.func.id == "dict":
+            for kw in node.keywords:
+                if kw.arg in STATUS_KEYS:
+                    self._check_value(kw.arg, kw.value, node.lineno)
+        self.generic_visit(node)
+
     def visit_Assign(self, node: ast.Assign) -> None:
         for tgt in node.targets:
             if (

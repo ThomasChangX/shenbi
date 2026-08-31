@@ -73,3 +73,13 @@ def test_read_comparison_is_not_flagged() -> None:
 def test_lookup_key_inside_value_expr_not_flagged() -> None:
     src = 'd = {"status": rec.get("status")}\n'
     assert _violations_in(src) == []
+
+
+@pytest.mark.unit
+def test_dict_keyword_constructor_flagged() -> None:
+    assert _violations_in('c = dict(s="PASS")\n')
+
+
+@pytest.mark.unit
+def test_annassign_subscript_flagged() -> None:
+    assert _violations_in('d["status"]: str = "PASS"\n')
