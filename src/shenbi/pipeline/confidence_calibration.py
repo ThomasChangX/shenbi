@@ -30,6 +30,10 @@ _MIN_ANCHOR_DENOMINATOR = 3
 
 _REPORTED_RE = re.compile(r"calibration:\s*reported=(high|mid|low)")
 
+#: ``anchors: high=4 | 情感落地=45 | ...`` — capture the per-dimension
+#: anchor line numbers that follow the high= count.
+_ANCHOR_LINE_RE = re.compile(r"=(\d+)")
+
 
 def parse_reported_confidence(report_path: Path) -> str | None:
     """Extract the skill's self-reported confidence from its report."""
@@ -99,7 +103,7 @@ def calibrate_and_patch_trend(
 
     hr = compute_anchor_hit_rate(project_dir)
     if hr is None:
-        log.info("calibration_skipped_insufficient_history", chapter=chapter)
+        # already disclosed as calibration_insufficient_history inside compute_anchor_hit_rate
         return
     calibrated = calibrate_confidence(reported, hr)
     if calibrated != reported:
@@ -124,3 +128,59 @@ def calibrate_and_patch_trend(
         )
         if not patch_markdown_table_cell(trend_path, str(chapter), "chapter", 7, calibrated):
             log.warning("calibration_patch_failed_after_placeholder", chapter=chapter)
+
+
+def record_anchor_outcome_from_report(
+    project_dir: Path, chapter: int, report_path: Path, high_anchors: int
+) -> None:
+    """Record one chapter's anchor outcome using the block-level cross-signal.
+
+    Spec v8: an anchor judgment is "correct" when the chapter's subsequent
+    revision actually rewrote the text the anchor covered. Ground truth =
+    pre-revision backup vs current prose line diff; anchor line numbers are
+    relocated within a ±5-line window (line drift after revision). Anchors
+    that cannot be located in any changed region and chapters without a
+    revision record 0/0 (unverifiable — excluded from numerator and
+    denominator, disclosed via log, never silently scored).
+    """
+    import difflib
+
+    backup = project_dir / "chapters" / f"chapter-{chapter}-pre-rev.md"
+    current = project_dir / "chapters" / f"chapter-{chapter}.md"
+    if not report_path.exists():
+        log.info("anchor_unverifiable", chapter=chapter, reason="no_report")
+        record_anchor_outcome(project_dir, chapter, 0, 0)
+        return
+    report_text = report_path.read_text(encoding="utf-8")
+    anchor_match = re.search(r"anchors: high=(\d+)(.*)", report_text)
+    if anchor_match is None:
+        log.info("anchor_unverifiable", chapter=chapter, reason="no_anchor_block")
+        record_anchor_outcome(project_dir, chapter, 0, 0)
+        return
+    dim_lines = [int(m) for m in _ANCHOR_LINE_RE.findall(anchor_match.group(2))]
+    if not backup.exists() or not current.exists():
+        log.info("anchor_unverifiable", chapter=chapter, reason="no_revision_backup")
+        record_anchor_outcome(project_dir, chapter, 0, 0)
+        return
+    old = backup.read_text(encoding="utf-8").splitlines()
+    new = current.read_text(encoding="utf-8").splitlines()
+    if old == new:
+        log.info("anchor_unverifiable", chapter=chapter, reason="text_unchanged")
+        record_anchor_outcome(project_dir, chapter, 0, 0)
+        return
+    # Changed regions in the CURRENT text (replace/insert opcodes).
+    changed: list[int] = []
+    sm = difflib.SequenceMatcher(a=old, b=new, autojunk=False)
+    for tag, _i1, _i2, j1, j2 in sm.get_opcodes():
+        if tag in ("replace", "insert"):
+            changed.extend(range(j1 + 1, j2 + 1))  # 1-based lines
+    window = {ln + d for ln in changed for d in range(-5, 6)}
+    correct = sum(1 for ln in dim_lines if ln in window)
+    record_anchor_outcome(project_dir, chapter, high_anchors, correct)
+    log.info(
+        "anchor_outcome_recorded",
+        chapter=chapter,
+        high=high_anchors,
+        anchors=len(dim_lines),
+        correct=correct,
+    )

@@ -120,3 +120,43 @@ def test_anchor_row_out_of_range_skipped(tmp_path: Path) -> None:
         key_field="chapter",
     )
     assert compute_anchor_hit_rate(tmp_path) is None  # no valid rows → cold start
+
+
+def test_anchor_outcome_block_level_cross_signal(tmp_path: Path) -> None:
+    """Correct count = anchors whose line falls in a revision-changed region."""
+    from shenbi.pipeline.confidence_calibration import (
+        record_anchor_outcome_from_report,
+    )
+
+    (tmp_path / "chapters").mkdir()
+    body = [f"第{i}行" for i in range(1, 21)]
+    (tmp_path / "chapters" / "chapter-5-pre-rev.md").write_text(
+        "\n".join(body) + "\n", encoding="utf-8"
+    )
+    # Revision rewrote line 2 only.
+    revised = list(body)
+    revised[1] = "第二行改写"
+    (tmp_path / "chapters" / "chapter-5.md").write_text("\n".join(revised) + "\n", encoding="utf-8")
+    report = tmp_path / "r.md"
+    report.write_text(
+        "calibration: reported=high\nanchors: high=2 | 情感落地=2 | 读者回报=18\n",
+        encoding="utf-8",
+    )
+    record_anchor_outcome_from_report(tmp_path, 5, report, high_anchors=2)
+    # Anchor at line 2 sits in the changed region (correct); line 18 is
+    # outside the ±5 relocation window (line 2's window ends at 7).
+    text = (tmp_path / "truth" / "resonance_anchors.md").read_text(encoding="utf-8")
+    assert "| 5 | 2 | 1 |" in text
+
+
+def test_anchor_outcome_unverifiable_without_backup(tmp_path: Path) -> None:
+    from shenbi.pipeline.confidence_calibration import (
+        record_anchor_outcome_from_report,
+    )
+
+    (tmp_path / "chapters").mkdir(exist_ok=True)
+    report = tmp_path / "r.md"
+    report.write_text("anchors: high=3 | 情感落地=10\n", encoding="utf-8")
+    record_anchor_outcome_from_report(tmp_path, 5, report, high_anchors=3)
+    text = (tmp_path / "truth" / "resonance_anchors.md").read_text(encoding="utf-8")
+    assert "| 5 | 0 | 0 |" in text  # excluded from numerator AND denominator

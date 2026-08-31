@@ -48,7 +48,7 @@ digraph chapter_pattern {
 }
 ```
 
-**模式分类由 LLM 执行（判断性工作）。分类结果以 JSON 写入 `context/chapter-pattern-input-<N>.json`，框架自动累积到 `truth/chapter_patterns.md` 并在下一次派发 prompt 注入历史确定性分析（熵、分布、连续运行——见 `Helper Precompute (chapter pattern history)` 块）。LLM 基于注入块与当章分类撰写报告和建议，不要自行重算历史统计。**
+**模式分类由 LLM 执行（判断性工作）。分类结果以 JSON 写入 `context/chapter-pattern-input-<N>.json`（格式：`[{"num": <章号>, "pattern": "<13 模式名>"}, ...]`，一章一项），框架自动累积到 `truth/chapter_patterns.md` 并在下一次派发 prompt 注入历史确定性分析（熵、分布、连续运行——见 `Helper Precompute (chapter pattern history)` 块）。LLM 基于注入块与当章分类撰写报告和建议，不要自行重算历史统计。**
 
 ## 铁律
 

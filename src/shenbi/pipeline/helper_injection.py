@@ -49,12 +49,17 @@ def _helper_injection_disabled() -> frozenset[str]:
 
 
 def _chapter_number(path: Path) -> int:
-    match = re.search(r"chapter-(\d+)\.md", path.name)
+    match = re.search(r"chapter-(\d+)", path.name)
     return int(match.group(1)) if match else 0
+
+
+def _is_pre_revision_backup(path: Path) -> bool:
+    return path.name.endswith("-pre-rev.md")
 
 
 def _style_stats_block(project_dir: Path) -> str | None:
     chapter_files = sorted((project_dir / "chapters").glob("chapter-*.md"), key=_chapter_number)
+    chapter_files = [p for p in chapter_files if not _is_pre_revision_backup(p)]
     if not chapter_files:
         log.info("helper_injection_no_chapters", skill="shenbi-style-learning")
         return None

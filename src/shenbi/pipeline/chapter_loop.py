@@ -29,7 +29,6 @@ The orchestrator is stateless itself: it mutates the passed-in
 
 from __future__ import annotations
 
-import filecmp
 import json
 import re
 import shutil as _shutil
@@ -1387,9 +1386,6 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
         log.debug("no_triggered_hooks", chapter=chapter)
 
 
-_HIGH_ANCHOR_RE = None  # compiled lazily to avoid import-order issues
-
-
 def _parse_high_anchor_count(report_path: Path) -> int:
     """Count high-confidence anchors declared in the report's anchors block."""
     import re as _re
@@ -1751,7 +1747,6 @@ def _parse_and_persist_resonance(
         from shenbi.pipeline.confidence_calibration import (
             calibrate_and_patch_trend,
             parse_reported_confidence,
-            record_anchor_outcome,
         )
 
         high_anchors = _parse_high_anchor_count(report_path)
@@ -1762,18 +1757,14 @@ def _parse_and_persist_resonance(
             calibrate_and_patch_trend(project_dir, chapter, reported, overall=overall)
         else:
             log.info("calibration_reported_missing", chapter=chapter)
-        # Cross-signal ground truth (spec v8): an anchor row is "correct" when
-        # the chapter's subsequent revision actually rewrote the text the
-        # anchors covered (pre-revision backup differs from current prose).
-        # Unverifiable chapters (no revision yet) record 0/0 — excluded from
-        # both numerator and denominator, never silently scored.
-        backup = project_dir / resolve_chapter_path("chapters/chapter-N-pre-rev.md", chapter)
-        current = project_dir / resolve_chapter_path("chapters/chapter-N.md", chapter)
-        if backup.exists() and current.exists() and not filecmp.cmp(backup, current, shallow=False):
-            record_anchor_outcome(project_dir, chapter, high_anchors, high_anchors)
-        else:
-            log.info("anchor_unverifiable", chapter=chapter, high_anchors=high_anchors)
-            record_anchor_outcome(project_dir, chapter, 0, 0)
+        # Cross-signal ground truth (spec v8): anchor line numbers are checked
+        # against the pre-revision backup vs current prose diff (±5-line
+        # relocation); unverifiable chapters record 0/0 rows.
+        from shenbi.pipeline.confidence_calibration import (
+            record_anchor_outcome_from_report,
+        )
+
+        record_anchor_outcome_from_report(project_dir, chapter, report_path, high_anchors)
 
 
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:

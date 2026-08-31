@@ -94,3 +94,13 @@ def test_injection_window_is_numeric_last_ten(project_dir: Path) -> None:
     block = _style_stats_block(project_dir)
     assert block is not None
     assert "窗口=最近 10 章" in block
+
+
+def test_pre_revision_backups_excluded_from_window(project_dir: Path) -> None:
+    backup = project_dir / "chapters" / "chapter-1-pre-rev.md"
+    backup.write_text("旧稿" * 100, encoding="utf-8")
+    from shenbi.pipeline.helper_injection import _style_stats_block
+
+    block = _style_stats_block(project_dir)
+    assert block is not None
+    assert "chapter-1-pre-rev.md" not in block  # backup must not skew stats
