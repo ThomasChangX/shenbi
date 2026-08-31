@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design · Revised 2026-08-31 (v3) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #137) | **Severity:** 🟥 Critical | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C10，20 条）| **代表 finding:** F301 | **严重度上限:** P0（F301/F504）| **涉及文件面:** src/shenbi/pipeline/dispatch_helper.py、cost/ledger.py、cost/report.py、cost/estimate.py、trace/writer.py + trace/materialize.py、pipeline/chapter_loop.py（_complete_chapter）、pipeline/closure.py
 > **修订注（v2 · 2026-08-31）**：SDD 价值门复核剔除已修任务——原 T1/T2/T3（记录点去门控/chapter 现场值/集成护栏）已由 commit 0d36d31a 落地 main（F301/F302/F344/F359/F504/F505/T401/T403/T409/F530 已修）；原 T6 的 T405（_try_avg_g3_score 抓取噪声）已由 commit 2812466c（spec #27 T5）修复；T406「单桶」表述修正（by_chapter 实为多桶，真问题是 per-chapter average 无信息量且无警告行）。
 > **修订注（v3 · 2026-08-31，阶段 3 设计审查收敛）**：钉死 v2 遗留的未决选择——T7 二分入账语义（流末失败/中途断流）+ accumulator 穿透 @retry 机制 + dispatch trace 事件发射点；ledger 新字段一律带默认值（防旧存量行被 TypeError-skip 静默销毁）；T4 钉死产出节点与形态；T5 钉死为估记行（弃子进程直写——违反 single-writer）；F523 前移至 T5 之前；T404 改独立标记字段不改写 model 名。任务编号保留原编号。
