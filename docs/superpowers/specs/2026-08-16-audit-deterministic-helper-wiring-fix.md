@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Revised:** 2026-08-31（v2：价值门删 F376/F604；v3：阶段 3 设计审查 1C/3I/5M 修订——T1 拆派发前注入/派发后强制、prompt 层澄清、阈值收敛后果显式化、T2 清理面补全）| **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Revised:** 2026-08-31（v2：价值门删 F376/F604；v3：阶段 3 设计审查 1C/3I/5M 修订；v4：二轮审查 1C/4I/5M 修订——route_block 与 revision_router 权威冲突裁决、compute_pattern 历史/当章拆分、清理面纠偏、recall 面 liveness 核查、覆盖落点与解析前置声明）| **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C7，原 5 条，修订后 3 条）| **代表 finding:** T1442 | **严重度上限:** P1 | **涉及文件面:** src/shenbi/skill_utils/（compute_stats、compute_pattern、recall、calibration、review_resonance.routing、review_checklist）、pipeline/（chapter_loop、dispatch_helper、hook_planting、genesis、triggers）、skills/（shenbi-review-anti-ai、shenbi-chapter-drafting、shenbi-review-resonance、shenbi-foreshadowing-plant 等正文改引 helper 输出）、tools/lint_helper_usage.py（新增）
 
 # 确定性 helper 派发接线（audit-deterministic-helper-wiring）· v2
@@ -15,8 +15,8 @@
 修订后核心 3 条：
 
 - **T1440**：hook_planting 确定性替换是**不可达死代码**——`plant_hooks_from_plan` 唯一调用点 chapter_loop.py:2819 的分支条件 `step.skill == "shenbi-foreshadowing-plant"`，但该技能已弃用不在 CHAPTER_STEPS（:129 注释、:192 仅存合并体 shenbi-foreshadowing-lifecycle）；plant 三个活跃面（genesis.py GenesisStep(9)、triggers.py:297 卷边界 TriggerStep、skills/shenbi-foreshadowing-plant/SKILL.md 手动路由）仍全走 LLM dispatch。
-- **T1441**：anti-ai 检查清单与 G4 确定性检查构成双重体系——10 项确定性检查只存在于 `skills/shenbi-review-anti-ai/checklist.md` prompt 资产，由 LLM 每章重算（`review_checklist.inject_checklist_into_prompt` 只注入词表/预算，不注入预计算计数）；同名检查阈值三面分裂：转折词密度 G4 `max(5, wc//1000)`（gates/g4/chapter_drafting.py:200）vs checklist.md:25 `max(1, floor(字数/3000))` vs anti-ai-reference.md:22 `每3000字≤1`。
-- **T1442**：确定性统计 helper 五件套仍纯 prompt 级接线——src 生产代码零调用（仅 `__main__` CLI），dispatch_helper 无预计算注入钩子，SKILL.md 正文要求 LLM 自行执行 `python -m shenbi.skill_utils...`（如 shenbi-review-resonance/SKILL.md:65-66）。**v3 按输入来源拆两半**：compute_stats/compute_pattern/recall 的输入是章文件/truth 文件（派发前可预计算注入）；calibration（`calibrate_confidence(reported, hr)`——reported 是 LLM 自报置信度）与 review_resonance.routing（`route_block(overall, ..., confidence, prior_revisions)`——输入是审查输出）**依赖派发自身输出，只能派发后确定性强制**（框架解析后复算/覆盖 LLM 路由决定）。另注：主生产路由（API 派发）下 LLM 根本无法执行 `python -m`，这些 SKILL.md 指令在主路由上是死指令而非"LLM 重算"。
+- **T1441**：anti-ai 检查清单与 G4 确定性检查构成双重体系——10 项确定性检查只存在于 `skills/shenbi-review-anti-ai/checklist.md` prompt 资产，由 LLM 每章重算（`review_checklist.inject_checklist_into_prompt` 只注入词表/预算，不注入预计算计数）；同名检查阈值三面分裂：转折词密度 G4 `max(5, wc//1000)`（gates/g4/chapter_drafting.py:200）vs checklist.md:25 `max(1, floor(字数/3000))` vs `skills/shenbi-chapter-drafting/anti-ai-reference.md:20-22` `每3000字≤1`（注意路径：在 chapter-drafting 技能目录，非 review-anti-ai）。
+- **T1442**：确定性统计 helper 五件套仍纯 prompt 级接线——src 生产代码零调用（仅 `__main__` CLI），dispatch_helper 无预计算注入钩子，SKILL.md 正文要求 LLM 自行执行 `python -m shenbi.skill_utils...`（如 shenbi-review-resonance/SKILL.md:65-66）。**按输入来源拆两半（v4 精化）**：派发前可预计算注入的是 compute_stats（输入章文件）与 compute_pattern 的**历史窗口半**（输入持久化的 `outline/chapter_patterns.md`；其"当章分类"半依赖 LLM 输出，不可预计算）；calibration（`calibrate_confidence(reported, hr)`——reported 是 LLM 自报置信度）只能派发后强制。**routing 权威裁决（v4）**：生产路由已由 `pipeline/revision_router.route_chapter_revision`（复用 `skill_utils/revision_routing`，chapter_loop.py:1823 消费）确定性地框架侧决策——`review_resonance/routing.py:route_block` 是**竞争性重复三路模型**（不同阈值/置信门/上限），接线它会在框架层再造一个双重体系（正是本 spec 要消除的对象）→ 裁决：route_block **作为重复死模型删除**（与 T2 死面清理同性质），revision_router 是唯一路由权威；不接线。另注：主生产路由（API 派发）下 LLM 根本无法执行 `python -m`，这些 SKILL.md 指令在主路由上是死指令而非"LLM 重算"。
 
 先例佐证：仓库已 16 次实现该模式但仅 ~5 个代码层接线（T14-07 母模式）；归档 spec #3（确定性技能替换审计）已给出提升判据（纯文件操作/键值 upsert/计数/固定模板填充/阈值比较），#14 已覆盖统计**正确性**、#11/#32 已覆盖 baseline 接线——本 spec v2 只管五件套/anti-ai/plant 的**接线与死面**。
 
@@ -29,10 +29,10 @@
 
 ## 任务分解
 
-- **T1a · 派发前注入（compute_stats/compute_pattern/recall）**：dispatch_helper 派发前钩子（与既有 plan_skeleton/review_checklist 注入同层）——对声明了对应 helper 的技能，把预计算结果作为 prompt 注入块；"删除请计算指令"通过**静态修订 SKILL.md 正文**实现（正文改引 helper 注入块，改后走 `just lint-contracts` + `just generate` 三源同步；不做运行时正则改写系统 prompt）。带 per-skill 开关可回退纯 prompt 路径。
-- **T1b · 派发后强制（calibration/routing）**：review 类技能输出解析后，框架调用 `calibrate_confidence`/`route_block` 复算并**覆盖** LLM 的置信度/路由决定（LLM 输出降级为参考）；接线点在解析→落盘路径，非派发前。
-- **T2 · hook_planting 死分支裁决（T1440）**：二选一——(a) 三个 plant 活跃面（genesis step 9 / triggers 卷边界）路由到 `plant_hooks_from_plan` 确定性实现；(b) 删除死面、保留 LLM 面。倾向 (b)：plant 输出依赖 plan 语义扩展（expand 模式），确定性实现仅覆盖固定场景。**清理面清单（v3 补全）**：chapter_loop.py:2819-2826 死分支、pipeline/hook_planting.py 死实现、dispatch_helper.py:385 OPTIONAL_READS 条目、genesis.py:97 技能集残留、tests/unit/pipeline/test_hook_planting.py 及其他引用死实现的测试同步处置（验收 grep 范围含 tests/）。
-- **T3 · anti-ai 双重体系收敛（T1441/T1403）**：dim3 的 10 项确定性检查中可程序化项（转折词计数、AI 标记词计数、CV 等）派发前算好**并入既有 `review_checklist` 审查参考数据注入块**（不新增第二个注入块），LLM 清单只保留非确定性项；转折词阈值三面收敛到运行时实际注入的 G4 口径 `max(5, wc//1000)`（checklist.md 与 anti-ai-reference.md 改引该口径；预计算统一使用 `gates/shared.py:429 count_transition_words` 单实现）。**后果显式化**：6000 字场景下审查层允许转折词从 2 放宽到 6（3×），anti-ai LLM 层该项不再比 G4 灵敏——这是"消除双重体系"的接受代价，且 checklist.md 当前值本就与运行时注入（review_checklist.py transition_budget=max(5, wc//1000)）矛盾。thresholds.py 全局单源归 spec #35/C9，本处不越界（#35 若后续迁移字面量属预期二次触碰）。
+- **T1a · 派发前注入（compute_stats 全量 + compute_pattern 历史窗口半）**：dispatch_helper 派发前钩子（与既有 plan_skeleton/review_checklist 注入同层）——对声明了对应 helper 的技能，把预计算结果作为 prompt 注入块；"删除请计算指令"通过**静态修订 SKILL.md 正文**实现（正文改引 helper 注入块，改后走 `just lint-contracts` + `just generate` 三源同步；不做运行时正则改写系统 prompt）。per-skill 开关机制沿用 executor_config.toml 既有模式，配一条回退路径测试（开关关→无注入块）。**foreshadowing-recall 面（v4）**：grep 显示 shenbi-foreshadowing-recall 无生产派发点（仅 chapter_loop.py:3109 manifest 更新钩子，技能已列弃用注释）→ 不做注入接线（防 dead-wire），其 recall helper 的处置并入 T2 死面裁决一并核查。
+- **T1b · 派发后强制（仅 calibration）+ route_block 死模型删除**：前置——review-resonance 产品契约新增机器可解析的 confidence 与锚点判定字段（写入其 decisions sidecar / 报告结构，走契约三源同步）；框架在解析→落盘路径上从累计的 resonance 历史计算 HitRate，调用 `calibrate_confidence` 复算并**覆盖**落盘的 confidence 值（LLM 自报值降级为参考、降级事件 structlog 披露）。routing 半按背景节裁决：**删除 route_block 重复模型**（`src/shenbi/skill_utils/review_resonance/routing.py`），revision_router 保持唯一权威。
+- **T2 · hook_planting 死分支裁决（T1440）**：二选一——(a) 三个 plant 活跃面（genesis step 9 / triggers 卷边界）路由到 `plant_hooks_from_plan` 确定性实现；(b) 删除死面、保留 LLM 面。倾向 (b)：plant 输出依赖 plan 语义扩展（expand 模式），确定性实现仅覆盖固定场景。**清理面清单（v4 纠偏）**：chapter_loop.py:2819-2826 死分支、pipeline/hook_planting.py 死实现、dispatch_helper.py:385 OPTIONAL_READS 条目、tests/unit/pipeline/test_hook_planting.py 及其他引用死实现的测试同步处置（验收 grep 范围含 tests/）。**保留**：genesis.py:97 `_INDEX_UPDATE_SKILLS` 条目——选 (b) 时 LLM plant 面仍写 `truth/pending_hooks.md`，该条目驱动其后的实体索引更新，是活代码非残留。另核 `skills/shenbi-foreshadowing-plant/SKILL.md` 手动路由面与 using-shenbi.md:73 路由表是否随之更新。
+- **T3 · anti-ai 双重体系收敛（T1441/T1403）**：dim3 的 10 项确定性检查中可程序化项（转折词计数、AI 标记词计数、CV 等）派发前算好**并入既有 `review_checklist` 审查参考数据注入块**（不新增第二个注入块），LLM 清单只保留非确定性项；转折词阈值三面收敛到运行时实际注入的 G4 口径 `max(5, wc//1000)`（checklist.md 与 anti-ai-reference.md 改引该口径；预计算统一使用 `gates/shared.py:429 count_transition_words` 单实现；ReviewChecklist 注入块扩展新计数/CV 字段时**缓存格式版本号 +1** 强制失效既有 `context/review-checklist-{ch}.json` mtime 缓存，避免旧缓存静默缺新字段）。**后果显式化**：6000 字场景下审查层允许转折词从 2 放宽到 6（3×），anti-ai LLM 层该项不再比 G4 灵敏——这是"消除双重体系"的接受代价，且 checklist.md 当前值本就与运行时注入（review_checklist.py transition_budget=max(5, wc//1000)）矛盾。thresholds.py 全局单源归 spec #35/C9，本处不越界（#35 若后续迁移字面量属预期二次触碰）。
 - **T4 · lint 防复发**：`tools/lint_helper_usage.py`——SKILL.md 中"计算/统计/计数"类指令若命中 helper 能力清单则 WARN，要求改引 helper 输出；接入 just check。
 - **T5 · 后续候选（T1404-T1419）**：P2 候选（T1404-T1409）按 T14 评估表在上述完成后排期，本 spec 不展开；P3 候选归批量清理储备。
 
@@ -42,11 +42,11 @@
 
 ## 验收标准
 
-1. 派发 prompt 断言（fixtures 驱动单元测试，直接构造派发 prompt，禁现场 dispatch）：style-learning/chapter-pattern/foreshadowing-recall 类派发 prompt 含对应 helper 预计算结果块；SKILL.md 正文不再含 `python -m shenbi.skill_utils...` 自执行指令（改为引用注入块）。
+1a. 派发 prompt 断言（fixtures 驱动单元测试，直接构造派发 prompt，禁现场 dispatch）：style-learning / chapter-pattern 类派发 prompt 含对应 helper 预计算结果块（pattern 为历史窗口半）；SKILL.md 正文不再含 `python -m shenbi.skill_utils...` 自执行指令（改为引用注入块）；per-skill 开关关闭时无注入块。
 2. T1440 裁决落地：选 (a) 则 genesis/triggers plant 面走 `plant_hooks_from_plan`（grep 生产调用点）；选 (b) 则死分支/死实现/OPTIONAL_READS 条目/genesis 技能集残留全清（`git grep plant_hooks_from_plan src/ tests/` 零残留）。
-2b. 派发后强制断言：review 类输出经 `calibrate_confidence`/`route_block` 复算覆盖（构造高报置信度+低锚命中率的 fixtures 输入，断言落盘值为降级后的 mid）；routing 决定由框架复算值覆盖 LLM 原值。
+1b. 派发后强制断言：review-resonance 输出经 `calibrate_confidence` 复算覆盖（fixtures 驱动：构造高报置信度+低锚命中率的累计历史，断言落盘值为降级后的 mid，且降级有 structlog 事件）；`git grep route_block src/ tests/` 零残留（死模型已删）。
 3. anti-ai 派发 prompt 含确定性检查预计算块（计数/CV），checklist.md/anti-ai-reference.md 转折词阈值与 G4 一致（同值断言测试）。
-4. `uv run python tools/lint_helper_usage.py` exit 0（或输出仅剩已裁决豁免项）。
+4. `uv run python tools/lint_helper_usage.py` exit 0（或输出仅剩已裁决豁免项），且该工具已加入 justfile `check` recipe（`just check` 实际执行到它）。
 5. `just check` 全绿。
 
 ## 风险与回滚
