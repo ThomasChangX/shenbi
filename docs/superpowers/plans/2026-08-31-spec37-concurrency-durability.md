@@ -69,8 +69,14 @@ pytestmark = pytest.mark.skipif(sys.platform == "win32", reason="flock POSIX-onl
 
 
 def test_t605_dual_writer_lost_update(tmp_path: Path) -> None:
-    """Two unlocked state writers alternating via barrier lose updates (T605)."""
-    from shenbi.pipeline.machine import load_state, save_state
+    """Concurrent state transactions must not lose updates (T605).
+
+    Red on main: `transact_state` does not exist — the unlockable
+    load→mutate→save pattern it replaces is exactly the T605 bypass shape.
+    Thread exceptions are swallowed by threading, so the observable pytest
+    red is the final count assertion (0 != 50). Green after Task 3.
+    """
+    from shenbi.pipeline.machine import load_state, save_state  # noqa: F401
     from shenbi.pipeline.state import PipelineState
 
     save_state(tmp_path, PipelineState(project_dir=str(tmp_path)))
@@ -78,15 +84,19 @@ def test_t605_dual_writer_lost_update(tmp_path: Path) -> None:
     N = 25  # per-thread increments
 
     def bump() -> None:
-        barrier.wait(timeout=10)  # align start once, deterministic
+        from shenbi.pipeline.machine import transact_state
+
+        barrier.wait(timeout=10)
         for _ in range(N):
-            loaded = load_state(tmp_path)
-            loaded.chapter_loop.current_chapter += 1
-            save_state(tmp_path, loaded)
+            transact_state(
+                tmp_path,
+                lambda s: setattr(s.chapter_loop, "current_chapter",
+                                  s.chapter_loop.current_chapter + 1),
+            )
 
     t1, t2 = threading.Thread(target=bump), threading.Thread(target=bump)
     t1.start(); t2.start(); t1.join(timeout=25); t2.join(timeout=25)
-    assert load_state(tmp_path).chapter_loop.current_chapter == 2 * N  # red: lost updates
+    assert load_state(tmp_path).chapter_loop.current_chapter == 2 * N
 
 
 def test_t601_concurrent_integrity_findings_conservation(tmp_path: Path) -> None:
@@ -112,7 +122,6 @@ def test_t601_concurrent_integrity_findings_conservation(tmp_path: Path) -> None
 
 def test_f531_trace_seq_duplicate(tmp_path: Path) -> None:
     """Two TraceWriter instances appending concurrently must not duplicate seq (F531)."""
-    from shenbi.contracts.enums import ActorRole
     from shenbi.trace.writer import TraceWriter
 
     barrier = threading.Barrier(2)
@@ -122,7 +131,7 @@ def test_f531_trace_seq_duplicate(tmp_path: Path) -> None:
         barrier.wait(timeout=10)
         w = TraceWriter(tmp_path)
         for i in range(K):
-            w.append(actor=tag, actor_role=ActorRole.GATE, action="TEST",
+            w.append(actor=tag, actor_role="GATE", action="TEST",
                      target="t", payload={"i": i})
 
     t1 = threading.Thread(target=write_many, args=("a",))
@@ -144,8 +153,12 @@ def test_t604_emergency_cleanup_double_execution(tmp_path: Path, monkeypatch) ->
     cr._emergency_state["project_dir"] = tmp_path
     cr._emergency_state["pipeline_state"] = object()  # truthy sentinel
     cr._emergency_flag = True
-    cr._check_emergency_flag(tmp_path)   # step-boundary path
-    cr._emergency_cleanup(tmp_path)      # atexit path fires again
+    try:
+        cr._check_emergency_flag(tmp_path)   # step-boundary path
+        cr._emergency_cleanup(tmp_path)      # atexit path fires again
+    finally:
+        cr._emergency_flag = False           # xdist 安全：模块全局复位
+        cr.reset_emergency_state()           # crash_recovery.py:28-45 要求测试后复位
     assert len(calls) == 1  # red: save_state called twice
 
 
@@ -201,27 +214,27 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 - Modify: `src/shenbi/pipeline/cli.py`（cmd_init :424-505、cmd_backfill_context :929）
 
 **Interfaces:**
-- Produces: `filelock_utils.holder_mode() -> Literal[None, "read", "write"]`（模块级 holder 标志，`WriteLock.__enter__/__exit__` 维护，记录线程 id，finally 清除）；`crash_recovery._CLEANUP_DONE: bool` latch。
+- Produces: `filelock_utils.holder_mode() -> Literal[None, "read", "write"]`（模块级 holder 标志，`WriteLock.__enter__/__exit__` 维护，记录线程 id，finally 清除）；`machine.transact_state(project_dir: Path, mutator: Callable[[PipelineState], None]) -> PipelineState`——WriteLock 临界区内 load→mutator→save（T605 红测的翻绿路径）；`crash_recovery._CLEANUP_DONE: bool` latch（`reset_emergency_state()` 一并清除，防 xdist 跨测污染）。
 
-- [ ] **Step 1: 红测**：`test_holder_mode_tracks_write_lock`（with WriteLock: assert holder_mode()=="write"；退出后 None）；`test_t604_emergency_cleanup_single_execution`（T604 红测翻绿：latch 使二次调用 no-op）
-- [ ] **Step 2: 实现 holder 标志**（WriteLock/ReadLock enter/exit 维护；`_emergency_cleanup` 头部：`if holder_mode()=="write": 直接落盘；elif holder_mode()=="read": raise/释放重验路径`；加 latch）
+- [ ] **Step 1: 红测**：Task 1 的 `test_t605_dual_writer_lost_update`（红因=transact_state 不存在）与 `test_t604_emergency_cleanup_double_execution`；新增 `test_holder_mode_tracks_write_lock`（with WriteLock: assert holder_mode()=="write"；退出后 None）。注：`holder_mode()` 返回 `Literal[None, "read", "write"]` 为函数返回类型注解而非状态枚举——若 `tools/lint_status_strings.py` 误报，实施时确认其仅约束状态词表并按需豁免，记 spec-deviations
+- [ ] **Step 2: 实现 holder 标志 + transact_state**（WriteLock/ReadLock enter/exit 维护；`machine.transact_state` 用 `with WriteLock(project_dir): s=load_state; mutator(s); save_state; return s`；`_emergency_cleanup` 头部：`if holder_mode()=="write": 直接落盘；elif holder_mode()=="read": 释放重验路径`；加 latch 并入 `reset_emergency_state` 清除面；emergency 落盘改经 transact_state 形态（锁内 load→应用内存态→save））
 - [ ] **Step 3: cmd_init 收进单 WriteLock 临界区**（存在性检查+种子写+save 全入；ReadLock 检查段改在 WriteLock 内直接 load）
 - [ ] **Step 4: cmd_backfill_context 外层 `with WriteLock(project_path)`**
-- [ ] **Step 5: 跑测**：`uv run pytest tests/unit/pipeline/ -k "holder or emergency or init or backfill" -v` + T605/T604 用例
-- [ ] **Step 6: Commit** `fix: L1 holder self-check + T604 latch + cmd_init/backfill critical sections (T605/F327/T606, spec37 T1b)`
+- [ ] **Step 5: 跑测**：`uv run pytest tests/unit/pipeline/ -k "holder or emergency or init or backfill or transact" -v` + T605/T604 用例翻绿
+- [ ] **Step 6: Commit** `fix: transact_state + L1 holder self-check + T604 latch + cmd_init/backfill critical sections (T605/F327/T606, spec37 T1b/T3)`
 
 ### Task 4: trace per-path 锁（F531/F536/F619）
 
 **Files:**
 - Create: `src/shenbi/trace/locks.py`（`def trace_lock(round_dir: Path) -> contextmanager`：flock `<round_dir>/trace.jsonl.lockfile`）
-- Modify: `src/shenbi/trace/writer.py`（`__init__` 计数+`append` 收进 trace_lock 临界区）
+- Modify: `src/shenbi/trace/writer.py`（`append` 全程收进 trace_lock 临界区，且**每次 append 在锁内从文件重推 `seq`/`prev`**——`__init__` 缓存的内存态在并发下必陈旧，仅加锁不改重推则 F531 用例仍红）
 - Modify: `src/shenbi/trace/compaction.py:48-76`（temp+replace 收进 trace_lock）
 - Modify: `src/shenbi/audit/record.py`（`record_audit_outcome` 的 TraceWriter append 段在 trace 存在时经 trace_lock）
 
 **Interfaces:**
 - Produces: `shenbi.trace.locks.trace_lock(round_dir)` contextmanager（per-path flock；`.gitignore` 增 `*.lockfile` 与 `*.lock` 模式）
 
-- [ ] **Step 1: 红测**（F531 翻绿用例已在 T0；新增 `test_trace_writer_compaction_mutual_exclusion`：一线程 compaction、一线程 append，barrier 对齐，断言无撕裂）
+- [ ] **Step 1: 红测**（F531 翻绿用例已在 T0；新增 `test_trace_writer_compaction_mutual_exclusion`：一线程 compaction、一线程 append，barrier 对齐，断言无撕裂；新增 `test_record_audit_outcome_g7_no_false_tamper`：双线程各调 `record_audit_outcome` 后 `trace.verify/replay` 链校验零 issue——覆盖 spec 验收 4 的端到端断言）
 - [ ] **Step 2: 实现**；**Step 3: .gitignore 两模式**；**Step 4: 跑 F531 用例 + tests/unit/trace/**；**Step 5: Commit** `fix: trace per-path flock for TraceWriter/compaction/audit seam (F531/F536/F619, spec37 T1c)`
 
 ### Task 5: gate_manifest 跨进程锁 + fail-loud（F416）
@@ -242,7 +255,7 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 - Modify: `src/shenbi/safe_write.py:63-91`
 - Test: `tests/unit/test_safe_write.py`
 
-- [ ] **Step 1: 红测**：`test_stale_takeover_requires_dead_holder`（活锁：另一进程/线程持有 `.lock` 且 mtime 新鲜 → takeover 不发生，等满超时）；`test_stale_takeover_on_stale_lock`（mtime>60s 旧 → 接管成功）；`test_oexcl_backoff_segment`（首次冲突→退避→获取）
+- [ ] **Step 1: 红测**：`test_stale_takeover_requires_dead_holder`（活锁：另一线程持有 `.lock` 且 mtime 新鲜 → takeover 不发生，等满超时）、`test_stale_takeover_on_stale_lock`（mtime>60s 旧 → 接管成功）、`test_oexcl_backoff_segment`（首次冲突→退避→获取）。三测均** monkeypatch `fcntl.flock` 抛 OSError 强制进入 O_EXCL 回退分支**（POSIX 下 flock 成功路径否则不可达该分支）
 - [ ] **Step 2: 实现**：O_EXCL 分支写 pid+timestamp 进锁文件；takeover 前检查 mtime 龄期（>STALE_LOCK_TTL=60s）且（POSIX）pid 不存活；不满足则继续退避至总超时（10s）后 TimeoutError（不再无条件 unlink）。Windows：保留超时接管 + `log.warning("lock_takeover_timeout_fallback")`
 - [ ] **Step 3-4: 跑 `uv run pytest tests/unit/test_safe_write.py -v` 全绿 + Commit** `fix: stale-takeover liveness proof + O_EXCL fallback tests (T603/F111, spec37 T2)`
 
@@ -254,16 +267,16 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 - Modify: `src/shenbi/pipeline/truth_io.py:55-71`
 
 - [ ] **Step 1: 红测**：`test_ledger_ctor_no_mkdir`（构造 TokenLedger 指向不存在目录 → cost/ 不被创建）；`test_genre_cache_keyed_by_project_dir`（两 project_dir 同 chapter → 不串）；`test_path_lock_registry_bounded`（注册 1000 路径 → 条目数 ≤ 上界 256）
-- [ ] **Step 2: 实现**：构造器去 mkdir（`record` 内 `self.ledger_path.parent.mkdir`）；`_write_lock` 弃用，record 落盘经 append helper（Task 9 的 fsync+目录锁）或目录 flock；`_genre_config_cache` 键改 `(str(project_dir), chapter)`；`_path_lock` 注册表 refcount+LRU 上界 256（仅淘汰从未持有条目，`_REGISTRY_LOCK` 下维护 refcount）
+- [ ] **Step 2: 实现**：构造器去 mkdir（`record` 内 `self.ledger_path.parent.mkdir`）；`_write_lock` 弃用，record 落盘**本 task 用目录 flock**（与 safe_write 同域的直接 flock 临界区；append_jsonl 切换归 Task 9，避免前向依赖）；`_genre_config_cache` 键改 `(str(project_dir), chapter)`；`_path_lock` 注册表 refcount+LRU 上界 256（仅淘汰从未持有条目，`_REGISTRY_LOCK` 下维护 refcount）
 - [ ] **Step 3-4: 跑 cost/dispatch 相关测试 + Commit** `fix: ledger read-path purity + dir-flock + genre cache key + registry bound (T602/F510/F525/T407/T408/T607, spec37 T2/T3)`
 
 ### Task 8: 物化调用点移除 + key-merge（F630/F1113，裁定 b）
 
 **Files:**
-- Modify: `src/shenbi/pipeline/chapter_loop.py:768-782`（`_maybe_materialize_progress` 调用点 :2745/:3060 移除，函数降级为仅 trace 事件非空时执行）`:801-825`（`_auto_rebuild_progress_if_stale` 的重建分支移除，保留 staleness 日志）
-- Modify: `src/shenbi/trace/materialize.py`（`materialize_progress` 落盘前读旧 progress.json，非自有键 merge 保留：`out = {**existing_non_derived, **out}`，其中 existing 中 `skills/completed_skill_names/remaining_*` 等 materialize 自有键以新值为准）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（**移除** `_maybe_materialize_progress` 的两个调用点 :2745/:3060 并删除该函数 :768-782——「降级」与「移除」二选一，选移除，避免留死代码；`:801-825` `_auto_rebuild_progress_if_stale` 的重建分支移除，保留 staleness 日志）
+- Modify: `src/shenbi/trace/materialize.py`（`materialize_progress` 落盘经 Task 2 的 `locked_transact` 做**嵌套 merge**：顶层 materialize 自有键（round/tier/completed_skill_names/remaining_*/total_framework_skills/expected_chapters）以新值为准，**非自有顶层键（如 custom_key）整体保留**；`skills` 键做**逐 skill/逐 test_type 嵌套合并**——旧 progress 中存在而 trace 无知识的 skill/test_type 条目（如既有 DONE）原样保留，仅 trace 覆盖到的条目以新值为准——否则 F630 用例的 DONE 断言不成立）
 
-- [ ] **Step 1: 红测翻绿**：T0 的 F630 用例（预置 custom_key + DONE 键 → materialize → 键仍在且 DONE 面正确）；新增 `test_no_periodic_materialize_in_loop`（`_maybe_materialize_progress` 在 steps_done%5==0 且 trace 无事件时为 no-op——monkeypatch materialize_progress 断言未被调用）
+- [ ] **Step 1: 红测翻绿**：T0 的 F630 用例（预置 custom_key + DONE 键 → materialize → 键仍在且 DONE 面正确）；新增 `test_periodic_materialize_removed`（`chapter_loop` 模块不再有 `_maybe_materialize_progress` 属性，且 grep 源文件无调用——静态断言 `not hasattr(chapter_loop, "_maybe_materialize_progress")`）
 - [ ] **Step 2-4: 实现 + 跑 chapter_loop/materialize 测试 + Commit** `fix: remove zero-event materialize call sites + key-level merge (F630/F1113 ruling b, spec37 T4)`
 
 ### Task 9: durability append helper + F605 回滚（F534/F605）
@@ -271,10 +284,10 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 **Files:**
 - Create: `src/shenbi/append_helper.py`（`def append_jsonl(path: Path, record: dict[str, object], *, timestamp_field: str = "timestamp") -> None`：目录 flock 临界区 open("a")+write+flush+fsync；记录自动带 timestamp）
 - Modify: `src/shenbi/audit/record.py:36-39`（裸 open 替换为 append_jsonl）
-- Modify: `src/shenbi/cost/ledger.py` record 落盘走 append_jsonl
-- Modify: `src/shenbi/config/config_coherence.py:200-207`（Phase 2：trail 追加失败 → 回滚 genre-config.json 原内容 + 重抛；try/except 包 trail 循环，except 中 `safe_write(project_dir/"genre-config.json", 原config JSON)` 后 raise）
+- Modify: `src/shenbi/cost/ledger.py` record 落盘切换 append_jsonl（Task 7 的临时目录 flock 由本 task 收编）
+- Modify: `src/shenbi/config/config_coherence.py:104`（`_append_audit_trail` 的裸 open("a")+threading.Lock 切换 append_jsonl——其在 lint 清单命中且属标准 JSONL 追加）与 `:200-207`（Phase 2：trail 追加失败 → 回滚 genre-config.json 原内容 + **重抛原异常**；try/except 包 trail 循环，except 中 `safe_write(project_dir/"genre-config.json", 原config JSON)` 后 `raise`）
 
-- [ ] **Step 1: 红测**：`test_append_jsonl_fsync_and_timestamp`（记录含 ISO timestamp；monkeypatch os.fsync 计数>0）；`test_config_trail_failure_rolls_back`（monkeypatch `_append_audit_trail` 第二次 raise → genre-config.json 内容==改动前 + ConfigError 上抛为 OSError 包装）
+- [ ] **Step 1: 红测**：`test_append_jsonl_fsync_and_timestamp`（记录含 ISO timestamp；monkeypatch os.fsync 计数>0）；`test_config_trail_failure_rolls_back`（monkeypatch `_append_audit_trail` 第二次 raise → genre-config.json 内容==改动前 + 原异常上抛）
 - [ ] **Step 2-4: 实现 + 跑测 + Commit** `fix: fsync+timestamp append helper + config-trail failure rollback (F534/F605, spec37 T5)`
 
 ### Task 10: 豁免 lint + T6 回归翻绿 + 全量门禁
@@ -285,7 +298,7 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 - Test: `tests/unit/test_lint_bare_writes.py`
 
 - [ ] **Step 1: 红测**（构造 tmp 目录两文件：一裸 open("a") 无注记 → lint 报；一带注记 → 过）
-- [ ] **Step 2: 实现 lint + justfile 接线**；对 src/ 现存命中逐个迁移或补 `# write-audit-exempt: <理由>`（预期豁免：gates 报告写、__pycache__ 无关、compaction 已入 trace 锁）
+- [ ] **Step 2: 实现 lint + justfile 接线**；对 src/ 现存命中逐个迁移或补 `# write-audit-exempt: <理由>`。**已枚举的存量豁免清单（grep 亲验，r2 修订）**：`src/shenbi/trace/writer.py`（append 需签名链，非通用 JSONL，trace_lock 已互斥——Task 4）、`src/shenbi/trace/compaction.py`（temp+replace 在 trace_lock 临界区内）、`src/shenbi/safe_write.py`（锁原语本体）、`src/shenbi/skill_utils/drift_detection/compute_drift.py:237`（裸 open("a")）。**r3 补充（清单为下界）**：`chapter_loop.py:1705` `_shutil.copy2` 章备份拷贝为真实裸写（Task 10 评估迁 safe_write 或注记，归属 snapshots/chapters L2 族）；`chapter_loop.py:1689`（docstring 提及）与 `capability_fs.py:44`（`def write_text(` 方法定义非调用）为 lint 正则假阳性——lint 实现时正则排除 `def ` 前缀与 docstring 行。Task 9 已把 `config_coherence._append_audit_trail` 与 `audit/record.py` 迁移至 append_jsonl，lint 落地时它们不再命中
 - [ ] **Step 3: T6 翻绿**：`uv run pytest tests/unit/pipeline/test_concurrency_regression.py -v` → 5/5 PASS（从复现翻转为验证互斥）
 - [ ] **Step 4: 全量门禁**：`just check`（契约 lints + ruff/mypy/basedpyright + sync 幂等 + 全量 pytest）exit 0
 - [ ] **Step 5: Commit** `test+chore: bare-write exemption lint + T6 regression flip green (spec37 T6)`
@@ -296,7 +309,7 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 |---|---|---|
 | 1 并发套件全绿（T605/T601/T604，≤30s） | T1/T10 | `uv run pytest tests/unit/pipeline/test_concurrency_regression.py -v` |
 | 2 裸写清单豁免 lint | T10 | `uv run python tools/lint_bare_writes.py` exit 0 |
-| 3 物化不抹键/无空壳 | T8 | 同上 F630 用例 + `test_no_periodic_materialize_in_loop` |
+| 3 物化不抹键/无空壳 | T8 | 同上 F630 用例 + `test_periodic_materialize_removed` |
 | 4 trace seq 无重复/G7 零误报 | T4 | F531 用例 + `uv run pytest tests/unit/trace/ -v` |
 | 5 审计轨迹先校验后写 | T9 | `test_config_trail_failure_rolls_back` |
 | 6 just check 全绿 | T10 | `just check` exit 0 |
@@ -306,3 +319,9 @@ git commit -m "test: spec37 T0 red-first reproduction suite (T605/T601/F531/T604
 - cap-raise 二次调用 trace 缺口（spec #36 已知残余，归后续 spec）。
 - 空壳 progress.json 的运行时重建（spec v3 已声明 out of scope）。
 - F520 重试 token 记账、F519 ledger OSError 防御——spec #36 交付面，本 spec 不动。
+
+## 实施注记（评审确认项）
+
+- T605/T601 用线程×flock 等价双进程（flock 冲突跨 fd 成立于同进程，spec 验收 1 的「双进程」语义由此覆盖；数量 2×25 等价 100 次交替）。
+- spec 验收 5 措辞「fixtures 驱动」：F605 回滚用 monkeypatch `_append_audit_trail` 注入失败（非 LLM 产物面，G0.9 不适用）——实施时记 spec-deviations。
+- Task 1 红测的并发用例为「近确定性」（barrier 对齐 + 每写 fsync 放大交错窗口，N=25 实跑稳定红），非严格确定性——已按 spec v3r2 条款声明策略。
