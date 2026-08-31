@@ -201,7 +201,7 @@ class TestValueDomains:
         assert not [m for m in r["must_fix"] if "out_of_vocab" in m or "legacy" in m]
 
     def test_severity_out_of_vocab_fails(self) -> None:
-        r: dict[str, Any] = self._run({"severity": "catastrophic"})
+        r: dict[str, Any] = self._run({"severity": "catastrophic"})  # vocab-ok: negative test
         assert any("severity_out_of_vocab" in m for m in r["must_fix"])
 
     def test_severity_legacy_reported(self) -> None:
@@ -211,9 +211,9 @@ class TestValueDomains:
     def test_mode_alias_reported_and_unknown_fails(self) -> None:
         r: dict[str, Any] = self._run({"mode": "no_op"})
         assert any("mode_legacy_value" in m for m in r["must_fix"])
-        r2: dict[str, Any] = self._run({"mode": "rewrite-everything"})
+        r2: dict[str, Any] = self._run({"mode": "rewrite-everything"})  # vocab-ok: negative test
         assert any("mode_out_of_vocab" in m for m in r2["must_fix"])
 
     def test_status_out_of_vocab_fails(self) -> None:
-        r: dict[str, Any] = self._run({"status": "half-done"})
+        r: dict[str, Any] = self._run({"status": "half-done"})  # vocab-ok: negative test
         assert any("status_out_of_vocab" in m for m in r["must_fix"])

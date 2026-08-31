@@ -19,6 +19,8 @@ serialization is deterministic, so migration is idempotent.
 from __future__ import annotations
 
 import re
+from enum import StrEnum
+
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +33,21 @@ from shenbi.safe_write import safe_write
 # Same pattern as pipeline/truth_index.py _HOOK_ID_RE (body free-text IDs).
 _HOOK_ID_RE = re.compile(r"(?:[HM]\d+|P\d*-\d+)")
 
+
 # 8 canonical table columns, sourced from the drift checker's header map.
+# spec #34: md-record state column domain (observed production values + writer
+# default; md-column consolidation with schemas HookState belongs to the
+# F815/F820 family — registered here so the column has a single source).
+class RecordState(StrEnum):
+    """State column of hook md records (records/writer TABLE)."""
+
+    PENDING = "PENDING"
+    RELEVANT = "RELEVANT"
+    TRIGGER = "TRIGGER"
+    TRIGGERED = "TRIGGERED"
+    REINFORCE = "REINFORCE"
+
+
 TABLE_COLUMNS: list[str] = list(MD_HEADER_TO_KEY.values())
 _KEY_TO_HEADER: dict[str, str] = {v: k for k, v in MD_HEADER_TO_KEY.items()}
 
@@ -60,7 +76,7 @@ def normalize_record(rec: dict[str, Any]) -> dict[str, Any]:
     for col in TABLE_COLUMNS:
         if col == "state":
             if not has_state:
-                out["state"] = "PENDING"
+                out["state"] = RecordState.PENDING
         elif out.get(col) is None:
             out[col] = ""
     return out

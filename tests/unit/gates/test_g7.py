@@ -188,13 +188,13 @@ def test_g716_phase_state_not_finalized_fails(tmp_path: Path) -> None:
     round_dir.mkdir()
     ps = round_dir / "phase-state"
     ps.mkdir()
-    (ps / "genesis.json").write_text(json.dumps({"state": "in_progress"}), encoding="utf-8")
+    (ps / "genesis.json").write_text(json.dumps({"state": "started"}), encoding="utf-8")
     (round_dir / "summary.json").write_text(
         json.dumps({"t2_scores": {"genesis": {"score": 90}}, "t3_scores": {}}),
         encoding="utf-8",
     )
     result = _result_dict(gate_G7(str(round_dir)))
-    assert any("G7.16:phase:genesis:state=in_progress" in mf for mf in result["must_fix"])
+    assert any("G7.16:phase:genesis:state=started" in mf for mf in result["must_fix"])
 
 
 @pytest.mark.unit
