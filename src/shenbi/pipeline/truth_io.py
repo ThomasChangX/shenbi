@@ -66,10 +66,13 @@ def _path_lock(path: Path) -> threading.Lock:
     path always returns the same lock object (serializes same-file writers).
 
     Eviction (spec #37 T607): when the registry exceeds _PATH_LOCKS_MAX,
-    entries that are currently UNHELD are dropped. A lock().locked() snapshot
-    alone races (fetch-old-lock vs evict vs fresh-create); holding the
-    registry guard while checking + evicting keeps single-object identity
-    for every path observed under the guard.
+    entries that are currently UNHELD are dropped under the registry guard.
+    Residual window (accepted): a caller can fetch lock object L, be evicted
+    before acquiring it, and race a later caller holding a fresh L2 for the
+    same path — bounded to >256-distinct-path workloads; underlying writes
+    stay atomic via safe_write so the worst case is a lost RMW update, not
+    corruption. A full fix needs guard-held acquisition (context-manager
+    refactor), deferred as out of scope here.
     """
     key = str(path)
     with _REGISTRY_LOCK:

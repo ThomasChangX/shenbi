@@ -7,6 +7,7 @@ lines; a partial/corrupt line is skipped, never crashing the report.
 from __future__ import annotations
 
 import json
+import os
 from dataclasses import asdict, dataclass
 from datetime import datetime, UTC
 from pathlib import Path
@@ -101,6 +102,7 @@ class TokenLedger:
             with self.ledger_path.open("a", encoding="utf-8") as f:
                 f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")
                 f.flush()
+                os.fsync(f.fileno())  # durability: survive crash after append
         finally:
             import os as _os
 
