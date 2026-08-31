@@ -19,6 +19,7 @@ from typing import Any
 
 import structlog
 
+from shenbi.pipeline.dispatch_helper import load_executor_config
 from shenbi.skill_utils.style_learning.compute_stats import compute_all_stats
 
 log = structlog.get_logger(__name__)
@@ -34,8 +35,6 @@ _MAX_CHAPTERS = 10
 
 def _helper_injection_disabled() -> frozenset[str]:
     """Skills opted out of helper injection via executor_config.toml."""
-    from shenbi.pipeline.dispatch_helper import load_executor_config
-
     raw = load_executor_config().get("helper_injection_disabled", [])
     if isinstance(raw, list):
         return frozenset(str(item) for item in raw)

@@ -46,13 +46,26 @@ def test_stats_block_injected_for_style_learning(project_dir: Path) -> None:
 
 
 def test_switch_off_disables_injection(project_dir: Path, monkeypatch: pytest.MonkeyPatch) -> None:
-    from shenbi.pipeline import helper_injection
-
     monkeypatch.setattr(
-        helper_injection, "_helper_injection_disabled", lambda: frozenset({"shenbi-style-learning"})
+        "shenbi.pipeline.helper_injection.load_executor_config",
+        lambda: {"helper_injection_disabled": ["shenbi-style-learning"]},
     )
     user = _build_style_prompt(project_dir)
     assert "## Helper Precompute" not in user
+
+
+def test_disabled_config_malformed_value_warns(
+    project_dir: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    from shenbi.pipeline import helper_injection
+
+    monkeypatch.setattr(
+        "shenbi.pipeline.helper_injection.load_executor_config",
+        lambda: {"helper_injection_disabled": "oops"},
+    )
+    assert helper_injection._helper_injection_disabled() == frozenset()
+    user = _build_style_prompt(project_dir)
+    assert "## Helper Precompute (style stats, deterministic)" in user
 
 
 def test_other_skills_untouched(project_dir: Path) -> None:
@@ -70,9 +83,14 @@ def test_no_chapters_no_injection(tmp_path: Path) -> None:
     assert "## Helper Precompute" not in user
 
 
-def test_injection_reads_at_most_ten_chapters(project_dir: Path) -> None:
-    # Add 20 more chapter files; the block must still build (bounded window).
-    for n in range(11, 31):
+def test_injection_window_is_numeric_last_ten(project_dir: Path) -> None:
+    # 12 chapters total: lexicographic trap (chapter-10 sorts before chapter-2).
+    # The window must be chapters 3..12 (numeric tail), asserted via the
+    # disclosed window size in the block header.
+    for n in range(4, 13):
         (project_dir / "chapters" / f"chapter-{n}.md").write_text("正文" * 200, encoding="utf-8")
-    user = _build_style_prompt(project_dir)
-    assert "## Helper Precompute (style stats, deterministic)" in user
+    from shenbi.pipeline.helper_injection import _style_stats_block
+
+    block = _style_stats_block(project_dir)
+    assert block is not None
+    assert "窗口=最近 10 章" in block
