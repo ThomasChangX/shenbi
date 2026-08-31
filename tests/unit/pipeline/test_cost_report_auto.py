@@ -14,7 +14,8 @@ def test_write_report_creates_file(tmp_path):
     out = write_report(tmp_path)
     assert out is not None
     assert out == tmp_path / "cost" / "report.md"
-    assert out.exists() and "Cost Report" in out.read_text(encoding="utf-8")
+    report_text = out.read_text(encoding="utf-8")
+    assert "Cost Report" in report_text and "Total tokens" in report_text
 
 
 def test_write_report_fail_safe(tmp_path, monkeypatch):
