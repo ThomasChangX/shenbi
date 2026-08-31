@@ -44,7 +44,7 @@ class ReviewChecklist:
     chapter: int
     transition_budget: int = 0
     transition_count: int = 0
-    ai_marker_hits: int = 0
+    ai_marker_hits: dict[str, int] = field(default_factory=dict)
     paragraph_cv: float | None = None
     version: int = 1
     ai_blacklist: list[str] = field(default_factory=list)
@@ -90,9 +90,17 @@ def generate_review_checklist(
             source_mtime = _get_max_source_mtime(project_dir, chapter)
             cache_mtime = cache_path.stat().st_mtime
             if source_mtime <= cache_mtime:
-                # Cache is fresh — load and return.
+                # Cache is fresh — load and return. Format-version gate
+                # (spec #33 T3): old caches without the precompute fields
+                # must regenerate, not load dataclass-default zeros.
                 data = json.loads(cache_path.read_text(encoding="utf-8"))
-                return ReviewChecklist(**data)
+                if data.get("version") == ReviewChecklist(chapter=chapter).version:
+                    return ReviewChecklist(**data)
+                log.info(
+                    "review_checklist_cache_version_stale",
+                    chapter=chapter,
+                    cached_version=data.get("version"),
+                )
             log.info(
                 "review_checklist_cache_stale",
                 chapter=chapter,
@@ -259,13 +267,22 @@ def _deterministic_precompute(
     from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
 
     ch_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    content = ch_path.read_text(encoding="utf-8") if ch_path.exists() else ""
-    transition_budget = max(5, word_count_md(ch_path) // 1000) if ch_path.exists() else 5
+    try:
+        content = ch_path.read_text(encoding="utf-8") if ch_path.exists() else ""
+        wc = word_count_md(ch_path) if ch_path.exists() else 0
+    except OSError as exc:
+        log.warning("review_precompute_read_failed", chapter=chapter, error=str(exc))
+        content, wc = "", 0
+    transition_budget = max(5, wc // 1000)
     transition_count = count_transition_words(content) if content else 0
     blacklist = _extract_ai_blacklist(genre_config)
-    ai_marker_hits = sum(content.count(word) for word in blacklist) if content else 0
+    # Per-word counts: the per-chapter rule is ≤1 occurrence per word, so a
+    # single aggregate total cannot drive the judgment (spec #33 T3 audit C3).
+    ai_marker_hits = (
+        {word: content.count(word) for word in blacklist if content.count(word)} if content else {}
+    )
     paragraphs = segment_paragraphs(content) if content else []
-    lengths = [para.get("length", 0) for para in paragraphs if para.get("length")]
+    lengths = [para["chars"] for para in paragraphs if para.get("chars")]
     if len(lengths) >= 2:
         mean = sum(lengths) / len(lengths)
         var = sum((x - mean) ** 2 for x in lengths) / len(lengths)
@@ -499,6 +516,10 @@ STATIC_FIELDS = {
 DYNAMIC_FIELDS = {
     "chapter",
     "transition_budget",
+    "transition_count",
+    "ai_marker_hits",
+    "paragraph_cv",
+    "version",
     "ending_constraints",
     "hook_deliverables",
     "fatigue_warnings_dynamic",
