@@ -13,6 +13,9 @@ import sys
 from pathlib import Path
 
 from shenbi.cost.ledger import TokenLedger
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 
 
 def _try_avg_g3_score(project_dir: Path) -> float | None:
@@ -85,6 +88,25 @@ def render_report(project_dir: Path | str) -> str:
         )
 
     return "\n".join(lines) + "\n"
+
+
+def write_report(project_dir: Path | str) -> Path | None:
+    """Render + persist cost/report.md. Node-level automation (spec #36 T4):
+
+    chapter completion and closure call this so a zero-metering incident is
+    visible at node granularity instead of via manual CLI. Fail-safe — a
+    report error must never break the chapter loop.
+    """
+    project_dir = Path(project_dir)
+    out = project_dir / "cost" / "report.md"
+    try:
+        from shenbi.safe_write import safe_write
+
+        safe_write(out, render_report(project_dir))
+        return out
+    except Exception:
+        log.warning("cost_report_write_failed", project_dir=str(project_dir), exc_info=True)
+        return None
 
 
 def main(argv: list[str] | None = None) -> int:

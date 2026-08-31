@@ -273,6 +273,10 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Past the last step: closure is already complete.
     if idx >= n:
         state.closure = ClosureState.COMPLETED
+        # C10 spec #36 T4 (T402/F1115): closure-node cost report, fail-safe.
+        from shenbi.cost.report import write_report
+
+        write_report(project_dir)
         return True
 
     # Step 10 (snapshot-manage): gated on the book-closure checkpoint being
