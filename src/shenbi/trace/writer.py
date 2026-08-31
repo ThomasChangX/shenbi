@@ -45,17 +45,23 @@ class TraceWriter:
         self._prev = self._last_sig_existing()
 
     def _count_existing(self) -> int:
-        if not self._path.exists():
-            return 0
-        return sum(1 for _ in self._path.read_text(encoding="utf-8").splitlines() if _.strip())
+        return self._scan_existing()[0]
 
     def _last_sig_existing(self) -> str:
+        return self._scan_existing()[1]
+
+    def _scan_existing(self) -> tuple[int, str]:
+        """One pass over the file -> (line_count, last_signature)."""
         if not self._path.exists():
-            return GENESIS_PREV
-        lines = [ln for ln in self._path.read_text(encoding="utf-8").splitlines() if ln.strip()]
-        if not lines:
-            return GENESIS_PREV
-        return str(json.loads(lines[-1]).get("signature", GENESIS_PREV))
+            return 0, GENESIS_PREV
+        count = 0
+        last_sig = GENESIS_PREV
+        for ln in self._path.read_text(encoding="utf-8").splitlines():
+            if not ln.strip():
+                continue
+            count += 1
+            last_sig = str(json.loads(ln).get("signature", GENESIS_PREV))
+        return count, last_sig
 
     def next_seq(self) -> int:
         return self._seq + 1
@@ -78,10 +84,10 @@ class TraceWriter:
         from shenbi.trace.locks import trace_lock
 
         with trace_lock(self._path.parent):
-            # Re-derive from the file INSIDE the lock: the __init__ cache is
-            # stale the moment another writer appended (spec #37 F531).
-            self._seq = self._count_existing()
-            self._prev = self._last_sig_existing()
+            # Re-derive from the file INSIDE the lock in one pass: the
+            # __init__ cache is stale the moment another writer appended
+            # (spec #37 F531); a single read avoids the 2x O(n) rescan.
+            self._seq, self._prev = self._scan_existing()
             created = not self._path.exists()
             if created:
                 self._path.parent.mkdir(parents=True, exist_ok=True)

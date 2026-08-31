@@ -46,7 +46,7 @@ def trace_lock(
             try:
                 fcntl.flock(fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
                 break
-            except (BlockingIOError, OSError):
+            except BlockingIOError:
                 if time.monotonic() > deadline:
                     raise TimeoutError(
                         f"trace lock timed out after {timeout}s on {lockfile}"

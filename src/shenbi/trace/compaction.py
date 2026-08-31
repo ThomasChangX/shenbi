@@ -21,7 +21,14 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
     so a mid-compaction crash cannot leave an empty trace.jsonl. The COMPACTION
     head is built directly via TraceEvent.sign_and_new (no stale TraceWriter).
     """
+    from shenbi.trace.locks import trace_lock
+
     path = Path(round_dir) / "trace.jsonl"
+    with trace_lock(path.parent):
+        return _compact_locked(round_dir, path, snapshot)
+
+
+def _compact_locked(round_dir: Path, path: Path, snapshot: dict[str, object]) -> TraceEvent:
     prev_events = replay(round_dir)
     prev_compaction_seq: int | None = None
     truncated_at = 0
@@ -45,13 +52,10 @@ def compact(round_dir: Path, snapshot: dict[str, object]) -> TraceEvent:
             "truncated_at_seq": truncated_at,
         },
     )
-    from shenbi.trace.locks import trace_lock
-
-    # spec #37 F619: the whole-file replace must exclude concurrent
-    # TraceWriter appends (crash-safety was already in place; this adds
-    # the mutual-exclusion half).
-    with trace_lock(path.parent):
-        return _compact_replace(path, head_event)
+    # spec #37 F619: replay + whole-file replace both run under trace_lock
+    # (caller holds it) so concurrent appends cannot interleave — an append
+    # landing between replay and replace would silently vanish.
+    return _compact_replace(path, head_event)
 
 
 def _compact_replace(path: Path, head_event: TraceEvent) -> TraceEvent:

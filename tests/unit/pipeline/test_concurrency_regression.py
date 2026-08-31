@@ -208,13 +208,19 @@ def test_trace_writer_compaction_mutual_exclusion(tmp_path: Path) -> None:
     t2.start()
     t1.join(timeout=25)
     t2.join(timeout=25)
-    lines = [
-        ln
-        for ln in (tmp_path / "trace.jsonl").read_text(encoding="utf-8").splitlines()
-        if ln.strip()
-    ]
-    for ln in lines:
-        json.loads(ln)  # no torn/garbled line survives
+    from shenbi.trace.replay import replay
+
+    events = replay(tmp_path)
+    seqs = [e.seq for e in events]
+    assert len(seqs) == len(set(seqs))  # chain intact, no duplicate seq
+    # both the COMPACTION head and any post-compaction append survive —
+    # a lost append (replace landing after it) is the F619 silent-delete shape
+    actions = [e.action for e in events]
+    assert "COMPACTION" in actions
+    assert len(events) in (1, 2)  # compact-only, or compact then append
+    if len(events) == 2:
+        assert actions == ["COMPACTION", "TEST"]
+        assert events[1].payload.get("i") == 99
 
 
 def test_record_audit_outcome_g7_no_false_tamper(tmp_path: Path) -> None:
