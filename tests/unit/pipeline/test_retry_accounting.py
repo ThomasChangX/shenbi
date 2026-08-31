@@ -123,3 +123,14 @@ def test_success_emits_dispatch_trace_with_finish_reason(tmp_path: Path, monkeyp
     disp = [e for e in events if e["action"] == "DISPATCH"]
     assert disp and disp[-1]["payload"]["finish_reason"] == "stop"
     assert disp[-1]["payload"]["success"] is True
+
+
+def test_account_failed_attempt_ledgers_prior_metered_and_estimates(tmp_path: Path):
+    """audit-8 I1: mixed multi-attempt failure — prior metered usage kept."""
+    usage1 = SimpleNamespace(prompt_tokens=7, completion_tokens=2, total_tokens=9)
+    acc: dict[str, Any] = {"attempts": 2, "prior": [usage1], "usage": None}
+    dh._account_failed_attempt("s", 1, acc, "sys", "user", tmp_path)
+    rows = _ledger_rows(tmp_path)
+    # attempt 1: real usage metered; attempt 2: mid-stream break -> estimate
+    assert any(r["prompt_tokens"] == 7 and r["attempt"] == 1 and not r["estimated"] for r in rows)
+    assert any(r["attempt"] == 2 and r["estimated"] for r in rows)

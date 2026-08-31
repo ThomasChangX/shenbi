@@ -1673,15 +1673,33 @@ def _account_failed_attempt(
     """C10 spec #36 T7 bifurcation: (a) usage already delivered before the
     failure -> metered row with attempt=N; (b) failure before usage arrived
     (mid-stream or connect) -> estimated lower-bound row. Fail-safe.
+
+    Multi-attempt chains: ``usage_acc["prior"]`` holds usage objects delivered
+    by earlier retryably-failed attempts (T410) — every metered attempt is
+    ledgered, and usage-less failed attempts get estimate rows.
     """
     try:
         attempts = int(usage_acc.get("attempts", 1))
+        prior = list(usage_acc.get("prior", []))
         usage = usage_acc.get("usage")
+        for i, prior_usage in enumerate(prior, start=1):
+            _record_usage_to_ledger(skill, chapter, prior_usage, project_dir, attempt=i)
         if usage is not None:
             _record_usage_to_ledger(skill, chapter, usage, project_dir, attempt=attempts)
         else:
             _record_estimate_row(
                 skill, chapter, f"{system_prompt}\n\n{user_prompt}", project_dir, attempt=attempts
+            )
+        # usage-less failed attempts (neither prior-metered nor the final one):
+        # one estimated row each, attempt numbers counted back from the end.
+        no_usage = attempts - len(prior) - (1 if usage is not None else 0)
+        for k in range(max(no_usage, 0)):
+            _record_estimate_row(
+                skill,
+                chapter,
+                f"{system_prompt}\n\n{user_prompt}",
+                project_dir,
+                attempt=max(attempts - 1 - k, 1),
             )
     except Exception:
         log.warning("failed_attempt_accounting_error", skill=skill, exc_info=True)
@@ -2014,8 +2032,19 @@ def _dispatch_via_api(
     # T410: attempts that delivered usage but then failed retryably have
     # their real usage stashed in usage_acc["prior"] — ledger them before the
     # final attempt's row so nothing metered is lost.
-    for i, prior_usage in enumerate(usage_acc.get("prior", []), start=1):
+    prior_rows = list(usage_acc.get("prior", []))
+    for i, prior_usage in enumerate(prior_rows, start=1):
         _record_usage_to_ledger(skill, chapter, prior_usage, project_dir, attempt=i)
+    # usage-less failed intermediate attempts also consumed prompt tokens
+    attempts_total = int(usage_acc.get("attempts", 1))
+    for k in range(max(attempts_total - len(prior_rows) - 1, 0)):
+        _record_estimate_row(
+            skill,
+            chapter,
+            f"{system_prompt}\n\n{user_prompt}",
+            project_dir,
+            attempt=max(attempts_total - 1 - k, 1),
+        )
     if usage is not None:
         _log_token_usage(
             usage,
