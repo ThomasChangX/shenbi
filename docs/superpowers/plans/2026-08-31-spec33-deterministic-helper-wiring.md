@@ -47,7 +47,7 @@ def inject_helper_precompute(skill: str, project_dir: Path, user_prompt: str) ->
         return block + user_prompt
     return user_prompt
 ```
-（structlog logger；dispatch_helper seam 处 try/except 只 log.warning `helper_inject_failed` 后原样返回——不吞错静默，WARN 即披露。`_helper_injection_disabled()` 复用 dispatch_helper._load_executor_config 的缓存 loader，不自建第二读取。成本封顶：只读最近 10 章（sorted 取尾 10），JSON 块截断到既有 _INPUT_MAX_CHARS_TOTAL 单技能配额内，超限 log.warning `helper_block_truncated` 并截断注入——接受的成本已在 spec 风险节声明）
+（structlog logger；dispatch_helper seam 处 try/except 只 log.warning `helper_inject_failed` 后原样返回——不吞错静默，WARN 即披露。`_helper_injection_disabled()` 复用 dispatch_helper._load_executor_config 的缓存 loader，不自建第二读取。成本封顶：只读最近 10 章（sorted 取尾 10），JSON 块截断到既有 _INPUT_MAX_CHARS_TOTAL 单技能配额内，超限 log.warning `helper_block_truncated` 并截断注入——注入块在 `_INPUT_MAX_CHARS_TOTAL`（总量预算，输入组装点 :698 生效）**之后**拼入，现有预算不覆盖它，必须自设 guard（如 8KB 硬顶）；配置键落 `executor_config.toml` 顶层 `helper_injection_disabled`）
 - [ ] **Step 4: 跑测试通过**；同步改 SKILL.md 第一步指令为「框架已在 prompt 注入 `Helper Precompute` 统计块，直接读取该块」；`just lint-contracts` + `uv run shenbi-sync-contracts` diff 空
 - [ ] **Step 5: Commit** `feat: pre-dispatch compute_stats injection for style-learning (spec #33 T1a)` → audit-T1.md
 
@@ -91,7 +91,7 @@ def inject_helper_precompute(skill: str, project_dir: Path, user_prompt: str) ->
   - `compute_anchor_hit_rate(project_dir: Path) -> HitRate | None`（读 `truth/resonance_anchors.md` keyed 行 `| {N} | {high_conf_anchors} | {correct} |`；分母<3 → None）；判对标准：行内 correct 数由章节修订交叉核对写入（dispatch 后由框架比对 revision 记录是否改写锚点覆盖文本块；证据不足记 correct=0 且 flag `anchor_unverifiable`）
   - `calibrate_and_patch_trend(project_dir: Path, chapter: int, reported: str) -> None`（HitRate None → `log.info("calibration_insufficient_history")` 不降级；否则 `calibrate_confidence(reported, hr)` → `patch_markdown_table_cell(trend_path, str(chapter), "chapter", 7, calibrated)` → 行缺失先写 `_build_resonance_trend_row` 占位再 patch；降级时 `log.info("confidence_calibrated", before=…, after=…)`）
   - revision_router: `MAX_AUTO_REVISIONS = 2` + `def revision_cap_exceeded(revision_count: int) -> bool`；chapter_loop 在 `cs.revision_count += 1`（:1831）旁：超限走 `dispatch_escalation(...)`
-- LLM 自报 confidence 来源：review-resonance 报告输出格式节增加机器可解析行 `calibration: reported=<high|mid|low>`（SKILL.md 输出格式节修订），框架解析正则 `reported=(high|mid|low)`
+- LLM 自报 confidence 来源：review-resonance 报告输出格式节增加机器可解析行 `calibration: reported=<high|mid|low>`（SKILL.md 输出格式节修订），框架解析正则 `reported=(high|mid|low)`；锚点行格式（框架写，技能只产出报告）：报告输出格式节增加机器可解析锚点块 `anchors: high=<n> | dim=<维度>:<行号>`，框架解析后写 `truth/resonance_anchors.md` 行（producer=framework，技能不写该 truth 文件）；`correct` 列仅框架回填（修订交叉核对后）
 
 - [ ] **Step 1: 失败测试**——fixtures 驱动：校准历史（锚点 truth 行）由**新框架累积代码跑在真实章节 fixtures 上**生成（G0.9 upstream-generated：框架是上游生成器）；tests/fixtures/calibration/resonance 的锚点 prose 作为锚点文本输入复用。锚点判对机制（spec v8 交叉信号）：以 `_create_pre_revision_backup` 快照与修订后章文本做块级 diff——锚点行号引用在修订后行号漂移时按相邻文本窗口（±5 行）重定位，仍无法定位 → `anchor_unverifiable` flag 且 correct 记 0 + WARN（不静默降级），防系统性误降级：高报+低锚命中 → patch 后 trend cells[7]=="mid" + structlog 事件；锚点 <3 → 不降级 + insufficient_history 事件；行缺失 → 占位行先写后 patch；cap：revision_count 3 → escalate 断言；对账测试：retries(3) 与 cap(2) 正交（构造 retries 未满但 cap 超限场景）
 - [ ] **Step 2-4: 红→实现→绿**；route_block 删除面核验 `git grep -w route_block src/ tests/ skills/ -- ':!tests/coverage'` 零残留；`just lint-contracts` + sync-contracts 幂等

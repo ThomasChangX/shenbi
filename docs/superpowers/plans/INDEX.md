@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-31
-> **活跃 plan 数**：0 | **已归档**：83（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：83（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #32 plan 已交付归档，见 `archive/2026-08-31-spec32-linguistic-drift-cjk.md`，PR #124）
+- [spec #33 deterministic-helper-wiring](2026-08-31-spec33-deterministic-helper-wiring.md) — ✅ ready（plan 审查 2 轮收敛 1d1f64f4+钉固；执行中，分支 fix/spec33-deterministic-helper-wiring）
 
 
 
