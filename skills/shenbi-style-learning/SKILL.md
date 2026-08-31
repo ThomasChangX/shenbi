@@ -48,7 +48,7 @@ digraph style_learning {
 }
 ```
 
-**第一步读取框架注入**：派发 prompt 已含 `## Helper Precompute (style stats, deterministic)` JSON 块（框架运行 compute_all_stats 预计算）。**直接引用该块统计值，禁止 LLM 自行估算或重算统计值。**（旧的自执行脚本指令已由框架接线取代，本地手动复现可用 skill_utils.style_learning CLI。）
+**第一步读取框架注入**：有章节正文时，派发 prompt 已含 `## Helper Precompute (style stats, deterministic)` JSON 块（框架运行 compute_all_stats 预计算）；bootstrap 模式（无 chapters/*.md）框架不注入，按下节流程执行。**直接引用该块统计值，禁止 LLM 自行估算或重算统计值。**（旧的自执行脚本指令已由框架接线取代，本地手动复现可用 skill_utils.style_learning CLI。）
 
 ## Bootstrap 模式 (Genesis 阶段)
 
@@ -77,7 +77,7 @@ digraph style_bootstrap {
 前 3 章完成后，pipeline 重新运行 style-learning（非 bootstrap）覆盖 bootstrap 指纹:
 
 - 读取 `chapters/chapter-1.md` 到 `chapters/chapter-3.md`
-- 运行 `compute_stats.py` 获取真实统计
+- 引用框架注入块（或本地 CLI 复现）获取真实统计
 - 用真实统计结果覆盖 bootstrap 指纹（移除 `bootstrap: true` 标记）
 - 样本 < 10 章时按铁律 #3 标注「样本不足」（3 章统计仍优于无数据的种子指纹）
 
@@ -87,7 +87,7 @@ digraph style_bootstrap {
 
 - 周期性更新（`N % style_learning_interval == 0`）
 - 卷级更新（`is_volume_boundary(N)`）
-- 每次更新重新运行 `compute_stats.py`，纳入最新章节统计
+- 每次更新后重新获取注入块统计（本地复现用 style_learning CLI），纳入最新章节统计
 
 ## 铁律
 
