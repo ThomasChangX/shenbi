@@ -93,7 +93,7 @@ def render_report(project_dir: Path | str) -> str:
         lines += [
             "",
             f"- **Estimated (lower-bound) rows**: {len(est_rows)} calls / "
-            f"{est_tokens:,} tokens (IDE/subprocess paths; $0 priced, not in cost totals)",
+            f"{est_tokens:,} tokens (IDE/subprocess paths; $0 priced, tokens included in Total above)",
         ]
 
     avg_score = _try_avg_g3_score(Path(project_dir))
