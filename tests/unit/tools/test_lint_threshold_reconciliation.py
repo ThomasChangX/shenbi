@@ -69,3 +69,4 @@ def test_lint_warns_on_missing_files(tmp_path: Path) -> None:
 def test_lint_clean_on_repo_allowlist() -> None:
     r = _run()
     assert r.returncode == 0
+    assert "WARN" not in r.stdout
