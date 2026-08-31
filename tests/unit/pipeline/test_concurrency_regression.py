@@ -145,3 +145,27 @@ def test_f630_materialize_clobbers_foreign_keys(tmp_path: Path) -> None:
     out = json.loads(progress.read_text(encoding="utf-8"))
     assert out.get("custom_key") == 1  # red: wholesale rebuild drops it
     assert out["skills"]["x"]["generative"]["status"] == "DONE"  # red: rebuilt as pending
+
+
+def test_locked_transact_mutual_exclusion(tmp_path: Path) -> None:
+    """locked_transact serializes whole read-modify-write cycles (F206/F347 primitive)."""
+    import json
+
+    from shenbi.safe_write import locked_transact
+
+    target = tmp_path / "counter.json"
+    target.write_text(json.dumps({"n": 0}), encoding="utf-8")
+    barrier = threading.Barrier(2)
+    n = 25
+
+    def bump() -> None:
+        barrier.wait(timeout=10)
+        for _ in range(n):
+            locked_transact(target, lambda d: d.update(n=d["n"] + 1))
+
+    t1, t2 = threading.Thread(target=bump), threading.Thread(target=bump)
+    t1.start()
+    t2.start()
+    t1.join(timeout=25)
+    t2.join(timeout=25)
+    assert json.loads(target.read_text(encoding="utf-8"))["n"] == 2 * n

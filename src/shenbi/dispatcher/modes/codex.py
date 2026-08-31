@@ -9,7 +9,7 @@ import subprocess
 from pathlib import Path
 from typing import Any
 
-from shenbi.safe_write import safe_write
+from shenbi.safe_write import locked_transact, safe_write
 
 from shenbi.cli_utils import emit_json
 from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
@@ -36,31 +36,30 @@ def _record_completion(
     ``output_files`` (F444) records the skill's produced files at the
     test_type layer so G3.3 can re-run G2 on them.
     """
+
+    def _mutate(progress: dict[str, object]) -> dict[str, object]:
+        completed_obj = progress.get("completed_skill_names", [])
+        completed = completed_obj if isinstance(completed_obj, list) else []
+        if skill not in completed:
+            completed.append(skill)
+        progress["completed_skill_names"] = completed
+
+        skills_obj = progress.get("skills", {})
+        skills = skills_obj if isinstance(skills_obj, dict) else {}
+        skill_entry_obj = skills.get(skill, {})
+        skill_entry = skill_entry_obj if isinstance(skill_entry_obj, dict) else {}
+        entry: dict[str, object] = {"score": score, "status": SkillProgressStatus.DONE}
+        if output_files:
+            entry["output_files"] = output_files
+        skill_entry[test_type] = entry
+        skills[skill] = skill_entry
+        progress["skills"] = skills
+        return progress
+
     progress_path = round_dir / "progress.json"
-    if progress_path.exists():
-        loaded = json.loads(progress_path.read_text(encoding="utf-8"))
-        progress: dict[str, object] = loaded if isinstance(loaded, dict) else {}
-    else:
-        progress = {}
-
-    completed_obj = progress.get("completed_skill_names", [])
-    completed = completed_obj if isinstance(completed_obj, list) else []
-    if skill not in completed:
-        completed.append(skill)
-    progress["completed_skill_names"] = completed
-
-    skills_obj = progress.get("skills", {})
-    skills = skills_obj if isinstance(skills_obj, dict) else {}
-    skill_entry_obj = skills.get(skill, {})
-    skill_entry = skill_entry_obj if isinstance(skill_entry_obj, dict) else {}
-    entry: dict[str, object] = {"score": score, "status": SkillProgressStatus.DONE}
-    if output_files:
-        entry["output_files"] = output_files
-    skill_entry[test_type] = entry
-    skills[skill] = skill_entry
-    progress["skills"] = skills
-
-    safe_write(progress_path, json.dumps(progress, indent=2, ensure_ascii=False))
+    # spec #37 F206: the whole read-modify-write runs under the directory
+    # lock — plain safe_write left the read outside the critical section.
+    locked_transact(progress_path, _mutate)
 
 
 def _normalize_scores(scores: dict[Any, Any]) -> tuple[dict[int, float], list[str]]:

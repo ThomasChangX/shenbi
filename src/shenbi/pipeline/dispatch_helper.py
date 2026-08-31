@@ -60,7 +60,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_prose_leakage,
     detect_write_failure,
 )
-from shenbi.safe_write import safe_write
+from shenbi.safe_write import locked_transact, safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -1128,17 +1128,22 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
     out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
-    out.parent.mkdir(parents=True, exist_ok=True)
-    existing = out.read_text(encoding="utf-8") if out.exists() else ""
-    for issue in issues:
-        existing += (
-            json.dumps(
-                {"file": str(file_path.relative_to(project_dir)), "finding": issue},
-                ensure_ascii=False,
+
+    def _append(existing: object) -> str:
+        text = str(existing) if existing else ""
+        for issue in issues:
+            text += (
+                json.dumps(
+                    {"file": str(file_path.relative_to(project_dir)), "finding": issue},
+                    ensure_ascii=False,
+                )
+                + "\n"
             )
-            + "\n"
-        )
-    safe_write(out, existing)
+        return text
+
+    # spec #37 F347/T601: read-modify-write under one critical section — the
+    # old read-outside-lock shape let concurrent per-chapter auditors drop lines.
+    locked_transact(out, _append)
 
 
 _TRUTH_DIR_PREFIX = "truth/"

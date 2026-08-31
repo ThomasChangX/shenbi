@@ -12,10 +12,14 @@ import os
 import sys
 import tempfile
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
+
+if TYPE_CHECKING:
+    from collections.abc import Callable
 
 
 def _fsync_dir(path: Path) -> None:
@@ -91,6 +95,90 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
         return fd, lockfile
 
 
+def locked_transact(
+    path: Path,
+    mutator: Callable[[Any], Any],
+    *,
+    round_dir: Path | None = None,
+    trace_action: str | None = None,
+) -> object:
+    """Lock a whole read-modify-write cycle on *path* (spec #37 F206/F347).
+
+    Holds the directory lock across read -> mutator -> atomic write so
+    concurrent transactors cannot interleave. Plain safe_write only locks
+    the write, leaving the read outside the critical section (TOCTOU).
+
+    JSON files: the mutator receives the parsed dict (or {} for a missing
+    file); in-place mutation is applied, a non-None return value wins.
+    Any other file: the mutator receives the raw str and returns a str.
+    """
+    import json
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_fd, lockfile = _acquire_lock(path)
+    try:
+        raw = path.read_text(encoding="utf-8") if path.exists() else None
+        if path.suffix == ".json":
+            data = json.loads(raw) if raw else {}
+            result = mutator(data)
+            payload = json.dumps(
+                result if result is not None else data, indent=2, ensure_ascii=False
+            )
+        else:
+            result = mutator(raw)
+            payload = str(result if result is not None else raw)
+        _write_payload(path, payload, round_dir=round_dir, trace_action=trace_action)
+        return result
+    finally:
+        os.close(lock_fd)
+        if lockfile is not None:
+            try:
+                os.unlink(lockfile)
+            except FileNotFoundError:
+                pass
+
+
+def _write_payload(
+    path: Path,
+    payload: str,
+    *,
+    round_dir: Path | None,
+    trace_action: str | None,
+) -> None:
+    """Temp + fsync + atomic replace + dir fsync + best-effort trace seam.
+
+    Locking is the caller's responsibility (flock conflicts across fds even
+    within one process, so a nested safe_write would self-deadlock).
+    """
+    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+    try:
+        with os.fdopen(fd, "wb") as fh:
+            fh.write(payload.encode("utf-8"))
+            fh.flush()
+            os.fsync(fh.fileno())
+        os.replace(tmp, path)
+        _fsync_dir(path.parent)
+    except BaseException:
+        if os.path.exists(tmp):
+            os.unlink(tmp)
+        raise
+    if round_dir is not None and trace_action is not None:
+        from shenbi.trace.writer import TraceWriter  # 局部 import 避免循环
+
+        # Franklin Important: trace append can crash if trace.jsonl has a torn tail.
+        # The write already succeeded — don't let a trace error undo the caller's success signal.
+        try:
+            TraceWriter(round_dir).append(
+                actor="safe_write",
+                actor_role="GATE",
+                action=trace_action,
+                target=path.name,
+                payload={"path": str(path)},
+            )
+        except Exception:
+            log.warning("safe_write_trace_append_failed", path=str(path), exc_info=True)
+
+
 def safe_write(
     path: Path,
     data: bytes | str,
@@ -101,19 +189,19 @@ def safe_write(
 ) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_fd, lockfile = _acquire_lock(path)  # held open across write (I3)
-    payload = data if isinstance(data, bytes) else data.encode("utf-8")
-    fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
     try:
-        with os.fdopen(fd, "wb") as fh:
-            fh.write(payload)
-            fh.flush()
-            os.fsync(fh.fileno())
-        os.replace(tmp, path)
-        _fsync_dir(path.parent)
-    except BaseException:
-        if os.path.exists(tmp):
-            os.unlink(tmp)
-        raise
+        fd, tmp = tempfile.mkstemp(dir=str(path.parent), prefix=path.name + ".", suffix=".tmp")
+        try:
+            with os.fdopen(fd, "wb") as fh:
+                fh.write(data if isinstance(data, bytes) else data.encode("utf-8"))
+                fh.flush()
+                os.fsync(fh.fileno())
+            os.replace(tmp, path)
+            _fsync_dir(path.parent)
+        except BaseException:
+            if os.path.exists(tmp):
+                os.unlink(tmp)
+            raise
     finally:
         os.close(lock_fd)  # release flock (or close lockfile fd) AFTER os.replace+fsync
         if lockfile is not None:
