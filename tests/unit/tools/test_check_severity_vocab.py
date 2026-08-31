@@ -29,6 +29,13 @@ def test_main_exit_zero_on_fixtures(capsys: object) -> None:
     assert main([str(FIXTURES)]) == 0
 
 
+def test_legacy_map_in_sync_with_gate() -> None:
+    """The tolerance map is duplicated in the G4 checker — keep them equal."""
+    from shenbi.gates.g4.chapter_revision import _LEGACY_SEVERITY
+
+    assert LEGACY_SEVERITY == _LEGACY_SEVERITY
+
+
 def test_out_of_vocab_detected(tmp_path: Path) -> None:
     bad = tmp_path / "chapter-1-revision-decisions.json"
     bad.write_text('{"severity": "catastrophic"}', encoding="utf-8")

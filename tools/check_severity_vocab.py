@@ -17,6 +17,8 @@ from typing import get_args
 
 from shenbi.contracts.enums import RevisionSeverity
 
+REPO_ROOT = Path(__file__).resolve().parents[1]
+
 # Keep in sync with g4/chapter_revision._LEGACY_SEVERITY (single registry row).
 LEGACY_SEVERITY: dict[str, str] = {
     "blocking": "high",
@@ -94,7 +96,7 @@ def _walk_severities(node: object) -> list[str]:
 def main(argv: list[str] | None = None) -> int:
     """Print the out-of-vocab severity rate; exit 1 iff any value escapes."""
     argv = argv if argv is not None else sys.argv[1:]
-    tree = Path(argv[0]) if argv else Path("novel-output")
+    tree = Path(argv[0]) if argv else REPO_ROOT / "novel-output"
     values = collect_severities(tree)
     out_of_vocab = [
         v for v in values if v not in LEGAL and LEGACY_SEVERITY.get(v.lower(), v) not in LEGAL
