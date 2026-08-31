@@ -41,6 +41,61 @@ def _fsync_dir(path: Path) -> None:
         os.close(fd)
 
 
+#: Staleness proof thresholds for the O_EXCL fallback (spec #37 T603/F111).
+STALE_LOCK_TTL = 60.0  # seconds without mtime heartbeat -> lock assumed crashed
+LOCK_WAIT_TIMEOUT = 10.0  # total backoff budget before failing the acquire
+_LOCK_POLL_INTERVAL = 0.1
+
+
+def _write_lock_holder(lockfile: Path, fd: int) -> None:
+    """Record holder pid for liveness proof (best-effort; POSIX path only)."""
+    try:
+        os.write(fd, f"{os.getpid()}\n".encode())
+        os.fsync(fd)
+    except OSError:
+        pass  # holder info is advisory for staleness proofs
+
+
+def _lock_is_stale(lockfile: Path) -> bool:
+    """True only with a staleness PROOF: mtime older than TTL and holder dead."""
+    import time
+
+    try:
+        age = time.time() - lockfile.stat().st_mtime
+    except OSError:
+        return True  # vanished -> nothing to take over (retry O_EXCL)
+    if age < STALE_LOCK_TTL:
+        return False
+    # Age alone is not proof on POSIX — a live holder that merely went quiet
+    # must not be robbed. Check the recorded pid when present.
+    if sys.platform != "win32":
+        try:
+            pid_txt = lockfile.read_text(encoding="utf-8").strip()
+            pid = int(pid_txt) if pid_txt.isdigit() else 0
+        except (OSError, ValueError):
+            pid = 0
+        if pid and pid != os.getpid() and _pid_alive(pid):
+            return False  # holder alive -> keep waiting
+    return True
+
+
+def _pid_alive(pid: int) -> bool:
+    try:
+        os.kill(pid, 0)
+        return True
+    except ProcessLookupError:
+        return False
+    except PermissionError:
+        return True  # exists but owned by another user
+
+
+def _try_unlink(lockfile: Path) -> None:
+    try:
+        os.unlink(str(lockfile))
+    except FileNotFoundError:
+        pass  # already gone — safe to proceed with O_EXCL recreate
+
+
 def _acquire_lock(path: Path) -> tuple[int, Path | None]:
     """Acquire exclusive lock on parent dir; return (fd, lockfile_to_unlink).
 
@@ -71,28 +126,36 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
     try:
         fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
         os.chmod(lockfile, 0o600)
+        _write_lock_holder(lockfile, fd)
         return fd, lockfile
     except FileExistsError:
-        # Another writer holds the lock — retry with backoff
+        # Another writer holds the lock — retry with backoff, and only take
+        # over a lock PROVEN stale (spec #37 T603/F111: the old code unlinked
+        # unconditionally after 1s, breaking mutual exclusion for any writer
+        # slower than the backoff window).
         import time
 
-        for _attempt in range(10):
-            time.sleep(0.1)
+        deadline = time.monotonic() + LOCK_WAIT_TIMEOUT
+        while time.monotonic() < deadline:
+            time.sleep(_LOCK_POLL_INTERVAL)
             try:
                 fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
                 os.chmod(lockfile, 0o600)
+                _write_lock_holder(lockfile, fd)
                 return fd, lockfile
-            except FileExistsError:  # retry with backoff
-                continue
-        # Stale lock takeover (Helmholtz P3 fix): unlink + recreate with O_EXCL.
-        # After 1s of backoff the lock is likely stale (crash left it behind).
-        try:
-            os.unlink(str(lockfile))
-        except FileNotFoundError:
-            pass  # already gone — safe to proceed with O_EXCL recreate
-        fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
-        os.chmod(lockfile, 0o600)
-        return fd, lockfile
+            except FileExistsError:
+                if _lock_is_stale(lockfile):
+                    _try_unlink(lockfile)  # proven-stale takeover
+                    continue
+        if sys.platform == "win32":  # pragma: no cover — POSIX-authoritative
+            log.warning("lock_takeover_timeout_fallback", lockfile=str(lockfile))
+            _try_unlink(lockfile)
+            fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
+            os.chmod(lockfile, 0o600)
+            return fd, lockfile
+        raise TimeoutError(
+            f"lock wait timed out after {LOCK_WAIT_TIMEOUT}s on {lockfile}"
+        ) from None
 
 
 def locked_transact(
