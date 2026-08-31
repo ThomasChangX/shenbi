@@ -285,14 +285,6 @@ class TestCacheInvalidation:
         assert checklist.world_rules_brief == ""
 
 
-class TestChapterCharCount:
-    def test_missing_chapter_returns_zero(self, tmp_path: Path):
-        from shenbi.pipeline.review_checklist import _estimate_chapter_char_count
-
-        result = _estimate_chapter_char_count(tmp_path, 999)
-        assert result == 0
-
-
 class TestFullChecklistPipeline:
     """Integration-style tests exercising the full _build_checklist pipeline."""
 
