@@ -133,3 +133,57 @@ def test_extract_prose_strips_contract_header_and_title() -> None:
     """z11 R1c: contract header + original title line both stripped from prose."""
     text = "# Chapter 7:\n\n# 第7章 试炼\n\n正文开始。"
     assert extract_prose(text) == "正文开始。"
+
+
+# ---------------------------------------------------------------------------
+# Spec #32 F333: line_range must map to REAL newline positions in the prose,
+# and POV shifts must not be fabricated from high-frequency CJK bigrams.
+# ---------------------------------------------------------------------------
+class TestEventTimelineLineRange:
+    def test_line_range_matches_real_newline_position(self):
+        """Events on a later physical line must report that line, not a
+        per-sentence counter (the old bug: line_num incremented once per
+        re.split segment regardless of actual newlines).
+        """
+        # Line 1 filler (no event verbs), event on physical line 3.
+        prose = (
+            "天空是灰色的。\n"  # line 1 — filler
+            "灰得彻底。\n"  # line 2 — filler
+            "李明走进铁匠铺。\n"  # line 3 — event (走/进)
+            "他拿起锤子。"  # line 4 — event (拿)
+        )
+        events = _extract_event_timeline(prose)
+        assert events, "sanity: events extracted"
+        first = events[0]
+        # The first event sentence lives on physical line 3, not line 1.
+        assert first["description"].startswith("李明")
+        assert first["line_range"][0] == 3
+        assert events[1]["line_range"][0] == 4
+
+    def test_multiple_sentences_on_one_line_share_the_line(self):
+        prose = "李明走进铁匠铺。他拿起锤子。\n他放下锤子。"
+        events = _extract_event_timeline(prose)
+        assert [e["line_range"][0] for e in events] == [1, 1, 2]
+
+
+class TestPovShifts:
+    def test_no_explicit_pov_markers_returns_empty(self):
+        """No explicit POV evidence -> empty list, never fabricated dominant
+        high-frequency CJK 2-3 char substrings.
+        """
+        from shenbi.pipeline.scr_extractor import _extract_pov_shifts
+
+        # Two paragraphs of plain narration; no POV markers. The old code
+        # reported a "shift" between the most frequent bigrams of each
+        # paragraph (e.g. 李明 -> 铜币), which is not a POV fact.
+        prose = "李明数着铜币，铜币很多，铜币闪着光。\n\n王铁站在铁堆旁看着远处的废料场。"
+        assert _extract_pov_shifts(prose) == []
+
+    def test_explicit_pov_marker_still_detected(self):
+        from shenbi.pipeline.scr_extractor import _extract_pov_shifts
+
+        prose = "视角：李明\n\n李明数着铜币。\n\n视角：王铁\n\n王铁看着铁堆。"
+        shifts = _extract_pov_shifts(prose)
+        assert shifts, "explicit 视角 markers must still yield a shift"
+        assert shifts[0]["from_pov"] == "李明"
+        assert shifts[0]["to_pov"] == "王铁"
