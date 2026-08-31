@@ -9,8 +9,9 @@ from __future__ import annotations
 
 import re
 from pathlib import Path
-from typing import Any
+from typing import Any, get_args
 
+from shenbi.contracts.enums import ResonanceVerdict
 from shenbi.gates.shared import (
     fail,
     passed,
@@ -22,7 +23,8 @@ from shenbi.gates.shared import (
 _DETAIL_COLS = ("维度", "得分", "满分", "置信度", "证据", "裁判理由")
 
 # Accepted 校准门 verdicts (spec §5.4 routing: pass / block / human review).
-_VERDICTS = ("通过", "阻断", "待人机复核")
+# spec #34 T902: 唯一域 enums.ResonanceVerdict（原裸 tuple 收编）
+_VERDICTS = get_args(ResonanceVerdict)
 
 # The existing pattern (review_resonance.py:64) already handles:
 #   - half-width : and full-width ：
