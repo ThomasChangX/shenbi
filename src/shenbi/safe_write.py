@@ -126,7 +126,7 @@ def locked_transact(
             )
         else:
             result = mutator(raw)
-            payload = str(result if result is not None else raw)
+            payload = str(result if result is not None else (raw or ""))
         _write_payload(path, payload, round_dir=round_dir, trace_action=trace_action)
         return result
     finally:
@@ -144,6 +144,7 @@ def _write_payload(
     *,
     round_dir: Path | None,
     trace_action: str | None,
+    trace_target: str | None = None,
 ) -> None:
     """Temp + fsync + atomic replace + dir fsync + best-effort trace seam.
 
@@ -172,7 +173,7 @@ def _write_payload(
                 actor="safe_write",
                 actor_role="GATE",
                 action=trace_action,
-                target=path.name,
+                target=trace_target or path.name,
                 payload={"path": str(path)},
             )
         except Exception:
