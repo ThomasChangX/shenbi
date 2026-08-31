@@ -1,7 +1,7 @@
-> **Date:** 2026-08-16 | **Revised:** 2026-08-31（v2：价值门删 F376/F604；v3：阶段 3 设计审查 1C/3I/5M 修订；v4：route_block 权威冲突裁决等二轮修订；v5：anti-ai 活面重定向等三轮修订；v6：校准覆盖落点单元格 patch 等四轮修订；v7：cell-patch 新原语等五轮修订；v8：六轮 READY 收敛轮——HitRate 判对标准与冷启动规则、修订上限语义与 max_audit_retries 对账、列定位钉死 positional、锁/测试保留/grep 面补全）| **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
-> **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C7，原 5 条，修订后 3 条）| **代表 finding:** T1442 | **严重度上限:** P1 | **涉及文件面:** src/shenbi/skill_utils/（compute_stats、compute_pattern、recall、calibration、review_resonance.routing、review_checklist）、pipeline/（chapter_loop、dispatch_helper、hook_planting、genesis、triggers）、skills/（shenbi-review-anti-ai、shenbi-chapter-drafting、shenbi-review-resonance、shenbi-foreshadowing-plant 等正文改引 helper 输出）、tools/lint_helper_usage.py（新增）
+> **Date:** 2026-08-16 | **Revised:** 2026-08-31（v2：价值门删 F376/F604；v3：阶段 3 设计审查 1C/3I/5M 修订；v4：route_block 权威冲突裁决等二轮修订；v5：anti-ai 活面重定向等三轮修订；v6：校准覆盖落点单元格 patch 等四轮修订；v7：cell-patch 新原语等五轮修订；v8：HitRate 判对标准与冷启动规则等六轮修订；v9：验收 grep 加 skills/ 面、预算 fixture 漂移与 T4 能力清单边界注记）| **Status:** Design (Revised 2026-08-31) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C7，原 5 条，修订后 3 条）| **代表 finding:** T1442 | **严重度上限:** P1 | **涉及文件面:** src/shenbi/skill_utils/（compute_stats、compute_pattern、recall、calibration、review_resonance.routing）与 src/shenbi/pipeline/review_checklist.py、pipeline/（chapter_loop、dispatch_helper、hook_planting、genesis、triggers）、skills/（shenbi-review-anti-ai、shenbi-chapter-drafting、shenbi-review-resonance、shenbi-foreshadowing-plant 等正文改引 helper 输出）、tools/lint_helper_usage.py（新增）
 
-# 确定性 helper 派发接线（audit-deterministic-helper-wiring）· v2
+# 确定性 helper 派发接线（audit-deterministic-helper-wiring）· v9
 
 ## 背景
 
@@ -43,8 +43,8 @@
 ## 验收标准
 
 1a. 派发 prompt 断言（fixtures 驱动单元测试，直接构造派发 prompt，禁现场 dispatch）：style-learning / chapter-pattern 类派发 prompt 含对应 helper 预计算结果块（pattern 为历史窗口半）；SKILL.md 正文不再含 `python -m shenbi.skill_utils...` 自执行指令（改为引用注入块）；per-skill 开关关闭时无注入块。
-2. T1440 裁决落地：选 (a) 则 genesis/triggers plant 面走 `plant_hooks_from_plan`（grep 生产调用点）；选 (b) 则死分支/死实现/OPTIONAL_READS 条目/genesis 技能集残留全清（`git grep plant_hooks_from_plan src/ tests/ skills/` 零残留）。
 1b. 派发后强制断言：review-resonance 输出经 `calibrate_confidence` 复算覆盖（fixtures 驱动：构造高报置信度+低锚命中率的累计历史，断言落盘值为降级后的 mid，且降级有 structlog 事件）；`git grep -w route_block src/ tests/ skills/ -- ':!tests/coverage'` 零残留（-w 防止 test_api_route_blocks_* 类子串假阳性；含 skills/ 覆盖 SKILL.md 残留绑定如 review-resonance SKILL.md:118；tests/coverage 为生成物，重跑覆盖率后消散）。
+2. T1440 裁决落地：选 (a) 则 genesis/triggers plant 面走 `plant_hooks_from_plan`（grep 生产调用点）；选 (b) 则死分支/死实现/OPTIONAL_READS 条目/genesis 技能集残留全清（`git grep plant_hooks_from_plan src/ tests/ skills/` 零残留）。
 3. group-craft 派发 prompt 含确定性检查预计算块（计数/CV，并入审查参考数据块），group-craft/anti-ai-reference.md 转折词阈值与 G4 一致（同分母 `word_count_md` 下同值断言测试）。
 4. `uv run python tools/lint_helper_usage.py` exit 0（或输出仅剩已裁决豁免项），且该工具已加入 justfile `check` recipe（`just check` 实际执行到它）。
 5. `just check` 全绿。
