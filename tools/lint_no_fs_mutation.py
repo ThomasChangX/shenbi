@@ -36,6 +36,7 @@ from pathlib import Path
 PERMANENT_ALLOWLIST: frozenset[str] = frozenset(
     {
         "safe_write.py",
+        "append_helper.py",
         "trace/writer.py",
         "cost/ledger.py",
         "config/config_coherence.py",

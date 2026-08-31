@@ -20,7 +20,6 @@ import copy
 import json
 import math
 import threading
-from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -91,18 +90,18 @@ def _append_audit_trail(
     new: Any,
     rationale: str,
 ) -> None:
-    trail_path = project_dir / AUDIT_TRAIL_NAME
+    from shenbi.append_helper import append_jsonl
+
     entry = {
-        "timestamp": datetime.now(UTC).isoformat(timespec="seconds"),
         "key": key,
         "old": old,
         "new": new,
         "rationale": rationale,
     }
-    line = json.dumps(entry, ensure_ascii=False) + "\n"
-    # Append-only: do not use safe_write (which replaces); open in 'a' mode.
-    with _AUDIT_TRAIL_LOCK, trail_path.open("a", encoding="utf-8") as fh:
-        fh.write(line)
+    # Append-only with fsync + timestamp + directory lock (spec #37 F534);
+    # the old bare open("a") under a mere threading.Lock had none.
+    with _AUDIT_TRAIL_LOCK:
+        append_jsonl(project_dir / AUDIT_TRAIL_NAME, entry)
 
 
 _AUDIT_DIM_ROOTS = frozenset({"auditDimensions", "audit_dimensions"})
@@ -197,21 +196,27 @@ def update_genre_config(project_dir: Path, changes: dict[str, Any], rationale: s
         _set_nested(staged, key, new_value)
     _validate_changes(config, staged, changes, rationale)
 
-    # Phase 2: commit — write config, then append trail entries.
+    # Phase 2: commit — write config, then append trail entries. A trail
+    # failure mid-batch rolls the config back to the pre-batch content and
+    # re-raises (spec #37 F605: config and audit trail must not diverge).
     entries = [(key, _get_nested(config, key), value) for key, value in changes.items()]
-    safe_write(
-        project_dir / "genre-config.json",
-        json.dumps(staged, ensure_ascii=False, indent=2),
-    )
-    for key, old_value, new_value in entries:
-        _append_audit_trail(project_dir, key, old_value, new_value, rationale)
-        log.info(
-            "config_changed",
-            key=key,
-            old=old_value,
-            new=new_value,
-            rationale=rationale,
-        )
+    config_path = project_dir / "genre-config.json"
+    original_content = config_path.read_text(encoding="utf-8") if config_path.exists() else None
+    safe_write(config_path, json.dumps(staged, ensure_ascii=False, indent=2))
+    try:
+        for key, old_value, new_value in entries:
+            _append_audit_trail(project_dir, key, old_value, new_value, rationale)
+            log.info(
+                "config_changed",
+                key=key,
+                old=old_value,
+                new=new_value,
+                rationale=rationale,
+            )
+    except BaseException:
+        if original_content is not None:
+            safe_write(config_path, original_content)
+        raise
 
 
 _TRAIL_RATIONALE_MAX_CHARS = 500

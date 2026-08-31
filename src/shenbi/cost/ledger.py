@@ -7,8 +7,7 @@ lines; a partial/corrupt line is skipped, never crashing the report.
 from __future__ import annotations
 
 import json
-import os
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 from datetime import datetime, UTC
 from pathlib import Path
 from typing import Any
@@ -94,24 +93,9 @@ class TokenLedger:
             attempt=attempt,
             pricing_status=pricing_status,
         )
-        from shenbi.safe_write import acquire_write_lock
+        from shenbi.append_helper import append_jsonl
 
-        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)  # write-path only
-        lock_fd, lockfile = acquire_write_lock(self.ledger_path)
-        try:
-            with self.ledger_path.open("a", encoding="utf-8") as f:
-                f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")
-                f.flush()
-                os.fsync(f.fileno())  # durability: survive crash after append
-        finally:
-            import os as _os
-
-            _os.close(lock_fd)
-            if lockfile is not None:
-                try:
-                    lockfile.unlink()
-                except FileNotFoundError:
-                    pass
+        append_jsonl(self.ledger_path, {f: getattr(rec, f) for f in rec.__dataclass_fields__})
         return rec
 
     def iter_records(self) -> Iterator[TokenUsageRecord]:

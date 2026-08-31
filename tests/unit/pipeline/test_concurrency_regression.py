@@ -332,3 +332,54 @@ def test_periodic_materialize_removed() -> None:
     assert not hasattr(chapter_loop, "_maybe_materialize_progress")
     source = Path(chapter_loop.__file__).read_text(encoding="utf-8")
     assert "materialize_progress(Path(state.project_dir)" not in source
+
+
+def test_append_jsonl_fsync_and_timestamp(tmp_path: Path, monkeypatch) -> None:
+    """append_jsonl stamps a timestamp and fsyncs each append (F534)."""
+    import json as _json
+
+    from shenbi.append_helper import append_jsonl
+
+    fsyncs: list[int] = []
+    real_fsync = __import__("os").fsync
+    monkeypatch.setattr(
+        "shenbi.append_helper.os.fsync", lambda fd: (fsyncs.append(fd), real_fsync(fd))
+    )
+    target = tmp_path / "audits" / "write-audit.jsonl"
+    append_jsonl(target, {"skill": "x"})
+    append_jsonl(target, {"skill": "y"})
+    lines = [
+        _json.loads(ln) for ln in target.read_text(encoding="utf-8").splitlines() if ln.strip()
+    ]
+    assert [r["skill"] for r in lines] == ["x", "y"]
+    assert all("timestamp" in r for r in lines)
+    assert len(fsyncs) >= 2
+
+
+def test_config_trail_failure_rolls_back(tmp_path: Path, monkeypatch) -> None:
+    """A failing audit-trail append rolls genre-config back (F605 verify-before-write)."""
+    import json as _json
+
+    from shenbi.config import config_coherence as cc
+
+    cfg = tmp_path / "genre-config.json"
+    original = {"version": "1.0", "resonance_global_floor": 70}
+    cfg.write_text(_json.dumps(original), encoding="utf-8")
+
+    calls: list[int] = []
+
+    def flaky_append(project_dir, key, old, new, rationale):
+        calls.append(len(calls))
+        if len(calls) >= 2:
+            raise OSError("disk full")
+
+    monkeypatch.setattr(cc, "_append_audit_trail", flaky_append)
+    import pytest as _pytest
+
+    with _pytest.raises(OSError):
+        cc.update_genre_config(
+            tmp_path,
+            {"texture.minimum": 3, "antiAi.enabled": True},
+            "batch rationale long enough for governance rules",
+        )
+    assert _json.loads(cfg.read_text(encoding="utf-8")) == original  # rolled back
