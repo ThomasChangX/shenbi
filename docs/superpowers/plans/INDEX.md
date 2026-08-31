@@ -1,7 +1,7 @@
 # Plan 执行索引
 
 > **最后更新**：2026-08-31
-> **活跃 plan 数**：0 | **已归档**：87（见 `archive/`）
+> **活跃 plan 数**：1 | **已归档**：87（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,11 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-（无——SDD #36 plan 已交付归档，见 `archive/2026-08-31-spec36-token-metering-consumption.md`，PR #137）
+### #37 · 并发/durability（簇 C11，P0）
+
+- **文件**：`2026-08-31-spec37-concurrency-durability.md` ✅ ready
+- **对应 spec**：`specs/2026-08-16-audit-concurrency-durability-fix.md`（v3，阶段 3 五轮收敛）
+- **任务**：10 task（T0 红测先行 → locked_transact/锁收敛/原语修复/物化处置/durability/lint+翻绿），全 infra 协调者亲自实现
 
 
 
