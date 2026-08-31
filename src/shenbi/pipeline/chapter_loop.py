@@ -1046,6 +1046,11 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     # Task 7: Print dispatch-level token usage summary at chapter completion
     print_token_summary(state)
 
+    # C10 spec #36 T4 (T402/F1115): node-level cost report, fail-safe.
+    from shenbi.cost.report import write_report
+
+    write_report(project_dir)
+
     state.chapter_loop.current_chapter = chapter + 1
     state.chapter_loop.step_index = 0
     state.chapter_loop.current_step = ""

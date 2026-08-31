@@ -257,7 +257,7 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     without dispatching -- the step is blocked pending review.
 
     After step 10 completes, ``state.closure`` is set to ``COMPLETED`` and the
-    function returns True. Calling again after completion is a no-op that keeps
+    function returns True. Calling again after completion just re-renders the cost report; it keeps
     ``closure == COMPLETED``.
 
     Returns True if a checkpoint was reached, the step is blocked at a pending
@@ -273,6 +273,10 @@ def run_closure_step(state: PipelineState, project_dir: Path | str) -> bool:
     # Past the last step: closure is already complete.
     if idx >= n:
         state.closure = ClosureState.COMPLETED
+        # C10 spec #36 T4 (T402/F1115): closure-node cost report, fail-safe.
+        from shenbi.cost.report import write_report
+
+        write_report(project_dir)
         return True
 
     # Step 10 (snapshot-manage): gated on the book-closure checkpoint being

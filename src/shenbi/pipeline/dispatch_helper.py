@@ -1562,6 +1562,7 @@ def _log_token_usage(
     skill_name: str,
     chapter: int | None = None,
     project_dir: Path | None = None,
+    attempt: int = 1,
 ) -> None:
     """Log token usage from API response or a bare usage object.
 
@@ -1596,7 +1597,7 @@ def _log_token_usage(
         total_tokens=usage.total_tokens,
     )
 
-    _record_usage_to_ledger(skill_name, chapter, usage, project_dir)
+    _record_usage_to_ledger(skill_name, chapter, usage, project_dir, attempt=attempt)
 
 
 def _record_usage_to_ledger(
@@ -1604,6 +1605,7 @@ def _record_usage_to_ledger(
     chapter: int | None,
     usage: Any,
     project_dir: Path | None,
+    attempt: int = 1,
 ) -> None:
     """Persist a usage object to the durable append-only ledger (C10 spec T1).
 
@@ -1623,9 +1625,128 @@ def _record_usage_to_ledger(
                 "completion_tokens": usage.completion_tokens,
                 "total_tokens": usage.total_tokens,
             },
+            attempt=attempt,
         )
     except Exception:
         log.warning("ledger_record_failed", skill=skill_name, exc_info=True)
+
+
+def _record_estimate_row(
+    skill: str,
+    chapter: int | None,
+    prompt_text: str,
+    project_dir: Path | None,
+    attempt: int = 1,
+) -> None:
+    """Append a lower-bound estimated row (C10 spec #36 T5 / F796).
+
+    IDE/subprocess paths cannot report structured usage; the prompt estimate
+    is a floor, explicitly marked estimated=True so the report separates it
+    from metered rows. Fail-safe like _record_usage_to_ledger.
+    """
+    if project_dir is None:
+        log.warning("ledger_skip_no_project_dir", skill=skill)
+        return
+    try:
+        from shenbi.cost.estimate import estimate_prompt_tokens
+
+        est = estimate_prompt_tokens(prompt_text)
+        TokenLedger(project_dir).record(
+            skill,
+            chapter or 0,
+            {"prompt_tokens": est, "completion_tokens": 0, "total_tokens": est},
+            estimated=True,
+            attempt=attempt,
+        )
+    except Exception:
+        log.warning("ledger_estimate_record_failed", skill=skill, exc_info=True)
+
+
+def _account_failed_attempt(
+    skill: str,
+    chapter: int | None,
+    usage_acc: dict[str, Any],
+    system_prompt: str,
+    user_prompt: str,
+    project_dir: Path,
+) -> None:
+    """C10 spec #36 T7 bifurcation: (a) usage already delivered before the
+    failure -> metered row with attempt=N; (b) failure before usage arrived
+    (mid-stream or connect) -> estimated lower-bound row. Fail-safe.
+
+    Multi-attempt chains: ``usage_acc["prior"]`` holds usage objects delivered
+    by earlier retryably-failed attempts (T410) — every metered attempt is
+    ledgered, and usage-less failed attempts get estimate rows.
+    """
+    try:
+        attempts = int(usage_acc.get("attempts", 1))
+        prior = list(usage_acc.get("prior", []))
+        usage = usage_acc.get("usage")
+        for i, prior_usage in enumerate(prior, start=1):
+            _record_usage_to_ledger(skill, chapter, prior_usage, project_dir, attempt=i)
+        if usage is not None:
+            _record_usage_to_ledger(skill, chapter, usage, project_dir, attempt=attempts)
+        else:
+            _record_estimate_row(
+                skill, chapter, f"{system_prompt}\n\n{user_prompt}", project_dir, attempt=attempts
+            )
+        # usage-less failed INTERMEDIATE attempts (the final attempt already
+        # got its own row above — metered or estimated): one estimated row
+        # each, attempt numbers counted back from the end.
+        no_usage = attempts - len(prior) - 1
+        for k in range(max(no_usage, 0)):
+            _record_estimate_row(
+                skill,
+                chapter,
+                f"{system_prompt}\n\n{user_prompt}",
+                project_dir,
+                attempt=max(attempts - 1 - k, 1),
+            )
+    except Exception:
+        log.warning("failed_attempt_accounting_error", skill=skill, exc_info=True)
+
+
+def _emit_dispatch_trace(
+    project_dir: Path,
+    skill: str,
+    chapter: int | None,
+    model: str,
+    finish_reason: str | None,
+    estimated: bool,
+    attempt: int,
+    *,
+    success: bool,
+) -> None:
+    """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
+
+    Only appends when a trace stream already exists in project_dir — dispatch
+    must not silently create new trace surfaces. payload is a free dict, so
+    no schema_version bump and no G7 chain impact.
+    """
+    trace_path = Path(project_dir) / "trace.jsonl"
+    if not trace_path.exists():
+        log.debug("dispatch_trace_skipped_no_trace", skill=skill)
+        return
+    try:
+        from shenbi.trace.writer import TraceWriter
+
+        TraceWriter(Path(project_dir)).append(
+            actor="dispatch_helper",
+            actor_role="SYSTEM",
+            action="DISPATCH",
+            target=f"skill:{skill}",
+            skill=skill,
+            payload={
+                "chapter": chapter,
+                "model": model,
+                "finish_reason": finish_reason,
+                "estimated": estimated,
+                "attempt": attempt,
+                "success": success,
+            },
+        )
+    except Exception:
+        log.warning("dispatch_trace_append_failed", skill=skill, exc_info=True)
 
 
 def print_token_summary(state: Any) -> None:
@@ -1682,6 +1803,7 @@ def _call_llm_streaming(
     model: str,
     messages: list[dict[str, str]],
     early_stop_patterns: list[str] | None = None,
+    usage_acc: dict[str, Any] | None = None,
     **kwargs: Any,
 ) -> tuple[str, str | None, Any, str | None]:
     """Stream LLM response with optional early-stop patterns.
@@ -1697,6 +1819,14 @@ def _call_llm_streaming(
     stop_reason: str | None = None
     usage: Any = None
     finish_reason: str | None = None
+    if usage_acc is not None:
+        usage_acc["attempts"] = usage_acc.get("attempts", 0) + 1
+        # T410: a retryable failure AFTER usage was delivered still consumed
+        # those tokens — stash the prior attempt's usage instead of dropping
+        # it, so an eventual success can ledger every attempt.
+        stale = usage_acc.pop("usage", None)
+        if stale is not None:
+            usage_acc.setdefault("prior", []).append(stale)
     stream = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -1708,6 +1838,8 @@ def _call_llm_streaming(
         # Collect usage from final chunk (when stream_options include_usage is set)
         if hasattr(chunk, "usage") and chunk.usage is not None:
             usage = chunk.usage
+            if usage_acc is not None:
+                usage_acc["usage"] = usage
         if chunk.choices:
             choice = chunk.choices[0]
             # Spec §2.9: capture finish_reason from the final chunk.
@@ -1844,6 +1976,7 @@ def _dispatch_via_api(
 
     warn_if_over_budget(f"{system_prompt}\n\n{user_prompt}", model, logger=log)
 
+    usage_acc: dict[str, Any] = {}
     try:
         output_text, stop_reason, usage, finish_reason = _call_llm_streaming_with_retry(
             client,
@@ -1855,14 +1988,37 @@ def _dispatch_via_api(
             temperature=_get_skill_temperature(skill),
             max_tokens=_get_skill_max_tokens(skill),
             timeout=api_timeout,
+            usage_acc=usage_acc,
         )
     except httpx.TimeoutException:
         # Exception-TYPED timeout routing — message sniffing breaks silently
         # when the provider library rewords its errors (F395, stage-8 review).
+        _account_failed_attempt(skill, chapter, usage_acc, system_prompt, user_prompt, project_dir)
+        _emit_dispatch_trace(
+            project_dir,
+            skill,
+            chapter,
+            model,
+            None,
+            usage_acc.get("usage") is None,
+            usage_acc.get("attempts", 1),
+            success=False,
+        )
         _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_timeout", skill=skill)
         return DispatchResult(False, -1, "", "API call timed out")
     except Exception as exc:
+        _account_failed_attempt(skill, chapter, usage_acc, system_prompt, user_prompt, project_dir)
+        _emit_dispatch_trace(
+            project_dir,
+            skill,
+            chapter,
+            model,
+            None,
+            usage_acc.get("usage") is None,
+            usage_acc.get("attempts", 1),
+            success=False,
+        )
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
 
@@ -1874,11 +2030,43 @@ def _dispatch_via_api(
     # Logs token usage when the provider includes usage in streaming responses
     # (via stream_options={"include_usage": True}). Falls back to pre-flight
     # heuristic (warn_if_over_budget) when usage is unavailable.
+    # T410: attempts that delivered usage but then failed retryably have
+    # their real usage stashed in usage_acc["prior"] — ledger them before the
+    # final attempt's row so nothing metered is lost.
+    prior_rows = list(usage_acc.get("prior", []))
+    for i, prior_usage in enumerate(prior_rows, start=1):
+        _record_usage_to_ledger(skill, chapter, prior_usage, project_dir, attempt=i)
+    # usage-less failed intermediate attempts also consumed prompt tokens
+    attempts_total = int(usage_acc.get("attempts", 1))
+    for k in range(max(attempts_total - len(prior_rows) - 1, 0)):
+        _record_estimate_row(
+            skill,
+            chapter,
+            f"{system_prompt}\n\n{user_prompt}",
+            project_dir,
+            attempt=max(attempts_total - 1 - k, 1),
+        )
     if usage is not None:
-        _log_token_usage(usage, skill, chapter=chapter, project_dir=project_dir)
+        _log_token_usage(
+            usage,
+            skill,
+            chapter=chapter,
+            project_dir=project_dir,
+            attempt=int(usage_acc.get("attempts", 1)),
+        )
 
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
+        _emit_dispatch_trace(
+            project_dir,
+            skill,
+            chapter,
+            model,
+            finish_reason,
+            usage is None,
+            usage_acc.get("attempts", 1),
+            success=False,
+        )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
             False, -1, "", "content_filter: output blocked by provider safety filter"
@@ -1993,6 +2181,19 @@ def _dispatch_via_api(
     if missing:
         log.error("api_missing_outputs", skill=skill, missing=missing)
 
+    # C10 spec #36 T7: DISPATCH trace event — emitted only once the final
+    # outcome is known (post content_filter/length/parse/write), so success
+    # never overstates a dispatch that later failed.
+    _emit_dispatch_trace(
+        project_dir,
+        skill,
+        chapter,
+        model,
+        finish_reason,
+        usage is None,
+        usage_acc.get("attempts", 1),
+        success=True,
+    )
     return DispatchResult(True, 0, output_text, "")
 
 
@@ -2111,6 +2312,10 @@ def _dispatch_via_ide(
     if missing:
         log.error("ide_missing_outputs", skill=skill, missing=missing)
 
+    # C10 spec #36 T5 (F796): the IDE-CLI path reports no structured usage —
+    # record an estimated lower-bound row unconditionally (most call sites
+    # have no state; the block below is diagnostics only).
+    _record_estimate_row(skill, chapter, full_prompt, project_dir)
     # Spec §3.1 / I6: the IDE-CLI path does not report structured token usage
     # (codex exec stdout is prose, not a usage object). state is threaded so a
     # future codex --json or zcode usage-report feature can record here.
@@ -2382,6 +2587,8 @@ def dispatch_skill(
         )
     else:
         log.info("dispatch_subprocess_ok", skill=skill, rc=0)
+    # C10 spec #36 T5: legacy subprocess cannot report usage — estimated row.
+    _record_estimate_row(skill, chapter, prompt, pd)
     return DispatchResult(r.returncode == 0, r.returncode, r.stdout, r.stderr)
 
 

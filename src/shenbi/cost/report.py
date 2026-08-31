@@ -13,6 +13,9 @@ import sys
 from pathlib import Path
 
 from shenbi.cost.ledger import TokenLedger
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 
 
 def _try_avg_g3_score(project_dir: Path) -> float | None:
@@ -75,7 +78,22 @@ def render_report(project_dir: Path | str) -> str:
     if by_chapter:
         ch_costs = [c["estimated_cost_usd"] for c in by_chapter.values()]
         avg = sum(ch_costs) / len(ch_costs)
-        lines += ["", f"- **Per-chapter average cost**: ${avg:.4f}"]
+        lines += [
+            "",
+            f"- **Per-chapter average cost**: ${avg:.4f}",
+            "  - note: this equals total cost / chapter count; by-chapter buckets carry no independent signal",
+        ]
+
+    # C10 spec #36 T5: IDE/subprocess estimate rows are lower bounds ($0
+    # priced) — break them out so they never masquerade as metered totals.
+    est_calls = int(total.get("estimated_calls", 0))
+    est_tokens = int(total.get("estimated_tokens", 0))
+    if est_calls:
+        lines += [
+            "",
+            f"- **Estimated (lower-bound) rows**: {est_calls} calls / "
+            f"{est_tokens:,} tokens (IDE/subprocess paths; $0 priced, tokens included in Total above)",
+        ]
 
     avg_score = _try_avg_g3_score(Path(project_dir))
     if avg_score and avg_score > 0:
@@ -85,6 +103,25 @@ def render_report(project_dir: Path | str) -> str:
         )
 
     return "\n".join(lines) + "\n"
+
+
+def write_report(project_dir: Path | str) -> Path | None:
+    """Render + persist cost/report.md. Node-level automation (spec #36 T4):
+
+    chapter completion and closure call this so a zero-metering incident is
+    visible at node granularity instead of via manual CLI. Fail-safe — a
+    report error must never break the chapter loop.
+    """
+    project_dir = Path(project_dir)
+    out = project_dir / "cost" / "report.md"
+    try:
+        from shenbi.safe_write import safe_write
+
+        safe_write(out, render_report(project_dir))
+        return out
+    except Exception:
+        log.warning("cost_report_write_failed", project_dir=str(project_dir), exc_info=True)
+        return None
 
 
 def main(argv: list[str] | None = None) -> int:
