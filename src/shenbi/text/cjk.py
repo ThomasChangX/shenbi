@@ -131,15 +131,22 @@ class Token:
     pos: str
 
 
+# Spec #32 F615: module-level private tokenizer — jieba.add_word on the
+# global jieba.dt mutated process-wide state and leaked domain terms into
+# every other jieba consumer. Domain words are registered on this isolated
+# instance only; the global dictionary is never touched.
+_TOKENIZER = jieba.Tokenizer()
+_POSEG = pseg.POSTokenizer(_TOKENIZER)
+
+
 def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
     """Tokenize with jieba. Domain terms registered to prevent splitting.
 
-    Note: jieba.add_word mutates the global jieba dictionary. Domain terms
-    persist across calls. This is a known limitation for the current skeleton;
-    the integration pillar should use jieba.Tokenizer instances for isolation.
+    Isolation (spec #32 F615): tokenization runs on the module-level private
+    ``_TOKENIZER`` (plus its ``POSTokenizer`` wrapper); the global
+    ``jieba.dt`` dictionary is never mutated.
     """
-    jieba.initialize()  # idempotent: jieba skips re-init if already loaded
     if domain_dict:
         for term in domain_dict:
-            jieba.add_word(term)
-    return [Token(word=w, pos=f) for w, f in pseg.cut(text) if w.strip()]
+            _TOKENIZER.add_word(term)  # Tokenizer.add_word self-initializes
+    return [Token(word=w, pos=f) for w, f in _POSEG.cut(text) if w.strip()]
