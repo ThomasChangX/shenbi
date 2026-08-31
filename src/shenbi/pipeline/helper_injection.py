@@ -14,6 +14,7 @@ executor_config.toml to fall back to the pure-prompt path.
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -42,25 +43,34 @@ def _helper_injection_disabled() -> frozenset[str]:
     return frozenset()
 
 
+def _chapter_number(path: Path) -> int:
+    match = re.search(r"chapter-(\d+)\.md", path.name)
+    return int(match.group(1)) if match else 0
+
+
 def _style_stats_block(project_dir: Path) -> str | None:
-    chapter_files = sorted((project_dir / "chapters").glob("chapter-*.md"))
+    chapter_files = sorted((project_dir / "chapters").glob("chapter-*.md"), key=_chapter_number)
     if not chapter_files:
         log.info("helper_injection_no_chapters", skill="shenbi-style-learning")
         return None
-    texts = {p.name: p.read_text(encoding="utf-8") for p in chapter_files[-_MAX_CHAPTERS:]}
+    window = chapter_files[-_MAX_CHAPTERS:]
+    texts = {p.name: p.read_text(encoding="utf-8") for p in window}
     stats: dict[str, Any] = compute_all_stats(texts)
     block = (
         "## Helper Precompute (style stats, deterministic)\n\n"
         "```json\n" + json.dumps(stats, ensure_ascii=False, indent=2) + "\n```\n\n"
-        "以上统计已由框架预计算（compute_all_stats），直接引用，不要重算。\n\n"
+        f"以上统计已由框架预计算（compute_all_stats，窗口=最近 {len(window)} 章），"
+        "直接引用，不要重算。\n\n"
     )
     if len(block) > _MAX_BLOCK_CHARS:
-        block = block[:_MAX_BLOCK_CHARS] + "\n```\n\n（截断：helper_block_truncated）\n\n"
+        # Truncating mid-JSON would leave a malformed block; skip entirely.
         log.warning(
-            "helper_block_truncated",
+            "helper_block_skipped_oversize",
             skill="shenbi-style-learning",
+            size=len(block),
             limit=_MAX_BLOCK_CHARS,
         )
+        return None
     return block
 
 
