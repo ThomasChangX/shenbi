@@ -117,27 +117,33 @@ def accumulate_pattern_classification(
     """
     from shenbi.pipeline.truth_io import write_truth_file
 
+    written = False
     for entry in payload:
+        num = entry.get("num", chapter)
         if "pattern" in entry:
             write_truth_file(
                 project_dir,
                 _PATTERN_TRUTH_FILE,
-                f"| {chapter} | {entry['pattern']} |",
+                f"| {num} | {entry['pattern']} |",
                 mode="insert_markdown_row",
                 key_field="chapter",
             )
-            return
-    log.warning("pattern_classification_payload_unusable", chapter=chapter)
+            written = True
+    if not written:
+        log.warning("pattern_classification_payload_unusable", chapter=chapter)
 
 
 def _read_pattern_history(project_dir: Path) -> list[str]:
     truth = project_dir / "truth" / _PATTERN_TRUTH_FILE
-    if not truth.exists():
+    try:
+        lines = truth.read_text(encoding="utf-8").splitlines()
+    except OSError as exc:
+        log.warning("pattern_history_read_failed", error=str(exc))
         return []
     patterns: list[str] = []
-    for line in truth.read_text(encoding="utf-8").splitlines():
+    for line in lines:
         cells = [c.strip() for c in line.strip().strip("|").split("|")]
-        if len(cells) >= 2 and cells[0].isdigit() and not set(cells[0]) <= {"-", ":"}:
+        if len(cells) >= 2 and cells[0].isdigit():
             patterns.append(cells[1])
     return patterns
 
@@ -149,10 +155,12 @@ def _pattern_history_block(project_dir: Path) -> str | None:
         return None
     consecutive = compute_consecutive(patterns)
     entropy, entropy_detail = compute_entropy(patterns)
+    # Keep the block small: only nonzero entropy-detail rows travel.
+    nonzero_detail = [row for row in entropy_detail if row.get("count")]
     analytics: dict[str, Any] = {
         "consecutive": consecutive,
         "entropy": round(entropy, 4),
-        "entropy_detail": entropy_detail,
+        "entropy_detail": nonzero_detail,
         "distribution_check": check_distribution(patterns, 6),
         "window": patterns[-20:],
     }
