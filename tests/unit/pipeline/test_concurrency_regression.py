@@ -283,3 +283,43 @@ def test_gate_manifest_concurrent_writes_conserved(tmp_path: Path) -> None:
     data = _json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
     skills = data["gates"]["T1"]["1"]
     assert set(skills) == {"skill-a", "skill-b"}
+
+
+def test_ledger_ctor_no_mkdir(tmp_path: Path) -> None:
+    """TokenLedger construction is a read-path op — no cost/ dir side effect (T407)."""
+    from shenbi.cost.ledger import TokenLedger
+
+    project = tmp_path / "proj"
+    project.mkdir()
+    TokenLedger(project)  # constructor may not create cost/
+    assert not (project / "cost").exists()
+
+
+def test_genre_cache_keyed_by_project_dir(tmp_path: Path) -> None:
+    """Same chapter across two projects must not cross-pollinate (T607)."""
+    import json
+
+    from shenbi.pipeline import dispatch_helper as dh
+
+    for name, marker in (("p1", "one"), ("p2", "two")):
+        proj = tmp_path / name
+        (proj / "config").mkdir(parents=True)
+        (proj / "config" / "genre-config.json").write_text(
+            json.dumps({"version": "1.0", "marker": marker}), encoding="utf-8"
+        )
+    try:
+        c1 = dh._load_genre_config_cached(tmp_path / "p1", 1)
+        c2 = dh._load_genre_config_cached(tmp_path / "p2", 1)
+        assert c1.get("marker") == "one"
+        assert c2.get("marker") == "two"
+    finally:
+        dh._genre_config_cache.clear()
+
+
+def test_path_lock_registry_bounded() -> None:
+    """The per-path lock registry must not grow without bound (T607)."""
+    from shenbi.pipeline import truth_io
+
+    for i in range(1000):
+        truth_io._path_lock(Path(f"/tmp/nonexistent-{i}.json"))
+    assert len(truth_io._PATH_LOCKS) <= truth_io._PATH_LOCKS_MAX

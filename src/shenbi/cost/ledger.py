@@ -7,7 +7,6 @@ lines; a partial/corrupt line is skipped, never crashing the report.
 from __future__ import annotations
 
 import json
-import threading
 from dataclasses import asdict, dataclass
 from datetime import datetime, UTC
 from pathlib import Path
@@ -59,8 +58,10 @@ class TokenLedger:
         """Create a ledger rooted at project_dir/cost/token-ledger.jsonl."""
         self.project_dir = Path(project_dir)
         self.ledger_path = self.project_dir / "cost" / "token-ledger.jsonl"
-        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)
-        self._write_lock = threading.Lock()
+        # spec #37 T407/F525: the constructor is a read-path op — creating
+        # cost/ is deferred to the write path (record). The old instance
+        # threading.Lock gave zero cross-instance/process exclusion (T602/F510)
+        # and is superseded by the directory flock in record().
 
     def record(
         self,
@@ -92,8 +93,23 @@ class TokenLedger:
             attempt=attempt,
             pricing_status=pricing_status,
         )
-        with self._write_lock, self.ledger_path.open("a", encoding="utf-8") as f:
-            f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")
+        from shenbi.safe_write import acquire_write_lock
+
+        self.ledger_path.parent.mkdir(parents=True, exist_ok=True)  # write-path only
+        lock_fd, lockfile = acquire_write_lock(self.ledger_path)
+        try:
+            with self.ledger_path.open("a", encoding="utf-8") as f:
+                f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")
+                f.flush()
+        finally:
+            import os as _os
+
+            _os.close(lock_fd)
+            if lockfile is not None:
+                try:
+                    lockfile.unlink()
+                except FileNotFoundError:
+                    pass
         return rec
 
     def iter_records(self) -> Iterator[TokenUsageRecord]:

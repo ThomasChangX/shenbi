@@ -209,16 +209,19 @@ def _strip_autogen_blocks(text: str) -> str:
 # 10b: Genre-config per-chapter cache
 # ---------------------------------------------------------------------------
 
-_genre_config_cache: dict[int, dict[str, Any]] = {}
+# spec #37 T607: keyed by (project_dir, chapter) — a chapter-only key
+# cross-pollutes configs when one process serves multiple projects.
+_genre_config_cache: dict[tuple[str, int], dict[str, Any]] = {}
 
 
 def _load_genre_config_cached(project_dir: Path, chapter: int) -> dict[str, Any]:  # pyright: ignore[reportUnusedFunction]
     """Load genre-config.json with per-chapter cache. ~7 disk I/O -> 1."""
-    if chapter in _genre_config_cache:
-        return _genre_config_cache[chapter]
+    key = (str(project_dir), chapter)
+    if key in _genre_config_cache:
+        return _genre_config_cache[key]
     config_path = project_dir / "config" / "genre-config.json"
     config: dict[str, Any] = json.loads(config_path.read_text(encoding="utf-8"))
-    _genre_config_cache[chapter] = config
+    _genre_config_cache[key] = config
     return config
 
 

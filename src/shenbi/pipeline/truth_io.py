@@ -54,6 +54,9 @@ log = get_logger(__name__)
 # are written to disk — this is purely in-process.
 _REGISTRY_LOCK = threading.Lock()
 _PATH_LOCKS: dict[str, threading.Lock] = {}
+#: Bounded registry (spec #37 T607): long-running processes touching many
+#: paths would otherwise grow the registry without limit.
+_PATH_LOCKS_MAX = 256
 
 
 def _path_lock(path: Path) -> threading.Lock:
@@ -61,11 +64,23 @@ def _path_lock(path: Path) -> threading.Lock:
 
     Different paths get different locks (no cross-file blocking); the same
     path always returns the same lock object (serializes same-file writers).
+
+    Eviction (spec #37 T607): when the registry exceeds _PATH_LOCKS_MAX,
+    entries that are currently UNHELD are dropped. A lock().locked() snapshot
+    alone races (fetch-old-lock vs evict vs fresh-create); holding the
+    registry guard while checking + evicting keeps single-object identity
+    for every path observed under the guard.
     """
     key = str(path)
     with _REGISTRY_LOCK:
         lock = _PATH_LOCKS.get(key)
         if lock is None:
+            if len(_PATH_LOCKS) >= _PATH_LOCKS_MAX:
+                for stale_key, stale_lock in list(_PATH_LOCKS.items()):
+                    if stale_key != key and not stale_lock.locked():
+                        del _PATH_LOCKS[stale_key]
+                        if len(_PATH_LOCKS) < _PATH_LOCKS_MAX:
+                            break
             lock = threading.Lock()
             _PATH_LOCKS[key] = lock
         return lock

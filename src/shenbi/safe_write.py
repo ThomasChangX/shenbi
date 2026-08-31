@@ -177,6 +177,11 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
         ) from None
 
 
+#: Public alias: cross-instance writers (TokenLedger.append) need the same
+#: directory-lock domain as safe_write without rewriting the payload path.
+acquire_write_lock = _acquire_lock
+
+
 def locked_transact(
     path: Path,
     mutator: Callable[[Any], Any],
