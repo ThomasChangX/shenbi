@@ -4,8 +4,8 @@ Encodes 5 numerical constraints from SKILL.md "可自动检查规则":
 1. Four beats exist (铺垫/升级/爆发/余波)
 2. Beat percentages sum = 100%
 3. Three lines coexist (QUEST/FIRE/CONSTELLATION)
-4. CONSTELLATION ratio in [20, 30]
-5. Exactly 8 scene types defined
+4. CONSTELLATION ratio in [15, 40] (hard-fail band; per-volume authoritative bands live in SKILL 按卷型表)
+5. 6-12 scene types defined
 """
 
 from __future__ import annotations
@@ -52,8 +52,8 @@ class PacingDesign(BaseModel):
     @model_validator(mode="after")
     def _constellation_range(self) -> PacingDesign:
         const = self.line_ratios.get("CONSTELLATION")
-        if const is not None and not 15 <= const <= 35:
-            raise ValueError(f"CONSTELLATION ratio {const} outside [15, 35]")
+        if const is not None and not 15 <= const <= 40:
+            raise ValueError(f"CONSTELLATION ratio {const} outside [15, 40]")
         return self
 
     @model_validator(mode="after")
