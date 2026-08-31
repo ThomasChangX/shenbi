@@ -174,7 +174,7 @@ def _index_hooks(project_dir: Path, idx: TruthIndex) -> None:
     plant_chapter/max_distance; fields the tables cannot supply are ``None``.
 
     Source 2 — YAML frontmatter ``hooks`` list (written by
-    :mod:`shenbi.pipeline.hook_planting`): SUPPLEMENTS only — adds hooks the
+    the genesis foreshadowing-plant skill): SUPPLEMENTS only — adds hooks the
     tables did not mention and fills ``None`` fields; never overrides a
     table-derived value (audit r1 I2a arbitration rule).
     """

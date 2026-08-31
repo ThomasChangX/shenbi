@@ -387,7 +387,6 @@ def build_retry_feedback(exc: BaseException) -> str:
 OPTIONAL_READS: dict[str, list[str]] = {
     "shenbi-context-composing": ["arc-*.md", "volume_summaries.md", "trend"],
     "shenbi-drift-guidance": ["arc-*.md"],
-    "shenbi-foreshadowing-plant": ["chapter-*-plan.md"],
     "shenbi-foreshadowing-track": ["chapter-*-plan.md"],
     "shenbi-chapter-planning": ["chapter-*-plan.md"],
     "shenbi-chapter-drafting": ["chapter-*-plan.md"],

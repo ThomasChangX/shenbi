@@ -27,7 +27,7 @@ Idempotency is based on NATURAL KEYS (chapter number, hook id), NOT substring
 matching. truth_index.py already abandoned substring matching as the broken
 approach; LLM prose is never byte-identical across runs so substring matching
 yields false negatives (whitespace diffs) and false positives (short substrings
-dropped). The proven pattern is hook_planting.py:204-276 (read structured data,
+dropped). The proven pattern (formerly hook_planting.py) is: read structured data,
 dedup by stable key, merge, write back).
 
 Thread safety: in-process threading.Lock keyed by path (not fcntl.flock).

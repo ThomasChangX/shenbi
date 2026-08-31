@@ -7,53 +7,8 @@ from pathlib import Path
 from shenbi.pipeline.chapter_loop import (
     ChapterStep,
     _should_run_drift,
-    _should_run_recall,
     _should_run_step,
 )
-
-
-class TestAdaptiveRecall:
-    def test_no_hooks_returns_false(self, tmp_path: Path):
-        (tmp_path / "truth").mkdir()
-        (tmp_path / "truth" / "pending_hooks.md").write_text(
-            "---\nhooks: []\n---\n", encoding="utf-8"
-        )
-        assert _should_run_recall(tmp_path, chapter=5) is False
-
-    def test_hook_near_max_distance_triggers(self, tmp_path: Path):
-        (tmp_path / "truth").mkdir()
-        # Production table format (SDD #21 R2): last_reinforced from the
-        # interval table, max_distance from the distance table.
-        (tmp_path / "truth" / "pending_hooks.md").write_text(
-            "---\nlast_chapter: 22\n---\n\n"
-            "### 培育间隔检查\n\n"
-            "| Hook ID | last_reinforced推定 | 本章 | 间隔(章) | 状态 |\n"
-            "|---------|-------------------|------|---------|------|\n"
-            "| P0-1 | ch5 | 22 | 17 | ⚠️ OVERDUE |\n\n"
-            "### 距离上限逼近\n\n"
-            "| Hook ID | 种植章 | 本章 | elapsed | max_distance(20) | 距上限 | 状态 |\n"
-            "|---------|--------|------|---------|-----------------|--------|------|\n"
-            "| P0-1 | 5 | 22 | 17 | 20 | 3 | WARNING |\n",
-            encoding="utf-8",
-        )
-        # Chapter 22: silence = 22-5 = 17, max_distance = 20, 17 >= 20-3 = 17 → triggers
-        assert _should_run_recall(tmp_path, chapter=22) is True
-
-    def test_hook_with_missing_fields_skips_not_fabricates(self, tmp_path: Path):
-        """truth_readers returns None for unavailable fields (SDD #21 R2) —
-        _should_run_recall must skip them, not substitute defaults.
-        """
-        (tmp_path / "truth").mkdir()
-        (tmp_path / "truth" / "pending_hooks.md").write_text(
-            "---\nlast_chapter: 22\n---\n\n"
-            "### 本章操作\n\n"
-            "| Hook ID | 操作 | 前状态 | 后状态 | 文本位置 |\n"
-            "|---------|------|--------|--------|---------|\n"
-            "| P0-1 | (无操作) | RELEVANT | RELEVANT | 未出现 |\n",
-            encoding="utf-8",
-        )
-        # No max_distance/last_reinforced → no fabricated trigger.
-        assert _should_run_recall(tmp_path, chapter=99) is False
 
 
 class TestAdaptiveDrift:
