@@ -1562,6 +1562,7 @@ def _log_token_usage(
     skill_name: str,
     chapter: int | None = None,
     project_dir: Path | None = None,
+    attempt: int = 1,
 ) -> None:
     """Log token usage from API response or a bare usage object.
 
@@ -1596,7 +1597,7 @@ def _log_token_usage(
         total_tokens=usage.total_tokens,
     )
 
-    _record_usage_to_ledger(skill_name, chapter, usage, project_dir)
+    _record_usage_to_ledger(skill_name, chapter, usage, project_dir, attempt=attempt)
 
 
 def _record_usage_to_ledger(
@@ -1801,7 +1802,12 @@ def _call_llm_streaming(
     finish_reason: str | None = None
     if usage_acc is not None:
         usage_acc["attempts"] = usage_acc.get("attempts", 0) + 1
-        usage_acc.pop("usage", None)  # fresh attempt invalidates stale usage
+        # T410: a retryable failure AFTER usage was delivered still consumed
+        # those tokens — stash the prior attempt's usage instead of dropping
+        # it, so an eventual success can ledger every attempt.
+        stale = usage_acc.pop("usage", None)
+        if stale is not None:
+            usage_acc.setdefault("prior", []).append(stale)
     stream = client.chat.completions.create(
         model=model,
         messages=messages,
@@ -1975,7 +1981,7 @@ def _dispatch_via_api(
             chapter,
             model,
             None,
-            True,
+            usage_acc.get("usage") is None,
             usage_acc.get("attempts", 1),
             success=False,
         )
@@ -1990,7 +1996,7 @@ def _dispatch_via_api(
             chapter,
             model,
             None,
-            True,
+            usage_acc.get("usage") is None,
             usage_acc.get("attempts", 1),
             success=False,
         )
@@ -2005,8 +2011,19 @@ def _dispatch_via_api(
     # Logs token usage when the provider includes usage in streaming responses
     # (via stream_options={"include_usage": True}). Falls back to pre-flight
     # heuristic (warn_if_over_budget) when usage is unavailable.
+    # T410: attempts that delivered usage but then failed retryably have
+    # their real usage stashed in usage_acc["prior"] — ledger them before the
+    # final attempt's row so nothing metered is lost.
+    for i, prior_usage in enumerate(usage_acc.get("prior", []), start=1):
+        _record_usage_to_ledger(skill, chapter, prior_usage, project_dir, attempt=i)
     if usage is not None:
-        _log_token_usage(usage, skill, chapter=chapter, project_dir=project_dir)
+        _log_token_usage(
+            usage,
+            skill,
+            chapter=chapter,
+            project_dir=project_dir,
+            attempt=int(usage_acc.get("attempts", 1)),
+        )
 
     # C10 spec #36 T7: DISPATCH trace event (finish_reason visibility, F1116).
     _emit_dispatch_trace(
