@@ -38,7 +38,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.contracts import load_contract
-from shenbi.pipeline.chapter_loop import _build_resonance_trend_row
+from shenbi.pipeline.chapter_loop import build_resonance_trend_row
 from shenbi.pipeline.checkpoint import commit_staging
 from shenbi.pipeline.dispatch_helper import DispatchResult, _dispatch_via_api
 
@@ -123,7 +123,7 @@ def _resonance_response(chapter: int, overall: int) -> str:
     """review-resonance's output for one chapter.
 
     SDD #21 R1: resonance_trend's two writers (this skill increment and the
-    programmatic post-review persistence via ``_build_resonance_trend_row``)
+    programmatic post-review persistence via ``build_resonance_trend_row``)
     share the bare-``{N}`` key from the skill contract. The historical
     ``Ch{N}`` vs ``{N}`` drift produced two rows per chapter; both writers
     now emit the 9-column bare-key contract row.
@@ -134,7 +134,7 @@ def _resonance_response(chapter: int, overall: int) -> str:
         f"### FILE: truth/audit_drift.md\n"
         f"- [文笔质感] 第 {chapter} 章短板观测{chapter} → 下章 PRE_WRITE_CHECK 防范建议\n"
         f"### FILE: truth/resonance_trend.md\n"
-        f"{_build_resonance_trend_row(chapter, overall)}\n"
+        f"{build_resonance_trend_row(chapter, overall)}\n"
     )
 
 
@@ -179,7 +179,7 @@ def _resonance_chapter(
     write_truth_file(
         project,
         "resonance_trend.md",
-        _build_resonance_trend_row(chapter, overall),
+        build_resonance_trend_row(chapter, overall),
         mode="insert_markdown_row",
         key_field="chapter",
     )

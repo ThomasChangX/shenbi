@@ -86,6 +86,9 @@ concepts:
   - {name: genesis-context/*.md, kind: context, producer: pipeline}
   - {name: truth-embeddings.db, kind: truth, producer: pipeline}
   - {name: context/review-checklist-N.json, kind: context, producer: pipeline}
+  - {name: context/chapter-pattern-input-N.json, kind: context, producer: skill}
+  - {name: truth/chapter_patterns.md, kind: truth, producer: pipeline}
+  - {name: truth/resonance_anchors.md, kind: truth, producer: pipeline}
   - {name: import/analysis/01_overview.md, kind: import}
   - {name: import/canon/01_SECTION.md, kind: import}
   - {name: import/packaging/package.md, kind: import}

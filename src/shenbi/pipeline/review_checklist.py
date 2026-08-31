@@ -43,6 +43,10 @@ class ReviewChecklist:
 
     chapter: int
     transition_budget: int = 0
+    transition_count: int = 0
+    ai_marker_hits: dict[str, int] = field(default_factory=dict)
+    paragraph_cv: float | None = None
+    version: int = 1
     ai_blacklist: list[str] = field(default_factory=list)
     fatigue_warnings: dict[str, Any] = field(default_factory=dict)
     voice_constraints: dict[str, Any] = field(default_factory=dict)
@@ -86,9 +90,17 @@ def generate_review_checklist(
             source_mtime = _get_max_source_mtime(project_dir, chapter)
             cache_mtime = cache_path.stat().st_mtime
             if source_mtime <= cache_mtime:
-                # Cache is fresh — load and return.
+                # Cache is fresh — load and return. Format-version gate
+                # (spec #33 T3): old caches without the precompute fields
+                # must regenerate, not load dataclass-default zeros.
                 data = json.loads(cache_path.read_text(encoding="utf-8"))
-                return ReviewChecklist(**data)
+                if data.get("version") == ReviewChecklist(chapter=chapter).version:
+                    return ReviewChecklist(**data)
+                log.info(
+                    "review_checklist_cache_version_stale",
+                    chapter=chapter,
+                    cached_version=data.get("version"),
+                )
             log.info(
                 "review_checklist_cache_stale",
                 chapter=chapter,
@@ -105,7 +117,11 @@ def generate_review_checklist(
     # Cache to disk.
     data = {
         "chapter": checklist.chapter,
+        "version": checklist.version,
         "transition_budget": checklist.transition_budget,
+        "transition_count": checklist.transition_count,
+        "ai_marker_hits": checklist.ai_marker_hits,
+        "paragraph_cv": checklist.paragraph_cv,
         "ai_blacklist": checklist.ai_blacklist,
         "fatigue_warnings": checklist.fatigue_warnings,
         "voice_constraints": checklist.voice_constraints,
@@ -138,7 +154,11 @@ def inject_checklist_into_prompt(prompt: str, checklist: ReviewChecklist) -> str
     checklist_json = json.dumps(
         {
             "chapter": checklist.chapter,
+            "version": checklist.version,
             "transition_budget": checklist.transition_budget,
+            "transition_count": checklist.transition_count,
+            "ai_marker_hits": checklist.ai_marker_hits,
+            "paragraph_cv": checklist.paragraph_cv,
             "ai_blacklist": checklist.ai_blacklist,
             "fatigue_warnings": checklist.fatigue_warnings,
             "voice_constraints": checklist.voice_constraints,
@@ -173,10 +193,14 @@ def _build_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
     Each extractor handles missing files gracefully — no crashes.
     """
     genre_config = _load_genre_config(project_dir)
+    precompute = _deterministic_precompute(project_dir, chapter, genre_config)
 
     return ReviewChecklist(
         chapter=chapter,
-        transition_budget=max(5, _estimate_chapter_char_count(project_dir, chapter) // 1000),
+        transition_budget=precompute["transition_budget"],
+        transition_count=precompute["transition_count"],
+        ai_marker_hits=precompute["ai_marker_hits"],
+        paragraph_cv=precompute["paragraph_cv"],
         ai_blacklist=_extract_ai_blacklist(genre_config),
         fatigue_warnings=_extract_fatigue_warnings(genre_config),
         voice_constraints=_extract_voice_constraints(project_dir, chapter),
@@ -228,6 +252,49 @@ def _get_max_source_mtime(project_dir: Path, chapter: int) -> float:
 # ---------------------------------------------------------------------------
 # Genre config loader
 # ---------------------------------------------------------------------------
+
+
+def _deterministic_precompute(
+    project_dir: Path, chapter: int, genre_config: dict[str, Any]
+) -> dict[str, Any]:
+    """Spec #33 T3: deterministic anti-ai checks, precomputed pre-dispatch.
+
+    Merged into this checklist block (no second injected block). Denominator
+    is ``word_count_md`` (same as G4, gates/shared) — NOT the legacy
+    all-characters estimate.
+    """
+    from shenbi.gates.shared import count_transition_words, word_count_md
+    from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
+
+    ch_path = project_dir / "chapters" / f"chapter-{chapter}.md"
+    try:
+        content = ch_path.read_text(encoding="utf-8") if ch_path.exists() else ""
+        wc = word_count_md(ch_path) if ch_path.exists() else 0
+    except OSError as exc:
+        log.warning("review_precompute_read_failed", chapter=chapter, error=str(exc))
+        content, wc = "", 0
+    transition_budget = max(5, wc // 1000)
+    transition_count = count_transition_words(content) if content else 0
+    blacklist = _extract_ai_blacklist(genre_config)
+    # Per-word counts: the per-chapter rule is ≤1 occurrence per word, so a
+    # single aggregate total cannot drive the judgment (spec #33 T3 audit C3).
+    ai_marker_hits = (
+        {word: content.count(word) for word in blacklist if content.count(word)} if content else {}
+    )
+    paragraphs = segment_paragraphs(content) if content else []
+    lengths = [para["chars"] for para in paragraphs if para.get("chars")]
+    if len(lengths) >= 2:
+        mean = sum(lengths) / len(lengths)
+        var = sum((x - mean) ** 2 for x in lengths) / len(lengths)
+        paragraph_cv = round((var**0.5) / mean, 4) if mean else None
+    else:
+        paragraph_cv = None
+    return {
+        "transition_budget": transition_budget,
+        "transition_count": transition_count,
+        "ai_marker_hits": ai_marker_hits,
+        "paragraph_cv": paragraph_cv,
+    }
 
 
 def _load_genre_config(project_dir: Path) -> dict[str, Any]:
@@ -434,33 +501,6 @@ def _summarize_world_rules(project_dir: Path) -> str:
     return text[:2000] if len(text) > 2000 else text
 
 
-def _estimate_chapter_char_count(project_dir: Path, chapter: int) -> int:
-    """Estimate character count of the chapter file (Chinese-aware approximate).
-
-    For Chinese text, each character is roughly one word. We count non-whitespace
-    characters in the chapter file. Returns 0 when the file is missing.
-    """
-    ch_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if not ch_path.exists():
-        return 0
-
-    try:
-        text = ch_path.read_text(encoding="utf-8")
-    except OSError:
-        return 0
-
-    # Strip YAML frontmatter.
-    if text.startswith("---"):
-        parts = text.split("---", 2)
-        if len(parts) >= 3:
-            text = parts[2]
-
-    # Count non-whitespace, non-punctuation Chinese-adjacent characters.
-    # For simplicity, count all non-whitespace characters as approximate
-    # word count (Chinese "字" ≈ characters).
-    return len(re.sub(r"\s+", "", text))
-
-
 # ---------------------------------------------------------------------------
 # Static/Dynamic Split (Plan 11 Task 3)
 # ---------------------------------------------------------------------------
@@ -476,6 +516,10 @@ STATIC_FIELDS = {
 DYNAMIC_FIELDS = {
     "chapter",
     "transition_budget",
+    "transition_count",
+    "ai_marker_hits",
+    "paragraph_cv",
+    "version",
     "ending_constraints",
     "hook_deliverables",
     "fatigue_warnings_dynamic",
@@ -573,7 +617,6 @@ __all__ = [
     "STATIC_FIELDS",
     "ReviewChecklist",
     "_build_checklist",
-    "_estimate_chapter_char_count",
     "_extract_ai_blacklist",
     "_extract_fatigue_warnings",
     "_extract_hook_deliverables",

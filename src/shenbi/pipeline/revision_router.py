@@ -61,6 +61,17 @@ CHAPTER_REVISION_SKILL = "shenbi-chapter-revision"
 #: Skill dispatched when retries are exhausted or resonance is critically low.
 ESCALATION_SKILL = "shenbi-escalation-review"
 
+#: Revision-loop cap (spec #33 T1b): migrated from the deleted dead model
+#: ``skill_utils/review_resonance/routing.py`` — same chapter may not exceed
+#: this many cumulative revisions (any cause) before escalation.
+MAX_AUTO_REVISIONS = 2
+
+
+def revision_cap_exceeded(revision_count: int) -> bool:
+    """True when the chapter's cumulative revision count exceeds the cap."""
+    return revision_count > MAX_AUTO_REVISIONS
+
+
 #: Default resonance global floor (spec §6.3, config.resonance_global_floor).
 DEFAULT_RESONANCE_FLOOR = 50
 

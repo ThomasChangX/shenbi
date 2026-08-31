@@ -43,7 +43,7 @@ contract:
 ```dot
 digraph review_anti_ai {
     "Read chapter content" -> "Read genre-config.json (fatigueWords + prohibitions)";
-    "Read genre-config.json" -> "Run deterministic checks (checklist.md)";
+    "Read genre-config.json" -> "Run deterministic checks (inlined below)";
     "Run deterministic checks" -> "Compile results";
     "Compile results" -> "Passed?";
     "Passed?" -> "Report PASS" [label="yes"];
@@ -62,7 +62,7 @@ digraph review_anti_ai {
 
 ## 检查执行
 
-完整检查清单在 `checklist.md`。执行顺序：
+完整检查清单已内联至本文件下方（原 checklist.md 已随死资产清理删除，spec #33 T2）。执行顺序：
 
 1. 段落等长检测 (CV)
 2. "不是…而是…"句式

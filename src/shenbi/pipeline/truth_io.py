@@ -27,7 +27,7 @@ Idempotency is based on NATURAL KEYS (chapter number, hook id), NOT substring
 matching. truth_index.py already abandoned substring matching as the broken
 approach; LLM prose is never byte-identical across runs so substring matching
 yields false negatives (whitespace diffs) and false positives (short substrings
-dropped). The proven pattern is hook_planting.py:204-276 (read structured data,
+dropped). The proven pattern (formerly hook_planting.py) is: read structured data,
 dedup by stable key, merge, write back).
 
 Thread safety: in-process threading.Lock keyed by path (not fcntl.flock).
@@ -254,6 +254,65 @@ def _upsert_markdown_bullet(
         mode="upsert_markdown_row",
         replaced=replaced,
     )
+
+
+def patch_markdown_table_cell(
+    path: Path, key: str, key_field: str, cell_index: int, value: str
+) -> bool:
+    """Patch a single cell of an existing markdown table row (spec #33 T1b).
+
+    Column location is positional (``cell_index``), not header-based: header
+    placement is uncontrolled for append_dedup writers (spec #33 v8 ruling).
+    ``key_field`` is logging-only observability (position, not header, rules).
+    Rows shorter than ``cell_index + 1`` are padded with ``-`` placeholders.
+    Key matching is exact whole-cell (consistent with upsert_markdown_row).
+    Returns False when the file or the keyed row does not exist; header and
+    separator rows are never patched; negative cell_index is rejected.
+    Thread-safe via the per-path lock registry (same rationale as
+    ``insert_markdown_row``). Preserves the file's CRLF/LF convention.
+    """
+    lock = _path_lock(path)
+    with lock:
+        if not path.exists():
+            return False
+        # Bytes + decode: read_text() would translate CRLF to LF (universal
+        # newlines), silently rewriting the whole file's line endings.
+        raw = path.read_bytes().decode("utf-8")
+        had_crlf = "\r\n" in raw
+        lines = raw.splitlines()
+        for idx, line in enumerate(lines):
+            cells = split_table_cells(line)
+            if cells is None:
+                continue
+            if _is_separator_row(cells):
+                continue
+            # Header row: the immediately following line is a separator.
+            if idx + 1 < len(lines):
+                nxt = split_table_cells(lines[idx + 1])
+                if nxt is not None and _is_separator_row(nxt):
+                    continue
+            # Exact whole-cell key match (consistent with upsert_markdown_row);
+            # _norm_cell would collide "5-2" with "52".
+            if cells[0] != key:
+                continue
+            while len(cells) <= cell_index:
+                cells.append("-")
+            if cell_index < 0:
+                log.warning("truth_cell_patch_bad_index", cell_index=cell_index)
+                return False
+            cells[cell_index] = value
+            lines[idx] = "| " + " | ".join(c.strip() for c in cells) + " |"
+            sep = "\r\n" if had_crlf else "\n"
+            safe_write(path, (sep.join(lines) + sep).encode("utf-8"))
+            log.info(
+                "truth_cell_patched",
+                path=str(path),
+                key=key,
+                key_field=key_field,
+                cell_index=cell_index,
+            )
+            return True
+        return False
 
 
 def split_table_cells(line: str) -> list[str] | None:

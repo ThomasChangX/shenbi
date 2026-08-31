@@ -212,14 +212,14 @@ This dimension supersedes the deprecated `shenbi-review-anti-ai` skill.
 
 #### 检查执行
 
-Execute checks in order:
+Execute checks in order. 第 1/4/5 项已由框架在派发 prompt 的「审查参考数据」块预计算（paragraph_cv / transition_count+transition_budget / ai_marker_hits），**直接读注入值判定，不要自行计数**；其余项仍由 LLM 执行：
 
-1. 段落等长检测 (Coefficient of Variation)
+1. 段落等长检测 (Coefficient of Variation) — 读注入 `paragraph_cv`
 2. "不是...而是..."句式检测
 3. 破折号检测
-4. 转折词密度
-5. AI 标记词
-6. 疲劳词（from `genre-config.json`）
+4. 转折词密度 — 读注入 `transition_count`，对照 `transition_budget`（= G4 口径 `max(5, word_count_md//1000)`，单一阈值来源，spec #33 T3）
+5. AI 标记词 — 读注入 `ai_marker_hits`（词表见 `ai_blacklist`）
+6. 疲劳词（from `genre-config.json`，词表已注入 `fatigue_warnings`）
 7. 元叙事/编剧旁白
 8. 分析报告术语
 9. 集体反应套话

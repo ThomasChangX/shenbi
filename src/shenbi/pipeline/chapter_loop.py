@@ -1386,6 +1386,16 @@ def _check_conditional_resolve(state: PipelineState, project_dir: Path, chapter:
         log.debug("no_triggered_hooks", chapter=chapter)
 
 
+def _parse_high_anchor_count(report_path: Path) -> int:
+    """Count high-confidence anchors declared in the report's anchors block."""
+    import re as _re
+
+    if not report_path.exists():
+        return 0
+    match = _re.search(r"anchors:\s*high=(\d+)", report_path.read_text(encoding="utf-8"))
+    return int(match.group(1)) if match else 0
+
+
 def _parse_resonance_score(report_path: Path) -> int | None:
     """Extract resonance score from a review-resonance audit report.
 
@@ -1432,7 +1442,7 @@ def _parse_resonance_score(report_path: Path) -> int | None:
     return None
 
 
-def _build_resonance_trend_row(chapter: int, overall: int) -> str:
+def build_resonance_trend_row(chapter: int, overall: int) -> str:
     """Build a 9-column markdown table row for resonance_trend.md.
 
     Column layout matches the shenbi-review-resonance skill contract
@@ -1472,7 +1482,7 @@ def _load_manifest(project_dir: Path) -> dict[str, Any]:
     """Load the snapshot manifest from ``snapshots/manifest.json``.
 
     Returns a dict with ``chapters`` (dict of chapter→filenames),
-    ``last_recall_chapter``, and ``last_drift_chapter``. Returns an empty
+    ``last_drift_chapter``. Returns an empty
     skeleton when the manifest file does not exist.
     """
     manifest_path = project_dir / "snapshots" / "manifest.json"
@@ -1488,82 +1498,10 @@ def _save_manifest(project_dir: Path, manifest: dict[str, Any]) -> None:
     safe_write(manifest_path, json.dumps(manifest, indent=2, ensure_ascii=False))
 
 
-def _get_last_recall_chapter(project_dir: Path) -> int | None:
-    """Return the chapter number where recall last ran, or None."""
-    manifest = _load_manifest(project_dir)
-    return manifest.get("last_recall_chapter")
-
-
 def _get_last_drift_chapter(project_dir: Path) -> int | None:
     """Return the chapter number where drift guidance last ran, or None."""
     manifest = _load_manifest(project_dir)
     return manifest.get("last_drift_chapter")
-
-
-def _should_run_recall(project_dir: Path, chapter: int) -> bool:  # pyright: ignore[reportUnusedFunction]
-    """Determine whether foreshadowing recall should run for *chapter*.
-
-    Triggers when any of these conditions are met:
-
-    1. Any hook's silence (``chapter - last_reinforced``) is within 3 chapters
-       of its ``max_distance``.
-    2. More than 5 hooks are in ``TRIGGERED`` state.
-    3. More than 8 chapters have elapsed since the last recall run.
-    """
-    hooks_file = project_dir / "truth" / "pending_hooks.md"
-    if not hooks_file.exists():
-        return False
-
-    # Lazy import to avoid circular dependency at module level.
-    from shenbi.pipeline.context_curation import _read_pending_hooks
-
-    hooks = _read_pending_hooks(project_dir)
-
-    # Condition 2: >5 TRIGGERED hooks
-    triggered_count = sum(
-        1 for h in hooks if parse_hook_state(str(h.get("state", ""))) == HookState.TRIGGERED
-    )
-    if triggered_count > 5:
-        log.info(
-            "recall_triggered_by_triggered_count",
-            chapter=chapter,
-            triggered_count=triggered_count,
-        )
-        return True
-
-    # Condition 1: any hook near max_distance. Fields the pending_hooks
-    # tables cannot supply are None (truth_readers contract, SDD #21 R2) —
-    # skip those explicitly instead of fabricating a 0/999 default.
-    for h in hooks:
-        last_reinforced = h.get("last_reinforced")
-        max_dist = h.get("max_distance")
-        if not isinstance(last_reinforced, int) or not isinstance(max_dist, int):
-            continue
-        if max_dist <= 0:
-            continue
-        silence = chapter - last_reinforced
-        if silence >= max_dist - 3:
-            log.info(
-                "recall_triggered_by_max_distance",
-                chapter=chapter,
-                hook_id=h.get("id", "?"),
-                silence=silence,
-                max_distance=max_dist,
-            )
-            return True
-
-    # Condition 3: >8 chapters since last recall
-    last = _get_last_recall_chapter(project_dir)
-    if last is not None and chapter - last > 8:
-        log.info(
-            "recall_triggered_by_chapter_gap",
-            chapter=chapter,
-            last_recall=last,
-            gap=chapter - last,
-        )
-        return True
-
-    return False
 
 
 def _get_recent_resonance_scores(project_dir: Path, chapter: int, window: int = 3) -> list[int]:
@@ -1621,13 +1559,6 @@ def _should_run_drift(project_dir: Path, chapter: int) -> bool:  # pyright: igno
         return True
 
     return False
-
-
-def _update_last_recall_manifest(project_dir: Path, chapter: int) -> None:
-    """Record that recall ran at *chapter* in the manifest."""
-    manifest = _load_manifest(project_dir)
-    manifest["last_recall_chapter"] = chapter
-    _save_manifest(project_dir, manifest)
 
 
 def _update_last_drift_manifest(project_dir: Path, chapter: int) -> None:
@@ -1731,6 +1662,7 @@ def _should_run_step(state: PipelineState, step: ChapterStep) -> bool:
 # Revision routing helpers (spec §6.3, W3T5)
 # ---------------------------------------------------------------------------
 
+_CAP_ESCALATED_KEY = "revision_cap_escalated"
 _REVISION_ROUTE_KEY = "revision_route"
 
 
@@ -1796,7 +1728,7 @@ def _parse_and_persist_resonance(
     if overall is not None:
         from shenbi.pipeline.truth_io import write_truth_file
 
-        trend_row = _build_resonance_trend_row(chapter, overall)
+        trend_row = build_resonance_trend_row(chapter, overall)
         # insert-only (SDD #21 R1): the review-resonance skill usually
         # already wrote its rich 9-column row for this chapter during the
         # dispatch; the framework placeholder must not replace it.
@@ -1808,6 +1740,31 @@ def _parse_and_persist_resonance(
             key_field="chapter",  # dedup on first column ({N})
         )
         log.info("resonance_score_persisted", chapter=chapter, overall=overall)
+
+        # Spec #33 T1b: post-dispatch confidence calibration. The skill's
+        # self-reported confidence is recalibrated against accumulated anchor
+        # hit-rate and patched into the winning trend row's confidence cell.
+        from shenbi.pipeline.confidence_calibration import (
+            calibrate_and_patch_trend,
+            parse_reported_confidence,
+        )
+
+        high_anchors = _parse_high_anchor_count(report_path)
+        reported = parse_reported_confidence(report_path)
+        # Calibrate FIRST (spec v8: multi-chapter accumulated history; the
+        # current chapter's own row joins the pool only afterwards).
+        if reported is not None:
+            calibrate_and_patch_trend(project_dir, chapter, reported, overall=overall)
+        else:
+            log.info("calibration_reported_missing", chapter=chapter)
+        # Cross-signal ground truth (spec v8): anchor line numbers are checked
+        # against the pre-revision backup vs current prose diff (±5-line
+        # relocation); unverifiable chapters record 0/0 rows.
+        from shenbi.pipeline.confidence_calibration import (
+            record_anchor_outcome_from_report,
+        )
+
+        record_anchor_outcome_from_report(project_dir, chapter, report_path, high_anchors)
 
 
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
@@ -1835,6 +1792,24 @@ def _route_revision_after_resonance(state: PipelineState, project_dir: Path, cha
             route=route.value,
             revision_count=cs.revision_count,
         )
+        # Spec #33 T1b: revision-loop cap (migrated from the deleted
+        # review_resonance.routing dead model). Exceeding the cap escalates
+        # instead of auto-revising forever.
+        from shenbi.pipeline.revision_router import revision_cap_exceeded
+
+        if revision_cap_exceeded(cs.revision_count):
+            log.warning(
+                "revision_cap_exceeded",
+                chapter=chapter,
+                revision_count=cs.revision_count,
+            )
+            if not cs.audit_results.get(_CAP_ESCALATED_KEY):
+                dispatch_escalation(
+                    project_dir,
+                    chapter,
+                    context=f"revision cap exceeded for chapter {chapter}",
+                )
+                cs.audit_results[_CAP_ESCALATED_KEY] = True
 
     # Resonance floor check (spec §6.3). Full borderline/escalation handling
     # is deferred pending chapter_role calibration (Wave 4+); for now a
@@ -2815,16 +2790,6 @@ def _run_chapter_step_impl(
         _reset_retries(state, step, chapter)
         return _advance(state, step_idx, step, chapter, project_dir=project_dir)
 
-    # foreshadowing-plant replaced by deterministic YAML generation
-    if step.skill == "shenbi-foreshadowing-plant":
-        from shenbi.pipeline.hook_planting import plant_hooks_from_plan
-
-        count = plant_hooks_from_plan(project_dir, chapter)
-        log.info("foreshadowing_plant_replaced_by_deterministic", chapter=chapter, count=count)
-        state.add_step_done(chapter, step.skill)
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
-
     # chapter-revision is conditional -- skip when routing decided no
     # revision is needed (spec §6.3, route set during review-resonance).
     # Scoped to the revision skill ONLY; other steps are unaffected.
@@ -3106,9 +3071,7 @@ def _run_chapter_step_impl(
                 log.warning("word_count_bounds", chapter=chapter, issue=issue)
 
     # Update manifest tracking for adaptive steps that just ran.
-    if step.skill == "shenbi-foreshadowing-recall":
-        _update_last_recall_manifest(project_dir, chapter)
-    elif step.skill == "shenbi-drift-guidance":
+    if step.skill == "shenbi-drift-guidance":
         _update_last_drift_manifest(project_dir, chapter)
 
     return _advance(state, step_idx, step, chapter, project_dir=project_dir)

@@ -1,4 +1,7 @@
 [default]
+# Spec #33 T1a: per-skill rollback for helper precompute injection.
+# List skills to fall back to the pure-prompt path, e.g.
+# helper_injection_disabled = ["shenbi-style-learning"]
 temperature = 0.7
 max_tokens = 16384
 

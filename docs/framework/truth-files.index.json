@@ -306,6 +306,13 @@
     ],
     "updates": []
   },
+  "context/chapter-pattern-input-N.json": {
+    "reads": [],
+    "writes": [
+      "shenbi-chapter-pattern"
+    ],
+    "updates": []
+  },
   "truth/current_state.md": {
     "reads": [
       "shenbi-chapter-planning",

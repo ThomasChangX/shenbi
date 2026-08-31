@@ -1,22 +1,10 @@
-"""review_resonance subpackage — three-path block routing + revision cap (spec §5.4).
+"""review_resonance subpackage.
 
-Re-exports the public API for import via the package path.
+The three-path routing model was deleted (spec #33 T1b): production
+routing authority is ``pipeline/revision_router.route_chapter_revision``
+(reusing ``skill_utils/revision_routing``); the duplicate unwired model with
+divergent thresholds was dead code. Confidence calibration lives in
+``skill_utils/calibration`` and runs framework-side post-dispatch.
 """
 
-from shenbi.skill_utils.review_resonance.routing import (
-    BORDERLINE_BAND,
-    MAX_AUTO_REVISIONS,
-    RevisionLoop,
-    Routing,
-    main,
-    route_block,
-)
-
-__all__ = [
-    "BORDERLINE_BAND",
-    "MAX_AUTO_REVISIONS",
-    "RevisionLoop",
-    "Routing",
-    "main",
-    "route_block",
-]
+__all__: list[str] = []

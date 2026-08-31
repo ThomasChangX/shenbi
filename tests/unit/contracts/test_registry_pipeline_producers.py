@@ -112,6 +112,9 @@ def test_default_producer_is_skill_for_truth_concepts() -> None:
     truth = [c for c in reg.concepts if c.kind == "truth"]
     assert truth, "expected truth concepts"
     non_skill = [c for c in truth if c.producer != "skill"]
-    assert {c.name for c in non_skill} == {"truth-index.json", "truth-embeddings.db"}, (
-        f"unexpected non-skill truth producers: {sorted(c.name for c in non_skill)}"
-    )
+    assert {c.name for c in non_skill} == {
+        "truth-index.json",
+        "truth-embeddings.db",
+        "truth/chapter_patterns.md",
+        "truth/resonance_anchors.md",
+    }, f"unexpected non-skill truth producers: {sorted(c.name for c in non_skill)}"
