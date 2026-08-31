@@ -73,7 +73,7 @@ class TestStatusStringLiteralSet:
         assert "PASS" in STATUS_STRING_LITERALS
         assert "created" in STATUS_STRING_LITERALS
         assert "REJECT" in STATUS_STRING_LITERALS
-        assert "PASS" in STATUS_STRING_LITERALS
+        assert "MARGINAL" in STATUS_STRING_LITERALS
 
 
 @pytest.mark.unit

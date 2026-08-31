@@ -24,12 +24,12 @@ def test_classify_always_returns_one_of_four_labels(score: int) -> None:
 
 
 @given(st.integers(min_value=90, max_value=100))
-def test_classify_returns_excellent_at_or_above_90(score: int) -> None:
+def test_classify_returns_pass_at_or_above_90(score: int) -> None:
     assert classify(score) == "PASS"
 
 
 @given(st.integers(min_value=75, max_value=89))
-def test_classify_returns_acceptable_between_75_and_89(score: int) -> None:
+def test_classify_returns_conditional_between_75_and_89(score: int) -> None:
     assert classify(score) == "CONDITIONAL"
 
 
