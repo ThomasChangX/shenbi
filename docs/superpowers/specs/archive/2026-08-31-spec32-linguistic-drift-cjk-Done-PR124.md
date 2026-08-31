@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design — Revised 2026-08-31 (SDD #32 refutation narrows C6 to 15 LIVE findings, 6 FIXED 剔除) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #124) — Revised 2026-08-31 (SDD #32 refutation narrows C6 to 15 LIVE findings, 6 FIXED 剔除) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C6，21 条）| **代表 finding:** F602 | **严重度上限:** P1（F304/F404/F333）| **涉及文件面:** src/shenbi/text/cjk.py、skill_utils/drift_detection/、style_learning/compute_stats.py、pipeline/chapter_loop.py（resonance 死分支）、pipeline/scr_extractor.py、gates/g6_checks.py、records/drift.py、skill_utils/chapter_pattern/compute_pattern.py
 
 # 语言学漂移与风格分析链修复（audit-linguistic-drift-cjk）
