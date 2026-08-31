@@ -89,11 +89,23 @@ def _pid_alive(pid: int) -> bool:
         return True  # exists but owned by another user
 
 
-def _try_unlink(lockfile: Path) -> None:
+def _unlink_if_same(lockfile: Path, inode: int) -> bool:
+    """Unlink ONLY if the lockfile is still the one we judged stale.
+
+    Two waiters can both judge stale; if B already took over (unlinked +
+    recreated), A's blind unlink would delete B's FRESH lock and break
+    mutual exclusion. Comparing inodes across the judgment->unlink gap
+    closes that takeover race (spec #37 T603 residual).
+    """
     try:
+        if lockfile.stat().st_ino != inode:
+            return False  # replaced by another taker — do not touch
         os.unlink(str(lockfile))
+        return True
     except FileNotFoundError:
-        pass  # already gone — safe to proceed with O_EXCL recreate
+        return True  # already gone — O_EXCL retry is safe
+    except OSError:
+        return False
 
 
 def _acquire_lock(path: Path) -> tuple[int, Path | None]:
@@ -144,12 +156,19 @@ def _acquire_lock(path: Path) -> tuple[int, Path | None]:
                 _write_lock_holder(lockfile, fd)
                 return fd, lockfile
             except FileExistsError:
-                if _lock_is_stale(lockfile):
-                    _try_unlink(lockfile)  # proven-stale takeover
-                    continue
+                try:
+                    inode = lockfile.stat().st_ino
+                except OSError:
+                    continue  # vanished — retry O_EXCL
+                if _lock_is_stale(lockfile) and _unlink_if_same(lockfile, inode):
+                    continue  # proven-stale takeover (same inode we judged)
+                continue
         if sys.platform == "win32":  # pragma: no cover — POSIX-authoritative
             log.warning("lock_takeover_timeout_fallback", lockfile=str(lockfile))
-            _try_unlink(lockfile)
+            try:
+                os.unlink(str(lockfile))
+            except FileNotFoundError:
+                pass
             fd = os.open(str(lockfile), os.O_CREAT | os.O_EXCL | os.O_WRONLY)
             os.chmod(lockfile, 0o600)
             return fd, lockfile

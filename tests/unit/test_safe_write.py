@@ -158,3 +158,31 @@ def test_stale_takeover_blocked_on_fresh_lock(tmp_path, monkeypatch):
     assert sw.STALE_LOCK_TTL > 0
     with pytest.raises(TimeoutError):
         sw._acquire_lock(target)
+
+
+def test_stale_takeover_blocked_on_live_pid(tmp_path, monkeypatch):
+    """A stale-mtime lock held by a LIVE pid must not be taken over."""
+    import fcntl
+    import os
+    import subprocess
+    import time
+
+    monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
+    import pytest
+
+    import shenbi.safe_write as sw
+
+    monkeypatch.setattr(sw, "LOCK_WAIT_TIMEOUT", 0.5)
+    holder = subprocess.Popen(["sleep", "30"])
+    try:
+        target = tmp_path / "data.json"
+        lockfile = tmp_path / "data.json.lock"
+        lockfile.write_text(f"{holder.pid}\n", encoding="utf-8")
+        past = time.time() - 3600
+        os.utime(lockfile, (past, past))  # stale by mtime, but holder alive
+        with pytest.raises(TimeoutError):
+            sw._acquire_lock(target)
+        assert lockfile.exists()  # not robbed
+    finally:
+        holder.kill()
+        holder.wait()
