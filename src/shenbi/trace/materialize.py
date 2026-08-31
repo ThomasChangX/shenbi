@@ -124,6 +124,8 @@ def materialize_progress(
                 for tt, old_val in old_entry.items():
                     if tt not in merged_entry:
                         merged_entry[tt] = old_val
+                # NOTE: this also mutates out["skills"] in place (same object),
+                # so the returned dict matches what landed on disk.
                 merged["skills"][skill] = merged_entry
         return merged
 

@@ -2709,8 +2709,6 @@ def _run_chapter_step_impl(
             CHAPTER_STEPS[next_idx].skill if next_idx < len(CHAPTER_STEPS) else "chapter_complete"
         )
 
-        # Materialize progress from trace events
-
         if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
             return _complete_chapter(state, chapter)
 
@@ -3022,8 +3020,6 @@ def _run_chapter_step_impl(
     # Success: record, reset retries, advance.
     state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
-
-    # Materialize progress.json from trace every 5 steps (Task 12).
 
     # After chapter-revision step succeeds, ensure decisions file exists
     if "chapter-revision" in step.skill:

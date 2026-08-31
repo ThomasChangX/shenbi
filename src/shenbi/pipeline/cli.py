@@ -833,7 +833,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
             # on the first step dispatch.
             _verify_truth_integrity(state, project_dir)
 
-            # Auto-rebuild progress.json from trace if stale or missing (Task 12).
+            # Detect stale/missing progress.json (no rebuild — spec #37 F630 ruling b).
             from shenbi.pipeline.chapter_loop import _auto_rebuild_progress_if_stale  # pyright: ignore[reportPrivateUsage]
 
             _auto_rebuild_progress_if_stale(project_dir)
