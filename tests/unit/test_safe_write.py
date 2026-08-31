@@ -107,7 +107,7 @@ def test_safe_write_lockfile_fallback_cleanup_posix(tmp_path: Path, monkeypatch)
     Regression: safe_write only closed the fd, leaving a permanent stale lock
     that forced every later writer through the 1s backoff + stale-takeover path.
     """
-    import fcntl
+    import fcntl  # POSIX-only; see module skipif guard on these tests
 
     def boom(fd: int, op: int) -> None:
         raise OSError("flock unavailable (test)")
@@ -122,7 +122,7 @@ def test_safe_write_lockfile_fallback_cleanup_posix(tmp_path: Path, monkeypatch)
 
 def test_stale_takeover_requires_stale_lock(tmp_path, monkeypatch):
     """A FRESH lockfile must not be unconditionally seized (spec #37 T603/F111)."""
-    import fcntl
+    import fcntl  # POSIX-only; see module skipif guard on these tests
 
     monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
     from shenbi.safe_write import _acquire_lock
@@ -143,7 +143,7 @@ def test_stale_takeover_requires_stale_lock(tmp_path, monkeypatch):
 
 def test_stale_takeover_blocked_on_fresh_lock(tmp_path, monkeypatch):
     """A lockfile younger than the staleness TTL must NOT be taken over."""
-    import fcntl
+    import fcntl  # POSIX-only; see module skipif guard on these tests
 
     monkeypatch.setattr(fcntl, "flock", lambda *a, **k: (_ for _ in ()).throw(OSError("forced")))
     import pytest
@@ -162,7 +162,7 @@ def test_stale_takeover_blocked_on_fresh_lock(tmp_path, monkeypatch):
 
 def test_stale_takeover_blocked_on_live_pid(tmp_path, monkeypatch):
     """A stale-mtime lock held by a LIVE pid must not be taken over."""
-    import fcntl
+    import fcntl  # POSIX-only; see module skipif guard on these tests
     import os
     import subprocess
     import time

@@ -1,8 +1,11 @@
-"""T0 red-first reproduction suite for spec #37 (cluster C11).
+"""Concurrency regression suite for spec #37 (cluster C11).
 
-Every test here reproduces a LIVE defect on main and is expected to FAIL
-(red) until the corresponding fix task lands. Deterministic interleaving
-strategies are mandatory — no pure-timing reliance. POSIX-only (flock).
+Origin: T0 red-first reproduction tests (each reproduced a live defect on
+main). After the spec #37 fixes landed they flipped green and now VERIFY
+mutual exclusion: dual-writer zero-loss, concurrent-append conservation,
+trace-chain integrity, one-shot emergency cleanup, and key-preserving
+materialization. Deterministic interleaving strategies (barriers, seeded
+state) — no pure-timing reliance. POSIX-only (flock).
 """
 
 from __future__ import annotations
@@ -149,8 +152,6 @@ def test_f630_materialize_clobbers_foreign_keys(tmp_path: Path) -> None:
 
 def test_locked_transact_mutual_exclusion(tmp_path: Path) -> None:
     """locked_transact serializes whole read-modify-write cycles (F206/F347 primitive)."""
-    import json
-
     from shenbi.safe_write import locked_transact
 
     target = tmp_path / "counter.json"
@@ -278,9 +279,8 @@ def test_gate_manifest_concurrent_writes_conserved(tmp_path: Path) -> None:
     t2.start()
     t1.join(timeout=25)
     t2.join(timeout=25)
-    import json as _json
 
-    data = _json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
+    data = json.loads((tmp_path / "pipeline-manifest.json").read_text(encoding="utf-8"))
     skills = data["gates"]["T1"]["1"]
     assert set(skills) == {"skill-a", "skill-b"}
 
@@ -336,8 +336,6 @@ def test_periodic_materialize_removed() -> None:
 
 def test_append_jsonl_fsync_and_timestamp(tmp_path: Path, monkeypatch) -> None:
     """append_jsonl stamps a timestamp and fsyncs each append (F534)."""
-    import json as _json
-
     from shenbi.append_helper import append_jsonl
 
     fsyncs: list[int] = []
@@ -348,9 +346,7 @@ def test_append_jsonl_fsync_and_timestamp(tmp_path: Path, monkeypatch) -> None:
     target = tmp_path / "audits" / "write-audit.jsonl"
     append_jsonl(target, {"skill": "x"})
     append_jsonl(target, {"skill": "y"})
-    lines = [
-        _json.loads(ln) for ln in target.read_text(encoding="utf-8").splitlines() if ln.strip()
-    ]
+    lines = [json.loads(ln) for ln in target.read_text(encoding="utf-8").splitlines() if ln.strip()]
     assert [r["skill"] for r in lines] == ["x", "y"]
     assert all("timestamp" in r for r in lines)
     assert len(fsyncs) >= 2
@@ -358,13 +354,11 @@ def test_append_jsonl_fsync_and_timestamp(tmp_path: Path, monkeypatch) -> None:
 
 def test_config_trail_failure_rolls_back(tmp_path: Path, monkeypatch) -> None:
     """A failing audit-trail append rolls genre-config back (F605 verify-before-write)."""
-    import json as _json
-
     from shenbi.config import config_coherence as cc
 
     cfg = tmp_path / "genre-config.json"
     original = {"version": "1.0", "resonance_global_floor": 70}
-    cfg.write_text(_json.dumps(original), encoding="utf-8")
+    cfg.write_text(json.dumps(original), encoding="utf-8")
 
     calls: list[int] = []
 
@@ -382,7 +376,7 @@ def test_config_trail_failure_rolls_back(tmp_path: Path, monkeypatch) -> None:
             {"texture.minimum": 3, "antiAi.enabled": True},
             "batch rationale long enough for governance rules",
         )
-    assert _json.loads(cfg.read_text(encoding="utf-8")) == original  # rolled back
+    assert json.loads(cfg.read_text(encoding="utf-8")) == original  # rolled back
 
 
 def test_lint_bare_writes_clean() -> None:

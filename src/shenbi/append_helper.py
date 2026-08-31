@@ -44,4 +44,4 @@ def append_jsonl(
             try:
                 lockfile.unlink()
             except FileNotFoundError:
-                pass
+                pass  # already released by a concurrent stale-takeover

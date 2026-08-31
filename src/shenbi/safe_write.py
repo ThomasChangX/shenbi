@@ -53,7 +53,9 @@ def _write_lock_holder(lockfile: Path, fd: int) -> None:
         os.write(fd, f"{os.getpid()}\n".encode())
         os.fsync(fd)
     except OSError:
-        pass  # holder info is advisory for staleness proofs
+        # holder pid is advisory for staleness proofs — failure to record it
+        # must not fail the lock acquisition itself.
+        pass
 
 
 def _lock_is_stale(lockfile: Path) -> bool:

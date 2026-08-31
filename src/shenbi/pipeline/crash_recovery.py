@@ -26,7 +26,9 @@ _emergency_state: dict[str, Any] = {}
 # One-shot latch (spec #37 T604): signal path and atexit can BOTH fire
 # _emergency_cleanup on graceful shutdown — without this the state is saved
 # twice and two "emergency" snapshots are created.
-_cleanup_done = False
+_cleanup_done = (
+    False  # one-shot latch; read/reset via global in _emergency_cleanup/reset_emergency_state
+)
 
 
 def reset_emergency_state() -> None:
