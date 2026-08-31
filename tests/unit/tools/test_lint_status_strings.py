@@ -85,3 +85,14 @@ def test_registration_gate_passes_on_current_tree() -> None:
     vios: list[str] = []
     _unregistered_code_domains(vios)
     assert vios == []
+
+
+def test_registration_gate_detects_literal_subscript(monkeypatch) -> None:
+    """Literal domains parse as Subscript, not Call — the gate must see them."""
+    import tools.lint_status_strings as m
+
+    monkeypatch.setattr(m, "parse_registry", lambda *a, **k: [])
+    vios: list[str] = []
+    m._unregistered_code_domains(vios)
+    assert any("Severity not registered" in v for v in vios)  # Literal domain in enums.py
+    assert any("GateStatus not registered" in v for v in vios)  # StrEnum domain in status.py

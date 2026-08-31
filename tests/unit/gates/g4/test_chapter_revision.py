@@ -214,6 +214,13 @@ class TestValueDomains:
         r2: dict[str, Any] = self._run({"mode": "rewrite-everything"})  # vocab-ok: negative test
         assert any("mode_out_of_vocab" in m for m in r2["must_fix"])
 
+    def test_entry_level_severity_checked(self) -> None:
+        # production severity lives in selections/adjustments entries
+        r: dict[str, Any] = self._run({"selections": [{"target": "t", "severity": "catastrophic"}]})
+        assert any("severity_out_of_vocab" in m and "selections[0]" in m for m in r["must_fix"])
+        r2: dict[str, Any] = self._run({"adjustments": [{"issue_id": "i", "severity": "critical"}]})
+        assert any("severity_legacy_value" in m and "adjustments[0]" in m for m in r2["must_fix"])
+
     def test_status_out_of_vocab_fails(self) -> None:
         r: dict[str, Any] = self._run({"status": "half-done"})  # vocab-ok: negative test
         assert any("status_out_of_vocab" in m for m in r["must_fix"])

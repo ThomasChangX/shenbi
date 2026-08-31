@@ -130,19 +130,25 @@ def _check_value_domains(data: dict[str, object], fname: str, issues: list[str])
     """G4 value-domain checks for revision-decisions (spec #34 T903/T910).
 
     severity must be a canonical RevisionSeverity member (legacy values are
-    tolerated via the normalization map but reported); mode must be a
-    RevisionMode member (alias no_op tolerated); top-level status must be a
-    RevisionStatus member. Tolerated legacy values are reported as must_fix
-    so new outputs converge on canonical values.
+    tolerated via the normalization map but reported) — checked both at the
+    top level AND inside every ``selections[i]``/``adjustments[i]`` entry
+    (production severity lives in the entries); mode must be a RevisionMode
+    member (alias no_op tolerated); top-level status must be a RevisionStatus
+    member. Tolerated legacy values are reported as must_fix so new outputs
+    converge on canonical values.
     """
-    legal_sev = set(get_args(RevisionSeverity))
-    raw_sev = str(data.get("severity", "") or "")
-    if raw_sev:
-        norm = _LEGACY_SEVERITY.get(raw_sev.lower(), raw_sev)
-        if norm not in legal_sev:
-            issues.append(f"G4.rev.severity_out_of_vocab:{fname}:{raw_sev!r}")
-        elif norm != raw_sev:
-            issues.append(f"G4.rev.severity_legacy_value:{fname}:{raw_sev}->{norm}")
+    _check_severity(str(data.get("severity", "") or ""), fname, issues, where="top")
+    for section in ("selections", "adjustments"):
+        entries = data.get(section, [])
+        if isinstance(entries, list):
+            for i, entry in enumerate(entries):
+                if isinstance(entry, dict):
+                    _check_severity(
+                        str(entry.get("severity", "") or ""),
+                        fname,
+                        issues,
+                        where=f"{section}[{i}]",
+                    )
 
     legal_modes = {m.value for m in RevisionMode}
     raw_mode = str(data.get("mode", "") or "")
@@ -157,3 +163,15 @@ def _check_value_domains(data: dict[str, object], fname: str, issues: list[str])
     raw_status = str(data.get("status", "") or "")
     if raw_status and raw_status not in legal_status:
         issues.append(f"G4.rev.status_out_of_vocab:{fname}:{raw_status!r}")
+
+
+def _check_severity(raw_sev: str, fname: str, issues: list[str], where: str) -> None:
+    """One severity value against RevisionSeverity (+ legacy tolerance)."""
+    legal_sev = set(get_args(RevisionSeverity))
+    if not raw_sev:
+        return
+    norm = _LEGACY_SEVERITY.get(raw_sev.lower(), raw_sev)
+    if norm not in legal_sev:
+        issues.append(f"G4.rev.severity_out_of_vocab:{fname}:{where}:{raw_sev!r}")
+    elif norm != raw_sev:
+        issues.append(f"G4.rev.severity_legacy_value:{fname}:{where}:{raw_sev}->{norm}")
