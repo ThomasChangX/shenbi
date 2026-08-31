@@ -55,7 +55,7 @@ def g4_chapter_revision(
         - Each adjustment's ``rationale`` must be >= 20 characters.
 
     Returns:
-        A JSON result string: ``{"status": GateStatus.PASS|"FAIL",
+        A JSON result string: ``{"status": "PASS"|"FAIL",
         "checks": [...], "must_fix": [...]}``. This shape is what
         ``make_composite_checker`` expects via ``json.loads(existing_result)``.
     """

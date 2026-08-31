@@ -158,7 +158,9 @@ def gate_G6(
                 mf.append(f"G6.7:low_hook_density:{density:.1f}/chapter")
         # Unresolved at end. Status must reflect this sub-check's own mf
         # entries — a PASS summary alongside must_fix is a lie (F4A2).
-        g67_status = "WARN" if any(str(m).startswith("G6.7:") for m in mf) else "PASS"
+        g67_status = (
+            GateStatus.WARN if any(str(m).startswith("G6.7:") for m in mf) else GateStatus.PASS
+        )
         if unresolved > 0:
             c.append(
                 {
@@ -308,7 +310,9 @@ def gate_G6(
                                 mf.append(f"G6.9:limit_exceeded:{kw}:{found_val}>{val}:{ch_name}")
                             elif const["lower"] and found_val < val:
                                 mf.append(f"G6.9:below_minimum:{kw}:{found_val}<{val}:{ch_name}")
-        g69_status = "WARN" if any(str(m).startswith("G6.9:") for m in mf) else "PASS"
+        g69_status = (
+            GateStatus.WARN if any(str(m).startswith("G6.9:") for m in mf) else GateStatus.PASS
+        )
         c.append({"id": "G6.9", "s": g69_status, "constraints_extracted": len(constraints)})
     else:
         c.append(

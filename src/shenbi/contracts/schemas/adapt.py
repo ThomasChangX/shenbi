@@ -6,7 +6,6 @@ dicts). Used by the gate validators (Task 9).
 """
 
 from __future__ import annotations
-from shenbi.status import GateStatus
 
 from typing import Any, TypedDict
 
@@ -28,14 +27,14 @@ def pydantic_err_to_gate_failures(
     """Map a pydantic :class:`ValidationError` to gate micro-failure dicts.
 
     Each error becomes ``{"id": f"{prefix}.{e['type']}", "file": file_path,
-    "s": GateStatus.FAIL, "r": f"{loc}: {msg}"}`` where ``loc`` is the dotted location of
+    "s": "FAIL", "r": f"{loc}: {msg}"}`` where ``loc`` is the dotted location of
     the offending field.
     """
     return [
         {
             "id": f"{prefix}.{e['type']}",
             "file": file_path,
-            "s": GateStatus.FAIL,
+            "s": "FAIL",
             "r": f"{'.'.join(str(x) for x in e['loc'])}: {e['msg']}",
         }
         for e in err.errors()
@@ -61,11 +60,7 @@ def decisions_err_to_g2_failures(err: ValidationError, file_path: str) -> list[d
         msg = e["msg"]
         is_schema_fault = loc == "$schema" or "schema" in msg.lower()
         if is_schema_fault:
-            fails.append(
-                {"id": "G2.dec.2", "file": file_path, "s": GateStatus.FAIL, "r": f"{loc}: {msg}"}
-            )
+            fails.append({"id": "G2.dec.2", "file": file_path, "s": "FAIL", "r": f"{loc}: {msg}"})
         else:
-            fails.append(
-                {"id": "G2.dec.3", "file": file_path, "s": GateStatus.FAIL, "r": f"{loc}: {msg}"}
-            )
+            fails.append({"id": "G2.dec.3", "file": file_path, "s": "FAIL", "r": f"{loc}: {msg}"})
     return fails

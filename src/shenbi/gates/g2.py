@@ -359,7 +359,7 @@ def _check_meta_ratio(
         check: dict[str, Any] = {
             "id": "G2.meta_ratio",
             "file": str(file_path),
-            "s": GateStatus.WARN if ratio > 0.5 else "PASS",
+            "s": GateStatus.WARN if ratio > 0.5 else GateStatus.PASS,
             "ratio": f"{ratio:.1%}",
             "meta_chars": meta_chars,
             "total_chars": total_chars,

@@ -311,7 +311,7 @@ def gate_G7(round_dir: str) -> str:
     c.append(
         {
             "id": "G7.AUDIT",
-            "s": GateStatus.WARN if audit_warnings else "PASS",
+            "s": GateStatus.WARN if audit_warnings else GateStatus.PASS,
             "audit_warnings": audit_warnings,
         }
     )
