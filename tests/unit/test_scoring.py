@@ -449,21 +449,28 @@ class TestClassify:
     conditional vs fail). Boundary values belong to the higher tier.
     """
 
-    def test_ninety_and_above_returns_pass_excellent(self) -> None:
-        assert classify(90) == "PASS (excellent)"
-        assert classify(100) == "PASS (excellent)"
+    def test_ninety_and_above_returns_pass(self) -> None:
+        assert classify(90) == "PASS"
+        assert classify(100) == "PASS"
 
-    def test_seventy_five_to_eighty_nine_returns_pass_acceptable(self) -> None:
-        assert classify(75) == "PASS (acceptable)"
-        assert classify(89) == "PASS (acceptable)"
+    def test_seventy_five_to_eighty_nine_returns_conditional(self) -> None:
+        assert classify(75) == "CONDITIONAL"
+        assert classify(89) == "CONDITIONAL"
 
-    def test_sixty_to_seventy_four_returns_conditional(self) -> None:
-        assert classify(60) == "CONDITIONAL"
-        assert classify(74) == "CONDITIONAL"
+    def test_sixty_to_seventy_four_returns_marginal(self) -> None:
+        assert classify(60) == "MARGINAL"
+        assert classify(74) == "MARGINAL"
 
     def test_below_sixty_returns_fail(self) -> None:
         assert classify(59) == "FAIL"
         assert classify(0) == "FAIL"
+
+    def test_classify_band_vocabulary_single_source(self) -> None:
+        from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
+
+        assert classify(TEST_PASS) == "PASS"
+        assert classify(CONDITIONAL_MIN) == "CONDITIONAL"
+        assert classify(MARGINAL_MIN) == "MARGINAL"
 
 
 # --- TestCheckGateMarkers ------------------------------------------------
@@ -577,7 +584,7 @@ class TestMainFileMode:
             ["shenbi-score", str(sample_rubric), str(sample_scores)],
         )
         assert result["final_score"] == 86.0  # 90*0.6 + 80*0.4
-        assert result["classification"] == "PASS (acceptable)"
+        assert result["classification"] == "CONDITIONAL"
         emitted = json.loads(capsys.readouterr().out)
         assert emitted["final_score"] == 86.0
 
@@ -593,7 +600,7 @@ class TestMainFileMode:
             monkeypatch,
             ["shenbi-score", str(sample_rubric), str(scores)],
         )
-        assert result["classification"] == "PASS (excellent)"
+        assert result["classification"] == "PASS"
 
     def test_kill_switch_flag_forces_score_to_zero(
         self,

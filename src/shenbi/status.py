@@ -76,9 +76,9 @@ class ScoringStatus(StrEnum):
 class ScoreClassification(StrEnum):
     """classify() bucket for a final score."""
 
-    PASS_EXCELLENT = "PASS (excellent)"
-    PASS_ACCEPTABLE = "PASS (acceptable)"
+    PASS = "PASS"
     CONDITIONAL = "CONDITIONAL"
+    MARGINAL = "MARGINAL"
     FAIL = "FAIL"
 
 
