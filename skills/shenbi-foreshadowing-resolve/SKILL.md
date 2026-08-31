@@ -106,7 +106,7 @@ CP = hook_power × time_since_plant × escalation_factor
 ## 伏笔兑现报告
 
 **范围**: 第N章 / 第M卷
-**Chase Power 债务**: XX (GREEN/YELLOW/ORANGE/RED)
+**Chase Power 债务**: XX (GREEN/YELLOW/RED)
 
 ### CP 计算工作表（铁律 5 强制要求）
 
@@ -166,7 +166,7 @@ CP = hook_power × time_since_plant × escalation_factor
 ```markdown
 ## 兑现汇总（第N章 / 第M卷）
 
-**当前 CP 债务**: XX (GREEN/YELLOW/ORANGE/RED)
+**当前 CP 债务**: XX (GREEN/YELLOW/RED)
 **本章/本卷兑现数**: X
 **卷尾未兑现数**: Y
 
@@ -177,7 +177,7 @@ CP = hook_power × time_since_plant × escalation_factor
 - FLAT_PAYOFF: X 条（须警惕）
 
 **风险信号**:
-- [RED区] 总 CP > 200
+- [FORCE区] 总 CP ≥ 200（FORCE_NEXT_CHAPTER）
 - [高CP悬挂] hook-001 (CP 180)
 - [核心未兑现] hook-002 (core_hook, RELEVANT)
 - [超过 max_distance] hook-005

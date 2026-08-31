@@ -13,6 +13,8 @@ digraph hook_lifecycle {
     TRIGGERED -> EXPIRED [label="EXPIRE (超时)" style=dashed color=orange];
     RESOLVED -> ARCHIVED [label="ARCHIVE (归档)"];
     PLANTED -> DORMANT [label="DECAY (长期未培育)" style=dashed];
+    RELEVANT -> DORMANT [label="DECAY (培育间隔超时)" style=dashed];
+    TRIGGERED -> DORMANT [label="DECAY" style=dashed];
     DORMANT -> ACTIVE [label="REACTIVATE (触发条件匹配/重新培育)"];
     DORMANT -> ABANDONED [label="ABANDON" style=dashed color=red];
     ACTIVE -> TRIGGERED [label="TRIGGER (触发)"];
@@ -26,7 +28,7 @@ digraph hook_lifecycle {
 |------|---------|------|------|
 | REINFORCE | PLANTED, RELEVANT | 强化读者对该线索的印象，推进 escalation_curve | 1 |
 | PROMOTE | PLANTED | 降低 subtlety（让伏笔更明显），准备进入 RELEVANT | 1 |
-| TRIGGER | RELEVANT | 触发伏笔，进入兑现准备 | 1 |
+| TRIGGER | RELEVANT, ACTIVE | 触发伏笔，进入兑现准备 | 1 |
 | DEFER | RELEVANT | 延迟兑现（重置 max_distance 倒计时，不推进状态） | 1 |
 | RESOLVE | TRIGGERED | 兑现伏笔 | 1 |
 | ARCHIVE | RESOLVED | 归档已完成伏笔 | 0 |
