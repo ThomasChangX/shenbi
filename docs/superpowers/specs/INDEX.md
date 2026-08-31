@@ -20,9 +20,9 @@
 ### #33 · 全项目审查执行：确定性 helper 接线（簇 C7，P1）
 
 - **文件**：`2026-08-16-audit-deterministic-helper-wiring-fix.md`
-- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C7，5 条；候选元根因 C）
+- **系列**：2026-08-15 全项目深度审计 · 阶段 5（簇 C7，v2 修订后 3 条；候选元根因 C）
 - **状态**：Design | **优先级**：🟠 P1
-- **内容**：baseline 生产者零调用（F376/F604）、五件套纯 prompt 接线（T1442）、anti-ai 双重体系（T1441）——派发前钩子注入 helper 预计算 + lint_helper_usage 防复发；T14 候选表按优先级排期；memory-distill 拆"确定性结构字段聚合 + LLM 叙述"两半（自 #3 补登，T14 估 P2 低 payoff，入 T6 候选池）
+- **内容**（v2 修订 2026-08-31：F376/F604 已由 PR #70/#14 承接删除）：五件套纯 prompt 接线（T1442）、anti-ai 双重体系（T1441）、hook_planting 不可达死分支（T1440）——派发前钩子注入 helper 预计算 + lint_helper_usage 防复发；T14 候选表按优先级排期；memory-distill 拆"确定性结构字段聚合 + LLM 叙述"两半（自 #3 补登，T14 估 P2 低 payoff，入 T6 候选池）
 
 ### #34 · 全项目审查执行：状态词表单源（簇 C8，P2）
 
