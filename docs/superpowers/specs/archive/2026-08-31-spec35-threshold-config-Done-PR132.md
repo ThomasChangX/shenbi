@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-31 — 剔除 F202/F436/F603：已分别由 spec #8 PR #63 与 spec #13 PR #74 修复，SDD #35 阶段 1 驳斥子 agent 复核 + 协调者 file:line 核实) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #132, 2026-08-31; spec v3 basis) | **原状态:** Design (Revised 2026-08-31 — 剔除 F202/F436/F603：已分别由 spec #8 PR #63 与 spec #13 PR #74 修复，SDD #35 阶段 1 驳斥子 agent 复核 + 协调者 file:line 核实) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C9，原 18 条，修订后 15 条 LIVE）| **代表 finding:** F134 | **严重度上限:** P1（F232/F818）| **涉及文件面:** src/shenbi/scoring.py（classify）、contracts/skills/genre_config.py、pacing_design.py、config/config_coherence.py、gates/（g3、g4）、thresholds.py、genre-config.json、约 10 个技能 SKILL.md 阈值表
 
 # 数值阈值/配置契约一致性（audit-threshold-config-coherence）
