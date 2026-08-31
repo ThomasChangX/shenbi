@@ -616,7 +616,10 @@ def cmd_review(args: argparse.Namespace) -> int:
                 if not feedback_path.is_file():
                     log.error("feedback_file_not_found", path=str(feedback_path))
                     emit_json(
-                        {"status": "ERROR", "message": f"feedback file not found: {args.feedback}"}
+                        {
+                            "status": CommandStatus.ERROR,
+                            "message": f"feedback file not found: {args.feedback}",
+                        }
                     )
                     return 1
                 feedback = feedback_path.read_text(encoding="utf-8")

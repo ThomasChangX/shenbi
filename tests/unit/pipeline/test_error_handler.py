@@ -19,6 +19,7 @@ from shenbi.pipeline.error_handler import (
     handle_state_settle_failure,
 )
 from shenbi.pipeline.state import (
+    ChapterStatus,
     CheckpointType,
     PipelinePhase,
     PipelineState,
@@ -153,7 +154,7 @@ class TestHandleStateSettleFailure:
         state = PipelineState.default("/x")
         from shenbi.pipeline.state import ChapterState
 
-        state.chapter_loop.chapter_states["7"] = ChapterState(status="complete")
+        state.chapter_loop.chapter_states["7"] = ChapterState(status=ChapterStatus.COMPLETE)
         handle_state_settle_failure(state, 7)
         assert state.chapter_loop.chapter_states["7"].status == "settling_failed"
 

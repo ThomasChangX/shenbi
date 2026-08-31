@@ -23,6 +23,7 @@ from __future__ import annotations
 from shenbi.logging import get_logger
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import (
+    ChapterStatus,
     ChapterState,
     CheckpointType,
     PipelineState,
@@ -112,7 +113,7 @@ def handle_state_settle_failure(state: PipelineState, chapter: int) -> None:
     if cs is None:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
-    cs.status = "settling_failed"
+    cs.status = ChapterStatus.SETTLING_FAILED
     set_checkpoint(
         state,
         CheckpointType.ESCALATION,

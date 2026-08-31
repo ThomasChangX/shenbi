@@ -257,7 +257,7 @@ def _handle_failure(
     set_checkpoint(
         state,
         CheckpointType.ESCALATION,
-        chapter=0,
+        chapter=None,  # spec #34 F336/F352: genesis 语义=未进章，统一 None（非 0 哨兵）
         artifact="audits/escalation-genesis-report.md",
         context=(
             f"Genesis step {step_num} ({skill}) "

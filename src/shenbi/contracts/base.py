@@ -9,7 +9,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Literal
+
+from shenbi.status import GateStatus
 
 
 @dataclass(frozen=True)
@@ -26,14 +27,14 @@ class GateOutcome:
     """门的输出：纯数据。passed/fail 是工厂方法。"""
 
     skill: str
-    status: Literal["PASS", "FAIL", "SKIP", "WARN"]
+    status: GateStatus  # spec #34 T904: 唯一域 shenbi.status.GateStatus（含 UNIMPLEMENTED）
     issues: tuple[str, ...] = ()
     checks: tuple[dict[str, object], ...] = ()
 
     @classmethod
     def passed(cls, skill: str) -> GateOutcome:
-        return cls(skill=skill, status="PASS")
+        return cls(skill=skill, status=GateStatus.PASS)
 
     @classmethod
     def fail(cls, skill: str, issues: list[str]) -> GateOutcome:
-        return cls(skill=skill, status="FAIL", issues=tuple(issues))
+        return cls(skill=skill, status=GateStatus.FAIL, issues=tuple(issues))

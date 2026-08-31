@@ -244,7 +244,9 @@ def main(argv: list[str] | None = None) -> int:
         chunk_id = "manual-" + hashlib.md5(args.text.encode("utf-8")).hexdigest()[:12]
         ok = embed_and_store(store, args.text, chunk_id, "manual", "manual")
         store.close()
-        emit_json({"status": CommandStatus.OK if ok else "degraded", "chunk_id": chunk_id})
+        emit_json(
+            {"status": CommandStatus.OK if ok else CommandStatus.DEGRADED, "chunk_id": chunk_id}
+        )
         return 0
 
     store.close()

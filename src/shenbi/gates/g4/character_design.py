@@ -1,6 +1,7 @@
 """G4 checker for shenbi-character-design."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -66,7 +67,7 @@ def g4_character_design(
                 ):
                     mf.append(f"G4.protag.missing_{f}:{fp}")
                 else:
-                    c.append({"id": f"G4.protag.{f}", "s": "PASS"})
+                    c.append({"id": f"G4.protag.{f}", "s": GateStatus.PASS})
 
             # voice_profile sub-checks
             vp = fm.get("voice_profile", {})
@@ -86,7 +87,7 @@ def g4_character_design(
                         c.append(
                             {
                                 "id": f"G4.voice.{arr_name}",
-                                "s": "PASS",
+                                "s": GateStatus.PASS,
                                 "count": len(val),
                             }
                         )
@@ -108,12 +109,17 @@ def g4_character_design(
                 data_rows = max(0, table_rows - 2)
                 if data_rows >= 3:
                     c.append(
-                        {"id": "G4.rel.pairs", "s": "PASS", "count": data_rows, "format": "table"}
+                        {
+                            "id": "G4.rel.pairs",
+                            "s": GateStatus.PASS,
+                            "count": data_rows,
+                            "format": "table",
+                        }
                     )
                 else:
                     mf.append(f"G4.rel.pairs:need_3_got_{rel_pairs}_heading_{data_rows}_table")
             else:
-                c.append({"id": "G4.rel.pairs", "s": "PASS", "count": rel_pairs})
+                c.append({"id": "G4.rel.pairs", "s": GateStatus.PASS, "count": rel_pairs})
 
     # G4.cd.major_chars (EXISTING -- raise threshold from >=2 to >=3):
     # characters/major/ must have >= 3 .md files
@@ -124,7 +130,7 @@ def g4_character_design(
             c.append(
                 {
                     "id": "G4.cd.major_chars",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "count": len(major_files),
                 }
             )
@@ -143,7 +149,7 @@ def g4_character_design(
             c.append(
                 {
                     "id": "G4.cd.minor_chars",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "count": len(minor_files),
                 }
             )
@@ -245,7 +251,7 @@ def _validate_archetype(
             checks.append(
                 {
                     "id": f"G4.cd.archetype.{char_name}",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "archetype_name": name,
                     "borrowed_count": len(borrowed),
                     "discarded_count": len(discarded),

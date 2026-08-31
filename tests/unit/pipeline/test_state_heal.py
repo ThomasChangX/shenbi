@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from shenbi.pipeline.state import PipelineState
+from shenbi.pipeline.state import ChapterStatus, PipelineState
 from shenbi.pipeline.state_heal import heal_state_counters
 
 
@@ -29,7 +29,9 @@ def test_heals_revision_count_from_disk(tmp_path: Path):
     s = PipelineState.default(project_dir=str(tmp_path))
     from shenbi.pipeline.state import ChapterState
 
-    s.chapter_loop.chapter_states = {"3": ChapterState(revision_count=0, status="pending")}
+    s.chapter_loop.chapter_states = {
+        "3": ChapterState(revision_count=0, status=ChapterStatus.PENDING)
+    }
     # Put a revision-decisions file on disk.
     (tmp_path / "chapters").mkdir(parents=True)
     (tmp_path / "chapters" / "chapter-3-revision-decisions.json").write_text("{}", encoding="utf-8")

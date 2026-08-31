@@ -5,6 +5,7 @@ violation becomes a G4 FAIL.
 """
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 
 from typing import Any
 
@@ -34,7 +35,7 @@ def g4_genre_config(
             data = jload(gc_path)
             try:
                 GenreConfig.model_validate(data)
-                c.append({"id": "G4.gc.validated", "s": "PASS"})
+                c.append({"id": "G4.gc.validated", "s": GateStatus.PASS})
             except ValidationError as e:
                 errors = e.errors()
                 for err in errors[:5]:

@@ -149,7 +149,7 @@ def parse_decisions_payload(
             {
                 "id": f"{prefix}.4",
                 "file": file,
-                "s": "FAIL",
+                "s": GateStatus.FAIL,
                 "r": f"multiple JSON objects concatenated ({content.count(chr(34) + '$schema' + chr(34))} schemas found)",
             }
         ]
@@ -159,13 +159,15 @@ def parse_decisions_payload(
         try:
             clean, end_pos = json.JSONDecoder().raw_decode(content)
         except json.JSONDecodeError:
-            return None, [{"id": f"{prefix}.1", "file": file, "s": "FAIL", "r": "invalid JSON"}]
+            return None, [
+                {"id": f"{prefix}.1", "file": file, "s": GateStatus.FAIL, "r": "invalid JSON"}
+            ]
         if not isinstance(clean, dict):
             return None, [
                 {
                     "id": f"{prefix}.1",
                     "file": file,
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": f"recovered non-object JSON: {type(clean).__name__}",
                 }
             ]
@@ -191,7 +193,7 @@ def parse_decisions_payload(
             {
                 "id": f"{prefix}.1",
                 "file": file,
-                "s": "FAIL",
+                "s": GateStatus.FAIL,
                 "r": f"expected JSON object, got {type(data).__name__}",
             }
         ]

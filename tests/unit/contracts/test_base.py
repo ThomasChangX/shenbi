@@ -8,6 +8,7 @@ from pathlib import Path
 import pytest
 
 from shenbi.contracts.base import GateOutcome, PureInput
+from shenbi.status import GateStatus
 
 
 def test_pure_input_frozen() -> None:
@@ -17,7 +18,7 @@ def test_pure_input_frozen() -> None:
 
 
 def test_gate_outcome_frozen() -> None:
-    gr = GateOutcome(skill="x", status="PASS", issues=(), checks=())
+    gr = GateOutcome(skill="x", status=GateStatus.PASS, issues=(), checks=())
     with pytest.raises(FrozenInstanceError):
         gr.status = "FAIL"  # type: ignore[misc]
 

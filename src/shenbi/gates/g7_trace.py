@@ -5,6 +5,7 @@ docstring: matches gates/*.py whose ruff ignore list omits RUF002.
 """
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 
 from pathlib import Path
 from typing import Any
@@ -33,7 +34,9 @@ def audit_trace(round_dir: str | Path) -> tuple[list[str], list[dict[str, Any]]]
     mf: list[str] = []
     checks: list[dict[str, Any]] = []
     if not path.exists():
-        checks.append({"id": "G7T.absent", "s": "PASS", "note": "no trace.jsonl (pre-TierA round)"})
+        checks.append(
+            {"id": "G7T.absent", "s": GateStatus.PASS, "note": "no trace.jsonl (pre-TierA round)"}
+        )
         return mf, checks
     events = _read_only_events(path)
     prev = GENESIS_PREV
@@ -46,11 +49,11 @@ def audit_trace(round_dir: str | Path) -> tuple[list[str], list[dict[str, Any]]]
             break
         prev = e.signature
     if not tampered:
-        checks.append({"id": "G7T.chain", "s": "PASS", "events": len(events)})
+        checks.append({"id": "G7T.chain", "s": GateStatus.PASS, "events": len(events)})
     ver_issues = assert_monotonic(events)
     comp_issues = verify_chain(events)
     mf.extend(f"G7T.version: {i}" for i in ver_issues)
     mf.extend(f"G7T.compaction: {i}" for i in comp_issues)
     if not ver_issues and not comp_issues:
-        checks.append({"id": "G7T.version_chain", "s": "PASS"})
+        checks.append({"id": "G7T.version_chain", "s": GateStatus.PASS})
     return mf, checks

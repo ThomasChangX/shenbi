@@ -13,6 +13,7 @@ install group="dev":
 # Run all checks (contract lints + ruff + mypy + basedpyright + sync idempotency + tests)
 check:
     uv run python tools/lint_status_strings.py
+    uv run python tools/check_severity_vocab.py
     uv run python tools/lint_repo_consistency.py
     uv run python tools/lint_key_reconciliation.py --strict
     uv run python tools/lint_decisions_sources.py

@@ -109,7 +109,7 @@ def test_empty_adjustments_without_skip_documentation_fails():
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
-        assert parsed["status"] == "HARD_FAIL"
+        assert parsed["status"] == "FAIL"
         assert any("empty_adjustments" in m for m in parsed["must_fix"])
 
 
@@ -139,7 +139,7 @@ def test_adjustment_with_thin_rationale_fails():
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
-        assert parsed["status"] == "HARD_FAIL"
+        assert parsed["status"] == "FAIL"
         assert any("thin_rationale" in m for m in parsed["must_fix"])
 
 
@@ -152,7 +152,7 @@ def test_invalid_json_fails():
 
         result = g4_chapter_revision([str(path)])
         parsed = _parse_result(result)
-        assert parsed["status"] == "HARD_FAIL"
+        assert parsed["status"] == "FAIL"
         assert any("invalid_json" in m for m in parsed["must_fix"])
 
 
@@ -176,4 +176,51 @@ def test_result_is_json_string_compatible_with_composite_checker():
         # make_composite_checker (decisions_validator.py:87) does json.loads(existing_result)
         parsed = json.loads(result)
         assert set(parsed.keys()) >= {"status", "checks", "must_fix"}
-        assert parsed["status"] in ("PASS", "HARD_FAIL")
+        assert parsed["status"] in ("PASS", "FAIL")
+
+
+class TestValueDomains:
+    """spec #34 T903/T910: severity/mode/status value-domain checks."""
+
+    def _run(self, payload: dict[str, object]) -> dict[str, Any]:
+        import json as _json
+        import tempfile
+        from pathlib import Path
+
+        with tempfile.TemporaryDirectory() as td:
+            fp = Path(td) / "chapter-1-revision-decisions.json"
+            fp.write_text(_json.dumps(payload), encoding="utf-8")
+            from shenbi.gates.g4.chapter_revision import g4_chapter_revision
+
+            return _json.loads(g4_chapter_revision([str(fp)]))
+
+    def test_canonical_values_pass(self) -> None:
+        r: dict[str, Any] = self._run(
+            {"severity": "high", "mode": "spot-fix", "status": "preserved"}
+        )
+        assert not [m for m in r["must_fix"] if "out_of_vocab" in m or "legacy" in m]
+
+    def test_severity_out_of_vocab_fails(self) -> None:
+        r: dict[str, Any] = self._run({"severity": "catastrophic"})  # vocab-ok: negative test
+        assert any("severity_out_of_vocab" in m for m in r["must_fix"])
+
+    def test_severity_legacy_reported(self) -> None:
+        r: dict[str, Any] = self._run({"severity": "critical"})
+        assert any("severity_legacy_value" in m for m in r["must_fix"])
+
+    def test_mode_alias_reported_and_unknown_fails(self) -> None:
+        r: dict[str, Any] = self._run({"mode": "no_op"})
+        assert any("mode_legacy_value" in m for m in r["must_fix"])
+        r2: dict[str, Any] = self._run({"mode": "rewrite-everything"})  # vocab-ok: negative test
+        assert any("mode_out_of_vocab" in m for m in r2["must_fix"])
+
+    def test_entry_level_severity_checked(self) -> None:
+        # production severity lives in selections/adjustments entries
+        r: dict[str, Any] = self._run({"selections": [{"target": "t", "severity": "catastrophic"}]})
+        assert any("severity_out_of_vocab" in m and "selections[0]" in m for m in r["must_fix"])
+        r2: dict[str, Any] = self._run({"adjustments": [{"issue_id": "i", "severity": "critical"}]})
+        assert any("severity_legacy_value" in m and "adjustments[0]" in m for m in r2["must_fix"])
+
+    def test_status_out_of_vocab_fails(self) -> None:
+        r: dict[str, Any] = self._run({"status": "half-done"})  # vocab-ok: negative test
+        assert any("status_out_of_vocab" in m for m in r["must_fix"])

@@ -20,15 +20,14 @@ Usage (CLI):
 
 from __future__ import annotations
 
-from enum import StrEnum
-
 from typing import Any
 
 
-class RevisionMode(StrEnum):
-    SPOT_FIX = "spot-fix"
-    REGENERATE = "regenerate"
-    CONSTRAINED_REGENERATE = "constrained-regenerate"
+# spec #34 T910: single domain shenbi.contracts.enums.RevisionMode (was a
+# local 3-value twin of revision_router.RevisionRoute)
+from shenbi.contracts.enums import RevisionMode
+
+__all__ = ["RevisionMode", "route_revision"]
 
 
 def route_revision(diagnosis: dict[str, Any]) -> str:

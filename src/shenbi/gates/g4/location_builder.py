@@ -1,6 +1,7 @@
 """G4 checker for shenbi-location-builder."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -64,7 +65,12 @@ def g4_location_builder(
                 mf.append(f"G4.lb.complete:{valid}/{len(locations)}_need_{min_required}")
             else:
                 c.append(
-                    {"id": "G4.lb", "s": "PASS", "locations": len(locations), "complete": valid}
+                    {
+                        "id": "G4.lb",
+                        "s": GateStatus.PASS,
+                        "locations": len(locations),
+                        "complete": valid,
+                    }
                 )
 
     if mf:

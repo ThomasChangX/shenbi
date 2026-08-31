@@ -1,6 +1,7 @@
 """G4 checker for shenbi-volume-outlining."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -54,27 +55,27 @@ def g4_volume_outlining(
             if not has_obj:
                 mf.append("G4.vo.objective")
             else:
-                c.append({"id": "G4.vo.objective", "s": "PASS"})
+                c.append({"id": "G4.vo.objective", "s": GateStatus.PASS})
 
             # 3-5 KRs
             krs = re.findall(r"#### KR\d+", last_vol)
             if len(krs) < 3 or len(krs) > 5:
                 mf.append(f"G4.vo.krs:{len(krs)}")
             else:
-                c.append({"id": "G4.vo.krs", "s": "PASS", "count": len(krs)})
+                c.append({"id": "G4.vo.krs", "s": GateStatus.PASS, "count": len(krs)})
 
             # 张力曲线
             if "张力曲线" not in last_vol:
                 mf.append("G4.vo.tension_curve")
             else:
-                c.append({"id": "G4.vo.tension_curve", "s": "PASS"})
+                c.append({"id": "G4.vo.tension_curve", "s": GateStatus.PASS})
 
             # >= 1 cross-volume bridge hook
             has_bridge = bool(re.search(r"跨卷|桥接|bridge", last_vol, re.IGNORECASE))
             if not has_bridge:
                 mf.append("G4.vo.bridge")
             else:
-                c.append({"id": "G4.vo.bridge", "s": "PASS"})
+                c.append({"id": "G4.vo.bridge", "s": GateStatus.PASS})
 
     if mf:
         return fail("G4-volume-outlining", c, "scoring", mf)

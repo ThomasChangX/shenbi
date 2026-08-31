@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -67,7 +69,7 @@ def gate_G6(
         if len(chapters) < min_chapters:
             mf.append(f"G6.1:{len(chapters)}<{min_chapters}(ceil({expected}*{min_ratio}))")
         else:
-            c.append({"id": "G6.1", "s": "PASS", "chapters": len(chapters)})
+            c.append({"id": "G6.1", "s": GateStatus.PASS, "chapters": len(chapters)})
         # G6.2: no gaps
         for ch in chapters:
             m = re.search(r"chapter-(\d+)", ch.name)
@@ -76,7 +78,7 @@ def gate_G6(
         if nums and sorted(nums) != list(range(min(nums), max(nums) + 1)):
             mf.append("G6.2:chapter_gaps")
         else:
-            c.append({"id": "G6.2", "s": "PASS"})
+            c.append({"id": "G6.2", "s": GateStatus.PASS})
         # G6.3: each chapter passes G4 chapter-drafting
         for ch in chapters:
             try:
@@ -97,7 +99,7 @@ def gate_G6(
             except Exception as e:
                 mf.append(f"G6.3:{ch.name}:exception={e}")
         if not any(x.startswith("G6.3:") for x in mf):
-            c.append({"id": "G6.3", "s": "PASS"})
+            c.append({"id": "G6.3", "s": GateStatus.PASS})
     else:
         mf.append("G6.1:no_chapters_dir")
 
@@ -156,7 +158,9 @@ def gate_G6(
                 mf.append(f"G6.7:low_hook_density:{density:.1f}/chapter")
         # Unresolved at end. Status must reflect this sub-check's own mf
         # entries — a PASS summary alongside must_fix is a lie (F4A2).
-        g67_status = "WARN" if any(str(m).startswith("G6.7:") for m in mf) else "PASS"
+        g67_status = (
+            GateStatus.WARN if any(str(m).startswith("G6.7:") for m in mf) else GateStatus.PASS
+        )
         if unresolved > 0:
             c.append(
                 {
@@ -174,7 +178,11 @@ def gate_G6(
             )
     else:
         c.append(
-            {"id": "G6.7", "s": "SKIP", "r": "need truth/pending_hooks.md for foreshadowing check"}
+            {
+                "id": "G6.7",
+                "s": GateStatus.SKIP,
+                "r": "need truth/pending_hooks.md for foreshadowing check",
+            }
         )
 
     # G6.8: character voice consistency (voice_profile + catchphrase check)
@@ -232,20 +240,26 @@ def gate_G6(
                     c.append(
                         {
                             "id": "G6.8",
-                            "s": "WARN",
+                            "s": GateStatus.WARN,
                             "r": f"{cname}:catchphrases_not_found_in_chapters",
                         }
                     )
         c.append(
             {
                 "id": "G6.8",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "chars_with_voice": sum(1 for v in char_voice.values() if v["has_voice_profile"]),
                 "chars_total": len(char_voice),
             }
         )
     else:
-        c.append({"id": "G6.8", "s": "SKIP", "r": "need characters/ and chapters/ for voice check"})
+        c.append(
+            {
+                "id": "G6.8",
+                "s": GateStatus.SKIP,
+                "r": "need characters/ and chapters/ for voice check",
+            }
+        )
 
     # G6.9: world rule compliance — scan numerical constraints and check chapters
     rules_path = pd / "world" / "rules.md"
@@ -296,13 +310,15 @@ def gate_G6(
                                 mf.append(f"G6.9:limit_exceeded:{kw}:{found_val}>{val}:{ch_name}")
                             elif const["lower"] and found_val < val:
                                 mf.append(f"G6.9:below_minimum:{kw}:{found_val}<{val}:{ch_name}")
-        g69_status = "WARN" if any(str(m).startswith("G6.9:") for m in mf) else "PASS"
+        g69_status = (
+            GateStatus.WARN if any(str(m).startswith("G6.9:") for m in mf) else GateStatus.PASS
+        )
         c.append({"id": "G6.9", "s": g69_status, "constraints_extracted": len(constraints)})
     else:
         c.append(
             {
                 "id": "G6.9",
-                "s": "SKIP",
+                "s": GateStatus.SKIP,
                 "r": "need world/rules.md and chapters/ for world rule compliance",
             }
         )
@@ -371,7 +387,7 @@ def gate_G6(
             c.append(
                 {
                     "id": "G6.11",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "volumes": len(volumes),
                     "chapters_total": len(chapters),
                 }
@@ -380,18 +396,24 @@ def gate_G6(
             c.append(
                 {
                     "id": "G6.11",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "volumes": len(volumes),
                     "note": "no chapters/ to verify",
                 }
             )
         else:
-            c.append({"id": "G6.11", "s": "SKIP", "r": "no volume ranges found in volume_map.md"})
+            c.append(
+                {
+                    "id": "G6.11",
+                    "s": GateStatus.SKIP,
+                    "r": "no volume ranges found in volume_map.md",
+                }
+            )
     else:
         c.append(
             {
                 "id": "G6.11",
-                "s": "SKIP",
+                "s": GateStatus.SKIP,
                 "r": "need outline/volume_map.md for volume boundary check",
             }
         )
@@ -413,12 +435,12 @@ def gate_G6(
         if ghosts_found:
             mf.extend([f"G6.6:{g}" for g in ghosts_found])
         else:
-            c.append({"id": "G6.6", "s": "PASS"})
+            c.append({"id": "G6.6", "s": GateStatus.PASS})
     else:
         c.append(
             {
                 "id": "G6.6",
-                "s": "SKIP",
+                "s": GateStatus.SKIP,
                 "r": "need character_matrix.md and chapters/ for ghost check",
             }
         )
@@ -450,10 +472,14 @@ def gate_G6(
         if sw_found:
             mf.extend([f"G6.12:{s}" for s in sw_found])
         else:
-            c.append({"id": "G6.12", "s": "PASS"})
+            c.append({"id": "G6.12", "s": GateStatus.PASS})
     else:
         c.append(
-            {"id": "G6.12", "s": "SKIP", "note": "sensitive_words.txt missing — round INCOMPLETE"}
+            {
+                "id": "G6.12",
+                "s": GateStatus.SKIP,
+                "note": "sensitive_words.txt missing — round INCOMPLETE",
+            }
         )
 
     if mf:

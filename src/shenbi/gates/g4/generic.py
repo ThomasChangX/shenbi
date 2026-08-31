@@ -51,7 +51,13 @@ def g4_generic_generative(
             ):
                 mf.append(f"G4.gen.manifest_missing:{fp_path}")
                 continue
-            c.append({"id": f"G4.gen.dir.{Path(fp_path).name}", "s": "PASS", "files": len(entries)})
+            c.append(
+                {
+                    "id": f"G4.gen.dir.{Path(fp_path).name}",
+                    "s": GateStatus.PASS,
+                    "files": len(entries),
+                }
+            )
             continue
         if p.stat().st_size == 0:
             mf.append(f"G4.gen.empty:{fp_path}")
@@ -65,17 +71,25 @@ def g4_generic_generative(
             if len(content.strip()) < 50:
                 mf.append(f"G4.gen.too_short:{fp_path}")
             else:
-                c.append({"id": f"G4.gen.{Path(fp_path).name}", "s": "PASS", "size": len(content)})
+                c.append(
+                    {
+                        "id": f"G4.gen.{Path(fp_path).name}",
+                        "s": GateStatus.PASS,
+                        "size": len(content),
+                    }
+                )
         elif fp_path.endswith(".json"):
             try:
                 json.loads(content)
-                c.append({"id": f"G4.gen.{Path(fp_path).name}", "s": "PASS"})
+                c.append({"id": f"G4.gen.{Path(fp_path).name}", "s": GateStatus.PASS})
             except json.JSONDecodeError:
                 mf.append(f"G4.gen.invalid_json:{fp_path}")
         else:
-            c.append({"id": f"G4.gen.{Path(fp_path).name}", "s": "PASS", "size": len(content)})
+            c.append(
+                {"id": f"G4.gen.{Path(fp_path).name}", "s": GateStatus.PASS, "size": len(content)}
+            )
     if not fps:
-        c.append({"id": "G4.gen", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.gen", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-generic-gen", c, "scoring", mf)
     return passed("G4-generic-gen", c)
@@ -121,9 +135,9 @@ def g4_generic_bughunt(
         if not re.search(r"False positives?[^0-9]*0|误报[^0-9]*0", content, re.IGNORECASE):
             mf.append(f"G4.bh.no_false_positive_check:{fp_path}")
         if len(mf) == mf_before:
-            c.append({"id": f"G4.bh.{Path(fp_path).name}", "s": "PASS"})
+            c.append({"id": f"G4.bh.{Path(fp_path).name}", "s": GateStatus.PASS})
     if not fps:
-        c.append({"id": "G4.bh", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.bh", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-bug-hunt", c, "scoring", mf)
     return passed("G4-bug-hunt", c)
@@ -172,9 +186,9 @@ def g4_generic_clean(
         if real_suggestions:
             mf.append(f"G4.cl.has_suggestions:{fp_path}:{real_suggestions}")
         if len(mf) == mf_before:
-            c.append({"id": f"G4.cl.{Path(fp_path).name}", "s": "PASS"})
+            c.append({"id": f"G4.cl.{Path(fp_path).name}", "s": GateStatus.PASS})
     if not fps:
-        c.append({"id": "G4.cl", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.cl", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-clean", c, "scoring", mf)
     return passed("G4-clean", c)

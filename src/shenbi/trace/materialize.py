@@ -10,6 +10,7 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.safe_write import safe_write
+from shenbi.status import SkillProgressStatus
 from shenbi.trace.replay import replay
 
 _TEST_TYPES = ("generative", "bug-hunt", "clean")
@@ -25,7 +26,7 @@ def _as_float(value: object, default: float) -> float:
 
 def _empty_skill() -> dict[str, dict[str, Any]]:
     """Match update_progress.cmd_init: every skill starts three-phase pending."""
-    return {tt: {"status": "pending"} for tt in _TEST_TYPES}
+    return {tt: {"status": SkillProgressStatus.PENDING} for tt in _TEST_TYPES}
 
 
 def materialize_progress(
@@ -55,7 +56,7 @@ def materialize_progress(
             tt = str(payload.get("test_type"))
             sd = skills_state.setdefault(skill, _empty_skill())  # I2: default three-pending
             sd[tt] = {
-                "status": str(payload.get("status", "done")),
+                "status": str(payload.get("status", SkillProgressStatus.DONE)),
                 "score": _as_float(payload.get("score"), 0.0),
             }
 
@@ -66,7 +67,8 @@ def materialize_progress(
         return all_skills_set - {
             sn
             for sn, sd in skills_state.items()
-            if sd.get(test_type, {}).get("status") in ("done", "skip")
+            if sd.get(test_type, {}).get("status")
+            in (SkillProgressStatus.DONE, SkillProgressStatus.SKIP)
         }
 
     genuinely_done = sorted(

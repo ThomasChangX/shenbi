@@ -1,6 +1,7 @@
 """G4 checker for shenbi-state-settling."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 
@@ -80,12 +81,12 @@ def g4_state_settling(
                     {
                         "id": "G4.ss.position",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": "no position/location heading found",
                     }
                 )
             else:
-                c.append({"id": "G4.ss.position", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.position", "file": fp, "s": GateStatus.PASS})
 
         if "character_matrix" in str(fp):
             # Accept: ## 已登场角色, ## 角色, ## 出场角色, ## 登场人物, ## 人物, etc.
@@ -94,12 +95,12 @@ def g4_state_settling(
                     {
                         "id": "G4.ss.characters",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": "no character heading found",
                     }
                 )
             else:
-                c.append({"id": "G4.ss.characters", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.characters", "file": fp, "s": GateStatus.PASS})
 
             # G4.ss.parameter_agent_in_character_matrix: prevent parameter agent
             # names from leaking into character_matrix instead of particle_ledger
@@ -113,12 +114,12 @@ def g4_state_settling(
                     {
                         "id": "G4.ss.summaries",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": "no chapter summary heading found",
                     }
                 )
             else:
-                c.append({"id": "G4.ss.summaries", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.summaries", "file": fp, "s": GateStatus.PASS})
 
         if "emotional_arcs" in str(fp):
             if not re.search(r"#{1,4}\s*第\d+章", content):
@@ -126,12 +127,12 @@ def g4_state_settling(
                     {
                         "id": "G4.ss.arcs",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": "no emotional arc chapter heading found",
                     }
                 )
             else:
-                c.append({"id": "G4.ss.arcs", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.arcs", "file": fp, "s": GateStatus.PASS})
 
         if "particle_ledger" in str(fp):
             # Accept: 粒子账本, 粒子记录, particle ledger, 账本, etc.
@@ -142,21 +143,21 @@ def g4_state_settling(
                     {
                         "id": "G4.ss.particle_ledger",
                         "file": fp,
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": "no particle ledger heading found",
                     }
                 )
             else:
-                c.append({"id": "G4.ss.particle_ledger", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.particle_ledger", "file": fp, "s": GateStatus.PASS})
 
         if "pending_hooks" in str(fp):
             if "state" not in content:
                 mf.append(f"G4.ss.no_hook_state:{fp}")
             else:
-                c.append({"id": "G4.ss.pending_hooks", "file": fp, "s": "PASS"})
+                c.append({"id": "G4.ss.pending_hooks", "file": fp, "s": GateStatus.PASS})
 
     if not fps:
-        c.append({"id": "G4.ss", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.ss", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-state-settling", c, "scoring", mf)

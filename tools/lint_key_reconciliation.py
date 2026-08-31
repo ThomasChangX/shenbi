@@ -69,7 +69,7 @@ READ_KEY_REGISTRY: list[ReadKey] = [
         "reconcile/status-key",
         "src/shenbi/gates/g_reconcile.py: .upper() == ",
         "skills.<skill>.<test_type>.status == done",
-        ['src/shenbi/dispatcher/modes/codex.py: "status": "done"'],
+        ["src/shenbi/dispatcher/modes/codex.py: SkillProgressStatus.DONE"],
     ),
     ReadKey(
         "reconcile/report-family",

@@ -1,6 +1,7 @@
 """G4 checker for shenbi-memory-distill (traceability validation)."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 
 import re
@@ -30,7 +31,7 @@ def g4_memory_distill(
                 if section not in content:
                     mf.append(f"G4.md.missing_section:{section}")
     if not fps:
-        c.append({"id": "G4.md", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.md", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-memory-distill", c, "scoring", mf)
     return passed("G4-memory-distill", c)

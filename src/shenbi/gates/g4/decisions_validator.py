@@ -109,7 +109,7 @@ def g4_decisions(
         # Schema version, required keys, and P2.5 rationale (DecisionsDoc).
         try:
             DecisionsDoc.model_validate(data)
-            c.append({"id": "G4.dec", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.dec", "file": fp, "s": GateStatus.PASS})
         except ValidationError as e:
             # pydantic_err_to_gate_failures already produces "G4.dec.<type>" IDs
             # (prefix is passed as "G4.dec"). Use its output directly — do NOT
@@ -119,7 +119,7 @@ def g4_decisions(
             )
 
     if not fps:
-        c.append({"id": "G4.dec", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.dec", "s": GateStatus.SKIP, "r": "no files"})
 
     # Adjacent-chapter budget comparison (WARN-level check).
     # Only runs when project_dir is available (not in raw CLI mode).
@@ -132,7 +132,7 @@ def g4_decisions(
                 seen_chapters.add(ch)
                 budget_issues = _check_adjacent_budget(pd, ch)
                 for issue in budget_issues:
-                    c.append({"id": "G4.dec.budget", "file": fp, "s": "WARN", "r": issue})
+                    c.append({"id": "G4.dec.budget", "file": fp, "s": GateStatus.WARN, "r": issue})
 
     if mf:
         return fail("G4-decisions", c, "scoring", mf)

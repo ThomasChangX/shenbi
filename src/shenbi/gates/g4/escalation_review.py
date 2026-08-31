@@ -1,6 +1,7 @@
 """G4 checker for shenbi-escalation-review."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 
 import re
@@ -28,7 +29,7 @@ def g4_escalation_review(
             if section not in normalized:
                 mf.append(f"G4.er.missing_section:{section}")
     if not fps:
-        c.append({"id": "G4.er", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.er", "s": GateStatus.SKIP, "r": "no files"})
     if mf:
         return fail("G4-escalation-review", c, "scoring", mf)
     return passed("G4-escalation-review", c)

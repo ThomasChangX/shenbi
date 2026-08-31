@@ -1,6 +1,7 @@
 """G4 checker for shenbi-foreshadowing-track."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -47,20 +48,22 @@ def g4_foreshadowing_track(
         if not has_changes:
             mf.append("G4.ft.no_changes")
         else:
-            c.append({"id": "G4.ft.changes", "s": "PASS"})
+            c.append({"id": "G4.ft.changes", "s": GateStatus.PASS})
 
         # Each operation has chapter ref
         tracking_sections = re.findall(r"第\d+章", content)
         if not tracking_sections:
             mf.append("G4.ft.chapter_refs")
         else:
-            c.append({"id": "G4.ft.chapter_refs", "s": "PASS", "refs": len(tracking_sections)})
+            c.append(
+                {"id": "G4.ft.chapter_refs", "s": GateStatus.PASS, "refs": len(tracking_sections)}
+            )
 
         # core_hook silence <= max_gap (requires LLM judgment, deferred)
         c.append(
             {
                 "id": "G4.ft.core_silence",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "note": "core_hook gap check requires LLM judgment",
             }
         )

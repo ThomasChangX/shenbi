@@ -1,8 +1,11 @@
 """Typed status vocabulary + typed result structures (spec §5.2, audit D3).
 
-THE single definition of every status string in the framework. Emit sites use
-enum members through typed result structures, so ``"status": "PASSED"`` is a
-static type error (not merely a runtime risk) under mypy AND basedpyright.
+status.py 域词表。全框架状态词表的唯一裁决依据是 docs/framework/status-vocab.md
+(spec #34 T1/T901) — 新状态域必须先在登记表立域再落定义。
+
+Emit sites use enum members through typed result structures, so
+``"status": "PASSED"`` is a static type error (not merely a runtime risk)
+under mypy AND basedpyright.
 
 Wire compatibility: each enum's value equals the string the framework already
 serializes, so this module changes no on-disk state files or JSON contracts.
@@ -44,6 +47,21 @@ class CommandStatus(StrEnum):
     BLOCKED = "blocked"
     ERROR = "error"
     EXISTS = "exists"
+    # spec #34 T908: 收编生产越表值（truth_embed.py "degraded"）；
+    # "未实现"第三形态已由先前的 cli ERROR 化统一（T9 行 35 过时），不另立成员
+    DEGRADED = "degraded"
+
+
+class SkillProgressStatus(StrEnum):
+    """progress.json per-skill three-phase status (spec #34 T906).
+
+    Readers tolerate legacy uppercase ``DONE`` (g_reconcile) — see
+    docs/framework/status-vocab.md 消费侧容错映射.
+    """
+
+    PENDING = "pending"
+    DONE = "done"
+    SKIP = "skip"
 
 
 class ScoringStatus(StrEnum):
@@ -94,6 +112,7 @@ STATUS_STRING_LITERALS: frozenset[str] = frozenset(
         *GateStatus,
         *PhaseState,
         *CommandStatus,
+        *SkillProgressStatus,
         *ScoringStatus,
         *ScoreClassification,
     )

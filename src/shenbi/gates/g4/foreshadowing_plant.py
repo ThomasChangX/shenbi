@@ -1,6 +1,7 @@
 """G4 checker for shenbi-foreshadowing-plant."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 
@@ -94,10 +95,10 @@ def g4_foreshadowing_plant(
         if total_ops > 24:
             mf.append(f"G4.fp.ops:{total_ops}>24")
         else:
-            c.append({"id": "G4.fp.ops", "file": fp, "s": "PASS", "count": total_ops})
+            c.append({"id": "G4.fp.ops", "file": fp, "s": GateStatus.PASS, "count": total_ops})
 
     if not fps:
-        c.append({"id": "G4.fp", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.fp", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-foreshadowing-plant", c, "scoring", mf)

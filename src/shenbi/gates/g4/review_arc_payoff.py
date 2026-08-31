@@ -7,6 +7,7 @@ an explicit 伏笔兑现质量 ≥15 sub-floor check, and file+line evidence.
 """
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 
 import re
 from pathlib import Path
@@ -64,14 +65,14 @@ def g4_review_arc_payoff(
         if missing_cols:
             mf.append(f"G4.ap.detail_table:{Path(fp).name}:missing_{missing_cols}")
         else:
-            c.append({"id": "G4.ap.detail_table", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ap.detail_table", "file": fp, "s": GateStatus.PASS})
 
         # 2. All five dimensions appear as rows in the 评分明细 table.
         missing_dims = [d for d in _DIMS if d not in detail_section]
         if missing_dims:
             mf.append(f"G4.ap.dims:{Path(fp).name}:missing_{missing_dims}")
         else:
-            c.append({"id": "G4.ap.dims", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ap.dims", "file": fp, "s": GateStatus.PASS})
 
         # 3. 门判定 section with a 判定 line carrying a valid verdict.
         has_gate = "门判定" in content
@@ -85,7 +86,7 @@ def g4_review_arc_payoff(
         if not has_gate or verdict is None:
             mf.append(f"G4.ap.verdict:{Path(fp).name}:no_valid_verdict")
         else:
-            c.append({"id": "G4.ap.verdict", "file": fp, "s": "PASS", "v": verdict})
+            c.append({"id": "G4.ap.verdict", "file": fp, "s": GateStatus.PASS, "v": verdict})
 
         # 4. 伏笔兑现质量 sub-floor: the 门判定 section must evaluate the
         #    伏笔兑现质量 dimension against the §6.4 floor of 15.
@@ -93,7 +94,7 @@ def g4_review_arc_payoff(
         if not _FORESHADOW_FLOOR_RE.search(gate_section):
             mf.append(f"G4.ap.foreshadow_floor:{Path(fp).name}:no_subfloor_check")
         else:
-            c.append({"id": "G4.ap.foreshadow_floor", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ap.foreshadow_floor", "file": fp, "s": GateStatus.PASS})
 
         # 5. Evidence must carry at least one file + line reference
         #    (Lnn / line nn / path:nn). The detail table is the canonical
@@ -102,10 +103,10 @@ def g4_review_arc_payoff(
         if not has_location:
             mf.append(f"G4.ap.evidence:{Path(fp).name}:no_file_line_ref")
         else:
-            c.append({"id": "G4.ap.evidence", "file": fp, "s": "PASS"})
+            c.append({"id": "G4.ap.evidence", "file": fp, "s": GateStatus.PASS})
 
     if not fps:
-        c.append({"id": "G4.ap", "s": "SKIP", "r": "no files"})
+        c.append({"id": "G4.ap", "s": GateStatus.SKIP, "r": "no files"})
 
     if mf:
         return fail("G4-review-arc-payoff", c, "scoring", mf)

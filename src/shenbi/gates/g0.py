@@ -3,6 +3,8 @@
 Gate validation logic (originally extracted from tests/validate-gate.py in PR-19).
 """
 
+from shenbi.status import GateStatus
+
 from shenbi.logging import get_logger
 
 log = get_logger(__name__)
@@ -112,7 +114,7 @@ def check_calibration_integrity(
         deps = json.loads(deps_path.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return (
-            [{"id": "G0.14", "s": "FAIL", "r": f"deps.json unreadable: {deps_path}"}],
+            [{"id": "G0.14", "s": GateStatus.FAIL, "r": f"deps.json unreadable: {deps_path}"}],
             "deps.json unreadable",
             ["G0.14: repair tests/tiers/deps.json then run tests/lock-tool-hashes.sh"],
         )
@@ -123,7 +125,7 @@ def check_calibration_integrity(
             [
                 {
                     "id": "G0.14",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": "_calibration_hashes.combined missing from deps.json",
                 }
             ],
@@ -139,7 +141,7 @@ def check_calibration_integrity(
             [
                 {
                     "id": "G0.14",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": (
                         f"calibration anchor hash mismatch: expected {expected[:12]}..., "
                         f"actual {actual[:12]}... — anchor tamper or drift detected"
@@ -154,7 +156,7 @@ def check_calibration_integrity(
         [
             {
                 "id": "G0.14",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "note": "calibration anchors match locked hash",
             }
         ],
@@ -173,22 +175,22 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         if not sp.exists():
             return fail(
                 "G0",
-                [{"id": "G0.1", "s": "FAIL", "r": f"seed not found: {seed_file}"}],
+                [{"id": "G0.1", "s": GateStatus.FAIL, "r": f"seed not found: {seed_file}"}],
                 "round_creation",
                 ["G0.1"],
             )
         try:
             content = sp.read_text(encoding="utf-8")
-            checks.append({"id": "G0.1", "s": "PASS"})
+            checks.append({"id": "G0.1", "s": GateStatus.PASS})
         except Exception as e:
             return fail(
                 "G0",
-                [{"id": "G0.1", "s": "FAIL", "r": str(e)}],
+                [{"id": "G0.1", "s": GateStatus.FAIL, "r": str(e)}],
                 "round_creation",
                 ["G0.1"],
             )
     else:
-        checks.append({"id": "G0.1", "s": "SKIP", "r": "no seed file provided"})
+        checks.append({"id": "G0.1", "s": GateStatus.SKIP, "r": "no seed file provided"})
         return passed("G0", checks)
 
     # G0.2 — target_words extraction
@@ -196,12 +198,12 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     if not m or int(m.group(1)) <= 0:
         return fail(
             "G0",
-            [{"id": "G0.2", "s": "FAIL", "r": "target_words not found or invalid"}],
+            [{"id": "G0.2", "s": GateStatus.FAIL, "r": "target_words not found or invalid"}],
             "round_creation",
             ["G0.2"],
         )
     target_words = int(m.group(1))
-    checks.append({"id": "G0.2", "s": "PASS", "target_words": target_words})
+    checks.append({"id": "G0.2", "s": GateStatus.PASS, "target_words": target_words})
 
     # G0.3 — expected_chapters = ceil(target_words / genre_config.chapter_word.default)
     default_w = CHAPTER_WORD_FLOOR
@@ -223,7 +225,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.append(
         {
             "id": "G0.3",
-            "s": "PASS",
+            "s": GateStatus.PASS,
             "expected_chapters": expected,
             "chapter_word_default": default_w,
         }
@@ -240,15 +242,15 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append(
             {
                 "id": "G0.4",
-                "s": "WARN",
+                "s": GateStatus.WARN,
                 "r": f"SKIP: skills missing SKILL.md: {missing_md}",
             }
         )
     else:
-        checks.append({"id": "G0.4", "s": "PASS", "skills_count": len(ALL_SKILLS)})
+        checks.append({"id": "G0.4", "s": GateStatus.PASS, "skills_count": len(ALL_SKILLS)})
 
     # G0.5 — rubric weight sum = 100% (sampling check — full check is expensive)
-    checks.append({"id": "G0.5", "s": "UNIMPLEMENTED", "note": "not yet implemented"})
+    checks.append({"id": "G0.5", "s": GateStatus.UNIMPLEMENTED, "note": "not yet implemented"})
 
     # G0.5b — rubric-SKILL.md consistency: for each rubric, verify that
     # dimension requirements reference concepts/rules that exist in the
@@ -308,7 +310,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append(
             {
                 "id": "G0.5b",
-                "s": "WARN",
+                "s": GateStatus.WARN,
                 "r": f"{len(rubric_mismatches)} rubric-SKILL.md mismatches: "
                 f"{'; '.join(rubric_mismatches[:10])}"
                 f"{'...' if len(rubric_mismatches) > 10 else ''}",
@@ -319,7 +321,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append(
             {
                 "id": "G0.5b",
-                "s": "PASS",
+                "s": GateStatus.PASS,
                 "note": "rubric-SKILL.md consistency verified",
             }
         )
@@ -334,7 +336,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 + [
                     {
                         "id": "G0.6",
-                        "s": "FAIL",
+                        "s": GateStatus.FAIL,
                         "r": "skill-output/ not writable",
                     }
                 ],
@@ -350,14 +352,14 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             + [
                 {
                     "id": "G0.6",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": "PROJECT root not writable; cannot create skill-output/",
                 }
             ],
             "round_creation",
             ["G0.6"],
         )
-    checks.append({"id": "G0.6", "s": "PASS"})
+    checks.append({"id": "G0.6", "s": GateStatus.PASS})
 
     # G0.8 — fixture reference integrity: scan all T1 generative scenarios
     # for references to tests/fixtures/ files; fail if any referenced fixture
@@ -398,7 +400,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             + [
                 {
                     "id": "G0.8",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": f"missing fixtures: {detail}",
                 }
             ],
@@ -408,7 +410,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.append(
         {
             "id": "G0.8",
-            "s": "PASS",
+            "s": GateStatus.PASS,
             "note": "all scenario fixture references verified",
         }
     )
@@ -446,7 +448,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 checks.append(
                     {
                         "id": "G0.10",
-                        "s": "WARN",
+                        "s": GateStatus.WARN,
                         "r": f"generative tests: {count}/{total_skills} — {total_skills - count} remaining",
                         "completed": count,
                         "total": total_skills,
@@ -456,7 +458,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
                 checks.append(
                     {
                         "id": "G0.10",
-                        "s": "PASS",
+                        "s": GateStatus.PASS,
                         "completed": count,
                         "total": total_skills,
                     }
@@ -465,7 +467,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             checks.append(
                 {
                     "id": "G0.10",
-                    "s": "SKIP",
+                    "s": GateStatus.SKIP,
                     "r": "t1-reports directory not found",
                 }
             )
@@ -473,7 +475,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
         checks.append(
             {
                 "id": "G0.10",
-                "s": "SKIP",
+                "s": GateStatus.SKIP,
                 "r": "no round_dir provided",
             }
         )
@@ -504,7 +506,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             + [
                 {
                     "id": "G0.11",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": f"stale fixtures — re-copy from source: {detail}",
                 }
             ],
@@ -514,7 +516,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.append(
         {
             "id": "G0.11",
-            "s": "PASS",
+            "s": GateStatus.PASS,
             "note": "mirror fixtures match source files",
         }
     )
@@ -530,7 +532,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
     checks.append(
         {
             "id": "G0.12",
-            "s": "PASS",
+            "s": GateStatus.PASS,
             "note": f"G4 coverage: {dedicated_count}/{len(ALL_SKILLS)} dedicated, "
             f"{generic_count}/{len(ALL_SKILLS)} generic fallback",
         }
@@ -566,7 +568,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             + [
                 {
                     "id": "G0.13",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": "; ".join(indep_issues),
                 }
             ],
@@ -574,7 +576,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             ["G0.13: add 'requires_independent_agent: true' to listed skills"],
         )
     checks.append(
-        {"id": "G0.13", "s": "PASS", "note": "all report-kind skills declare independence"}
+        {"id": "G0.13", "s": GateStatus.PASS, "note": "all report-kind skills declare independence"}
     )
 
     # G0.14 — calibration anchor hash lock: combined SHA256 over every file
@@ -602,13 +604,21 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             "G0",
             checks
             + [
-                {"id": "G0.15", "s": "FAIL", "r": f"G4 checker skills not in skill set: {g4_drift}"}
+                {
+                    "id": "G0.15",
+                    "s": GateStatus.FAIL,
+                    "r": f"G4 checker skills not in skill set: {g4_drift}",
+                }
             ],
             "round_creation",
             [f"G0.15: G4_CHECKER_SKILLS drifted from skills/ — remove {g4_drift}"],
         )
     checks.append(
-        {"id": "G0.15", "s": "PASS", "note": "gate registries derive from single skill source"}
+        {
+            "id": "G0.15",
+            "s": GateStatus.PASS,
+            "note": "gate registries derive from single skill source",
+        }
     )
 
     # G0.16 — skill contract + description quality (spec §3.1). Validates every
@@ -624,7 +634,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             + [
                 {
                     "id": "G0.16",
-                    "s": "FAIL",
+                    "s": GateStatus.FAIL,
                     "r": "; ".join(sc_issues),
                 }
             ],
@@ -635,7 +645,11 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             ],
         )
     checks.append(
-        {"id": "G0.16", "s": "PASS", "note": "all skills pass contract + description checks"}
+        {
+            "id": "G0.16",
+            "s": GateStatus.PASS,
+            "note": "all skills pass contract + description checks",
+        }
     )
 
     # G0.cc — configuration coherence (threshold mismatch + critical audit
@@ -673,7 +687,7 @@ def gate_G0(seed_file: str | None = None, round_dir: str | None = None) -> str:
             cc_issues = check_config_coherence(project_dir, resonance_global_floor=floor)
             for idx, issue in enumerate(cc_issues):
                 check_id = f"G0.cc.{idx + 1}"
-                checks.append({"id": check_id, "s": "FAIL", "r": issue})
+                checks.append({"id": check_id, "s": GateStatus.FAIL, "r": issue})
                 cc_must_fix.append(check_id)
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         log.debug("g0_config_coherence_skipped")

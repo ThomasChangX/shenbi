@@ -1,6 +1,7 @@
 """G4 checker for shenbi-story-architecture."""
 
 from __future__ import annotations
+from shenbi.status import GateStatus
 from typing import Any
 import re
 from pathlib import Path
@@ -41,7 +42,7 @@ def g4_story_architecture(
                 if not val or (isinstance(val, str) and not val.strip()):
                     mf.append(f"G4.sf.missing_{field}")
                 else:
-                    c.append({"id": f"G4.sf.{field}", "s": "PASS"})
+                    c.append({"id": f"G4.sf.{field}", "s": GateStatus.PASS})
         except Exception:
             mf.append("G4.sf.yaml_error")
     else:
@@ -71,7 +72,7 @@ def g4_story_architecture(
             c.append(
                 {
                     "id": "G4.volumes",
-                    "s": "PASS",
+                    "s": GateStatus.PASS,
                     "count": len(volumes),
                     "with_obj_kr": volumes_with_obj,
                 }
@@ -84,7 +85,7 @@ def g4_story_architecture(
     if rp_path.exists():
         rp_content = rp_path.read_text(encoding="utf-8")
         if len(rp_content.strip()) > 0:
-            c.append({"id": "G4.sa.rhythm_principles", "s": "PASS"})
+            c.append({"id": "G4.sa.rhythm_principles", "s": GateStatus.PASS})
         else:
             mf.append("G4.sa.rhythm_principles.empty")
     else:

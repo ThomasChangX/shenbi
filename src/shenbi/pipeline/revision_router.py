@@ -27,16 +27,15 @@ from shenbi.pipeline.dispatch_helper import dispatch_skill
 log = get_logger(__name__)
 
 #: Sub-directory under a project where audit reports are written.
+from shenbi.contracts.enums import RevisionMode
+
+#: Sub-directory under a project where audit reports are written.
 AUDIT_DIR = "audits"
 
 
-class RevisionRoute(StrEnum):
-    """Concrete revision mode (delegates to existing ``RevisionMode``)."""
-
-    SPOT_FIX = "spot-fix"
-    REGENERATE = "regenerate"
-    CONSTRAINED_REGENERATE = "constrained-regenerate"
-    NO_REVISION = "no-revision"
+# spec #34 T910: single domain shenbi.contracts.enums.RevisionMode — the
+# local 4-value twin class is collapsed to an alias (callers keep the name).
+RevisionRoute = RevisionMode
 
 
 class RevisionDecision(StrEnum):
