@@ -1690,9 +1690,10 @@ def _account_failed_attempt(
             _record_estimate_row(
                 skill, chapter, f"{system_prompt}\n\n{user_prompt}", project_dir, attempt=attempts
             )
-        # usage-less failed attempts (neither prior-metered nor the final one):
-        # one estimated row each, attempt numbers counted back from the end.
-        no_usage = attempts - len(prior) - (1 if usage is not None else 0)
+        # usage-less failed INTERMEDIATE attempts (the final attempt already
+        # got its own row above — metered or estimated): one estimated row
+        # each, attempt numbers counted back from the end.
+        no_usage = attempts - len(prior) - 1
         for k in range(max(no_usage, 0)):
             _record_estimate_row(
                 skill,
@@ -2054,20 +2055,18 @@ def _dispatch_via_api(
             attempt=int(usage_acc.get("attempts", 1)),
         )
 
-    # C10 spec #36 T7: DISPATCH trace event (finish_reason visibility, F1116).
-    _emit_dispatch_trace(
-        project_dir,
-        skill,
-        chapter,
-        model,
-        finish_reason,
-        usage is None,
-        usage_acc.get("attempts", 1),
-        success=True,
-    )
-
     # Spec §5.1: finish_reason-driven cap-raise (outside tenacity @retry).
     if finish_reason == "content_filter":
+        _emit_dispatch_trace(
+            project_dir,
+            skill,
+            chapter,
+            model,
+            finish_reason,
+            usage is None,
+            usage_acc.get("attempts", 1),
+            success=False,
+        )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
             False, -1, "", "content_filter: output blocked by provider safety filter"
@@ -2182,6 +2181,19 @@ def _dispatch_via_api(
     if missing:
         log.error("api_missing_outputs", skill=skill, missing=missing)
 
+    # C10 spec #36 T7: DISPATCH trace event — emitted only once the final
+    # outcome is known (post content_filter/length/parse/write), so success
+    # never overstates a dispatch that later failed.
+    _emit_dispatch_trace(
+        project_dir,
+        skill,
+        chapter,
+        model,
+        finish_reason,
+        usage is None,
+        usage_acc.get("attempts", 1),
+        success=True,
+    )
     return DispatchResult(True, 0, output_text, "")
 
 

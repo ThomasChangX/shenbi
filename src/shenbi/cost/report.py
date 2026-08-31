@@ -81,18 +81,17 @@ def render_report(project_dir: Path | str) -> str:
         lines += [
             "",
             f"- **Per-chapter average cost**: ${avg:.4f}",
-            "  - note: this equals total cost / chapter count "
-            "(by-chapter buckets carry no independent signal)",
+            "  - note: this equals total cost / chapter count; by-chapter buckets carry no independent signal",
         ]
 
     # C10 spec #36 T5: IDE/subprocess estimate rows are lower bounds ($0
     # priced) — break them out so they never masquerade as metered totals.
-    est_rows = [r for r in TokenLedger(project_dir).iter_records() if r.estimated]
-    if est_rows:
-        est_tokens = sum(r.total_tokens for r in est_rows)
+    est_calls = int(total.get("estimated_calls", 0))
+    est_tokens = int(total.get("estimated_tokens", 0))
+    if est_calls:
         lines += [
             "",
-            f"- **Estimated (lower-bound) rows**: {len(est_rows)} calls / "
+            f"- **Estimated (lower-bound) rows**: {est_calls} calls / "
             f"{est_tokens:,} tokens (IDE/subprocess paths; $0 priced, tokens included in Total above)",
         ]
 

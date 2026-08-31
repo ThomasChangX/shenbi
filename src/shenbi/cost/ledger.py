@@ -75,6 +75,10 @@ class TokenLedger:
         """Append a usage record. Returns the record written."""
         resolved = resolve_model(model)
         cost, pricing_status = _safe_estimate_cost(usage, resolved)
+        if estimated:
+            # Estimate rows carry no completion tokens and no real pricing —
+            # forcing $0 keeps Total cost metered-only (report breaks them out).
+            cost = 0.0
         rec = TokenUsageRecord(
             timestamp=datetime.now(UTC).isoformat(),
             skill=skill,
@@ -121,6 +125,8 @@ class TokenLedger:
             "total_tokens": 0,
             "calls": 0,
             "estimated_cost_usd": 0.0,
+            "estimated_calls": 0,
+            "estimated_tokens": 0,
         }
 
         def _bump(
@@ -145,6 +151,9 @@ class TokenLedger:
         for rec in self.iter_records():
             _bump(by_skill, rec.skill, rec)
             _bump(by_chapter, str(rec.chapter), rec)
+            if rec.estimated:
+                totals["estimated_calls"] = totals.get("estimated_calls", 0) + 1
+                totals["estimated_tokens"] = totals.get("estimated_tokens", 0) + rec.total_tokens
             totals["prompt_tokens"] += rec.prompt_tokens
             totals["completion_tokens"] += rec.completion_tokens
             totals["total_tokens"] += rec.total_tokens

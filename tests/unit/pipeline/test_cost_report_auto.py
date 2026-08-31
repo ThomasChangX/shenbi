@@ -5,6 +5,7 @@ from __future__ import annotations
 from types import SimpleNamespace
 from unittest.mock import patch
 
+from shenbi.cost import report as rep_mod
 from shenbi.cost.ledger import TokenLedger
 from shenbi.cost.report import write_report
 
@@ -19,12 +20,10 @@ def test_write_report_creates_file(tmp_path):
 
 
 def test_write_report_fail_safe(tmp_path, monkeypatch):
-    import shenbi.cost.report as rep
-
     def boom(p):
         raise RuntimeError("render exploded")
 
-    monkeypatch.setattr(rep, "render_report", boom)
+    monkeypatch.setattr(rep_mod, "render_report", boom)
     assert write_report(tmp_path) is None  # WARN, never raises
 
 
