@@ -256,6 +256,52 @@ def _upsert_markdown_bullet(
     )
 
 
+def patch_markdown_table_cell(
+    path: Path, key: str, key_field: str, cell_index: int, value: str
+) -> bool:
+    """Patch a single cell of an existing markdown table row (spec #33 T1b).
+
+    Column location is positional (``cell_index``), not header-based: header
+    placement is uncontrolled for append_dedup writers (spec #33 v8 ruling).
+    Rows shorter than ``cell_index + 1`` are padded with ``-`` placeholders.
+    Returns False when the file or the keyed row does not exist; header and
+    separator rows are never patched. Thread-safe via the per-path lock
+    registry (same rationale as ``insert_markdown_row``).
+    """
+    if not path.exists():
+        return False
+    lock = _path_lock(path)
+    with lock:
+        lines = path.read_text(encoding="utf-8").splitlines()
+        for idx, line in enumerate(lines):
+            cells = split_table_cells(line)
+            if cells is None:
+                continue
+            if _is_separator_row(cells):
+                continue
+            # Header row: the immediately following line is a separator.
+            if idx + 1 < len(lines):
+                nxt = split_table_cells(lines[idx + 1])
+                if nxt is not None and _is_separator_row(nxt):
+                    continue
+            if _norm_cell(cells[0]) != _norm_cell(key):
+                continue
+            while len(cells) <= cell_index:
+                cells.append("-")
+            cells[cell_index] = value
+            lines[idx] = "| " + " | ".join(c.strip() for c in cells) + " |"
+            safe_write(path, ("\n".join(lines) + "\n").encode("utf-8"))
+            log.info(
+                "truth_cell_patched",
+                path=str(path),
+                key=key,
+                key_field=key_field,
+                cell_index=cell_index,
+            )
+            return True
+        return False
+
+
 def split_table_cells(line: str) -> list[str] | None:
     """Split a markdown table row into stripped cells, or None if not a row.
 
