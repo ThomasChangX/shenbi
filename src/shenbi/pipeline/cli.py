@@ -424,8 +424,17 @@ def cmd_init(args: argparse.Namespace) -> int:
     # spec #37 F327/T606: check + seed writes + save inside ONE WriteLock
     # critical section — the old check(ReadLock)->write(unlocked)->save(WL)
     # split let two concurrent inits both pass the existence check.
-    with WriteLock(project_dir):
-        return _cmd_init_locked(args, project_dir, state_file)
+    try:
+        with WriteLock(project_dir):
+            return _cmd_init_locked(args, project_dir, state_file)
+    except TimeoutError:
+        emit_json(
+            {
+                "status": CommandStatus.BLOCKED,
+                "message": "pipeline is busy — another process holds the write lock, retry shortly",
+            }
+        )
+        return 1
 
 
 def _cmd_init_locked(
@@ -436,14 +445,6 @@ def _cmd_init_locked(
     if state_file.exists():
         try:
             existing = load_state(project_dir)
-        except TimeoutError:
-            emit_json(
-                {
-                    "status": CommandStatus.BLOCKED,
-                    "message": "pipeline is busy — another process holds the write lock, retry shortly",
-                }
-            )
-            return 1
         except Exception:
             emit_json(
                 {
