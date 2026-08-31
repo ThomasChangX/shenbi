@@ -20,18 +20,18 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
-def _safe_estimate_cost(usage: dict[str, Any], model: str) -> float:
-    """Estimate cost, returning 0.0 on unknown model instead of crashing (spec §5.2 I3).
+def _safe_estimate_cost(usage: dict[str, Any], model: str) -> tuple[float, str]:
+    """(cost, pricing_status) — unknown model yields ("unknown-model") status.
 
     The ledger is a hot-path side-effect of dispatch — it must never crash
-    the pipeline. estimate_cost raises ValueError for unknown models; here
-    we catch and log so a misconfigured SHENBI_LLM_MODEL doesn't break dispatch.
+    the pipeline (spec §5.2 I3). C10 spec #36 T404: an unknown model is
+    explicitly marked on the row instead of a silent $0.0000.
     """
     try:
-        return estimate_cost(usage, model)
+        return estimate_cost(usage, model), "ok"
     except ValueError:
         log.warning("ledger_unknown_model_no_pricing", model=model)
-        return 0.0
+        return 0.0, "unknown-model"
 
 
 @dataclass
@@ -44,6 +44,12 @@ class TokenUsageRecord:
     completion_tokens: int
     total_tokens: int
     estimated_cost_usd: float
+    # Spec #36 ledger compat contract: every new field carries a default —
+    # a required field would make ALL pre-existing rows TypeError-skip in
+    # iter_records, silently erasing historical cost evidence.
+    estimated: bool = False
+    attempt: int = 1
+    pricing_status: str = "ok"
 
 
 class TokenLedger:
@@ -62,9 +68,13 @@ class TokenLedger:
         chapter: int,
         usage: dict[str, Any],
         model: str | None = None,
+        *,
+        estimated: bool = False,
+        attempt: int = 1,
     ) -> TokenUsageRecord:
         """Append a usage record. Returns the record written."""
         resolved = resolve_model(model)
+        cost, pricing_status = _safe_estimate_cost(usage, resolved)
         rec = TokenUsageRecord(
             timestamp=datetime.now(UTC).isoformat(),
             skill=skill,
@@ -73,7 +83,10 @@ class TokenLedger:
             prompt_tokens=int(usage.get("prompt_tokens", 0)),
             completion_tokens=int(usage.get("completion_tokens", 0)),
             total_tokens=int(usage.get("total_tokens", 0)),
-            estimated_cost_usd=_safe_estimate_cost(usage, resolved),
+            estimated_cost_usd=cost,
+            estimated=estimated,
+            attempt=attempt,
+            pricing_status=pricing_status,
         )
         with self._write_lock, self.ledger_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(rec), ensure_ascii=False) + "\n")
