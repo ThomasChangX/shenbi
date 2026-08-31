@@ -82,7 +82,7 @@ digraph review_highpoint {
   - 反转点：是否有明确打破
   - 解释：是否在反转后给出原因/确认
 - 三段齐全 = pass
-- 缺一段 = warning；缺两段 = error
+- 缺任一段 = error（铁律 3）
 
 ### 3. 爽点关键词检测
 - 读取 `genre-config.json` 的 `climaxKeywords`（推荐使用词）与 `prohibitedClimaxKeywords`（禁用词）

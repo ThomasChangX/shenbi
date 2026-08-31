@@ -113,7 +113,7 @@ chapter-revision 是**通用修订入口**，但以下三类问题应优先委�
 
 ## 重生路由（spec §5.2, §11.3-11.5）
 
-chapter-revision 现在支持三种模式（通过 revision_routing helper 分类诊断）：
+chapter-revision 现在支持六种模式（见 revision-modes.md，通过 revision_routing helper 分类诊断）：
 
 1. **spot-fix** — 纯工艺问题，生成 PATCHES（现有行为）
 2. **regenerate** — 目标未达成（route C 硬二元 BLOCKING），重生对应段落/整章

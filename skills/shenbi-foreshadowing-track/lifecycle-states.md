@@ -12,7 +12,10 @@ digraph hook_lifecycle {
     TRIGGERED -> RESOLVED [label="RESOLVE (兑现)"];
     TRIGGERED -> EXPIRED [label="EXPIRE (超时)" style=dashed color=orange];
     RESOLVED -> ARCHIVED [label="ARCHIVE (归档)"];
-    PLANTED -> ABANDONED [label="ABANDON (放弃)" style=dashed color=red];
+    PLANTED -> DORMANT [label="DECAY (长期未培育)" style=dashed];
+    DORMANT -> ACTIVE [label="REACTIVATE (触发条件匹配/重新培育)"];
+    DORMANT -> ABANDONED [label="ABANDON" style=dashed color=red];
+    ACTIVE -> TRIGGERED [label="TRIGGER (触发)"];
     RELEVANT -> ABANDONED [label="ABANDON" style=dashed color=red];
 }
 ~~~
@@ -27,7 +30,8 @@ digraph hook_lifecycle {
 | DEFER | RELEVANT | 延迟兑现（重置 max_distance 倒计时，不推进状态） | 1 |
 | RESOLVE | TRIGGERED | 兑现伏笔 | 1 |
 | ARCHIVE | RESOLVED | 归档已完成伏笔 | 0 |
-| ABANDON | PLANTED, RELEVANT | 放弃伏笔（增加 Chase Power 债务） | 0 (+debt) |
+| ABANDON | PLANTED, RELEVANT, DORMANT | 放弃伏笔（增加 Chase Power 债务） | 0 (+debt) |
+| REACTIVATE | DORMANT | 触发条件匹配或重新培育时进入 ACTIVE（与 shenbi-foreshadowing-lifecycle 召回扫描一致） | 1 |
 | EXPIRE | TRIGGERED | 超过 max_distance 未兑现（自动触发，标记为需紧急处理） | 0 |
 
 ## 晋升规则

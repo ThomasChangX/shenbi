@@ -63,7 +63,7 @@ digraph foreshadowing_resolve {
 
 ## 铁律
 
-1. **Chase Power 红区 = 立即行动** — CP > 200 必须在下章内兑现至少一条伏笔
+1. **Chase Power 红区 = 立即行动** — CP ≥ 100（RED）必须在下章内兑现至少一条伏笔；CP ≥ 200 触发 FORCE_NEXT_CHAPTER 强制推进
 2. **核心伏笔兑现不能是 FLAT_PAYOFF** — core_hook 的兑现至少达到 PARTIAL_PAYOFF 质量
 3. **卷尾必须盘点所有活跃伏笔** — 生成"本卷未兑现伏笔"清单
 4. **放弃伏笔必须有人类批准** — ABANDON 操作需要人类合作者确认
@@ -82,7 +82,7 @@ CP = hook_power × time_since_plant × escalation_factor
 | escalation_factor | 兑现方式放大系数（FULL_PAYOFF=1.0, PARTIAL_PAYOFF=0.7, TWIST_PAYOFF=0.8, FLAT_PAYOFF=0.3） | 0-1.0 |
 
 计算示例（输出中必须展示）:
-- hook-001: CP = 10 × 8 × 1.0 = 80 (RED 区)
+- hook-001: CP = 10 × 8 × 1.0 = 80 (YELLOW 区)
 - hook-003: CP = 2 × 4 × 0.7 = 5.6 (GREEN 区)
 
 ## 兑现策略
@@ -117,11 +117,11 @@ CP = hook_power × time_since_plant × escalation_factor
 
 | Hook ID | 等级 | hook_power | time_since_plant | escalation_factor | CP 值 | 区间 |
 |---------|------|-----------|-----------------|-------------------|-------|------|
-| hook-001 | core_hook | 10 | 8 | 1.0 (FULL_PAYOFF) | 80 | RED |
+| hook-001 | core_hook | 10 | 8 | 1.0 (FULL_PAYOFF) | 80 | YELLOW |
 | hook-003 | side | 2 | 4 | 0.7 (PARTIAL_PAYOFF) | 5.6 | GREEN |
 ```
 
-区间判定：GREEN < 20, YELLOW 20-50, ORANGE 50-100, RED ≥ 100
+区间判定：GREEN < 50, YELLOW 50-99, RED ≥ 100（与常量表 CP_THRESHOLDS 单源一致；CP ≥ 200 触发 FORCE_NEXT_CHAPTER 强制推进）
 
 ### 兑现计划
 
