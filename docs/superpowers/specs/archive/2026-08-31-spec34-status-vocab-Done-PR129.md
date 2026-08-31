@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-08-31 · 审查收敛：T903/T909 归位 T5/T4、登记表机器对账、lint 双面+FAIL 直连、ChapterState 兼容层落地、T901 注册门归 T1/T3) | **Severity:** 🟡 P2（面广量大）| **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #129) | **Severity:** 🟡 P2（面广量大）| **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C8，24 条）| **代表 finding:** F210 | **严重度上限:** P2（全簇无 P0/P1，但为候选元根因 D 的核心分簇）| **涉及文件面:** src/shenbi/contracts/enums.py、contracts/schemas/decisions.py、gates/（g4/chapter_revision、g5、g6）、records/、trace/、tools/lint_status_strings.py、各 checker 硬编码词表点
 
 # 状态/词表/枚举单源收编（audit-status-vocab-single-source）
