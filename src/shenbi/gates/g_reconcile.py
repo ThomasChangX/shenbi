@@ -11,6 +11,7 @@ log = get_logger(__name__)
 from pathlib import Path
 from typing import Any
 
+from shenbi.status import SkillProgressStatus
 from shenbi.gates.shared import (
     ALL_SKILLS,
     find_report,
@@ -37,7 +38,10 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
         if not isinstance(sd, dict):
             continue
         for tt, td in sd.items():
-            if isinstance(td, dict) and str(td.get("status", "")).upper() == "DONE":
+            if (
+                isinstance(td, dict)
+                and str(td.get("status", "")).upper() == SkillProgressStatus.DONE.value.upper()
+            ):
                 report = find_report(rd / "t1-reports", sn, tt)
                 if not report or not report.exists():
                     mf.append(f"GR.1:{sn}-{tt}:no_report")
@@ -67,7 +71,11 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
                 if candidate_skill in ALL_SKILLS:
                     matched = True
                     td = skills.get(candidate_skill, {}).get(candidate_tt, {})
-                    if isinstance(td, dict) and str(td.get("status", "")).upper() != "DONE":
+                    if (
+                        isinstance(td, dict)
+                        and str(td.get("status", "")).upper()
+                        != SkillProgressStatus.DONE.value.upper()
+                    ):
                         mf.append(f"GR.2:{rp.stem}:status={td.get('status', '?')}")
                     break
             if not matched:
