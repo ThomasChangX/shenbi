@@ -9,6 +9,9 @@ from __future__ import annotations
 
 from typing import Any
 
+from typing import get_args
+
+from shenbi.contracts.enums import ApprovalDecision
 from pydantic import BaseModel, Field, model_validator
 
 
@@ -39,9 +42,9 @@ class GenreConfig(BaseModel):
     @model_validator(mode="after")
     def _approval_decision_valid(self) -> GenreConfig:
         decision = self.approval.get("decision", "")
-        if decision and decision not in ("approved", "rejected"):
+        if decision and decision not in get_args(ApprovalDecision):
             raise ValueError(
-                f"approval.decision must be 'approved' or 'rejected', got '{decision}'"
+                f"approval.decision must be one of {get_args(ApprovalDecision)}, got '{decision}'"
             )
         return self
 

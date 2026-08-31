@@ -109,6 +109,33 @@ class ChapterStatus(StrEnum):
     SETTLING_FAILED = "settling_failed"
 
 
+_LEGACY_CHAPTER_STATUS: dict[str, ChapterStatus] = {"completed": ChapterStatus.COMPLETE}
+
+
+def _normalize_chapter_status(chapter_key: str, raw: object) -> ChapterStatus:
+    """Spec #34 T907: load-side status normalization.
+
+    Legacy ``completed`` maps to canonical ``complete`` with a WARN; unknown
+    values raise a structured error instead of free-riding as a str.
+    """
+    from shenbi.logging import get_logger
+
+    value = str(raw)
+    legacy = _LEGACY_CHAPTER_STATUS.get(value)
+    if legacy is not None:
+        get_logger(__name__).warning(
+            "legacy_chapter_status_normalized", chapter=chapter_key, from_=value, to=legacy.value
+        )
+        return legacy
+    try:
+        return ChapterStatus(value)
+    except ValueError as exc:
+        raise ValueError(
+            f"chapter_states[{chapter_key}].status invalid: {value!r} "
+            f"(legal: {[s.value for s in ChapterStatus]})"
+        ) from exc
+
+
 @dataclass
 class ChapterState:
     steps_done: list[str] = field(default_factory=list)
@@ -322,7 +349,7 @@ class PipelineState:
         for k, v in cl_data.get("chapter_states", {}).items():
             chapter_states[k] = ChapterState(
                 steps_done=v.get("steps_done", []),
-                status=v.get("status", "pending"),
+                status=_normalize_chapter_status(k, v.get("status", "pending")),
                 resonance_score=v.get("resonance_score"),
                 audit_results=v.get("audit_results", {}),
                 revision_count=v.get("revision_count", 0),

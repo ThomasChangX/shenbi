@@ -49,7 +49,6 @@ class TestCommandStatusWireValues:
             "error",
             "exists",
             "degraded",  # spec #34 T908
-            "not_implemented",  # spec #34 T908
         }
 
 

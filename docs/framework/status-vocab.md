@@ -14,7 +14,7 @@
 |---|---|---|---|---|
 | GateStatus | shenbi.status.GateStatus | PASS\|FAIL\|SKIP\|WARN\|UNIMPLEMENTED | gates/shared.py 标记落盘、contracts/base.py GateOutcome.status（T904 合一注解） | gates/cli、scoring、phase_runner/executor |
 | PhaseState | shenbi.status.PhaseState | created\|started\|skills_done\|scored\|finalized | phase_runner | phase-state/*.json |
-| CommandStatus | shenbi.status.CommandStatus | ok\|blocked\|error\|exists\|degraded\|not_implemented | phase_runner、pipeline/cli.py、pipeline/truth_embed.py | CLI 消费者（DEGRADED/NOT_IMPLEMENTED 为 T908 收编 degraded 越表值与 cli 未实现形态） |
+| CommandStatus | shenbi.status.CommandStatus | ok\|blocked\|error\|exists\|degraded | phase_runner、pipeline/cli.py、pipeline/truth_embed.py | CLI 消费者（DEGRADED/NOT_IMPLEMENTED 为 T908 收编 degraded 越表值与 cli 未实现形态） |
 | ScoringStatus | shenbi.status.ScoringStatus | ok\|REJECT\|MARKER_MISSING\|UNIMPLEMENTED | scoring.py | dispatcher |
 | ScoreClassification | shenbi.status.ScoreClassification | PASS (excellent)\|PASS (acceptable)\|CONDITIONAL\|FAIL | scoring.classify | - |
 | SkillProgressStatus | shenbi.status.SkillProgressStatus | pending\|done\|skip | dispatcher/modes/codex.py、trace/materialize.py | gates/g_reconcile.py（容错读旧大写 DONE，T906） |
@@ -45,7 +45,7 @@
 | WriteSafety | shenbi.pipeline.write_safety.WriteSafety | read_only_audit\|write_isolated\|write_shared | 静态声明 | 审计波串行化 |
 | RecoveryStrategy | shenbi.recovery.RecoveryStrategy | none\|auto_retry\|auto_rebuild\|halt | recovery | - |
 | DriftKind | shenbi.skill_utils.drift_detection.compute_drift.DriftKind | monotonic_decline\|below_mean_2sigma\|volume_decline | compute_drift | - |
-| RevisionRoute | shenbi.pipeline.revision_router.RevisionRoute | spot-fix\|regenerate\|constrained-regenerate\|no-revision | revision_router | chapter_loop（值集=RevisionMode，路由专用形态） |
+| RevisionRoute | shenbi.pipeline.revision_router.RevisionRoute | spot-fix\|regenerate\|constrained-regenerate\|reconstruction\|no-revision | revision_router | chapter_loop（T910 合一后为 enums.RevisionMode 的别名，值集同域） |
 | RevisionDecision | shenbi.pipeline.revision_router.RevisionDecision | pass\|revision\|escalation | revision_router | chapter_loop |
 | PipelinePhase | shenbi.pipeline.state.PipelinePhase | genesis\|chapter-loop\|closure\|completed\|failed | pipeline 状态机 | pipeline-state.json |
 | GenesisState | shenbi.pipeline.state.GenesisState | pending\|in-progress\|checkpoint-pending\|completed | state 机 | pipeline-state.json（genesis 语义：completed 为终态，与 ChapterStatus.complete 属不同域） |

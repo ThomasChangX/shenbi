@@ -3,6 +3,7 @@
 """
 
 from __future__ import annotations
+from enum import StrEnum
 from typing import Any, Literal
 
 Severity = Literal["BLOCKING", "CRITICAL", "MINOR"]
@@ -17,10 +18,21 @@ ScoredBy = Literal["file", "interactive", "subagent"]
 ResonanceVerdict = Literal["通过", "阻断", "待人机复核"]
 # spec #34 T903: revision-decisions severity 生产域（容错映射见 status-vocab.md）
 RevisionSeverity = Literal["low", "medium", "high"]
+
+
 # spec #34 T910: 修订 mode 单一域（route.py/revision_router.py 双域合一；旧值 no_op 读侧归一 no-revision）
-RevisionMode = Literal[
-    "spot-fix", "regenerate", "constrained-regenerate", "reconstruction", "no-revision"
-]
+class RevisionMode(StrEnum):
+    """Revision mode domain — single source (spec #34 T910)."""
+
+    SPOT_FIX = "spot-fix"
+    REGENERATE = "regenerate"
+    CONSTRAINED_REGENERATE = "constrained-regenerate"
+    RECONSTRUCTION = "reconstruction"
+    NO_REVISION = "no-revision"
+
+
+# Legacy production value aliases (read-side normalization only, see registry)
+REVISION_MODE_ALIASES: dict[str, str] = {"no_op": "no-revision"}
 # spec #34 T9 行38/39 同键合一: revision-decisions 顶层 status
 RevisionStatus = Literal[
     "preserved", "skipped", "delegated", "reconstructed_from_cross_source_evidence"

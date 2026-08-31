@@ -47,9 +47,9 @@ class CommandStatus(StrEnum):
     BLOCKED = "blocked"
     ERROR = "error"
     EXISTS = "exists"
-    # spec #34 T908: 收编生产越表值（truth_embed.py "degraded"）与 cli 未实现形态
+    # spec #34 T908: 收编生产越表值（truth_embed.py "degraded"）；
+    # "未实现"第三形态已由先前的 cli ERROR 化统一（T9 行 35 过时），不另立成员
     DEGRADED = "degraded"
-    NOT_IMPLEMENTED = "not_implemented"
 
 
 class SkillProgressStatus(StrEnum):
