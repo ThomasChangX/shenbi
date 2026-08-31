@@ -61,3 +61,39 @@ class TestWarnIfOverBudget:
             "a" * 10000, "totally-unknown-model", logger=logging.getLogger("t")
         )
         assert warned in (True, False)
+
+
+class TestF523Spec36:
+    """C10 spec #36 T6'a: CJK ext-A/fullwidth ranges + conservative fallback."""
+
+    def test_ext_a_and_fullwidth_count_as_cjk(self):
+        ext_a = "".join(chr(c) for c in range(0x3400, 0x3400 + 30))
+        fullwidth = "ＡＢＣ１２３！"  # fullwidth forms FF00-FFEF
+        new = estimate_prompt_tokens(ext_a + fullwidth)
+        old_style = int(0 / 1.5 + len(ext_a + fullwidth) / 4)  # BMP-only behavior
+        assert new > old_style
+
+    def test_compat_ideographs_count_as_cjk(self):
+        compat = "".join(chr(c) for c in range(0xF900, 0xF900 + 10))
+        assert estimate_prompt_tokens(compat) == int(10 / 1.5)
+
+    def test_unknown_model_conservative_limit(self):
+        from shenbi.cost import estimate
+
+        assert estimate._limit_for("totally-unknown-model") == 131_072
+
+    def test_unknown_model_warns_once(self, caplog):
+        from shenbi.cost import estimate
+
+        estimate.reset_unknown_model_warning()
+        logger = logging.getLogger("shenbi.cost.estimate")
+        with caplog.at_level(logging.WARNING, logger="shenbi.cost.estimate"):
+            estimate.warn_if_over_budget("x" * 600_000, "totally-unknown-model", logger=logger)
+            estimate.warn_if_over_budget("x" * 600_000, "totally-unknown-model", logger=logger)
+        once = [
+            r
+            for r in caplog.records
+            if r.name == "shenbi.cost.estimate" and "conservative" in str(getattr(r, "msg", ""))
+        ]
+        assert len(once) == 1
+        estimate.reset_unknown_model_warning()

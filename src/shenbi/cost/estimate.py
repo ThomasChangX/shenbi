@@ -18,22 +18,52 @@ CONTEXT_WARN_FRACTION = 0.8
 MODEL_CONTEXT_LIMITS: dict[str, int] = {
     "deepseek-v4-flash": 1_048_576,
 }
-_DEFAULT_CONTEXT_LIMIT = 1_048_576
+# CJK ranges (F523, spec #36 T6'a): Basic + Ext-A + compatibility ideographs
+# + fullwidth forms. The old BMP-only range priced Ext-A/fullwidth text at the
+# ASCII 4-chars/token ratio, systematically underestimating Chinese prompts.
+_CJK_RANGES = (
+    (0x3400, 0x4DBF),  # CJK Extension A
+    (0x4E00, 0x9FFF),  # CJK Unified Ideographs
+    (0xF900, 0xFAFF),  # CJK Compatibility Ideographs
+    (0xFF00, 0xFFEF),  # Fullwidth Forms
+)
 
-# CJK Unified Ideographs range, used to pick the denser char/token ratio.
-_CJK_START = 0x4E00
-_CJK_END = 0x9FFF
+# F523: unknown models must NOT fall back optimistically to the flagship
+# 1M limit — that silently disabled the overflow warning for misconfigured
+# model names. Conservative 128K default instead.
+_DEFAULT_CONTEXT_LIMIT = 131_072
+
+_unknown_model_warned = {"armed": True}
+
+
+def reset_unknown_model_warning() -> None:
+    """Test hook: re-arm the one-shot unknown-model fallback warning."""
+    _unknown_model_warned["armed"] = True
+
+
+def _is_cjk(ch: str) -> bool:
+    cp = ord(ch)
+    return any(start <= cp <= end for start, end in _CJK_RANGES)
 
 
 def estimate_prompt_tokens(text: str) -> int:
     """Rough token estimate: 1 token ~= 4 chars (ASCII) / 1.5 chars (CJK)."""
-    cjk = sum(1 for c in text if _CJK_START <= ord(c) <= _CJK_END)
+    cjk = sum(1 for c in text if _is_cjk(c))
     other = len(text) - cjk
     return int(cjk / 1.5 + other / 4)
 
 
 def _limit_for(model: str) -> int:
-    return MODEL_CONTEXT_LIMITS.get(model, _DEFAULT_CONTEXT_LIMIT)
+    limit = MODEL_CONTEXT_LIMITS.get(model)
+    if limit is None:
+        if _unknown_model_warned["armed"]:
+            _unknown_model_warned["armed"] = False
+            logging.getLogger("shenbi.cost.estimate").warning(
+                "context_limit_unknown_model_conservative_fallback",
+                extra={"model": model, "fallback_limit": _DEFAULT_CONTEXT_LIMIT},
+            )
+        return _DEFAULT_CONTEXT_LIMIT
+    return limit
 
 
 def warn_if_over_budget(prompt: str, model: str, logger: Any = None) -> bool:
