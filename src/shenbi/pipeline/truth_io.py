@@ -127,16 +127,21 @@ def truth_file_flock(path: Path) -> Generator[None, None, None]:
     truth/** files: taking the SAME lockfile as _path_lock puts them in the
     same mutual-exclusion domain as in-process RMW sections (spec #37 T709).
     """
-    import fcntl
     import os
     import sys
 
     if sys.platform == "win32":  # pragma: no cover — POSIX-authoritative
         yield
         return
-    lockfile = path.parent / (path.name + ".lockfile")
-    lockfile.parent.mkdir(parents=True, exist_ok=True)
-    fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
+    try:
+        import fcntl
+
+        lockfile = path.parent / (path.name + ".lockfile")
+        lockfile.parent.mkdir(parents=True, exist_ok=True)
+        fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
+    except (ImportError, OSError):
+        yield  # degrade to no cross-process exclusion (POSIX-authoritative)
+        return
     try:
         fcntl.flock(fd, fcntl.LOCK_EX)
         yield
