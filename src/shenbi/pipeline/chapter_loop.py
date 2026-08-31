@@ -74,6 +74,7 @@ from shenbi.pipeline.revision_router import (
     route_chapter_revision,
 )
 from shenbi.pipeline.state import (
+    ChapterStatus,
     ChapterState,
     CheckpointType,
     PipelineState,
@@ -1031,7 +1032,7 @@ def _complete_chapter(state: PipelineState, chapter: int) -> bool:
     if cs is None:
         cs = ChapterState()
         state.chapter_loop.chapter_states[key] = cs
-    cs.status = "complete"
+    cs.status = ChapterStatus.COMPLETE
 
     # 10c: Rebuild truth-index at volume boundaries or every 15 chapters
     _maybe_rebuild_truth_index(project_dir, chapter)

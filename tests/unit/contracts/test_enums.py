@@ -29,6 +29,12 @@ def test_all_enums_complete() -> None:
         "ActorRole",
         "TriggerFailureStage",
         "ScoredBy",
+        "ResonanceVerdict",
+        "RevisionSeverity",
+        "RevisionMode",
+        "RevisionStatus",
+        "ApprovalDecision",
+        "NovelStatus",
     }
 
 

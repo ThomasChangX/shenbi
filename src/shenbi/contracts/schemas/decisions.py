@@ -11,7 +11,8 @@ DECISIONS_SCHEMA_VERSION = "shenbi-decisions-v1"
 _RATIONALE_MAX_CHARS = 100
 
 Basis = Literal["adjacent_to_target_chapter", "arc_relevance", "volume_scope", "manual_override"]
-Severity = Literal["low", "medium", "high"]
+# spec #34 F211: SeverityLevel（原 Severity 改名，与 enums.Severity 消同名冲突）
+SeverityLevel = Literal["low", "medium", "high"]
 Handling = Literal["compensate_via_pacing", "explicit_callout", "defer_to_next_chapter", "ignore"]
 Trim = Literal["none", "oldest_first", "lowest_relevance", "manual"]
 
@@ -21,7 +22,7 @@ class Selection(BaseModel):
     target: str
     selected: list[str]
     basis: Basis
-    severity: Severity = "low"
+    severity: SeverityLevel = "low"
     omitted: list[str] = []
     rationale: str | None = None
 
@@ -46,7 +47,7 @@ class Selection(BaseModel):
 class Adjustment(BaseModel):
     model_config = {"extra": "forbid"}
     issue_id: str
-    severity: Severity
+    severity: SeverityLevel
     handling: Handling
     rationale: str
 

@@ -14,6 +14,7 @@ from shenbi.safe_write import safe_write
 from shenbi.cli_utils import emit_json
 from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
+from shenbi.status import SkillProgressStatus
 from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse
 
 log = get_logger(__name__)
@@ -52,7 +53,7 @@ def _record_completion(
     skills = skills_obj if isinstance(skills_obj, dict) else {}
     skill_entry_obj = skills.get(skill, {})
     skill_entry = skill_entry_obj if isinstance(skill_entry_obj, dict) else {}
-    entry: dict[str, object] = {"score": score, "status": "done"}
+    entry: dict[str, object] = {"score": score, "status": SkillProgressStatus.DONE}
     if output_files:
         entry["output_files"] = output_files
     skill_entry[test_type] = entry

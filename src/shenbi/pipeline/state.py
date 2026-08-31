@@ -95,10 +95,24 @@ class GenesisStateData:
     retry_feedback: dict[str, str] = field(default_factory=dict)
 
 
+class ChapterStatus(StrEnum):
+    """Per-chapter lifecycle status (spec #34 T907).
+
+    Serialized values keep the existing wire format (``in-progress`` with a
+    hyphen). ``from_dict`` normalizes the legacy ``completed`` form; writers
+    must use members only.
+    """
+
+    PENDING = "pending"
+    IN_PROGRESS = "in-progress"
+    COMPLETE = "complete"
+    SETTLING_FAILED = "settling_failed"
+
+
 @dataclass
 class ChapterState:
     steps_done: list[str] = field(default_factory=list)
-    status: str = "pending"
+    status: ChapterStatus = ChapterStatus.PENDING
     resonance_score: int | None = None
     audit_results: dict[str, Any] = field(default_factory=dict)
     revision_count: int = 0
