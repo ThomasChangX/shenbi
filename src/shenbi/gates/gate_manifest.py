@@ -83,7 +83,10 @@ def _load_gate_manifest(manifest_dir: Path) -> dict[str, Any]:
             try:
                 from shenbi.safe_write import safe_write
 
-                safe_write(corrupt, manifest_file.read_text(encoding="utf-8", errors="replace"))
+                # First-write-only: repeated failed loads (record retries)
+                # keep the ORIGINAL corrupt state, not the latest overwrite.
+                if not corrupt.exists():
+                    safe_write(corrupt, manifest_file.read_text(encoding="utf-8", errors="replace"))
                 log.error("manifest_corrupt_preserved", corrupt_path=str(corrupt), error=str(e))
             except OSError:
                 log.error("manifest_corrupt_preservation_failed", error=str(e))

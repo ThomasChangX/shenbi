@@ -12,7 +12,7 @@ from typing import Any
 from shenbi.safe_write import locked_transact, safe_write
 
 from shenbi.cli_utils import emit_json
-from shenbi.exceptions import SubAgentProtocolError, SubAgentTimeoutError
+from shenbi.exceptions import ShenbiError, SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
 from shenbi.status import SkillProgressStatus
 from shenbi.orchestration.scoring_bridge import check_single_scorer_collapse
@@ -182,6 +182,10 @@ def _run_dual_scorer_check(
                 gate="G3-arb",
                 result=agreement,
             )
+        except ShenbiError:
+            # spec #37 F416: manifest corruption is fail-loud — envelope
+            # errors propagate; only transient failures are best-effort.
+            raise
         except Exception:
             # Manifest write failure must not crash dispatch — the dual check
             # is an enhancement, not a gate (audit-T4 M1).

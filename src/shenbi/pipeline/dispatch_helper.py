@@ -51,7 +51,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
-from shenbi.exceptions import DispatchWriteFailureError, TruthFileParseError
+from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
     check_audit_completeness,
@@ -2697,5 +2697,9 @@ def _record_gate_manifest(
             gate=gate,
             result=result,
         )
+    except ShenbiError:
+        # spec #37 F416: manifest corruption is fail-loud — envelope errors
+        # propagate; only transient failures are best-effort.
+        raise
     except Exception:
         log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)
