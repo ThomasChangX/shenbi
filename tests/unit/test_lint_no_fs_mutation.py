@@ -152,3 +152,10 @@ def test_every_allowlisted_file_has_violations() -> None:
             f"{rel} is allowlisted but has no FS-mutation primitives "
             f"(dead entry -- remove it from the allowlist)."
         )
+
+
+def test_bare_writes_allowlist_mirrors_purity_lint() -> None:
+    """lint_bare_writes.ALLOWED_FILES must mirror lint_no_fs_mutation's sets."""
+    from tools.lint_bare_writes import ALLOWED_FILES as BARE
+
+    assert BARE == ALLOWED_FILES, "bare-write lint allowlist diverged from purity lint"
