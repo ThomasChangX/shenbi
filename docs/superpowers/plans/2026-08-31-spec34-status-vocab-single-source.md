@@ -81,7 +81,7 @@
 ### Task 2: enums/status/base 收编 + 批量死代码（spec T2 + F221/F336/F352）
 
 **Files:**
-- Modify: `src/shenbi/contracts/enums.py`（新增 ResonanceVerdict/RevisionSeverity/RevisionMode/ApprovalDecision/ContentPreservation/RevisionVerdictStatus/NovelStatus，入 ALL_ENUMS）
+- Modify: `src/shenbi/contracts/enums.py`（新增 ResonanceVerdict/RevisionSeverity/RevisionMode/ApprovalDecision/RevisionStatus/NovelStatus，入 ALL_ENUMS）
 - Modify: `src/shenbi/contracts/base.py:29`（`status: GateStatus`，import shenbi.status）
 - Modify: `src/shenbi/contracts/schemas/decisions.py:16`（`Severity`→`SeverityLevel`，全仓 import 点同步改名）
 - Modify: `src/shenbi/gates/g4/review_resonance.py:25`（`_VERDICTS` 改 import `enums.ResonanceVerdict` 元组派生）
@@ -119,7 +119,7 @@
 **Files:**
 - Modify: `src/shenbi/gates/g4/chapter_revision.py:38,97`（HARD_FAIL→`GateStatus.FAIL` + `"severity": enums.Severity.BLOCKING` 标注；解 pin `tests/unit/gates/g4/test_chapter_revision.py:112,142,155,179`）
 - Modify: `skills/shenbi-chapter-revision/SKILL.md`（severity 枚举化 low/medium/high 说明）
-- Modify: `src/shenbi/gates/g4/chapter_revision.py`（G4 对 revision-decisions severity/mode 值域校验：severity∈RevisionSeverity（含容错映射表）、mode∈RevisionMode）+ `src/shenbi/gates/g0_skill_contract.py:133-137`（T204：mode 值合法性 ∈ 登记词表 `update_mode`/`write_mode` 值域）
+- Modify: `src/shenbi/gates/g4/chapter_revision.py`（G4 对 revision-decisions severity/mode/status 值域校验（status∈RevisionStatus）：severity∈RevisionSeverity（含容错映射表）、mode∈RevisionMode）+ `src/shenbi/gates/g0_skill_contract.py:133-137`（T204：mode 值合法性 ∈ 登记词表 `update_mode`/`write_mode` 值域）
 - Create: `tools/check_severity_vocab.py`（AC2 复算：扫 novel-output/**/*revision-decisions*.json（生产文件名为 chapter-N-revision-decisions.json） 的 severity 值，越表=不在 RevisionSeverity 且不在容错映射；exit 0 输出越表率 0%）
 - Modify: `justfile`（lint 块加 `uv run python tools/check_severity_vocab.py`）
 - Test: `tests/unit/gates/g4/test_chapter_revision.py` 更新 + `tests/unit/tools/test_check_severity_vocab.py`（fixtures 驱动：用 `tests/fixtures/` 真实 revision-decisions 产物）

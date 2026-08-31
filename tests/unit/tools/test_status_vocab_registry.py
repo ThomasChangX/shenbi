@@ -11,8 +11,9 @@ from tools.status_vocab_registry import parse_registry, reconcile, resolve_symbo
 
 def test_registry_has_full_domain_count() -> None:
     rows = parse_registry()
-    # 36 declared domains + ownerless production domains consolidated (T9 matrix)
-    assert len(rows) >= 30, f"registry too small: {len(rows)}"
+    # T9 matrix: 36 declared domains + ownerless production domains consolidated.
+    # Exact count pins the registry against silent row loss.
+    assert len(rows) == 41, f"registry row count changed: {len(rows)}"
 
 
 def test_every_row_resolves_with_equal_values() -> None:

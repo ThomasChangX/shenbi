@@ -41,8 +41,11 @@ def parse_registry(path: Path = REGISTRY_PATH) -> list[DomainRow]:
         if not in_table or not line.startswith("|"):
             continue
         cells = [c.strip() for c in re.split(r"(?<!\\)\|", line.strip().strip("|"))]
-        if len(cells) != N_COLUMNS or cells[0] == "域" or set(cells[0]) <= {"-", ":"}:
-            continue
+        if cells[0] == "域" or set(cells[0]) <= {"-", ":"}:
+            continue  # header / separator
+        if len(cells) != N_COLUMNS:
+            msg = f"registry malformed row ({len(cells)} columns): {line[:80]}"
+            raise ValueError(msg)
         domain, symbol, values, _writers, _readers = cells
         rows.append(
             DomainRow(
