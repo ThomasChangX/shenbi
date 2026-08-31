@@ -16,7 +16,7 @@
 ## Scoring Rules
 - Each dimension scored 0-100
 - Final = weighted sum
-- 90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL
+- 90-100: PASS | 75-89: CONDITIONAL | 60-74: MARGINAL | 0-59: FAIL
 
 ## MVP Scope Note
 This skill implements the deterministic full-scan filter.

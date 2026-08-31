@@ -42,4 +42,4 @@
 - Each dimension scored 0-100
 - Final = weighted sum of all dimensions
 - Kill switch triggered -> final = 0 (overrides all scores)
-- 90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL
+- 90-100: PASS | 75-89: CONDITIONAL | 60-74: MARGINAL | 0-59: FAIL
