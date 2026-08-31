@@ -1486,7 +1486,7 @@ def _load_manifest(project_dir: Path) -> dict[str, Any]:
     """Load the snapshot manifest from ``snapshots/manifest.json``.
 
     Returns a dict with ``chapters`` (dict of chapter→filenames),
-    ``last_recall_chapter``, and ``last_drift_chapter``. Returns an empty
+    ``last_drift_chapter``. Returns an empty
     skeleton when the manifest file does not exist.
     """
     manifest_path = project_dir / "snapshots" / "manifest.json"
