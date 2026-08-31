@@ -368,7 +368,7 @@ def test_g32_reads_canonical_scoring_shape(tmp_path: Path) -> None:
 
     canonical = {
         "final_score": 91.5,
-        "classification": "PASS (excellent)",
+        "classification": "PASS",
         "dimensions": [
             {"num": 1, "name": "A", "weight": 10, "score": 90},
             {"num": 2, "name": "B", "weight": 5, "score": 95},

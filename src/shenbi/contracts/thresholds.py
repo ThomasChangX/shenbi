@@ -9,3 +9,5 @@ T2_PASS: int = 94  # T2 phase advancement threshold
 T3_PASS: int = 94  # T3 pipeline advancement threshold
 TEST_PASS: int = 90  # individual test pass threshold
 CONVERGENCE: int = 100  # convergence target
+CONDITIONAL_MIN: int = 75  # conditional band floor (75-89)
+MARGINAL_MIN: int = 60  # marginal band floor (60-74)

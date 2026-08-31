@@ -18,6 +18,7 @@ check:
     uv run python tools/lint_key_reconciliation.py --strict
     uv run python tools/lint_decisions_sources.py
     uv run python tools/lint_helper_usage.py
+    uv run python tools/lint_threshold_reconciliation.py
     just lint-contracts
     uv run ruff check .
     uv run ruff format --check .

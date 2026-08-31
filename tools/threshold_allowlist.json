@@ -1,0 +1,36 @@
+{
+  "entries": [
+    {
+      "skill": "shenbi-pacing-design",
+      "pattern": "标准卷: QUEST",
+      "keyword": "CONSTELLATION",
+      "file": "skills/shenbi-pacing-design/SKILL.md",
+      "checker": "src/shenbi/contracts/skills/pacing_design.py",
+      "bounds": [15, 40]
+    },
+    {
+      "skill": "shenbi-pacing-design",
+      "pattern": "开卷: QUEST",
+      "keyword": "CONSTELLATION",
+      "file": "skills/shenbi-pacing-design/SKILL.md",
+      "checker": "src/shenbi/contracts/skills/pacing_design.py",
+      "bounds": [15, 40]
+    },
+    {
+      "skill": "shenbi-pacing-design",
+      "pattern": "情感卷: QUEST",
+      "keyword": "CONSTELLATION",
+      "file": "skills/shenbi-pacing-design/SKILL.md",
+      "checker": "src/shenbi/contracts/skills/pacing_design.py",
+      "bounds": [15, 40]
+    },
+    {
+      "skill": "shenbi-pacing-design",
+      "pattern": "大战卷: QUEST",
+      "keyword": "CONSTELLATION",
+      "file": "skills/shenbi-pacing-design/SKILL.md",
+      "checker": "src/shenbi/contracts/skills/pacing_design.py",
+      "bounds": [15, 40]
+    }
+  ]
+}

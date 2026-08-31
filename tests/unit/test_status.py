@@ -59,8 +59,11 @@ class TestScoringAndClassification:
         assert ScoringStatus.MARKER_MISSING.value == "MARKER_MISSING"
 
     def test_classification_strings_match_classifier_output(self) -> None:
-        assert ScoreClassification.PASS_EXCELLENT.value == "PASS (excellent)"
+        assert ScoreClassification.PASS.value == "PASS"
         assert ScoreClassification.CONDITIONAL.value == "CONDITIONAL"
+
+    def test_score_classification_values(self) -> None:
+        assert {s.value for s in ScoreClassification} == {"PASS", "CONDITIONAL", "MARGINAL", "FAIL"}
 
 
 @pytest.mark.unit
@@ -70,7 +73,7 @@ class TestStatusStringLiteralSet:
         assert "PASS" in STATUS_STRING_LITERALS
         assert "created" in STATUS_STRING_LITERALS
         assert "REJECT" in STATUS_STRING_LITERALS
-        assert "PASS (excellent)" in STATUS_STRING_LITERALS
+        assert "MARGINAL" in STATUS_STRING_LITERALS
 
 
 @pytest.mark.unit

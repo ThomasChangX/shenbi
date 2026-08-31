@@ -12,7 +12,7 @@ spec: docs/superpowers/specs/2026-08-16-c32-write-audit-mechanism-design.md R2
 - F508 (P2): 未变更/双 None → status="unchanged"（不再误标 modified）
 
 fixture 用真实技能产物（G0.9）：genre-config-example.json 顶层键恰为
-OWNERSHIP _GENRE_KEYS 九键；pending-hooks-example.md 记录段 3 条 hook 且
+OWNERSHIP GENRE_KEYS 九键；pending-hooks-example.md 记录段 3 条 hook 且
 cross-section drift 为空。
 """
 

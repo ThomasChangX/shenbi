@@ -72,3 +72,31 @@ def test_registry_includes_pacing_design() -> None:
     from shenbi.contracts.registry import REGISTRY
 
     assert "shenbi-pacing-design" in REGISTRY
+
+
+# --- Spec #35 (F213/F846): hard band [15,40] covers per-volume design ------
+def _const_payload(ratio: float) -> dict[str, object]:
+    return {
+        "beats": {"铺垫": 25.0, "升级": 30.0, "爆发": 25.0, "余波": 20.0},
+        "line_ratios": {"QUEST": 50.0, "FIRE": 20.0, "CONSTELLATION": ratio},
+        "scene_types": [f"s{i}" for i in range(8)],
+    }
+
+
+@pytest.mark.unit
+def test_constellation_hard_band_covers_kaijuan_upper() -> None:
+    from shenbi.contracts.skills.pacing_design import PacingDesign
+
+    assert PacingDesign.model_validate(_const_payload(38))  # 开卷 30-40 合法
+    assert PacingDesign.model_validate(_const_payload(40))
+    with pytest.raises(ValidationError, match=r"\[15, 40\]"):
+        PacingDesign.model_validate(_const_payload(41))
+
+
+@pytest.mark.unit
+def test_constellation_hard_band_lower_edge() -> None:
+    from shenbi.contracts.skills.pacing_design import PacingDesign
+
+    assert PacingDesign.model_validate(_const_payload(15))
+    with pytest.raises(ValidationError, match=r"\[15, 40\]"):
+        PacingDesign.model_validate(_const_payload(14))

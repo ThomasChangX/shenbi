@@ -24,7 +24,7 @@ from shenbi.gates.shared import (
 )
 from collections.abc import Mapping
 
-from shenbi.contracts.thresholds import T1_PASS
+from shenbi.contracts.thresholds import T1_PASS, TEST_PASS
 
 
 def _compute_rubric_weighted_score(data: dict[str, object], skill_name: str) -> float | None:
@@ -161,12 +161,12 @@ def gate_G3(
                             )
                             if rubric_score is not None:
                                 score = rubric_score
-                                threshold = 90  # pipeline mode
+                                threshold = TEST_PASS  # pipeline mode: 90 individual pass (94 = tier advancement)
                             else:
                                 # Fallback: min of flat dimension scores
                                 # (canonical nested dims + legacy numeric keys)
                                 score = min(flat_dims.values()) if flat_dims else 0
-                                threshold = 90
+                                threshold = TEST_PASS
                         if score < threshold:
                             mf.append(
                                 {

@@ -20,22 +20,22 @@ from shenbi.scoring import Dimension, classify, compute_score, validate_scores
 @given(st.integers(min_value=0, max_value=100))
 def test_classify_always_returns_one_of_four_labels(score: int) -> None:
     label = classify(score)
-    assert label in {"PASS (excellent)", "PASS (acceptable)", "CONDITIONAL", "FAIL"}
+    assert label in {"PASS", "CONDITIONAL", "MARGINAL", "FAIL"}
 
 
 @given(st.integers(min_value=90, max_value=100))
-def test_classify_returns_excellent_at_or_above_90(score: int) -> None:
-    assert classify(score) == "PASS (excellent)"
+def test_classify_returns_pass_at_or_above_90(score: int) -> None:
+    assert classify(score) == "PASS"
 
 
 @given(st.integers(min_value=75, max_value=89))
-def test_classify_returns_acceptable_between_75_and_89(score: int) -> None:
-    assert classify(score) == "PASS (acceptable)"
+def test_classify_returns_conditional_between_75_and_89(score: int) -> None:
+    assert classify(score) == "CONDITIONAL"
 
 
 @given(st.integers(min_value=60, max_value=74))
-def test_classify_returns_conditional_between_60_and_74(score: int) -> None:
-    assert classify(score) == "CONDITIONAL"
+def test_classify_returns_marginal_between_60_and_74(score: int) -> None:
+    assert classify(score) == "MARGINAL"
 
 
 @given(st.integers(min_value=0, max_value=59))

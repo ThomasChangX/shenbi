@@ -19,9 +19,9 @@ Chase Power = Σ (hook_power × time_since_plant × escalation_factor)
 | 等级 | CP 债务 | 行动 |
 |------|---------|------|
 | GREEN | < 50 | 正常 |
-| YELLOW | 50-100 | 下3章内需要有伏笔兑现 |
-| ORANGE | 100-200 | 下章必须有伏笔兑现 |
-| RED | > 200 | 立即安排伏笔兑现或考虑放弃部分支线 |
+| YELLOW | 50-99 | 下3章内需要有伏笔兑现 |
+| RED | ≥ 100 | 下章必须兑现至少一条伏笔 |
+| FORCE_NEXT_CHAPTER | ≥ 200 | 强制推进兑现，或经人类批准放弃部分支线 |
 
 ## 兑现质量
 

@@ -275,5 +275,9 @@ def rollback_genre_config(project_dir: Path, snapshot: str | None) -> None:
         gc_path.unlink(missing_ok=True)
     for stale in project_dir.glob("genre-config-decisions.json"):
         stale.unlink()
-    for bak in project_dir.glob("genre-config.json.bak.*"):
+    baks = [
+        *project_dir.glob("genre-config.json.bak.*"),
+        *project_dir.glob("genre-config.json.bak"),
+    ]
+    for bak in baks:
         bak.unlink()

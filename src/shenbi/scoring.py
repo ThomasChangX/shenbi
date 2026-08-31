@@ -10,7 +10,7 @@ from typing import Any, TypedDict
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts.enums import ScoredBy
-from shenbi.contracts.thresholds import TEST_PASS
+from shenbi.contracts.thresholds import CONDITIONAL_MIN, MARGINAL_MIN, TEST_PASS
 from shenbi.gates.shared import marker_filename
 from shenbi.logging import configure_logging, get_logger
 from shenbi.status import ScoreClassification, ScoringStatus
@@ -227,11 +227,11 @@ def compute_score(
 
 def classify(score: float | int) -> ScoreClassification:
     if score >= TEST_PASS:
-        return ScoreClassification.PASS_EXCELLENT
-    if score >= 75:
-        return ScoreClassification.PASS_ACCEPTABLE
-    if score >= 60:
+        return ScoreClassification.PASS
+    if score >= CONDITIONAL_MIN:
         return ScoreClassification.CONDITIONAL
+    if score >= MARGINAL_MIN:
+        return ScoreClassification.MARGINAL
     return ScoreClassification.FAIL
 
 

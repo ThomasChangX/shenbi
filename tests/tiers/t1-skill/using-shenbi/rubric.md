@@ -41,4 +41,4 @@
 | All bespoke (3-7) | Yes (detection quality) | Yes (report quality) | Yes (output quality) |
 
 ## Scoring Rules
-- 90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL
+- 90-100: PASS | 75-89: CONDITIONAL | 60-74: MARGINAL | 0-59: FAIL
