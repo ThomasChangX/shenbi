@@ -8,6 +8,10 @@ from __future__ import annotations
 import re
 from typing import Any
 
+import structlog
+
+log = structlog.get_logger(__name__)
+
 # markdown 表头列 → YAML 记录键（亲手核对 fixture L14 表头顺序）
 _MD_HEADER_TO_KEY: dict[str, str] = {
     "Hook ID": "id",
@@ -27,8 +31,19 @@ _ACTIVE_HEADER_RE = re.compile(r"^## 活跃伏笔\s*$", re.MULTILINE)
 MD_HEADER_TO_KEY: dict[str, str] = _MD_HEADER_TO_KEY
 
 
-def parse_markdown_table(text: str) -> dict[str, dict[str, str]]:
-    """解析 ## 活跃伏笔 markdown 表 → {id: {key: str_value}}。无表/空表 → {}。"""
+def parse_markdown_table(
+    text: str, stats: dict[str, int] | None = None
+) -> dict[str, dict[str, str]]:
+    """解析 ## 活跃伏笔 markdown 表 → {id: {key: str_value}}。无表/空表 → {}。
+
+    F649 (spec #32) 畸形行披露：
+    - 短行（cell 少于 header）：缺失的 cell 补空串 —— 下游 ``_values_equal``
+      会看到显式 "" 并报出真实 drift（旧行为静默保留部分行，缺键不比较）。
+    - 溢出行（cell 多于 header）：溢出 cell 丢弃并计入
+      ``stats["discarded_cells"]``（可选 out-param；旧行为静默丢弃）。
+    """
+    if stats is not None:
+        stats["discarded_cells"] = 0
     m = _ACTIVE_HEADER_RE.search(text)
     if m is None:
         return {}
@@ -47,9 +62,20 @@ def parse_markdown_table(text: str) -> dict[str, dict[str, str]]:
             continue
         if all(set(c) <= set("-: ") for c in cells):  # 分隔行 |---|---|
             continue
+        assert header is not None
+        if len(cells) < len(header):
+            # 短行：补齐空 cell，保证行的键集合与 header 一致（可比较）。
+            cells += [""] * (len(header) - len(cells))
+        elif len(cells) > len(header):
+            # 溢出行：丢弃溢出 cell 并披露计数（不再静默丢弃）。
+            overflow = len(cells) - len(header)
+            cells = cells[: len(header)]
+            if stats is not None:
+                stats["discarded_cells"] += overflow
+            log.warning("markdown_table_overflow_cells_discarded", count=overflow, row=s)
         row: dict[str, str] = {}
         for i, val in enumerate(cells):
-            if header and i < len(header):
+            if i < len(header):
                 key = _MD_HEADER_TO_KEY.get(header[i], header[i])
                 row[key] = val
         rid = row.get("id")

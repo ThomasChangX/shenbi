@@ -60,3 +60,58 @@ class TestSpec16:
         md = "## 活跃伏笔\n\n| id | title |\n|---|---|\n| F1 | first |\n| F1 | second |\n"
         table = parse_markdown_table(md)
         assert table["F1"]["title"] == "first"
+
+
+class TestSpec32F649:
+    """Short/overflow rows in parse_markdown_table must be handled and disclosed.
+
+    Old behavior: a row with fewer cells than the header kept a *partial* row
+    (missing keys silently absent), and overflow cells were silently dropped —
+    neither was disclosed. F649: short rows are padded with empty cells (so
+    downstream ``_values_equal`` sees an explicit "" and reports real drift),
+    and overflow cells are dropped but counted in ``stats["discarded_cells"]``.
+    """
+
+    def test_short_row_padded_with_empty_cells(self):
+        from shenbi.records.drift import parse_markdown_table
+
+        md = (
+            "## 活跃伏笔\n\n"
+            "| Hook ID | 类型 | 状态 |\n"
+            "|---|---|---|\n"
+            "| h1 | GENUINE |\n"  # 状态 cell missing
+        )
+        table = parse_markdown_table(md)
+        assert table["h1"] == {"id": "h1", "type": "GENUINE", "state": ""}
+
+    def test_short_row_empty_cell_surfaces_as_drift(self):
+        """The padded "" must not silently equal a real YAML value."""
+        from shenbi.records.drift import detect_cross_section_drift, parse_markdown_table
+
+        md = "## 活跃伏笔\n\n| Hook ID | 类型 | 状态 |\n|---|---|---|\n| h1 | GENUINE |\n"
+        rows = parse_markdown_table(md)
+        recs = [{"id": "h1", "type": "GENUINE", "state": "PLANTED"}]
+        issues = detect_cross_section_drift(recs, rows)
+        assert any("state" in i for i in issues)
+
+    def test_overflow_cells_dropped_and_counted(self):
+        from shenbi.records.drift import parse_markdown_table
+
+        md = (
+            "## 活跃伏笔\n\n"
+            "| Hook ID | 类型 | 状态 |\n"
+            "|---|---|---|\n"
+            "| h1 | GENUINE | PLANTED | EXTRA1 | EXTRA2 |\n"
+        )
+        stats: dict[str, int] = {}
+        table = parse_markdown_table(md, stats=stats)
+        assert table["h1"] == {"id": "h1", "type": "GENUINE", "state": "PLANTED"}
+        assert stats["discarded_cells"] == 2
+
+    def test_well_formed_row_no_discards(self):
+        from shenbi.records.drift import parse_markdown_table
+
+        text = FIXTURE.read_text(encoding="utf-8")
+        stats: dict[str, int] = {}
+        parse_markdown_table(text, stats=stats)
+        assert stats["discarded_cells"] == 0

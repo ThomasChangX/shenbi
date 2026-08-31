@@ -7,6 +7,8 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.text.cjk import dialogue_char_count
+
 
 def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]:
     """G6.4: cross-chapter continuity (timeline monotonicity, information state).
@@ -108,9 +110,9 @@ def check_pacing(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[str]]
         action_count = len(
             re.findall(r"(?:爆炸|战斗|攻击|闪避|格挡|冲锋|斩杀|灵力爆发|拳|剑|刀|枪)", body)
         )
-        dialogue_chars = len(re.findall(r'["][^"]*["]', body)) + len(
-            re.findall(r"「[^」]*」", body)
-        )
+        # F404: char count of paired-quote spans (curly “”/‘’, 「」/『』, ASCII "),
+        # not regex match counts; single source in shenbi.text.cjk (spec #32).
+        dialogue_chars = dialogue_char_count(body)
         body_chars = len(re.findall(r"[一-鿿]", body))
         dialogue_pct = (dialogue_chars / body_chars * 100) if body_chars > 0 else 0
         inner_mono = len(re.findall(r"(?:心想|暗想|暗道|心说|默念|内心)", body))

@@ -66,6 +66,27 @@ def test_compute_entropy_distribution_freqs_sum_to_one() -> None:
 
 
 @pytest.mark.unit
+def test_compute_entropy_counts_out_of_vocab_labels() -> None:
+    """F647 (spec #32): entropy must sum over ALL labels in the input
+    (denominator is len(patterns)), not only in-vocab PATTERNS — out-of-vocab
+    labels previously vanished from the sum, systematically underestimating H.
+    """
+    # 50/50 split between an in-vocab and an out-of-vocab label: H = 1.0 bit.
+    entropy, terms = compute_entropy(["引入", "未分类"])
+    assert entropy == pytest.approx(1.0, abs=1e-4)
+    # The out-of-vocab label keeps its row in the per-pattern breakdown.
+    assert any(t["pattern"] == "未分类" and t["count"] == 1 for t in terms)
+
+
+@pytest.mark.unit
+def test_compute_entropy_out_of_vocab_only_input_full_zero() -> None:
+    """All-out-of-vocab input: single label -> H == 0, with the label present."""
+    entropy, terms = compute_entropy(["未分类"] * 5)
+    assert entropy == 0.0
+    assert any(t["pattern"] == "未分类" and t["count"] == 5 for t in terms)
+
+
+@pytest.mark.unit
 def test_classify_entropy_returns_excellent_for_high_entropy() -> None:
     label, _ = classify_entropy(2.6)
     assert label == "优秀"

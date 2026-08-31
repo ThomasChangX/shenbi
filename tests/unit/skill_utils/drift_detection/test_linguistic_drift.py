@@ -49,29 +49,6 @@ def test_detect_drift_no_false_positive():
     assert not result.is_drift
 
 
-def test_system_terms_loaded_from_genre_config(tmp_path):
-    """SYSTEM_TERMS come from genre-config.json when present (not hardcoded)."""
-    import json
-
-    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
-
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps(
-            {
-                "drift_detection": {
-                    "system_terms": ["自定义甲", "自定义乙"],
-                    "pattern_fingerprints": ["自定义句式"],
-                }
-            }
-        ),
-        encoding="utf-8",
-    )
-
-    cfg = load_drift_config(tmp_path)
-    assert "自定义甲" in cfg.system_terms
-    assert "自定义句式" in cfg.pattern_fingerprints
-
-
 def test_frequency_divergence_flags_outlier_terms():
     """Generic >3 sigma frequency-divergence alarm catches novel degradation."""
     baseline_text = "林风看着远处的山。" * 50  # normal vocabulary
@@ -200,47 +177,10 @@ def test_drift_threshold_semantics_unchanged_for_ratios():
     assert detect_drift(current, baseline).is_drift is False
 
 
-# --- spec #14 T2: F605 empty/malformed system_terms + F634 META stripping ---
-
-
-def test_empty_system_terms_density_is_zero(tmp_path):
-    """F605: explicit empty vocabulary must yield density 0.0, not ~1000 per mille."""
-    import json
-
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps({"drift_detection": {"system_terms": []}}, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    metrics = compute_linguistic_metrics("普通中文正文一句话。", project_dir=tmp_path)
-    assert metrics["system_term_density"] == 0.0
-
-
-def test_bare_string_system_terms_falls_back_to_bootstrap(tmp_path):
-    """F605: a bare string must not be iterated per-char; fall back to defaults."""
-    import json
-
-    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
-
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps({"drift_detection": {"system_terms": "参数"}}, ensure_ascii=False),
-        encoding="utf-8",
-    )
-    cfg = load_drift_config(tmp_path)
-    assert cfg.system_terms  # bootstrap fallback, not ["参", "数"]
-    assert "参数" in cfg.system_terms
-
-
-def test_non_string_system_terms_filtered(tmp_path):
-    import json
-
-    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
-
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps({"drift_detection": {"system_terms": ["参数", 42, None, ""]}}),
-        encoding="utf-8",
-    )
-    cfg = load_drift_config(tmp_path)
-    assert cfg.system_terms == ["参数"]
+# --- spec #14 T2: F634 META stripping ---
+# (F605 empty/malformed system_terms config tests removed with the
+#  genre-config drift_detection reader — spec #32 F644 adjudication:
+#  zero writers → zero information; bootstrap vocabulary is the single source.)
 
 
 def test_meta_block_excluded_from_metrics():
@@ -280,15 +220,91 @@ def test_all_stats_and_metrics_run_on_real_chapter_corpus():
         assert "排比" in stats["rhetoric"]
 
 
-def test_bare_string_pattern_fingerprints_falls_back(tmp_path):
-    """Same F605 guard class for pattern_fingerprints (audit T2 I-1)."""
-    import json
+# --- spec #32 Task 2: F618 zero-baseline must not fabricate drift (行为面) ---
 
-    from shenbi.skill_utils.drift_detection.linguistic_drift import load_drift_config
 
-    (tmp_path / "genre-config.json").write_text(
-        json.dumps({"drift_detection": {"pattern_fingerprints": "冷在"}}),
-        encoding="utf-8",
+def test_zero_baseline_no_fabricated_drift():
+    """F618: baseline metric is 0 while current > 0 — a ratio is undefined, not
+    6.0. Must be marked insufficient_baseline, NOT is_drift (首见不触发).
+    """
+    baseline = {
+        "system_term_density": 0.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 0.0,
+    }
+    current = dict(baseline, system_term_density=40.0)
+    result = detect_drift(current, baseline)
+    assert not result.is_drift
+    assert "system_term_density" in result.insufficient_baseline
+
+
+def test_zero_baseline_severity_still_absolute():
+    """Zero-baseline must not trigger ratio drift, but absolute severity
+    thresholds still apply (40‰ > 30 → WARN).
+    """
+    baseline = {
+        "system_term_density": 0.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 0.0,
+    }
+    current = dict(baseline, system_term_density=40.0)
+    result = detect_drift(current, baseline)
+    assert result.severity == "WARN"
+    assert "ratio metrics within bounds" in result.message or not result.is_drift
+
+
+def test_positive_baseline_ratio_path_unchanged():
+    """Positive baseline keeps ratio semantics (>=5x still drifts)."""
+    baseline = {
+        "system_term_density": 2.0,
+        "em_dash_density": 0.0,
+        "pattern_density": 0.0,
+        "short_sentence_chain_density": 0.0,
+        "dialogue_density": 10.0,
+    }
+    current = dict(baseline, system_term_density=12.0)  # 6x
+    assert detect_drift(current, baseline).is_drift is True
+
+
+# --- spec #32 Task 3: F644/F645/F647 inline-threshold ban (AST-level) ---
+
+
+def test_no_inline_threshold_literals_in_comparisons():
+    """F644/F645: the module must source 30/50/100 thresholds from
+    config/thresholds.py — no Compare node may use a bare 100/50/30 int/float
+    literal as a comparator.
+    """
+    import ast
+    from pathlib import Path
+
+    src_path = (
+        Path(__file__).resolve().parents[4]
+        / "src"
+        / "shenbi"
+        / "skill_utils"
+        / "drift_detection"
+        / "linguistic_drift.py"
     )
-    cfg = load_drift_config(tmp_path)
-    assert cfg.pattern_fingerprints == ["冷在", "冷知道"]  # bootstrap, not per-char
+    tree = ast.parse(src_path.read_text(encoding="utf-8"))
+    violations = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Compare):
+            continue
+        operands = [node.left, *node.comparators]
+        for operand in operands:
+            if (
+                isinstance(operand, ast.Constant)
+                and isinstance(operand.value, (int, float))
+                and not isinstance(operand.value, bool)
+            ):
+                if operand.value in (100, 50, 30, 100.0, 50.0, 30.0):
+                    violations.append(
+                        f"line {node.lineno}: literal {operand.value!r} in comparison"
+                    )
+    assert violations == [], (
+        f"Inline threshold literals must be imported from shenbi.config.thresholds: {violations}"
+    )

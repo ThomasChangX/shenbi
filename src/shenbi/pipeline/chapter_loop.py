@@ -1768,6 +1768,48 @@ def _create_pre_revision_backup(project_dir: Path, chapter: int) -> None:
     log.info("pre_revision_backup_created", chapter=chapter, size=chapter_path.stat().st_size)
 
 
+def _parse_and_persist_resonance(
+    state: PipelineState, project_dir: Path, chapter: int, *, source: str
+) -> None:
+    """Parse the review-resonance score and persist the trend row (F304).
+
+    Shared by the serial step-loop path (post review-resonance step) and the
+    parallel audit-wave path (after consolidation; the review-resonance skill
+    is WRITE_SHARED and has already dispatched serially by then, so the
+    report file exists). Previously only the serial path parsed the score —
+    the parallel wave routed revision with ``cs.resonance_score`` never set,
+    so ``check_resonance`` fail-opened on None with no disclosure.
+    """
+    cs = _get_chapter_state(state, chapter)
+    report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
+    cs.resonance_score = _parse_resonance_score(report_path)
+    log.info(
+        "resonance_score_parsed",
+        chapter=chapter,
+        score=cs.resonance_score,
+        source=source,
+    )
+
+    # Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML).
+    # Reuse the parsed overall int — do NOT re-parse.
+    overall = cs.resonance_score  # int | None
+    if overall is not None:
+        from shenbi.pipeline.truth_io import write_truth_file
+
+        trend_row = _build_resonance_trend_row(chapter, overall)
+        # insert-only (SDD #21 R1): the review-resonance skill usually
+        # already wrote its rich 9-column row for this chapter during the
+        # dispatch; the framework placeholder must not replace it.
+        write_truth_file(
+            project_dir,
+            "resonance_trend.md",
+            trend_row,
+            mode="insert_markdown_row",
+            key_field="chapter",  # dedup on first column ({N})
+        )
+        log.info("resonance_score_persisted", chapter=chapter, overall=overall)
+
+
 def _route_revision_after_resonance(state: PipelineState, project_dir: Path, chapter: int) -> None:
     """Collect audit issues and determine the revision route (spec §6.3).
 
@@ -2639,6 +2681,13 @@ def _run_chapter_step_impl(
                 "hard_failures": hard,
             }
 
+        # F304: parse the resonance score from the serially-dispatched
+        # review-resonance report (file exists at this point) and persist the
+        # trend row — mirrors the serial step-loop path. Must run BEFORE
+        # _route_revision_after_resonance so the floor check sees a real
+        # score instead of fail-opening on None.
+        _parse_and_persist_resonance(state, project_dir, chapter, source="parallel_wave")
+
         # Run revision routing after all reviews complete (spec §6.3).
         # In the serial path this is called after review-resonance; in the
         # parallel path we call it once after consolidation.
@@ -3028,37 +3077,9 @@ def _run_chapter_step_impl(
 
     # After review-resonance: parse score and run revision routing.
     if "review-resonance" in step.skill:
-        # Parse resonance score from the audit report
-        cs = _get_chapter_state(state, chapter)
-        report_path = project_dir / resolve_chapter_path("audits/chapter-N-resonance.md", chapter)
-        cs.resonance_score = _parse_resonance_score(report_path)
-        log.info(
-            "resonance_score_parsed",
-            chapter=chapter,
-            score=cs.resonance_score,
-        )
+        _parse_and_persist_resonance(state, project_dir, chapter, source="serial_step")
 
         _route_revision_after_resonance(state, project_dir, chapter)
-
-        # Persist to resonance_trend.md as a MARKDOWN TABLE ROW (not YAML).
-        # _parse_resonance_score (chapter_loop.py:667) already ran and stored the
-        # overall int in cs.resonance_score. Reuse it — do NOT re-parse.
-        overall = cs.resonance_score  # int | None
-        if overall is not None:
-            from shenbi.pipeline.truth_io import write_truth_file
-
-            trend_row = _build_resonance_trend_row(chapter, overall)
-            # insert-only (SDD #21 R1): the review-resonance skill usually
-            # already wrote its rich 9-column row for this chapter during the
-            # dispatch above; the framework placeholder must not replace it.
-            write_truth_file(
-                project_dir,
-                "resonance_trend.md",
-                trend_row,
-                mode="insert_markdown_row",
-                key_field="chapter",  # dedup on first column ({N})
-            )
-            log.info("resonance_score_persisted", chapter=chapter, overall=overall)
 
     # Success: record, reset retries, advance.
     state.add_step_done(chapter, step.skill)

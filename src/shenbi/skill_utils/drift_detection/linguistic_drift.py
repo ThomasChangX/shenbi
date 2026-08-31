@@ -11,7 +11,6 @@ Burrows' Delta are future enhancements (Shout-Out spec), not this module.
 
 from __future__ import annotations
 
-import json
 import re
 from collections import Counter
 from dataclasses import dataclass, field
@@ -19,6 +18,7 @@ from difflib import SequenceMatcher
 from pathlib import Path
 from typing import Final, Literal
 
+from shenbi.config.thresholds import DEFAULT_THRESHOLDS
 from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
 
 # R2 (F601): single source for the drift threshold. Dialogue collapse sets the
@@ -28,15 +28,20 @@ _DEVIATION_DRIFT_THRESHOLD: Final[float] = 5.0
 
 @dataclass
 class DriftConfig:
-    """Project-specific drift terms, loaded from genre-config.json.
+    """Bootstrap drift vocabulary.
 
-    Falls back to a conservative bootstrap set when the config is absent so
-    detection still works on fresh projects.
+    Spec #32 F644 adjudication: the ``genre-config.json -> drift_detection``
+    key has NO writer anywhere in the framework or skills, so reading it
+    carried zero information. The reader (``load_drift_config``) was removed;
+    the bootstrap vocabulary below is the single deterministic source until a
+    writer is added (explicitly out of scope for spec #32 — that would be a
+    feature, not a fix). Absolute severity thresholds live in
+    ``shenbi.config.thresholds`` (single source).
     """
 
     system_terms: list[str] = field(
         default_factory=lambda: [
-            # Bootstrap fallback only; overridden by genre-config.json in real runs.
+            # Bootstrap vocabulary (single source after the F644 reader removal).
             "参数",
             "系统",
             "格式串",
@@ -56,6 +61,9 @@ class DriftConfig:
     pattern_fingerprints: list[str] = field(default_factory=lambda: ["冷在", "冷知道"])
 
 
+_BOOTSTRAP_DRIFT_CONFIG: Final[DriftConfig] = DriftConfig()
+
+
 @dataclass
 class DriftResult:
     is_drift: bool
@@ -63,49 +71,37 @@ class DriftResult:
     metrics: dict[str, float]
     deviations: dict[str, float]
     message: str
+    # F618 (spec #32): metrics whose baseline is 0 while current > 0 — the
+    # ratio is undefined (insufficient baseline), not fabricated drift.
+    insufficient_baseline: list[str] = field(default_factory=list)
 
 
-def load_drift_config(project_dir: Path | str | None) -> DriftConfig:
-    """Load drift terms from ``genre-config.json -> drift_detection``.
-
-    SYSTEM_TERMS and pattern fingerprints are project-specific (they describe
-    THIS novel's parametric failure vocabulary) and MUST be config-driven
-    rather than hardcoded. Returns a bootstrap DriftConfig if the file or key
-    is absent.
-    """
-    if project_dir is None:
-        return DriftConfig()
-    config_path = Path(project_dir) / "genre-config.json"
-    if not config_path.exists():
-        return DriftConfig()
-    try:
-        raw = json.loads(config_path.read_text(encoding="utf-8"))
-    except (json.JSONDecodeError, OSError):
-        return DriftConfig()
-    dd = raw.get("drift_detection", {}) if isinstance(raw, dict) else {}
-    defaults = DriftConfig()
-    raw_terms = dd.get("system_terms", defaults.system_terms)
-    # F605: a bare string would be iterated per-char by list(); a non-list
-    # value falls back to the bootstrap vocabulary.
-    if not isinstance(raw_terms, list):
-        raw_terms = defaults.system_terms
-    # An explicit empty list means "no system terms" and is kept as-is; the
-    # metrics computation must then skip the regex instead of compiling "".
-    system_terms = [t for t in raw_terms if isinstance(t, str) and t]
-    # F605 (audit T2 I-1): same guard class for pattern_fingerprints.
-    raw_fingerprints = dd.get("pattern_fingerprints", defaults.pattern_fingerprints)
-    if not isinstance(raw_fingerprints, list):
-        raw_fingerprints = defaults.pattern_fingerprints
-    return DriftConfig(
-        system_terms=system_terms,
-        pattern_fingerprints=[p for p in raw_fingerprints if isinstance(p, str) and p],
-    )
+_SENTENCE_END_RE: Final = re.compile(r"[^。！？\n]*[。！？\n]")
+_SHORT_SENTENCE_MAX: Final = 15
 
 
 def _short_chain_chars(text: str) -> int:
-    """Count characters in chains of 3+ consecutive short sentences (<=15 chars)."""
-    short_sents = re.findall(r"(?:[^。！？\n]{1,15}[。！？\n]){3,}", text)
-    return sum(len(s) for s in short_sents)
+    """Count characters in chains of 3+ consecutive short sentences (<=15 chars).
+
+    F653 (spec #32): split on sentence terminators first, then measure each
+    sentence's full length. The previous unanchored regex could backtrack a
+    <=15-char tail out of a long sentence and absorb it into a chain; a
+    sentence counts as short only if its ENTIRE body (terminator excluded)
+    is <=15 chars.
+    """
+    total = 0
+    chain: list[str] = []
+    for sent in _SENTENCE_END_RE.findall(text):
+        if len(sent) - 1 <= _SHORT_SENTENCE_MAX:
+            chain.append(sent)
+            if len(chain) == 3:
+                # chain just completed — count all three founding sentences
+                total += sum(len(s) for s in chain)
+            elif len(chain) > 3:
+                total += len(sent)
+        else:
+            chain = []
+    return total
 
 
 def compute_linguistic_metrics(
@@ -115,9 +111,12 @@ def compute_linguistic_metrics(
 
     Args:
         text: The chapter prose to analyze.
-        project_dir: Project root (used to load config-driven SYSTEM_TERMS).
+        project_dir: Kept for call-site compatibility only. The
+            ``genre-config.json -> drift_detection`` reader was removed (spec
+            #32 F644: zero writers → zero information); the bootstrap
+            DriftConfig vocabulary is always used.
     """
-    cfg = load_drift_config(project_dir)
+    cfg = _BOOTSTRAP_DRIFT_CONFIG
     # F634: META blocks are bookkeeping, not prose — strip before any metric.
     text = META_BLOCK_RE.sub("", text)
     text_len = max(len(text), 1)
@@ -210,9 +209,11 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
     _DEVIATION_DRIFT_THRESHOLD — inclusive so the dialogue-collapse set-point
     is reachable) from baseline, or the dialogue density collapses to <20% of
     baseline. Severity is driven by the absolute system_term_density (per
-    mille): 30-50 -> WARN, 50-100 -> HARD, >100 -> ESCALATE.
+    mille): warn..hard -> WARN, hard..escalate -> HARD, >escalate -> ESCALATE
+    (single source: ``shenbi.config.thresholds.DEFAULT_THRESHOLDS``).
     """
     deviations: dict[str, float] = {}
+    insufficient_baseline: list[str] = []
     max_deviation_ratio = 1.0
     trigger_metric: str | None = None
 
@@ -224,7 +225,14 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
     ]:
         base_val = baseline.get(metric, 0.0)
         curr_val = current.get(metric, 0.0)
-        ratio = (curr_val / base_val) if base_val > 0 else (6.0 if curr_val > 0 else 1.0)
+        if base_val <= 0:
+            # F618 (spec #32): zero baseline — ratio undefined, first sighting
+            # must not fabricate drift (previously a 6.0 sentinel forced WARN).
+            deviations[metric] = 1.0
+            if curr_val > 0:
+                insufficient_baseline.append(metric)
+            continue
+        ratio = curr_val / base_val
         deviations[metric] = round(ratio, 2)
         if ratio > max_deviation_ratio:
             max_deviation_ratio = ratio
@@ -244,11 +252,11 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
 
     stm_density = current.get("system_term_density", 0.0)  # already per mille
     severity: Literal["NONE", "WARN", "HARD", "ESCALATE"]
-    if stm_density > 100:
+    if stm_density > DEFAULT_THRESHOLDS.system_term_density_escalate:
         severity = "ESCALATE"
-    elif stm_density > 50:
+    elif stm_density > DEFAULT_THRESHOLDS.system_term_density_hard:
         severity = "HARD"
-    elif stm_density > 30 or is_drift:
+    elif stm_density > DEFAULT_THRESHOLDS.system_term_density_warn or is_drift:
         severity = "WARN"
     else:
         severity = "NONE"
@@ -263,10 +271,14 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
         # read as "no drift" to the reviewer the ESCALATE pause hands it to.
         message = (
             f"Severity {severity}: system term density {stm_density:.1f} per mille "
-            f"(absolute threshold breach; ratio metrics within bounds)."
+            f"(absolute threshold breach; ratio checks "
+            f"{'skipped for zero-baseline metrics' if insufficient_baseline else 'within bounds'})."
         )
     else:
         message = "No linguistic drift detected."
+
+    if insufficient_baseline and not is_drift:
+        message += f" Insufficient baseline (zero) for: {', '.join(insufficient_baseline)}."
 
     return DriftResult(
         is_drift=is_drift,
@@ -274,6 +286,7 @@ def detect_drift(current: dict[str, float], baseline: dict[str, float]) -> Drift
         metrics=current,
         deviations=deviations,
         message=message,
+        insufficient_baseline=insufficient_baseline,
     )
 
 
@@ -297,94 +310,3 @@ def check_window_redundancy(chapters: list[str], window_size: int = 4) -> float:
             sim = SequenceMatcher(None, window[i][:500], window[j][:500]).ratio()
             max_similarity = max(max_similarity, sim)
     return max_similarity
-
-
-# ---------------------------------------------------------------------------
-# Pipeline-facing deterministic drift check (ADD-3, per Spec 4 §3.2)
-# ---------------------------------------------------------------------------
-
-
-def _load_baseline(project_dir: Path) -> dict[str, float]:
-    """Load or create linguistic baseline from early chapters."""
-    baseline_path = project_dir / "context" / "linguistic_baseline.json"
-    if baseline_path.exists():
-        loaded: dict[str, float] = json.loads(baseline_path.read_text(encoding="utf-8"))
-        return loaded
-
-    # Create baseline from early chapters
-    baseline: dict[str, float] = {
-        "system_term_density": 0.0,
-        "em_dash_density": 0.0,
-        "dialogue_ratio": 0.0,
-    }
-    chapters_read = 0
-
-    for ch in range(1, 6):
-        ch_path = project_dir / "chapters" / f"chapter-{ch}.md"
-        if ch_path.exists():
-            text = ch_path.read_text(encoding="utf-8")
-            total_chars = len(text)
-            system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
-            em_dashes = text.count("——") + text.count("--")
-            dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["].+?["»]', text))
-            baseline["system_term_density"] += system_terms / max(total_chars, 1)
-            baseline["em_dash_density"] += em_dashes / max(total_chars, 1)
-            baseline["dialogue_ratio"] += dialogue_chars / max(total_chars, 1)
-            chapters_read += 1
-
-    if chapters_read > 0:
-        for k in baseline:
-            baseline[k] /= chapters_read
-
-    from shenbi.safe_write import safe_write
-
-    safe_write(baseline_path, json.dumps(baseline, indent=2))
-    return baseline
-
-
-def check_linguistic_drift(project_dir: Path, chapter: int) -> list[str]:
-    """Run linguistic drift detection. Returns WARN alerts.
-
-    Args:
-        project_dir: Root directory of the novel project.
-        chapter: Chapter number to check.
-
-    Returns:
-        List of warning strings (empty if no drift detected).
-    """
-    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if not chapter_path.exists():
-        return []
-
-    text = chapter_path.read_text(encoding="utf-8")
-    total_chars = max(len(text), 1)
-    baseline = _load_baseline(project_dir)
-
-    alerts = []
-
-    # System term density (per mille)
-    system_terms = len(re.findall(r"系统|面板|等级|技能|属性|经验", text))
-    system_density = (system_terms / total_chars) * 1000
-    if system_density > 30:
-        alerts.append(
-            f"System term density {system_density:.0f}‰ "
-            f"(baseline: {baseline.get('system_term_density', 0) * 1000:.0f}‰)"
-        )
-
-    # Em-dash density (per mille)
-    em_dashes = text.count("——") + text.count("--")
-    em_density = (em_dashes / total_chars) * 1000
-    if em_density > 20:
-        alerts.append(
-            f"Em-dash density {em_density:.0f}‰ "
-            f"(baseline: {baseline.get('em_dash_density', 0) * 1000:.0f}‰)"
-        )
-
-    # Dialogue density check (>chapter 10, near zero dialogue)
-    if chapter > 10:
-        dialogue_chars = sum(len(m.group()) for m in re.finditer(r'["].+?["»]', text))
-        dialogue_ratio = dialogue_chars / total_chars
-        if dialogue_ratio < 0.01:
-            alerts.append("Dialogue density near zero -- possible character disappearance")
-
-    return alerts

@@ -105,9 +105,18 @@ class TestCheckResonance:
     def test_below_floor_fails(self):
         assert check_resonance(49, floor=65) is False
 
-    def test_none_resonance_passes(self):
-        """Missing resonance data does not block (defensive)."""
+    def test_none_resonance_passes_with_disclosure(self, capsys):
+        """Missing resonance data does not block (defensive fail-open).
+
+        Spec #32 F304: fail-open is kept as defense-in-depth, but an unscored
+        chapter must never pass silently — ``check_resonance`` discloses the
+        gap via a ``resonance_unscored`` log event.
+        """
+        from shenbi.logging import configure_logging
+
+        configure_logging()
         assert check_resonance(None, floor=65) is True
+        assert "resonance_unscored" in capsys.readouterr().err
 
     def test_default_floor_is_50(self):
         assert check_resonance(50) is True

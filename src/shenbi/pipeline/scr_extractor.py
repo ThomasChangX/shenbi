@@ -9,7 +9,6 @@ from __future__ import annotations
 
 import json
 import re
-from collections import Counter
 from dataclasses import asdict, dataclass, field
 from datetime import UTC, datetime
 from pathlib import Path
@@ -162,18 +161,26 @@ def _extract_dialogue_segments(prose: str) -> list[dict[str, Any]]:
     return results
 
 
+_SENTENCE_RE = re.compile(r"[^。！？\n]+")
+_EVENT_VERB_RE = re.compile(r"(走|来|去|到|拿|放|看|听|说|做|打|杀|买|卖|数|算)")
+
+
 def _extract_event_timeline(prose: str) -> list[dict[str, Any]]:
-    """Extract event-like sentences from narrative text."""
+    """Extract event-like sentences with REAL line numbers (spec #32 F333).
+
+    The previous implementation iterated ``re.split`` segments and bumped a
+    per-sentence counter — one "line" per sentence regardless of newlines,
+    so every event collapsed to [1, 2]/[2, 3]. Here the line number is
+    derived from the sentence's actual character offset in the prose.
+    """
     results = []
-    # Split into sentences roughly
-    sentences = re.split(r"[。！？\n]", prose)
-    line_num = 1
-    for _i, sent in enumerate(sentences):
-        sent = sent.strip()
+    for match in _SENTENCE_RE.finditer(prose):
+        sent = match.group().strip()
         if not sent or len(sent) < 4:
             continue
         # Heuristic: events often contain specific verbs
-        if re.search(r"(走|来|去|到|拿|放|看|听|说|做|打|杀|买|卖|数|算)", sent):
+        if _EVENT_VERB_RE.search(sent):
+            line_num = prose[: match.start()].count("\n") + 1
             results.append(
                 {
                     "description": sent[:80],
@@ -263,27 +270,33 @@ def _extract_world_references(prose: str) -> list[dict[str, Any]]:
     return results
 
 
+_POV_MARKER_RE = re.compile(r"^\s*视角\s*[:：]\s*([\u4e00-\u9fff]{2,4})\s*$", re.MULTILINE)
+
+
 def _extract_pov_shifts(prose: str) -> list[dict[str, Any]]:
-    """Detect point-of-view transitions using name pattern changes."""
-    results = []
-    # Simplified: detect when a new character name dominates a paragraph
-    paragraphs = prose.split("\n\n")
-    prev_dominant = None
-    for i, para in enumerate(paragraphs):
-        names = re.findall(r"[\u4e00-\u9fff]{2,3}", para)
-        if not names:
-            continue
-        # Most frequent name in paragraph
-        dominant = Counter(names).most_common(1)[0][0]
-        if prev_dominant and dominant != prev_dominant:
+    """Extract POV transitions from EXPLICIT ``视角:`` markers only (F333).
+
+    The previous implementation treated the most frequent CJK 2-3 char
+    substring of each paragraph as its "dominant POV" — plain narration
+    fabricated shifts between common bigrams (e.g. 李明 -> 铜币), which is
+    not a POV fact. Now: no explicit markers -> empty list (honest absence
+    beats a plausible-looking lie).
+    """
+    results: list[dict[str, Any]] = []
+    prev_pov: str | None = None
+    prev_line: int | None = None
+    for match in _POV_MARKER_RE.finditer(prose):
+        pov = match.group(1)
+        line = prose[: match.start()].count("\n") + 1
+        if prev_pov is not None and pov != prev_pov:
             results.append(
                 {
-                    "from_pov": prev_dominant,
-                    "to_pov": dominant,
-                    "line_range": [i * 2, (i + 1) * 2],
+                    "from_pov": prev_pov,
+                    "to_pov": pov,
+                    "line_range": [prev_line, line],
                 }
             )
-        prev_dominant = dominant
+        prev_pov, prev_line = pov, line
     return results
 
 

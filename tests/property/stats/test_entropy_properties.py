@@ -7,8 +7,10 @@ from hypothesis import strategies as st
 
 from shenbi.skill_utils.chapter_pattern.compute_pattern import PATTERNS, compute_entropy
 
-# input 必须取自 PATTERNS（compute_entropy 的契约：未知模式不入归一分母）
-pattern_lists = st.lists(st.sampled_from(PATTERNS), min_size=1, max_size=40)
+# F647 (spec #32) 后的契约：熵对全标签求和（含词表外标签，如 LLM 判级回退的
+# “未分类”），分母为 len(input)。策略含词表外标签以覆盖该行为。
+ALL_LABELS = [*PATTERNS, "未分类"]
+pattern_lists = st.lists(st.sampled_from(ALL_LABELS), min_size=1, max_size=40)
 
 
 @given(pattern_lists)
@@ -16,7 +18,7 @@ pattern_lists = st.lists(st.sampled_from(PATTERNS), min_size=1, max_size=40)
 def test_present_counts_sum_to_n(patterns: list[str]) -> None:
     """归一：出现模式的计数之和 == 总数（精确整数，非浮点近似）。
 
-    compute_entropy 对 input⊆PATTERNS 保证 Σ(count/n)==1。本测试断言其整数
+    compute_entropy 对全标签（含词表外）保证 Σ(count/n)==1。本测试断言其整数
     等价 Σcount==n，避免浮点舍入噪音。
     """
     _, terms = compute_entropy(patterns)

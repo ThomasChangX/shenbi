@@ -15,6 +15,7 @@ Usage (CLI):
 from __future__ import annotations
 
 import argparse
+import math
 import statistics
 import sys
 from typing import Any
@@ -219,9 +220,11 @@ def _split_row(line: str) -> list[str]:
 def _try_float(text: str) -> float | None:
     """Return ``float(text)``, or None if not a finite numeric value."""
     try:
-        return float(text)
+        value = float(text)
     except (TypeError, ValueError):
         return None
+    # F646 (spec #32): "nan"/"inf"/"-inf" parse but are not finite scores.
+    return value if math.isfinite(value) else None
 
 
 def _append_audit(findings: list[DriftFinding], audit_path: Path) -> None:

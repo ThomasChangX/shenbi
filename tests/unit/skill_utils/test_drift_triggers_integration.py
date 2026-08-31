@@ -273,3 +273,97 @@ def test_parse_trend_three_consumer_header_contract(tmp_path):
     parsed_a = parse_trend(str(trend), dims=ARC_PAYOFF_DIMS)
     assert all(v == [(85.0, False)] for v in parsed_r.values()), parsed_r
     assert all(v == [(85.0, False)] for v in parsed_a.values()), parsed_a
+
+
+# --- spec #32 T5 (AC5): linguistic-drift end-to-end regression ---------------
+#
+# Control-flow inputs constructed in-test (metric ratios), not generative
+# fixture surfaces (G0.9 fixture rule does not apply): clean baseline chapters
+# → establish_baseline → drifted chapter → _check_linguistic_drift fires and
+# the escalation/directive record lands on disk.
+
+_CLEAN_PARA = (
+    "他沿着旧城的石板路慢慢走远，风把檐角的灰尘吹落下来。"
+    "“你到底去不去？”她在巷口问。他点头，把外衣裹紧了一些。"
+    "河水在桥下流过，声音很轻，像有人在远处翻动书页。"
+)
+# exactly one em-dash per clean chapter so the baseline em_dash_density > 0
+_CLEAN_CHAPTER = (_CLEAN_PARA * 4) + "\n" + "他停住脚步——前方有人。" + "\n" + (_CLEAN_PARA * 4)
+
+# A second, entirely distinct clean chapter (different sentences, same style
+# profile: one em-dash, some dialogue) — used when the opening-similarity
+# check must stay quiet (chapter-4 must not share its opening with chapter-3).
+_CLEAN_PARA_ALT = (
+    "码头的雾散得很慢，船工们蹲在缆绳边抽烟说笑。"
+    "“今晚涨潮吗？”少年问。老人没有回答，只把灯举高了一些。"
+    "远处的灯塔亮起来，光在水面碎成许多小块，又慢慢合拢。"
+)
+_CLEAN_CHAPTER_ALT = (
+    (_CLEAN_PARA_ALT * 4) + "\n" + "雾更浓了——他看不见对岸。" + "\n" + (_CLEAN_PARA_ALT * 4)
+)
+
+
+def _write_clean_project(tmp_path, chapters: list[int]):
+    from shenbi.skill_utils.drift_detection.baseline import establish_baseline
+
+    ch_dir = tmp_path / "chapters"
+    ch_dir.mkdir(parents=True, exist_ok=True)
+    for ch in chapters:
+        (ch_dir / f"chapter-{ch}.md").write_text(_CLEAN_CHAPTER, encoding="utf-8")
+    establish_baseline(tmp_path, chapters)
+    return tmp_path
+
+
+@pytest.mark.unit
+def test_linguistic_drift_e2e_warn_writes_directive_to_disk(tmp_path) -> None:
+    """Ratio drift (em-dash flood) → WARN → drift-warning directive on disk."""
+    from shenbi.pipeline.chapter_loop import _check_linguistic_drift
+
+    project = _write_clean_project(tmp_path, [1, 2, 3])
+    drifted = (
+        (_CLEAN_PARA * 3) + "\n" + ("他走了——停了——又走了——回头。" * 8) + "\n" + (_CLEAN_PARA * 3)
+    )
+    (project / "chapters" / "chapter-4.md").write_text(drifted, encoding="utf-8")
+
+    result = _check_linguistic_drift(project, 4)
+    assert result is not None
+    assert result.is_drift is True
+    assert result.severity == "WARN"  # ratio drift, absolute stm density still low
+
+    # escalation record lands on disk for the NEXT chapter
+    warning = project / "context" / "drift-warning-5.md"
+    assert warning.exists()
+    assert "STYLE WARNING" in warning.read_text(encoding="utf-8")
+
+
+@pytest.mark.unit
+def test_linguistic_drift_e2e_escalate_pauses_pipeline(tmp_path) -> None:
+    """System-term flood (>100‰) → ESCALATE → DriftEscalationError propagates
+    out of the pipeline step (pause for human review).
+    """
+    from shenbi.pipeline.chapter_loop import DriftEscalationError, _run_linguistic_drift_check
+
+    project = _write_clean_project(tmp_path, [1, 2, 3])
+    # ~4 system-term hits per 11 chars → ~360‰ > escalate threshold (100‰)
+    polluted = "参数系统在场度冷知道。" * 40
+    (project / "chapters" / "chapter-4.md").write_text(polluted, encoding="utf-8")
+
+    with pytest.raises(DriftEscalationError, match="system term density"):
+        _run_linguistic_drift_check(project, 4)
+
+
+@pytest.mark.unit
+def test_linguistic_drift_e2e_clean_chapter_no_intervention(tmp_path) -> None:
+    """A clean chapter-4 matching the baseline: no drift, nothing written."""
+    from shenbi.pipeline.chapter_loop import _check_linguistic_drift
+
+    project = _write_clean_project(tmp_path, [1, 2, 3])
+    # distinct prose (same style profile, different sentences) so BOTH the
+    # drift check and the opening-similarity check stay quiet
+    (project / "chapters" / "chapter-4.md").write_text(_CLEAN_CHAPTER_ALT, encoding="utf-8")
+
+    result = _check_linguistic_drift(project, 4)
+    assert result is not None
+    assert result.severity == "NONE"
+    assert result.is_drift is False
+    assert not (project / "context").exists() or not any((project / "context").iterdir())

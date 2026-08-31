@@ -110,9 +110,12 @@ def check_resonance(resonance_score: int | None, floor: int = DEFAULT_RESONANCE_
     """True if *resonance_score* meets or exceeds the global *floor*.
 
     A ``None`` score (not yet evaluated) is treated as passing so that the
-    pipeline is not blocked by missing data.
+    pipeline is not blocked by missing data (fail-open), but the gap is
+    disclosed via a ``resonance_unscored`` structlog event — an unscored
+    chapter must never pass silently (spec #32 F304 disclosure rule).
     """
     if resonance_score is None:
+        log.warning("resonance_unscored", floor=floor)
         return True
     return resonance_score >= floor
 
