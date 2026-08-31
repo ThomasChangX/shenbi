@@ -30,7 +30,7 @@
 | enums.Verdict（通过/有瑕疵/不通过） | enums.py | 保留 = review-* md 判定域 |
 | resonance 判定 | enums.py `ResonanceVerdict = 通过/阻断/待人机复核` | T902：review_resonance.py `_VERDICTS` 裸 tuple 删除改 import |
 | progress skill status | status.py `SkillProgressStatus = pending/done/skip` | T906：codex.py:44 / trace/materialize.py `_empty_skill` 改用；g_reconcile.py:40,70 `.upper()=="DONE"` 改 `== SkillProgressStatus.DONE.value`（大小写归一保留读旧 "DONE"） |
-| ChapterState.status | pipeline/state.py `ChapterStatus = StrEnum{pending,in_progress,complete,settling_failed}` | T907：序列化值仍 `in-progress`（`IN_PROGRESS = "in-progress"`）；`PipelineState.from_dict`（state.py:~311）`completed→complete` 归一 + structlog WARN；写方 chapter_loop.py:1034/error_handler.py:115 改成员 |
+| ChapterState.status | pipeline/state.py `ChapterStatus = StrEnum{pending,in_progress,complete,settling_failed}` | T907：序列化值仍 `in-progress`（`IN_PROGRESS = "in-progress"`）；`PipelineState.from_dict`（state.py:~311）`completed→complete` 归一 + structlog WARN；写方 chapter_loop.py:1036/error_handler.py:115 改成员 |
 | GenesisState/ClosureState | state.py | 保留独立域（值 pending/in-progress/checkpoint-pending/completed，genesis 语义登记） |
 | RevisionMode | enums.py `RevisionMode = spot-fix/regenerate/constrained-regenerate/reconstruction/no-revision` | T910：route.py:28 与 revision_router.py:33 双域合一改 import；消费侧 alias `no_op→no-revision`；G4 校验 |
 | ReviewDecision | state.py | 保留（命令域 approve/modify/reject） |
@@ -44,9 +44,9 @@
 | F336/F352 chapter=0 vs None | state.py `current_chapter: int | None = None` | genesis.py:260 `chapter=0` 与 state.py:145 统一 None 为"genesis 未进章"语义，读方判 `is None`；登记"genesis 语义"注记 |
 | F441 check id 前缀 | scoring checker id | 值域 `"<skill>:<check-slug>"` 形态登记（id 命名词表），实施时对无前缀 checker 补技能前缀 |
 | G4Severity（hard/soft/warn） | chapter_loop.py:409 原位 | 独立登记域（G4_CHECK_MAP 内部自洽，不并入 enums.Severity——适用面互斥注记） |
-| linguistic_drift severity | linguistic_drift.py:56,221 原位 | 独立登记域 NONE/WARN/HARD/ESCALATE（未持久化，注记适用面） |
+| linguistic_drift severity | src/shenbi/skill_utils/drift_detection/linguistic_drift.py:70（severity Literal）,:254-262（classification）原位 | 独立登记域 NONE/WARN/HARD/ESCALATE（未持久化，注记适用面） |
 | T302 extract_h2_sections/lint 匹配语义 | 登记表 Dangling 标记 | 挂 C2 T4 承接标记（spec 批量清理要求） |
-| escalation severity regex 域 | 消费 enums.Severity | revision_router.py:75-86 / parallel_dispatch.py:218-220 / audit_layer.py:157 大小写归一后比对 enums.Severity（regex 域不另立） |
+| escalation severity regex 域 | 消费 enums.Severity | revision_router.py:~81-90 / parallel_dispatch.py:218-220（大小写归一后比对 enums.Severity；audit_layer.py:111-134 的 blocking_found/critical_found 布尔消费随上游归一） |
 
 ---
 
@@ -99,7 +99,7 @@
 
 **Files:**
 - Modify: `src/shenbi/status.py`（SkillProgressStatus；CommandStatus 增 DEGRADED/NOT_IMPLEMENTED）
-- Modify: `src/shenbi/pipeline/state.py:98,~311`（ChapterStatus StrEnum；from_dict 归一 `completed→complete` + structlog WARN）
+- Modify: `src/shenbi/pipeline/state.py:98,~308`（ChapterStatus StrEnum；from_dict 归一 `completed→complete` + structlog WARN）
 - Modify: `src/shenbi/pipeline/chapter_loop.py:1036`、`src/shenbi/pipeline/error_handler.py:115`（写方改成员）
 - Modify: `src/shenbi/pipeline/truth_embed.py:247`（`CommandStatus.DEGRADED`）
 - Modify: `src/shenbi/dispatcher/modes/codex.py:55`（`{"status": "done"}` 写点）、`src/shenbi/trace/materialize.py`（SkillProgressStatus）
@@ -120,14 +120,14 @@
 - Modify: `src/shenbi/gates/g4/chapter_revision.py:38,97`（HARD_FAIL→`GateStatus.FAIL` + `"severity": enums.Severity.BLOCKING` 标注；解 pin `tests/unit/gates/g4/test_chapter_revision.py:112,142,155,179`）
 - Modify: `skills/shenbi-chapter-revision/SKILL.md`（severity 枚举化 low/medium/high 说明）
 - Modify: `src/shenbi/gates/g4/chapter_revision.py`（G4 对 revision-decisions severity/mode 值域校验：severity∈RevisionSeverity（含容错映射表）、mode∈RevisionMode）+ `src/shenbi/gates/g0_skill_contract.py:133-137`（T204：mode 值合法性 ∈ 登记词表 `update_mode`/`write_mode` 值域）
-- Create: `tools/check_severity_vocab.py`（AC2 复算：扫 novel-output/**/revision-decisions*.json 的 severity 值，越表=不在 RevisionSeverity 且不在容错映射；exit 0 输出越表率 0%）
+- Create: `tools/check_severity_vocab.py`（AC2 复算：扫 novel-output/**/*revision-decisions*.json（生产文件名为 chapter-N-revision-decisions.json） 的 severity 值，越表=不在 RevisionSeverity 且不在容错映射；exit 0 输出越表率 0%）
 - Modify: `justfile`（lint 块加 `uv run python tools/check_severity_vocab.py`）
 - Test: `tests/unit/gates/g4/test_chapter_revision.py` 更新 + `tests/unit/tools/test_check_severity_vocab.py`（fixtures 驱动：用 `tests/fixtures/` 真实 revision-decisions 产物）
 
 **Steps:**
 - [ ] TDD：先改 test_chapter_revision 断言 FAIL+severity（红）→ 实施（绿）
 - [ ] `git grep -rn "HARD_FAIL" src/` 零命中（或仅 enums/登记表注释）
-- [ ] `uv run python tools/check_severity_vocab.py` → 输出 `out-of-vocab: 0/185 (0.0%)` exit 0
+- [ ] `uv run python tools/check_severity_vocab.py` → 输出 `out-of-vocab: 0/N (0.0%)`（N 动态统计，当前实值 152）exit 0
 - [ ] fixture 溯源（G0.9）：从 `novel-output/xinghuo-ranqiong/` 复制真实 revision-decisions 产物（含 blocking/critical/info 等越表原值）至 `tests/fixtures/revision-decisions/`，测试引用 fixtures 而非生产树
 - [ ] F441：`grep -rn '"id":' src/shenbi/scoring*.py src/shenbi/gates/g5*` 对无技能前缀的 checker check id 补 `<skill>:` 前缀（同步解 pin 相应测试）
 - [ ] commit `fix: production vocab violations — HARD_FAIL, severity/mode G4 value-domain checks (spec #34 T5)`
