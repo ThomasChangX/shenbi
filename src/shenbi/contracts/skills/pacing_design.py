@@ -57,7 +57,7 @@ class PacingDesign(BaseModel):
         return self
 
     @model_validator(mode="after")
-    def _eight_scene_types(self) -> PacingDesign:
+    def _scene_type_count(self) -> PacingDesign:
         if not 6 <= len(self.scene_types) <= 12:
             raise ValueError(f"expected 6-12 scene types, got {len(self.scene_types)}")
         return self

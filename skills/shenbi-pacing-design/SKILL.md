@@ -22,9 +22,9 @@ contract:
 
 - beat sum is 100
 - constellation range
-- eight scene types
 - four beats present
 - no three consecutive same
+- scene type count
 - three lines present
 
 <!-- AUTO-CHECK-END -->
@@ -94,7 +94,7 @@ digraph pacing_design {
 
 ### 3. 场景类型
 
-至少定义 6-8 种场景类型：
+定义 6-12 种场景类型：
 
 | 类型 | 标志 |
 |------|------|
@@ -209,7 +209,7 @@ digraph pacing_design {
 | 7 | 逃亡 | 危机/追击 | 爆发/余波 | ≤ 2 章连续 |
 | 8 | 揭示 | 真相/揭露 | 爆发/余波 | ≤ 1 章连续 |
 
-**不合格条件**：场景类型 < 8 种，或连续同类型超阈值。
+**不合格条件**：场景类型 < 6 种或 > 12 种，或连续同类型超阈值。
 
 ## 章尾收束方式
 
@@ -252,7 +252,7 @@ digraph pacing_design {
 **可自动检查的计数规则**：
 | 检查项 | 规则 | 不合格条件 |
 |--------|------|----------|
-| 场景类型数 | = 8 | < 8 |
+| 场景类型数 | 6-12 | < 6 或 > 12 |
 | 每卷四拍完整性 | 4/4 | 缺任意拍 |
 | CONSTELLATION% | 以「目标比值（按卷型）」表为准 | < 15% 或 > 40% |
 | 三线比例表列名 | 卷/QUEST%/FIRE%/CONSTELLATION%/检查结果 | 列名不匹配 |
@@ -268,7 +268,7 @@ digraph pacing_design {
 
 **写入文件**: `outline/rhythm_principles.md`
 **循环长度**: X 章
-**场景类型数**: 8（必须）
+**场景类型数**: 6-12（必须）
 **三线目标比例**: QUEST X% / FIRE Y% / CONSTELLATION Z%
 
 ### 自动化检查清单
