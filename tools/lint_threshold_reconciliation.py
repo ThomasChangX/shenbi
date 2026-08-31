@@ -2,7 +2,8 @@
 """Allowlist-driven threshold reconciliation lint (spec #35 T5).
 
 Scans SKILL.md numeric ranges near an anchored pattern and compares them
-against the checker's declared hard bounds. WARN-only in the first cycle
+against the allowlist-declared bounds (the checker path is only verified to
+exist — parsing checker constants is out of scope). WARN-only in the first cycle
 (exit 0 always) so CI is never blocked by a documentation drift; flipping
 to FAIL is a deliberate later step once the allowlist has stabilized.
 

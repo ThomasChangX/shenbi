@@ -16,7 +16,7 @@ from shenbi.contracts.ownership import GENRE_KEYS
 from pydantic import BaseModel, Field, model_validator
 
 # Single-source keyset authority (F214): 8 required = GENRE_KEYS minus optional tropeInventory.
-_REQUIRED_TOP_KEYS = tuple(k for k in GENRE_KEYS if k != "tropeInventory")
+_REQUIRED_TOP_KEYS = tuple(sorted(k for k in GENRE_KEYS if k != "tropeInventory"))
 
 
 class GenreConfig(BaseModel):
