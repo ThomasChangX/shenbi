@@ -199,8 +199,6 @@ def test_no_hardcoded_fallback_names() -> None:
 
 
 def test_absent_protagonist_data_skips_check(tmp_path: Path) -> None:
-    import json
-
     from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
 
     # no characters/ dir at all → empty names → SKIP record, not FAIL
