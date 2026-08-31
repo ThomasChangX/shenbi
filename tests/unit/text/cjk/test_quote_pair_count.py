@@ -93,17 +93,23 @@ def test_ratio_empty_text_zero() -> None:
 
 @pytest.mark.unit
 def test_snapshot_curly_quote_fixture_has_dialogue() -> None:
-    """snapshot-dir chapters use CJK curly quotes (“”) — must count > 0."""
+    """snapshot-dir chapters use CJK curly quotes (“”) — must count > 0.
+
+    Interval locked at measured value 0.126 ± 5pp (spec #32 AC2).
+    """
     text = (FIXTURES / "snapshot-dir" / "chapter-005-20260715T232231.md").read_text(
         encoding="utf-8"
     )
-    assert count_quote_pairs(text) > 0
-    assert dialogue_char_ratio(text) > 0
+    assert count_quote_pairs(text) > 700
+    assert 0.076 < dialogue_char_ratio(text) < 0.176
 
 
 @pytest.mark.unit
 def test_ascii_quote_fixture_has_dialogue() -> None:
-    """chapter-*-draft.md uses ASCII straight quotes — must count > 0."""
+    """chapter-*-draft.md uses ASCII straight quotes — must count > 0.
+
+    Interval locked at measured value 0.144 ± 5pp (spec #32 AC2).
+    """
     text = (FIXTURES / "chapter-7-draft.md").read_text(encoding="utf-8")
-    assert count_quote_pairs(text) > 0
-    assert dialogue_char_ratio(text) > 0
+    assert count_quote_pairs(text) > 30
+    assert 0.094 < dialogue_char_ratio(text) < 0.194
