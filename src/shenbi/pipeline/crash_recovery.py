@@ -135,7 +135,7 @@ def _emergency_cleanup(
     # self-blocks to the 300s timeout when cleanup runs inside a locked
     # critical section, e.g. via _check_emergency_flag under cmd_next).
     try:
-        from shenbi.pipeline.filelock_utils import WriteLock, holder_mode
+        from shenbi.pipeline.filelock_utils import holder_mode
         from shenbi.pipeline.machine import save_state
 
         mode = holder_mode()
@@ -146,8 +146,16 @@ def _emergency_cleanup(
             # WriteLock acquisition would deterministically self-deadlock.
             logger.error("emergency_save_skipped_read_lock_holder")
         else:
-            with WriteLock(project_dir):
-                save_state(project_dir, state)
+            from shenbi.pipeline.machine import transact_state
+
+            def _overlay(loaded: object) -> None:
+                # Overlay the in-memory emergency state onto the freshest
+                # on-disk state inside the same critical section (locked RMW
+                # instead of a blind overwrite).
+                if hasattr(loaded, "__dict__") and hasattr(state, "__dict__"):
+                    loaded.__dict__.update(state.__dict__)
+
+            transact_state(project_dir, _overlay)
         logger.info("pipeline_state_saved")
     except Exception as e:
         logger.error("pipeline_state_save_failed", error=str(e))

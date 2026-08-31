@@ -127,6 +127,10 @@ def materialize_progress(
                 # NOTE: this also mutates out["skills"] in place (same object),
                 # so the returned dict matches what landed on disk.
                 merged["skills"][skill] = merged_entry
+            # Foreign skills entirely absent from total_skills/trace survive too.
+            for skill, entry in old_skills.items():
+                if skill not in merged["skills"]:
+                    merged["skills"][skill] = entry
         return merged
 
     from shenbi.safe_write import locked_transact

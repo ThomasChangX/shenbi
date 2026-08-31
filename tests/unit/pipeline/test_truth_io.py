@@ -332,21 +332,45 @@ class TestUpsertByKey:
 
 
 class TestPathLockRegistry:
-    def test_same_path_returns_same_lock(self, tmp_path: Path):
-        a = _path_lock(tmp_path / "current_state.md")
-        b = _path_lock(tmp_path / "current_state.md")
-        assert a is b
+    def test_same_path_shares_registry_entry(self, tmp_path: Path):
+        from shenbi.pipeline.truth_io import _PATH_LOCKS
 
-    def test_different_paths_return_different_locks(self, tmp_path: Path):
-        a = _path_lock(tmp_path / "current_state.md")
-        b = _path_lock(tmp_path / "character_matrix.md")
-        assert a is not b
+        key = str(tmp_path / "current_state.md")
+        with _path_lock(tmp_path / "current_state.md"):
+            entry_a = _PATH_LOCKS[key]
+        with _path_lock(tmp_path / "current_state.md"):
+            entry_b = _PATH_LOCKS[key]
+        assert entry_a[0] is entry_b[0]  # same thread-lock object
+
+    def test_different_paths_get_different_locks(self, tmp_path: Path):
+        from shenbi.pipeline.truth_io import _PATH_LOCKS
+
+        with (
+            _path_lock(tmp_path / "current_state.md"),
+            _path_lock(tmp_path / "character_matrix.md"),
+        ):
+            a = _PATH_LOCKS[str(tmp_path / "current_state.md")]
+            b = _PATH_LOCKS[str(tmp_path / "character_matrix.md")]
+            assert a[0] is not b[0]
+
+    def test_refcount_releases_and_lockfile_created(self, tmp_path: Path):
+        import sys
+
+        from shenbi.pipeline.truth_io import _PATH_LOCKS
+
+        key = str(tmp_path / "current_state.md")
+        with _path_lock(tmp_path / "current_state.md"):
+            assert _PATH_LOCKS[key][1] == 1  # held
+            if sys.platform != "win32":
+                assert (tmp_path / "current_state.md.lockfile").exists()
+        assert _PATH_LOCKS[key][1] == 0  # released
 
     def test_registry_lock_is_not_a_path_lock(self, tmp_path: Path):
         # The registry guard lock must not collide with a path named like it.
-        from shenbi.pipeline.truth_io import _REGISTRY_LOCK
+        from shenbi.pipeline.truth_io import _PATH_LOCKS, _REGISTRY_LOCK
 
-        assert _REGISTRY_LOCK is not _path_lock(tmp_path / "_REGISTRY_LOCK")
+        with _path_lock(tmp_path / "_REGISTRY_LOCK"):
+            assert all(_REGISTRY_LOCK is not entry[0] for entry in _PATH_LOCKS.values())
 
 
 class TestConcurrentUpsertNoLostRows:

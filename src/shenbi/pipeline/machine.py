@@ -49,7 +49,10 @@ def transact_state(
     from shenbi.pipeline.filelock_utils import WriteLock
 
     with WriteLock(project_dir):
-        state = load_state(project_dir)
+        try:
+            state = load_state(project_dir)
+        except FileNotFoundError:
+            state = PipelineState(project_dir=str(project_dir))
         mutator(state)
         save_state(project_dir, state)
         return state

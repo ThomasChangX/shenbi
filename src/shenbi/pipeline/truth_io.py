@@ -37,6 +37,8 @@ from __future__ import annotations
 
 import re
 import threading
+from contextlib import contextmanager
+from collections.abc import Generator
 from pathlib import Path
 from typing import Any
 
@@ -53,40 +55,67 @@ log = get_logger(__name__)
 # a lock for the same path and each stores its own (losing one). No lock files
 # are written to disk — this is purely in-process.
 _REGISTRY_LOCK = threading.Lock()
-_PATH_LOCKS: dict[str, threading.Lock] = {}
 #: Bounded registry (spec #37 T607): long-running processes touching many
-#: paths would otherwise grow the registry without limit.
+#: paths would otherwise grow the registry without limit. Entries carry a
+#: refcount maintained under the registry guard — eviction only ever drops
+#: refcount==0 entries (the locked()-snapshot race the spec rejected).
 _PATH_LOCKS_MAX = 256
+_PATH_LOCKS: dict[str, tuple[threading.Lock, int]] = {}
 
 
-def _path_lock(path: Path) -> threading.Lock:
-    """Return the singleton lock for *path*, creating it lazily.
+@contextmanager
+def _path_lock(path: Path) -> Generator[None, None, None]:
+    """Serialize same-path writers in-process AND cross-process (spec #37 T709).
 
-    Different paths get different locks (no cross-file blocking); the same
-    path always returns the same lock object (serializes same-file writers).
-
-    Eviction (spec #37 T607): when the registry exceeds _PATH_LOCKS_MAX,
-    entries that are currently UNHELD are dropped under the registry guard.
-    Residual window (accepted): a caller can fetch lock object L, be evicted
-    before acquiring it, and race a later caller holding a fresh L2 for the
-    same path — bounded to >256-distinct-path workloads; underlying writes
-    stay atomic via safe_write so the worst case is a lost RMW update, not
-    corruption. A full fix needs guard-held acquisition (context-manager
-    refactor), deferred as out of scope here.
+    Layering: registry threading.Lock (in-process identity + refcount) then
+    flock on ``<path>.lockfile`` (cross-process). Skill-helper subprocesses
+    writing truth/** take the same lockfile, closing the bypass where
+    subprocess writers raced in-process RMW sections. On flock-unavailable
+    platforms this degrades to in-process-only (documented; POSIX is the
+    authoritative platform per the spec).
     """
+    import fcntl
+    import os
+    import sys
+
     key = str(path)
     with _REGISTRY_LOCK:
-        lock = _PATH_LOCKS.get(key)
-        if lock is None:
+        entry = _PATH_LOCKS.get(key)
+        if entry is None:
             if len(_PATH_LOCKS) >= _PATH_LOCKS_MAX:
-                for stale_key, stale_lock in list(_PATH_LOCKS.items()):
-                    if stale_key != key and not stale_lock.locked():
+                for stale_key, (stale_lock, stale_rc) in list(_PATH_LOCKS.items()):
+                    if stale_key != key and stale_rc == 0 and not stale_lock.locked():
                         del _PATH_LOCKS[stale_key]
                         if len(_PATH_LOCKS) < _PATH_LOCKS_MAX:
                             break
-            lock = threading.Lock()
-            _PATH_LOCKS[key] = lock
-        return lock
+            entry = (threading.Lock(), 0)
+            _PATH_LOCKS[key] = entry
+        thread_lock, refcount = entry
+        _PATH_LOCKS[key] = (thread_lock, refcount + 1)  # refcount acquired under guard
+    lockfile = path.parent / (path.name + ".lockfile")
+    fd: int | None = None
+    try:
+        with thread_lock:
+            if sys.platform != "win32":
+                try:
+                    lockfile.parent.mkdir(parents=True, exist_ok=True)
+                    fd = os.open(str(lockfile), os.O_CREAT | os.O_RDONLY)
+                    fcntl.flock(fd, fcntl.LOCK_EX)  # blocking; held by close
+                except (ImportError, OSError):
+                    if fd is not None:
+                        os.close(fd)
+                    fd = None  # degrade to in-process only
+            yield
+    finally:
+        if fd is not None:
+            import os as _os
+
+            _os.close(fd)
+        with _REGISTRY_LOCK:
+            entry = _PATH_LOCKS.get(key)
+            if entry is not None:
+                thread_lock2, rc = entry
+                _PATH_LOCKS[key] = (thread_lock2, max(0, rc - 1))
 
 
 #: Public alias: sibling modules (dispatch_helper staging route, checkpoint

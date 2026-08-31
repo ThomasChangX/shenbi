@@ -214,8 +214,7 @@ def locked_transact(
         else:
             result = mutator(raw)
             payload = str(result if result is not None else (raw or ""))
-        _write_payload(path, payload, round_dir=round_dir, trace_action=trace_action)
-        return result
+        _write_payload(path, payload)
     finally:
         os.close(lock_fd)
         if lockfile is not None:
@@ -223,14 +222,31 @@ def locked_transact(
                 os.unlink(lockfile)
             except FileNotFoundError:
                 pass
+    # Trace seam AFTER lock release (same placement as safe_write): emitting
+    # it under the directory flock would take dir-flock -> trace-per-path,
+    # inverting the L2 fixed order (per-path -> dir flock).
+    if round_dir is not None and trace_action is not None:
+        from shenbi.trace.writer import TraceWriter
+
+        try:
+            TraceWriter(round_dir).append(
+                actor="safe_write",
+                actor_role="GATE",
+                action=trace_action,
+                target=path.name,
+                payload={"path": str(path)},
+            )
+        except Exception:
+            log.warning("safe_write_trace_append_failed", path=str(path), exc_info=True)
+    return result
 
 
 def _write_payload(
     path: Path,
     payload: str,
     *,
-    round_dir: Path | None,
-    trace_action: str | None,
+    round_dir: Path | None = None,
+    trace_action: str | None = None,
     trace_target: str | None = None,
 ) -> None:
     """Temp + fsync + atomic replace + dir fsync + best-effort trace seam.
