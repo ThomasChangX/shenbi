@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-03 — §8 记账执行清单落盘：批次 A 13 簇全 Done 后的矩阵标注/ledger 回写/#25 解散/INDEX 刷新) | **Severity:** 🔴 P0（总纲）| **方法:** 聚类→spec 映射与依赖排序
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 总纲（master）| **依赖:** phase4-clustering.md（37 簇唯一权威输入）| **范围:** 全部 37 簇修复 spec 的优先级矩阵、依赖顺序、量级与既有 spec 关系 | **核心洞察:** 774 条 findings 的修复不是 774 个动作，是 37 个根因收口；跨簇依赖（写路径先于读方对账、审计谓词先于失败分类、计量先于成本报告）决定合入顺序，否则修复互踩
 
 # 2026-08-15 审计修复总纲（audit-remediation-master）
@@ -28,13 +28,13 @@
 | 簇 | 根因短语 | 条数 | 批次 | 量级 | 关键前置 |
 |---|---|---|---|---|---|
 | C32 | 写审计假阳性机器+diff 谓词漏洞 | 11 | C | M | 无（先行——C33/C1 的输入） |
-| C3 | truth 追加写路径零接线 | 21 | A | L | 无 |
+| C3 ✅ Done (PR #117) | truth 追加写路径零接线 | 21 | A | L | 无 |
 | C34 | 路径/布局三套分裂 | 14 | C | M | 无（C1 验收的地基） |
 | C1 | 读方↔写方键空间从未对账 | 67 | A | L | C3 定稿写方 + C34 路径协议（验收期） |
-| C4 | decisions-sidecar 四层断裂 | 17 | A | M | C3 staging 提交路由（sidecar 同生共死面） |
-| C10 | token 计量 dead-wire | 20 | A | M | 无（先行——成本类验收的输入） |
+| C4 ✅ Done (PR #120) | decisions-sidecar 四层断裂 | 17 | A | M | C3 staging 提交路由（sidecar 同生共死面） |
+| C10 ✅ Done (PR #137) | token 计量 dead-wire | 20 | A | M | 无（先行——成本类验收的输入） |
 | C16 | fixture 真实性失真/G0.9 零执法 | 31 | B | L | 无（C14 重写断言的输入） |
-| C11 | 并发/锁/durability 缺失 | 24 | A | L | 与 C3 写路径同 PR 面联合验收 |
+| C11 ✅ Done (PR #140) | 并发/锁/durability 缺失 | 24 | A | L | 与 C3 写路径同 PR 面联合验收 |
 
 ### 2.2 P1 簇（26 簇，按修复面分组）
 
@@ -55,6 +55,8 @@
 | C23 | 文档机械漂移 | 46 | B | 并入同一"文档对账工具+CI"spec（doc-links 启用 + 计数/断链/行号批量），phase4 §7 建议与 C24 合并处理 |
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
+
+状态速览（2026-09-03）：批次 A（C1-C13）13 簇已全部 Done（PR #107-#145，逐行标注与归档实名见 §7）；批次 B（C14-C26）/批次 C（C27-C37）活跃，承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -124,19 +126,19 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 
 | 簇 | 根因短语 | 条数 | 最高严重度 | spec 文件（2026-08-16-） | 批次 | 量级 | 硬前置 |
 |---|---|---|---|---|---|---|---|
-| C1 | 读方↔写方键空间从未对账 | 67 | P0 | audit-reader-writer-key-reconciliation-fix.md | A | L | C3+C34（验收期） |
-| C2 | Layer B 字段级 reads 断裂 | 13 | P1 | audit-layerb-field-reads-fix.md | A | M | — |
-| C3 | truth 追加写路径零接线 | 21 | P0 | audit-truth-upsert-wiring-fix.md | A | L | — |
-| C4 | decisions-sidecar 四层断裂 | 17 | P0 | audit-decisions-chain-fix.md | A | M | C3（staging 面） |
-| C5 | G3 独立性/反坍缩空转 | 6 | P1 | audit-g3-independence-fix.md | A | S-M | — |
-| C6 | 语言学漂移/CJK 盲区 | 21 | P1 | audit-linguistic-drift-cjk-fix.md | A | M | — |
-| C7 | 确定性 helper 零接线 | 5 | P1 | audit-deterministic-helper-wiring-fix.md | A | S-M | — |
-| C8 | 状态/词表多源 | 24 | P2 | audit-status-vocab-single-source-fix.md | A | M | — |
-| C9 | 阈值/配置契约多源 | 18 | P1 | audit-threshold-config-coherence-fix.md | A | M | — |
-| C10 | token 计量 dead-wire | 20 | P0 | audit-token-metering-fix.md | A | M | — |
-| C11 | 并发/锁/durability | 24 | P0 | audit-concurrency-durability-fix.md | A | L | 与 C3 联合验收 |
-| C12 | 裸崩边界 | 28 | P1 | audit-crash-boundary-guards-fix.md | A | M | — |
-| C13 | 静默吞错/部分校验 | 35 | P1 | audit-silent-swallow-partial-validation-fix.md | A | M-L | — |
+| C1 ✅ Done (PR #107) | 读方↔写方键空间从未对账 | 67 | P0 | archive/2026-08-16-audit-reader-writer-key-reconciliation-fix.md | A | L | C3+C34（验收期） |
+| C2 ✅ Done (PR #114) | Layer B 字段级 reads 断裂 | 13 | P1 | archive/2026-08-16-audit-layerb-field-reads-fix.md | A | M | — |
+| C3 ✅ Done (PR #117) | truth 追加写路径零接线 | 21 | P0 | archive/2026-08-16-audit-truth-upsert-wiring-fix.md | A | L | — |
+| C4 ✅ Done (PR #120) | decisions-sidecar 四层断裂 | 17 | P0 | archive/2026-08-16-audit-decisions-chain-fix.md | A | M | C3（staging 面） |
+| C5 ✅ Done (PR #122) | G3 独立性/反坍缩空转 | 6 | P1 | archive/2026-08-16-audit-g3-independence-fix.md | A | S-M | — |
+| C6 ✅ Done (PR #124) | 语言学漂移/CJK 盲区 | 21 | P1 | archive/2026-08-31-spec32-linguistic-drift-cjk-Done-PR124.md | A | M | — |
+| C7 ✅ Done (PR #127) | 确定性 helper 零接线 | 5 | P1 | archive/2026-08-16-audit-deterministic-helper-wiring-fix.md | A | S-M | — |
+| C8 ✅ Done (PR #129) | 状态/词表多源 | 24 | P2 | archive/2026-08-31-spec34-status-vocab-Done-PR129.md | A | M | — |
+| C9 ✅ Done (PR #132) | 阈值/配置契约多源 | 18 | P1 | archive/2026-08-31-spec35-threshold-config-Done-PR132.md | A | M | — |
+| C10 ✅ Done (PR #137) | token 计量 dead-wire | 20 | P0 | archive/2026-08-31-spec36-token-metering-Done-PR137.md | A | M | — |
+| C11 ✅ Done (PR #140) | 并发/锁/durability | 24 | P0 | archive/2026-08-31-spec37-concurrency-durability-Done-PR140.md | A | L | 与 C3 联合验收 |
+| C12 ✅ Done (PR #142) | 裸崩边界 | 28 | P1 | archive/2026-09-02-spec38-crash-boundary-guards-Done-PR142.md | A | M | — |
+| C13 ✅ Done (PR #145) | 静默吞错/部分校验 | 35 | P1 | archive/2026-09-03-spec39-silent-swallow-validation-Done-PR145.md | A | M-L | — |
 | C14 | 弱断言/自证测试 | 26 | P1 | audit-weak-assertions-fix.md | B | M-L | C16 |
 | C15 | 关键零覆盖 | 12 | P2 | audit-zero-coverage-fix.md | B | M | C14/C16 |
 | C16 | fixture 真实性失真 | 31 | P0 | audit-fixture-authenticity-fix.md | B | L | — |
@@ -162,4 +164,18 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 | C36 | print 违禁散点 | 3 | P1 | c36-print-purity-design.md | C | S | — |
 | C37 | 死代码零执法 | 43 | P1 | c37-dead-code-enforcement-design.md | C | L | C3/C7/C19/C28 裁决 |
 
-列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名以批次 B 的 INDEX 登记行为准（本总纲撰写时其登记尚未落盘，避免硬编码猜测名）。
+列校验：条数列合计 = 774；P0 行 7（C1/C3/C4/C10/C11/C16/C32）合计 191；P2 行 4（C8/C15/C24/C29）合计 100；P1 行 26 合计 483——与 §1 总览一致。C26 文件名为 `2026-08-16-audit-shell-injection-fix.md`（批次 B 登记为 INDEX #64，占位消除）。
+
+## 8. 记账执行清单（2026-09-03 修订新增 · master 维护 pass）
+
+截至本修订，13 簇已完成（批次 A 全部：C1=PR #107、C2=PR #114、C3=PR #117、C4=PR #120、C5=PR #122、C6=PR #124、C7=PR #127、C8=PR #129、C9=PR #132、C10=PR #137、C11=PR #140、C12=PR #142、C13=PR #145）。本节为一次性记账 pass 的权威执行清单：
+
+- **T1 矩阵状态标注**：§2.1/§7 矩阵为 13 个 Done 簇行补 `✅ Done (PR #N)` 标注（§6.4 协议补执行，不改历史计数）；§7 文件名列同步为 archive/ 实名（注意两种归档形态并存：C1-C5/C7 保留原文件名，C6/C8-C13 为 `specNN-…-Done-PR*.md` 改名形态）
+- **T2 findings-ledger 回写**：按 phase4 §2 簇总表压缩成员清单，把 13 个 Done 簇的成员条目状态 `open`/`verified` → `closed (C-cluster spec #NN, PR #N)`；剔除/残余判定以各归档簇 spec 自身的修订记录为权威（§8 不复述枚举——如 C6 六条已修剔除、C9 F202/F436/F603、C13 剔除面以 spec39 修订记录为准），「已修 elsewhere」条目关闭时注明实际修复 PR；各簇 spec 记录的残余/遗留观察缺口条目保持 open 并加注。19 行畸形重复行（F901-F919 dupes）不参与
+- **T3 #25 解散归档**：§5 判「解散关闭」执行——`2026-08-14-p2-batch-design.md` 移 archive/ 加解散注记，INDEX 删行、计数 28→27。解散注记须载明：(a) #25 属 2026-08-14 审计轮 ledger 家族，master §5 的归簇依据是 2026-08-15 再审计 37 簇——执行前先对 #25 的 Z1-整体层/家族主条目做一次 grep 级残余核对（如 F0-03 门禁计数漂移、F0-06 python 版本三处不一致无 08-15 对应行者，逐条给出承接归宿或记为总纲 §8 deviation）；(b) 此前九次 DEFER（"依赖全部子 spec"）由本解散显式 supersede——剩余承接以 §7 矩阵 24 个活跃簇为准
+- **T4 INDEX 刷新**：「最后更新」日期更新；删除 #25 行后计数头同步
+- **T5 完成后核对**：`just check` 全绿（docs workflow mkdocs --strict 对 specs/ 面生效）；归档移动的 #25 文件内相对链接核查（本仓 spec 文件为纯文件名文本引用，无相对链接面——执行时复查）
+
+执行边界：本 pass 不动任何生产代码、不改 24 个仍活跃簇 spec 的内容与计数；ledger 只改状态列与注记，不改任何证据列。spec 号映射 = 批次 A 序：#27=C1 … #39=C13。
+
+Deviation（T3 残余核对产出，2026-09-03）：08-14 轮 F0-06（python 版本三元不一致：requires-python>=3.11 vs mypy python_version=3.12 vs basedpyright 3.11）经核对仍存活，37 簇无 squarely 承接者（C23 是文档面、C9 已 Done 且范围在阈值）——随 C23（spec #61）修订时裁决归宿或单列微修。
