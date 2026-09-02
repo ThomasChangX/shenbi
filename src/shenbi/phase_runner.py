@@ -469,3 +469,7 @@ def main() -> None:
     else:  # pragma: no cover - argparse required=True guards this
         log.error("unknown_command", command=cmd)
         sys.exit(1)
+
+
+if __name__ == "__main__":
+    main()
