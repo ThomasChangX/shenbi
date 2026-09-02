@@ -35,3 +35,16 @@ def test_multiple_flat_candidates_ambiguous_raises() -> None:
 def test_no_json_raises() -> None:
     with pytest.raises(SubAgentProtocolError):
         _extract_json_object("no braces at all")
+
+
+def test_deep_nesting_envelope_wins_over_key_richer_fragment() -> None:
+    """audit-T3 I-1:外层键少于内层片段时仍须取真正最外层(span 包含)。"""
+    text = 'x {"scores": {"alpha": {"value": 1}, "beta": {"value": 2}}} y'
+    out = _extract_json_object(text)
+    assert "scores" in out
+
+
+def test_nested_envelope_with_flat_sibling() -> None:
+    """外层嵌套对象 + 独立扁平片段 → 取嵌套信封。"""
+    text = '{"scores": {"value": 1}} then {"flat": 2}'
+    assert _extract_json_object(text) == {"scores": {"value": 1}}
