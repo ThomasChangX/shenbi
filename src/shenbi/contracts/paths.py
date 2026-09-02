@@ -130,7 +130,7 @@ def resolve_contract_path(path: str, chapter: int | None, ctx: PathContext | Non
             anchor_m = _AC_ANCHOR.search(path)
             if anchor_m:
                 pad = f"{ctx.anchor:03d}" if isinstance(ctx.anchor, int) else str(ctx.anchor)
-                path = _AC_ANCHOR.sub(f"AC-{pad}", path)
+                path = _AC_ANCHOR.sub(lambda _m: f"AC-{pad}", path)
     return resolve_chapter_path(path, chapter)
 
 
