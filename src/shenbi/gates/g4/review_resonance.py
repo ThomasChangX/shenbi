@@ -120,7 +120,11 @@ def g4_review_resonance(
         # evidence carrier, so scan the whole report.
         # F422 (spec #39 T10): anchored evidence — see review_arc_payoff.
         has_location = bool(
-            re.search(r"L\d+|line\s+\d+|(file|文件|\.md|\.json).*?:\d+", content, re.IGNORECASE)
+            re.search(
+                r"L\d+|line\s+\d+|(file|文件|\.md|\.json)[^\n]*?(?<!\d):\d+",
+                content,
+                re.IGNORECASE,
+            )
         )
         if not has_location:
             mf.append(f"G4.rr.evidence:{Path(fp).name}:no_file_line_ref")

@@ -34,7 +34,11 @@ _VERDICTS = ("放行", "阻断")
 # F420 (spec #39 T10): parse the reported VALUE and compare numerically —
 # the old "15 appears anywhere" regex passed violating floors like
 # "伏笔兑现质量 12 < 子地板 15 ✗".
-_FORESHADOW_VALUE_RE = re.compile(r"伏笔兑现质量[^0-9]{0,10}(\d+(?:\.\d+)?)")
+_FORESHADOW_VALUE_RE = re.compile(
+    # value must sit in a comparison/verdict context (≥/≤/</> or ✓/✗),
+    # so "满分 20"/"子地板 15" alone cannot impersonate the report value
+    r"伏笔兑现质量[^0-9]{0,10}(\d+(?:\.\d+)?)\s*(?:≥|<=|≤|<|>)"
+)
 _FORESHADOW_FLOOR = 15.0
 
 
@@ -113,7 +117,13 @@ def g4_review_arc_payoff(
         # on a line that also carries a file reference; timestamps like
         # "12:30" no longer satisfy the check.
         has_location = bool(
-            re.search(r"L\d+|line\s+\d+|(file|文件|\.md|\.json).*?:\d+", content, re.IGNORECASE)
+            # (?<!\d): a colon-number preceded by a digit is a timestamp
+            # ("12:30"), not a file:line reference
+            re.search(
+                r"L\d+|line\s+\d+|(file|文件|\.md|\.json)[^\n]*?(?<!\d):\d+",
+                content,
+                re.IGNORECASE,
+            )
         )
         if not has_location:
             mf.append(f"G4.ap.evidence:{Path(fp).name}:no_file_line_ref")
