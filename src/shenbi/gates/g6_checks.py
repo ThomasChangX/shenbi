@@ -69,10 +69,15 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
             continue
         ct = _chapter_text(ch, 3000)
         # Mask knowledge-verb contexts: an entity mentioned only inside a
-        # "knows about X" clause is a reference, not an introduction.
-        for know_m in know_pat.finditer(ct):
-            start, end = know_m.end(), min(len(ct), know_m.end() + 50)
-            ct = ct[:start] + ("\u0000" * (end - start)) + ct[end:]
+        # "knows about X" clause is a reference, not an introduction. Collect
+        # all windows first so overlapping windows cannot resurrect text.
+        windows = [(m.end(), min(len(ct), m.end() + 50)) for m in know_pat.finditer(ct)]
+        if windows:
+            chars = list(ct)
+            for w_start, w_end in windows:
+                for i in range(w_start, w_end):
+                    chars[i] = "\u0000"
+            ct = "".join(chars)
         for m in entity_pat.finditer(ct):
             ent = m.group(0)
             if ent not in intro_map or chn < intro_map[ent]:
