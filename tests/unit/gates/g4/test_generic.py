@@ -278,7 +278,6 @@ def test_negation_checked_at_all_positions(tmp_path) -> None:
     """F405: an unnegated occurrence ANYWHERE makes a suggestion real, even
     when the first occurrence is negated.
     """
-    result = _result_dict(g4_generic_clean([str(tmp_path / "notes.md")], rd=str(tmp_path)))
     (tmp_path / "notes.md").write_text(
         "开头声明:无改进建议。本报告审计了全部章节并确认质量,结尾列出如下改进建议:补充节奏张力。",
         encoding="utf-8",
