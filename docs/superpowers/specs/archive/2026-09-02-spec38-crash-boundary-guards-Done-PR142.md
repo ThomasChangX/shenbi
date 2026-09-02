@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-02 · 阶段 2 实核收窄 + 设计审查 R1 修订:F442 已修剔除、F204 重钉、T1 按边界类型拆分、C29 软依赖、F337/F614/F1018 归属定名) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #142) · Revised 2026-09-02 · 阶段 2 实核收窄 + 设计审查 R1 修订:F442 已修剔除、F204 重钉、T1 按边界类型拆分、C29 软依赖、F337/F614/F1018 归属定名) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C12，28 条）| **代表 finding:** F102 | **严重度上限:** P1（F102/F203/F517/F976）| **涉及文件面:** phase_runner.py、scoring.py（子进程/gate 调用）、dispatcher/（executor、modes/codex、cli）、dispatch_helper（_write_parsed_outputs/extract）、gates/（jload 面）、trace/（writer、versioning）、skill_utils/（compute_pattern）、plugins/generate.py、tools/generate_autocheck_docs.py、run_pipeline 脚本面（注入项归 C26）
 
 # 裸崩边界守卫（audit-crash-boundary-guards）
