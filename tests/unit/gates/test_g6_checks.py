@@ -127,22 +127,31 @@ def test_check_continuity_timeline_regression_detected(tmp_path: Path) -> None:
 
 
 @pytest.mark.unit
-def test_check_continuity_future_knowledge_not_detected_pins_inert_behavior(tmp_path: Path) -> None:
-    r"""Future-knowledge check: pins current (inert) behavior.
+@pytest.mark.c13_regression
+def test_check_continuity_future_knowledge_detected(tmp_path: Path) -> None:
+    r"""F709 fixed: two-pass scan makes the guard reachable.
 
-    The check appends a future_knowledge violation only when
-    `intro_map[re_ent] > cn`. intro_map is populated in ascending chapter
-    order with first-occurrence values, so intro_map[ent] is always <= cn
-    and the `> cn` guard can never be true. No future_knowledge violation
-    is ever emitted. This test pins that inert behavior (Non-Goal #3:
-    do not modify source).
+    Pass 1 builds intro_map from ALL chapters (global earliest intro);
+    pass 2 scans knowledge verbs. Knowing an entity in ch1 that is only
+    introduced in ch2 now flags future_knowledge (was pinned inert while
+    the single-pass `intro_map[ent] > cn` guard was mathematically false).
     """
     ch1 = tmp_path / "chapter-001.md"
     ch2 = tmp_path / "chapter-002.md"
-    ch1.write_text("主角意识到灵能乙的存在。\n", encoding="utf-8")
-    ch2.write_text("灵能乙首次出现。\n", encoding="utf-8")
+    ch1.write_text("主角意识到：\n灵能乙\n的存在非同小可。\n", encoding="utf-8")
+    ch2.write_text("灵能乙\n首次出现。\n", encoding="utf-8")
     checks, mf = check_continuity([ch1, ch2])
-    # pins current behavior: future_knowledge is never flagged (dead guard).
+    assert any(e.startswith("G6.4:future_knowledge") for e in mf)
+
+
+@pytest.mark.unit
+def test_check_continuity_future_knowledge_clean_when_intro_first(tmp_path: Path) -> None:
+    """Positive control: introduce first, know later — no violation."""
+    ch1 = tmp_path / "chapter-001.md"
+    ch2 = tmp_path / "chapter-002.md"
+    ch1.write_text("灵能乙\n首次出现。\n", encoding="utf-8")
+    ch2.write_text("主角意识到：\n灵能乙\n的存在非同小可。\n", encoding="utf-8")
+    checks, mf = check_continuity([ch1, ch2])
     assert not any(e.startswith("G6.4:future_knowledge") for e in mf)
 
 
