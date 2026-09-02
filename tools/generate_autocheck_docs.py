@@ -120,7 +120,7 @@ def inject_block(skill_md: Path, block: str) -> bool:
     """Replace the auto-check block in a SKILL.md. Return True if changed."""
     text = skill_md.read_text(encoding="utf-8")
     if _PATTERN.search(text):
-        new_text = _PATTERN.sub(block, text, count=1)
+        new_text = _PATTERN.sub(lambda _m: block, text, count=1)  # F1018: repl \\ escape
     else:
         m = _FRONTMATTER_RE.match(text)
         new_text = m.group(1) + block + "\n" + m.group(2) if m else block + "\n" + text

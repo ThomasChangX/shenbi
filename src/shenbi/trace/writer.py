@@ -13,6 +13,10 @@ import json
 import os
 from pathlib import Path
 
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
+
 from shenbi.contracts.enums import ActorRole
 from shenbi.trace.event import GENESIS_PREV, TraceEvent
 
@@ -59,8 +63,15 @@ class TraceWriter:
         for ln in self._path.read_text(encoding="utf-8").splitlines():
             if not ln.strip():
                 continue
+            try:
+                last_sig = str(json.loads(ln).get("signature", GENESIS_PREV))
+            except (json.JSONDecodeError, ValueError, AttributeError):
+                # F608 (spec #38): torn-tail (partial last line from a crash
+                # mid-write) — stop the scan at the last intact event; the
+                # torn line does not count toward seq.
+                log.warning("trace_torn_tail_skipped", seq=count)
+                break
             count += 1
-            last_sig = str(json.loads(ln).get("signature", GENESIS_PREV))
         return count, last_sig
 
     def next_seq(self) -> int:

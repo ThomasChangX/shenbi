@@ -12,7 +12,12 @@ Usage:
 
 import json
 import math
+
 import sys
+
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 from typing import Any
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -169,6 +174,17 @@ def compute_transition_matrix(patterns: list[str]) -> list[dict[str, Any]]:
     return rows
 
 
+def extract_patterns(chapters: list[Any]) -> list[str]:
+    """Extract per-chapter pattern labels, skipping non-dict entries (F621, spec #38)."""
+    patterns: list[str] = []
+    for c in chapters:
+        if not isinstance(c, dict):
+            log.warning("chapter_entry_not_dict", entry=repr(c)[:80])
+            continue
+        patterns.append(str(c.get("pattern", c.get("主模式", "未分类"))))
+    return patterns
+
+
 def main() -> None:
     if len(sys.argv) < 2 or sys.argv[1] == "-":
         data = json.load(sys.stdin)
@@ -178,7 +194,7 @@ def main() -> None:
         chapters = data
     else:
         chapters = data.get("chapters", data.get("data", []))
-    patterns = [c.get("pattern", c.get("主模式", "未分类")) for c in chapters]
+    patterns = extract_patterns(chapters)
     n = len(patterns)
     # Compute all analytics
     consecutive = compute_consecutive(patterns)

@@ -563,14 +563,42 @@ class TestCheckGateMarkers:
 # --- TestMainFileMode ----------------------------------------------------
 
 
+def _main_dict(argv: list[str], monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
+    """Run scoring.main() under argv and return the emitted result JSON.
+
+    T5 (spec #38): main() returns int rc (was the result dict — the F976
+    console-script exit-1 bug); tests consume the emitted stdout JSON instead.
+    """
+    import contextlib
+    import io
+
+    monkeypatch.setattr("sys.argv", argv)
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = main()
+    assert rc == 0
+    return json.loads(buf.getvalue())
+
+
+def _main_result_from_stdout(monkeypatch: pytest.MonkeyPatch) -> dict[str, Any]:
+    """Variant for tests that already monkeypatched sys.argv themselves."""
+    import contextlib
+    import io
+
+    buf = io.StringIO()
+    with contextlib.redirect_stdout(buf):
+        rc = main()
+    assert rc == 0
+    return json.loads(buf.getvalue())
+
+
 class TestMainFileMode:
     """main() reads sys.argv. Tests use monkeypatch — do NOT refactor
     main()'s signature (out of scope; would need its own coverage).
     """
 
-    def _run_main(self, monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> Any:
-        monkeypatch.setattr("sys.argv", argv)
-        return main()
+    def _run_main(self, monkeypatch: pytest.MonkeyPatch, argv: list[str]) -> dict[str, Any]:
+        return _main_dict(argv, monkeypatch)
 
     def test_emits_result_with_weighted_score(
         self,
@@ -585,8 +613,7 @@ class TestMainFileMode:
         )
         assert result["final_score"] == 86.0  # 90*0.6 + 80*0.4
         assert result["classification"] == "CONDITIONAL"
-        emitted = json.loads(capsys.readouterr().out)
-        assert emitted["final_score"] == 86.0
+        # stdout 已被 _main_dict 捕获断言(原 capsys 重复读取翻红)
 
     def test_classification_driven_by_score_thresholds(
         self,
@@ -745,7 +772,7 @@ class TestMainTestTypeFiltering:
                 "bug-hunt",
             ],
         )
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         scored_nums = {d["num"] for d in result["dimensions"]}
         assert scored_nums == {2}
 
@@ -971,7 +998,7 @@ class TestMainTierGateIntegration:
                 str(round_dir),
             ],
         )
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 100.0
 
 
@@ -995,7 +1022,7 @@ class TestMainInteractiveMode:
         inputs = iter(["n", "90", "80"])
         monkeypatch.setattr("builtins.input", lambda *a, **kw: next(inputs))
         monkeypatch.setattr("sys.argv", ["shenbi-score", str(sample_rubric), "--interactive"])
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 86.0
 
     def test_interactive_re_prompts_on_non_numeric_input(
@@ -1006,7 +1033,7 @@ class TestMainInteractiveMode:
         inputs = iter(["n", "not-a-number", "90", "80"])
         monkeypatch.setattr("builtins.input", lambda *a, **kw: next(inputs))
         monkeypatch.setattr("sys.argv", ["shenbi-score", str(sample_rubric), "--interactive"])
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 86.0
 
     def test_interactive_re_prompts_on_out_of_range_input(
@@ -1017,7 +1044,7 @@ class TestMainInteractiveMode:
         inputs = iter(["n", "150", "90", "80"])
         monkeypatch.setattr("builtins.input", lambda *a, **kw: next(inputs))
         monkeypatch.setattr("sys.argv", ["shenbi-score", str(sample_rubric), "--interactive"])
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 86.0
 
     def test_interactive_eof_fills_missing_with_zero(
@@ -1042,7 +1069,7 @@ class TestMainInteractiveMode:
 
         monkeypatch.setattr("builtins.input", fake_input)
         monkeypatch.setattr("sys.argv", ["shenbi-score", str(sample_rubric), "--interactive"])
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 54.0  # 90*0.6 + 0*0.4
 
     def test_interactive_kill_switch_prompt_yes_forces_zero(
@@ -1053,7 +1080,7 @@ class TestMainInteractiveMode:
         inputs = iter(["y", "90", "80"])
         monkeypatch.setattr("builtins.input", lambda *a, **kw: next(inputs))
         monkeypatch.setattr("sys.argv", ["shenbi-score", str(sample_rubric), "--interactive"])
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["kill_switch_triggered"] is True
         assert result["final_score"] == 0
 
@@ -1175,7 +1202,7 @@ class TestScoringGatePath:
             ],
         )
 
-        result = main()
+        result = _main_result_from_stdout(monkeypatch)
         assert result["final_score"] == 90.0
 
         assert captured_cmds, "expected --tier T1 to trigger a gate subprocess call"

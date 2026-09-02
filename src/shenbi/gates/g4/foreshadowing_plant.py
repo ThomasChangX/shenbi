@@ -66,6 +66,14 @@ def g4_foreshadowing_plant(
             mf.append(f"G4.fp.no_hooks:{fp}")
             continue
 
+        non_dict = [h for h in hooks if not isinstance(h, dict)]
+        if non_dict:
+            # F409 (spec #38): string elements in the hooks list must be
+            # reported, not crash the checker with AttributeError — filter
+            # them once so every downstream consumer (id check, ops count,
+            # depends_on) sees only dict hooks.
+            mf.append(f"G4.fp.hook_not_dict:{fp}")
+            hooks = [h for h in hooks if isinstance(h, dict)]
         for h in hooks:
             hid = h.get("id", "?")
             required = [

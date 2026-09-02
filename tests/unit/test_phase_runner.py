@@ -658,13 +658,13 @@ class TestMainCli:
         monkeypatch.setattr("sys.argv", ["phase-runner"])
         with pytest.raises(SystemExit) as exc:
             main()
-        assert exc.value.code == 1
+        assert exc.value.code == 2  # T3 (spec #38): argparse usage exit 2
 
     def test_exits_when_round_dir_missing(self, monkeypatch: pytest.MonkeyPatch) -> None:
         monkeypatch.setattr("sys.argv", ["phase-runner", "start", "design"])
         with pytest.raises(SystemExit) as exc:
             main()
-        assert exc.value.code == 1
+        assert exc.value.code == 2  # T3 (spec #38): argparse usage exit 2
 
     def test_routes_start_command(
         self,
@@ -689,7 +689,7 @@ class TestMainCli:
         )
         with pytest.raises(SystemExit) as exc:
             main()
-        assert exc.value.code == 1
+        assert exc.value.code == 2  # T3 (spec #38): argparse invalid choice → exit 2
 
     def test_routes_pre_skill_command(
         self,

@@ -152,14 +152,30 @@ def resolve_volume_path(path: str, volume: int | None) -> str:
     return _bounded_replace_n(path, volume)
 
 
-def extract_chapter(text: str) -> int | None:
+class AmbiguousChapterError(ValueError):
+    """Multiple distinct chapter references where one was required (F234, spec #38)."""
+
+
+def extract_chapter(text: str, *, strict: bool = False) -> int | None:
     """First non-zero chapter reference; 'chapter 0' is a prologue marker,
     not a chapter number (F258).
+
+    ``strict=True`` raises :class:`AmbiguousChapterError` when the text
+    references more than one distinct non-zero chapter — first-match routing
+    across an ambiguous prompt is how wrong-chapter dispatches happened
+    (F234, spec #38).
     """
+    seen: set[int] = set()
+    first: int | None = None
     for m in re.finditer(r"\bchapter\s+(\d+)\b", text, re.IGNORECASE):
-        if int(m.group(1)) > 0:
-            return int(m.group(1))
-    return None
+        n = int(m.group(1))
+        if n > 0:
+            seen.add(n)
+            if first is None:
+                first = n
+    if strict and len(seen) > 1:
+        raise AmbiguousChapterError(f"multiple chapters referenced: {sorted(seen)}")
+    return first
 
 
 def resolve_or_skip(path: str, chapter: int | None) -> str | None:

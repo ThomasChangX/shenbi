@@ -37,7 +37,12 @@ def extract_yaml_block(text: str) -> str:
 def _parse_body(body: str) -> list[dict[str, Any]]:
     if not body:
         return []
-    data = yaml.safe_load(body)
+    try:
+        data = yaml.safe_load(body)
+    except yaml.YAMLError as e:
+        # F517 (spec #38): malformed truth YAML becomes a catchable ValueError
+        # instead of a bare YAMLError traceback through the audit chain.
+        raise ValueError(f"## hooks block YAML invalid: {e}") from e
     if data is None:
         return []
     if not isinstance(data, list):

@@ -170,17 +170,17 @@ def test_g_reconcile_gr1_missing_report_carries_skill_and_test_type(make_project
 
 
 @pytest.mark.unit
-def test_g_reconcile_non_dict_progress_propagates_jload_error(make_project) -> None:
+def test_g_reconcile_non_dict_progress_structured_fail(make_project) -> None:
     """A progress.json that is valid JSON but not an object -> jload raises
-    ValueError (spec Non-Goal #3: pin current behavior; do not modify source).
+    ValueError; T1b (spec #38) converts the crash to a structured FAIL.
 
-    The gate does not catch ValueError, so it propagates rather than producing
-    a FAIL result.
+    2026-09-02: was `pytest.raises(ValueError)` pinning the bare-crash
+    behavior — superseded by spec #38 F403 residual guard.
     """
     _, round_dir = make_project()
     (round_dir / "progress.json").write_text("[1, 2]", encoding="utf-8")
-    with pytest.raises(ValueError):
-        gate_G_RECONCILE(str(round_dir))  # pins current behavior
+    out = gate_G_RECONCILE(str(round_dir))
+    assert "progress.json unreadable or malformed" in out
 
 
 @pytest.mark.unit

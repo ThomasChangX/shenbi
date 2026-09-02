@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 import uuid
 from pathlib import Path
 from typing import Any
@@ -17,6 +16,7 @@ from shenbi.audit._shared import derive_output_files
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts import OutputKind
 from shenbi.contracts.paths import (
+    AmbiguousChapterError,
     PathContext,
     extract_chapter,
     parse_path_context,
@@ -24,6 +24,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
+from shenbi.process_guard import run_subprocess_json
 
 log = get_logger(__name__)
 
@@ -119,18 +120,17 @@ def derive_input_files(
 def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
     """Run G1 gate via shenbi-validate entry point."""
     inputs_json = json.dumps(inputs)
-    result = subprocess.run(
-        ["uv", "run", "shenbi-validate", "G1", skill, inputs_json, str(round_dir)],
-        capture_output=True,
-        text=True,
+    # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
+    return run_subprocess_json(
+        ["uv", "run", "shenbi-validate", "G1", skill, inputs_json, str(round_dir)]
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
     """Run G2 gate via shenbi-validate entry point."""
     output_files = ",".join(outputs)
-    result = subprocess.run(
+    # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
+    return run_subprocess_json(
         [
             "uv",
             "run",
@@ -140,11 +140,8 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
             file_type,
             str(round_dir),
             str(PROJECT_DIR),
-        ],
-        capture_output=True,
-        text=True,
+        ]
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def detect_mode() -> str:
@@ -170,7 +167,13 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     file_type = derive_file_type(skill)
     input_files = derive_input_files(skill, chapter, round_dir, ctx=path_ctx)
 
@@ -278,7 +281,13 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     watch = _audit_watch_paths(skill, chapter, ctx=path_ctx)
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot
@@ -300,9 +309,25 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         dispatch_exc = exc
         rc = -1
     finally:
-        post = snapshot_tree(PROJECT_DIR, watch)
-        result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
-        audit_ok = record_audit_outcome(round_dir, skill, result)
+        # F517 (spec #38): the audit chain itself (snapshot/diff/record) must
+        # not mask the original dispatch exception or crash the caller — a
+        # broken chain is an infra error that fails the dispatch (rc=2) while
+        # the original exception still propagates.
+        try:
+            post = snapshot_tree(PROJECT_DIR, watch)
+            result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
+            audit_ok = record_audit_outcome(round_dir, skill, result)
+        except Exception as audit_exc:
+            log.error(
+                "write_audit_infra_error",
+                skill=skill,
+                exc_type=type(audit_exc).__name__,
+                exc_msg=str(audit_exc),
+            )
+            rc = 2
+            # Chain the audit failure to any earlier dispatch exception so the
+            # original cause survives the double-crash path (audit-T6 I1).
+            raise audit_exc from dispatch_exc
         if not audit_ok and rc == 0:
             rc = 2  # GATE_FAIL: write overreach or drift
     if dispatch_exc is not None:

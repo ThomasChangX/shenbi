@@ -8,6 +8,7 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+import json
 from pathlib import Path
 from typing import Any
 
@@ -31,7 +32,11 @@ def gate_G_RECONCILE(round_dir: str | None = None) -> str:
     pp = rd / "progress.json"
     if not pp.exists():
         return fail("G_RECONCILE", [], "reconcile", ["no_progress"])
-    progress = jload(str(pp))
+    # T1b (spec #38 F403 residual): malformed progress.json → structured fail.
+    try:
+        progress = jload(str(pp))
+    except (json.JSONDecodeError, OSError, ValueError):
+        return fail("G_RECONCILE", [], "reconcile", ["progress.json unreadable or malformed"])
     skills = progress.get("skills", {})
     # GR.1: DONE skills have t1-reports/ files
     for sn, sd in skills.items():

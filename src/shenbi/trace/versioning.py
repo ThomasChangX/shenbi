@@ -11,10 +11,6 @@ from shenbi.trace.event import TraceEvent
 CURRENT_VERSION = 1
 
 
-def _identity(e: TraceEvent) -> TraceEvent:
-    return e
-
-
 MIGRATIONS: dict[int, Callable[[TraceEvent], TraceEvent]] = {}
 
 
@@ -33,6 +29,10 @@ def assert_monotonic(events: list[TraceEvent]) -> list[str]:
 def migrate_to_current(event: TraceEvent) -> TraceEvent:
     e = event
     while e.schema_version < CURRENT_VERSION:
-        up = MIGRATIONS.get(e.schema_version, _identity)
+        up = MIGRATIONS.get(e.schema_version)
+        if up is None:
+            # F626 (spec #38): an unregistered step must fail loud — the old
+            # _identity fallback never advanced the version (infinite loop).
+            raise ValueError(f"no migration registered from schema_version {e.schema_version}")
         e = up(e)
     return e

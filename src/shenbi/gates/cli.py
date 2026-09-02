@@ -133,14 +133,29 @@ Examples:
             elif test_type == "clean":
                 result = gate_G4_clean(file_list)
             else:
-                result = gate_G4(
-                    full_name,
-                    "generative",
-                    file_list,
-                    rd,
-                    project_dir=rd,
-                    repo_root=str(PROJECT),
-                )
+                # bare-split-exempt (spec #38 F337 residual): callers pass
+                # comma-free file lists — a filename containing a comma cannot
+                # be expressed in this positional form; pinned by test.
+                try:
+                    result = gate_G4(
+                        full_name,
+                        "generative",
+                        file_list,
+                        rd,
+                        project_dir=rd,
+                        repo_root=str(PROJECT),
+                    )
+                except ValueError as e:
+                    # F437 (spec #38): documented three-segment relative-path
+                    # invocation raised bare ValueError from resolve_input_path.
+                    emit_json(
+                        {
+                            "status": GateStatus.FAIL,
+                            "gate": "G4",
+                            "error": f"invalid file path argument: {e}",
+                        }
+                    )
+                    return 1
             write_gate_marker("G4", full_name, test_type, result, rd, file_list)
 
     elif gate == "G5":

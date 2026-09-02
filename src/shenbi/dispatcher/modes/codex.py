@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -128,18 +127,59 @@ def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str)
         raise SubAgentProtocolError(f"codex exec failed with rc={result.returncode}")
 
     raw_text = raw_out.read_text(encoding="utf-8")
-    match = re.search(r"\{[^{}]*\}", raw_text, re.DOTALL)
-    if not match:
-        log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
-        raise SubAgentProtocolError("no JSON object found in codex output")
     try:
-        scores: dict[str, Any] = json.loads(match.group(0))
-    except json.JSONDecodeError as e:
-        log.error(
-            "codex_invalid_json", skill=skill, error=str(e), raw_output_preview=raw_text[:500]
-        )
-        raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
+        scores: dict[str, Any] = _extract_json_object(raw_text)
+    except SubAgentProtocolError as e:
+        if "ambiguous" in str(e):
+            log.error(
+                "codex_invalid_json",
+                skill=skill,
+                error=str(e),
+                raw_output_preview=raw_text[:500],
+            )
+        else:
+            log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
+        raise
     return scores
+
+
+def _extract_json_object(text: str) -> dict[str, Any]:
+    r"""Extract the scored JSON object from raw codex output (F203, spec #38).
+
+    Old behavior: ``re.search(r"\{[^{}]*\}")`` grabbed the innermost flat
+    object — nested ``{"scores": {...}}`` payloads lost their outer envelope.
+    Now every ``{`` position is tried with raw_decode; candidates containing
+    nested dict values win over flat ones; multiple equally-flat candidates
+    are ambiguous and rejected rather than first-matched.
+    """
+    decoder = json.JSONDecoder()
+    # (start, end, obj) spans — outer envelope must contain inner fragments.
+    spans: list[tuple[int, int, dict[str, Any]]] = []
+    for i, ch in enumerate(text):
+        if ch != "{":
+            continue
+        try:
+            obj, end = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict):
+            spans.append((i, end, obj))
+    if not spans:
+        raise SubAgentProtocolError("no JSON object found in codex output")
+    nested = [s for s in spans if any(isinstance(v, dict) for v in s[2].values())]
+    if nested:
+        # Outermost = the span containing every other nested span. An envelope's
+        # `{` always precedes its children's, so first-in-scan-order among
+        # mutually-containing spans is the envelope (audit-T3 I-1: key count is
+        # not an outerness proxy — a deep fragment can have more keys).
+        outer = nested[0]
+        for s in nested[1:]:
+            if s[0] < outer[0] and s[1] > outer[1]:
+                outer = s
+        return outer[2]
+    if len(spans) > 1:
+        raise SubAgentProtocolError("ambiguous JSON candidates in codex output")
+    return spans[0][2]
 
 
 def _run_dual_scorer_check(
@@ -255,7 +295,14 @@ def dispatch_codex(
     if result.returncode != 0:
         return result.returncode
 
-    final = json.loads(result.stdout).get("final_score", 0)
+    # T6 (spec #38): rc==0 does not guarantee parseable JSON — parse once,
+    # fail structured instead of crashing on the second loads below.
+    try:
+        parsed = json.loads(result.stdout)  # bare-json-exempt (spec #38 T6): guarded try above
+    except (json.JSONDecodeError, ValueError):
+        log.error("scoring_output_unparseable", stderr_tail=(result.stderr or "")[-500:])
+        return 1
+    final = parsed.get("final_score", 0)
 
     # spec #31 T2b: opt-in dual-scorer agreement check (default OFF).
     env_dual = os.environ.get("SHENBI_DUAL_SCORER") == "1"
@@ -266,5 +313,5 @@ def dispatch_codex(
         _run_dual_scorer_check(round_dir, skill, test_type, prompt, scores)
 
     _record_completion(round_dir, skill, test_type, final, output_files=output_files)
-    emit_json(json.loads(result.stdout))
+    emit_json(parsed)
     return 0

@@ -21,6 +21,7 @@ import glob as glob_module
 import json
 import os
 import re
+from datetime import UTC, datetime
 import shutil
 import subprocess
 import sys
@@ -42,6 +43,7 @@ from tenacity import (
 
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import (
+    AmbiguousChapterError,
     PathContext,
     format_path_context,
     extract_chapter,
@@ -1320,6 +1322,36 @@ def _route_append_dedup_write(
     safe_write(project_dir / rel_path, content)
 
 
+def _quarantine_output(project_dir: Path, skill: str, raw: str, reason: str) -> Path:
+    """Quarantine unparsed/garbage LLM output instead of writing it (F329, spec #38).
+
+    Raw output is preserved verbatim under ``_quarantine/`` for manual review
+    or retry recovery — rejecting garbage must not mean losing it.
+    """
+    qdir = project_dir / "_quarantine"
+    qdir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
+    qpath = qdir / f"{skill}-{stamp}.md"
+    safe_write(qpath, f"# quarantine: {reason}\n\n{raw}".encode())
+    log.error("output_quarantined", skill=skill, reason=reason, path=str(qpath))
+    return qpath
+
+
+def _is_truncated_file_output(response: str) -> bool:
+    """Detect a truncated ``### FILE:`` response (T509, spec #38).
+
+    Truncation signature: the final ``### FILE:`` marker opens a block whose
+    content is empty at end-of-text — the stream was cut mid-output. Basic
+    tail detection is deliberately standalone; the C29 truncation-marker
+    protocol (spec #44) is a later enhancement, not a dependency.
+    """
+    markers = list(re.finditer(r"###\s*FILE:\s*(\S+)\s*", response))
+    if not markers:
+        return False
+    last = markers[-1]
+    return response[last.end() :].strip() == ""
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -1344,6 +1376,12 @@ def _write_parsed_outputs(
 
     Returns list of successfully written paths.
     """
+    if skill and _is_truncated_file_output(response):
+        _quarantine_output(project_dir, skill, response, "truncated ### FILE: output rejected")
+        raise DispatchWriteFailureError(
+            "truncated ### FILE: output rejected (final block has no content)",
+            signature="truncated_output",
+        )
     if parsed is None:
         parsed = _parse_file_outputs(response)
     written: list[str] = []
@@ -1446,13 +1484,21 @@ def _write_parsed_outputs(
             _append_integrity_findings(project_dir, full_path, issues)
 
     # Process literal contract paths
+    missing_paths: list[str] = []
     for rel_path in literal_paths:
         if "*" in rel_path:
             continue
         if rel_path in skip:
             log.info("write_skipped_noop", path=rel_path, skill=skill)
             continue
-        content = parsed.get(rel_path, parsed.get("__stdout__", ""))
+        content = parsed.get(rel_path)
+        if content is None:
+            # F329 (spec #38): the literal-fallback that wrote the whole
+            # stdout into the target path is deleted — a missing declared
+            # output is quarantined (once per call, all missing paths listed)
+            # and left unwritten for downstream gates.
+            missing_paths.append(rel_path)
+            continue
         if not content.strip():
             log.warning("output_empty", path=rel_path)
             continue
@@ -1462,6 +1508,14 @@ def _write_parsed_outputs(
         # _route_append_dedup_write (keyed upsert merge); everything else is a
         # whole-file write.
         _write_one(rel_path, content)
+
+    if missing_paths:
+        _quarantine_output(
+            project_dir,
+            skill or "unknown-skill",
+            response,
+            "declared literal paths not in parsed output: " + ", ".join(missing_paths),
+        )
 
     # Process wildcard paths: check parsed outputs against wildcard patterns
     for rel_path, content in parsed.items():
@@ -1951,7 +2005,13 @@ def _dispatch_via_api(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -2246,7 +2306,13 @@ def _dispatch_via_ide(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -2409,7 +2475,13 @@ def _with_write_audit(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     watch = derive_output_files(skill, chapter, ctx=path_ctx)
     # Spec #29 R1: staged writes go to staging/<declared> — watch both and fold
     # the staged keys back onto the declared relpath before auditing.
@@ -2560,7 +2632,13 @@ def dispatch_skill(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     chapter_path = pd / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
     cli_timeout = _compute_dispatch_timeout(skill, chapter_path)
 
@@ -2630,7 +2708,7 @@ def run_gate_g4(
             _record_gate_manifest(Path(project_dir), phase, chapter, skill, "G4", result)
         return result
     try:
-        result = json.loads(r.stdout)
+        result = json.loads(r.stdout)  # bare-json-exempt (spec #38 T6): guarded + timeout=60 above
     except (json.JSONDecodeError, ValueError):
         result = {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
     if chapter is not None and phase is not None:
@@ -2672,7 +2750,7 @@ def run_gate_g3(
             _record_gate_manifest(rd, phase, chapter, skill, "G3", result)
         return result
     try:
-        result = json.loads(r.stdout)
+        result = json.loads(r.stdout)  # bare-json-exempt (spec #38 T6): guarded + timeout=60 above
     except (json.JSONDecodeError, ValueError):
         result = {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
     if chapter is not None and phase is not None:

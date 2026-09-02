@@ -14,6 +14,7 @@ install group="dev":
 check:
     uv run python tools/lint_status_strings.py
     uv run python tools/lint_bare_writes.py
+    uv run python tools/lint_bare_subprocess_json.py
     uv run python tools/check_severity_vocab.py
     uv run python tools/lint_repo_consistency.py
     uv run python tools/lint_key_reconciliation.py --strict

@@ -5,6 +5,10 @@ Output: codex platform manifest (.codex-plugin/).
 """
 
 import json
+
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 import sys
 from pathlib import Path
 from typing import Any, cast
@@ -47,8 +51,11 @@ def _common_header(master: dict[str, Any]) -> dict[str, Any]:
 def gen_codex(master: dict[str, Any], config: dict[str, Any]) -> dict[str, Any]:
     fields = config.get("fields", {})
     out = _common_header(master)
-    out["marketplace"] = fields["marketplace"]
-    out["type"] = fields["type"]
+    # F627 (spec #38): missing fields default instead of bare KeyError.
+    if "marketplace" not in fields or "type" not in fields:
+        log.warning("gen_codex_missing_fields", keys=sorted(set(fields)))
+    out["marketplace"] = fields.get("marketplace", "unknown")
+    out["type"] = fields.get("type", "unknown")
     out["skills"] = master["skills"]
     return out
 

@@ -10,6 +10,10 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+
+from shenbi.logging import get_logger
+
+log = get_logger(__name__)
 from typing import Any, cast
 
 from shenbi.contracts.ownership import FileChange
@@ -56,7 +60,17 @@ def snapshot_tree(root: Path, watch_patterns: list[str]) -> dict[str, str | None
     out: dict[str, str | None] = {}
     for rel in _expand_patterns(root, watch_patterns):
         p = Path(root) / rel
-        out[rel] = p.read_text(encoding="utf-8") if p.exists() else None
+        if not p.exists():
+            out[rel] = None
+            continue
+        # F526 (spec #38): non-UTF-8 / directory-swap / vanished files degrade
+        # to None (pre/post None semantics already cover this) instead of
+        # crashing the audit chain.
+        try:
+            out[rel] = p.read_text(encoding="utf-8")
+        except (UnicodeDecodeError, IsADirectoryError, OSError):
+            log.warning("snapshot_read_failed", path=str(p))
+            out[rel] = None
     return out
 
 
@@ -101,8 +115,15 @@ def _changed_top_keys(pre: str, post: str) -> tuple[str, ...]:
 def _diff_records(
     pre: list[dict[str, Any]], post: list[dict[str, Any]]
 ) -> tuple[tuple[str, ...], tuple[str, ...], tuple[tuple[str, frozenset[str]], ...]]:
-    pre_by = {str(r.get("id")): r for r in pre}
-    post_by = {str(r.get("id")): r for r in post}
+    # F509 (spec #38): records without an id are skipped — collapsing them
+    # under the "None" key silently merges distinct records.
+    skipped = sum(1 for r in (*pre, *post) if r.get("id") is None)
+    if skipped:
+        # F509 (spec #38): records without an id are skipped — collapsing them
+        # under the "None" key silently merges distinct records.
+        log.warning("diff_records_skipped_no_id", count=skipped)
+    pre_by = {str(r["id"]): r for r in pre if r.get("id") is not None}
+    post_by = {str(r["id"]): r for r in post if r.get("id") is not None}
     new_ids = tuple(i for i in post_by if i not in pre_by)
     del_ids = tuple(i for i in pre_by if i not in post_by)
     mod: list[tuple[str, frozenset[str]]] = []

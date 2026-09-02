@@ -12,17 +12,18 @@ Usage:
 """
 
 import json
-import subprocess
 import sys
+from argparse import ArgumentParser
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, NoReturn, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.legacy import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
+from shenbi.process_guard import run_subprocess_json
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
@@ -117,21 +118,9 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     ``src/shenbi/gates/`` (PR-19). This function targets the module directly
     via ``python -m shenbi.gates.cli``, matching ``dispatch_helper.run_gate_g3/g4``.
     """
-    r: subprocess.CompletedProcess[str] | None = None
-    try:
-        r = subprocess.run(
-            [sys.executable, "-m", "shenbi.gates.cli", gate] + args,
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        return cast(dict[str, Any], json.loads(r.stdout))
-    except (json.JSONDecodeError, ValueError, OSError):
-        return {
-            "status": GateStatus.FAIL,
-            "raw_stdout": r.stdout if r is not None else "",
-            "raw_stderr": r.stderr if r is not None else "",
-        }
+    # T1a (spec #38): timeout/bad-JSON/OS errors surface as structured
+    # BLOCKED/FAIL dicts instead of tracebacks or silent FAIL.
+    return run_subprocess_json([sys.executable, "-m", "shenbi.gates.cli", gate] + args)
 
 
 def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
@@ -149,7 +138,8 @@ def require_state(state: dict[str, Any], expected: list[str], action: str) -> No
 def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["created"], "start")
-    g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
+    # F102 (spec #38): never pass str(None)=="None" as a path argument.
+    g5 = run_gate("G5", [phase, str(round_dir), *([str(project_dir)] if project_dir else [])])
     step = {"action": "start", "timestamp": now_iso(), "g5_status": g5.get("status")}
     if g5.get("status") == "PASS":
         state["state"] = PhaseState.STARTED
@@ -279,7 +269,7 @@ def cmd_post_skill(
     }
     state["steps"].append(step)
     save_state(round_dir, state)
-    if g4_status == "FAIL":
+    if g4_status in ("FAIL", "blocked"):
         emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "skill": skill, "g4": g4})
         sys.exit(1)
     emit_json(
@@ -343,7 +333,19 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
         sys.exit(1)
     # Validate the scores file parses as JSON before marking the phase SCORED;
     # a malformed file must abort here rather than silently advancing state.
-    json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    # F124 (spec #38): structured fail instead of bare JSONDecodeError.
+    try:
+        json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError, OSError) as e:
+        log.error("scores_file_malformed", path=str(scores_file), error=str(e))
+        emit_json(
+            {
+                "status": CommandStatus.ERROR,
+                "phase": phase,
+                "message": f"Scores file malformed: {scores_file}",
+            }
+        )
+        sys.exit(1)
     step = {
         "action": "post-score",
         "timestamp": now_iso(),
@@ -358,7 +360,8 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
 def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["scored"], "finalize")
-    g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
+    # F102 (spec #38): never pass str(None)=="None" as a path argument.
+    g5 = run_gate("G5", [phase, str(round_dir), *([str(project_dir)] if project_dir else [])])
     step = {
         "action": "finalize",
         "timestamp": now_iso(),
@@ -387,53 +390,83 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     emit_json({"status": CommandStatus.OK, "phase": phase, "state": PhaseState.FINALIZED})
 
 
+class _LoggingArgumentParser(ArgumentParser):
+    """argparse whose error/exit paths log via structlog (JSON on stderr).
+
+    Keeps the shenbi-phase CLI contract that usage problems surface as JSON
+    log lines (tests/unit/test_logging.py) instead of argparse plain text,
+    and exit with code 2 (usage) rather than tracebacks (F123, spec #38).
+    """
+
+    def error(self, message: str) -> NoReturn:
+        log.error("usage_error", message=message, parser_prog=self.prog)
+        sys.exit(2)
+        raise AssertionError  # pragma: no cover - sys.exit is NoReturn-typed
+
+
+def _clean_project_dir(v: str | None) -> str | None:
+    """F102 sentinel: "None"/empty strings mean "not provided"."""
+    if v is None or v.strip() in ("", "None"):
+        return None
+    return v
+
+
 def main() -> None:
     configure_logging()
-    if len(sys.argv) < 2:
-        log.info(
-            "usage",
-            message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize",
-        )
-        sys.exit(1)
+    parser = _LoggingArgumentParser(
+        prog="shenbi-phase",
+        description="T2/T3 phase state machine",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
 
-    cmd = sys.argv[1]
-    args = sys.argv[2:]
+    def add_common(sp: ArgumentParser) -> None:
+        sp.add_argument("--round-dir", required=True)
+        sp.add_argument("--project-dir", type=_clean_project_dir, default=None)
 
-    def find_flag(flag: str, required: bool = True) -> str | None:
-        if flag in args:
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                return args[idx + 1]
-        if required:
-            log.error("missing_required_flag", flag=flag)
-            sys.exit(1)
-        return None
+    sp = sub.add_parser("start")
+    sp.add_argument("phase")
+    add_common(sp)
 
-    round_dir = find_flag("--round-dir")
-    assert round_dir is not None
-    project_dir = find_flag("--project-dir", required=False)
-    chapter_str = find_flag("--chapter", required=False)
-    chapter = int(chapter_str) if chapter_str else None
+    sp = sub.add_parser("pre-skill")
+    sp.add_argument("phase")
+    sp.add_argument("skill")
+    sp.add_argument("--round-dir", required=True)
 
+    sp = sub.add_parser("post-skill")
+    sp.add_argument("phase")
+    sp.add_argument("skill")
+    sp.add_argument("--round-dir", required=True)
+    sp.add_argument("--project-dir", type=_clean_project_dir, default=None)
+    sp.add_argument("--chapter", type=int, default=None)  # F135: non-int → exit 2
+
+    sp = sub.add_parser("pre-score")
+    sp.add_argument("phase")
+    sp.add_argument("--round-dir", required=True)
+
+    sp = sub.add_parser("post-score")
+    sp.add_argument("phase")
+    sp.add_argument("scores_file")
+    sp.add_argument("--round-dir", required=True)
+
+    sp = sub.add_parser("finalize")
+    sp.add_argument("phase")
+    add_common(sp)
+
+    ns = parser.parse_args()
+    cmd = ns.command
     if cmd == "start":
-        phase = args[0]
-        cmd_start(phase, round_dir, project_dir)
+        cmd_start(ns.phase, ns.round_dir, ns.project_dir)
     elif cmd == "pre-skill":
-        phase, skill = args[0], args[1]
-        cmd_pre_skill(phase, skill, round_dir)
+        cmd_pre_skill(ns.phase, ns.skill, ns.round_dir)
     elif cmd == "post-skill":
-        phase, skill = args[0], args[1]
-        cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
+        cmd_post_skill(ns.phase, ns.skill, ns.round_dir, ns.project_dir, chapter=ns.chapter)
     elif cmd == "pre-score":
-        phase = args[0]
-        cmd_pre_score(phase, round_dir)
+        cmd_pre_score(ns.phase, ns.round_dir)
     elif cmd == "post-score":
-        phase, scores_file = args[0], args[1]
-        cmd_post_score(phase, scores_file, round_dir)
+        cmd_post_score(ns.phase, ns.scores_file, ns.round_dir)
     elif cmd == "finalize":
-        phase = args[0]
-        cmd_finalize(phase, round_dir, project_dir)
-    else:
+        cmd_finalize(ns.phase, ns.round_dir, ns.project_dir)
+    else:  # pragma: no cover - argparse required=True guards this
         log.error("unknown_command", command=cmd)
         sys.exit(1)
 
