@@ -10,6 +10,8 @@ from __future__ import annotations
 
 import fnmatch
 
+import structlog
+
 from shenbi.audit._shared import AuditResult
 from shenbi.audit.snapshot import compute_file_change, parametric_globs
 from shenbi.contracts.ownership import check_write_ownership, get_ownership
@@ -33,7 +35,10 @@ def _declared_patterns(
         from shenbi.audit._shared import derive_output_files
 
         return derive_output_files(skill, chapter, ctx=ctx)
-    except Exception:
+    except Exception as e:
+        # F507 (spec #39 T4): contract derivation failure is disclosed, not
+        # swallowed — an empty declared list would silently disable the audit.
+        structlog.get_logger(__name__).warning("derive_outputs_failed", skill=skill, error=repr(e))
         return []
 
 

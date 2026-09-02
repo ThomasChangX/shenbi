@@ -3,6 +3,8 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
+import pytest
+
 from shenbi.audit.snapshot import snapshot_tree
 from shenbi.audit.write_audit import audit_writes
 
@@ -93,3 +95,25 @@ def test_undeclared_file_write_blocked(tmp_path: Path) -> None:
     post: dict[str, str | None] = {"truth/rogue.md": "x"}
     res = audit_writes("shenbi-chapter-drafting", pre, post)
     assert any("未声明写入" in v for v in res.violations)
+
+
+@pytest.mark.c13_regression
+def test_declared_patterns_derive_failure_warns(monkeypatch, tmp_path: Path) -> None:
+    """F507: derive_output_files failure must WARN, not silently return []."""
+    import shenbi.audit._shared as shared
+    from structlog.testing import capture_logs
+
+    from shenbi.audit.write_audit import _declared_patterns
+
+    def _boom(*args: object, **kwargs: object) -> list[str]:
+        raise RuntimeError("derive exploded")
+
+    monkeypatch.setattr(shared, "derive_output_files", _boom)
+    with capture_logs() as logs:
+        result = _declared_patterns("shenbi-any", None, None)
+    assert result == []
+    assert any(
+        e.get("event") == "derive_outputs_failed" and "derive exploded" in str(e.get("error"))
+        for e in logs
+        if e.get("log_level") == "warning"
+    )

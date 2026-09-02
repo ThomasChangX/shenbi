@@ -355,6 +355,9 @@ def count_transition_words(text: str) -> dict[str, Any]:
 
 def read_chapters(paths: list[str]) -> dict[str, str]:
     """Read all chapter files from paths (files or directories)."""
+    import structlog
+
+    log = structlog.get_logger(__name__)
     texts: dict[str, str] = {}
     for p in paths:
         pp = Path(p)
@@ -362,13 +365,14 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
             for md_file in sorted(pp.glob("*.md")):
                 try:
                     texts[md_file.name] = md_file.read_text(encoding="utf-8")
-                except Exception:
-                    continue
+                except Exception as e:
+                    # F610 (spec #39 T4): unreadable chapter disclosed, not skipped silently.
+                    log.warning("chapter_read_failed", path=str(md_file), error=repr(e))
         elif pp.is_file():
             try:
                 texts[pp.name] = pp.read_text(encoding="utf-8")
-            except Exception:
-                continue
+            except Exception as e:
+                log.warning("chapter_read_failed", path=str(pp), error=repr(e))
     return texts
 
 
