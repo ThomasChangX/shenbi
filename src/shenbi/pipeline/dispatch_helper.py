@@ -2708,7 +2708,7 @@ def run_gate_g4(
             _record_gate_manifest(Path(project_dir), phase, chapter, skill, "G4", result)
         return result
     try:
-        result = json.loads(r.stdout)
+        result = json.loads(r.stdout)  # bare-json-exempt (spec #38 T6): guarded + timeout=60 above
     except (json.JSONDecodeError, ValueError):
         result = {"status": GateStatus.FAIL, "error": "unparseable G4 output", "stderr": r.stderr}
     if chapter is not None and phase is not None:
@@ -2750,7 +2750,7 @@ def run_gate_g3(
             _record_gate_manifest(rd, phase, chapter, skill, "G3", result)
         return result
     try:
-        result = json.loads(r.stdout)
+        result = json.loads(r.stdout)  # bare-json-exempt (spec #38 T6): guarded + timeout=60 above
     except (json.JSONDecodeError, ValueError):
         result = {"status": GateStatus.FAIL, "error": "unparseable G3 output", "stderr": r.stderr}
     if chapter is not None and phase is not None:

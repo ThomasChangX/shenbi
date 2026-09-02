@@ -295,7 +295,14 @@ def dispatch_codex(
     if result.returncode != 0:
         return result.returncode
 
-    final = json.loads(result.stdout).get("final_score", 0)
+    # T6 (spec #38): rc==0 does not guarantee parseable JSON — parse once,
+    # fail structured instead of crashing on the second loads below.
+    try:
+        parsed = json.loads(result.stdout)  # bare-json-exempt (spec #38 T6): guarded try above
+    except (json.JSONDecodeError, ValueError):
+        log.error("scoring_output_unparseable", stderr_tail=(result.stderr or "")[-500:])
+        return 1
+    final = parsed.get("final_score", 0)
 
     # spec #31 T2b: opt-in dual-scorer agreement check (default OFF).
     env_dual = os.environ.get("SHENBI_DUAL_SCORER") == "1"
@@ -306,5 +313,5 @@ def dispatch_codex(
         _run_dual_scorer_check(round_dir, skill, test_type, prompt, scores)
 
     _record_completion(round_dir, skill, test_type, final, output_files=output_files)
-    emit_json(json.loads(result.stdout))
+    emit_json(parsed)
     return 0

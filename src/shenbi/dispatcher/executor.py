@@ -8,7 +8,6 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
 import uuid
 from pathlib import Path
 from typing import Any
@@ -25,6 +24,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.contracts.registry import bootstrap_registry
 from shenbi.logging import get_logger
+from shenbi.process_guard import run_subprocess_json
 
 log = get_logger(__name__)
 
@@ -120,18 +120,17 @@ def derive_input_files(
 def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
     """Run G1 gate via shenbi-validate entry point."""
     inputs_json = json.dumps(inputs)
-    result = subprocess.run(
-        ["uv", "run", "shenbi-validate", "G1", skill, inputs_json, str(round_dir)],
-        capture_output=True,
-        text=True,
+    # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
+    return run_subprocess_json(
+        ["uv", "run", "shenbi-validate", "G1", skill, inputs_json, str(round_dir)]
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
     """Run G2 gate via shenbi-validate entry point."""
     output_files = ",".join(outputs)
-    result = subprocess.run(
+    # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
+    return run_subprocess_json(
         [
             "uv",
             "run",
@@ -141,11 +140,8 @@ def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any
             file_type,
             str(round_dir),
             str(PROJECT_DIR),
-        ],
-        capture_output=True,
-        text=True,
+        ]
     )
-    return json.loads(result.stdout)  # type: ignore[no-any-return]
 
 
 def detect_mode() -> str:
