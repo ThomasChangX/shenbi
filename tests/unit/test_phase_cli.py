@@ -96,11 +96,13 @@ class TestGatesCliG4Guard:
             text=True,
             timeout=120,
         )
-        out = r.stdout
-        assert r.returncode in (0, 1)
+        assert r.returncode == 1
         assert "Traceback" not in r.stderr
-        # 结构化输出含 status 键(合法 JSON 或 fail 串)
-        assert "status" in out or "FAIL" in out.upper()
+        import json as _json
+
+        payload = _json.loads(r.stdout)
+        assert payload["status"] == "FAIL"
+        assert "invalid file path argument" in payload["error"]
 
 
 class TestScoringTypeGuard:
