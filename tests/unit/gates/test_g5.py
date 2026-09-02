@@ -136,18 +136,15 @@ class TestG5ErrorPaths:
         assert any("G5.3:char_role_conflict:林青" in mf for mf in result["must_fix"])
 
     @pytest.mark.unit
-    def test_g5_numeric_inconsistency_not_detected_pins_inert_behavior(
-        self, tmp_path: Path
-    ) -> None:
-        r"""Numeric inconsistency detection: pins current behavior.
+    @pytest.mark.c13_regression
+    def test_g5_numeric_inconsistency_detected(self, tmp_path: Path) -> None:
+        r"""F708 fixed: unit group is now a capture group.
 
-        The source num_pat regex is `(\d+)\s*(?:个|种|人|...)` — only ONE
-        capture group. The loop body reads `m.group(2)` (the unit), which
-        raises IndexError, caught by the per-file `except Exception: pass`.
-        So the numeric registry never populates and G5.3:numeric conflicts
-        are NEVER emitted. This test pins that inert behavior (Non-Goal #3:
-        do not modify source). If the group-2 bug is later fixed, this test
-        will flip and should assert G5.3:numeric IS flagged.
+        The source num_pat regex is `(\d+)\s*(个|种|人|...)` — the unit is
+        capture group 2, so `m.group(2)` is valid and the numeric registry
+        populates. Same concept + unit with different values across files
+        MUST flag G5.3:numeric (was pinned inert while group(2) raised
+        IndexError swallowed by the per-file except).
         """
         round_dir = tmp_path / "round"
         round_dir.mkdir()
@@ -159,8 +156,7 @@ class TestG5ErrorPaths:
         (world_dir / "factions.md").write_text("成员人数30000人。\n", encoding="utf-8")
         (world_dir / "history.md").write_text("成员人数50000人。\n", encoding="utf-8")
         result = _result_dict(gate_G5("genesis", str(round_dir), str(project_dir)))
-        # pins current behavior: numeric conflict is NOT detected (source bug).
-        assert not any(mf.startswith("G5.3:numeric") for mf in result.get("must_fix", []))
+        assert any(mf.startswith("G5.3:numeric") for mf in result.get("must_fix", []))
 
     @pytest.mark.unit
     def test_g5_terminology_drift_detected(self, tmp_path: Path) -> None:
