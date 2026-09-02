@@ -128,7 +128,9 @@ def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
 
 def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
     """Run G2 gate via shenbi-validate entry point."""
-    output_files = ",".join(outputs)
+    from shenbi.contracts.file_list import join_gate_file_list
+
+    output_files = join_gate_file_list(outputs)
     # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
     return run_subprocess_json(
         [

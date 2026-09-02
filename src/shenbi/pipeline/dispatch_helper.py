@@ -42,6 +42,7 @@ from tenacity import (
 )
 
 from shenbi.contracts.fields import filter_to_fields
+from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.paths import (
     AmbiguousChapterError,
     PathContext,
@@ -2696,7 +2697,7 @@ def run_gate_g4(
         "shenbi.gates.cli",
         "G4",
         skill,
-        ",".join(files),
+        join_gate_file_list(files),
         str(project_dir),
     ]
     try:
