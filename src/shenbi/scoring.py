@@ -134,7 +134,16 @@ def load_applicability(rubric_path: str) -> dict[str, dict[str, bool]]:
                     for i, test_type in enumerate(header_dims):
                         if test_type not in applicability:
                             applicability[test_type] = {}
-                        cell_val = cells[i + 1] if i + 1 < len(cells) else "Yes"
+                        if i + 1 >= len(cells):
+                            # F137 (spec #39 T6): legacy rows fail closed too.
+                            log.warning(
+                                "applicability_cell_missing",
+                                scope=dim_scope,
+                                test_type=test_type,
+                            )
+                            applicability[test_type][dim_scope] = False
+                            continue
+                        cell_val = cells[i + 1]
                         applicability[test_type][dim_scope] = (
                             cell_val.strip().lower().startswith("no") is False
                         )
@@ -543,7 +552,14 @@ def main() -> int:
         for e in validation_errors:
             log.error("validation_error", error=str(e))
 
-    final = compute_score(dimensions, scores, kill_switch_triggered)
+    try:
+        final = compute_score(dimensions, scores, kill_switch_triggered)
+    except ValueError as e:
+        # F133 (spec #39 T6): invalid rubric weights exit via the structured
+        # error envelope, matching the validate_scores failure path.
+        log.error("invalid_rubric_weights", error=str(e))
+        emit_json({"error": str(e)})
+        sys.exit(2)
     result: dict[str, Any] = {
         "_provenance": {
             "scored_by": _resolve_scored_by(),

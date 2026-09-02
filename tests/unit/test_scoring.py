@@ -1368,3 +1368,24 @@ def test_applicability_missing_cell_fails_closed(tmp_path) -> None:
     assert app["bug-hunt"]["dim 1"] is True
     # short row: missing bug-hunt cell must NOT default to "Yes" (applicable)
     assert app["bug-hunt"]["dim 2"] is False
+
+
+@pytest.mark.c13_regression
+def test_applicability_legacy_missing_cell_fails_closed(tmp_path) -> None:
+    """F137 legacy branch: short legacy rows must also fail closed."""
+    rubric = """# R
+
+## Dimension Applicability
+
+| Dimension scope | generative | bug-hunt | clean |
+|-----------------|------------|----------|-------|
+| dim 1 | No | Yes | Yes |
+| dim 2 | Yes | Yes |
+"""
+    tmp = tmp_path / "rubric.md"
+    tmp.write_text(rubric, encoding="utf-8")
+    app = load_applicability(str(tmp))
+    assert app["generative"]["dim 1"] is False
+    assert app["bug-hunt"]["dim 1"] is True
+    # short legacy row: missing clean cell must NOT default to applicable
+    assert app["clean"]["dim 2"] is False
