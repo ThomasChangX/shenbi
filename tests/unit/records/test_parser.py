@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from shenbi.gates.shared import PROJECT
 from shenbi.records.parser import (
     extract_yaml_block,
@@ -69,3 +71,27 @@ def test_serialize_preserves_depends_on_list() -> None:
     recs = parse_records(FIXTURE.read_text(encoding="utf-8"))
     out = parse_records("## hooks\n" + serialize_records(recs))
     assert out[0]["depends_on"] == []  # list 不丢
+
+
+@pytest.mark.c13_regression
+def test_non_dict_rows_disclosed() -> None:
+    """F623: non-dict elements are WARNed, not silently dropped."""
+    from structlog.testing import capture_logs
+
+    from shenbi.records.parser import parse_records
+
+    text = """## hooks
+- id: A
+  hook: x
+- just_a_string
+- id: B
+  hook: y
+"""
+    with capture_logs() as logs:
+        rows = parse_records(text)
+    assert [r["id"] for r in rows] == ["A", "B"]
+    assert any(
+        e.get("event") == "record_row_not_dict_discarded"
+        for e in logs
+        if e.get("log_level") == "warning"
+    )

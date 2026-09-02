@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -545,3 +546,31 @@ def test_segment_sentences_unterminated_quote_state_resets_at_newline() -> None:
     """PR #100 review: quote state must reset at newline so later lines split normally."""
     sents = segment_sentences("“未闭合引号。\n第一句。第二句。")
     assert [s[0] for s in sents] == ["“未闭合引号。", "第一句。", "第二句。"]
+
+
+@pytest.mark.c13_regression
+@pytest.mark.skipif(os.geteuid() == 0, reason="chmod-000 unreadable under root")
+def test_read_chapters_unreadable_file_warns(tmp_path: Path) -> None:
+    """F610: an unreadable chapter file must WARN with a skip count, not
+    silently vanish.
+    """
+    from structlog.testing import capture_logs
+
+    good = tmp_path / "chapter-001.md"
+    good.write_text(SAMPLE_CHAPTER, encoding="utf-8")
+    bad = tmp_path / "chapter-002.md"
+    bad.write_text("x", encoding="utf-8")
+    bad.chmod(0o000)
+    try:
+        with capture_logs() as logs:
+            texts = read_chapters([str(bad), str(good)])
+    finally:
+        bad.chmod(0o644)
+    assert "chapter-001.md" in texts
+    assert "chapter-002.md" not in texts
+    warns = [
+        e
+        for e in logs
+        if e.get("log_level") == "warning" and e.get("event") == "chapter_read_failed"
+    ]
+    assert warns and warns[0].get("path", "").endswith("chapter-002.md")

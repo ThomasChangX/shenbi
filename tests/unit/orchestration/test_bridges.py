@@ -35,3 +35,83 @@ def test_check_single_scorer_collapse_detects_all_95():
     scores = {1: 95.0, 2: 95.0, 3: 95.0}
     result = check_single_scorer_collapse(scores)
     assert result["collapse_suspected"] is True
+
+
+@pytest.mark.c13_regression
+def test_zero_score_row_retained(tmp_path) -> None:
+    """F513: a 0 overall score row must be parsed, not dropped."""
+    from shenbi.orchestration.escalation_bridge import parse_resonance_scores
+
+    trend = tmp_path / "trend.md"
+    trend.write_text(
+        """| 章 | 覆盖 | 深度 | 节奏 | 共鸣 | 张力 | 总分 |
+|---|---|---|---|---|---|---|
+| 1 | 80 | 75 | 70 | 82 | 79 | 78 |
+| 2 | 60 | 55 | 58 | 62 | 59 | 0 |
+""",
+        encoding="utf-8",
+    )
+    scores = parse_resonance_scores(trend)
+    assert 0.0 in scores and len(scores) == 2
+
+
+@pytest.mark.c13_regression
+def test_volume_objective_unknown_skips_not_signals_nor_default_met() -> None:
+    """F381: None (unknown) must be an explicit SKIP — neither the old
+    default-met silence nor a missed signal.
+    """
+    from structlog.testing import capture_logs
+
+    from shenbi.skill_utils.escalation.check import check_escalation
+
+    with capture_logs() as logs:
+        signals = check_escalation(
+            resonance_scores=[80.0, 79.0],
+            sensitivity_blocking=False,
+            volume_objective_met=None,
+            regeneration_attempts=0,
+        )
+    assert not any(s.trigger == "volume_objective_missed" for s in signals)
+    assert any(
+        e.get("event") == "volume_objective_unknown_skip"
+        for e in logs
+        if e.get("log_level") == "warning"
+    )
+    # False still fires the signal
+    signals = check_escalation(
+        resonance_scores=[80.0, 79.0],
+        sensitivity_blocking=False,
+        volume_objective_met=False,
+        regeneration_attempts=0,
+    )
+    assert any(s.trigger == "volume_objective_missed" for s in signals)
+
+
+@pytest.mark.c13_regression
+def test_cli_volume_objective_tri_state_parsing() -> None:
+    """F381 CLI face: none → SKIP, false → signal, true → quiet."""
+    from shenbi.skill_utils.escalation.check import main as check_main
+
+    def _run(flag: str) -> list[dict[str, str]]:
+        import contextlib
+        import io
+        import json as _json
+
+        import pytest
+        from structlog.testing import capture_logs
+
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(
+                "sys.argv",
+                ["escalation", "--resonance-scores", "80,79", "--volume-objective-met", flag],
+            )
+            buf = io.StringIO()
+            # keep WARN events off the JSON stdout
+            with capture_logs(), contextlib.redirect_stdout(buf):
+                check_main()
+            return _json.loads(buf.getvalue())
+
+    assert _run("none") == []
+    false_signals: list[dict[str, str]] = _run("false")
+    assert any(sig["trigger"] == "volume_objective_missed" for sig in false_signals)
+    assert _run("true") == []

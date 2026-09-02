@@ -8,6 +8,8 @@ Usage: python3 compute_stats.py <chapter_dir_or_files...> [--output stats.json]
 import json
 import re
 import sys
+
+import structlog
 from collections import Counter
 from pathlib import Path
 from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
@@ -355,6 +357,7 @@ def count_transition_words(text: str) -> dict[str, Any]:
 
 def read_chapters(paths: list[str]) -> dict[str, str]:
     """Read all chapter files from paths (files or directories)."""
+    log = structlog.get_logger(__name__)
     texts: dict[str, str] = {}
     for p in paths:
         pp = Path(p)
@@ -362,13 +365,14 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
             for md_file in sorted(pp.glob("*.md")):
                 try:
                     texts[md_file.name] = md_file.read_text(encoding="utf-8")
-                except Exception:
-                    continue
+                except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
+                    # F610 (spec #39 T4): unreadable chapter disclosed, not skipped silently.
+                    log.warning("chapter_read_failed", path=str(md_file), error=repr(e))
         elif pp.is_file():
             try:
                 texts[pp.name] = pp.read_text(encoding="utf-8")
-            except Exception:
-                continue
+            except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
+                log.warning("chapter_read_failed", path=str(pp), error=repr(e))
     return texts
 
 

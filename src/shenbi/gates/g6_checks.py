@@ -48,26 +48,52 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         if pt == timeline[i][2] and cv < pv and cc >= pc:
             violations.append(f"timeline_regression:ch{pc}->ch{cc}:{pv}->{cv}({pt})")
 
-    intro_map: dict[str, int] = {}
+    # F709 (spec #39 T3): two-pass scan. Pass 1 builds intro_map from ALL
+    # chapters (global earliest introduction); pass 2 checks knowledge verbs.
+    # The old single-pass guard `intro_map[ent] > cn` was mathematically
+    # unreachable because intro_map only held chapters <= cn.
     entity_pat = re.compile(r"(?:灵能\S+|位面\S+|金手指|革命|起义|矿场|据点)")
     know_pat = re.compile(r"(?:知道|明白|意识到|了解|学会|懂得|掌握|想起|回忆)")
-    for ch in chapters:
+
+    def _chapter_num(ch: Path) -> int | None:
         cn_match = re.search(r"chapter-(\d+)", ch.name)
-        if not cn_match:
+        return int(cn_match.group(1)) if cn_match else None
+
+    def _chapter_text(ch: Path, limit: int) -> str:
+        return ch.read_text(encoding="utf-8")[:limit]
+
+    intro_map: dict[str, int] = {}
+    for ch in chapters:
+        chn = _chapter_num(ch)
+        if chn is None:
             continue
-        cn = int(cn_match.group(1))
-        ct = ch.read_text(encoding="utf-8")[:3000]
-        entities = set(m.group(0) for m in entity_pat.finditer(ct))
-        for ent in entities:
-            if ent not in intro_map:
-                intro_map[ent] = cn
+        ct = _chapter_text(ch, 3000)
+        # Mask knowledge-verb contexts: an entity mentioned only inside a
+        # "knows about X" clause is a reference, not an introduction. Collect
+        # all windows first so overlapping windows cannot resurrect text.
+        windows = [(m.end(), min(len(ct), m.end() + 50)) for m in know_pat.finditer(ct)]
+        if windows:
+            chars = list(ct)
+            for w_start, w_end in windows:
+                for i in range(w_start, w_end):
+                    chars[i] = "\u0000"
+            ct = "".join(chars)
+        for m in entity_pat.finditer(ct):
+            ent = m.group(0)
+            if ent not in intro_map or chn < intro_map[ent]:
+                intro_map[ent] = chn
+    for ch in chapters:
+        chn = _chapter_num(ch)
+        if chn is None:
+            continue
+        ct = _chapter_text(ch, 3000)
         for know_m in know_pat.finditer(ct):
             post_ctx = ct[know_m.end() : know_m.end() + 50]
             ref_entities = set(m.group(0) for m in entity_pat.finditer(post_ctx))
             for re_ent in ref_entities:
-                if re_ent in intro_map and intro_map[re_ent] > cn:
+                if re_ent in intro_map and intro_map[re_ent] > chn:
                     violations.append(
-                        f"future_knowledge:ch{cn}:knows_{re_ent}_intro_ch{intro_map[re_ent]}"
+                        f"future_knowledge:ch{chn}:knows_{re_ent}_intro_ch{intro_map[re_ent]}"
                     )
 
     mf = [f"G6.4:{v}" for v in violations[:10]]

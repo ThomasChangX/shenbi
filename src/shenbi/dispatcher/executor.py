@@ -77,7 +77,9 @@ def derive_file_type(skill: str) -> str:
     """
     try:
         c = load_contract(skill)
-    except ContractError:
+    except ContractError as e:
+        # F217 (spec #39 T9): explicit downgrade note, not a silent fallback.
+        log.error("contract_error_fallback", site="derive_file_type", skill=skill, error=str(e))
         return "chapter"
     kind = c["kind"]
     if kind == OutputKind.REPORT:
@@ -113,7 +115,9 @@ def derive_input_files(
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
         return paths
-    except ContractError:
+    except ContractError as e:
+        # F217 (spec #39 T9): explicit downgrade note, not a silent fallback.
+        log.error("contract_error_fallback", site="derive_input_files", skill=skill, error=str(e))
         return []
 
 
@@ -128,7 +132,9 @@ def run_g1(skill: str, inputs: list[str], round_dir: Path) -> dict[str, Any]:
 
 def run_g2(outputs: list[str], file_type: str, round_dir: Path) -> dict[str, Any]:
     """Run G2 gate via shenbi-validate entry point."""
-    output_files = ",".join(outputs)
+    from shenbi.contracts.file_list import join_gate_file_list
+
+    output_files = join_gate_file_list(outputs)
     # T1a/T6 (spec #38 F125 residual): guarded subprocess boundary.
     return run_subprocess_json(
         [
@@ -296,7 +302,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     dispatch_exc: BaseException | None = None
     try:
         rc = dispatch(skill, test_type, round_dir, prompt)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         # CRITICAL: log every exception from dispatch() before re-raising
         log.error(
             "dispatch_exception",

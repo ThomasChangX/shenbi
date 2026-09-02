@@ -45,7 +45,7 @@ class TestHookFulfillment:
 
     def test_handles_hook_ids_with_letters(self, tmp_path):
         plan = tmp_path / "plan.md"
-        plan.write_text("| CP-012 | advance | Character progression hook |\n")
+        plan.write_text("## Hook Ledger\n\n| CP-012 | advance | Character progression hook |\n")
         chapter = tmp_path / "chapter.md"
         chapter.write_text("CP-012 is referenced here.")
         issues = check_hook_fulfillment(plan, chapter)

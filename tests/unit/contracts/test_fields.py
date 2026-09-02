@@ -1,3 +1,5 @@
+import pytest
+
 from shenbi.contracts.fields import filter_to_fields, match_field
 
 
@@ -146,3 +148,36 @@ class TestProductionCurrentStateF845:
         assert matched is True
         assert "系统演化阶段" in filtered
         assert not warns  # no field_filter_missing_fields escape-hatch
+
+
+@pytest.mark.c13_regression
+def test_duplicate_h2_warns() -> None:
+    """F233 residual: duplicate H2 sections are disclosed (first-wins kept)."""
+    from structlog.testing import capture_logs
+
+    from shenbi.contracts.fields import extract_h2_sections
+
+    text = "## 系统演化阶段\n第一段\n## 系统演化阶段\n第二段\n"
+    with capture_logs() as logs:
+        sections = extract_h2_sections(text)
+    assert sections["系统演化阶段"] == "第一段"
+    assert any(
+        e.get("event") == "duplicate_h2_first_wins" and e.get("heading") == "系统演化阶段"
+        for e in logs
+        if e.get("log_level") == "warning"
+    )
+
+
+@pytest.mark.c13_regression
+def test_unknown_extension_passthrough_warns() -> None:
+    """T305: non-md/json extensions pass through with a WARN."""
+    from structlog.testing import capture_logs
+
+    with capture_logs() as logs:
+        text, matched = filter_to_fields("# 不过滤", ["字段"], "data/list.yaml")
+    assert text == "# 不过滤" and matched is True
+    assert any(
+        e.get("event") == "field_filter_unknown_extension_passthrough"
+        for e in logs
+        if e.get("log_level") == "warning"
+    )

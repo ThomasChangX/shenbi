@@ -9,6 +9,7 @@ from pathlib import Path
 
 from shenbi.contracts.paths import (
     PathContext,
+    UnresolvedPathError,
     parse_path_context,
     resolve_contract_path,
 )
@@ -84,9 +85,15 @@ def test_parse_path_context_tolerant_token_shapes():
     assert ctx.arc == "2="  # tolerant str sentinel, not a crash
 
 
-def test_resolve_contract_path_family_none_falls_back():
+def test_resolve_contract_path_family_missing_raises():
+    """Un-pinned per F207 (spec #39 T7): a family placeholder whose ctx value
+    is None now raises instead of silently resolving via chapter semantics.
+    """
+    import pytest
+
     ctx = PathContext(volume=2)  # arc missing
-    assert resolve_contract_path("audits/arc-N-score.md", 7, ctx) == "audits/arc-7-score.md"
+    with pytest.raises(UnresolvedPathError):
+        resolve_contract_path("audits/arc-N-score.md", 7, ctx)
 
 
 def test_real_fixture_bridge_density_probe():

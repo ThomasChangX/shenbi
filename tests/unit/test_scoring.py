@@ -402,10 +402,13 @@ class TestComputeScore:
         score = compute_score(base_dims, {1: 100, 2: 100}, kill_switch_triggered=True)
         assert score == 0
 
-    def test_returns_zero_when_weights_sum_to_zero(self) -> None:
+    def test_zero_weight_rubric_rejected(self) -> None:
+        """Un-pinned per F133 (spec #39 T6): zero weights are invalid, not a
+        silent 0-score path.
+        """
         dims = [Dimension(num=1, name="x", weight=0)]
-        score = compute_score(dims, {1: 100})
-        assert score == 0
+        with pytest.raises(ValueError, match="invalid_weight"):
+            compute_score(dims, {1: 100})
 
     def test_missing_dimension_score_counts_as_zero(self, base_dims: list[Dimension]) -> None:
         score = compute_score(base_dims, {2: 100})
@@ -1300,3 +1303,90 @@ def test_gate_markers_verified_reflects_real_check(tmp_path, capsys, monkeypatch
     assert out["_provenance"]["gate_markers_verified"] is True
     out2 = _run_score(["--test-type", "generative"])
     assert out2["_provenance"]["gate_markers_verified"] is False
+
+
+# --- spec #39 T6: numeric domain + applicability fail-closed (F133/F132/F137) ---
+
+_D2: list[Dimension] = [
+    Dimension(num=1, name="a", weight=50),
+    Dimension(num=2, name="b", weight=50),
+]
+
+
+@pytest.mark.c13_regression
+def test_negative_weight_rubric_rejected_not_inflated() -> None:
+    """F133: a rubric with negative weight must not compute an inflated
+    final_score (the old 120-point path).
+    """
+    dims: list[Dimension] = [
+        Dimension(num=1, name="a", weight=-20),
+        Dimension(num=2, name="b", weight=120),
+    ]
+    with pytest.raises(ValueError, match="invalid_weight"):
+        compute_score(dims, {1: 100, 2: 100})
+
+
+@pytest.mark.c13_regression
+def test_nan_score_rejected() -> None:
+    """F132: NaN passes both `< 0` and `> 100` comparisons — must be an
+    explicit REJECT (non-finite).
+    """
+    ok, errors = validate_scores({1: float("nan"), 2: 80.0}, _D2)
+    assert not ok
+    assert any("not finite" in e or "nan" in e.lower() for e in errors)
+
+
+@pytest.mark.c13_regression
+def test_bool_score_rejected() -> None:
+    """F132: bool is an int subclass — True/False must not silently score."""
+    ok, errors = validate_scores({1: True, 2: 80.0}, _D2)
+    assert not ok
+    assert any("REJECT" in e for e in errors)
+
+
+@pytest.mark.c13_regression
+def test_applicability_missing_cell_fails_closed(tmp_path) -> None:
+    """F137: a dimension row shorter than the header defaults to "Yes"
+    (fail-open). Must now WARN and treat the dimension as not applicable.
+    """
+    rubric = """# R
+
+## Dimension Applicability
+
+| # | Dimension | generative | bug-hunt |
+|---|-----------|------------|----------|
+| 1 | a | Yes | No |
+| 2 | b | Yes |
+"""
+    from shenbi.scoring import load_applicability
+
+    tmp = tmp_path / "rubric.md"
+    tmp.write_text(rubric, encoding="utf-8")
+    app = load_applicability(str(tmp))
+    assert app["generative"]["dim 1"] is True
+    # per-dim semantics: only "N/A" exempts; "No" is still applicable
+    assert app["bug-hunt"]["dim 1"] is True
+    # short row: missing bug-hunt cell must NOT default to "Yes" (applicable)
+    assert app["bug-hunt"]["dim 2"] is False
+
+
+@pytest.mark.c13_regression
+def test_applicability_legacy_missing_cell_fails_closed(tmp_path) -> None:
+    """F137 legacy branch: short legacy rows must also fail closed."""
+    rubric = """# R
+
+## Dimension Applicability
+
+| Dimension scope | generative | bug-hunt | clean | audit |
+|-----------------|------------|----------|-------|-------|
+| dim 1 | No | Yes | Yes | Yes |
+| dim 2 | Yes | Yes | Yes |
+"""
+    tmp = tmp_path / "rubric.md"
+    tmp.write_text(rubric, encoding="utf-8")
+    app = load_applicability(str(tmp))
+    assert app["generative"]["dim 1"] is False
+    assert app["bug-hunt"]["dim 1"] is True
+    assert app["clean"]["dim 2"] is True
+    # short legacy row: missing audit cell must NOT default to applicable
+    assert app["audit"]["dim 2"] is False

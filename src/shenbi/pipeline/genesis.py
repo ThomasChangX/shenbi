@@ -106,6 +106,16 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
 )
 
 
+def mark_skill_done(state: PipelineState, skill: str) -> None:
+    """Record skill completion idempotently.
+
+    F367 (spec #39 T9): a REJECT-redo of the same skill must not append a
+    duplicate completion record (18-row artifacts were observed in audits).
+    """
+    if skill not in state.genesis.skills_done:
+        state.genesis.skills_done.append(skill)
+
+
 def _gate_passed(result: dict[str, object]) -> bool:
     """True iff a gate result dict reports PASS (handles str and GateStatus)."""
     return str(result.get("status", "")) == GateStatus.PASS
@@ -128,12 +138,12 @@ def _update_indexes(project_dir: Path, skill: str) -> None:
         index = build_index(project_dir)
         safe_write(project_dir / "truth-index.json", index.to_json())
         log.info("truth_index_updated", skill=skill)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("truth_index_update_failed", skill=skill, error=str(e))
         return
     try:
         _update_route_b(project_dir, index, skill)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("route_b_update_failed", skill=skill, error=str(e))
 
 
@@ -372,5 +382,5 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     if step.skill == "shenbi-volume-outlining":  # step 6: volume map landed (R2)
         genesis_finalize_volume_map(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
-    state.genesis.skills_done.append(step.skill)
+    mark_skill_done(state, step.skill)
     return _advance(state, step_idx)

@@ -20,6 +20,7 @@ from typing import Any, NoReturn, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
+from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.legacy import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
@@ -107,7 +108,7 @@ def _record_gate_manifest(
         # spec #37 F416: manifest corruption is fail-loud — best-effort
         # swallowing applies to transient errors only, not envelope errors.
         raise
-    except Exception:
+    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)
 
 
@@ -254,10 +255,12 @@ def cmd_post_skill(
         file_type = "chapter"  # override: rglob finds .md, not decisions.json
     g2_status = GateStatus.SKIP.value
     if output_files:
-        g2 = run_gate("G2", [",".join(output_files), file_type, str(round_dir)])
+        g2 = run_gate("G2", [join_gate_file_list(output_files), file_type, str(round_dir)])
         g2_status = g2.get("status", GateStatus.FAIL.value)
         _record_gate_manifest(proj, phase, chapter or 0, skill, "G2", g2)
-    g4 = run_gate("G4", [skill, ",".join(output_files) if output_files else "", str(round_dir)])
+    g4 = run_gate(
+        "G4", [skill, join_gate_file_list(output_files) if output_files else "", str(round_dir)]
+    )
     g4_status = g4.get("status", GateStatus.FAIL.value)
     _record_gate_manifest(proj, phase, chapter or 0, skill, "G4", g4)
     step = {

@@ -16,9 +16,12 @@ def dispatch_internal(
 ) -> NoReturn:
     """Hard-reject: internal mode has no LLM backend, cannot score.
 
-    Set ``SHENBI_LLM_API_KEY`` to use API mode, or install the codex CLI
-    for IDE agent dispatch.
+    F219 (spec #39 T9): the old message pointed at SHENBI_LLM_API_KEY, an
+    env var no dispatch route reads — the real alternatives are the codex
+    CLI or the pipeline API entrypoint.
     """
     raise DispatcherError(
-        "internal mode has no LLM backend, cannot score. Set SHENBI_LLM_API_KEY to use API mode."
+        "internal mode has no LLM backend, cannot score. "
+        "Install the codex CLI for dispatch, or use the pipeline API "
+        "entrypoint (pipeline/dispatch_helper)."
     )

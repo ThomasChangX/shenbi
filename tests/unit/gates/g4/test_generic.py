@@ -271,3 +271,24 @@ class TestGateRouter:
         # Result is valid JSON — the skill-specific checker ran
         parsed = json.loads(result_str)
         assert "status" in parsed
+
+
+@pytest.mark.c13_regression
+def test_negation_checked_at_all_positions(tmp_path) -> None:
+    """F405: an unnegated occurrence ANYWHERE makes a suggestion real, even
+    when the first occurrence is negated.
+    """
+    (tmp_path / "notes.md").write_text(
+        "开头声明:无改进建议。本报告审计了全部章节并确认质量,结尾列出如下改进建议:补充节奏张力。",
+        encoding="utf-8",
+    )
+    result = _result_dict(g4_generic_clean([str(tmp_path / "notes.md")], rd=str(tmp_path)))
+    assert any("has_suggestions" in str(m) for m in result.get("must_fix", []))
+
+
+@pytest.mark.c13_regression
+def test_negated_only_occurrence_passes(tmp_path) -> None:
+    """F405 positive control: all occurrences negated → no finding."""
+    (tmp_path / "notes.md").write_text("全文无改进建议。", encoding="utf-8")
+    result = _result_dict(g4_generic_clean([str(tmp_path / "notes.md")], rd=str(tmp_path)))
+    assert not any("has_suggestions" in str(m) for m in result.get("must_fix", []))

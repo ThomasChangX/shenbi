@@ -64,7 +64,7 @@ def g4_generic_generative(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.gen.read_error:{fp_path}")
             continue
         if fp_path.endswith(".md"):
@@ -112,7 +112,7 @@ def g4_generic_bughunt(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.bh.read_error:{fp_path}")
             continue
         # Must have Detection Summary or equivalent
@@ -160,7 +160,7 @@ def g4_generic_clean(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.cl.read_error:{fp_path}")
             continue
         # Must confirm zero issues (digits, Chinese zero, or "Zero" in heading)
@@ -177,12 +177,16 @@ def g4_generic_clean(
         # Filter out negated mentions
         real_suggestions = []
         for m in suggestion_matches:
-            # Check 10 chars before the match for negation
-            idx = content.lower().index(m.lower()) if m.lower() in content.lower() else -1
-            if idx >= 0:
-                before = content[max(0, idx - 15) : idx]
+            # F405 (spec #39 T10): check EVERY occurrence — the old
+            # first-index lookup mis-judged texts whose first mention was
+            # negated but a later one was not (and vice versa). An
+            # unnegated occurrence anywhere makes it a real suggestion.
+            pat = re.compile(re.escape(m), re.IGNORECASE)
+            for occ in pat.finditer(content):
+                before = content[max(0, occ.start() - 15) : occ.start()]
                 if not re.search(r"无|不|no\s|not\s|without|没", before, re.IGNORECASE):
                     real_suggestions.append(m)
+                    break
         if real_suggestions:
             mf.append(f"G4.cl.has_suggestions:{fp_path}:{real_suggestions}")
         if len(mf) == mf_before:
