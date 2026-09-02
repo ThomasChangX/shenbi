@@ -56,7 +56,13 @@ def gate_G5(
         score = 0
         report = find_report(rd / "t1-reports", pr, "generative") if rd else None
         if report and report.exists():
-            rdata = jload(str(report))
+            # T1b (spec #38 F403 residual): malformed report → must-fix,
+            # not a bare ValueError traceback.
+            try:
+                rdata = jload(str(report))
+            except (json.JSONDecodeError, OSError, ValueError):
+                mf.append(f"G5.1:{pr}:report_unreadable")
+                continue
             score = rdata.get("final_score", rdata.get("score", 0))
         elif rd:
             mf.append(f"G5.1:{pr}:no_report")
