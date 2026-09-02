@@ -39,8 +39,8 @@ class TestSnapshotGuards:
 
 
 class TestTraceWriterTornTail:
-    def test_torn_tail_tolerated(self, tmp_path) -> None:
-        """F608:半行 JSON 尾 → 跳过,非 JSONDecodeError。"""
+    def test_torn_tail_tolerated_and_repaired(self, tmp_path) -> None:
+        """F608:半行 JSON 尾 → 跳过,非 JSONDecodeError;append 前修复撕裂。"""
         from shenbi.trace.writer import TraceWriter
 
         (tmp_path / "trace.jsonl").write_text(
@@ -49,6 +49,9 @@ class TestTraceWriterTornTail:
         w = TraceWriter(tmp_path)
         assert w.last_signature() == "sig-a"
         assert w.next_seq() == 2
+        w.append(actor="test", actor_role="SYSTEM", action="NOTE", target="t")
+        lines = (tmp_path / "trace.jsonl").read_text(encoding="utf-8").splitlines()
+        assert len(lines) == 2  # 撕裂碎片已清除,新事件成为干净第 2 行
 
 
 class TestChapterPatternNonDict:
@@ -89,19 +92,33 @@ class TestExecutorFinallyGuard:
         """F517:snapshot/audit 链崩溃 → 原异常上抛 + write_audit_infra_error 日志。"""
         from shenbi.dispatcher import executor
 
+        calls = {"n": 0}
+
         def boom(*a, **kw):
-            raise RuntimeError("snapshot exploded")
+            calls["n"] += 1
+            if calls["n"] >= 2:  # pre snapshot succeeds, post snapshot crashes
+                raise RuntimeError("snapshot exploded")
+            return {}
 
         import shenbi.audit.snapshot as snap
         import shenbi.audit.write_audit as wa
 
+        errors: list[str] = []
         monkeypatch.setattr(snap, "snapshot_tree", boom)
         monkeypatch.setattr(wa, "audit_writes", boom)
         monkeypatch.setattr(executor, "dispatch", lambda *a, **kw: 0)
+        orig_error = executor.log.error
+
+        def spy_error(event: str, **kw: object) -> None:
+            errors.append(event)
+            orig_error(event, **kw)
+
+        monkeypatch.setattr(executor.log, "error", spy_error)
         with pytest.raises(RuntimeError, match="snapshot exploded"):
             executor.dispatch_with_write_audit(
                 "shenbi-example", "generative", tmp_path, "chapter 1 prompt"
             )
+        assert "write_audit_infra_error" in errors
 
 
 class TestMaterializeRoundField:

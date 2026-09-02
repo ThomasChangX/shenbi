@@ -117,6 +117,11 @@ def _diff_records(
 ) -> tuple[tuple[str, ...], tuple[str, ...], tuple[tuple[str, frozenset[str]], ...]]:
     # F509 (spec #38): records without an id are skipped — collapsing them
     # under the "None" key silently merges distinct records.
+    skipped = sum(1 for r in (*pre, *post) if r.get("id") is None)
+    if skipped:
+        # F509 (spec #38): records without an id are skipped — collapsing them
+        # under the "None" key silently merges distinct records.
+        log.warning("diff_records_skipped_no_id", count=skipped)
     pre_by = {str(r["id"]): r for r in pre if r.get("id") is not None}
     post_by = {str(r["id"]): r for r in post if r.get("id") is not None}
     new_ids = tuple(i for i in post_by if i not in pre_by)

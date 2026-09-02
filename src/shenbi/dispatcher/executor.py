@@ -329,7 +329,9 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
                 exc_msg=str(audit_exc),
             )
             rc = 2
-            raise
+            # Chain the audit failure to any earlier dispatch exception so the
+            # original cause survives the double-crash path (audit-T6 I1).
+            raise audit_exc from dispatch_exc
         if not audit_ok and rc == 0:
             rc = 2  # GATE_FAIL: write overreach or drift
     if dispatch_exc is not None:
