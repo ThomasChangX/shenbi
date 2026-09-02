@@ -28,13 +28,13 @@
 | 簇 | 根因短语 | 条数 | 批次 | 量级 | 关键前置 |
 |---|---|---|---|---|---|
 | C32 | 写审计假阳性机器+diff 谓词漏洞 | 11 | C | M | 无（先行——C33/C1 的输入） |
-| C3 | truth 追加写路径零接线 | 21 | A | L | 无 |
+| C3 ✅ Done (PR #117) | truth 追加写路径零接线 | 21 | A | L | 无 |
 | C34 | 路径/布局三套分裂 | 14 | C | M | 无（C1 验收的地基） |
 | C1 | 读方↔写方键空间从未对账 | 67 | A | L | C3 定稿写方 + C34 路径协议（验收期） |
-| C4 | decisions-sidecar 四层断裂 | 17 | A | M | C3 staging 提交路由（sidecar 同生共死面） |
-| C10 | token 计量 dead-wire | 20 | A | M | 无（先行——成本类验收的输入） |
+| C4 ✅ Done (PR #120) | decisions-sidecar 四层断裂 | 17 | A | M | C3 staging 提交路由（sidecar 同生共死面） |
+| C10 ✅ Done (PR #137) | token 计量 dead-wire | 20 | A | M | 无（先行——成本类验收的输入） |
 | C16 | fixture 真实性失真/G0.9 零执法 | 31 | B | L | 无（C14 重写断言的输入） |
-| C11 | 并发/锁/durability 缺失 | 24 | A | L | 与 C3 写路径同 PR 面联合验收 |
+| C11 ✅ Done (PR #140) | 并发/锁/durability 缺失 | 24 | A | L | 与 C3 写路径同 PR 面联合验收 |
 
 ### 2.2 P1 簇（26 簇，按修复面分组）
 
@@ -55,6 +55,8 @@
 | C23 | 文档机械漂移 | 46 | B | 并入同一"文档对账工具+CI"spec（doc-links 启用 + 计数/断链/行号批量），phase4 §7 建议与 C24 合并处理 |
 | C8 | 状态/词表多源 | 24 | B | enums.py 收编 + lint 补洞（是 C1/C29 的词表输入，实际执行宜提前） |
 | C15 | 关键零覆盖 | 12 | B | 补测 + 覆盖率 per-module 底线（依赖 C14/C16 先治断言与 fixture） |
+
+状态速览（2026-09-03）：批次 A（C1-C13）13 簇已全部 Done（PR #107-#145，逐行标注与归档实名见 §7）；批次 B（C14-C26）/批次 C（C27-C37）活跃，承接关系以 §7 为准。
 
 ## 3. 跨簇依赖顺序（关键链）
 
@@ -124,19 +126,19 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 
 | 簇 | 根因短语 | 条数 | 最高严重度 | spec 文件（2026-08-16-） | 批次 | 量级 | 硬前置 |
 |---|---|---|---|---|---|---|---|
-| C1 | 读方↔写方键空间从未对账 | 67 | P0 | audit-reader-writer-key-reconciliation-fix.md | A | L | C3+C34（验收期） |
-| C2 | Layer B 字段级 reads 断裂 | 13 | P1 | audit-layerb-field-reads-fix.md | A | M | — |
-| C3 | truth 追加写路径零接线 | 21 | P0 | audit-truth-upsert-wiring-fix.md | A | L | — |
-| C4 | decisions-sidecar 四层断裂 | 17 | P0 | audit-decisions-chain-fix.md | A | M | C3（staging 面） |
-| C5 | G3 独立性/反坍缩空转 | 6 | P1 | audit-g3-independence-fix.md | A | S-M | — |
-| C6 | 语言学漂移/CJK 盲区 | 21 | P1 | audit-linguistic-drift-cjk-fix.md | A | M | — |
-| C7 | 确定性 helper 零接线 | 5 | P1 | audit-deterministic-helper-wiring-fix.md | A | S-M | — |
-| C8 | 状态/词表多源 | 24 | P2 | audit-status-vocab-single-source-fix.md | A | M | — |
-| C9 | 阈值/配置契约多源 | 18 | P1 | audit-threshold-config-coherence-fix.md | A | M | — |
-| C10 | token 计量 dead-wire | 20 | P0 | audit-token-metering-fix.md | A | M | — |
-| C11 | 并发/锁/durability | 24 | P0 | audit-concurrency-durability-fix.md | A | L | 与 C3 联合验收 |
-| C12 | 裸崩边界 | 28 | P1 | audit-crash-boundary-guards-fix.md | A | M | — |
-| C13 | 静默吞错/部分校验 | 35 | P1 | audit-silent-swallow-partial-validation-fix.md | A | M-L | — |
+| C1 ✅ Done (PR #107) | 读方↔写方键空间从未对账 | 67 | P0 | archive/2026-08-16-audit-reader-writer-key-reconciliation-fix.md | A | L | C3+C34（验收期） |
+| C2 ✅ Done (PR #114) | Layer B 字段级 reads 断裂 | 13 | P1 | archive/2026-08-16-audit-layerb-field-reads-fix.md | A | M | — |
+| C3 ✅ Done (PR #117) | truth 追加写路径零接线 | 21 | P0 | archive/2026-08-16-audit-truth-upsert-wiring-fix.md | A | L | — |
+| C4 ✅ Done (PR #120) | decisions-sidecar 四层断裂 | 17 | P0 | archive/2026-08-16-audit-decisions-chain-fix.md | A | M | C3（staging 面） |
+| C5 ✅ Done (PR #122) | G3 独立性/反坍缩空转 | 6 | P1 | archive/2026-08-16-audit-g3-independence-fix.md | A | S-M | — |
+| C6 ✅ Done (PR #124) | 语言学漂移/CJK 盲区 | 21 | P1 | archive/2026-08-31-spec32-linguistic-drift-cjk-Done-PR124.md | A | M | — |
+| C7 ✅ Done (PR #127) | 确定性 helper 零接线 | 5 | P1 | archive/2026-08-16-audit-deterministic-helper-wiring-fix.md | A | S-M | — |
+| C8 ✅ Done (PR #129) | 状态/词表多源 | 24 | P2 | archive/2026-08-31-spec34-status-vocab-Done-PR129.md | A | M | — |
+| C9 ✅ Done (PR #132) | 阈值/配置契约多源 | 18 | P1 | archive/2026-08-31-spec35-threshold-config-Done-PR132.md | A | M | — |
+| C10 ✅ Done (PR #137) | token 计量 dead-wire | 20 | P0 | archive/2026-08-31-spec36-token-metering-Done-PR137.md | A | M | — |
+| C11 ✅ Done (PR #140) | 并发/锁/durability | 24 | P0 | archive/2026-08-31-spec37-concurrency-durability-Done-PR140.md | A | L | 与 C3 联合验收 |
+| C12 ✅ Done (PR #142) | 裸崩边界 | 28 | P1 | archive/2026-09-02-spec38-crash-boundary-guards-Done-PR142.md | A | M | — |
+| C13 ✅ Done (PR #145) | 静默吞错/部分校验 | 35 | P1 | archive/2026-09-03-spec39-silent-swallow-validation-Done-PR145.md | A | M-L | — |
 | C14 | 弱断言/自证测试 | 26 | P1 | audit-weak-assertions-fix.md | B | M-L | C16 |
 | C15 | 关键零覆盖 | 12 | P2 | audit-zero-coverage-fix.md | B | M | C14/C16 |
 | C16 | fixture 真实性失真 | 31 | P0 | audit-fixture-authenticity-fix.md | B | L | — |
