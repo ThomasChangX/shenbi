@@ -2,7 +2,7 @@
 
 > Spec: docs/superpowers/specs/2026-08-16-audit-remediation-master.md §8 · 全部 docs/ledger 记账，零生产代码
 > 分支: docs/spec40-master-bookkeeping · spec 号映射 #27=C1…#39=C13
-> Ledger 基线：当前 778 ID 行（774 D/F/T + 4 G6xx），683 open / 85 verified / 1 closed（T1002，C24 的 `closed（顺带修复）`——非批次 A，脚本不得触碰）。19 行畸形重复行已在 f86ceaa6 清除，今日不存在。
+> Ledger 基线：当前 778 ID 行（774 D/F/T + 4 G6xx），691 open / 86 verified / 1 closed（T1002，C24 的 `closed（顺带修复）`——非批次 A，脚本不得触碰）。19 行畸形重复行已在 f86ceaa6 清除，今日不存在。
 
 ## Task 1 · 矩阵状态标注（T1）
 - §7 附录矩阵 13 个 Done 簇行加 `✅ Done (PR #N)`；文件名列改 archive/ 实名（两种形态见 §8）
