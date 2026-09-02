@@ -226,7 +226,7 @@ def _run_dual_scorer_check(
             # spec #37 F416: manifest corruption is fail-loud — envelope
             # errors propagate; only transient failures are best-effort.
             raise
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             # Manifest write failure must not crash dispatch — the dual check
             # is an enhancement, not a gate (audit-T4 M1).
             log.warning("dual_scorer_manifest_write_failed", skill=skill, exc_info=True)

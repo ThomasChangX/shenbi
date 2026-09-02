@@ -35,7 +35,7 @@ def _declared_patterns(
         from shenbi.audit._shared import derive_output_files
 
         return derive_output_files(skill, chapter, ctx=ctx)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         # F507 (spec #39 T4): contract derivation failure is disclosed, not
         # swallowed — an empty declared list would silently disable the audit.
         structlog.get_logger(__name__).warning("derive_outputs_failed", skill=skill, error=repr(e))

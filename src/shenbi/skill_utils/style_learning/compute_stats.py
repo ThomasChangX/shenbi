@@ -365,13 +365,13 @@ def read_chapters(paths: list[str]) -> dict[str, str]:
             for md_file in sorted(pp.glob("*.md")):
                 try:
                     texts[md_file.name] = md_file.read_text(encoding="utf-8")
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                     # F610 (spec #39 T4): unreadable chapter disclosed, not skipped silently.
                     log.warning("chapter_read_failed", path=str(md_file), error=repr(e))
         elif pp.is_file():
             try:
                 texts[pp.name] = pp.read_text(encoding="utf-8")
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                 log.warning("chapter_read_failed", path=str(pp), error=repr(e))
     return texts
 

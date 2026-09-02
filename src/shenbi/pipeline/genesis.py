@@ -128,12 +128,12 @@ def _update_indexes(project_dir: Path, skill: str) -> None:
         index = build_index(project_dir)
         safe_write(project_dir / "truth-index.json", index.to_json())
         log.info("truth_index_updated", skill=skill)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("truth_index_update_failed", skill=skill, error=str(e))
         return
     try:
         _update_route_b(project_dir, index, skill)
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("route_b_update_failed", skill=skill, error=str(e))
 
 

@@ -296,7 +296,7 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
     dispatch_exc: BaseException | None = None
     try:
         rc = dispatch(skill, test_type, round_dir, prompt)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         # CRITICAL: log every exception from dispatch() before re-raising
         log.error(
             "dispatch_exception",

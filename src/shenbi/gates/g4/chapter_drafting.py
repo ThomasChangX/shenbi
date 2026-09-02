@@ -156,7 +156,7 @@ def _load_protagonist_names(project_dir: str) -> list[str]:
                     fm = _yaml.safe_load(parts[1])
                     if isinstance(fm, dict) and "name" in fm:
                         names.append(str(fm["name"]))
-                except Exception:
+                except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                     pass  # malformed YAML frontmatter → fall back to regex name match above
     if not names:
         return []

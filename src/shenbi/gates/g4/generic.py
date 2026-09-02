@@ -64,7 +64,7 @@ def g4_generic_generative(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.gen.read_error:{fp_path}")
             continue
         if fp_path.endswith(".md"):
@@ -112,7 +112,7 @@ def g4_generic_bughunt(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.bh.read_error:{fp_path}")
             continue
         # Must have Detection Summary or equivalent
@@ -160,7 +160,7 @@ def g4_generic_clean(
             continue
         try:
             content = p.read_text(encoding="utf-8")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.cl.read_error:{fp_path}")
             continue
         # Must confirm zero issues (digits, Chinese zero, or "Zero" in heading)

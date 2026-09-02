@@ -34,7 +34,7 @@ def _read_only_events(path: Path) -> tuple[list[TraceEvent], int | None, int]:
         total += 1
         try:
             out.append(TraceEvent.model_validate_json(ln))
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             if torn_line is None:
                 torn_line = i
     return out, torn_line, total

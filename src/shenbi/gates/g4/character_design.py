@@ -41,7 +41,7 @@ def g4_character_design(
         if "protagonist" in str(fp) and pf.suffix == ".md":
             try:
                 fm = yload(str(pf))
-            except Exception:
+            except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                 mf.append(f"G4.protag.yaml_error:{fp}")
                 continue
 
@@ -193,7 +193,7 @@ def _validate_archetype(
 
     try:
         fm = yload(str(file_path))
-    except Exception:
+    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         return [f"G4.cd.archetype.yaml_error:{char_name}"]
 
     archetype_sources = fm.get("archetype_sources", [])

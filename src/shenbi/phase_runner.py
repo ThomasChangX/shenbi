@@ -107,7 +107,7 @@ def _record_gate_manifest(
         # spec #37 F416: manifest corruption is fail-loud — best-effort
         # swallowing applies to transient errors only, not envelope errors.
         raise
-    except Exception:
+    except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
         log.warning("gate_manifest_record_failed", gate=gate, skill=skill, exc_info=True)
 
 

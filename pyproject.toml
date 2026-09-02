@@ -111,6 +111,7 @@ exclude = [
 
 [tool.ruff.lint]
 select = [
+    "BLE",
     "E", "F", "W",
     "I",
     "N",
@@ -132,6 +133,33 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
+# spec #39 T5 (F103-family prevention): BLE001 blind-except lint is
+# ACTIVE repo-wide; the files below are legacy out-of-scope sites pending
+# their own cluster fixes — each entry is an explicit, reviewed allowlist
+# member. Spec-scope files use inline `# noqa: BLE001` with justification.
+"src/shenbi/cost/report.py" = ["BLE001"]
+"src/shenbi/gates/g0.py" = ["BLE001"]
+"src/shenbi/gates/g0_purity.py" = ["BLE001"]
+"src/shenbi/gates/g0_skill_contract.py" = ["BLE001"]
+"src/shenbi/gates/g1.py" = ["BLE001"]
+"src/shenbi/gates/g2.py" = ["BLE001"]
+"src/shenbi/gates/g3.py" = ["BLE001"]
+"src/shenbi/gates/g4/foreshadowing_plant.py" = ["BLE001"]
+"src/shenbi/gates/g4/story_architecture.py" = ["BLE001"]
+"src/shenbi/gates/g4/worldbuilding.py" = ["BLE001"]
+"src/shenbi/gates/g6.py" = ["BLE001"]
+"src/shenbi/gates/g7.py" = ["BLE001"]
+"src/shenbi/pipeline/chapter_loop.py" = ["BLE001"]
+"src/shenbi/pipeline/cli.py" = ["BLE001"]
+"src/shenbi/pipeline/context_assemble.py" = ["BLE001"]
+"src/shenbi/pipeline/context_curation.py" = ["BLE001"]
+"src/shenbi/pipeline/crash_recovery.py" = ["BLE001"]
+"src/shenbi/pipeline/dispatch_helper.py" = ["BLE001"]
+"src/shenbi/pipeline/parallel_dispatch.py" = ["BLE001"]
+"src/shenbi/pipeline/review_checklist.py" = ["BLE001"]
+"src/shenbi/pipeline/truth_embed.py" = ["BLE001"]
+"src/shenbi/safe_write.py" = ["BLE001"]
+"src/shenbi/trace/replay.py" = ["BLE001"]
 "skills/**/*.md" = ["ALL"]
 "tools/audit-skill-descriptions.py" = ["N999"]
 # P-1.A: legacy code in tests/*.py has many style violations.

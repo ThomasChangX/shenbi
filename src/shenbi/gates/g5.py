@@ -128,7 +128,7 @@ def gate_G5(
                             char_data[nm] = []
                         role_val = rms[0] if rms else "unknown"
                         char_data[nm].append((cf.name, role_val))
-                except Exception:
+                except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                     continue  # unreadable character file → skip, continue scanning
             for name, entries in char_data.items():
                 if len(entries) > 1:
@@ -166,7 +166,7 @@ def gate_G5(
                         numeric_registry[ckey] = [(wf.name, val)]
                     else:
                         numeric_registry[ckey].append((wf.name, val))
-            except Exception:
+            except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                 continue  # unreadable output file → skip numeric scan
         for key, num_entries in numeric_registry.items():
             unique = {v for _, v in num_entries}
@@ -187,7 +187,7 @@ def gate_G5(
             for cf in list(char_dir.rglob("*.md"))[:6]:
                 try:
                     sample_text += cf.read_text(encoding="utf-8")[:3000]
-                except Exception:
+                except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                     continue  # tolerate unreadable char file; sample_text uses what parsed
             for t1, t2 in term_pairs:
                 c1 = len(re.findall(t1, sample_text))
@@ -292,7 +292,7 @@ def gate_G5(
                                 g4_data = json.loads(g4_raw)
                                 if g4_data.get("status") == "FAIL":
                                     mf.append(f"G5.5:{fp.name}:G4_fail:{pr}")
-                            except Exception:
+                            except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                                 c.append(
                                     {
                                         "id": "G5.5",

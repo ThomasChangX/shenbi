@@ -40,7 +40,7 @@ def g4_genre_config(
                 errors = e.errors()
                 for err in errors[:5]:
                     mf.append(f"G4.gc.{err['loc']}: {err['msg']}")
-        except Exception:
+        except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append("G4.gc.invalid_json")
 
     if mf:
