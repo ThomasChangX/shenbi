@@ -8,6 +8,8 @@ Usage: python3 compute_stats.py <chapter_dir_or_files...> [--output stats.json]
 import json
 import re
 import sys
+
+import structlog
 from collections import Counter
 from pathlib import Path
 from shenbi.gates.shared import META_BLOCK_RE  # 单源别名（z11 F1301）
@@ -355,8 +357,6 @@ def count_transition_words(text: str) -> dict[str, Any]:
 
 def read_chapters(paths: list[str]) -> dict[str, str]:
     """Read all chapter files from paths (files or directories)."""
-    import structlog
-
     log = structlog.get_logger(__name__)
     texts: dict[str, str] = {}
     for p in paths:

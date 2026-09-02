@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import os
 from pathlib import Path
 
 import pytest
@@ -548,6 +549,7 @@ def test_segment_sentences_unterminated_quote_state_resets_at_newline() -> None:
 
 
 @pytest.mark.c13_regression
+@pytest.mark.skipif(os.geteuid() == 0, reason="chmod-000 unreadable under root")
 def test_read_chapters_unreadable_file_warns(tmp_path: Path) -> None:
     """F610: an unreadable chapter file must WARN with a skip count, not
     silently vanish.
