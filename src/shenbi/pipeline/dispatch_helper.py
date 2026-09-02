@@ -43,6 +43,7 @@ from tenacity import (
 
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.paths import (
+    AmbiguousChapterError,
     PathContext,
     format_path_context,
     extract_chapter,
@@ -1483,6 +1484,7 @@ def _write_parsed_outputs(
             _append_integrity_findings(project_dir, full_path, issues)
 
     # Process literal contract paths
+    missing_paths: list[str] = []
     for rel_path in literal_paths:
         if "*" in rel_path:
             continue
@@ -1493,13 +1495,9 @@ def _write_parsed_outputs(
         if content is None:
             # F329 (spec #38): the literal-fallback that wrote the whole
             # stdout into the target path is deleted — a missing declared
-            # output is quarantined and left unwritten for downstream gates.
-            _quarantine_output(
-                project_dir,
-                skill or "unknown-skill",
-                response,
-                f"declared literal path not in parsed output: {rel_path}",
-            )
+            # output is quarantined (once per call, all missing paths listed)
+            # and left unwritten for downstream gates.
+            missing_paths.append(rel_path)
             continue
         if not content.strip():
             log.warning("output_empty", path=rel_path)
@@ -1510,6 +1508,14 @@ def _write_parsed_outputs(
         # _route_append_dedup_write (keyed upsert merge); everything else is a
         # whole-file write.
         _write_one(rel_path, content)
+
+    if missing_paths:
+        _quarantine_output(
+            project_dir,
+            skill or "unknown-skill",
+            response,
+            "declared literal paths not in parsed output: " + ", ".join(missing_paths),
+        )
 
     # Process wildcard paths: check parsed outputs against wildcard patterns
     for rel_path, content in parsed.items():
@@ -1999,7 +2005,13 @@ def _dispatch_via_api(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -2294,7 +2306,13 @@ def _dispatch_via_ide(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     try:
         system_prompt, user_prompt, output_paths = _build_skill_prompt(
             skill,
@@ -2457,7 +2475,13 @@ def _with_write_audit(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     watch = derive_output_files(skill, chapter, ctx=path_ctx)
     # Spec #29 R1: staged writes go to staging/<declared> — watch both and fold
     # the staged keys back onto the declared relpath before auditing.
@@ -2608,7 +2632,13 @@ def dispatch_skill(
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     chapter_path = pd / "chapters" / f"chapter-{chapter}.md" if chapter is not None else None
     cli_timeout = _compute_dispatch_timeout(skill, chapter_path)
 

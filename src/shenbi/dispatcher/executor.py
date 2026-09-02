@@ -17,6 +17,7 @@ from shenbi.audit._shared import derive_output_files
 from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts import OutputKind
 from shenbi.contracts.paths import (
+    AmbiguousChapterError,
     PathContext,
     extract_chapter,
     parse_path_context,
@@ -170,7 +171,13 @@ def dispatch(skill: str, test_type: str, round_dir: Path, prompt: str) -> int:
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     file_type = derive_file_type(skill)
     input_files = derive_input_files(skill, chapter, round_dir, ctx=path_ctx)
 
@@ -278,7 +285,13 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         path_ctx.chapter if path_ctx is not None and isinstance(path_ctx.chapter, int) else None
     )
     if chapter is None:
-        chapter = extract_chapter(prompt)
+        # F234 (spec #38): ambiguous multi-chapter prompts must not silently
+        # route to the first match — fall back to no chapter + warn.
+        try:
+            chapter = extract_chapter(prompt, strict=True)
+        except AmbiguousChapterError:
+            log.warning("chapter_ambiguous_in_prompt", skill=skill)
+            chapter = None
     watch = _audit_watch_paths(skill, chapter, ctx=path_ctx)
     pre = snapshot_tree(PROJECT_DIR, watch)
     # Franklin Important: if dispatch() crashes mid-write, still run the post-snapshot

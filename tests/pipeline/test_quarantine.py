@@ -1,4 +1,10 @@
-"""T2b: quarantine + 截断拒绝 + 提取器硬化(spec #38 F329/T509/F234/F223)。"""
+"""T2b: quarantine + 截断拒绝 + 提取器硬化(spec #38 F329/T509/F234/F223)。
+
+G0.9 说明:`### FILE:` 输入为手工构造的最小形态字符串而非 fixtures 引用——
+本测试面是解析器边界行为(截断签名/缺失路径),非 skill 产物内容;构造性输入
+对应被测代码路径的确定形态,引用真实产物无法制造"截断在最后一个 FILE 块"
+这一受控条件。
+"""
 
 import pytest
 
@@ -26,7 +32,7 @@ class TestQuarantine:
         assert "b.md" not in written
         assert not (tmp_path / "b.md").exists()
         qfiles = list((tmp_path / "_quarantine").glob("shenbi-example-*.md"))
-        assert len(qfiles) == 1
+        assert len(qfiles) == 1  # dedup: one quarantine per call, not per path
         assert "raw response body" in qfiles[0].read_text(encoding="utf-8")
 
     def test_stdout_declared_path_still_written(self, tmp_path) -> None:
