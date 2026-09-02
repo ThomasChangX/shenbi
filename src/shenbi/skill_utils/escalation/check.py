@@ -16,6 +16,8 @@ Usage (CLI):
 
 from __future__ import annotations
 
+import structlog
+
 import argparse
 import json
 from dataclasses import dataclass
@@ -53,7 +55,7 @@ def detect_score_decline(
 def check_escalation(
     resonance_scores: list[float],
     sensitivity_blocking: bool,
-    volume_objective_met: bool,
+    volume_objective_met: bool | None,
     regeneration_attempts: int,
     arc_score: float | None = None,
     stratum_axis_drift: bool = False,
@@ -85,7 +87,11 @@ def check_escalation(
             )
         )
 
-    if not volume_objective_met:
+    if volume_objective_met is None:
+        # F381 (spec #39 T12): unknown objective is an explicit SKIP — not a
+        # silent default-met, not a missed signal.
+        structlog.get_logger(__name__).warning("volume_objective_unknown_skip")
+    elif not volume_objective_met:
         signals.append(
             EscalationSignal(
                 trigger="volume_objective_missed",
@@ -127,7 +133,11 @@ def main() -> None:
     )
     parser.add_argument("--resonance-scores", required=True, help="Comma-separated overall scores.")
     parser.add_argument("--sensitivity-blocking", default="false", help="true/false.")
-    parser.add_argument("--volume-objective-met", default="true", help="true/false.")
+    parser.add_argument(
+        "--volume-objective-met",
+        default="none",
+        help="true/false/none (F381: none = explicit SKIP, fail-closed default).",
+    )
     parser.add_argument("--regeneration-attempts", type=int, default=0)
     parser.add_argument(
         "--arc-score", type=float, default=None, help="Latest arc score (spec §6.2 trigger)"
@@ -141,7 +151,11 @@ def main() -> None:
     signals = check_escalation(
         resonance_scores=scores,
         sensitivity_blocking=args.sensitivity_blocking.lower() == "true",
-        volume_objective_met=args.volume_objective_met.lower() == "true",
+        volume_objective_met=(
+            None
+            if args.volume_objective_met.lower() == "none"
+            else args.volume_objective_met.lower() == "true"
+        ),
         regeneration_attempts=args.regeneration_attempts,
         arc_score=args.arc_score,
         stratum_axis_drift=args.stratum_axis_drift.lower() == "true",

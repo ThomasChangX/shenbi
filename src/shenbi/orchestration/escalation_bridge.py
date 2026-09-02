@@ -28,7 +28,7 @@ def parse_resonance_scores(trend_path: Path) -> list[float]:
 def run_escalation_check(
     resonance_trend_path: Path,
     sensitivity_blocking: bool = False,
-    volume_objective_met: bool = True,
+    volume_objective_met: bool | None = None,  # F381: None = explicit SKIP
     regeneration_attempts: int = 0,
     arc_score: float | None = None,
     stratum_axis_drift: bool = False,
