@@ -177,3 +177,5 @@ spec 文件名为 2026-08-16 落盘实名；量级 S≤1 天 / M=2-5 天 / L≥1
 - **T5 完成后核对**：`just check` 全绿（docs workflow mkdocs --strict 对 specs/ 面生效）；归档移动的 #25 文件内相对链接核查（本仓 spec 文件为纯文件名文本引用，无相对链接面——执行时复查）
 
 执行边界：本 pass 不动任何生产代码、不改 24 个仍活跃簇 spec 的内容与计数；ledger 只改状态列与注记，不改任何证据列。spec 号映射 = 批次 A 序：#27=C1 … #39=C13。
+
+Deviation（T3 残余核对产出，2026-09-03）：08-14 轮 F0-06（python 版本三元不一致：requires-python>=3.11 vs mypy python_version=3.12 vs basedpyright 3.11）经核对仍存活，37 簇无 squarely 承接者（C23 是文档面、C9 已 Done 且范围在阈值）——随 C23（spec #61）修订时裁决归宿或单列微修。
