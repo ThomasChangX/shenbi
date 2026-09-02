@@ -436,6 +436,7 @@ markers = [
     "benchmark: pytest-benchmark performance tests",
     "slow: > 5s tests",
     "last: tests that must run after all others (e.g., coverage threshold)",
+    "c13_regression: C13 cluster violation-construction flip tests (spec #39)",
 ]
 asyncio_mode = "auto"
 
