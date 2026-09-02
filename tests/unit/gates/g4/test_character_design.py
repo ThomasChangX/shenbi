@@ -509,3 +509,35 @@ voice_profile:
     assert any("archetype" in f.lower() for f in failures), (
         f"No archetype failure found in {failures}"
     )
+
+
+@pytest.mark.c13_regression
+def test_archetype_no_contradictory_pass_and_fail(tmp_path) -> None:
+    """F421: a character with one valid + one invalid archetype source must
+    NOT emit both a PASS check and a must_fix for the same character.
+    """
+    from shenbi.gates.g4.character_design import _validate_archetype
+
+    f = tmp_path / "protagonist.md"
+    good = "x" * 100
+    f.write_text(
+        f"""---
+archetype_sources:
+  - name: 诸葛亮
+    traits_borrowed: [a, b, c]
+    traits_discarded: [d, e]
+    adaptation_rationale: "{good}"
+  - name: ab
+    traits_borrowed: [a]
+    traits_discarded: []
+    adaptation_rationale: short
+---
+正文
+""",
+        encoding="utf-8",
+    )
+    checks: list[dict[str, object]] = []
+    failures = _validate_archetype(f, checks)
+    assert failures  # the bad source fails
+    # F421: no PASS check may coexist with a failure for this character
+    assert checks == []

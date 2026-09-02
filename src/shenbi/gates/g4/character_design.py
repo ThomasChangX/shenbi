@@ -247,16 +247,15 @@ def _validate_archetype(
                 f"{prefix}.adaptation_rationale:need_100_chars_got_{len(rationale) if isinstance(rationale, str) else 0}"
             )
 
-        if not local_failures:
-            checks.append(
-                {
-                    "id": f"G4.cd.archetype.{char_name}",
-                    "s": GateStatus.PASS,
-                    "archetype_name": name,
-                    "borrowed_count": len(borrowed),
-                    "discarded_count": len(discarded),
-                    "rationale_chars": len(rationale),
-                }
-            )
+        # F421 (spec #39 T10): PASS is emitted after the loop — emitting it
+        # per-iteration produced a PASS check AND a must_fix failure for the
+        # same character when an earlier source passed and a later one failed.
 
+    if not local_failures:
+        checks.append(
+            {
+                "id": f"G4.cd.archetype.{char_name}",
+                "s": GateStatus.PASS,
+            }
+        )
     return local_failures

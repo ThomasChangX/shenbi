@@ -156,3 +156,16 @@ def test_keyset_authority_is_ownership() -> None:
     from shenbi.contracts.skills.genre_config import _REQUIRED_TOP_KEYS
 
     assert set(_REQUIRED_TOP_KEYS) == GENRE_KEYS - {"tropeInventory"}
+
+
+@pytest.mark.c13_regression
+def test_all_files_validated_not_just_first(tmp_path) -> None:
+    """F430: a second invalid genre config must not be silently ignored."""
+    import json as _json
+
+    valid = tmp_path / "a.json"
+    valid.write_text(_json.dumps({"genre": "x", "pov": "y", "tone": "z"}), encoding="utf-8")
+    invalid = tmp_path / "b.json"
+    invalid.write_text("{not json", encoding="utf-8")
+    result = _json.loads(g4_genre_config([str(valid), str(invalid)]))
+    assert any("b.json" in str(m) for m in result.get("must_fix", []))

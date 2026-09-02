@@ -9,6 +9,7 @@ set, all five dimension rows, a 门判定 section with a valid verdict, an expli
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 from typing import Any
 
@@ -156,3 +157,29 @@ def test_nonexistent_file_fails(tmp_path: Path) -> None:
     result = _run([str(tmp_path / "nope.md")])
     assert result["status"] == "FAIL"
     assert any("G4.ap.not_found" in mf for mf in result["must_fix"])
+
+
+# --- spec #39 T10: F420/F422 semantic validation ---
+
+
+@pytest.mark.c13_regression
+def test_violating_subfloor_fails(tmp_path: Path) -> None:
+    """F420: '伏笔兑现质量 12 < 子地板 15 ✗' must FAIL, not pass on the '15'."""
+    violating = VALID.replace("伏笔兑现质量 18 ≥ 子地板 15 ✓", "伏笔兑现质量 12 < 子地板 15 ✗")
+    f = tmp_path / "report.md"
+    f.write_text(violating, encoding="utf-8")
+    result = _run([str(f)], str(tmp_path))
+    joined = json.dumps(result, ensure_ascii=False)
+    assert "foreshadow_floor" in joined and "12" in joined
+
+
+@pytest.mark.c13_regression
+def test_timestamp_is_not_evidence(tmp_path: Path) -> None:
+    """F422: a bare timestamp must not satisfy the file:line evidence check."""
+    stripped = VALID
+    # strip ALL Lnn/line-nn/file:nn evidence, leaving only a timestamp
+    stripped = re.sub(r"`[^`]*`\s*L[\d-]+", "记录于 12:30", stripped)
+    f = tmp_path / "report.md"
+    f.write_text(stripped, encoding="utf-8")
+    result = _run([str(f)], str(tmp_path))
+    assert "no_file_line_ref" in json.dumps(result, ensure_ascii=False)

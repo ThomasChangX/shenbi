@@ -31,7 +31,11 @@ _VERDICTS = ("放行", "阻断")
 
 # The 伏笔兑现质量 sub-floor: the report's 门判定 section must evaluate it
 # against the §6.4 floor of 15 (e.g. "伏笔兑现质量 18 ≥ 子地板 15 ✓").
-_FORESHADOW_FLOOR_RE = re.compile(r"伏笔兑现质量.{0,30}?15", re.DOTALL)
+# F420 (spec #39 T10): parse the reported VALUE and compare numerically —
+# the old "15 appears anywhere" regex passed violating floors like
+# "伏笔兑现质量 12 < 子地板 15 ✗".
+_FORESHADOW_VALUE_RE = re.compile(r"伏笔兑现质量[^0-9]{0,10}(\d+(?:\.\d+)?)")
+_FORESHADOW_FLOOR = 15.0
 
 
 def g4_review_arc_payoff(
@@ -91,15 +95,26 @@ def g4_review_arc_payoff(
         # 4. 伏笔兑现质量 sub-floor: the 门判定 section must evaluate the
         #    伏笔兑现质量 dimension against the §6.4 floor of 15.
         gate_section = content.split("门判定", 1)[1] if has_gate else ""
-        if not _FORESHADOW_FLOOR_RE.search(gate_section):
+        m_val = _FORESHADOW_VALUE_RE.search(gate_section)
+        if m_val is None:
             mf.append(f"G4.ap.foreshadow_floor:{Path(fp).name}:no_subfloor_check")
+        elif float(m_val.group(1)) < _FORESHADOW_FLOOR:
+            mf.append(
+                f"G4.ap.foreshadow_floor:{Path(fp).name}:"
+                f"subfloor_violation_{m_val.group(1)}<{int(_FORESHADOW_FLOOR)}"
+            )
         else:
             c.append({"id": "G4.ap.foreshadow_floor", "file": fp, "s": GateStatus.PASS})
 
         # 5. Evidence must carry at least one file + line reference
         #    (Lnn / line nn / path:nn). The detail table is the canonical
         #    evidence carrier, so scan the whole report.
-        has_location = bool(re.search(r"L\d+|line\s+\d+|:\d+(?!\d)", content, re.IGNORECASE))
+        # F422 (spec #39 T10): anchored evidence — a bare ":42" only counts
+        # on a line that also carries a file reference; timestamps like
+        # "12:30" no longer satisfy the check.
+        has_location = bool(
+            re.search(r"L\d+|line\s+\d+|(file|文件|\.md|\.json).*?:\d+", content, re.IGNORECASE)
+        )
         if not has_location:
             mf.append(f"G4.ap.evidence:{Path(fp).name}:no_file_line_ref")
         else:
