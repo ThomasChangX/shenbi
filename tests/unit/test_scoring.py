@@ -1377,15 +1377,16 @@ def test_applicability_legacy_missing_cell_fails_closed(tmp_path) -> None:
 
 ## Dimension Applicability
 
-| Dimension scope | generative | bug-hunt | clean |
-|-----------------|------------|----------|-------|
-| dim 1 | No | Yes | Yes |
-| dim 2 | Yes | Yes |
+| Dimension scope | generative | bug-hunt | clean | audit |
+|-----------------|------------|----------|-------|-------|
+| dim 1 | No | Yes | Yes | Yes |
+| dim 2 | Yes | Yes | Yes |
 """
     tmp = tmp_path / "rubric.md"
     tmp.write_text(rubric, encoding="utf-8")
     app = load_applicability(str(tmp))
     assert app["generative"]["dim 1"] is False
     assert app["bug-hunt"]["dim 1"] is True
-    # short legacy row: missing clean cell must NOT default to applicable
-    assert app["clean"]["dim 2"] is False
+    assert app["clean"]["dim 2"] is True
+    # short legacy row: missing audit cell must NOT default to applicable
+    assert app["audit"]["dim 2"] is False
