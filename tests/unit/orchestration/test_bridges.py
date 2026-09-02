@@ -85,3 +85,33 @@ def test_volume_objective_unknown_skips_not_signals_nor_default_met() -> None:
         regeneration_attempts=0,
     )
     assert any(s.trigger == "volume_objective_missed" for s in signals)
+
+
+@pytest.mark.c13_regression
+def test_cli_volume_objective_tri_state_parsing() -> None:
+    """F381 CLI face: none → SKIP, false → signal, true → quiet."""
+    from shenbi.skill_utils.escalation.check import main as check_main
+
+    def _run(flag: str) -> list[dict[str, str]]:
+        import contextlib
+        import io
+        import json as _json
+
+        import pytest
+        from structlog.testing import capture_logs
+
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr(
+                "sys.argv",
+                ["escalation", "--resonance-scores", "80,79", "--volume-objective-met", flag],
+            )
+            buf = io.StringIO()
+            # keep WARN events off the JSON stdout
+            with capture_logs(), contextlib.redirect_stdout(buf):
+                check_main()
+            return _json.loads(buf.getvalue())
+
+    assert _run("none") == []
+    false_signals: list[dict[str, str]] = _run("false")
+    assert any(sig["trigger"] == "volume_objective_missed" for sig in false_signals)
+    assert _run("true") == []

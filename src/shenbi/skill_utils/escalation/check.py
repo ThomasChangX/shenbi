@@ -136,6 +136,7 @@ def main() -> None:
     parser.add_argument(
         "--volume-objective-met",
         default="none",
+        choices=["true", "false", "none"],
         help="true/false/none (F381: none = explicit SKIP, fail-closed default).",
     )
     parser.add_argument("--regeneration-attempts", type=int, default=0)
