@@ -12,7 +12,6 @@ Usage:
 """
 
 import json
-import subprocess
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
@@ -23,6 +22,7 @@ from shenbi.contracts import ContractError, load_contract
 from shenbi.contracts.legacy import validate_skill_name
 from shenbi.exceptions import ShenbiError
 from shenbi.logging import configure_logging, get_logger
+from shenbi.process_guard import run_subprocess_json
 from shenbi.safe_write import safe_write
 from shenbi.status import CommandStatus, GateStatus, PhaseState
 
@@ -117,21 +117,9 @@ def run_gate(gate: str, args: list[str]) -> dict[str, Any]:
     ``src/shenbi/gates/`` (PR-19). This function targets the module directly
     via ``python -m shenbi.gates.cli``, matching ``dispatch_helper.run_gate_g3/g4``.
     """
-    r: subprocess.CompletedProcess[str] | None = None
-    try:
-        r = subprocess.run(
-            [sys.executable, "-m", "shenbi.gates.cli", gate] + args,
-            capture_output=True,
-            text=True,
-            timeout=60,
-        )
-        return cast(dict[str, Any], json.loads(r.stdout))
-    except (json.JSONDecodeError, ValueError, OSError):
-        return {
-            "status": GateStatus.FAIL,
-            "raw_stdout": r.stdout if r is not None else "",
-            "raw_stderr": r.stderr if r is not None else "",
-        }
+    # T1a (spec #38): timeout/bad-JSON/OS errors surface as structured
+    # BLOCKED/FAIL dicts instead of tracebacks or silent FAIL.
+    return run_subprocess_json([sys.executable, "-m", "shenbi.gates.cli", gate] + args)
 
 
 def require_state(state: dict[str, Any], expected: list[str], action: str) -> None:
@@ -279,7 +267,7 @@ def cmd_post_skill(
     }
     state["steps"].append(step)
     save_state(round_dir, state)
-    if g4_status == "FAIL":
+    if g4_status in ("FAIL", "blocked"):
         emit_json({"status": CommandStatus.BLOCKED, "phase": phase, "skill": skill, "g4": g4})
         sys.exit(1)
     emit_json(
@@ -343,7 +331,19 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
         sys.exit(1)
     # Validate the scores file parses as JSON before marking the phase SCORED;
     # a malformed file must abort here rather than silently advancing state.
-    json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    # F124 (spec #38): structured fail instead of bare JSONDecodeError.
+    try:
+        json.loads(Path(scores_file).read_text(encoding="utf-8"))
+    except (json.JSONDecodeError, ValueError, OSError) as e:
+        log.error("scores_file_malformed", path=str(scores_file), error=str(e))
+        emit_json(
+            {
+                "status": CommandStatus.ERROR,
+                "phase": phase,
+                "message": f"Scores file malformed: {scores_file}",
+            }
+        )
+        sys.exit(1)
     step = {
         "action": "post-score",
         "timestamp": now_iso(),

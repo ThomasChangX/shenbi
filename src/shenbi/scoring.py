@@ -371,23 +371,22 @@ def main() -> dict[str, Any]:
 
     # --gate-only mode: run gate check, skip scoring entirely
     if "--gate-only" in sys.argv:
-        import subprocess
-
         idx = sys.argv.index("--gate-only")
         gate_type = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "G2"
         idx = sys.argv.index("--files") if "--files" in sys.argv else -1
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
         ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
-        proc_result = subprocess.run(
-            [sys.executable, "-m", "shenbi.gates.cli", gate_type, ",".join(files), ftype],
-            capture_output=True,
-            text=True,
+        # T1a (spec #38 F107 subprocess face / F125 residual / F204 re-pin):
+        # unified guard — timeout → blocked, bad JSON → FAIL with stderr tail.
+        from shenbi.process_guard import run_subprocess_json
+
+        gate_output = run_subprocess_json(
+            [sys.executable, "-m", "shenbi.gates.cli", gate_type, ",".join(files), ftype]
         )
-        gate_output = json.loads(proc_result.stdout)
         emit_json(gate_output)
         # shenbi.gates.cli always returns exit code 0 for known gates,
         # even on FAIL — derive exit code from JSON status field instead.
-        sys.exit(0 if gate_output.get("status") != "FAIL" else 1)
+        sys.exit(0 if gate_output.get("status") not in ("FAIL", "blocked") else 1)
 
     rubric_path = sys.argv[1]
     dimensions, kill_switches = load_rubric(rubric_path)
@@ -409,15 +408,17 @@ def main() -> dict[str, Any]:
 
     # Gate integration: run pre-scoring dependency checks
     if tier:
-        import subprocess
-
         if tier == "T1" and test_type:
             # G3: prerequisite check — extract skill_name from rubric path
             rubric_p = Path(rubric_path)
             skill_name = rubric_p.parent.name if rubric_p.parent.parent.name == "t1-skill" else None
             if skill_name:
                 if round_dir:
-                    gate_result = subprocess.run(
+                    # T1a (spec #38): unified guard; no silent `except: pass` —
+                    # a blocked or FAIL gate must abort scoring, not be swallowed.
+                    from shenbi.process_guard import run_subprocess_json
+
+                    gate_out = run_subprocess_json(
                         [
                             sys.executable,
                             "-m",
@@ -426,17 +427,11 @@ def main() -> dict[str, Any]:
                             skill_name,
                             test_type,
                             round_dir,
-                        ],
-                        capture_output=True,
-                        text=True,
+                        ]
                     )
-                    try:
-                        gate_out = json.loads(gate_result.stdout)
-                        if gate_out.get("status") == "FAIL":
-                            emit_json(gate_out)
-                            sys.exit(1)
-                    except Exception:
-                        pass  # Expected when gate output is not valid JSON (e.g. subprocess error)
+                    if gate_out.get("status") in ("FAIL", "blocked"):
+                        emit_json(gate_out)
+                        sys.exit(1)
 
     # Gate marker enforcement — MUST pass before scoring can proceed
     # F136 (spec #27): provenance flag carries the REAL verification result,
