@@ -133,6 +133,9 @@ ignore = [
 convention = "google"
 
 [tool.ruff.lint.per-file-ignores]
+# Tests legitimately aggregate unexpected failures — production
+# blind-catch rules (BLE001) do not apply to test assertion paths.
+"tests/**" = ["BLE001"]
 # spec #39 T5 (F103-family prevention): BLE001 blind-except lint is
 # ACTIVE repo-wide; the files below are legacy out-of-scope sites pending
 # their own cluster fixes — each entry is an explicit, reviewed allowlist
