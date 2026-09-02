@@ -4,7 +4,6 @@ from __future__ import annotations
 
 import json
 import os
-import re
 import subprocess
 from pathlib import Path
 from typing import Any
@@ -128,18 +127,44 @@ def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str)
         raise SubAgentProtocolError(f"codex exec failed with rc={result.returncode}")
 
     raw_text = raw_out.read_text(encoding="utf-8")
-    match = re.search(r"\{[^{}]*\}", raw_text, re.DOTALL)
-    if not match:
-        log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
-        raise SubAgentProtocolError("no JSON object found in codex output")
     try:
-        scores: dict[str, Any] = json.loads(match.group(0))
-    except json.JSONDecodeError as e:
-        log.error(
-            "codex_invalid_json", skill=skill, error=str(e), raw_output_preview=raw_text[:500]
-        )
-        raise SubAgentProtocolError(f"invalid JSON from codex: {e}") from e
+        scores: dict[str, Any] = _extract_json_object(raw_text)
+    except SubAgentProtocolError:
+        log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
+        raise
     return scores
+
+
+def _extract_json_object(text: str) -> dict[str, Any]:
+    r"""Extract the scored JSON object from raw codex output (F203, spec #38).
+
+    Old behavior: ``re.search(r"\{[^{}]*\}")`` grabbed the innermost flat
+    object — nested ``{"scores": {...}}`` payloads lost their outer envelope.
+    Now every ``{`` position is tried with raw_decode; candidates containing
+    nested dict values win over flat ones; multiple equally-flat candidates
+    are ambiguous and rejected rather than first-matched.
+    """
+    decoder = json.JSONDecoder()
+    candidates: list[dict[str, Any]] = []
+    for i, ch in enumerate(text):
+        if ch != "{":
+            continue
+        try:
+            obj, _end = decoder.raw_decode(text, i)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(obj, dict):
+            candidates.append(obj)
+    if not candidates:
+        raise SubAgentProtocolError("no JSON object found in codex output")
+    nested = [c for c in candidates if any(isinstance(v, dict) for v in c.values())]
+    if nested:
+        # Prefer the outermost envelope among nested candidates (longest source
+        # span proxy: the one containing the most keys).
+        return max(nested, key=len)
+    if len(candidates) > 1:
+        raise SubAgentProtocolError("ambiguous JSON candidates in codex output")
+    return candidates[0]
 
 
 def _run_dual_scorer_check(
