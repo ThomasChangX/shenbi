@@ -43,6 +43,8 @@ def test_scoring_gate_only_files_pre_split_scope_note() -> None:
     """
     argv_files = ["out/a", "b.md"]
     assert argv_files == ["out/a", "b.md"]  # documented C34 mis-split face
+    # downstream join accepts the post-split elements (no false fail-fast)
+    assert join_gate_file_list(argv_files) == "out/a,b.md"
 
 
 @pytest.mark.c13_regression
