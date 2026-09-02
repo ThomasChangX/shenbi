@@ -88,3 +88,26 @@ def test_codex_raw_scratch_removed_on_parse_error(monkeypatch, tmp_path) -> None
     with pytest.raises(SubAgentProtocolError):
         codex_mod._codex_exec_scores(tmp_path, "prompt", out_file, "shenbi-x")
     assert not out_file.with_suffix(".raw").exists()
+
+
+@pytest.mark.c13_regression
+def test_codex_raw_scratch_removed_on_rc_error(monkeypatch, tmp_path) -> None:
+    """F218: rc!=0 path also cleans the .raw scratch file."""
+    import subprocess as subprocess_mod
+
+    import shenbi.dispatcher.modes.codex as codex_mod
+    from shenbi.exceptions import SubAgentProtocolError
+
+    class _R:
+        returncode = 1
+        stderr = "boom"
+
+    def _fake_run(cmd: list[str], **k: object) -> _R:
+        Path(cmd[cmd.index("-o") + 1]).write_text("partial", encoding="utf-8")
+        return _R()
+
+    monkeypatch.setattr(subprocess_mod, "run", _fake_run)
+    out_file = tmp_path / "t1-reports" / "shenbi-x-scores.json"
+    with pytest.raises(SubAgentProtocolError):
+        codex_mod._codex_exec_scores(tmp_path, "prompt", out_file, "shenbi-x")
+    assert not out_file.with_suffix(".raw").exists()

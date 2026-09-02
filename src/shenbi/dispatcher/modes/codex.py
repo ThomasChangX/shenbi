@@ -113,37 +113,39 @@ def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str)
     raw_out = out_file.with_suffix(".raw")
 
     try:
-        result = subprocess.run(
-            ["codex", "exec", "-C", str(round_dir), "-o", str(raw_out), prompt],
-            timeout=600,
-            capture_output=True,
-            text=True,
-        )
-    except subprocess.TimeoutExpired as e:
-        raise SubAgentTimeoutError("codex exec timed out after 600s") from e
-
-    if result.returncode != 0:
-        log.error("codex_failed", rc=result.returncode, stderr=result.stderr)
-        raise SubAgentProtocolError(f"codex exec failed with rc={result.returncode}")
-
-    raw_text = raw_out.read_text(encoding="utf-8")
-    try:
-        scores: dict[str, Any] = _extract_json_object(raw_text)
-    except SubAgentProtocolError as e:
-        if "ambiguous" in str(e):
-            log.error(
-                "codex_invalid_json",
-                skill=skill,
-                error=str(e),
-                raw_output_preview=raw_text[:500],
+        try:
+            result = subprocess.run(
+                ["codex", "exec", "-C", str(round_dir), "-o", str(raw_out), prompt],
+                timeout=600,
+                capture_output=True,
+                text=True,
             )
-        else:
-            log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
-        raise
+        except subprocess.TimeoutExpired as e:
+            raise SubAgentTimeoutError("codex exec timed out after 600s") from e
+
+        if result.returncode != 0:
+            log.error("codex_failed", rc=result.returncode, stderr=result.stderr)
+            raise SubAgentProtocolError(f"codex exec failed with rc={result.returncode}")
+
+        raw_text = raw_out.read_text(encoding="utf-8")
+        try:
+            scores: dict[str, Any] = _extract_json_object(raw_text)
+        except SubAgentProtocolError as e:
+            if "ambiguous" in str(e):
+                log.error(
+                    "codex_invalid_json",
+                    skill=skill,
+                    error=str(e),
+                    raw_output_preview=raw_text[:500],
+                )
+            else:
+                log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
+            raise
+        return scores
     finally:
-        # F218 (spec #39 T9): .raw scratch file removed once parsed.
+        # F218 (spec #39 T9): .raw scratch removed on every exit path —
+        # success, JSON failure, rc!=0, and timeout alike.
         raw_out.unlink(missing_ok=True)
-    return scores
 
 
 def _extract_json_object(text: str) -> dict[str, Any]:
