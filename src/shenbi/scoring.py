@@ -2,6 +2,7 @@
 """Score a test report against its rubric. Output structured JSON."""
 
 import json
+import math
 import re
 import sys
 from datetime import UTC, datetime
@@ -116,7 +117,15 @@ def load_applicability(rubric_path: str) -> dict[str, dict[str, bool]]:
                     scope = f"dim {cells[0]}"
                     for i, test_type in enumerate(header_dims):
                         applicability.setdefault(test_type, {})
-                        cell_val = cells[i + 2] if i + 2 < len(cells) else "Yes"
+                        if i + 2 >= len(cells):
+                            # F137 (spec #39 T6): missing applicability cell
+                            # fails closed (not applicable) + WARN disclosure.
+                            log.warning(
+                                "applicability_cell_missing", scope=scope, test_type=test_type
+                            )
+                            applicability[test_type][scope] = False
+                            continue
+                        cell_val = cells[i + 2]
                         applicability[test_type][scope] = (
                             not cell_val.strip().upper().startswith("N/A")
                         )
@@ -202,8 +211,13 @@ def validate_scores(scores: dict[int, Any], dimensions: list[Dimension]) -> tupl
     if extra:
         errors.append(f"WARNING: unexpected dimension keys (ignored): {sorted(extra)}")
     for num, score in scores.items():
-        if not isinstance(score, (int, float)):
+        if isinstance(score, bool) or not isinstance(score, (int, float)):
+            # F132 (spec #39 T6): bool is an int subclass — reject explicitly.
             errors.append(f"REJECT: dimension {num} score is not a number: {score}")
+        elif not math.isfinite(score):
+            # F132 (spec #39 T6): NaN/inf pass both range comparisons —
+            # non-finite values are non-RFC-JSON and must not reach output.
+            errors.append(f"REJECT: dimension {num} score is not finite: {score}")
         elif score < 0 or score > 100:
             errors.append(f"REJECT: dimension {num} score {score} out of range 0-100")
     is_valid = not any(e.startswith(ScoringStatus.REJECT.value) for e in errors)
@@ -217,6 +231,12 @@ def compute_score(
     if kill_switch_triggered:
         return 0
     total_weight = sum(d["weight"] for d in dimensions)
+    if any(d["weight"] <= 0 for d in dimensions):
+        # F133 (spec #39 T6): negative/zero weights inflate final_score past
+        # the 0-100 domain (the old 120-point path) — fail instead of WARN.
+        bad = {d["num"]: d["weight"] for d in dimensions if d["weight"] <= 0}
+        log.error("invalid_weight", weights=bad)
+        raise ValueError(f"invalid_weight: non-positive dimension weights {bad}")
     if total_weight == 0:
         return 0
     if total_weight != 100:
