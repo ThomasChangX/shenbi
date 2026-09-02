@@ -51,7 +51,13 @@ def extract_h2_sections(text: str) -> dict[str, str]:
             heading = line[3:].strip()
             if current_heading is not None and current_heading not in sections:
                 sections[current_heading] = "\n".join(current_body).strip()
-            current_heading = None if heading in sections else heading
+            if heading in sections:
+                # duplicate H2: first occurrence wins (F264); F233 residual
+                # (spec #39 T9) — the skip is disclosed.
+                log.warning("duplicate_h2_first_wins", heading=heading)
+                current_heading = None
+            else:
+                current_heading = heading
             current_body = []
         elif current_heading is not None:
             current_body.append(line)

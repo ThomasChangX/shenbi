@@ -140,6 +140,9 @@ def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str)
         else:
             log.error("codex_no_json", skill=skill, raw_output_preview=raw_text[:500])
         raise
+    finally:
+        # F218 (spec #39 T9): .raw scratch file removed once parsed.
+        raw_out.unlink(missing_ok=True)
     return scores
 
 

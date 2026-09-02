@@ -79,7 +79,10 @@ def parse_markdown_table(
                 key = _MD_HEADER_TO_KEY.get(header[i], header[i])
                 row[key] = val
         rid = row.get("id")
-        if rid and rid not in out:  # duplicate id: first row wins (F658)
+        if rid and rid in out:
+            # duplicate id: first row wins (F658); F607 (spec #39 T9) discloses.
+            log.warning("duplicate_id_first_wins", id=rid)
+        if rid and rid not in out:
             out[rid] = row
     return out
 
@@ -120,4 +123,9 @@ def detect_cross_section_drift(
             yaml_val = rec.get(key)
             if not _values_equal(yaml_val, md_val):
                 issues.append(f"drift: id={rid} key={key} md={md_val!r} != YAML={yaml_val!r}")
+    # F606 (spec #39 T9): reverse direction — YAML-only ids were never
+    # reported (single-direction scan blind spot).
+    for rid in by_id:
+        if rid not in md_rows:
+            issues.append(f"drift: YAML id={rid} not in markdown table")
     return issues

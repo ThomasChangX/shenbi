@@ -77,7 +77,9 @@ def derive_file_type(skill: str) -> str:
     """
     try:
         c = load_contract(skill)
-    except ContractError:
+    except ContractError as e:
+        # F217 (spec #39 T9): explicit downgrade note, not a silent fallback.
+        log.error("contract_error_fallback", site="derive_file_type", skill=skill, error=str(e))
         return "chapter"
     kind = c["kind"]
     if kind == OutputKind.REPORT:
@@ -113,7 +115,9 @@ def derive_input_files(
         if round_dir is not None:
             paths = [str((round_dir / p).resolve()) for p in paths]
         return paths
-    except ContractError:
+    except ContractError as e:
+        # F217 (spec #39 T9): explicit downgrade note, not a silent fallback.
+        log.error("contract_error_fallback", site="derive_input_files", skill=skill, error=str(e))
         return []
 
 

@@ -15,6 +15,10 @@ from typing import Any
 
 import yaml
 
+import structlog
+
+log = structlog.get_logger(__name__)
+
 _HOOKS_HEADER_RE = re.compile(r"^## hooks\s*$", re.MULTILINE)
 _NEXT_HEADER_RE = re.compile(r"^## ", re.MULTILINE)
 
@@ -47,7 +51,14 @@ def _parse_body(body: str) -> list[dict[str, Any]]:
         return []
     if not isinstance(data, list):
         raise ValueError(f"## hooks block 必须解析为列表；实际 {type(data).__name__}")
-    return [r for r in data if isinstance(r, dict)]
+    out_rows: list[dict[str, Any]] = []
+    for i, r in enumerate(data):
+        if isinstance(r, dict):
+            out_rows.append(r)
+        else:
+            # F623 (spec #39 T9): discarded rows are disclosed, not silent.
+            log.warning("record_row_not_dict_discarded", index=i, row_type=type(r).__name__)
+    return out_rows
 
 
 def parse_records(text: str) -> list[dict[str, Any]]:

@@ -12,6 +12,8 @@ from __future__ import annotations
 import json
 from unittest.mock import patch
 
+import pytest
+
 from shenbi.pipeline.dispatch_helper import DispatchResult
 from shenbi.pipeline.genesis import (
     _INDEX_UPDATE_SKILLS,
@@ -467,3 +469,17 @@ class TestRouteBErrorIsolation:
         assert (tmp_path / "truth-index.json").exists()
         # Route B was attempted.
         mock_rb.assert_called_once()
+
+
+@pytest.mark.c13_regression
+def test_skills_done_idempotent_on_redo() -> None:
+    """F367: REJECT-redo of the same skill must not duplicate completion."""
+    from shenbi.pipeline.genesis import mark_skill_done
+    from shenbi.pipeline.state import PipelineState
+
+    state = PipelineState()
+    mark_skill_done(state, "shenbi-x")
+    mark_skill_done(state, "shenbi-x")  # REJECT-redo path
+    assert state.genesis.skills_done.count("shenbi-x") == 1
+    mark_skill_done(state, "shenbi-y")
+    assert state.genesis.skills_done == ["shenbi-x", "shenbi-y"]

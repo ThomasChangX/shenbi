@@ -106,6 +106,16 @@ _INDEX_UPDATE_SKILLS: frozenset[str] = frozenset(
 )
 
 
+def mark_skill_done(state: PipelineState, skill: str) -> None:
+    """Record skill completion idempotently.
+
+    F367 (spec #39 T9): a REJECT-redo of the same skill must not append a
+    duplicate completion record (18-row artifacts were observed in audits).
+    """
+    if skill not in state.genesis.skills_done:
+        state.genesis.skills_done.append(skill)
+
+
 def _gate_passed(result: dict[str, object]) -> bool:
     """True iff a gate result dict reports PASS (handles str and GateStatus)."""
     return str(result.get("status", "")) == GateStatus.PASS
@@ -372,5 +382,5 @@ def run_genesis_step(state: PipelineState, project_dir: Path | str) -> bool:
     if step.skill == "shenbi-volume-outlining":  # step 6: volume map landed (R2)
         genesis_finalize_volume_map(project_dir)
     state.genesis.retry_counts.pop(step.skill, None)
-    state.genesis.skills_done.append(step.skill)
+    mark_skill_done(state, step.skill)
     return _advance(state, step_idx)

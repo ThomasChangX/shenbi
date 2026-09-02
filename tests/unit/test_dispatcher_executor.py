@@ -342,3 +342,47 @@ def test_derive_file_type_returns_decisions_for_chapter_drafting_after_migration
         },
     )
     assert derive_file_type("shenbi-chapter-drafting") == "decisions"
+
+
+@pytest.mark.c13_regression
+def test_derive_file_type_contract_error_disclosed(monkeypatch) -> None:
+    """F217: ContractError fallback logs an error event (not silent)."""
+    from structlog.testing import capture_logs
+
+    from shenbi.contracts import ContractError
+    from shenbi.dispatcher import executor
+
+    def _boom(*a: object, **k: object):
+        raise ContractError("broken contract")
+
+    monkeypatch.setattr(executor, "load_contract", _boom)
+    with capture_logs() as logs:
+        result = executor.derive_file_type("shenbi-any")
+    assert result == "chapter"  # fallback value preserved, now disclosed
+    assert any(
+        e.get("event") == "contract_error_fallback" and e.get("site") == "derive_file_type"
+        for e in logs
+        if e.get("log_level") == "error"
+    )
+
+
+@pytest.mark.c13_regression
+def test_derive_input_files_contract_error_disclosed(monkeypatch) -> None:
+    """F217: derive_input_files fallback logged too."""
+    from structlog.testing import capture_logs
+
+    from shenbi.contracts import ContractError
+    from shenbi.dispatcher import executor
+
+    def _boom(*a: object, **k: object):
+        raise ContractError("broken contract")
+
+    monkeypatch.setattr(executor, "load_contract", _boom)
+    with capture_logs() as logs:
+        result = executor.derive_input_files("shenbi-any")
+    assert result == []
+    assert any(
+        e.get("event") == "contract_error_fallback" and e.get("site") == "derive_input_files"
+        for e in logs
+        if e.get("log_level") == "error"
+    )

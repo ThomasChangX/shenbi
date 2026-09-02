@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from shenbi.gates.shared import PROJECT
 from shenbi.records.drift import detect_cross_section_drift, parse_markdown_table
 from shenbi.records.parser import parse_records
@@ -115,3 +117,38 @@ class TestSpec32F649:
         stats: dict[str, int] = {}
         parse_markdown_table(text, stats=stats)
         assert stats["discarded_cells"] == 0
+
+
+@pytest.mark.c13_regression
+def test_yaml_only_id_reported() -> None:
+    """F606: reverse direction — a YAML-only id must be reported."""
+    from shenbi.records.drift import detect_cross_section_drift
+
+    yaml_records = [{"id": "H-1", "hook": "x"}, {"id": "H-2", "hook": "y"}]
+    md_rows = {"H-1": {"id": "H-1", "hook": "x"}}
+    issues = detect_cross_section_drift(yaml_records, md_rows)
+    assert any("YAML id=H-2" in i for i in issues)
+
+
+@pytest.mark.c13_regression
+def test_duplicate_id_warns() -> None:
+    """F607: duplicate markdown id is disclosed (first-wins kept, F658)."""
+    from structlog.testing import capture_logs
+
+    from shenbi.records.drift import parse_markdown_table
+
+    md = """## 活跃伏笔
+
+| id | hook |
+|---|---|
+| H-1 | x |
+| H-1 | y |
+"""
+    with capture_logs() as logs:
+        rows = parse_markdown_table(md)
+    assert rows["H-1"]["hook"] == "x"  # first wins
+    assert any(
+        e.get("event") == "duplicate_id_first_wins" and e.get("id") == "H-1"
+        for e in logs
+        if e.get("log_level") == "warning"
+    )
