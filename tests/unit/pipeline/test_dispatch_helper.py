@@ -42,12 +42,27 @@ class TestDispatchSkill:
 
     @patch(PATCH)
     def test_success_is_true(self, mock_run, tmp_path):
-        # Valid JSON required since _validate_json_output runs on .json outputs
-        mock_run.return_value = MagicMock(returncode=0, stdout="{}", stderr="")
+        # Since T2b (spec #38) removed the literal-fallback: every declared
+        # literal path must appear in the parsed output or it is quarantined.
+        mock_run.return_value = MagicMock(
+            returncode=0,
+            stdout=(
+                "### FILE: novel.json\n"
+                '{"title": "X"}\n'
+                "### FILE: genre-config.json\n"
+                "{}\n"
+                "### FILE: world/story_bible.md\n"
+                "bible\n"
+                "### FILE: world/rules.md\n"
+                "rules\n"
+                "### FILE: world/locations.md\n"
+                "locations\n"
+            ),
+            stderr="",
+        )
         result = dispatch_skill("shenbi-worldbuilding", tmp_path, "prompt")
         assert result.success is True
         assert result.returncode == 0
-        assert result.stdout == "{}"
 
     @patch(PATCH)
     def test_timeout_returns_error(self, mock_run, tmp_path):
