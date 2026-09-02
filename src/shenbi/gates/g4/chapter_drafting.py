@@ -22,6 +22,24 @@ from shenbi.logging import get_logger
 log = get_logger(__name__)
 
 
+_HOOK_LEDGER_HEADING = re.compile(
+    r"^#{1,3}\s*(?:Section\s*7.*|\d+[.、]\s*Hook Ledger.*|Hook Ledger.*|.*伏笔清单.*|.*钩子台账.*)$",
+    re.MULTILINE | re.IGNORECASE,
+)
+
+
+def _extract_hook_ledger_section(plan_text: str) -> str:
+    """Return the Hook Ledger section body (heading to next same-or-higher
+    heading); empty string when the plan has no such section.
+    """
+    m = _HOOK_LEDGER_HEADING.search(plan_text)
+    if m is None:
+        return ""
+    rest = plan_text[m.end() :]
+    nxt = re.search(r"^#{1,3}\s+\S", rest, re.MULTILINE)
+    return rest[: nxt.start()] if nxt else rest
+
+
 def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     """G4.cd.hook_fulfillment: Verify plan-declared hooks appear in chapter body.
 
@@ -42,8 +60,10 @@ def check_hook_fulfillment(plan_path: Path, chapter_path: Path) -> list[str]:
     plan_text = plan_path.read_text(encoding="utf-8")
     chapter_text = chapter_path.read_text(encoding="utf-8")
 
-    # Extract hook IDs from plan -- match patterns like MH-003, CP-012, etc.
-    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", plan_text))
+    # F749 (spec #39 T11): scan ONLY the Hook Ledger section (docstring's
+    # declared "Section 7") — IDs elsewhere in the plan are not requirements.
+    section = _extract_hook_ledger_section(plan_text)
+    plan_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", section)) if section else set()
     # Extract hook IDs from chapter body
     chapter_hooks = set(re.findall(r"[A-Z]{2,4}-\d+", chapter_text))
 

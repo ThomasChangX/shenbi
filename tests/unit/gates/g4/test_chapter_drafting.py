@@ -14,7 +14,7 @@ from typing import Any
 
 import pytest
 
-from shenbi.gates.g4.chapter_drafting import g4_chapter_drafting
+from shenbi.gates.g4.chapter_drafting import check_hook_fulfillment, g4_chapter_drafting
 
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
@@ -207,3 +207,47 @@ def test_absent_protagonist_data_skips_check(tmp_path: Path) -> None:
     r = json.loads(g4_chapter_drafting([str(fp)], project_dir=str(tmp_path)))
     skip_checks = [c for c in r.get("checks", []) if c.get("id") == "G4.cd.protagonist_presence"]
     assert any(c.get("s") == "SKIP" for c in skip_checks)
+
+
+@pytest.mark.c13_regression
+def test_hook_ids_outside_ledger_section_ignored(tmp_path) -> None:
+    """F749: hook IDs appearing only outside the Hook Ledger section are not
+    requirements (docstring says Section 7 — implementation now matches).
+    """
+    plan = tmp_path / "plan.md"
+    plan.write_text(
+        """# 章节计划
+
+## Section 3 场景备注
+
+曾参考 hook MH-999 的历史记录。
+
+## Section 7 Hook Ledger
+
+- 无本章需兑现钩子
+""",
+        encoding="utf-8",
+    )
+    chapter = tmp_path / "chapter-001.md"
+    chapter.write_text("正文没有出现任何钩子编号。\n", encoding="utf-8")
+    issues = check_hook_fulfillment(plan, chapter)
+    assert issues == []
+
+
+@pytest.mark.c13_regression
+def test_hook_ids_inside_ledger_section_enforced(tmp_path) -> None:
+    """F749 positive control: ledger-declared hooks are still enforced."""
+    plan = tmp_path / "plan.md"
+    plan.write_text(
+        """# 章节计划
+
+## Section 7 Hook Ledger
+
+- MH-003 必须兑现
+""",
+        encoding="utf-8",
+    )
+    chapter = tmp_path / "chapter-001.md"
+    chapter.write_text("正文没有出现任何钩子编号。\n", encoding="utf-8")
+    issues = check_hook_fulfillment(plan, chapter)
+    assert any("MH-003" in i for i in issues)

@@ -17,7 +17,7 @@ def parse_resonance_scores(trend_path: Path) -> list[float]:
             if len(cells) >= 7:
                 try:
                     val = float(cells[6])
-                    if val > 0:
+                    if val >= 0:  # F513 (spec #39 T11): 0 is a real score
                         scores.append(val)
                 except (ValueError, IndexError):
                     # Malformed cell -- skip this table row, not a usable score.

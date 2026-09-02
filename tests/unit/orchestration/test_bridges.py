@@ -35,3 +35,21 @@ def test_check_single_scorer_collapse_detects_all_95():
     scores = {1: 95.0, 2: 95.0, 3: 95.0}
     result = check_single_scorer_collapse(scores)
     assert result["collapse_suspected"] is True
+
+
+@pytest.mark.c13_regression
+def test_zero_score_row_retained(tmp_path) -> None:
+    """F513: a 0 overall score row must be parsed, not dropped."""
+    from shenbi.orchestration.escalation_bridge import parse_resonance_scores
+
+    trend = tmp_path / "trend.md"
+    trend.write_text(
+        """| 章 | 覆盖 | 深度 | 节奏 | 共鸣 | 张力 | 总分 |
+|---|---|---|---|---|---|---|
+| 1 | 80 | 75 | 70 | 82 | 79 | 78 |
+| 2 | 60 | 55 | 58 | 62 | 59 | 0 |
+""",
+        encoding="utf-8",
+    )
+    scores = parse_resonance_scores(trend)
+    assert 0.0 in scores and len(scores) == 2
