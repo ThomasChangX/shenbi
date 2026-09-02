@@ -21,6 +21,7 @@ import glob as glob_module
 import json
 import os
 import re
+from datetime import UTC, datetime
 import shutil
 import subprocess
 import sys
@@ -1320,6 +1321,36 @@ def _route_append_dedup_write(
     safe_write(project_dir / rel_path, content)
 
 
+def _quarantine_output(project_dir: Path, skill: str, raw: str, reason: str) -> Path:
+    """Quarantine unparsed/garbage LLM output instead of writing it (F329, spec #38).
+
+    Raw output is preserved verbatim under ``_quarantine/`` for manual review
+    or retry recovery — rejecting garbage must not mean losing it.
+    """
+    qdir = project_dir / "_quarantine"
+    qdir.mkdir(parents=True, exist_ok=True)
+    stamp = datetime.now(UTC).strftime("%Y%m%dT%H%M%S%f")
+    qpath = qdir / f"{skill}-{stamp}.md"
+    safe_write(qpath, f"# quarantine: {reason}\n\n{raw}".encode())
+    log.error("output_quarantined", skill=skill, reason=reason, path=str(qpath))
+    return qpath
+
+
+def _is_truncated_file_output(response: str) -> bool:
+    """Detect a truncated ``### FILE:`` response (T509, spec #38).
+
+    Truncation signature: the final ``### FILE:`` marker opens a block whose
+    content is empty at end-of-text — the stream was cut mid-output. Basic
+    tail detection is deliberately standalone; the C29 truncation-marker
+    protocol (spec #44) is a later enhancement, not a dependency.
+    """
+    markers = list(re.finditer(r"###\s*FILE:\s*(\S+)\s*", response))
+    if not markers:
+        return False
+    last = markers[-1]
+    return response[last.end() :].strip() == ""
+
+
 def _write_parsed_outputs(
     response: str,
     output_paths: list[str],
@@ -1344,6 +1375,12 @@ def _write_parsed_outputs(
 
     Returns list of successfully written paths.
     """
+    if skill and _is_truncated_file_output(response):
+        _quarantine_output(project_dir, skill, response, "truncated ### FILE: output rejected")
+        raise DispatchWriteFailureError(
+            "truncated ### FILE: output rejected (final block has no content)",
+            signature="truncated_output",
+        )
     if parsed is None:
         parsed = _parse_file_outputs(response)
     written: list[str] = []
@@ -1452,7 +1489,18 @@ def _write_parsed_outputs(
         if rel_path in skip:
             log.info("write_skipped_noop", path=rel_path, skill=skill)
             continue
-        content = parsed.get(rel_path, parsed.get("__stdout__", ""))
+        content = parsed.get(rel_path)
+        if content is None:
+            # F329 (spec #38): the literal-fallback that wrote the whole
+            # stdout into the target path is deleted — a missing declared
+            # output is quarantined and left unwritten for downstream gates.
+            _quarantine_output(
+                project_dir,
+                skill or "unknown-skill",
+                response,
+                f"declared literal path not in parsed output: {rel_path}",
+            )
+            continue
         if not content.strip():
             log.warning("output_empty", path=rel_path)
             continue

@@ -81,15 +81,17 @@ class PacingDesign(BaseModel):
         scene_types: list[str] = []
         chapter_sequence: list[str] = []
 
-        # Extract beat percentages (e.g. "铺垫 | 25%" or "铺垫: 25%")
+        # Extract beat percentages from structural rows only — a tight
+        # "beat <|:> N%" shape on one line. Prose sentences mentioning both a
+        # beat and a percentage must not be harvested (F223, spec #38).
         for beat in ("铺垫", "升级", "爆发", "余波"):
-            m = re.search(rf"{beat}.*?(\d+(?:\.\d+)?)\s*%", content)
+            m = re.search(rf"{beat}\s*[|:：]\s*(\d+(?:\.\d+)?)\s*%", content)
             if m:
                 beats[beat] = float(m.group(1))
 
-        # Extract line ratios
+        # Extract line ratios (same structural-row shape)
         for line in ("QUEST", "FIRE", "CONSTELLATION"):
-            m = re.search(rf"{line}.*?(\d+(?:\.\d+)?)\s*%", content)
+            m = re.search(rf"{line}\s*[|:：]\s*(\d+(?:\.\d+)?)\s*%", content)
             if m:
                 line_ratios[line] = float(m.group(1))
 
