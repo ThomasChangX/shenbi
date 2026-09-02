@@ -356,7 +356,7 @@ def _resolve_scored_by() -> ScoredBy:
     return "file"
 
 
-def main() -> dict[str, Any]:
+def main() -> int:
     configure_logging()
     if len(sys.argv) < 3 and "--gate-only" not in sys.argv:
         usage = """Usage: scoring.py <rubric.md> <scores.json> [--kill-switch] [--test-type bug-hunt|clean|generative]
@@ -548,8 +548,10 @@ def main() -> dict[str, Any]:
     }
 
     emit_json(result)
-    return result
+    # F976 (spec #38): console scripts do sys.exit(main()) — returning the
+    # result dict here made every successful run exit 1.
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())
