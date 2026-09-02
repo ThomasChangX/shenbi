@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-03) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #145, Revised 2026-09-03) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目深度审计 · 阶段 5（簇 C13，原 35 条 → 现存 30 条 active）| **代表 finding:** F535 | **严重度上限:** P1（F535/F708/F709/F133/F132）| **涉及文件面:** gates/（g4 generic、g7_trace、g5、g6_checks）、scoring.py（数值域）、contracts/（paths、fields）、records/（parser、drift）、dispatcher/（executor、modes）、audit/write_audit、orchestration/escalation_bridge、skill_utils/（style_learning/compute_stats、escalation/check）、各 g4 子 checker 校验完备性
 
 # 静默吞错与部分校验面修复（audit-silent-swallow-partial-validation）
