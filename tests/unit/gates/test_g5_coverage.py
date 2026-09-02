@@ -38,6 +38,7 @@ def test_g53_detects_numeric_and_terminology_conflicts(tmp_path: Path) -> None:
     assert conflicts
     flat = " ".join(str(c) for c in conflicts)
     # Terminology conflict (灵能/灵力 mixed pair) is detected.
-    # Numeric conflict is NOT (see test_g5_numeric_inconsistency_not_detected_pins_inert_behavior
-    # — the num_pat m.group(2) bug is intentionally pinned per Non-Goal #3).
+    # Numeric conflict is not present in this fixture's data (single file);
+    # the F708 group(2) bug is fixed — see the flip test in test_g5.py
+    # (test_g5_numeric_inconsistency_detected, spec #39 T2).
     assert "term_mix" in flat
