@@ -375,7 +375,13 @@ def main() -> dict[str, Any]:
         gate_type = sys.argv[idx + 1] if idx + 1 < len(sys.argv) else "G2"
         idx = sys.argv.index("--files") if "--files" in sys.argv else -1
         files = sys.argv[idx + 1].split(",") if idx >= 0 and idx + 1 < len(sys.argv) else []
-        ftype = sys.argv[sys.argv.index("--type") + 1] if "--type" in sys.argv else "chapter"
+        _ti = sys.argv.index("--type") if "--type" in sys.argv else -1
+        if _ti >= 0 and _ti + 1 >= len(sys.argv):
+            # F107 (spec #38, argv face): --type as last token → usage error,
+            # not IndexError traceback.
+            log.error("usage_error", message="--type requires a value")
+            sys.exit(2)
+        ftype = sys.argv[_ti + 1] if _ti >= 0 else "chapter"
         # T1a (spec #38 F107 subprocess face / F125 residual / F204 re-pin):
         # unified guard — timeout → blocked, bad JSON → FAIL with stderr tail.
         from shenbi.process_guard import run_subprocess_json

@@ -13,9 +13,10 @@ Usage:
 
 import json
 import sys
+from argparse import ArgumentParser
 from datetime import UTC, datetime
 from pathlib import Path
-from typing import Any, cast
+from typing import Any, NoReturn, cast
 
 from shenbi.cli_utils import emit_json
 from shenbi.contracts import ContractError, load_contract
@@ -137,7 +138,8 @@ def require_state(state: dict[str, Any], expected: list[str], action: str) -> No
 def cmd_start(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["created"], "start")
-    g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
+    # F102 (spec #38): never pass str(None)=="None" as a path argument.
+    g5 = run_gate("G5", [phase, str(round_dir), *([str(project_dir)] if project_dir else [])])
     step = {"action": "start", "timestamp": now_iso(), "g5_status": g5.get("status")}
     if g5.get("status") == "PASS":
         state["state"] = PhaseState.STARTED
@@ -358,7 +360,8 @@ def cmd_post_score(phase: str, scores_file: str, round_dir: str) -> None:
 def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     state = load_state(round_dir, phase)
     require_state(state, ["scored"], "finalize")
-    g5 = run_gate("G5", [phase, str(round_dir), str(project_dir)])
+    # F102 (spec #38): never pass str(None)=="None" as a path argument.
+    g5 = run_gate("G5", [phase, str(round_dir), *([str(project_dir)] if project_dir else [])])
     step = {
         "action": "finalize",
         "timestamp": now_iso(),
@@ -387,56 +390,82 @@ def cmd_finalize(phase: str, round_dir: str, project_dir: str | None) -> None:
     emit_json({"status": CommandStatus.OK, "phase": phase, "state": PhaseState.FINALIZED})
 
 
+class _LoggingArgumentParser(ArgumentParser):
+    """argparse whose error/exit paths log via structlog (JSON on stderr).
+
+    Keeps the shenbi-phase CLI contract that usage problems surface as JSON
+    log lines (tests/unit/test_logging.py) instead of argparse plain text,
+    and exit with code 2 (usage) rather than tracebacks (F123, spec #38).
+    """
+
+    def error(self, message: str) -> NoReturn:
+        log.error("usage_error", message=message, parser_prog=self.prog)
+        sys.exit(2)
+        raise AssertionError  # pragma: no cover - sys.exit is NoReturn-typed
+
+
+def _clean_project_dir(v: str | None) -> str | None:
+    """F102 sentinel: "None"/empty strings mean "not provided"."""
+    if v is None or v.strip() in ("", "None"):
+        return None
+    return v
+
+
 def main() -> None:
     configure_logging()
-    if len(sys.argv) < 2:
-        log.info(
-            "usage",
-            message="Usage: phase-runner.py <command> [args...] --round-dir <dir> [--project-dir <dir>]\nCommands: start pre-skill post-skill pre-score post-score finalize",
-        )
-        sys.exit(1)
+    parser = _LoggingArgumentParser(
+        prog="shenbi-phase",
+        description="T2/T3 phase state machine",
+    )
+    sub = parser.add_subparsers(dest="command", required=True)
 
-    cmd = sys.argv[1]
-    args = sys.argv[2:]
+    def add_common(sp: ArgumentParser) -> None:
+        sp.add_argument("--round-dir", required=True)
+        sp.add_argument("--project-dir", type=_clean_project_dir, default=None)
 
-    def find_flag(flag: str, required: bool = True) -> str | None:
-        if flag in args:
-            idx = args.index(flag)
-            if idx + 1 < len(args):
-                return args[idx + 1]
-        if required:
-            log.error("missing_required_flag", flag=flag)
-            sys.exit(1)
-        return None
+    sp = sub.add_parser("start")
+    sp.add_argument("phase")
+    add_common(sp)
 
-    round_dir = find_flag("--round-dir")
-    assert round_dir is not None
-    project_dir = find_flag("--project-dir", required=False)
-    chapter_str = find_flag("--chapter", required=False)
-    chapter = int(chapter_str) if chapter_str else None
+    sp = sub.add_parser("pre-skill")
+    sp.add_argument("phase")
+    sp.add_argument("skill")
+    sp.add_argument("--round-dir", required=True)
 
+    sp = sub.add_parser("post-skill")
+    sp.add_argument("phase")
+    sp.add_argument("skill")
+    sp.add_argument("--round-dir", required=True)
+    sp.add_argument("--project-dir", type=_clean_project_dir, default=None)
+    sp.add_argument("--chapter", type=int, default=None)  # F135: non-int → exit 2
+
+    sp = sub.add_parser("pre-score")
+    sp.add_argument("phase")
+    sp.add_argument("--round-dir", required=True)
+
+    sp = sub.add_parser("post-score")
+    sp.add_argument("phase")
+    sp.add_argument("scores_file")
+    sp.add_argument("--round-dir", required=True)
+
+    sp = sub.add_parser("finalize")
+    sp.add_argument("phase")
+    add_common(sp)
+
+    ns = parser.parse_args()
+    cmd = ns.command
     if cmd == "start":
-        phase = args[0]
-        cmd_start(phase, round_dir, project_dir)
+        cmd_start(ns.phase, ns.round_dir, ns.project_dir)
     elif cmd == "pre-skill":
-        phase, skill = args[0], args[1]
-        cmd_pre_skill(phase, skill, round_dir)
+        cmd_pre_skill(ns.phase, ns.skill, ns.round_dir)
     elif cmd == "post-skill":
-        phase, skill = args[0], args[1]
-        cmd_post_skill(phase, skill, round_dir, project_dir, chapter=chapter)
+        cmd_post_skill(ns.phase, ns.skill, ns.round_dir, ns.project_dir, chapter=ns.chapter)
     elif cmd == "pre-score":
-        phase = args[0]
-        cmd_pre_score(phase, round_dir)
+        cmd_pre_score(ns.phase, ns.round_dir)
     elif cmd == "post-score":
-        phase, scores_file = args[0], args[1]
-        cmd_post_score(phase, scores_file, round_dir)
+        cmd_post_score(ns.phase, ns.scores_file, ns.round_dir)
     elif cmd == "finalize":
-        phase = args[0]
-        cmd_finalize(phase, round_dir, project_dir)
-    else:
+        cmd_finalize(ns.phase, ns.round_dir, ns.project_dir)
+    else:  # pragma: no cover - argparse required=True guards this
         log.error("unknown_command", command=cmd)
         sys.exit(1)
-
-
-if __name__ == "__main__":
-    main()
