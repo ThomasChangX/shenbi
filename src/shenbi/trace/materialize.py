@@ -9,7 +9,11 @@ from pathlib import Path
 from typing import Any
 
 from shenbi.status import SkillProgressStatus
+
+from shenbi.logging import get_logger
 from shenbi.trace.replay import replay
+
+log = get_logger(__name__)
 
 _TEST_TYPES = ("generative", "bug-hunt", "clean")
 
@@ -25,6 +29,21 @@ def _as_float(value: object, default: float) -> float:
 def _empty_skill() -> dict[str, dict[str, Any]]:
     """Match update_progress.cmd_init: every skill starts three-phase pending."""
     return {tt: {"status": SkillProgressStatus.PENDING} for tt in _TEST_TYPES}
+
+
+def _round_field(round_dir: Path) -> str:
+    """Derive the round number from a ``round-<N>`` directory name (F614, spec #38).
+
+    Unparseable names yield "unknown" (with a warning) instead of the old
+    "???" placeholder that leaked into trace records.
+    """
+    name = Path(round_dir).name
+    if "round-" in name:
+        tail = name.split("-")[1]
+        if tail:
+            return tail
+    log.warning("round_dir_unparseable", name=name)
+    return "unknown"
 
 
 def materialize_progress(
@@ -77,7 +96,7 @@ def materialize_progress(
     # I2 fix: unmarked skills get three-pending structure (not empty)
     skills_full = {skill: skills_state.get(skill, _empty_skill()) for skill in sorted(total_skills)}
     out: dict[str, Any] = {
-        "round": Path(round_dir).name.split("-")[1] if "round-" in str(round_dir) else "???",
+        "round": _round_field(round_dir),
         "tier": init_tier,
         "completed_skill_names": genuinely_done,
         "skills": skills_full,

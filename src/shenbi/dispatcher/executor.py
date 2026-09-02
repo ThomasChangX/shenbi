@@ -313,9 +313,23 @@ def dispatch_with_write_audit(skill: str, test_type: str, round_dir: Path, promp
         dispatch_exc = exc
         rc = -1
     finally:
-        post = snapshot_tree(PROJECT_DIR, watch)
-        result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
-        audit_ok = record_audit_outcome(round_dir, skill, result)
+        # F517 (spec #38): the audit chain itself (snapshot/diff/record) must
+        # not mask the original dispatch exception or crash the caller — a
+        # broken chain is an infra error that fails the dispatch (rc=2) while
+        # the original exception still propagates.
+        try:
+            post = snapshot_tree(PROJECT_DIR, watch)
+            result = audit_writes(skill, pre, post, chapter=chapter, ctx=path_ctx)
+            audit_ok = record_audit_outcome(round_dir, skill, result)
+        except Exception as audit_exc:
+            log.error(
+                "write_audit_infra_error",
+                skill=skill,
+                exc_type=type(audit_exc).__name__,
+                exc_msg=str(audit_exc),
+            )
+            rc = 2
+            raise
         if not audit_ok and rc == 0:
             rc = 2  # GATE_FAIL: write overreach or drift
     if dispatch_exc is not None:
