@@ -27,12 +27,12 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 
 ## 任务分解
 ### R1 · 审计对象对齐（T1301，P1）
-- security.yml 改为对 `uv.lock` 全依赖集审计，唯一口径（pip-audit 2.10.1 不支持 `-r uv.lock`——uv.lock 是 TOML 非 requirements 格式）：`uv export --frozen --all-groups --no-emit-project -o <tmp>req.txt` → `uv run pip-audit -r <tmp>req.txt`。`--all-groups` 是修 T1303 的关键（默认 export 仅 prod+dev）；`--no-emit-project` 剔除 `-e .` 自引用（pip-audit/cyclonedx 会 choke）；哈希默认输出（uv 无 `--require-hashes` 旗标，仅 `--no-hashes`）；删除 `--group dev` 收窄（T1303）
+- security.yml 改为对 `uv.lock` 全依赖集审计，唯一口径（pip-audit 2.10.1 不支持 `-r uv.lock`——uv.lock 是 TOML 非 requirements 格式）：`uv export --frozen --all-groups --all-extras --no-emit-project -o <tmp>req.txt` → `uv run pip-audit -r <tmp>req.txt`。`--all-groups` 是修 T1303 的关键（默认 export 仅 prod+dev）；`--all-extras` 覆盖 [project.optional-dependencies]（`--all-groups` 不含 extras——R4 把 numpy 迁 embeddings extra 后若无此旗标将静默跌出审计集，复造 T1303 类盲区）；`--no-emit-project` 剔除 `-e .` 自引用（pip-audit/cyclonedx 会 choke）；哈希默认输出（uv 无 `--require-hashes` 旗标，仅 `--no-hashes`）；删除 `--group dev` 收窄（T1303）
 - **验收**：R1 的 FAIL 路径用 checked-in fixture 验证——`tests/fixtures/security/` 下带已知漏洞 pin 的 requirements 文件（真实 `uv export` 产物替换一个 pin，provenance 成文；G0.9）经同一 pip-audit 调用能报漏洞；禁止用改 uv.lock 的方式验证（会破坏 `uv sync --frozen` 上游，FAIL 来自 sync 而非审计，属假验证）
 
 ### R2 · SBOM 与许可证口径（T1304 + F1041）
-- SBOM 生成改为按组分层：三份 `cyclonedx-py requirements -o <group>.cdx.json` 分别吃 prod / dev / docs 组的 `uv export --frozen --no-emit-project`（分组旗标）产物（`environment` 子命令无法按组分层）；docs/dev 组产物以属性/命名标注"不分发"。security.yml 与 release.yml:16（第二修复面，spec 范围字段原漏列）同步改
-- 新增 LICENSES 口径文档 + `tools/check_licenses.py`：解析 SBOM/export 的 License 字段对照 allowlist + 例外表（yamllint GPL-3.0、chardet LGPL 判定 dev-only 无传染，理由成文），作为 security.yml 步骤接线——无脚本的"例外表被 CI 校验"是 dead wire
+- SBOM 生成改为按组分层：三份 `cyclonedx-py requirements -o <group>.cdx.json` 分别吃 prod / dev / docs 组的 `uv export --frozen --all-extras --no-emit-project`（分组旗标）产物（`environment` 子命令无法按组分层）；docs/dev 组产物以属性/命名标注"不分发"。security.yml 与 release.yml:17-18（第二修复面，spec 范围字段原漏列）同步改，release.yml:46 `files:` 上传清单同步改三份分组 SBOM 文件名，SECURITY.md:25 "SBOM attached to Releases" 措辞同步
+- 新增 LICENSES 口径文档 + `tools/check_licenses.py`：解析三份 R2 SBOM 的 License 字段（uv export requirements 无许可证元数据，不可作解析源）对照 allowlist + 例外表（yamllint GPL-3.0、chardet LGPL 判定 dev-only 无传染，理由成文），作为 security.yml 步骤接线——无脚本的"例外表被 CI 校验"是 dead wire
 - **验收**：docs 组 SBOM 含 mkdocs 栈（pymdown-extensions 等 26 包）；`tools/check_licenses.py` 在新增 GPL 家族依赖时 FAIL（用 `tests/fixtures/security/` 下真实 `cyclonedx-py` 输出改制的 fixture SBOM 验证 FAIL 路径，provenance 成文，同 R1 原则）
 
 ### R3 · 漏洞处置闭环（T1302，升级半 done-at-HEAD）
