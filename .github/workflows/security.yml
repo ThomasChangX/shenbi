@@ -32,10 +32,11 @@ jobs:
           --output-reproducible -o sbom-dev.cdx.json req-dev.txt
       - run: uv run cyclonedx-py requirements
           --output-reproducible -o sbom-docs.cdx.json req-docs.txt
-      # Spec #41 (C27) R2+R3: 许可证例外表 + ignore-vuln 豁免机械执法（T1304 闭环规则）
-      - run: >-
-          uv run python tools/check_licenses.py
-          sbom-prod.cdx.json sbom-dev.cdx.json sbom-docs.cdx.json
+      # Spec #41 (C27) R2+R3: 许可证例外表 + ignore-vuln 豁免机械执法（T1304 闭环规则）。
+      # Task 3 落地 tools/check_licenses.py 后启用（本 task 时脚本尚不存在，启用即 CI 红）：
+      # - run: >-
+      #     uv run python tools/check_licenses.py
+      #     sbom-prod.cdx.json sbom-dev.cdx.json sbom-docs.cdx.json
       - uses: actions/upload-artifact@v7
         with:
           name: sbom

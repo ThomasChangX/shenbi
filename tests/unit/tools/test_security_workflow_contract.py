@@ -36,6 +36,11 @@ def test_sbom_layered_per_group() -> None:
         assert f"sbom-{group}.cdx.json" in text
     assert "cyclonedx-py requirements" in text
     assert "cyclonedx-py environment" not in text  # F1041: environment cannot layer
+    # F1041 over-inclusion guard: prod must exclude dev (explicit --no-dev),
+    # dev/docs must be scoped by --only-group (default export is prod+dev).
+    assert "uv export --frozen --no-dev --all-extras --no-emit-project" in text
+    assert "uv export --frozen --only-group dev --no-emit-project" in text
+    assert "uv export --frozen --only-group docs --no-emit-project" in text
 
 
 def test_release_uploads_three_group_sboms() -> None:
