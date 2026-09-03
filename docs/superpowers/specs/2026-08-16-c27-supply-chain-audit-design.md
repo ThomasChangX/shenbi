@@ -31,14 +31,14 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 - **验收**：R1 的 FAIL 路径用 checked-in fixture 验证——`tests/fixtures/security/` 下带已知漏洞 pin 的 requirements 文件（真实 `uv export` 产物替换一个 pin，provenance 成文；G0.9）经同一 pip-audit 调用能报漏洞；禁止用改 uv.lock 的方式验证（会破坏 `uv sync --frozen` 上游，FAIL 来自 sync 而非审计，属假验证）
 
 ### R2 · SBOM 与许可证口径（T1304 + F1041）
-- SBOM 生成改为按组分层：三份 `cyclonedx-py requirements -o <group>.cdx.json` 分别吃 prod / dev / docs 组的 `uv export --frozen --all-extras --no-emit-project`（分组旗标）产物（`environment` 子命令无法按组分层）；docs/dev 组产物以属性/命名标注"不分发"。security.yml 与 release.yml:17-18（第二修复面，spec 范围字段原漏列）同步改，release.yml:46 `files:` 上传清单同步改三份分组 SBOM 文件名，SECURITY.md:25 "SBOM attached to Releases" 措辞同步
+- SBOM 生成改为按组分层：三份 `cyclonedx-py requirements -o <group>.cdx.json` 分别吃 prod / dev / docs 组的 `uv export --frozen --all-extras --no-emit-project`（prod=`--no-dev`，dev=`--only-group dev`，docs=`--only-group docs`——默认 export 是 prod+dev，prod 必须显式 `--no-dev` 否则复造 F1041 过度包含）产物（`environment` 子命令无法按组分层）；docs/dev 组产物以属性/命名标注"不分发"。security.yml 与 release.yml:17-18（第二修复面，spec 范围字段原漏列）同步改，release.yml:46 `files:` 上传清单同步改三份分组 SBOM 文件名，SECURITY.md:25 "SBOM attached to Releases" 措辞同步
 - 新增 LICENSES 口径文档 + `tools/check_licenses.py`：解析三份 R2 SBOM 的 License 字段（uv export requirements 无许可证元数据，不可作解析源）对照 allowlist + 例外表（yamllint GPL-3.0、chardet LGPL 判定 dev-only 无传染，理由成文），作为 security.yml 步骤接线——无脚本的"例外表被 CI 校验"是 dead wire
 - **验收**：docs 组 SBOM 含 mkdocs 栈（pymdown-extensions 等 26 包）；`tools/check_licenses.py` 在新增 GPL 家族依赖时 FAIL（用 `tests/fixtures/security/` 下真实 `cyclonedx-py` 输出改制的 fixture SBOM 验证 FAIL 路径，provenance 成文，同 R1 原则）
 
 ### R3 · 漏洞处置闭环（T1302，升级半 done-at-HEAD）
 - ~~pymdown-extensions 升级至 ≥11.0.1~~——已在 main 落地（pyproject:54 `>=11.0.1`、uv.lock 锁 11.0.1），无剩余工作
 - 剩余闭环半：建立"不可达 CVE 也须升级或登记豁免"规则并给可执行载体——pip-audit 任何 `--ignore-vuln` 项必须在例外登记文件带 ledger ID/理由，否则规则是第二处 dead wire；对 T1302 留一行 ledger 关闭注记（升级已落地的回写）
-- **验收**：豁免登记文件存在且被 check_licenses/pip-audit 调用方引用；ledger T1302 行有关闭注记
+- **验收**：豁免登记文件存在且被机械执法——check_licenses.py 解析 security.yml 的 `--ignore-vuln` ID 清单，任一 ID 不在登记文件即 FAIL（存在≠执法，防 dead wire）；ledger T1302 行有关闭注记
 
 ### R4 · 死依赖清理与防线真实化（T1305/F1009 + F912 + F1008）
 - 逐项处置（以 grep 双向核验零引用为前提，2026-09-03 复核）：
