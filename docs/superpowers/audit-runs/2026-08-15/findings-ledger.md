@@ -359,8 +359,8 @@
 | F1005 | plugins/master.json | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1006 | codeql.yml | optimization | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1007 | pre-commit-autoupdate.yml | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1008 | .pre-commit-config.yaml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
-| F1009 | pyproject.toml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
+| F1008 | .pre-commit-config.yaml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-27 spec #41 R4: rev v1.38.0 对齐锁内) |
+| F1009 | pyproject.toml | deps | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | closed (C-27 spec #41 R4: pytest-ordering 删除) |
 | F1010 | compare_mutation_score.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1011 | audit-skill-descriptions.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
 | F1012 | check_fixture_mirror.py | error | P2 | 见 Z10 报告 | 见 zone-reports/Z10.md | 见 Z10 | 见 Z10 | 见 Z10 | Z10 初审 | open |
@@ -392,7 +392,7 @@
 | F1038 | pre-push hook 配置齐全但文档安装命令不激活 | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
 | F1039 | just clean 删跟踪文件 .gitkeep | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
 | F1040 | 全局 addopts --cov + fail_under=85 使部分 pytest 运行（just test/test-file）测试全过也假失败退出非零（机制链安装版源码取证+现存 21.92% 产物实证，协调者抽验） | 漏报 | P2 | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
-| F1041 | SBOM dev 组口径过度包含 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
+| F1041 | SBOM dev 组口径过度包含 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | closed (C-27 spec #41 R2: 按组分层 SBOM) |
 | F1042 | mkdocs 条件门 ref 失败静默跳过 | 漏报 | M | 见 Z10-review-r2 | 见 zone-reports/Z10-review-r2.md | 见 Z10-review-r2 | 见 Z10-review-r2 | 见 Z10-review-r2 | Z10 复核r2 | open |
 | F901 | 执行协议引用已删除的 dispatch 脚本 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F902 | README pipeline-init 示例命令实测失败 | error | P1 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
@@ -405,7 +405,7 @@
 | F909 | basedpyright 设计笔记三处失实 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F910 | "No ignore_errors in mypy overrides" 不实 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F911 | plugin-manifest CI 强制描述失效 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
-| F912 | "pip-audit weekly" 不存在 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
+| F912 | "pip-audit weekly" 不存在 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | closed (C-27 spec #41 R4: weekly cron 落地) |
 | F913 | goal-prompt 快照多处与现状矛盾 | error | P2 | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F914 | CHANGELOG "7-gate (G0-G7)" 自相矛盾 | error | M | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
 | F915 | CoC 联系方式占位符未填 | error | M | 见 Z9-a | 见 zone-reports/Z9-a.md | 见 Z9-a | 见 Z9-a | 见 Z9-a | Z9-a 初审 | open |
@@ -668,11 +668,11 @@
 | T1107 | hypothesis 反例库 43+ 文件未提交，与 .gitignore 声明相反（协调者抽核：examples/ 44 文件仅 .gitkeep 被跟踪） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1108 | pipeline 无离线可执行模式，运行时主路径无法免计费审计（internal 硬拒绝无 LLM、replay 是签名校验非派发 stub）（预授权立案） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1109 | G0.5 权重和校验永久 UNIMPLEMENTED，2026-06 基线曾以硬编码假 PASS 掩盖 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
-| T1301 | D1⑨ 漏洞审计检查对象错位：uvx pip-audit 审计的是临时环境 29 包而非项目依赖集，基线无漏洞结论无效（false assurance）（协调者核实 d1-09 log:3） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | verified |
-| T1302 | pymdown-extensions 11.0 已知 ReDoS 漏洞（CVE-2026-67422，修复 11.0.1）——mkdocs.yml 未启用四个受影响扩展，当前配置不可达 | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
-| T1303 | CI 安全审计与 SBOM 系统性排除 docs 组：mkdocs 栈 26 包在 Security 门和发布 SBOM 之外（security.yml:13 --group dev；T1302 漏检直接成因）（协调者核实） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | verified |
-| T1304 | GPL 家族许可证混入 dev 工具链（yamllint GPL-3.0 直接依赖、chardet LGPL 传递）+ 上轮无 GPL 结论事实错误（wheel 仅打包 src 分发面无传染） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
-| T1305 | 未使用/错位依赖 4+1 项零处置回归（pytest-asyncio/pytest-ordering/setuptools 等） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
+| T1301 | D1⑨ 漏洞审计检查对象错位：uvx pip-audit 审计的是临时环境 29 包而非项目依赖集，基线无漏洞结论无效（false assurance）（协调者核实 d1-09 log:3） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | closed (C-27 spec #41 R1: security.yml 审计口径固化 uv.lock 全集 + d1-baseline ⑨ 终态注记) |
+| T1302 | pymdown-extensions 11.0 已知 ReDoS 漏洞（CVE-2026-67422，修复 11.0.1）——mkdocs.yml 未启用四个受影响扩展，当前配置不可达 | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | closed (升级半 main 先行落锁 11.0.1；闭环半 C-27 spec #41 R3: 不可达 CVE 须升级或登记豁免规则 + check_licenses 机械执法) |
+| T1303 | CI 安全审计与 SBOM 系统性排除 docs 组：mkdocs 栈 26 包在 Security 门和发布 SBOM 之外（security.yml:13 --group dev；T1302 漏检直接成因）（协调者核实） | 供应链 | P1 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | closed (C-27 spec #41 代表条目: --all-groups+--all-extras 审计 + 分组 SBOM；merged-into T1303 <- F912,F1008-F1009,F1041,T1301-T1302,T1304-T1305) |
+| T1304 | GPL 家族许可证混入 dev 工具链（yamllint GPL-3.0 直接依赖、chardet LGPL 传递）+ 上轮无 GPL 结论事实错误（wheel 仅打包 src 分发面无传染） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | closed (C-27 spec #41 R2: LICENSES 口径成文 + 例外表 + check_licenses 机械执法，含新发现 CairoSVG LGPL docs 组) |
+| T1305 | 未使用/错位依赖 4+1 项零处置回归（pytest-asyncio/pytest-ordering/setuptools 等） | 供应链 | P2 | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | closed (C-27 spec #41 R4: 三删 + numpy 迁 embeddings extra；sentence-transformers dev 双声明判定为有意保留) |
 | T1306 | plugins/master.json 0.2.0 vs pyproject 0.1.0 版本双源漂移持续 | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
 | T1307 | pydantic 注释过期（持续） | 供应链 | M | 见 T13 报告 | 见 thread-reports/T13.md | 见 T13 报告 | 见 T13 报告 | 见 T13 报告 | T13 线程 | open |
 | T1440 | hook_planting 确定性替换是死代码，plant 三个活跃面仍 LLM dispatch | 优化 | P2 | 见 T14 报告 | 见 thread-reports/T14.md | 见 T14 报告 | 见 T14 报告 | 见 T14 报告 | T14 线程 | closed (C-7 spec #33, PR #127) |
