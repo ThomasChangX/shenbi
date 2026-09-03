@@ -23,7 +23,7 @@ embeddings = ["sentence-transformers>=5.7.0", "numpy>=1.26.0"]
 
 [dependency-groups]
 dev = [
-    "pytest>=8.0.0",
+    "pytest>=9.1.1",
     "pytest-cov>=4.1.0",
     "pytest-xdist>=3.5.0",
     "pytest-timeout>=2.2.0",
