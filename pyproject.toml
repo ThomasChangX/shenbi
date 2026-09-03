@@ -11,26 +11,23 @@ dependencies = [
     "pydantic>=2.5.0",        # P-1 不用；为 P0 schemas 准备
     "pyyaml>=6.0.1",
     "structlog>=24.1.0",
-    "numpy>=1.26.0",          # Wave 2 Task 2: Route B float32 cosine similarity (truth_embed)
     # 注：去除 patch>=1.16（unmaintained since 2016, codebase 用 unittest.mock）
     # 注：去除 click>=8.1.7（CLI 用 stdlib argparse，无需第三方框架；如未来需要 rich CLI 再加）
-    # 注：sentence-transformers 移至 [project.optional-dependencies].embeddings
+    # 注：sentence-transformers 与 numpy 移至 [project.optional-dependencies].embeddings
     #     避免 core install 拉入 torch/CUDA 等大型 ML 依赖
     "openai>=3.1.0",
     "tenacity>=8.0.0",
 ]
 [project.optional-dependencies]
-embeddings = ["sentence-transformers>=5.7.0"]
+embeddings = ["sentence-transformers>=5.7.0", "numpy>=1.26.0"]
 
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
     "pytest-cov>=4.1.0",
     "pytest-xdist>=3.5.0",
-    "pytest-asyncio>=0.23.0",
     "pytest-timeout>=2.2.0",
     "pytest-benchmark>=4.0.0",
-    "pytest-ordering>=0.6",
     "pytest-randomly>=3.15.0",
     "hypothesis>=6.97.0",
     "mypy>=1.8.0",
@@ -45,7 +42,6 @@ dev = [
     "git-cliff>=2.4.0",
     "types-PyYAML>=6.0.12",
     "sentence-transformers>=5.7.0",
-    "setuptools>=81.0.0",
 ]
 docs = [
     "mkdocs>=1.5.3",
@@ -84,11 +80,6 @@ disable_error_code = ["prop-decorator"]
 [[tool.mypy.overrides]]
 module = "jieba.*"
 ignore_missing_imports = true
-
-[[tool.mypy.overrides]]
-module = "numpy.*"
-follow_imports = "skip"
-ignore_errors = true
 
 [[tool.mypy.overrides]]
 module = "tenacity.*"
@@ -469,7 +460,6 @@ markers = [
     "last: tests that must run after all others (e.g., coverage threshold)",
     "c13_regression: C13 cluster violation-construction flip tests (spec #39)",
 ]
-asyncio_mode = "auto"
 
 [tool.coverage.run]
 branch = true

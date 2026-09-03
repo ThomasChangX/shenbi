@@ -46,6 +46,7 @@
 - `uv audit` 不受当前 uv 版本支持 → 等价 `uvx pip-audit`：**No known vulnerabilities found**
 - 输出：`d1-09-pip-audit.log`
 - **勘误（2026-08-16，T13 线程）**: uvx pip-audit 审计的是临时环境 29 包而非项目依赖——本条结论无效（false assurance，T1301）。权威结果以 thread-reports/T13.md 四口径重审为准：prod+dev 131/实装 132 = 0 漏洞；docs 组 157 含 1 项 CVE（T1302，配置不可达）
+- **终态（2026-09-03，spec #41/C27 R1）**: 审计口径已固化为 `uv export --frozen --all-groups --all-extras --no-emit-project` → `pip-audit -r`（security.yml + tools/pre-push-check.sh 本地镜像同口径），T1301 关闭
 
 ## ⑩ 依赖健康初判
 - deptry 不可用（未安装）→ 等价 `uv tree`（180 包解析）+ pyproject 声明对照，深查归 T13

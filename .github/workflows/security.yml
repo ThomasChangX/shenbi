@@ -3,6 +3,10 @@ on:
   push:
     branches: [main]
   pull_request:
+  schedule:
+    # F912 (spec #41 R4): 使 SECURITY.md "pip-audit runs on every PR and weekly" 的
+    # weekly 半句成真；周一 03:00 UTC，与 codeql 周一 cron、autoupdate 周一 02:00 错峰
+    - cron: "0 3 * * 1"
 
 jobs:
   audit:
@@ -10,10 +14,31 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: astral-sh/setup-uv@v3
-      - run: uv sync --frozen --group dev
-      - run: uv run pip-audit
-      - run: uv run cyclonedx-py environment -o sbom.cdx.json
+      # Spec #41 (C27) R1: 审计对象 = uv.lock 全集（--all-groups 含 docs 组，
+      # --all-extras 含 embeddings；默认 export 仅 prod+dev 是 T1303 盲区）。
+      # C25 (#63) 合写面：本 audit 步骤归 spec #41 R1 所有，C25 侧清单对账勿重排。
+      - run: uv export --frozen --all-groups --all-extras --no-emit-project -o req-audit.txt
+      - run: uv run pip-audit -r req-audit.txt --no-deps --disable-pip
+      # Spec #41 (C27) R2: SBOM 按组分层（F1041 过度包含修复）。requirements 子命令
+      # 产物不含许可证元数据，故按组 sync 后用 environment 子命令读实装 dist-info
+      # （cyclonedx-py 在 dev 组，docs-only 环境用 uvx 调用避免工具缺席）。
+      # prod 必须 --no-dev（默认 sync 是 prod+dev）；dev/docs 组不分发，仅溯源。
+      - run: uv sync --frozen --only-group docs
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-docs.cdx.json
+      - run: uv sync --frozen --no-dev --all-extras
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-prod.cdx.json
+      - run: uv sync --frozen --only-group dev
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-dev.cdx.json
+      # Spec #41 (C27) R2+R3: 许可证例外表 + ignore-vuln 豁免机械执法（T1304 闭环规则）
+      - run: uv run python tools/check_licenses.py
+          sbom-prod.cdx.json sbom-dev.cdx.json sbom-docs.cdx.json
       - uses: actions/upload-artifact@v7
         with:
           name: sbom
-          path: sbom.cdx.json
+          path: |
+            sbom-prod.cdx.json
+            sbom-dev.cdx.json
+            sbom-docs.cdx.json

@@ -13,9 +13,18 @@ jobs:
       - uses: astral-sh/setup-uv@v3
         with:
           enable-cache: true
-      - run: uv sync --frozen --group dev
-      - name: Generate SBOM (CycloneDX)
-        run: uv run cyclonedx-py environment -o sbom.cdx.json
+      # Spec #41 (C27) R2: SBOM 按组分层（F1041——environment 子命令无法分组，
+      # requirements 子命令缺许可证元数据）。按组 sync + environment 读 dist-info。
+      # prod=分发面（--no-dev --all-extras）；dev/docs 组不分发，仅溯源。
+      - run: uv sync --frozen --only-group docs
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-docs.cdx.json
+      - run: uv sync --frozen --no-dev --all-extras
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-prod.cdx.json
+      - run: uv sync --frozen --only-group dev
+      - run: uvx --from cyclonedx-bom cyclonedx-py environment .venv/bin/python
+          --output-reproducible -o sbom-dev.cdx.json
       - name: Build sdist and wheel
         run: uv build
       - name: Generate changelog for tag
@@ -43,4 +52,6 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-            sbom.cdx.json
+            sbom-prod.cdx.json
+            sbom-dev.cdx.json
+            sbom-docs.cdx.json
