@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-03 · 设计审查 R1：审计口径/验收可执行化/R3 done-at-HEAD/R4 逐项枚举/release.yml 入范围) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #149, 2026-09-03; Revised · 设计审查 R1：审计口径/验收可执行化/R3 done-at-HEAD/R4 逐项枚举/release.yml 入范围) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C27）| **依赖:** 无（与 C25 CI/just 同步簇有 security.yml 合写面，先到者在文件级加注释占位）| **范围:** .github/workflows/security.yml、.github/workflows/release.yml（SBOM 面）、uv.lock、SBOM 口径、pyproject 依赖集、SECURITY.md、.pre-commit-config.yaml、tools/check_licenses.py（新增）、docs/（LICENSES 口径） | **核心洞察:** 安全审计对象错位——pip-audit 审临时环境而非项目依赖集，且 docs 组整体在 Security 门与 SBOM 之外（T1303），"无漏洞"结论是 false assurance
 
 # C27 · 供应链/安全审计盲区修复（supply-chain-audit）
