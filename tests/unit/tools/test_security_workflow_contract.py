@@ -34,18 +34,20 @@ def test_sbom_layered_per_group() -> None:
     text = WORKFLOW.read_text(encoding="utf-8")
     for group in ("prod", "dev", "docs"):
         assert f"sbom-{group}.cdx.json" in text
-    assert "cyclonedx-py requirements" in text
-    assert "cyclonedx-py environment" not in text  # F1041: environment cannot layer
-    # F1041 over-inclusion guard: prod must exclude dev (explicit --no-dev),
-    # dev/docs must be scoped by --only-group (default export is prod+dev).
-    assert "uv export --frozen --no-dev --all-extras --no-emit-project" in text
-    assert "uv export --frozen --only-group dev --no-emit-project" in text
-    assert "uv export --frozen --only-group docs --no-emit-project" in text
+    # 分组 sync 是分层的事实载体（F1041 修复本质）；environment 子命令带许可证元数据
+    assert "uv sync --frozen --no-dev --all-extras" in text
+    assert "uv sync --frozen --only-group dev" in text
+    assert "uv sync --frozen --only-group docs" in text
+    assert "cyclonedx-py environment" in text
+    assert "cyclonedx-py requirements" not in text  # requirements 产物无许可证元数据
+    # R2+R3 执法接线：check_licenses 必须消费三份分组 SBOM（dead-wire 守卫）
+    assert "tools/check_licenses.py" in text
 
 
 def test_release_uploads_three_group_sboms() -> None:
     text = RELEASE.read_text(encoding="utf-8")
     for group in ("sbom-prod.cdx.json", "sbom-dev.cdx.json", "sbom-docs.cdx.json"):
         assert group in text
-    assert "cyclonedx-py requirements" in text
-    assert "cyclonedx-py environment" not in text  # F1041 origin site
+    assert "cyclonedx-py environment" in text
+    assert "uv sync --frozen --only-group docs" in text
+    assert "uv sync --frozen --no-dev --all-extras" in text
