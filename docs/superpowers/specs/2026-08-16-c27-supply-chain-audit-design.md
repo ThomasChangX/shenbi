@@ -49,7 +49,7 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
   - **保留** sentence-transformers dev 组双声明（embeddings-smoke.yml:4-6 注释声明的有意重复，非缺陷）
 - F912：SECURITY.md:26 "pip-audit runs on every PR and weekly" 的 weekly 半句不实——二选一：security.yml 加 schedule，或删该半句（CodeQL weekly 属实保留）
 - F1008：.pre-commit-config.yaml:42 yamllint rev v1.33.0 → v1.38.0（对齐锁内 1.38.0）
-- **验收**：`uv sync --group dev` 后被删项不在锁内；`git grep "pip-audit" SECURITY.md` 与 security.yml 触发面一致；pre-commit rev == 锁内 yamllint 版本
+- **验收**：被删项不在 pyproject 直接声明且默认安装组不含（setuptools 作为 torch 传递依赖留锁内属上游元数据，不属本仓声明面）；`git grep "pip-audit" SECURITY.md` 与 security.yml 触发面一致；pre-commit rev == 锁内 yamllint 版本
 
 ## 验收（簇级）
 - `just check` 全绿；Security workflow 对全依赖集运行且可在本地复现同口径
@@ -61,8 +61,8 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 
 ## 验证命令
 - 审计口径核对：`git grep -n "pip-audit\|--group" -- .github/workflows/security.yml`（应指向 uv export --all-groups 全集）
-- 依赖集快照：`uv tree --depth 1`（核对 docs 组在树内且被审计覆盖）
-- CVE 处置核对：`uv tree | grep -i pymdown`（≥11.0.1）
+- 依赖集快照：`uv tree --all-groups --depth 1`（默认 uv tree 排除非默认组——正是本簇修的盲区，验收命令必须显式 --all-groups）
+- CVE 处置核对：`uv tree --all-groups | grep -i pymdown`（≥11.0.1；pymdown 在 docs 组）
 - 死依赖核对：`uv tree` + 对 T1305 五项逐个 `git grep -n <pkg> -- src/ tests/ pyproject.toml`
 - 回归：`just check` 全绿
 
