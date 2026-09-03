@@ -33,11 +33,11 @@ def load_exceptions(path: Path) -> dict[str, dict[str, dict[str, str]]]:
 
 
 def component_licenses(component: dict[str, Any]) -> list[str]:
-    """Extract SPDX id or name strings from a CycloneDX component entry."""
+    """Extract SPDX id/name/expression strings from a CycloneDX component entry."""
     out: list[str] = []
     for entry in component.get("licenses") or []:
         lic = entry.get("license") or {}
-        ident = lic.get("id") or lic.get("name")
+        ident = lic.get("id") or lic.get("name") or entry.get("expression")
         if ident:
             out.append(ident)
     return out
@@ -46,6 +46,8 @@ def component_licenses(component: dict[str, Any]) -> list[str]:
 def check_sbom(sbom_path: Path, exceptions: dict[str, dict[str, str]]) -> list[str]:
     """Return violation strings for unregistered/mismatched copyleft in one SBOM."""
     violations: list[str] = []
+    if not sbom_path.exists():
+        return [f"{sbom_path}: SBOM file not found"]
     data = json.loads(sbom_path.read_text(encoding="utf-8"))
     for comp in data.get("components", []):
         name = comp.get("name", "<unknown>")
@@ -57,7 +59,10 @@ def check_sbom(sbom_path: Path, exceptions: dict[str, dict[str, str]]) -> list[s
             if not COPYLEFT_PATTERN.search(lic):
                 continue
             entry = exceptions.get(name.lower())
-            if entry and entry["license"].lower() in lic.lower():
+            # exact match after stripping the "License :: OSI Approved ::" classifier
+            # prefix (avoids GPL/LGPL substring-family confusion, audit-T3 M1)
+            norm = lic.lower().removeprefix("license :: osi approved :: ")
+            if entry and norm == entry["license"].lower():
                 print(f"OK: {sbom_path.name}: {name}: {lic} (registered, ledger {entry['ledger']})")
             elif entry:
                 violations.append(
@@ -79,6 +84,7 @@ def check_workflows(
     violations: list[str] = []
     for wf in workflow_paths:
         if not wf.exists():
+            print(f"WARN: workflow not found, skipped: {wf}", file=sys.stderr)
             continue
         for vuln_id in sorted(set(IGNORE_VULN_PATTERN.findall(wf.read_text(encoding="utf-8")))):
             if vuln_id not in ignore_vulns:
