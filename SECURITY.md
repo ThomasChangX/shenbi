@@ -22,6 +22,6 @@ We follow coordinated disclosure. Once a fix is available, we publish a GitHub S
 ## Supply Chain
 
 - All dependencies locked in `uv.lock` with hashes
-- SBOM (CycloneDX format) generated per release and attached to GitHub Releases (added in PR-39 / Plan 5)
+- SBOM (CycloneDX format) generated per release per dependency group (prod = distributed runtime deps; dev, docs = not distributed, provenance only — spec #41/F1041) and attached to GitHub Releases
 - pip-audit runs on every PR and weekly
 - CodeQL static analysis runs on every PR and weekly

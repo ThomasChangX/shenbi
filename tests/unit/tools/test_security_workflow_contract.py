@@ -28,3 +28,19 @@ def test_security_yml_audits_full_lock_set() -> None:
 def test_pre_push_mirrors_ci_audit_scope() -> None:
     text = PRE_PUSH.read_text(encoding="utf-8")
     assert REQUIRED_EXPORT in text
+
+
+def test_sbom_layered_per_group() -> None:
+    text = WORKFLOW.read_text(encoding="utf-8")
+    for group in ("prod", "dev", "docs"):
+        assert f"sbom-{group}.cdx.json" in text
+    assert "cyclonedx-py requirements" in text
+    assert "cyclonedx-py environment" not in text  # F1041: environment cannot layer
+
+
+def test_release_uploads_three_group_sboms() -> None:
+    text = RELEASE.read_text(encoding="utf-8")
+    for group in ("sbom-prod.cdx.json", "sbom-dev.cdx.json", "sbom-docs.cdx.json"):
+        assert group in text
+    assert "cyclonedx-py requirements" in text
+    assert "cyclonedx-py environment" not in text  # F1041 origin site
