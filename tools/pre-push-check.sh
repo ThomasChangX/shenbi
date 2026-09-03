@@ -34,9 +34,9 @@ echo "--- lint_no_fs_mutation ---"
 uv run python tools/lint_no_fs_mutation.py src/shenbi
 
 # 4b. Security audit (ci.yml security workflow)
-echo "--- pip-audit (dev group, mirroring CI security.yml) ---"
-uv sync --frozen --group dev >/dev/null
-uv run pip-audit
+echo "--- pip-audit (uv.lock full set, mirroring CI security.yml — spec #41 R1) ---"
+uv export --frozen --all-groups --all-extras --no-emit-project -o /tmp/req-audit.txt
+uv run pip-audit -r /tmp/req-audit.txt --no-deps --disable-pip
 
 # 4c. mkdocs link check (only when docs changes)
 # 触发：检测待 push 的 docs 变更。pre-push 阶段已 commit，--cached 和 HEAD diff 都恒空，
