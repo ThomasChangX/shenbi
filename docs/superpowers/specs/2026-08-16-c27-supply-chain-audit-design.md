@@ -1,5 +1,5 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
-> **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C27）| **依赖:** 无（与 C25 CI/just 同步簇有 security.yml 合写面，先到者在文件级加注释占位）| **范围:** .github/workflows/security.yml、uv.lock、SBOM 口径、pyproject 依赖集 | **核心洞察:** 安全审计对象错位——pip-audit 审临时环境而非项目依赖集，且 docs 组整体在 Security 门与 SBOM 之外（T1303），"无漏洞"结论是 false assurance
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-03 · 设计审查 R1：审计口径/验收可执行化/R3 done-at-HEAD/R4 逐项枚举/release.yml 入范围) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C27）| **依赖:** 无（与 C25 CI/just 同步簇有 security.yml 合写面，先到者在文件级加注释占位）| **范围:** .github/workflows/security.yml、.github/workflows/release.yml（SBOM 面）、uv.lock、SBOM 口径、pyproject 依赖集、SECURITY.md、.pre-commit-config.yaml、tools/check_licenses.py（新增）、docs/（LICENSES 口径） | **核心洞察:** 安全审计对象错位——pip-audit 审临时环境而非项目依赖集，且 docs 组整体在 Security 门与 SBOM 之外（T1303），"无漏洞"结论是 false assurance
 
 # C27 · 供应链/安全审计盲区修复（supply-chain-audit）
 
@@ -27,23 +27,29 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 
 ## 任务分解
 ### R1 · 审计对象对齐（T1301，P1）
-- security.yml 改为对 `uv.lock` 全依赖集审计（`pip-audit -r uv.lock --require-hashes` 或 `uv export --frozen` 后审计），删除 `--group dev` 收窄（T1303）
-- **验收**：手工在 lock 中注入一条带 CVE 的测试依赖（或用 T1302 现场验证），Security 门能 FAIL
+- security.yml 改为对 `uv.lock` 全依赖集审计，唯一口径（pip-audit 2.10.1 不支持 `-r uv.lock`——uv.lock 是 TOML 非 requirements 格式）：`uv export --frozen --all-groups --no-emit-project -o <tmp>req.txt` → `uv run pip-audit -r <tmp>req.txt`。`--all-groups` 是修 T1303 的关键（默认 export 仅 prod+dev）；`--no-emit-project` 剔除 `-e .` 自引用（pip-audit/cyclonedx 会 choke）；哈希默认输出（uv 无 `--require-hashes` 旗标，仅 `--no-hashes`）；删除 `--group dev` 收窄（T1303）
+- **验收**：R1 的 FAIL 路径用 checked-in fixture 验证——`tests/fixtures/security/` 下带已知漏洞 pin 的 requirements 文件（真实 `uv export` 产物替换一个 pin，provenance 成文；G0.9）经同一 pip-audit 调用能报漏洞；禁止用改 uv.lock 的方式验证（会破坏 `uv sync --frozen` 上游，FAIL 来自 sync 而非审计，属假验证）
 
 ### R2 · SBOM 与许可证口径（T1304 + F1041）
-- SBOM 生成改为按组分层（prod/dev/docs），docs/dev 组标注"不分发"
-- 新增 LICENSES 口径文档：GPL-3.0（yamllint）、LGPL（chardet 传递）判定为 dev-only 无传染，理由成文
-- **验收**：SBOM 含 mkdocs 栈 26 包；许可证例外表存在且被 CI 校验（新依赖带 GPL 家族许可证时 FAIL）
+- SBOM 生成改为按组分层：三份 `cyclonedx-py requirements -o <group>.cdx.json` 分别吃 prod / dev / docs 组的 `uv export --frozen --no-emit-project`（分组旗标）产物（`environment` 子命令无法按组分层）；docs/dev 组产物以属性/命名标注"不分发"。security.yml 与 release.yml:16（第二修复面，spec 范围字段原漏列）同步改
+- 新增 LICENSES 口径文档 + `tools/check_licenses.py`：解析 SBOM/export 的 License 字段对照 allowlist + 例外表（yamllint GPL-3.0、chardet LGPL 判定 dev-only 无传染，理由成文），作为 security.yml 步骤接线——无脚本的"例外表被 CI 校验"是 dead wire
+- **验收**：docs 组 SBOM 含 mkdocs 栈（pymdown-extensions 等 26 包）；`tools/check_licenses.py` 在新增 GPL 家族依赖时 FAIL（用 `tests/fixtures/security/` 下真实 `cyclonedx-py` 输出改制的 fixture SBOM 验证 FAIL 路径，provenance 成文，同 R1 原则）
 
-### R3 · 漏洞处置闭环（T1302）
-- pymdown-extensions 升级至 ≥11.0.1；建立"不可达 CVE 也须升级或登记豁免"规则
-- **验收**：`uv tree | grep pymdown` 显示 ≥11.0.1；对 T1302 留一行 ledger 关闭注记
+### R3 · 漏洞处置闭环（T1302，升级半 done-at-HEAD）
+- ~~pymdown-extensions 升级至 ≥11.0.1~~——已在 main 落地（pyproject:54 `>=11.0.1`、uv.lock 锁 11.0.1），无剩余工作
+- 剩余闭环半：建立"不可达 CVE 也须升级或登记豁免"规则并给可执行载体——pip-audit 任何 `--ignore-vuln` 项必须在例外登记文件带 ledger ID/理由，否则规则是第二处 dead wire；对 T1302 留一行 ledger 关闭注记（升级已落地的回写）
+- **验收**：豁免登记文件存在且被 check_licenses/pip-audit 调用方引用；ledger T1302 行有关闭注记
 
-### R4 · 死依赖清理与防线真实化（T1305 + F912）
-- 移除/合并 4+1 未使用依赖（以 `uv tree` + grep 双向核验零引用后删除）
-- "pip-audit weekly"要么落地为 scheduled workflow，要么从文档删除该声称（F912）
-- F1008/F1009 的 pre-commit/pyproject 依赖面项随本条一并处置
-- **验收**：`uv sync --group dev` 后无未使用依赖残留；文档与 workflow 一致
+### R4 · 死依赖清理与防线真实化（T1305/F1009 + F912 + F1008）
+- 逐项处置（以 grep 双向核验零引用为前提，2026-09-03 复核）：
+  - **删除** pytest-asyncio + `asyncio_mode="auto"` 死配置（pyproject:30/:472；全仓无 `async def test`——test_density.py:31 命中为 docstring 字符串非消费者）
+  - **删除** pytest-ordering（pyproject:33；`pytest.mark.order`=0，且与 pytest-randomly 语义冲突 = F1009）
+  - **删除** setuptools（pyproject:48；`pkg_resources`=0）
+  - **迁移** numpy 从 `[project.dependencies]` 至 embeddings extra（唯一引用 truth_embed.py:185 lazy import，Route B 可选路径）
+  - **保留** sentence-transformers dev 组双声明（embeddings-smoke.yml:4-6 注释声明的有意重复，非缺陷）
+- F912：SECURITY.md:26 "pip-audit runs on every PR and weekly" 的 weekly 半句不实——二选一：security.yml 加 schedule，或删该半句（CodeQL weekly 属实保留）
+- F1008：.pre-commit-config.yaml:42 yamllint rev v1.33.0 → v1.38.0（对齐锁内 1.38.0）
+- **验收**：`uv sync --group dev` 后被删项不在锁内；`git grep "pip-audit" SECURITY.md` 与 security.yml 触发面一致；pre-commit rev == 锁内 yamllint 版本
 
 ## 验收（簇级）
 - `just check` 全绿；Security workflow 对全依赖集运行且可在本地复现同口径
@@ -54,7 +60,7 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 - security.yml 同时是 C25（CI/just 同步簇）的修复面——两 spec 合写同一文件时以本 spec R1 为准，C25 侧只做清单对账不重排步骤
 
 ## 验证命令
-- 审计口径核对：`git grep -n "pip-audit\|--group" -- .github/workflows/security.yml`（应指向 uv.lock 全集）
+- 审计口径核对：`git grep -n "pip-audit\|--group" -- .github/workflows/security.yml`（应指向 uv export --all-groups 全集）
 - 依赖集快照：`uv tree --depth 1`（核对 docs 组在树内且被审计覆盖）
 - CVE 处置核对：`uv tree | grep -i pymdown`（≥11.0.1）
 - 死依赖核对：`uv tree` + 对 T1305 五项逐个 `git grep -n <pkg> -- src/ tests/ pyproject.toml`
@@ -62,4 +68,5 @@ CI 的安全审计从未与"项目实际依赖集"对账，而是审计执行环
 
 ## 回写
 - merged 关系（phase4 §3）：`T1303 <- F912, F1008-F1009, F1041, T1301-T1302, T1304-T1305`——代表条目关闭即成员关闭
+- d1-baseline ⑨ 勘误随 T1301 关闭更新为"已按本簇 R1 口径固化"终态注记
 - 上轮承接：#15（deps-supply-chain）的 D1-01 面在本簇 R1-R3 关闭后随 supersede 归档
