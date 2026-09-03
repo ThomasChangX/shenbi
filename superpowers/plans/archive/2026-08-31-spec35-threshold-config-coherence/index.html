@@ -1,0 +1,1628 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec35-threshold-config-coherence/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #35 threshold-config-coherence Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #35 threshold-config-coherence Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec35-threshold-config-coherence.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec35-threshold-config-coherence/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #35 threshold-config-coherence Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec35-threshold-config-coherence.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-35-threshold-config-coherence-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #35 threshold-config-coherence Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-f134f411" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 阈值分档单源 + 枚举定稿（F134/F411）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-68-rubric-codemodf760" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: 68 份 rubric 分档线 codemod（F760）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-genre-config-f232f214f822" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: genre-config 契约补全（F232/F214/F822）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-constellation-f213f846" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: CONSTELLATION 裁决（F213/F846）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-skill-f818f806f808f820f843f875" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: SKILL 矛盾裁决余项（F818/F806/F808/F820/F843/F875）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-f443" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 常量去污染（F443）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-lintt5allowlist-warn-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 阈值对账 lint（T5，allowlist WARN-only）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-35-threshold-config-coherence-implementation-plan">Spec #35 threshold-config-coherence Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 15 条 C9 LIVE findings——阈值单源、genre-config 契约补全、SKILL 阈值矛盾裁决、常量去污染、阈值对账 lint。</p>
+<p><strong>Architecture:</strong> 所有数值阈值收进 <code>src/shenbi/contracts/thresholds.py</code>；评分分档枚举定稿 PASS/CONDITIONAL/MARGINAL/FAIL；genre-config 补 approval 必填与键集校验；SKILL.md 矛盾按权威节单源化；新增 allowlist 驱动的对账 lint（WARN-only）接入 just check。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / Pydantic v2 / StrEnum / pytest；验证一律 <code>uv run</code>。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-16-audit-threshold-config-coherence-fix.md</code>（v3，15 条 LIVE）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>状态字面量单一信源：枚举唯一定义于 <code>src/shenbi/status.py</code> / <code>contracts/enums.py</code>；<code>tools/lint_status_strings.py</code> 红即 Critical</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；pathlib；gate 检查器纯函数幂等</li>
+<li>G0.9：不手造 fixture 文件；scenario 输入只引用 <code>tests/fixtures/</code> 真实产物；内存 dict 变体不是 fixture</li>
+<li>commit 用 Conventional Commits；pathspec 显式列文件，禁 <code>git add -A</code></li>
+<li>验证命令走 <code>uv run</code> / <code>just</code>（与 CI <code>uv run --frozen</code> 同构）</li>
+</ul>
+<hr />
+<h3 id="task-1-f134f411">Task 1: 阈值分档单源 + 枚举定稿（F134/F411）</h3>
+<p><strong>复杂度: infra · test_kind: tdd_red_green · 层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/thresholds.py</code>（加两个分档常量）
+- Modify: <code>src/shenbi/status.py:74-80</code>（ScoreClassification 成员重命名）
+- Modify: <code>src/shenbi/scoring.py:228-235</code>（classify 读常量）
+- Modify: <code>src/shenbi/gates/g3.py:164,169</code>（两处 <code>threshold = 90</code> → <code>TEST_PASS</code>）
+- Test: <code>tests/unit/test_status.py</code>、<code>tests/unit/test_scoring.py</code>（classify 相关）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>thresholds.CONDITIONAL_MIN: int = 75</code>、<code>thresholds.MARGINAL_MIN: int = 60</code>；<code>ScoreClassification</code> 成员 <code>PASS = "PASS"</code> / <code>CONDITIONAL = "CONDITIONAL"</code> / <code>MARGINAL = "MARGINAL"</code> / <code>FAIL = "FAIL"</code>；<code>classify(score) -&gt; ScoreClassification</code> 签名不变</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（tests/unit/test_scoring.py 追加/改写）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONDITIONAL_MIN</span><span class="p">,</span> <span class="n">MARGINAL_MIN</span><span class="p">,</span> <span class="n">TEST_PASS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.status</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoreClassification</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_classify_band_vocabulary_single_source</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="mi">95</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">PASS</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="n">TEST_PASS</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">PASS</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="mi">89</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">CONDITIONAL</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="n">CONDITIONAL_MIN</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">CONDITIONAL</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="mi">74</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">MARGINAL</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="n">MARGINAL_MIN</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">MARGINAL</span>
+    <span class="k">assert</span> <span class="n">classify</span><span class="p">(</span><span class="mi">59</span><span class="p">)</span> <span class="ow">is</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">FAIL</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/unit/test_status.py：旧成员名断言（62-63 行附近）改为</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_score_classification_values</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="n">s</span><span class="o">.</span><span class="n">value</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">ScoreClassification</span><span class="p">}</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;PASS&quot;</span><span class="p">,</span> <span class="s2">&quot;CONDITIONAL&quot;</span><span class="p">,</span> <span class="s2">&quot;MARGINAL&quot;</span><span class="p">,</span> <span class="s2">&quot;FAIL&quot;</span><span class="p">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认红</strong>：<code>uv run pytest tests/unit/test_scoring.py tests/unit/test_status.py -q</code> → FAIL（AttributeError PASS / CONDITIONAL_MIN）</li>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># thresholds.py 追加</span>
+<span class="n">CONDITIONAL_MIN</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">75</span>  <span class="c1"># conditional band floor (75-89)</span>
+<span class="n">MARGINAL_MIN</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># marginal band floor (60-74)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># status.py ScoreClassification 替换为</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ScoreClassification</span><span class="p">(</span><span class="n">StrEnum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;classify() bucket for a final score.&quot;&quot;&quot;</span>
+
+    <span class="n">PASS</span> <span class="o">=</span> <span class="s2">&quot;PASS&quot;</span>
+    <span class="n">CONDITIONAL</span> <span class="o">=</span> <span class="s2">&quot;CONDITIONAL&quot;</span>
+    <span class="n">MARGINAL</span> <span class="o">=</span> <span class="s2">&quot;MARGINAL&quot;</span>
+    <span class="n">FAIL</span> <span class="o">=</span> <span class="s2">&quot;FAIL&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="c1"># scoring.py classify 替换为（顶部 import 已有 TEST_PASS，补两个）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.thresholds</span><span class="w"> </span><span class="kn">import</span> <span class="n">CONDITIONAL_MIN</span><span class="p">,</span> <span class="n">MARGINAL_MIN</span><span class="p">,</span> <span class="n">TEST_PASS</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">classify</span><span class="p">(</span><span class="n">score</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ScoreClassification</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">TEST_PASS</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">PASS</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">CONDITIONAL_MIN</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">CONDITIONAL</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;=</span> <span class="n">MARGINAL_MIN</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">MARGINAL</span>
+    <span class="k">return</span> <span class="n">ScoreClassification</span><span class="o">.</span><span class="n">FAIL</span>
+</code></pre></div>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># g3.py 两处（:164、:169）</span>
+<span class="n">threshold</span> <span class="o">=</span> <span class="n">TEST_PASS</span>  <span class="c1"># pipeline mode: individual-pass line (94 is tier advancement)</span>
+</code></pre></div>
+（g3.py 顶部 import 行补 TEST_PASS；保留注释说明 90 个体线 vs 94 晋级线分层）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认绿</strong>：<code>uv run pytest tests/unit/test_scoring.py tests/unit/test_status.py -q</code> → PASS；旧词表全部站点同步——<code>test_status.py:62-63,73</code>（枚举断言 + STATUS_STRING_LITERALS 派生）、<code>tests/unit/test_scoring.py:453-458,580,596</code>（如断言旧成员/旧值则按新词表改写）；再 <code>uv run pytest -n auto -m "not last" -q</code> 全量回归（重点：g3 测试若有断言 90 字面量需同步）</li>
+<li>[ ] <strong>Step 5: Commit</strong>：<code>git add src/shenbi/contracts/thresholds.py src/shenbi/status.py src/shenbi/scoring.py src/shenbi/gates/g3.py tests/unit/test_scoring.py tests/unit/test_status.py &amp;&amp; git commit -m "fix: single-source score bands — enum PASS/CONDITIONAL/MARGINAL/FAIL + thresholds constants (F134/F411)"</code></li>
+</ul>
+<h3 id="task-2-68-rubric-codemodf760">Task 2: 68 份 rubric 分档线 codemod（F760）</h3>
+<p><strong>复杂度: leaf · test_kind: regression_guard · 层级: T1（机械化文档对齐）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>tests/tiers/t1-skill/*/rubric.md</code>（68 份，含 <code>_template</code>）</p>
+<p><strong>Interfaces:</strong> 无代码接口；产出断言 <code>git grep -c "75-89: PASS" tests/tiers</code> → 0</p>
+<ul>
+<li>[ ] <strong>Step 1: codemod（一次性 python，不留库文件）</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">old = &quot;90-100: PASS | 75-89: PASS (acceptable) | 60-74: CONDITIONAL | 0-59: FAIL&quot;</span>
+<span class="s">new = &quot;90-100: PASS | 75-89: CONDITIONAL | 60-74: MARGINAL | 0-59: FAIL&quot;</span>
+<span class="s">n = 0</span>
+<span class="s">for p in Path(&quot;tests/tiers&quot;).rglob(&quot;rubric.md&quot;):</span>
+<span class="s">    t = p.read_text(encoding=&quot;utf-8&quot;)</span>
+<span class="s">    if old in t:</span>
+<span class="s">        p.write_text(t.replace(old, new), encoding=&quot;utf-8&quot;); n += 1</span>
+<span class="s">    elif &quot;75-89&quot; in t:</span>
+<span class="s">        print(&quot;MANUAL:&quot;, p)</span>
+<span class="s">print(&quot;rewritten:&quot;, n)</span>
+<span class="s">EOF</span>
+</code></pre></div>
+Expected: <code>rewritten: 68</code>，无 MANUAL 行
+- [ ] <strong>Step 2: 断言</strong>：<code>git grep -c "75-89: PASS" tests/tiers</code> → exit 1（零命中）；<code>git grep -rn "PASS (acceptable)" tests/ src/</code> → 零命中
+- [ ] <strong>Step 3: 回归</strong>：<code>uv run pytest tests/unit -q</code>（rubric 模板被测试消费则同步过）
+- [ ] <strong>Step 4: Commit</strong>：<code>git add tests/tiers &amp;&amp; git commit -m "test: align 68 rubric band lines to PASS/CONDITIONAL/MARGINAL vocabulary (F760)"</code></p>
+<h3 id="task-3-genre-config-f232f214f822">Task 3: genre-config 契约补全（F232/F214/F822）</h3>
+<p><strong>复杂度: infra · test_kind: tdd_red_green · 层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/skills/genre_config.py</code>（approval 必填 + 键集校验）
+- Modify: <code>src/shenbi/config/config_coherence.py:278</code>（rollback glob 补裸 .bak）
+- Modify: <code>skills/shenbi-genre-config/SKILL.md:77,296,302,193,224</code>
+- Test: <code>tests/unit/gates/g4/test_genre_config.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>GenreConfig</code> 新增校验——approval 缺失/空 → ValueError；顶层键集 ⊆ <code>_GENRE_KEYS</code> 且 8 必填键全在 → 否则 ValueError。<code>_GENRE_KEYS</code> 从 <code>shenbi.contracts.ownership</code> import（如循环依赖则在 genre_config 内 <code>from shenbi.contracts.ownership import _GENRE_KEYS as GENRE_KEYS</code> re-export 公共名 <code>GENRE_KEYS</code>）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（tests/unit/gates/g4/test_genre_config.py 追加；基础 dict 取自真实 fixture 的内存变体——G0.9：不落盘新 fixture 文件）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills.genre_config</span><span class="w"> </span><span class="kn">import</span> <span class="n">GenreConfig</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/genre-config-example.json&quot;</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_real_config</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_approval_required</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">_real_config</span><span class="p">()</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;approval&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;approval&quot;</span><span class="p">):</span>
+        <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;approval&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;approval&quot;</span><span class="p">):</span>
+        <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_keyset_bounded</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">_real_config</span><span class="p">()</span>
+    <span class="n">cfg</span><span class="p">[</span><span class="s2">&quot;rogueKey&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="s2">&quot;rogueKey&quot;</span><span class="p">):</span>
+        <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_eight_required_keys_present</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">_real_config</span><span class="p">()</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;pacing&quot;</span><span class="p">)</span>  <span class="c1"># 必填不可缺（approval 缺失已由 test_approval_required 覆盖）</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+        <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_trope_inventory_optional</span><span class="p">():</span>
+    <span class="n">cfg</span> <span class="o">=</span> <span class="n">_real_config</span><span class="p">()</span>
+    <span class="n">cfg</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;tropeInventory&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">cfg</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_keyset_authority_is_ownership</span><span class="p">():</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.ownership</span><span class="w"> </span><span class="kn">import</span> <span class="n">_GENRE_KEYS</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills</span><span class="w"> </span><span class="kn">import</span> <span class="n">genre_config</span> <span class="k">as</span> <span class="n">gc</span>
+    <span class="k">assert</span> <span class="nb">set</span><span class="p">(</span><span class="n">gc</span><span class="o">.</span><span class="n">_REQUIRED_TOP_KEYS</span><span class="p">)</span> <span class="o">==</span> <span class="n">_GENRE_KEYS</span> <span class="o">-</span> <span class="p">{</span><span class="s2">&quot;tropeInventory&quot;</span><span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_real_fixture_still_valid</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">GenreConfig</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_real_config</span><span class="p">())</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 红</strong>：<code>uv run pytest tests/unit/gates/g4/test_genre_config.py -q</code> → 新增 3 条 FAIL（approval/keyset 现在放行）</li>
+<li>[ ] <strong>Step 3: 实现</strong>（genre_config.py 追加两个 model_validator）</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="c1"># 模块级（genre_config.py 顶部 class 之前）：</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.ownership</span><span class="w"> </span><span class="kn">import</span> <span class="n">_GENRE_KEYS</span>  <span class="c1"># 单一键集权威源（F214：禁止平行定义）</span>
+
+<span class="n">_REQUIRED_TOP_KEYS</span> <span class="o">=</span> <span class="nb">tuple</span><span class="p">(</span>
+    <span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_GENRE_KEYS</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;tropeInventory&quot;</span>
+<span class="p">)</span>  <span class="c1"># 8 必填 = _GENRE_KEYS 减可选 tropeInventory</span>
+
+<span class="c1"># class GenreConfig 内：</span>
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_top_level_keyset</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">data</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">data</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">data</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">_GENRE_KEYS</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;unknown top-level key &#39;</span><span class="si">{</span><span class="n">key</span><span class="si">}</span><span class="s2">&#39; (allowed: 8 required + optional tropeInventory)&quot;</span><span class="p">)</span>
+        <span class="n">missing</span> <span class="o">=</span> <span class="p">[</span><span class="n">k</span> <span class="k">for</span> <span class="n">k</span> <span class="ow">in</span> <span class="n">_REQUIRED_TOP_KEYS</span> <span class="k">if</span> <span class="n">k</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">data</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;missing required top-level keys: </span><span class="si">{</span><span class="n">missing</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">data</span>
+
+    <span class="nd">@model_validator</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="s2">&quot;after&quot;</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_approval_required</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">GenreConfig</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval</span> <span class="ow">or</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">approval</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;decision&quot;</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;approval.decision is required (rule 8: no approval = no valid config)&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+</code></pre></div>
+（docstring "Rules" 列表补 8. approval 必填、9. 顶层键集 = 8 必填 + 1 可选 tropeInventory；model_config 的 <code>extra="ignore"</code> 保留——键集校验在 before validator 显式报错而非静默忽略）</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># config_coherence.py rollback glob（:278 附近）</span>
+    <span class="k">for</span> <span class="n">bak</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">project_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;genre-config.json.bak.*&quot;</span><span class="p">),</span> <span class="o">*</span><span class="n">project_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;genre-config.json.bak&quot;</span><span class="p">)]:</span>
+        <span class="n">bak</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+</code></pre></div>
+<p>SKILL.md（shenbi-genre-config）：
+- :296 「顶层字段数：恰好 8 个（…）」→「顶层字段：8 必填（version, updated, fatigueWords, pacing, chapterTypes, auditDimensions, customRules, approval）+ 1 可选（tropeInventory）」
+- :302 表中 <code>= 8</code> 行 → <code>8 必填 + 1 可选</code>
+- :77 与 :193/:224 备份指示统一为 <code>genre-config.json.bak</code>（裸后缀，与代码侧 paths.py:35/gates/shared.py 一致）</p>
+<ul>
+<li>[ ] <strong>Step 4: 绿</strong>：<code>uv run pytest tests/unit/gates/g4/test_genre_config.py tests/unit/test_config_governance.py -q</code> → PASS（若既有测试用 8 键无 approval 的 dict 构造，按新规则补 approval 键——那是测试数据修正不是放松断言）；<code>just lint-contracts</code> 绿（SKILL.md 改动若涉 writes/reads 需 <code>just generate</code> 同步，本 task 只改正文与示例，预期无生成物 diff）</li>
+<li>[ ] <strong>Step 5: Commit</strong>：<code>git add src/shenbi/contracts/skills/genre_config.py src/shenbi/config/config_coherence.py skills/shenbi-genre-config/SKILL.md tests/unit/gates/g4/test_genre_config.py &amp;&amp; git commit -m "fix: genre-config contract — approval required + keyset bound + rollback glob bare-.bak (F232/F214/F822)"</code></li>
+</ul>
+<h3 id="task-4-constellation-f213f846">Task 4: CONSTELLATION 裁决（F213/F846）</h3>
+<p><strong>复杂度: infra · test_kind: characterization（带区间放宽断言）· 层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/skills/pacing_design.py</code>（validator [15,40] + docstring）
+- Modify: <code>skills/shenbi-pacing-design/SKILL.md:91,176,187,199,257</code>
+- Test: <code>tests/unit/contracts/test_pacing_design.py</code>（如无则新建于同路径）</p>
+<p><strong>Interfaces:</strong> <code>_constellation_range</code> 语义变为 <code>[15, 40]</code>（错误消息同步）；docstring 规则 4 改 "[15, 40]（按卷型设计波段，硬失败带）"、规则 5 改 "6-12 scene types"</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.skills.pacing_design</span><span class="w"> </span><span class="kn">import</span> <span class="n">PacingDesign</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_base</span><span class="p">(</span><span class="n">const_ratio</span><span class="p">:</span> <span class="nb">float</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s2">&quot;beats&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;铺垫&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;升级&quot;</span><span class="p">:</span> <span class="mi">30</span><span class="p">,</span> <span class="s2">&quot;爆发&quot;</span><span class="p">:</span> <span class="mi">25</span><span class="p">,</span> <span class="s2">&quot;余波&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">},</span>
+        <span class="s2">&quot;line_ratios&quot;</span><span class="p">:</span> <span class="p">{</span><span class="s2">&quot;QUEST&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;FIRE&quot;</span><span class="p">:</span> <span class="mi">20</span><span class="p">,</span> <span class="s2">&quot;CONSTELLATION&quot;</span><span class="p">:</span> <span class="n">const_ratio</span><span class="p">},</span>
+        <span class="s2">&quot;scene_types&quot;</span><span class="p">:</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;s</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">8</span><span class="p">)],</span>
+    <span class="p">}</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_constellation_hard_band_covers_kaijuan</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">PacingDesign</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">(</span><span class="mi">38</span><span class="p">))</span>   <span class="c1"># 开卷 30-40 合法</span>
+    <span class="k">assert</span> <span class="n">PacingDesign</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">(</span><span class="mi">15</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">PacingDesign</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">(</span><span class="mi">40</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\[15, 40\]&quot;</span><span class="p">):</span>
+        <span class="n">PacingDesign</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">(</span><span class="mi">41</span><span class="p">))</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="n">match</span><span class="o">=</span><span class="sa">r</span><span class="s2">&quot;\[15, 40\]&quot;</span><span class="p">):</span>
+        <span class="n">PacingDesign</span><span class="o">.</span><span class="n">model_validate</span><span class="p">(</span><span class="n">_base</span><span class="p">(</span><span class="mi">14</span><span class="p">))</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 红</strong>（38/40 现在被 [15,35] 拒 → FAIL）</li>
+<li>[ ] <strong>Step 3: 实现</strong>：<code>pacing_design.py</code> <code>_constellation_range</code> 中 <code>15 &lt;= const &lt;= 35</code> → <code>15 &lt;= const &lt;= 40</code>，错误消息 <code>outside [15, 40]</code>；模块 docstring 第 4 条 <code>[20, 30]</code> → <code>[15, 40]（硬失败带；按卷型权威波段见 SKILL 按卷型表）</code>、第 5 条 <code>Exactly 8 scene types</code> → <code>6-12 scene types</code></li>
+<li>SKILL.md:91 <code>CONSTELLATION 15-25%</code> 行改为指向按卷型表：<code>CONSTELLATION 见下方「目标比值（按卷型）」表</code>；:176 <code>低于 20% 或高于 30% 触发警告</code> → <code>低于 15% 或高于 40% 触发警告</code>（与硬失败带一致，卷内细分以按卷型表为准）；:187 <code>15-30%</code> → 指向按卷型表；:257 <code>15-30% | &lt; 10% 或 &gt; 40%</code> 行的 CONSTELLATION 列同步指向按卷型表口径；:~199 「恰好 8 种场景类型」→「6-12 种场景类型」</li>
+<li>[ ] <strong>Step 4: 绿</strong>：<code>uv run pytest tests/unit/contracts/ -q</code>；<code>just lint-contracts</code>（SKILL 正文改动无生成物 diff）；grep 断言：<code>grep -c "低于 20% 或高于 30%" skills/shenbi-pacing-design/SKILL.md</code> → 0、<code>grep -c "15-30%" skills/shenbi-pacing-design/SKILL.md</code> → 0</li>
+<li>[ ] <strong>Step 5: Commit</strong>：<code>git add src/shenbi/contracts/skills/pacing_design.py skills/shenbi-pacing-design/SKILL.md tests/unit/contracts/test_pacing_design.py &amp;&amp; git commit -m "fix: CONSTELLATION hard band [15,40] + per-volume authoritative table sync (F213/F846)"</code></li>
+</ul>
+<h3 id="task-5-skill-f818f806f808f820f843f875">Task 5: SKILL 矛盾裁决余项（F818/F806/F808/F820/F843/F875）</h3>
+<p><strong>复杂度: leaf（纯文档裁决）· test_kind: regression_guard（grep 断言）· 层级: T1</strong></p>
+<p><strong>Files（全部 Modify）:</strong>
+- <code>skills/shenbi-foreshadowing-resolve/SKILL.md</code> + <code>skills/shenbi-foreshadowing-resolve/chase-power.md</code>（F818）
+- <code>skills/shenbi-chapter-pattern/SKILL.md</code>（F806）
+- <code>skills/shenbi-chapter-revision/SKILL.md:116</code> + <code>revision-modes.md:3</code>（F808 计数面）
+- <code>skills/shenbi-foreshadowing-track/lifecycle-states.md</code>（F820）
+- <code>skills/shenbi-review-highpoint/SKILL.md</code>（F843）
+- <code>skills/shenbi-volume-outlining/SKILL.md</code>（F875）</p>
+<p><strong>裁决表（权威 = 铁律/常量表/明细表，其余副本同步）：</strong></p>
+<table>
+<thead>
+<tr>
+<th>Finding</th>
+<th>权威口径</th>
+<th>改动</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>F818</td>
+<td>常量表 GREEN_MAX=50 / RED_NOW=100 / FORCE_NEXT_CHAPTER=200</td>
+<td>:124 区间判定改 <code>GREEN &lt; 50, YELLOW 50-99, RED ≥ 100</code>；:85 计算示例与 :120 兑现表内 <code>CP = 80</code> 的 <code>RED</code> 标签改 <code>YELLOW</code>（兑现表全表审计同标签）、<code>5.6 (GREEN)</code>→<code>(GREEN)</code>；:66 铁律 1 改 <code>CP ≥ 100（RED）→ 下章必须兑现至少一条；CP ≥ 200 → 强制推进</code>；<strong>chase-power.md:21-24 分档同步</strong>为 <code>GREEN &lt; 50, YELLOW 50-99, RED ≥ 100, ≥200 强制推进</code>（消除第三套体系）</td>
+</tr>
+<tr>
+<td>F806</td>
+<td>:330-338 五档明细表（权威，逐值照抄）</td>
+<td>:109-111 三档改为五档一致口径：<code>&gt; 2.5 优秀 / 2.0-2.5 健康 / 1.5-2.0 轻度单调 / 1.0-1.5 中度单调 / ≤ 1.0 严重单调</code>（打开 :330-338 核对后逐字同步）</td>
+</tr>
+<tr>
+<td>F808</td>
+<td>revision-modes.md 六种枚举</td>
+<td>SKILL.md:116 <code>三种模式</code> → <code>六种模式（见 revision-modes.md）</code></td>
+</tr>
+<tr>
+<td>F820</td>
+<td>lifecycle SKILL 六态机</td>
+<td>lifecycle-states.md 状态机补 <code>DORMANT</code>、<code>ACTIVE</code> 两态及转移边（与 shenbi-foreshadowing-lifecycle/SKILL.md:43-79 对齐）</td>
+</tr>
+<tr>
+<td>F843</td>
+<td>铁律 3（缺即 error）</td>
+<td>:85 <code>缺一段 = warning；缺两段 = error</code> → <code>缺任一段 = error（铁律 3）</code></td>
+</tr>
+<tr>
+<td>F875</td>
+<td>EXACT 清单（≥3）+ 张力铺垫 15-25%</td>
+<td>:66 <code>至少 1 个实体钩子</code> → <code>至少 3 个实体钩子</code>；:100 <code>10-20%</code> → <code>15-25%</code>（与 :175/184 一致）</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li>[ ] <strong>Step 1: 逐文件按裁决表编辑</strong>（打开每处 file:line 核对上下文后改）</li>
+<li>[ ] <strong>Step 2: grep 断言</strong>（每条实跑）：</li>
+<li><code>grep -c "缺一段 = warning" skills/shenbi-review-highpoint/SKILL.md</code> → 0</li>
+<li><code>grep -c "三种模式" skills/shenbi-chapter-revision/SKILL.md</code> → 0</li>
+<li><code>grep -c "DORMANT" skills/shenbi-foreshadowing-track/lifecycle-states.md</code> → ≥1</li>
+<li><code>grep -c "至少 1 个实体钩子" skills/shenbi-volume-outlining/SKILL.md</code> → 0</li>
+<li><code>grep -c "GREEN &lt; 20" skills/shenbi-foreshadowing-resolve/SKILL.md skills/shenbi-foreshadowing-resolve/chase-power.md</code> → 0；<code>grep -c "RED &gt; 200\|RED ≥ 200" skills/shenbi-foreshadowing-resolve/chase-power.md</code> → 0（CP 分档单一体系，spec 验收 5 断言）</li>
+<li>[ ] <strong>Step 3: 契约面回归</strong>：<code>just lint-contracts &amp;&amp; just generate</code>（生成物 diff 必须为空；SKILL 正文改动不触 writes/reads）</li>
+<li>[ ] <strong>Step 4: Commit</strong>：<code>git add skills/shenbi-foreshadowing-resolve/SKILL.md skills/shenbi-chapter-pattern/SKILL.md skills/shenbi-chapter-revision/SKILL.md skills/shenbi-chapter-revision/revision-modes.md skills/shenbi-foreshadowing-track/lifecycle-states.md skills/shenbi-review-highpoint/SKILL.md skills/shenbi-volume-outlining/SKILL.md &amp;&amp; git commit -m "docs(skills): adjudicate threshold contradictions to single authoritative values (F818/F806/F808/F820/F843/F875)"</code></li>
+</ul>
+<h3 id="task-6-f443">Task 6: 常量去污染（F443）</h3>
+<p><strong>复杂度: infra · test_kind: tdd_red_green · 层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:141,162,332</code>
+- Test: <code>tests/unit/gates/g4/test_chapter_drafting.py</code>（既有文件追加；既有用例 :154/:165-166 显式传名单，预期不受默认回退变更影响）</p>
+<p><strong>Interfaces:</strong> <code>_load_protagonist_names(project_dir: str) -&gt; list[str]</code> 无数据时返回 <code>[]</code>；调用侧空名单 → 记 <code>{"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.SKIP, "r": "no protagonist data"}</code> 并跳过检查（gate 纯度保持：只追加检查项，无文件副作用）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4.chapter_drafting</span><span class="w"> </span><span class="kn">import</span> <span class="n">_load_protagonist_names</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_protagonist_data_returns_empty</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">_load_protagonist_names</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span> <span class="o">==</span> <span class="p">[]</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_no_hardcoded_fallback_names</span><span class="p">():</span>
+    <span class="c1"># F443: 框架默认值不得携带项目专属主角名</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g4</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_drafting</span>
+    <span class="k">assert</span> <span class="s2">&quot;林烽&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">inspect</span><span class="o">.</span><span class="n">getsource</span><span class="p">(</span><span class="n">chapter_drafting</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 红</strong>：现返回 <code>["林烽", "他"]</code> → FAIL</li>
+<li>[ ] <strong>Step 3: 实现</strong>：</li>
+<li>:141 <code>return ["林烽", "他"]</code> → <code>return []</code></li>
+<li>:162 <code>names = ["林烽", "他"]</code> → 删除该行（走 <code>if not names: return []</code> 语义）</li>
+<li>:162 后 <code>if "他" not in names: names.append("他")</code> 保留（有名单时补通用代词，非项目专属）</li>
+<li>:332 <code>_load_protagonist_names(str(project_root)) if project_dir else ["林烽", "他"]</code> → <code>_load_protagonist_names(str(project_root)) if project_dir else []</code></li>
+<li>:334 起：<code>if not protagonist_names:</code> 分支新增 <code>c.append({"id": "G4.cd.protagonist_presence", "file": fp, "s": GateStatus.SKIP, "r": "no protagonist data"})</code> + <code>continue</code> 等价结构（保持该文件既有 check 追加风格）</li>
+<li>既有测试若依赖默认名 <code>林烽</code> 构造断言：改为测试内显式传入名单（真实数据路径不变）</li>
+<li>[ ] <strong>Step 4: 绿</strong>：<code>uv run pytest tests/unit/gates/g4/ -q</code>；<code>git grep -rn "林烽" src/</code> → exit 1</li>
+<li>[ ] <strong>Step 5: Commit</strong>：<code>git add src/shenbi/gates/g4/chapter_drafting.py tests/unit/gates/g4/ &amp;&amp; git commit -m "fix: remove project-specific protagonist fallback, SKIP when no data (F443)"</code></li>
+</ul>
+<h3 id="task-7-lintt5allowlist-warn-only">Task 7: 阈值对账 lint（T5，allowlist WARN-only）</h3>
+<p><strong>复杂度: infra · test_kind: tdd_red_green · 层级: T1</strong></p>
+<p><strong>Files:</strong>
+- Create: <code>tools/lint_threshold_reconciliation.py</code>
+- Create: <code>tools/threshold_allowlist.json</code>
+- Modify: <code>justfile</code> check recipe（追加一行）
+- Test: <code>tests/unit/tools/test_lint_threshold_reconciliation.py</code></p>
+<p><strong>Interfaces:</strong>
+- <code>lint_threshold_reconciliation.py</code>：读 allowlist <code>{ "entries": [ {"skill": "shenbi-pacing-design", "pattern": "CONSTELLATION", "file": "skills/shenbi-pacing-design/SKILL.md", "checker": "src/shenbi/contracts/skills/pacing_design.py", "bounds": [15, 40]} ] }</code>；对每条：在 file 中找 pattern 附近的 <code>\d+-\d+</code> 区间，若存在且与 bounds 不一致 → 打 WARN（结构化输出），<strong>exit 0 恒成立</strong>（WARN-only 首周期）；allowlist 条目 file/checker 任一缺失 → WARN
+- 初始 allowlist 至少含：CONSTELLATION 按卷型表行（<code>pattern</code> 锚定开卷 30-40 行，bounds [15,40] 为各卷型并集；Task 4 已把散点行改为指针，扫描窗口须命中按卷型表行而非指针行）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span><span class="o">,</span><span class="w"> </span><span class="nn">subprocess</span><span class="o">,</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lint_warns_on_mismatch</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">allow</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;a.json&quot;</span>
+    <span class="n">allow</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;entries&quot;</span><span class="p">:</span> <span class="p">[{</span>
+        <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="s2">&quot;shenbi-pacing-design&quot;</span><span class="p">,</span> <span class="s2">&quot;pattern&quot;</span><span class="p">:</span> <span class="s2">&quot;CONSTELLATION&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;skills/shenbi-pacing-design/SKILL.md&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;checker&quot;</span><span class="p">:</span> <span class="s2">&quot;src/shenbi/contracts/skills/pacing_design.py&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;bounds&quot;</span><span class="p">:</span> <span class="p">[</span><span class="mi">999</span><span class="p">,</span> <span class="mi">1000</span><span class="p">]}]}),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;tools/lint_threshold_reconciliation.py&quot;</span><span class="p">),</span>
+                        <span class="s2">&quot;--allowlist&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">allow</span><span class="p">)],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>            <span class="c1"># WARN-only</span>
+    <span class="k">assert</span> <span class="s2">&quot;WARN&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">stdout</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lint_clean_on_repo_allowlist</span><span class="p">():</span>
+    <span class="n">root</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">root</span> <span class="o">/</span> <span class="s2">&quot;tools/lint_threshold_reconciliation.py&quot;</span><span class="p">)],</span>
+                       <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cwd</span><span class="o">=</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 红</strong>（脚本不存在 →非零退出）</li>
+<li>[ ] <strong>Step 3: 实现</strong>：argparse <code>--allowlist</code>（默认 <code>tools/threshold_allowlist.json</code>）；正则 <code>(\d+)\s*[-–]\s*(\d+)\s*%?</code> 在 pattern 行 ±3 行窗口内取区间；区间与 bounds 无交集 → <code>print(f"WARN threshold_drift skill={...} file={...} found={lo}-{hi} expected={bounds}")</code>；无区间或文件缺 → WARN；<strong>不 sys.exit(1)</strong>；写 <code>tools/threshold_allowlist.json</code>（CONSTELLATION [15,40] + genre-config 顶层键 8/9 口径一条可选）</li>
+<li>justfile check recipe 在 <code>lint_helper_usage.py</code> 行后追加：<code>uv run python tools/lint_threshold_reconciliation.py</code></li>
+<li>[ ] <strong>Step 4: 绿 + 全量</strong>：<code>uv run pytest tests/unit/tools/ -q</code>；<code>uv run python tools/lint_threshold_reconciliation.py</code> → exit 0（WARN-only 恒 exit 0；WARN 仅在映射条目漂移时出现）；<code>just check</code></li>
+<li>[ ] <strong>Step 5: Commit</strong>：<code>git add tools/lint_threshold_reconciliation.py tools/threshold_allowlist.json justfile tests/unit/tools/test_lint_threshold_reconciliation.py &amp;&amp; git commit -m "feat: allowlist-driven threshold reconciliation lint, WARN-only, wired to just check (T5)"</code></li>
+</ul>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 F232 内存变体校验</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/gates/g4/test_genre_config.py -q</code></td>
+</tr>
+<tr>
+<td>2 F411/F134</td>
+<td>T1+T2</td>
+<td><code>git grep -n "= 90" src/shenbi/gates/g3.py</code>（0）；<code>git grep -c "75-89: PASS" tests/tiers</code>（0）</td>
+</tr>
+<tr>
+<td>3 T5 lint exit 0</td>
+<td>T7</td>
+<td><code>uv run python tools/lint_threshold_reconciliation.py</code></td>
+</tr>
+<tr>
+<td>4 F443</td>
+<td>T6</td>
+<td><code>git grep -rn "林烽" src/</code>（0）</td>
+</tr>
+<tr>
+<td>5 T4 同步断言</td>
+<td>T4+T5</td>
+<td>Task 5 Step 2 grep 组 + <code>grep -n "15-25%" skills/shenbi-pacing-design/SKILL.md</code> 仅按卷型表语境</td>
+</tr>
+<tr>
+<td>6 just check</td>
+<td>全部</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<p>无评分场景 → 无 G3.4 调度需求。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

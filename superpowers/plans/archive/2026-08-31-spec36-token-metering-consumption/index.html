@@ -1,0 +1,2017 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec36-token-metering-consumption/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #36 token-metering consumption Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #36 token-metering consumption Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec36-token-metering-consumption.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec36-token-metering-consumption/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #36 token-metering consumption Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec36-token-metering-consumption.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-36-token-metering-consumption-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #36 token-metering consumption Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t6a-estimate-f523" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T6′a — estimate 扩区 + 保守回退（F523）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-ledger-estimatedattemptpricing_status" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: ledger 字段扩展（estimated/attempt/pricing_status，兼容契约）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t5-idelegacy-f796" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T5 — IDE/legacy 路径估记行（F796）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-t4-cost-t402f1115" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: T4 — 章循环/闭卷自动 cost 报告（T402/F1115）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t6b-t406-estimated" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T6′b — 报告面诚实化（T406′ 警告行 + estimated 分列）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t7-dispatch-trace-f1116t410" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T7 — 重试入账二分 + dispatch trace 事件（F1116/T410）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-v3-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec v3 验收 → task → 验证命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-i4-out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        已知残余盲点（阶段 5 审查 I4 裁定 · out-of-scope）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-36-token-metering-consumption-implementation-plan">Spec #36 token-metering consumption Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 接通 C10 存活面——估记扩区、IDE/legacy 估记行、章循环/闭卷自动 cost 报告、报告面诚实化、重试入账 + dispatch trace 事件。</p>
+<p><strong>Architecture:</strong> 全部改动落在既有单源设施上：<code>TokenLedger.record</code> 扩可选字段（带默认值，向后兼容）；估记行复用 <code>estimate_prompt_tokens</code>；报告自动化复用 <code>render_report</code>；T7 经 usage-accumulator dict 从 <code>@retry</code> 装饰的 <code>_call_llm_streaming</code> 逃逸到 <code>_dispatch_via_api</code> 的异常处理分支；trace 事件经既有 <code>TraceWriter.append</code>（payload 自由 dict，不 bump schema_version）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，dataclasses，tenacity，structlog，pytest（<code>uv run pytest</code>）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>Ledger 兼容契约（spec v3）：<code>TokenUsageRecord</code> 新字段一律带默认值（<code>estimated: bool = False</code>、<code>attempt: int = 1</code>、<code>pricing_status: str = "ok"</code>）——无默认值字段会使存量行被 <code>iter_records</code> 的 TypeError-skip 静默销毁。</li>
+<li>所有 ledger/report/trace 写入 fail-safe：异常 WARN+跳过，绝不 raise 进派发流（既有 <code>_record_usage_to_ledger</code> 同语义）。</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；pathlib；conventional commits。</li>
+<li>测试全部 fixtures/fake-client 驱动，禁真实 dispatch（G0.9/成本纪律）。</li>
+<li>验证命令走 <code>uv run pytest ...</code>（与 CI <code>uv run --frozen</code> 同构）。</li>
+<li>本 plan 全部 task 属 infra（dispatch_helper/chapter_loop/cost/trace）——协调者亲自实现，TDD。</li>
+</ul>
+<hr />
+<h3 id="task-1-t6a-estimate-f523">Task 1: T6′a — estimate 扩区 + 保守回退（F523）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/estimate.py:21-32</code>
+- Test: <code>tests/unit/cost/test_estimate.py</code>（新建或追加；先查现有 <code>tests/unit/cost/</code> 下 estimate 测试文件，存在则追加）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>estimate_prompt_tokens(text: str) -&gt; int</code>（签名不变，行为扩区）；模块级 <code>_warned_unknown_model: bool</code> + <code>reset_unknown_model_warning()</code>（测试 reset 钩子）；<code>_DEFAULT_CONTEXT_LIMIT</code> 改 <code>131_072</code>。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ext_a_counts_as_cjk</span><span class="p">():</span>
+    <span class="c1"># U+3491 (扩展 A 区) — 旧实现按 ASCII 4 chars/token 计</span>
+    <span class="n">ext_a</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0x3400</span><span class="p">,</span> <span class="mh">0x3400</span> <span class="o">+</span> <span class="mi">30</span><span class="p">))</span>
+    <span class="n">fullwidth</span> <span class="o">=</span> <span class="s2">&quot;ＡＢＣ１２３！&quot;</span>  <span class="c1"># 全角 FF00-FFEF</span>
+    <span class="n">new</span> <span class="o">=</span> <span class="n">estimate</span><span class="o">.</span><span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">ext_a</span> <span class="o">+</span> <span class="n">fullwidth</span><span class="p">)</span>
+    <span class="c1"># 旧实现：全部按 other/4；新实现：全部按 cjk/1.5 → 严格更大</span>
+    <span class="n">old_style</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="mi">0</span> <span class="o">/</span> <span class="mf">1.5</span> <span class="o">+</span> <span class="nb">len</span><span class="p">(</span><span class="n">ext_a</span> <span class="o">+</span> <span class="n">fullwidth</span><span class="p">)</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">new</span> <span class="o">&gt;</span> <span class="n">old_style</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_compat_ideographs_count_as_cjk</span><span class="p">():</span>
+    <span class="n">compat</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">chr</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mh">0xF900</span><span class="p">,</span> <span class="mh">0xF900</span> <span class="o">+</span> <span class="mi">10</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">estimate</span><span class="o">.</span><span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">compat</span><span class="p">)</span> <span class="o">==</span> <span class="nb">int</span><span class="p">(</span><span class="mi">10</span> <span class="o">/</span> <span class="mf">1.5</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_model_conservative_limit</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">estimate</span><span class="o">.</span><span class="n">_limit_for</span><span class="p">(</span><span class="s2">&quot;totally-unknown-model&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="mi">131_072</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_model_warns_once</span><span class="p">(</span><span class="n">caplog</span><span class="p">):</span>
+    <span class="n">estimate</span><span class="o">.</span><span class="n">reset_unknown_model_warning</span><span class="p">()</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+    <span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;shenbi.cost.estimate&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">caplog</span><span class="o">.</span><span class="n">at_level</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">WARNING</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="s2">&quot;shenbi.cost.estimate&quot;</span><span class="p">):</span>
+        <span class="n">estimate</span><span class="o">.</span><span class="n">warn_if_over_budget</span><span class="p">(</span><span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">600_000</span><span class="p">,</span> <span class="s2">&quot;totally-unknown-model&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+        <span class="n">estimate</span><span class="o">.</span><span class="n">warn_if_over_budget</span><span class="p">(</span><span class="s2">&quot;x&quot;</span> <span class="o">*</span> <span class="mi">600_000</span><span class="p">,</span> <span class="s2">&quot;totally-unknown-model&quot;</span><span class="p">,</span> <span class="n">logger</span><span class="o">=</span><span class="n">logger</span><span class="p">)</span>
+    <span class="n">once</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">caplog</span><span class="o">.</span><span class="n">records</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;shenbi.cost.estimate&quot;</span>
+            <span class="ow">and</span> <span class="s2">&quot;unknown model&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">msg</span><span class="p">)]</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">once</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">estimate</span><span class="o">.</span><span class="n">reset_unknown_model_warning</span><span class="p">()</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/test_estimate.py -v</code>
+Expected: FAIL（ext-A/全角按 ASCII 计；<code>reset_unknown_model_warning</code> 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p><code>src/shenbi/cost/estimate.py</code> 改动（替换 :21-32 区域）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># CJK ranges (F523): Basic + Ext-A + compatibility ideographs + fullwidth forms.</span>
+<span class="n">_CJK_RANGES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="mh">0x3400</span><span class="p">,</span> <span class="mh">0x4DBF</span><span class="p">),</span>  <span class="c1"># CJK Extension A</span>
+    <span class="p">(</span><span class="mh">0x4E00</span><span class="p">,</span> <span class="mh">0x9FFF</span><span class="p">),</span>  <span class="c1"># CJK Unified Ideographs</span>
+    <span class="p">(</span><span class="mh">0xF900</span><span class="p">,</span> <span class="mh">0xFAFF</span><span class="p">),</span>  <span class="c1"># CJK Compatibility Ideographs</span>
+    <span class="p">(</span><span class="mh">0xFF00</span><span class="p">,</span> <span class="mh">0xFFEF</span><span class="p">),</span>  <span class="c1"># Fullwidth Forms + halfwidth/fullwidth punctuation</span>
+<span class="p">)</span>
+
+<span class="c1"># F523: unknown models must NOT fall back optimistically to the largest known</span>
+<span class="c1"># limit — 1M was the flagship limit, silently disabling the overflow warning.</span>
+<span class="n">_DEFAULT_CONTEXT_LIMIT</span> <span class="o">=</span> <span class="mi">131_072</span>
+
+<span class="n">_warned_unknown_model</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reset_unknown_model_warning</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Test hook: re-arm the one-shot unknown-model fallback warning.&quot;&quot;&quot;</span>
+    <span class="k">global</span> <span class="n">_warned_unknown_model</span>
+    <span class="n">_warned_unknown_model</span> <span class="o">=</span> <span class="kc">False</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_cjk</span><span class="p">(</span><span class="n">ch</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+    <span class="n">cp</span> <span class="o">=</span> <span class="nb">ord</span><span class="p">(</span><span class="n">ch</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">any</span><span class="p">(</span><span class="n">start</span> <span class="o">&lt;=</span> <span class="n">cp</span> <span class="o">&lt;=</span> <span class="n">end</span> <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="n">_CJK_RANGES</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">estimate_prompt_tokens</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Rough token estimate: 1 token ~= 4 chars (ASCII) / 1.5 chars (CJK).&quot;&quot;&quot;</span>
+    <span class="n">cjk</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">text</span> <span class="k">if</span> <span class="n">_is_cjk</span><span class="p">(</span><span class="n">c</span><span class="p">))</span>
+    <span class="n">other</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">text</span><span class="p">)</span> <span class="o">-</span> <span class="n">cjk</span>
+    <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">cjk</span> <span class="o">/</span> <span class="mf">1.5</span> <span class="o">+</span> <span class="n">other</span> <span class="o">/</span> <span class="mi">4</span><span class="p">)</span>
+</code></pre></div>
+<p><code>_limit_for</code> 加一次性告警：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_limit_for</span><span class="p">(</span><span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+    <span class="n">limit</span> <span class="o">=</span> <span class="n">MODEL_CONTEXT_LIMITS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">limit</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">global</span> <span class="n">_warned_unknown_model</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">_warned_unknown_model</span><span class="p">:</span>
+            <span class="n">_warned_unknown_model</span> <span class="o">=</span> <span class="kc">True</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;shenbi.cost.estimate&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;context_limit_unknown_model_conservative_fallback&quot;</span><span class="p">,</span>
+                <span class="n">extra</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span> <span class="s2">&quot;fallback_limit&quot;</span><span class="p">:</span> <span class="n">_DEFAULT_CONTEXT_LIMIT</span><span class="p">},</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_DEFAULT_CONTEXT_LIMIT</span>
+    <span class="k">return</span> <span class="n">limit</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/ -v</code>
+Expected: PASS（含既有 estimate 测试无回归）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/estimate.py<span class="w"> </span>tests/unit/cost/test_estimate.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: F523 CJK ext-A/fullwidth ranges + conservative unknown-model context fallback (spec #36 T6&#39;a)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-ledger-estimatedattemptpricing_status">Task 2: ledger 字段扩展（estimated/attempt/pricing_status，兼容契约）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/ledger.py:23-80</code>
+- Test: <code>tests/unit/cost/test_ledger_fields.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>TokenUsageRecord(..., estimated: bool = False, attempt: int = 1, pricing_status: str = "ok")</code>；
+  <code>TokenLedger.record(skill, chapter, usage, model=None, *, estimated: bool = False, attempt: int = 1) -&gt; TokenUsageRecord</code>（<code>pricing_status</code> 由 record 内部判定：定价缺失 → <code>"unknown-model"</code>）。</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.ledger</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenLedger</span><span class="p">,</span> <span class="n">TokenUsageRecord</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_old_row</span><span class="p">(</span><span class="n">skill</span><span class="o">=</span><span class="s2">&quot;chapter-drafting&quot;</span><span class="p">):</span>
+    <span class="c1"># 0d36d31a 时代的旧格式行：无新字段</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span>
+        <span class="s2">&quot;timestamp&quot;</span><span class="p">:</span> <span class="s2">&quot;2026-08-16T00:00:00+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;skill&quot;</span><span class="p">:</span> <span class="n">skill</span><span class="p">,</span> <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;deepseek-v4-flash&quot;</span><span class="p">,</span> <span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">15</span><span class="p">,</span> <span class="s2">&quot;estimated_cost_usd&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">,</span>
+    <span class="p">})</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_mixed_old_and_new_rows_all_readable</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">ledger</span> <span class="o">=</span> <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">ledger</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">})</span>
+    <span class="k">with</span> <span class="n">ledger</span><span class="o">.</span><span class="n">ledger_path</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="s2">&quot;a&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">_old_row</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">recs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">ledger</span><span class="o">.</span><span class="n">iter_records</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">recs</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>  <span class="c1"># 兼容契约：旧行零 skip</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_record_estimated_and_attempt_flags</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+        <span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">100</span><span class="p">},</span> <span class="n">estimated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="mi">3</span>
+    <span class="p">)</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">ledger_last_line</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;estimated&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;attempt&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="o">.</span><span class="n">estimated</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">rec</span><span class="o">.</span><span class="n">pricing_status</span> <span class="o">==</span> <span class="s2">&quot;ok&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unknown_model_marked_not_silent_zero</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">rec</span> <span class="o">=</span> <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">},</span>
+                                       <span class="n">model</span><span class="o">=</span><span class="s2">&quot;no-such-model-v9&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="o">.</span><span class="n">pricing_status</span> <span class="o">==</span> <span class="s2">&quot;unknown-model&quot;</span>
+    <span class="k">assert</span> <span class="n">rec</span><span class="o">.</span><span class="n">model</span> <span class="o">==</span> <span class="s2">&quot;no-such-model-v9&quot;</span>  <span class="c1"># 真实模型名保留</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">ledger_last_line</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">ledger_path</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/test_ledger_fields.py -v</code>
+Expected: FAIL（<code>estimated</code> kwarg 不存在 / pricing_status 无）</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p><code>ledger.py</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_safe_estimate_cost</span><span class="p">(</span><span class="n">usage</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">float</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;(cost, pricing_status). Unknown model → (0.0, &quot;unknown-model&quot;) — the</span>
+<span class="sd">    row is explicitly marked instead of a silent $0 (C10 T404).&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">estimate_cost</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">model</span><span class="p">),</span> <span class="s2">&quot;ok&quot;</span>
+    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ledger_unknown_model_no_pricing&quot;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">)</span>
+        <span class="k">return</span> <span class="mf">0.0</span><span class="p">,</span> <span class="s2">&quot;unknown-model&quot;</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">TokenUsageRecord</span><span class="p">:</span>
+    <span class="n">timestamp</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">prompt_tokens</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">completion_tokens</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">total_tokens</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">estimated_cost_usd</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="c1"># C10 v3 ledger 兼容契约：新字段一律带默认值，否则存量行在</span>
+    <span class="c1"># iter_records 的 TokenUsageRecord(**data) TypeError-skip 下被静默销毁。</span>
+    <span class="n">estimated</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="n">attempt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">pricing_status</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ok&quot;</span>
+</code></pre></div>
+<p><code>record</code> 签名加 <code>*, estimated: bool = False, attempt: int = 1</code>；构造处：</p>
+<div class="highlight"><pre><span></span><code>        <span class="n">cost</span><span class="p">,</span> <span class="n">pricing_status</span> <span class="o">=</span> <span class="n">_safe_estimate_cost</span><span class="p">(</span><span class="n">usage</span><span class="p">,</span> <span class="n">resolved</span><span class="p">)</span>
+        <span class="n">rec</span> <span class="o">=</span> <span class="n">TokenUsageRecord</span><span class="p">(</span>
+            <span class="o">...</span><span class="p">,</span>
+            <span class="n">estimated_cost_usd</span><span class="o">=</span><span class="n">cost</span><span class="p">,</span>
+            <span class="n">estimated</span><span class="o">=</span><span class="n">estimated</span><span class="p">,</span>
+            <span class="n">attempt</span><span class="o">=</span><span class="n">attempt</span><span class="p">,</span>
+            <span class="n">pricing_status</span><span class="o">=</span><span class="n">pricing_status</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>注意：<code>resolve_model</code> 对 None 返回默认模型——<code>pricing_status</code> 判定发生在 resolve 后（unknown-model 仅当显式传入未知名）。</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/ tests/pipeline/test_dispatch_helper_ledger.py tests/unit/pipeline/test_token_ledger_guard.py -v</code>
+Expected: PASS 全部（既有 ledger 测试无回归——默认值保证旧行为不变）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/ledger.py<span class="w"> </span>tests/unit/cost/test_ledger_fields.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: ledger estimated/attempt/pricing_status fields with defaults (spec #36 compat contract + T404)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-t5-idelegacy-f796">Task 3: T5 — IDE/legacy 路径估记行（F796）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（新增 <code>_record_estimate_row</code> helper；<code>_dispatch_via_ide</code> 成功路径 ~:2114 处；legacy 子进程路由 ~:2334-2380）
+- Test: <code>tests/unit/pipeline/test_estimate_rows.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 <code>estimate_prompt_tokens</code>、Task 2 <code>record(..., estimated=True)</code>
+- Produces: <code>_record_estimate_row(skill: str, chapter: int | None, prompt_text: str, project_dir: Path | None, attempt: int = 1) -&gt; None</code>（fail-safe）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_helper</span> <span class="k">as</span> <span class="n">dh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_record_estimate_row_writes_estimated_true</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">caplog</span><span class="p">):</span>
+    <span class="n">dh</span><span class="o">.</span><span class="n">_record_estimate_row</span><span class="p">(</span><span class="s2">&quot;skill-x&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="s2">&quot;中文 prompt &quot;</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">line</span> <span class="o">=</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;token-ledger.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;estimated&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;chapter&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">assert</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">data</span><span class="p">[</span><span class="s2">&quot;completion_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_record_estimate_row_fail_safe</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">dh</span><span class="o">.</span><span class="n">_record_estimate_row</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># project_dir None → WARN 不 raise</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ide_dispatch_records_estimate_row</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># fake IDE CLI: 成功返回（_write_parsed_outputs stub 掉写盘）</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">R</span><span class="p">:</span>
+        <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;### FILE: out.md</span><span class="se">\n</span><span class="s2">hi&quot;</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="o">.</span><span class="n">subprocess</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="n">R</span><span class="p">())</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_find_ide_cli&quot;</span><span class="p">,</span> <span class="k">lambda</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;cat&quot;</span><span class="p">,</span> <span class="s2">&quot;</span><span class="si">{dir}</span><span class="s2">&quot;</span><span class="p">])</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_build_skill_prompt&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;sys&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;out.md&quot;</span><span class="p">]))</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">dh</span><span class="p">,</span> <span class="s2">&quot;_write_parsed_outputs&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">,</span> <span class="o">**</span><span class="n">k</span><span class="p">:</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">res</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">_dispatch_via_ide</span><span class="p">(</span><span class="s2">&quot;skill-x&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;写第 3 章 chapter-003.md&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span>
+            <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;token-ledger.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;estimated&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_estimate_rows.py -v</code>
+Expected: FAIL（<code>_record_estimate_row</code> 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>dispatch_helper.py 新 helper（放 <code>_record_usage_to_ledger</code> 旁）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_record_estimate_row</span><span class="p">(</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">prompt_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">attempt</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Append a lower-bound estimated row (C10 spec T5/F796).</span>
+
+<span class="sd">    IDE/subprocess paths cannot report structured usage; the prompt estimate</span>
+<span class="sd">    is a floor, explicitly marked estimated=True so the report can separate</span>
+<span class="sd">    it from metered rows. Fail-safe like _record_usage_to_ledger.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">project_dir</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ledger_skip_no_project_dir&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.estimate</span><span class="w"> </span><span class="kn">import</span> <span class="n">estimate_prompt_tokens</span>
+
+        <span class="n">est</span> <span class="o">=</span> <span class="n">estimate_prompt_tokens</span><span class="p">(</span><span class="n">prompt_text</span><span class="p">)</span>
+        <span class="n">TokenLedger</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span>
+            <span class="n">skill</span><span class="p">,</span>
+            <span class="n">chapter</span> <span class="ow">or</span> <span class="mi">0</span><span class="p">,</span>
+            <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="n">est</span><span class="p">,</span> <span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="n">est</span><span class="p">},</span>
+            <span class="n">estimated</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">attempt</span><span class="o">=</span><span class="n">attempt</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;ledger_estimate_record_failed&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>接线：<code>_dispatch_via_ide</code> 成功返回前——在 <code>if state is not None:</code> info-only 块（:2114-2122）<strong>之外、之前</strong>无条件调用 <code>_record_estimate_row(skill, chapter, full_prompt, project_dir)</code>（state 块仅是日志，多数调用点无 state；info 日志保留）。legacy 子进程路由（<code>dispatch_skill</code> 内 <code>uv run shenbi-dispatch</code> 分支）：派发完成后同样调用（prompt 变量以该分支实际变量名为准）。</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_estimate_rows.py tests/unit/pipeline/ -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_estimate_rows.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: IDE + legacy subprocess dispatch record estimated lower-bound ledger rows (spec #36 T5/F796)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-t4-cost-t402f1115">Task 4: T4 — 章循环/闭卷自动 cost 报告（T402/F1115）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/report.py</code>（新增 <code>write_report</code> fail-safe 落盘函数 + T406′ 警告行 + estimated 分列——T6′b 的报告面改动合并于此 task 的 render 改动一起做见 Task 5，本 task 只加 <code>write_report</code>）；<code>src/shenbi/pipeline/chapter_loop.py</code>（<code>_complete_chapter</code> ~:1014 后段）；<code>src/shenbi/pipeline/closure.py</code>（<code>run_closure_step</code> 的 <code>idx &gt;= n</code> 完成分支 ~:273-276）
+- Test: <code>tests/unit/pipeline/test_cost_report_auto.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>render_report(project_dir: Path | str) -&gt; str</code>（report.py:44）
+- Produces: <code>write_report(project_dir: Path | str) -&gt; Path | None</code>（渲染 + 写 <code>cost/report.md</code>，异常 WARN 返 None）</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.ledger</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenLedger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_report</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span><span class="p">,</span> <span class="n">closure</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_report_creates_file</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">write_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="o">==</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;report.md&quot;</span> <span class="ow">and</span> <span class="n">out</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_report_fail_safe</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.cost.report</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">rep</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">rep</span><span class="p">,</span> <span class="s2">&quot;render_report&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">(</span><span class="n">_</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="p">())</span><span class="o">.</span><span class="n">throw</span><span class="p">(</span><span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)))</span>
+    <span class="k">assert</span> <span class="n">write_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># WARN 不 raise</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_complete_chapter_renders_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="c1"># 参照 tests/unit/pipeline/ 既有 fake-state 模式：_complete_chapter 需要</span>
+    <span class="c1"># state.project_dir / state.chapter_loop.chapter_states；上游检查打桩。</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span> <span class="k">as</span> <span class="n">NS</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.product_contracts.check_product_contracts&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">pd</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;_maybe_rebuild_truth_index&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="o">*</span><span class="n">a</span><span class="p">:</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="c1"># 其余下游（checkpoint 设定等）按 _complete_chapter 实际代码路径补桩，</span>
+    <span class="c1"># 目标断言只有一个：函数返回后 cost/report.md 存在。</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">NS</span><span class="p">(</span><span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">),</span>
+               <span class="n">chapter_loop</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">chapter_states</span><span class="o">=</span><span class="p">{}),</span>
+               <span class="c1"># 按 _complete_chapter 读到的其余属性逐个补 NS 默认</span>
+               <span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">chapter_loop</span><span class="o">.</span><span class="n">_complete_chapter</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="k">pass</span>  <span class="c1"># 下游桩缺失导致的错不属本验收面</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;report.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_closure_completed_renders_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span> <span class="k">as</span> <span class="n">NS</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">closure</span> <span class="k">as</span> <span class="n">clo</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">NS</span><span class="p">(</span><span class="n">closure_step</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">clo</span><span class="o">.</span><span class="n">CLOSURE_STEPS</span><span class="p">),</span> <span class="n">closure</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+               <span class="n">closure_retries</span><span class="o">=</span><span class="p">{},</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">clo</span><span class="o">.</span><span class="n">run_closure_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">state</span><span class="o">.</span><span class="n">closure</span> <span class="o">==</span> <span class="n">clo</span><span class="o">.</span><span class="n">ClosureState</span><span class="o">.</span><span class="n">COMPLETED</span>
+    <span class="k">assert</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;report.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+</code></pre></div>
+<p>（两测试的 state 属性集在实现时按 <code>_complete_chapter</code>/<code>run_closure_step</code> 实际读取面校准——目标是断言报告产出，桩属性缺失时补 NS 字段而非放宽断言。）</p>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_cost_report_auto.py -v</code>
+Expected: FAIL（<code>write_report</code> 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>report.py 追加：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_report</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render + persist cost/report.md. Node-level automation (C10 spec T4):</span>
+<span class="sd">    fail-safe — a report error must never break the chapter loop.&quot;&quot;&quot;</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;report.md&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">out</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">render_report</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">out</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;cost_report_write_failed&quot;</span><span class="p">,</span> <span class="n">project_dir</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">None</span>
+</code></pre></div>
+<p>chapter_loop <code>_complete_chapter</code>：在 <code>cs.status = ChapterStatus.COMPLETE</code> 赋值后追加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_report</span>
+
+    <span class="n">write_report</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># C10 spec T4: node-level cost report, fail-safe</span>
+</code></pre></div>
+<p>closure <code>run_closure_step</code> 的 <code>idx &gt;= n</code> 分支：</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">idx</span> <span class="o">&gt;=</span> <span class="n">n</span><span class="p">:</span>
+        <span class="n">state</span><span class="o">.</span><span class="n">closure</span> <span class="o">=</span> <span class="n">ClosureState</span><span class="o">.</span><span class="n">COMPLETED</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_report</span>
+
+        <span class="n">write_report</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>  <span class="c1"># C10 spec T4: closure-node cost report</span>
+        <span class="k">return</span> <span class="kc">True</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_cost_report_auto.py tests/unit/pipeline/ -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/report.py<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/pipeline/closure.py<span class="w"> </span>tests/unit/pipeline/test_cost_report_auto.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: chapter-completion + closure nodes auto-render cost/report.md (spec #36 T4/T402/F1115)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-t6b-t406-estimated">Task 5: T6′b — 报告面诚实化（T406′ 警告行 + estimated 分列）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/cost/report.py:74-78</code>
+- Test: <code>tests/unit/cost/test_report_honesty.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 <code>estimated</code> 字段
+- Produces: render_report 输出含 per-chapter average 警告行 + estimated 行分列行</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.ledger</span><span class="w"> </span><span class="kn">import</span> <span class="n">TokenLedger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.cost.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_report</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_per_chapter_average_has_caveat_line</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">render_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;Per-chapter average cost&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;total cost / chapter count&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># 警告行</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_estimated_rows_broken_out</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;metered&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">})</span>
+    <span class="n">TokenLedger</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="s2">&quot;unmetered&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="p">{</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">,</span> <span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span> <span class="mi">50</span><span class="p">},</span>
+                                 <span class="n">estimated</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">render_report</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;Estimated (lower-bound) rows: 1&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;50&quot;</span> <span class="ow">in</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;Estimated (lower-bound) rows: 1&quot;</span><span class="p">)[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/test_report_honesty.py -v</code>
+Expected: FAIL</p>
+<ul>
+<li>[ ] <strong>Step 3: Write minimal implementation</strong></li>
+</ul>
+<p>report.py <code>render_report</code> 中 per-chapter average 块改为：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">by_chapter</span> <span class="o">=</span> <span class="n">summary</span><span class="p">[</span><span class="s2">&quot;by_chapter&quot;</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">by_chapter</span><span class="p">:</span>
+        <span class="n">ch_costs</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span><span class="p">[</span><span class="s2">&quot;estimated_cost_usd&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">by_chapter</span><span class="o">.</span><span class="n">values</span><span class="p">()]</span>
+        <span class="n">avg</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">ch_costs</span><span class="p">)</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">ch_costs</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;- **Per-chapter average cost**: $</span><span class="si">{</span><span class="n">avg</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;  - note: this equals total cost / chapter count &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(by-chapter buckets carry no independent signal)&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+
+    <span class="n">est_rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">TokenLedger</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span><span class="o">.</span><span class="n">iter_records</span><span class="p">()</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">estimated</span><span class="p">]</span>
+    <span class="k">if</span> <span class="n">est_rows</span><span class="p">:</span>
+        <span class="n">est_tokens</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">total_tokens</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">est_rows</span><span class="p">)</span>
+        <span class="n">lines</span> <span class="o">+=</span> <span class="p">[</span>
+            <span class="s2">&quot;&quot;</span><span class="p">,</span>
+            <span class="sa">f</span><span class="s2">&quot;- **Estimated (lower-bound) rows**: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">est_rows</span><span class="p">)</span><span class="si">}</span><span class="s2"> calls / &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">est_tokens</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> tokens (IDE/subprocess paths; $0 priced, not in cost totals)&quot;</span><span class="p">,</span>
+        <span class="p">]</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/cost/ -v</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/cost/report.py<span class="w"> </span>tests/unit/cost/test_report_honesty.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: per-chapter average caveat line + estimated rows broken out in cost report (spec #36 T6&#39;b/T406&#39;)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-6-t7-dispatch-trace-f1116t410">Task 6: T7 — 重试入账二分 + dispatch trace 事件（F1116/T410）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（<code>_call_llm_streaming</code> ~:1685-1740 增 <code>usage_acc</code> 参数；<code>_call_llm_streaming_with_retry</code> ~:1741-1767 透传；<code>_dispatch_via_api</code> ~:1780-1900 异常分支 + 收尾处 trace 事件）
+- Test: <code>tests/unit/pipeline/test_retry_accounting.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 <code>record(..., attempt=N)</code> / <code>estimated=True</code>、Task 3 <code>_record_estimate_row</code>
+- Produces: <code>_call_llm_streaming(..., usage_acc: dict[str, Any] | None = None)</code>；<code>_emit_dispatch_trace(project_dir, skill, chapter, model, finish_reason, estimated, attempt, success)</code> helper</p>
+<ul>
+<li>[ ] <strong>Step 1: Write the failing test</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">types</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleNamespace</span> <span class="k">as</span> <span class="n">NS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">dispatch_helper</span> <span class="k">as</span> <span class="n">dh</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fake_client</span><span class="p">(</span><span class="n">stream</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;client stub whose create() returns the given iterable stream.&quot;&quot;&quot;</span>
+    <span class="k">class</span><span class="w"> </span><span class="nc">Client</span><span class="p">:</span>
+        <span class="k">class</span><span class="w"> </span><span class="nc">chat</span><span class="p">:</span>
+            <span class="k">class</span><span class="w"> </span><span class="nc">completions</span><span class="p">:</span>
+                <span class="nd">@staticmethod</span>
+                <span class="k">def</span><span class="w"> </span><span class="nf">create</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span>
+                    <span class="k">return</span> <span class="n">stream</span>
+    <span class="k">return</span> <span class="n">Client</span><span class="p">()</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_MidstreamStream</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;建流成功、中途断流——usage 永不送达。&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">NS</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">NS</span><span class="p">(</span><span class="n">finish_reason</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;部分&quot;</span><span class="p">))])</span>
+        <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">&quot;reset&quot;</span><span class="p">)</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">_UsageThenErrorStream</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;usage 已送达后失败——流末失败形态。&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__iter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">yield</span> <span class="n">NS</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">NS</span><span class="p">(</span><span class="n">finish_reason</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;ok&quot;</span><span class="p">))])</span>
+        <span class="k">yield</span> <span class="n">NS</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">prompt_tokens</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">completion_tokens</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span> <span class="n">total_tokens</span><span class="o">=</span><span class="mi">14</span><span class="p">),</span> <span class="n">choices</span><span class="o">=</span><span class="p">[])</span>
+        <span class="k">raise</span> <span class="ne">ConnectionError</span><span class="p">(</span><span class="s2">&quot;reset-after-usage&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_usage_acc_semantics_midstream</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;usage_acc 语义单元层断言：中途断流 usage 永不送达，attempts 递增。&quot;&quot;&quot;</span>
+    <span class="n">acc</span><span class="p">:</span> <span class="nb">dict</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">dh</span><span class="o">.</span><span class="n">_call_llm_streaming</span><span class="p">(</span><span class="n">_fake_client</span><span class="p">(</span><span class="n">_MidstreamStream</span><span class="p">()),</span> <span class="s2">&quot;m&quot;</span><span class="p">,</span>
+                               <span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;写&quot;</span><span class="p">}],</span> <span class="n">usage_acc</span><span class="o">=</span><span class="n">acc</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">ConnectionError</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">assert</span> <span class="n">acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;usage&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wrapper_accounts_via_dispatch_api_midstream</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;_dispatch_via_api 级：中途断流 → estimated 行 + attempt ≥ 1。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;deepseek-v4-flash&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;openai.OpenAI&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_openai</span><span class="p">,</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.dispatch_helper._build_skill_prompt&quot;</span><span class="p">,</span>
+              <span class="n">return_value</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;sys&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">])),</span>
+    <span class="p">):</span>
+        <span class="n">mock_openai</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">_MidstreamStream</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">_dispatch_via_api</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;Chapter 1 draft&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span>
+            <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;token-ledger.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;estimated&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;attempt&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_wrapper_accounts_real_usage_after_stream_end</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;流末失败（usage 已送达）→ 真实 usage 行 attempt ≥ 1。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;deepseek-v4-flash&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;openai.OpenAI&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_openai</span><span class="p">,</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.dispatch_helper._build_skill_prompt&quot;</span><span class="p">,</span>
+              <span class="n">return_value</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;sys&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">])),</span>
+    <span class="p">):</span>
+        <span class="n">mock_openai</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">_UsageThenErrorStream</span><span class="p">()</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">_dispatch_via_api</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;Chapter 1 draft&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span>
+            <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;cost&quot;</span> <span class="o">/</span> <span class="s2">&quot;token-ledger.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()]</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">r</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;estimated&quot;</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">True</span> <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">10</span>
+               <span class="ow">and</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;attempt&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_success_emits_dispatch_trace_with_finish_reason</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span>
+
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>  <span class="c1"># 预置 trace 流</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_API_KEY&quot;</span><span class="p">,</span> <span class="s2">&quot;k&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_LLM_MODEL&quot;</span><span class="p">,</span> <span class="s2">&quot;deepseek-v4-flash&quot;</span><span class="p">)</span>
+    <span class="n">fake_stream</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">NS</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">NS</span><span class="p">(</span><span class="n">finish_reason</span><span class="o">=</span><span class="s2">&quot;stop&quot;</span><span class="p">,</span> <span class="n">delta</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;### FILE: chapters/chapter-1.md</span><span class="se">\n</span><span class="s2">body</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">))]),</span>
+        <span class="n">NS</span><span class="p">(</span><span class="n">usage</span><span class="o">=</span><span class="n">NS</span><span class="p">(</span><span class="n">prompt_tokens</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">completion_tokens</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">total_tokens</span><span class="o">=</span><span class="mi">6</span><span class="p">),</span> <span class="n">choices</span><span class="o">=</span><span class="p">[]),</span>
+    <span class="p">]</span>
+    <span class="k">with</span> <span class="p">(</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;openai.OpenAI&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_openai</span><span class="p">,</span>
+        <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.dispatch_helper._build_skill_prompt&quot;</span><span class="p">,</span>
+              <span class="n">return_value</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;sys&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;chapters/chapter-1.md&quot;</span><span class="p">])),</span>
+    <span class="p">):</span>
+        <span class="n">mock_openai</span><span class="o">.</span><span class="n">return_value</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">fake_stream</span>
+        <span class="n">res</span> <span class="o">=</span> <span class="n">dh</span><span class="o">.</span><span class="n">_dispatch_via_api</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;Chapter 1 draft&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">res</span><span class="o">.</span><span class="n">success</span>
+    <span class="n">events</span> <span class="o">=</span> <span class="p">[</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="k">for</span> <span class="n">l</span> <span class="ow">in</span>
+              <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">l</span><span class="p">]</span>
+    <span class="n">disp</span> <span class="o">=</span> <span class="p">[</span><span class="n">e</span> <span class="k">for</span> <span class="n">e</span> <span class="ow">in</span> <span class="n">events</span> <span class="k">if</span> <span class="n">e</span><span class="p">[</span><span class="s2">&quot;action&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;DISPATCH&quot;</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">disp</span> <span class="ow">and</span> <span class="n">disp</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;payload&quot;</span><span class="p">][</span><span class="s2">&quot;finish_reason&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;stop&quot;</span>
+</code></pre></div>
+<p>（<code>_is_retryable</code> 对 ConnectionError 的归类决定 attempt 计数上限；若 ConnectionError 非 retryable，attempt=1 仍满足 <code>&gt;= 1</code> 断言。timeout 路径同构，不单测。）</p>
+<ul>
+<li>[ ] <strong>Step 2: Run test to verify it fails</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_accounting.py -v</code>
+Expected: FAIL（<code>usage_acc</code> 参数不存在）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: Write minimal implementation</strong></p>
+</li>
+<li>
+<p><code>_call_llm_streaming</code> 签名尾部加 <code>usage_acc: dict[str, Any] | None = None</code>；函数开头：</p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">usage_acc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">usage_acc</span><span class="p">[</span><span class="s2">&quot;attempts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+        <span class="n">usage_acc</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s2">&quot;usage&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>  <span class="c1"># fresh attempt invalidates stale usage</span>
+</code></pre></div>
+<p>usage 捕获处（chunk.usage 分支）同步写 <code>usage_acc["usage"] = usage</code>。</p>
+<ol>
+<li><code>_call_llm_streaming_with_retry</code> 不改签名（<code>**kwargs</code> 已透传 <code>usage_acc</code>）——<code>_dispatch_via_api</code> 调用处传入：</li>
+</ol>
+<div class="highlight"><pre><span></span><code>    <span class="n">usage_acc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">output_text</span><span class="p">,</span> <span class="n">stop_reason</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">finish_reason</span> <span class="o">=</span> <span class="n">_call_llm_streaming_with_retry</span><span class="p">(</span>
+            <span class="n">client</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="p">[</span><span class="o">...</span><span class="p">],</span> <span class="n">usage_acc</span><span class="o">=</span><span class="n">usage_acc</span><span class="p">,</span> <span class="o">...</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="n">httpx</span><span class="o">.</span><span class="n">TimeoutException</span><span class="p">:</span>
+        <span class="n">_account_failed_attempt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">usage_acc</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+        <span class="n">_emit_dispatch_trace</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">_handle_timeout_gracefully</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;api_call_timeout&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">DispatchResult</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;API call timed out&quot;</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">_account_failed_attempt</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">usage_acc</span><span class="p">,</span> <span class="n">system_prompt</span><span class="p">,</span> <span class="n">user_prompt</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">)</span>
+        <span class="n">_emit_dispatch_trace</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">True</span><span class="p">,</span> <span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">success</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;api_call_failed&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">error</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">exc</span><span class="p">))</span>
+        <span class="k">return</span> <span class="n">DispatchResult</span><span class="p">(</span><span class="kc">False</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;API call failed: </span><span class="si">{</span><span class="n">exc</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>二分入账 helper：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_account_failed_attempt</span><span class="p">(</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">usage_acc</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span>
+    <span class="n">system_prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">user_prompt</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C10 spec T7 bifurcation: (a) usage already delivered before the failure</span>
+<span class="sd">    → metered row with attempt=N; (b) failure before usage arrived (mid-stream</span>
+<span class="sd">    or connect) → estimated lower-bound row. Fail-safe.&quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">attempts</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="n">usage</span> <span class="o">=</span> <span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;usage&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">usage</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_record_usage_to_ledger</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">usage</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="n">attempts</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">_record_estimate_row</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">system_prompt</span><span class="si">}</span><span class="se">\n\n</span><span class="si">{</span><span class="n">user_prompt</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+                                 <span class="n">project_dir</span><span class="p">,</span> <span class="n">attempt</span><span class="o">=</span><span class="n">attempts</span><span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;failed_attempt_accounting_error&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p><code>_record_usage_to_ledger</code> 增加可选 <code>attempt: int = 1</code> 透传到 <code>record(..., attempt=attempt)</code>。</p>
+<ol>
+<li>成功路径 trace：<code>_dispatch_via_api</code> 收尾（<code>api_dispatch_complete</code> 日志附近，finish_reason 已知处）：</li>
+</ol>
+<div class="highlight"><pre><span></span><code>    <span class="n">_emit_dispatch_trace</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">chapter</span><span class="p">,</span> <span class="n">model</span><span class="p">,</span> <span class="n">finish_reason</span><span class="p">,</span>
+                         <span class="nb">bool</span><span class="p">(</span><span class="n">usage</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">),</span> <span class="n">usage_acc</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;attempts&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">success</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<ol>
+<li>trace helper（fail-safe，trace 不存在则 DEBUG 跳过——不新建 trace 文件面）：</li>
+</ol>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_emit_dispatch_trace</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+    <span class="n">finish_reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">estimated</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+    <span class="n">attempt</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="o">*</span><span class="p">,</span>
+    <span class="n">success</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C10 spec T7: DISPATCH trace event (finish_reason visibility, F1116).</span>
+
+<span class="sd">    Only appends when a trace stream already exists in project_dir — dispatch</span>
+<span class="sd">    must not silently create new trace surfaces. payload is a free dict, so</span>
+<span class="sd">    no schema_version bump and no G7 chain impact.&quot;&quot;&quot;</span>
+    <span class="n">trace_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">trace_path</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;dispatch_trace_skipped_no_trace&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">)</span>
+        <span class="k">return</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.trace.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">TraceWriter</span>
+
+        <span class="n">TraceWriter</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">))</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">actor</span><span class="o">=</span><span class="s2">&quot;dispatch_helper&quot;</span><span class="p">,</span>
+            <span class="n">actor_role</span><span class="o">=</span><span class="s2">&quot;SYSTEM&quot;</span><span class="p">,</span>
+            <span class="n">action</span><span class="o">=</span><span class="s2">&quot;DISPATCH&quot;</span><span class="p">,</span>
+            <span class="n">target</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;skill:</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span>
+            <span class="n">payload</span><span class="o">=</span><span class="p">{</span>
+                <span class="s2">&quot;chapter&quot;</span><span class="p">:</span> <span class="n">chapter</span><span class="p">,</span>
+                <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="n">model</span><span class="p">,</span>
+                <span class="s2">&quot;finish_reason&quot;</span><span class="p">:</span> <span class="n">finish_reason</span><span class="p">,</span>
+                <span class="s2">&quot;estimated&quot;</span><span class="p">:</span> <span class="n">estimated</span><span class="p">,</span>
+                <span class="s2">&quot;attempt&quot;</span><span class="p">:</span> <span class="n">attempt</span><span class="p">,</span>
+                <span class="s2">&quot;success&quot;</span><span class="p">:</span> <span class="n">success</span><span class="p">,</span>
+            <span class="p">},</span>
+        <span class="p">)</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;dispatch_trace_append_failed&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+<p>（<code>actor_role="SYSTEM"</code> 为 <code>ActorRole</code> Literal 合法值；<code>action="DISPATCH"</code> 经 payload 自由 dict 语义，不触发状态字面量 lint——lint 只管 gate/phase 状态字面量，实现后跑 <code>just check</code> 验证。）</p>
+<ul>
+<li>[ ] <strong>Step 4: Run test to verify it passes</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_retry_accounting.py tests/unit/pipeline/ tests/pipeline/ -v</code>
+Expected: PASS（含既有 test_retry.py / usage capture 测试——<code>usage_acc</code> 默认 None 不改既有行为）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/pipeline/test_retry_accounting.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: retry-attempt usage accounting bifurcation + DISPATCH trace events (spec #36 T7/F1116/T410)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="spec-v3-task">验收覆盖表（spec v3 验收 → task → 验证命令）</h2>
+<table>
+<thead>
+<tr>
+<th>验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 章循环/闭卷产出报告 + fail-safe</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_cost_report_auto.py -v</code></td>
+</tr>
+<tr>
+<td>2 IDE 估记行</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/pipeline/test_estimate_rows.py -v</code></td>
+</tr>
+<tr>
+<td>3 unknown-model 标记 + model 名保留</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/cost/test_ledger_fields.py -v</code></td>
+</tr>
+<tr>
+<td>4 per-chapter average 警告行</td>
+<td>T5</td>
+<td><code>uv run pytest tests/unit/cost/test_report_honesty.py -v</code></td>
+</tr>
+<tr>
+<td>5 扩区估记严格更大 + 保守回退一次性告警</td>
+<td>T1</td>
+<td><code>uv run pytest tests/unit/cost/test_estimate.py -v</code></td>
+</tr>
+<tr>
+<td>6 二分入账 + trace finish_reason</td>
+<td>T6</td>
+<td><code>uv run pytest tests/unit/pipeline/test_retry_accounting.py -v</code></td>
+</tr>
+<tr>
+<td>7 新旧行混合可读</td>
+<td>T2</td>
+<td><code>test_mixed_old_and_new_rows_all_readable</code></td>
+</tr>
+<tr>
+<td>8 just check 全绿</td>
+<td>全</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<p>评分场景：无（本 spec 不涉及 G3 评分产出）。</p>
+<h2 id="5-i4-out-of-scope">已知残余盲点（阶段 5 审查 I4 裁定 · out-of-scope）</h2>
+<ul>
+<li><code>_dispatch_via_api</code> 的 cap-raise 二次调用（<code>finish_reason == "length"</code> 后 ~:1907-1924 的第二次 <code>_call_llm_streaming_with_retry</code>）不接 <code>usage_acc</code>/入账/trace——其异常分支沿用现状（成功路径 usage 已在 :1868 入账）。留待后续 spec（trace 完整面），本 plan 显式排除。</li>
+<li>content_filter / length-at-ceiling 失败返回路径：usage 已入账（metered 行），仅缺 DISPATCH trace 事件；与 cap-raise 同属上述残余面。</li>
+<li>M3 记录：<code>_emit_dispatch_trace</code> 采用「project_dir/trace.jsonl 已存在则 append」而非 spec 的 round_dir 措辞——语义等价（防新建 trace 面）， DISPATCH 事件无程序化消费方，属 G7 审计证据面（spec 明确要求，非 dead-wire）。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

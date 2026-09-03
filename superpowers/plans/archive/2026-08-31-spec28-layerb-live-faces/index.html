@@ -1,0 +1,1511 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec28-layerb-live-faces/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #28 Layer B 存活面修复（R1-R5）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #28 Layer B 存活面修复（R1-R5）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec28-layerb-live-faces.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec28-layerb-live-faces/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #28 Layer B 存活面修复（R1-R5）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec28-layerb-live-faces.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-28-layer-b-r1-r5implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #28 Layer B 存活面修复（R1-R5）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-lint-any-match-volume_map-r2-r1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: lint 多样本 any-match 升级 + volume_map 样本填充与声明诚实化（R2 + R1 前置）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-f845-current_state-fixturer1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: F845 生产树对账——current_state 声明/fixture/镜像/文档四位一体（R1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-f880-f844-r3r4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: F880 幻影键 + F844 死引用清理（R3+R4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-lint_contract_fields-cir5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: lint_contract_fields 入 CI（R5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 验收收口 + 全量门禁
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-28-layer-b-r1-r5implementation-plan">Spec #28 Layer B 存活面修复（R1-R5）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 关闭 F845/F839/F880/F844 四个存活的 fields 声明漂移 + lint fixture-only 盲区（多样本 any-match）+ lint 入 CI。</p>
+<p><strong>Architecture:</strong> lint 从 first-match 单样本升级为多样本 any-match；current_state 声明按生产树（xinghuo-ranqiong）重声明并新增生产树镜像 fixture（G0.11 哈希执法）；volume_map 两声明方改整文件读；两处死引用清理；ci.yml 加一步。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / stdlib only（lint 脚本无三方依赖）；yaml frontmatter；just task runner。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-16-audit-layerb-field-reads-fix.md</code>（Revised 2026-08-31）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>fixture 只能是真实产物精确副本（G0.9）；镜像条目受 MIRROR_MAP sha256 执法（G0.11）</li>
+<li>改 SKILL.md 契约面后必须 <code>just generate</code> 幂等 diff 为空；禁止手改生成物（deps.json/docs/）</li>
+<li>每个 commit lint 必须绿（原子性约束：样本与声明同 commit）</li>
+<li>验证走 <code>uv run</code> / <code>just</code>（与 CI 同构）；系统 python 结果不算证据</li>
+<li>conventional commits；pathspec commit（禁 git add -A）</li>
+</ul>
+<hr />
+<h3 id="task-1-lint-any-match-volume_map-r2-r1">Task 1: lint 多样本 any-match 升级 + volume_map 样本填充与声明诚实化（R2 + R1 前置）</h3>
+<p><strong>复杂度: infra</strong>（共享匹配语义变更，多文件）· <strong>test_kind: tdd_red_green</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>scripts/lint_contract_fields.py:112-143</code>（resolve_sample → resolve_samples）与 <code>_check_read_item</code>（:146-170）
+- Modify: <code>scripts/lint_contract_fields.py:82-84</code>（EXAMPLE_FIXTURES volume_map 条目）
+- Modify: <code>skills/shenbi-review-arc-payoff/SKILL.md:11-14</code>（去 fields）
+- Modify: <code>skills/shenbi-foreshadowing-lifecycle/SKILL.md:10</code>（去 fields）
+- Test: <code>tests/unit/skill_utils/test_lint_contract_fields.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>resolve_samples(path: str) -&gt; list[Path]</code>（全部存在样本，literal + 全部候选 + 全部 glob 匹配，排序稳定）；<code>_check_read_item</code> 语义变为「声明字段命中<strong>任一</strong>样本即 PASS，全部样本均无命中才 FAIL，零样本 skip」</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（新文件 <code>tests/unit/skill_utils/test_lint_contract_fields.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #28: lint_contract_fields multi-sample any-match semantics.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">importlib.util</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO_ROOT</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">_SCRIPT</span> <span class="o">=</span> <span class="n">REPO_ROOT</span> <span class="o">/</span> <span class="s2">&quot;scripts&quot;</span> <span class="o">/</span> <span class="s2">&quot;lint_contract_fields.py&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_load</span><span class="p">():</span>
+    <span class="n">spec</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">spec_from_file_location</span><span class="p">(</span><span class="s2">&quot;lint_contract_fields&quot;</span><span class="p">,</span> <span class="n">_SCRIPT</span><span class="p">)</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">util</span><span class="o">.</span><span class="n">module_from_spec</span><span class="p">(</span><span class="n">spec</span><span class="p">)</span>
+    <span class="n">spec</span><span class="o">.</span><span class="n">loader</span><span class="o">.</span><span class="n">exec_module</span><span class="p">(</span><span class="n">mod</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">mod</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_samples_collects_all_existing_candidates</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;a.md&quot;</span><span class="p">,</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;b.md&quot;</span>
+    <span class="n">a</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## X</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">b</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## Y</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;PROJECT_DIR&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="n">mod</span><span class="p">,</span>
+        <span class="s2">&quot;EXAMPLE_FIXTURES&quot;</span><span class="p">,</span>
+        <span class="p">{</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]},</span>
+        <span class="n">raising</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">samples</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">resolve_samples</span><span class="p">(</span><span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">samples</span> <span class="o">==</span> <span class="p">[</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">]</span>  <span class="c1"># both collected, not first-match</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resolve_samples_empty_when_none_exist</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;PROJECT_DIR&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;EXAMPLE_FIXTURES&quot;</span><span class="p">,</span> <span class="p">{},</span> <span class="n">raising</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">mod</span><span class="o">.</span><span class="n">resolve_samples</span><span class="p">(</span><span class="s2">&quot;truth/nope.md&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_read_item_any_match_pass</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Declaration hitting ANY sample passes (spec #28 R1 any-match).&quot;&quot;&quot;</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="n">sample_a</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;old.md&quot;</span>
+    <span class="n">sample_a</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 主角状态</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">sample_b</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;prod.md&quot;</span>
+    <span class="n">sample_b</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 系统演化阶段</span><span class="se">\n</span><span class="s2">## 参数当前位置</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;resolve_samples&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">[</span><span class="n">sample_a</span><span class="p">,</span> <span class="n">sample_b</span><span class="p">])</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;系统演化阶段&quot;</span><span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">mod</span><span class="o">.</span><span class="n">_check_read_item</span><span class="p">(</span><span class="s2">&quot;test-skill&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_read_item_fails_when_no_sample_matches</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="n">sample</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;s.md&quot;</span>
+    <span class="n">sample</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;## 别的节</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;resolve_samples&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">[</span><span class="n">sample</span><span class="p">])</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;系统演化阶段&quot;</span><span class="p">]}</span>
+    <span class="n">issue</span> <span class="o">=</span> <span class="n">mod</span><span class="o">.</span><span class="n">_check_read_item</span><span class="p">(</span><span class="s2">&quot;test-skill&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">issue</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">&quot;系统演化阶段&quot;</span> <span class="ow">in</span> <span class="n">issue</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_check_read_item_skips_when_zero_samples</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">mod</span><span class="p">,</span> <span class="s2">&quot;resolve_samples&quot;</span><span class="p">,</span> <span class="k">lambda</span> <span class="n">p</span><span class="p">:</span> <span class="p">[])</span>
+    <span class="n">item</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;file&quot;</span><span class="p">:</span> <span class="s2">&quot;truth/nothing.md&quot;</span><span class="p">,</span> <span class="s2">&quot;fields&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;whatever&quot;</span><span class="p">]}</span>
+    <span class="k">assert</span> <span class="n">mod</span><span class="o">.</span><span class="n">_check_read_item</span><span class="p">(</span><span class="s2">&quot;test-skill&quot;</span><span class="p">,</span> <span class="n">item</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_volume_map_sample_filled</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R2: the None skip hole for outline/volume_map.md is filled.&quot;&quot;&quot;</span>
+    <span class="n">mod</span> <span class="o">=</span> <span class="n">_load</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">mod</span><span class="o">.</span><span class="n">EXAMPLE_FIXTURES</span><span class="p">[</span><span class="s2">&quot;outline/volume_map.md&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/test_lint_contract_fields.py -v</code>
+Expected: FAIL（<code>resolve_samples</code> 不存在 → AttributeError）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><code>scripts/lint_contract_fields.py</code> —— <code>resolve_sample</code> 整体替换为：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">resolve_samples</span><span class="p">(</span><span class="n">path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a declared path to ALL on-disk samples (spec #28 any-match).</span>
+
+<span class="sd">    Collects, in order: the literal file under the project root, every</span>
+<span class="sd">    existing curated fixture candidate, and every glob match for parametric</span>
+<span class="sd">    paths (``N``/``NNN`` -&gt; ``*``). Deduplicated, order-stable. A declaration</span>
+<span class="sd">    passes if ANY sample contains the declared heading/key — real-product</span>
+<span class="sd">    shapes vary across snapshots/projects, so any-match across all real</span>
+<span class="sd">    samples is the correct semantics; zero samples means skip (no drift).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">found</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">literal</span> <span class="o">=</span> <span class="n">PROJECT_DIR</span> <span class="o">/</span> <span class="n">path</span>
+    <span class="k">if</span> <span class="n">literal</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">literal</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">path</span> <span class="ow">in</span> <span class="n">EXAMPLE_FIXTURES</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">cand</span> <span class="ow">in</span> <span class="n">EXAMPLE_FIXTURES</span><span class="p">[</span><span class="n">path</span><span class="p">]</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="k">if</span> <span class="n">cand</span><span class="o">.</span><span class="n">is_file</span><span class="p">():</span>
+                <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cand</span><span class="p">)</span>
+    <span class="n">pattern</span> <span class="o">=</span> <span class="n">path</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;NNN&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;N&quot;</span><span class="p">,</span> <span class="s2">&quot;*&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">globmod</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">PROJECT_DIR</span> <span class="o">/</span> <span class="n">pattern</span><span class="p">))):</span>
+        <span class="n">found</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">m</span><span class="p">))</span>
+    <span class="c1"># Deduplicate preserving order.</span>
+    <span class="n">seen</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">Path</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">p</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">found</span> <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">p</span> <span class="ow">in</span> <span class="n">seen</span> <span class="ow">or</span> <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">p</span><span class="p">))]</span>
+</code></pre></div>
+<p><code>_check_read_item</code> 中 <code>sample = resolve_sample(path)</code> 起的校验块整体替换为（any-match 聚合式：某字段在<strong>全部</strong>样本均无命中才 FAIL）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">samples</span> <span class="o">=</span> <span class="n">resolve_samples</span><span class="p">(</span><span class="n">path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>  <span class="c1"># no representative sample -&gt; not a drift</span>
+    <span class="n">declared</span> <span class="o">=</span> <span class="p">[</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">fields</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="nb">str</span><span class="p">)]</span>
+    <span class="n">miss_count</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">sample_count</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">sample</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">:</span>
+        <span class="n">actual</span> <span class="o">=</span> <span class="n">_extract_actual</span><span class="p">(</span><span class="n">path</span><span class="p">,</span> <span class="n">sample</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">actual</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">sample_count</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">declared</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">_field_unmatched</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">actual</span><span class="p">):</span>
+                <span class="n">miss_count</span><span class="p">[</span><span class="n">f</span><span class="p">]</span> <span class="o">=</span> <span class="n">miss_count</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
+    <span class="n">issue</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">sample_count</span><span class="p">:</span>
+        <span class="n">truly_missing</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">f</span> <span class="k">for</span> <span class="n">f</span><span class="p">,</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">miss_count</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">n</span> <span class="o">==</span> <span class="n">sample_count</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">truly_missing</span><span class="p">:</span>
+            <span class="n">rels</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                <span class="nb">str</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">relative_to</span><span class="p">(</span><span class="n">REPO_ROOT</span><span class="p">)</span> <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">is_relative_to</span><span class="p">(</span><span class="n">REPO_ROOT</span><span class="p">)</span> <span class="k">else</span> <span class="n">s</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">samples</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+            <span class="p">)</span>
+            <span class="n">issue</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill_name</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">path</span><span class="si">}</span><span class="s2"> declares fields </span><span class="si">{</span><span class="n">truly_missing</span><span class="si">}</span><span class="s2"> &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;not found in any sample (</span><span class="si">{</span><span class="n">rels</span><span class="si">}</span><span class="s2">)&quot;</span>
+            <span class="p">)</span>
+    <span class="k">return</span> <span class="n">issue</span>
+</code></pre></div>
+<p><code>EXAMPLE_FIXTURES</code> 的 volume_map 条目替换：</p>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;outline/volume_map.md&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">FIXTURES_DIR</span> <span class="o">/</span> <span class="s2">&quot;volume-map-xinghuo.md&quot;</span><span class="p">],</span>
+</code></pre></div>
+<p>同时更新模块 docstring 与 <code>EXAMPLE_FIXTURES</code> 注释中的 first-match 表述为 any-match。</p>
+<ul>
+<li>[ ] <strong>Step 4: R2 声明诚实化（同 commit，保证 lint 绿）</strong></li>
+</ul>
+<p><code>skills/shenbi-review-arc-payoff/SKILL.md</code>（:11-14）：
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">outline/volume_map.md</span>
+<span class="w">    </span><span class="nt">fields</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">volume_promise</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">arc_beats</span>
+</code></pre></div>
+→ <code>- outline/volume_map.md</code>（去 dict-form，整文件读）</p>
+<p><code>skills/shenbi-foreshadowing-lifecycle/SKILL.md:10</code>：
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="nv">outline/volume_map.md</span><span class="p p-Indicator">,</span><span class="nt"> fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">cross-volume bridges</span><span class="p p-Indicator">]}</span>
+</code></pre></div>
+→ <code>- outline/volume_map.md</code></p>
+<ul>
+<li>[ ] <strong>Step 5: 同步生成物并跑测试</strong></li>
+</ul>
+<p>Run: <code>uv run shenbi-sync-contracts &amp;&amp; git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/ &amp;&amp; uv run pytest tests/unit/skill_utils/test_lint_contract_fields.py -v &amp;&amp; uv run python scripts/lint_contract_fields.py</code>
+Expected: 全 PASS / lint "All contract field declarations match truth files." exit 0</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>scripts/lint_contract_fields.py<span class="w"> </span>skills/shenbi-review-arc-payoff/SKILL.md<span class="w"> </span>skills/shenbi-foreshadowing-lifecycle/SKILL.md<span class="w"> </span>tests/unit/skill_utils/test_lint_contract_fields.py<span class="w"> </span>docs/superpowers/plans/2026-08-31-spec28-layerb-live-faces.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: lint_contract_fields multi-sample any-match + volume_map sample fill &amp; honest declarations (spec #28 R2)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-f845-current_state-fixturer1">Task 2: F845 生产树对账——current_state 声明/fixture/镜像/文档四位一体（R1）</h3>
+<p><strong>复杂度: infra</strong>（g0.py MIRROR_MAP + 契约 + AGENTS.md）· <strong>test_kind: tdd_red_green</strong></p>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/truth-current_state-xinghuo.md</code>（<code>novel-output/xinghuo-ranqiong/truth/current_state.md</code> 的逐字节副本）
+- Modify: <code>src/shenbi/gates/g0.py:16-27</code>（MIRROR_MAP 加条目）
+- Modify: <code>scripts/lint_contract_fields.py:66-68</code>（current_state 候选列表加新 fixture）
+- Modify: <code>skills/shenbi-chapter-planning/SKILL.md:7-12</code>、<code>skills/shenbi-review-continuity/SKILL.md:9-14</code>、<code>skills/shenbi-review-group-factual/SKILL.md:53</code>（fields 换生产树节名）
+- Modify: <code>AGENTS.md:84</code>（Layer B 示例字段）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py:1481-1484</code>（注释示例字段名；改动会使 <code>tests/tiers/deps.json</code> 的 <code>_tool_hashes</code> 重锁——<strong>须一并提交</strong>）
+- Modify: <code>tests/unit/pipeline/test_dispatch_helper.py:309-321, 343-371</code>（两个模板种子测试断言旧字段名，同 commit 更新为新字段）
+- Test: <code>tests/unit/contracts/test_fields.py</code>（追加用例）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 <code>resolve_samples</code> any-match
+- Produces: 三技能新 fields = <code>[系统演化阶段, 参数当前位置, 进行中的情节线]</code>（生产树稳定 H2；「世界状态变化（第N章）」动态节不入 fields，escape-hatch 全文回退）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（追加到 <code>tests/unit/contracts/test_fields.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_production_current_state_declared_fields_hit_no_escape_hatch</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Spec #28 R1/F845: chapter-planning&#39;s revised fields hit the production</span>
+<span class="sd">    tree copy — non-empty output, no escape-hatch WARN (spy on structlog).&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">fields</span> <span class="k">as</span> <span class="n">fields_mod</span>
+
+    <span class="n">prod</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth-current_state-xinghuo.md&quot;</span>
+    <span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">prod</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">warns</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span>
+        <span class="n">fields_mod</span><span class="o">.</span><span class="n">log</span><span class="p">,</span> <span class="s2">&quot;warning&quot;</span><span class="p">,</span>
+        <span class="k">lambda</span> <span class="n">event</span><span class="p">,</span> <span class="o">**</span><span class="n">kw</span><span class="p">:</span> <span class="n">warns</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">event</span><span class="p">),</span>
+        <span class="n">raising</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="p">)</span>
+    <span class="n">filtered</span><span class="p">,</span> <span class="n">matched</span> <span class="o">=</span> <span class="n">fields_mod</span><span class="o">.</span><span class="n">filter_to_fields</span><span class="p">(</span>
+        <span class="n">text</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;系统演化阶段&quot;</span><span class="p">,</span> <span class="s2">&quot;参数当前位置&quot;</span><span class="p">,</span> <span class="s2">&quot;进行中的情节线&quot;</span><span class="p">],</span> <span class="nb">str</span><span class="p">(</span><span class="n">prod</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">matched</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="s2">&quot;系统演化阶段&quot;</span> <span class="ow">in</span> <span class="n">filtered</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">warns</span>  <span class="c1"># no field_filter_missing_fields escape-hatch</span>
+</code></pre></div>
+<p>（文件头补 <code>from pathlib import Path</code>；structlog 不经 stdlib caplog，须用 spy——同文件 :65-81 既有模式。）</p>
+<p>另：<code>tests/unit/pipeline/test_dispatch_helper.py</code> 的 <code>test_current_state_has_declared_h2_stubs</code>（:309-321）与 <code>test_template_satisfies_check_fields_exist</code>（:343-371）中旧字段名 <code>主角状态/当前世界局势/活跃线索</code> 全部替换为 <code>系统演化阶段/参数当前位置/进行中的情节线</code>（D21 模板由声明并集派生，声明改则模板种子改，属预期联动）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认红</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_fields.py::test_production_current_state_declared_fields_hit_no_escape_hatch -v</code>
+Expected: FAIL（fixture 文件不存在 → FileNotFoundError）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现（顺序执行）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>cp<span class="w"> </span>novel-output/xinghuo-ranqiong/truth/current_state.md<span class="w"> </span>tests/fixtures/truth-current_state-xinghuo.md
+</code></pre></div>
+<p><code>src/shenbi/gates/g0.py</code> MIRROR_MAP 追加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;tests/fixtures/truth-current_state-xinghuo.md&quot;</span><span class="p">:</span> <span class="p">(</span>
+        <span class="s2">&quot;novel-output/xinghuo-ranqiong/truth/current_state.md&quot;</span>
+    <span class="p">),</span>
+</code></pre></div>
+<p><code>scripts/lint_contract_fields.py</code> current_state 候选列表改为：</p>
+<div class="highlight"><pre><span></span><code>    <span class="s2">&quot;truth/current_state.md&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="n">FIXTURES_DIR</span> <span class="o">/</span> <span class="s2">&quot;snapshots&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-025&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">,</span>
+        <span class="n">FIXTURES_DIR</span> <span class="o">/</span> <span class="s2">&quot;truth-current_state.md&quot;</span><span class="p">,</span>
+        <span class="n">FIXTURES_DIR</span> <span class="o">/</span> <span class="s2">&quot;truth-current_state-xinghuo.md&quot;</span><span class="p">,</span>
+    <span class="p">],</span>
+</code></pre></div>
+<p>三个 SKILL.md 的 <code>truth/current_state.md</code> fields 全部替换为：</p>
+<div class="highlight"><pre><span></span><code><span class="w">    </span><span class="nt">fields</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">系统演化阶段</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">参数当前位置</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">进行中的情节线</span>
+</code></pre></div>
+<p>（factual 的 inline 形式：<code>{file: truth/current_state.md, fields: [系统演化阶段, 参数当前位置, 进行中的情节线]}</code>）</p>
+<p><code>AGENTS.md:84</code> 示例：<code>fields: [主角状态, 当前世界局势, 活跃线索]</code> → <code>fields: [系统演化阶段, 参数当前位置, 进行中的情节线]</code></p>
+<p><code>src/shenbi/pipeline/dispatch_helper.py:1482-1484</code> 注释中 <code>truth/current_state.md [主角状态, 当前世界局势, 活跃线索]</code> → <code>[系统演化阶段, 参数当前位置, 进行中的情节线]</code></p>
+<ul>
+<li>[ ] <strong>Step 4: 验证（测试 + lint + 镜像 + 生成物重锁）</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/contracts/test_fields.py tests/unit/pipeline/test_dispatch_helper.py -v &amp;&amp; uv run python scripts/lint_contract_fields.py &amp;&amp; uv run python tools/check_fixture_mirror.py &amp;&amp; uv run shenbi-sync-contracts &amp;&amp; git status --short tests/tiers/deps.json</code>
+Expected: 测试全 PASS / lint exit 0 / mirror OK / deps.json 仅 <code>_tool_hashes</code> 中 dispatch_helper.py 哈希变化（dispatch_helper.py 注释改动所致，预期内，随 Step 5 提交）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/fixtures/truth-current_state-xinghuo.md<span class="w"> </span>src/shenbi/gates/g0.py<span class="w"> </span>scripts/lint_contract_fields.py<span class="w"> </span>skills/shenbi-chapter-planning/SKILL.md<span class="w"> </span>skills/shenbi-review-continuity/SKILL.md<span class="w"> </span>skills/shenbi-review-group-factual/SKILL.md<span class="w"> </span>AGENTS.md<span class="w"> </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/unit/contracts/test_fields.py<span class="w"> </span>tests/unit/pipeline/test_dispatch_helper.py<span class="w"> </span>tests/tiers/deps.json
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: reconcile current_state fields declarations to production tree + mirrored fixture (spec #28 R1/F845)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-3-f880-f844-r3r4">Task 3: F880 幻影键 + F844 死引用清理（R3+R4）</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-style-polishing/SKILL.md:49</code>（DOT 去 prohibitions）
+- Modify: <code>skills/shenbi-review-pacing/SKILL.md:93</code>（引用改内联说明）</p>
+<ul>
+<li>[ ] <strong>Step 1: style-polishing DOT 节点</strong></li>
+</ul>
+<p><code>"Read genre-config.json (fatigueWords + prohibitions)"</code> → <code>"Read genre-config.json (fatigueWords)"</code></p>
+<ul>
+<li>[ ] <strong>Step 2: review-pacing 引用行</strong></li>
+</ul>
+<p><code>每条缺陷报告必须遵循 \</code>skills/_shared/REVIEW_EVIDENCE.md` 定义的四要素格式：<code>→</code>每条缺陷报告必须遵循以下四要素格式：`（:95-98 的内联四要素保留）</p>
+<ul>
+<li>[ ] <strong>Step 3: 回归断言（spec 验收 3）</strong></li>
+</ul>
+<p>Run: <code>git grep -n prohibitions -- skills/shenbi-style-polishing/SKILL.md; git grep -n REVIEW_EVIDENCE -- skills/; uv run shenbi-sync-contracts &amp;&amp; git diff --exit-code -- tests/tiers/deps.json docs/framework/ skills/</code>
+Expected: 两个 grep 零输出；diff 空</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-style-polishing/SKILL.md<span class="w"> </span>skills/shenbi-review-pacing/SKILL.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: remove phantom prohibitions key from style-polishing DOT and dead REVIEW_EVIDENCE reference (spec #28 R3+R4)&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-lint_contract_fields-cir5">Task 4: lint_contract_fields 入 CI（R5）</h3>
+<p><strong>复杂度: leaf</strong> · <strong>test_kind: regression_guard</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/ci.yml:53-57</code>（Contract lints run 块）</p>
+<ul>
+<li>[ ] <strong>Step 1: 加一步</strong>（"Contract + repo-consistency lints" 块内加一行，或紧随其后新步）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Contract + repo-consistency lints (spec §5.5)</span>
+<span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_contracts.py</span>
+<span class="w">          </span><span class="no">uv run python scripts/lint_contract_fields.py</span>
+<span class="w">          </span><span class="no">uv run python tools/lint_repo_consistency.py</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/ci.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;ci: run lint_contract_fields in quality workflow (spec #28 R5)&quot;</span>
+</code></pre></div>
+<p>（R5 验收 4 由 PR CI 实跑证明——改动即触发 ci workflow。）</p>
+<hr />
+<h3 id="task-5">Task 5: 验收收口 + 全量门禁</h3>
+<p><strong>复杂度: infra</strong> · <strong>test_kind: regression_guard</strong></p>
+<ul>
+<li>[ ] <strong>Step 1: spec 验收 1-5 逐条实跑并粘贴输出到 progress.md</strong></li>
+<li><code>uv run python scripts/lint_contract_fields.py</code> exit 0（基准含生产树副本）</li>
+<li><code>uv run pytest tests/unit/contracts/test_fields.py -v</code>（F845 断言 PASS）</li>
+<li>两个 grep 零输出（Task 3 已跑，重跑粘贴）</li>
+<li>CI 含 lint step（PR checks 展示）</li>
+<li>
+<p><code>just check</code> 全绿 + <code>uv lock --check</code> 不适用（未改依赖）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: Commit（若有收尾改动）</strong> + 更新 progress.md 验收证据</p>
+</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

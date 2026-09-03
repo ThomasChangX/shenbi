@@ -1,0 +1,1718 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖 - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖 - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖 - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-pr20-followup-dependabot-and-embeddings-ci-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#pr-20-follow-updependabot-embeddings-ci" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 来由
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12-2026-08-02" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 根因（已实测核实，2026-08-02）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 修复方案
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 修复方案">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-follow-up-a-githubdependabotyml" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Follow-up (a)：新建 .github/dependabot.yml
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.1 Follow-up (a)：新建 .github/dependabot.yml">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#plan" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        配置内容（草案，plan 阶段细化）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键决策点（§5 决策）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验证标准
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-follow-up-bembeddings-smoke-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Follow-up (b)：embeddings 推理 smoke CI 覆盖
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2.2 Follow-up (b)：embeddings 推理 smoke CI 覆盖">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        缺口（经阶段 2 复核修正）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        方案（三种选项，§5 决策）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#5_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        关键决策点（§5 决策）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 实施阶段
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 实施阶段">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-githubdependabotymlfollow-up-a" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1：新建 .github/dependabot.yml（Follow-up a）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2embeddings-smoke-ci-follow-up-b-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2：embeddings 推理 smoke CI 覆盖（Follow-up b，按 §5 决策）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-spec-phase" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3：归档前序 spec（⚠️ 已完成，本 Phase 为空操作）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 验证标准
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5-plan-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 待决策项（plan 阶段定，spec 只记选项）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="5. 待决策项（plan 阶段定，spec 只记选项）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#51-dependabot-ecosystem-directory-2-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.1 Dependabot ecosystem 名与 directory（✅ 阶段 2 在 spec 内解决）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#52-embeddings-ci" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.2 embeddings CI 覆盖方案
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#53" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.3 模型下载策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#54-nightly-workflow-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.4 nightly workflow 重启决策（阶段 2 新增）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#55-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.5 PR 拆分
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#56-renovate-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5.6 Renovate 配置共存处置（阶段 1 新增决策项，✅ 用户已选删除）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 风险与回滚
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7-out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 不做的事（Out of Scope）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 相关
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="pr-20-follow-updependabot-embeddings-ci">PR #20 Follow-up：Dependabot 配置治理 + embeddings 可选组 CI 覆盖</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-02
+<strong>Series:</strong> 依赖治理（承接 <code>2026-08-02-pr20-torch-bump-disposition-design.md</code> §2.1/§2.3 follow-up）
+<strong>Depends on:</strong> PR #20（已 CLOSED）；前序 spec <code>2026-08-02-pr20-torch-bump-disposition-design.md</code>（主任务已完成，本 spec 接管其遗留的两项 follow-up）
+<strong>Status:</strong> 设计中（Design）
+<strong>Severity:</strong> 🟡 Medium（根因未修 → 僵尸 PR 会再生；embeddings 推理时零 CI 覆盖 → 兼容性回归无防线）
+<strong>目的:</strong> 落地 PR #20 处置 spec 的两项 follow-up：(a) 新建 <code>.github/dependabot.yml</code> 约束 transitive-PR；(b) 给 embeddings 可选组加 CI 覆盖。闭合后前序 spec 方可干净归档。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 背景</h2>
+<h3 id="11">1.1 来由</h3>
+<p>PR #20（<code>chore(deps): bump torch from 2.12.1 to 2.13.0</code>）是 Dependabot 开的 <strong>transitive 依赖 PR</strong>——torch 不是本项目直接依赖，而是 <code>sentence-transformers</code>（<code>[project.optional-dependencies].embeddings</code>）的传递依赖。该 PR 形成僵尸态（commit 通过非 merge 路径入 main，PR 未自关），已于 2026-08-01 手动关闭。</p>
+<p>前序 spec（<code>2026-08-02-pr20-torch-bump-disposition-design.md</code>）处置 PR #20 时明确留了两项 follow-up（§2.1 动作 3 + §2.3 推荐），<strong>但二者均无独立 spec/issue 追踪</strong>（已核实：archive 零命中，<code>gh issue list</code> 零命中）。本 spec 承接这两项，使其有独立追踪，闭合后前序 spec 方可归档。</p>
+<h3 id="12-2026-08-02">1.2 根因（已实测核实，2026-08-02）</h3>
+<p><strong>根因 A（僵尸 PR 再生机制）</strong>：<code>.github/dependabot.yml</code> <strong>不存在</strong>（<code>find . -name "dependabot*"</code> 零命中，<code>.github/</code> 下无该文件）。Dependabot 因此以<strong>仓库级默认配置</strong>运行——GitHub 自动为所有 ecosystem（含 <code>uv</code>/pip）开 PR，<strong>不区分 direct 还是 transitive 依赖</strong>。torch 作为 sentence-transformers 的传递依赖，照样触发 PR。无配置约束 = 僵尸 PR 会再生（每次 torch/sentence-transformers 升级都可能复现 PR #20 模式）。</p>
+<p><strong>根因 B（embeddings 推理时零 CI 覆盖）</strong>：⚠️ <strong>本节经阶段 2 设计审查复核后重述</strong>（原表述"零 CI 覆盖"不实）。</p>
+<p>事实更正：<code>sentence-transformers&gt;=3.0.0</code> <strong>同时在</strong> <code>[dependency-groups].dev</code>（<code>pyproject.toml:47</code>）与 <code>[project.optional-dependencies].embeddings</code>（<code>pyproject.toml:23</code>）两处声明。<code>uv.lock</code> 第 3610 行解析了 <code>torch</code>，第 3345/3368 行把 sentence-transformers 列为 dev 组成员。因此 <code>uv sync --frozen --group dev</code>（所有 CI job 用的命令）<strong>已经安装</strong> sentence-transformers + torch，import 级兼容性在每个 PR CI 上已被守。</p>
+<p><strong>真正的缺口（narrower gap）是推理时（inference-time）兼容性</strong>：
+- <code>tests/unit/pipeline/test_truth_embed.py:119-127</code> 与 <code>tests/unit/pipeline/test_context_assemble.py:164-167</code> 触及 <code>embed_and_store</code>/降级路径，但二者都在 <code>is_embed_available()</code> 为 True 时 <code>pytest.skip</code>（"sentence_transformers installed; degradation path not testable"）。
+- <strong>没有任何测试实例化 <code>SentenceTransformer('bge-large-zh')</code> 或调用 <code>model.encode()</code></strong>。import 通 ≠ 推理通。
+- 后果：torch 2.13.0 这类升级若破坏 sentence-transformers 的<strong>模型加载/推理</strong>（非 import），CI 全绿却实际 embeddings 功能已坏——无人守这一层。</p>
+<p>结论：Follow-up (b) 的 CI 覆盖目标是<strong>推理 smoke</strong>（实例化模型 + 一次 encode），而非 import（已被覆盖）。</p>
+<hr />
+<h2 id="2">2. 修复方案</h2>
+<h3 id="21-follow-up-a-githubdependabotyml">2.1 Follow-up (a)：新建 <code>.github/dependabot.yml</code></h3>
+<p>Dependabot 配置文件当前<strong>不存在</strong>。新建，约束 <code>uv</code> ecosystem 行为。</p>
+<h4 id="plan">配置内容（草案，plan 阶段细化）</h4>
+<div class="highlight"><pre><span></span><code><span class="c1"># .github/dependabot.yml</span>
+<span class="nt">version</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">2</span>
+<span class="nt">updates</span><span class="p">:</span>
+<span class="w">  </span><span class="c1"># uv lockfile —— GA 支持的 ecosystem（见 §5.1 决策，已定为 &quot;uv&quot;）</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">package-ecosystem</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;uv&quot;</span>
+<span class="w">    </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/&quot;</span>
+<span class="w">    </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly&quot;</span>
+<span class="w">    </span><span class="nt">open-pull-requests-limit</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">5</span>
+<span class="w">    </span><span class="c1"># 关键：只为直接依赖开 PR，transitive 由父包升级连带解决</span>
+<span class="w">    </span><span class="c1"># （torch 这类传递依赖不应单独开 PR，避免 PR #20 式僵尸态再生）</span>
+<span class="w">    </span><span class="c1"># NOTE: 单一 allow 规则只能有一个 dependency-type；多个 allow 条目按并集生效。</span>
+<span class="w">    </span><span class="c1"># 选 direct = 覆盖三处显式声明（[project.dependencies]/[dependency-groups]/</span>
+<span class="w">    </span><span class="c1"># [optional-dependencies]），过滤 indirect 传递依赖。</span>
+<span class="w">    </span><span class="c1"># 不配 production/development —— 那是正交的环境标签轴，叠加只会扩大放行范围。</span>
+<span class="w">    </span><span class="nt">allow</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">dependency-type</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;direct&quot;</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependencies&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependabot&quot;</span>
+<span class="w">    </span><span class="nt">commit-message</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;chore(deps)&quot;</span>
+<span class="w">      </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scope&quot;</span>
+
+<span class="w">  </span><span class="c1"># GitHub Actions —— workflow 依赖</span>
+<span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">package-ecosystem</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;github-actions&quot;</span>
+<span class="w">    </span><span class="nt">directory</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;/&quot;</span>
+<span class="w">    </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">interval</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;weekly&quot;</span>
+<span class="w">    </span><span class="nt">labels</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;dependencies&quot;</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="s">&quot;github-actions&quot;</span>
+<span class="w">    </span><span class="nt">commit-message</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">prefix</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;chore(deps)&quot;</span>
+<span class="w">      </span><span class="nt">include</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;scope&quot;</span>
+</code></pre></div>
+<h4 id="5">关键决策点（§5 决策）</h4>
+<ol>
+<li><strong><code>allow.dependency-type: "direct"</code></strong> 是过滤 transitive 的关键。GitHub Dependabot 文档（已核实）：单一 <code>allow</code> 规则<strong>只能有一个</strong> <code>dependency-type</code>；多个 <code>allow</code> 条目按<strong>并集</strong>生效（匹配任一即放行）。选 <code>direct</code>（覆盖 <code>[project.dependencies]</code> + <code>[dependency-groups]</code> + <code>[optional-dependencies]</code> 三处显式声明）即过滤掉 indirect 传递依赖。无需第二规则——<code>production</code>/<code>development</code> 是正交的<strong>环境标签</strong>轴，与"是否过滤 transitive"无关，叠加只会<strong>扩大</strong>而非精确化过滤。</li>
+<li><code>[project.optional-dependencies].embeddings</code> 的 <code>sentence-transformers</code> 是 direct（显式可选依赖）→ 仍被跟踪（期望：想升级它）。其传递依赖 <code>torch</code> 是 indirect → 被过滤（PR #20 根因修复）。</li>
+<li><strong>ecosystem 名</strong>：<strong>已定 <code>uv</code></strong>（§5.1 在 spec 内解决，GA 2025-03 支持；不再延后到 plan）。</li>
+<li><strong><code>schedule.interval</code></strong>：weekly（与基线 CI 节奏匹配）。</li>
+<li><strong><code>open-pull-requests-limit: 5</code></strong>：避免 PR 积压。</li>
+</ol>
+<h4 id="_1">验证标准</h4>
+<ul>
+<li>文件存在：<code>test -f .github/dependabot.yml</code>。</li>
+<li>YAML 合法：<code>python -c "import yaml; yaml.safe_load(open('.github/dependabot.yml'))"</code>（或 actionlint / yamllint）。</li>
+<li><strong>行为验证</strong>：下次 Dependabot 运行后，不再为 torch 这类 transitive 依赖单独开 PR（观察 1-2 个周期）。</li>
+<li><strong>回归保护</strong>：仍能为 <code>pyproject.toml</code> 直接声明的依赖（openai、tenacity、sentence-transformers、pytest 等）开 PR。</li>
+</ul>
+<h3 id="22-follow-up-bembeddings-smoke-ci">2.2 Follow-up (b)：embeddings 推理 smoke CI 覆盖</h3>
+<h4 id="2_1">缺口（经阶段 2 复核修正）</h4>
+<p><code>--group dev</code> <strong>已装</strong> sentence-transformers + torch（见 §1.2 根因 B 修正）。缺口是<strong>推理时</strong>：无 CI 步骤实例化模型或跑 encode；现有 2 个相关单测在 <code>is_embed_available()</code> 为 True 时 skip。本 Follow-up 的 smoke 须做<strong>推理</strong>（实例化 + encode 一段 dummy 文本），而非仅 import。</p>
+<blockquote>
+<p>⚠️ <strong>nightly.yml 当前 DISABLED</strong>（schedule 注释掉，仅 <code>workflow_dispatch</code> 手动触发，见 <code>nightly.yml:18-21</code>）。B1 落到 nightly.yml 意味着覆盖<strong>不会自动执行</strong>，除非 §5.4 决定重启 schedule 或另建独立 scheduled workflow。</p>
+</blockquote>
+<h4 id="5_1">方案（三种选项，§5 决策）</h4>
+<p><strong>选项 B1（推荐，推理 smoke）</strong>：在 <code>nightly.yml</code>（或新 scheduled workflow，§5.4）加 embeddings 推理 smoke job。
+<div class="highlight"><pre><span></span><code><span class="nt">embeddings-smoke</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">  </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span><span class="w">        </span><span class="c1"># 与现有 ci.yml/nightly.yml 一致（无 composite action）</span>
+<span class="w">      </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">enable-cache</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">true</span>
+<span class="w">    </span><span class="c1"># dev 组已含 sentence-transformers；--extra embeddings 冗余但无害（PEP 621 extra 与 group 正交）</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv sync --frozen --group dev</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">推理 smoke（实例化 + encode，非仅 import）</span>
+<span class="w">      </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python -c &quot;from sentence_transformers import SentenceTransformer; m = SentenceTransformer(&#39;all-MiniLM-L6-v2&#39;); v = m.encode([&#39;测试句子&#39;]); print(&#39;inference ok&#39;, v.shape)&quot;</span>
+</code></pre></div>
+- <strong>优点</strong>：nightly 节奏（不拖慢 PR CI）；<strong>真实推理</strong>验证（实例化 + encode，守 torch 2.13 式 runtime regression，非仅 import）。
+- <strong>模型</strong>：用 <code>all-MiniLM-L6-v2</code>（~80MB）而非 <code>bge-large-zh</code>（~1.3GB）——推理兼容性与模型无关，小模型足够且 CI 时长友好（§5.3 决策）。
+- <strong>代价</strong>：nightly 多一 job（装 torch ~2-3min + 模型 ~80MB 下载）。
+- <strong>风险</strong>：torch wheel 体积（~200MB linux）；模型下载需缓存（§5.3）。</p>
+<p><strong>选项 B2（PR CI 加矩阵项）</strong>：在 <code>ci.yml</code> quality job 的 matrix 加一个推理 smoke 维度。
+- <strong>不推荐</strong>：拖慢每个 PR 的 CI（torch 安装 + 模型下载）；与 PR #18 "矩阵收缩"决策冲突。</p>
+<p><strong>选项 B3（security.yml 漏洞覆盖）</strong>：⚠️ <strong>经阶段 2 复核：冗余</strong>。<code>--group dev</code> 已装 sentence-transformers + torch，<code>security.yml</code> 的 <code>pip-audit</code> <strong>已经审计</strong>它们（pip-audit 扫整个已装环境）。加 <code>--extra embeddings</code> 不增加覆盖。<strong>除非</strong>意图是"独立审计 embeddings extra 而非随 dev 组抖动"——若是，需显式说明且收益有限。<strong>建议删除 B3</strong>，Follow-up (b) 收敛为仅 B1。</p>
+<h4 id="5_2">关键决策点（§5 决策）</h4>
+<ol>
+<li><strong>选 B1 / B2 / B3</strong>：倾向 <strong>仅 B1</strong>（B3 经复核冗余，B2 违 PR #18）。</li>
+<li><strong>模型下载策略</strong>：见 §5.3（倾向小模型 <code>all-MiniLM-L6-v2</code> + 缓存）。</li>
+<li><strong>nightly 重启决策</strong>：见 §5.4（nightly.yml 当前 disabled，B1 不会自动跑）。</li>
+</ol>
+<hr />
+<h2 id="3">3. 实施阶段</h2>
+<h3 id="phase-1-githubdependabotymlfollow-up-a">Phase 1：新建 <code>.github/dependabot.yml</code>（Follow-up a）</h3>
+<ol>
+<li>创建 <code>.github/dependabot.yml</code>（§2.1 草案）。</li>
+<li>plan 阶段核实 ecosystem 名（<code>uv</code> vs <code>pip</code>）+ GitHub Actions ecosystem 配置。</li>
+<li>验证 YAML 合法 + 推 branch 观察 Dependabot 是否正确加载配置（PR 上 Dependabot 会发 "Configuration validated" 评论，或 Dashboard 显示 schedule）。</li>
+</ol>
+<h3 id="phase-2embeddings-smoke-ci-follow-up-b-5">Phase 2：embeddings 推理 smoke CI 覆盖（Follow-up b，按 §5 决策）</h3>
+<ol>
+<li>plan 阶段前置调研（部分已在阶段 1/2 完成）：</li>
+<li><code>--group dev</code> 已装 sentence-transformers + torch（§1.2 修正），smoke 须做<strong>推理</strong>（实例化 + encode），非 import。</li>
+<li>CI 无 composite action，用 <code>astral-sh/setup-uv@v3</code>；smoke job <code>uv sync --frozen --group dev</code> 即可（embeddings extra 冗余）。</li>
+<li>模型用 <code>all-MiniLM-L6-v2</code>（§5.3 选项 C）；torch wheel 体积对时长的影响实测记录（V6）。</li>
+<li>按 §5.4 决策（倾向独立 scheduled workflow）建 workflow + smoke job。</li>
+<li>推 branch，手动 dispatch 验证 smoke job 实际跑通（推理 step 绿）。</li>
+</ol>
+<h3 id="phase-3-spec-phase">Phase 3：归档前序 spec（⚠️ 已完成，本 Phase 为空操作）</h3>
+<p>前序 spec <code>2026-08-02-pr20-torch-bump-disposition-design.md</code> <strong>已在 <code>archive/</code></strong>（截至本 spec 修订时核实）。本 Phase 不再做归档动作；INDEX 的 "承接 #1 已归档" 已正确反映此状态。本 spec 自身归档在阶段 11 进行。</p>
+<hr />
+<h2 id="4">4. 验证标准</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>标准</th>
+<th>命令 / 证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1</td>
+<td><code>.github/dependabot.yml</code> 存在且 YAML 合法</td>
+<td><code>test -f .github/dependabot.yml &amp;&amp; python -c "import yaml; yaml.safe_load(open('.github/dependabot.yml'))"</code></td>
+</tr>
+<tr>
+<td>V2</td>
+<td>dependabot.yml 含 <code>allow.dependency-type: direct</code>（过滤 transitive）</td>
+<td><code>grep -A3 "allow:" .github/dependabot.yml</code></td>
+</tr>
+<tr>
+<td>V3</td>
+<td>Dependabot 配置被 GitHub 正确加载（无 config error）</td>
+<td>仓库 Settings → Dependabot 或 PR 评论确认</td>
+</tr>
+<tr>
+<td>V4</td>
+<td>embeddings smoke workflow 存在且可触发（scheduled 或 dispatch）</td>
+<td>新 workflow 文件存在 + 至少一次 run（手动 dispatch 触发）绿</td>
+</tr>
+<tr>
+<td>V5</td>
+<td>sentence-transformers + torch <strong>推理</strong>（实例化 + encode）在 CI 成功</td>
+<td>smoke job 的 <code>SentenceTransformer(...).encode(...)</code> step 绿（非仅 import）</td>
+</tr>
+<tr>
+<td>V6</td>
+<td>现有 PR CI 不回归；新 smoke job 时长可接受</td>
+<td><code>just check</code> 全绿；smoke job 时长在 Phase 2 实测后记录（缓存命中 vs miss 分别报数），无硬阈值（原 &lt; +5min 不可客观核验，已删）</td>
+</tr>
+<tr>
+<td>V7</td>
+<td>前序 PR20 spec 已归档（<strong>已自动满足</strong>，归档动作早于本 spec 完成）</td>
+<td><code>test -f docs/superpowers/specs/archive/2026-08-02-pr20-torch-bump-disposition-design.md</code>（当前已 PASS）</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-plan-spec">5. 待决策项（plan 阶段定，spec 只记选项）</h2>
+<h3 id="51-dependabot-ecosystem-directory-2-spec">5.1 Dependabot ecosystem 名与 directory（✅ 阶段 2 在 spec 内解决）</h3>
+<p>经查 GitHub 官方文档（<a href="https://github.blog/changelog/2025-03-13-dependabot-version-updates-now-support-uv-in-general-availability/">Dependabot uv GA 公告 2025-03-13</a> + <a href="https://docs.astral.sh/uv/guides/integration/dependabot/">Astral uv Dependabot 指南</a>）：
+- <strong>决策：<code>package-ecosystem: "uv"</code>，<code>directory: "/"</code>。</strong> uv 自 2025-03 GA 起被原生支持。<code>pip</code> 会找 <code>requirements.txt</code>（本项目无），会 no-op 或 error。
+- 本项不再延后到 plan——选错会<strong>静默禁用</strong> Dependabot，是设计级正确性问题。</p>
+<h3 id="52-embeddings-ci">5.2 embeddings CI 覆盖方案</h3>
+<ul>
+<li><strong>选项 B1（推荐，推理 smoke）</strong>：nightly smoke job（实例化模型 + encode，非仅 import）。</li>
+<li><strong>选项 B2</strong>：PR CI matrix 加维度（拖慢 PR，违 PR #18，不推荐）。</li>
+<li><strong>选项 B3（冗余，建议删）</strong>：security.yml 加 <code>--extra embeddings</code>——但 <code>--group dev</code> 已装 sentence-transformers+torch，pip-audit 已覆盖；无增量。</li>
+<li><strong>倾向</strong>：仅 B1（B3 经阶段 2 复核冗余，B2 违 PR #18）。</li>
+</ul>
+<h3 id="53">5.3 模型下载策略</h3>
+<ul>
+<li><strong>选项 A</strong>：<code>actions/cache</code> 缓存 HuggingFace 模型目录（key 含模型名 + OS）。</li>
+<li><strong>选项 B（否决）</strong>：smoke job 仅做 <code>import sentence_transformers</code>，不实例化模型——但 import 已被 <code>--group dev</code> 覆盖，此举无增量覆盖（阶段 2 复核）。</li>
+<li><strong>选项 C（推荐）</strong>：用更小的 dummy model <code>all-MiniLM-L6-v2</code>（~80MB）替代 <code>bge-large-zh</code>（~1.3GB）。推理兼容性与具体模型无关（同一 sentence-transformers + torch 栈），小模型足够且 CI 时长友好。</li>
+<li><strong>倾向</strong>：C + A（小模型 + 缓存）。</li>
+</ul>
+<h3 id="54-nightly-workflow-2">5.4 nightly workflow 重启决策（阶段 2 新增）</h3>
+<p><code>nightly.yml</code> 当前 <strong>DISABLED</strong>（L18-21 schedule 注释，仅 <code>workflow_dispatch</code>）。B1 smoke 落 nightly.yml 不会自动跑。
+- <strong>选项 A</strong>：B1 smoke 加进 nightly.yml + 重启 schedule（取消 L20 注释）。代价：windows-smoke / 313-migration / doc-links 也会自动跑（可能 flaky，doc-links 依赖外部站）。
+- <strong>选项 B（推荐）</strong>：新建独立 minimal scheduled workflow（如 <code>embeddings-smoke.yml</code>，独立 cron），只跑 embeddings smoke，不连带启用 nightly 全部 job。
+- <strong>选项 C</strong>：smoke 仅 <code>workflow_dispatch</code> 手动跑（覆盖承诺降级为"手动 smoke"，非"nightly 防线"）。
+- <strong>倾向</strong>：B（独立 workflow，精准覆盖，不污染 nightly）。</p>
+<h3 id="55-pr">5.5 PR 拆分</h3>
+<ul>
+<li><strong>选项 A</strong>：单 PR（两项 follow-up 同属"依赖治理"，合并审阅）。</li>
+<li><strong>选项 B</strong>：拆 2 PR（dependabot.yml + embeddings CI 各一），降低单 PR 体量。</li>
+<li><strong>倾向</strong>：拆 2 PR（Phase 1 极简配置，Phase 2 涉及 CI 行为，风险等级不同）。</li>
+</ul>
+<h3 id="56-renovate-1">5.6 Renovate 配置共存处置（阶段 1 新增决策项，✅ 用户已选删除）</h3>
+<p>仓库根有 <code>renovate.json</code>（完整配置），但 Renovate bot 从未开过 PR（stale 残留 / app 未装）；事实活跃 bot = Dependabot。
+- <strong>选项 A（✅ 已定）</strong>：本 spec 顺手 <code>git rm renovate.json</code>，统一用 Dependabot，消除双 bot 混淆与未来重复 PR 风险。<strong>用户 2026-08-02 裁决选 A。</strong>
+- <strong>选项 B（未选）</strong>：保留 <code>renovate.json</code>，在 dependabot.yml 注释说明共存策略。
+- ⚠️ <strong>实施订正（audit-T2 发现）</strong>：原 spec 称 "ci.yml 的 renovate 校验 step 删文件后自动 skip，无需改 ci.yml"——<strong>此判断错误</strong>。GitHub PR-files API 把<strong>删除</strong>的文件也列为 changed（<code>status: "removed"</code>，<code>filename</code> 仍为 <code>renovate.json</code>），故删除 PR 本身 CHANGED=1 → validator 对缺失文件 exit 1 → CI 红（已用 PR #23 删除实证）。故 plan Task 2 同时移除 ci.yml 的 renovate 校验 step（死代码 + 对本 PR 会 CI 红），与删文件同 PR 落地。</p>
+<hr />
+<h2 id="6">6. 风险与回滚</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>概率</th>
+<th>影响</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependabot 配置加载报错（YAML 语法 / 字段值）</td>
+<td>低</td>
+<td>Dependabot 不运行</td>
+<td>V3 观察；§5.1 已定 ecosystem=uv（GA 支持）；配错回退删文件回默认</td>
+</tr>
+<tr>
+<td><code>allow.dependency-type: direct</code> 意外过滤想保留的 PR</td>
+<td>低</td>
+<td>显式依赖升级被漏</td>
+<td>V2 核实；<code>direct</code> 覆盖三处显式声明；单一规则只配 direct（§2.1）</td>
+</tr>
+<tr>
+<td>embeddings smoke job 因模型下载失败/超时</td>
+<td>中</td>
+<td>smoke workflow 红</td>
+<td>§5.3 用小模型 <code>all-MiniLM-L6-v2</code> + 缓存；初期 <code>continue-on-error: true</code></td>
+</tr>
+<tr>
+<td>torch wheel 体积拖慢 smoke job</td>
+<td>中</td>
+<td>smoke 时长 +2-4min</td>
+<td>仅独立 scheduled workflow（非 PR CI）；linux-only</td>
+</tr>
+<tr>
+<td>smoke 落 nightly.yml 但 schedule 仍 disabled → 覆盖不自动跑</td>
+<td>中</td>
+<td>名义 nightly 实为手动</td>
+<td>§5.4 倾向独立 workflow（选项 B），规避此风险</td>
+</tr>
+<tr>
+<td>删除 <code>renovate.json</code> 后若用户本意是双 bot</td>
+<td>低</td>
+<td>失去 Renovate 能力</td>
+<td>git 历史可恢复；<strong>已与用户确认选删除</strong>（§5.6）</td>
+</tr>
+</tbody>
+</table>
+<p><strong>回滚</strong>：
+- Phase 1：<code>rm .github/dependabot.yml</code>（Dependabot 回到默认配置）。
+- Phase 2：移除新 job（workflow 改动可 revert）。</p>
+<hr />
+<h2 id="7-out-of-scope">7. 不做的事（Out of Scope）</h2>
+<ol>
+<li><strong>不重新处置 PR #20</strong>（已 CLOSED，前序 spec 已完成主动作）。</li>
+<li><strong>不升级 torch / sentence-transformers</strong>（本 spec 是配置/CI 覆盖，非版本升级）。</li>
+<li><strong>不改 <code>[project.optional-dependencies].embeddings</code> 的声明位置</strong>（PEP 621 extra 是正确的；不迁到 <code>[dependency-groups]</code>，因为语义上 embeddings 是"可选功能"非"开发工具"）。</li>
+<li><strong>不为 embeddings 写功能测试</strong>（本 spec 只做"安装 + import + 兼容性"防线；功能正确性另开 spec）。</li>
+<li><strong>不动 src/ 的 2 处动态 importlib 加载</strong>（软依赖设计是有意的，避免 core install 拉入 torch）。</li>
+</ol>
+<hr />
+<h2 id="8">8. 相关</h2>
+<ul>
+<li><strong>前序 spec</strong>：<code>docs/superpowers/specs/archive/2026-08-02-pr20-torch-bump-disposition-design.md</code>（主任务已完成并已归档，本 spec 接管其 follow-up）。</li>
+<li><strong>PR #20</strong>（已 CLOSED）：僵尸 PR 的案例，本 spec 防其再生。</li>
+<li><strong>PR #21/#22</strong>（已 merged）：均由 Dependabot 开。#21（pillow）是 mkdocs-material 的 <strong>transitive</strong>（indirect），会被 <code>dependency-type: direct</code> 过滤（期望）。#22（pymdown-extensions）在 <code>[dependency-groups].docs</code>（L54）<strong>显式声明</strong>，属 direct，<strong>不会被过滤</strong>——仍正常开 PR（期望，docs 组依赖要升级）。本 spec 防的是 #21 式 / torch 式 <strong>transitive</strong> 单独开 PR，不防 #22 式显式依赖。</li>
+<li><strong><code>renovate.json</code>（共存 bot）</strong>：仓库根有完整 Renovate 配置，但 <code>gh pr list</code> 显示 Renovate bot 从未开过 PR（未装 app / stale 残留）。当前事实 bot = Dependabot。§5.6 决策（<strong>用户已选删除</strong>）顺手 <code>git rm renovate.json</code> 消除双 bot 混淆。</li>
+<li><strong>PR #18</strong>（CI 矩阵收缩）：本 spec embeddings CI 方案需与之协调（不在 PR CI 加矩阵项，避免回退 PR #18 的优化）。</li>
+<li><strong><code>pyproject.toml</code></strong>：L17-18 注释（"避免 core install 拉入 torch/CUDA"）+ L22-23 <code>[project.optional-dependencies].embeddings</code> 声明。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

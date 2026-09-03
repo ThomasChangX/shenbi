@@ -1,0 +1,1519 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-03-spec39-silent-swallow-validation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #39 静默吞错与部分校验面修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #39 静默吞错与部分校验面修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-03-spec39-silent-swallow-validation.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-03-spec39-silent-swallow-validation/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #39 静默吞错与部分校验面修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-03-spec39-silent-swallow-validation.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-39-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #39 静默吞错与部分校验面修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-g7-f535f410-spec-t1t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: G7 撕裂行检测（F535+F410 · spec T1+T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-g53-f708-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: G5.3 数值一致性解死代码（F708 · spec T1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-g64-future_knowledge-f709-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: G6.4 future_knowledge 守卫可达化（F709 · spec T1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-write_auditcompute_stats-f507f610-spec-t1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: write_audit/compute_stats 吞错披露（F507/F610 · spec T1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-ble001-blind-except-lint-spec-t1-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: BLE001 blind-except lint 接入（spec T1 防复发 · 验收 1）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-scoring-fail-closedf133f132f137-spec-t2t5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: scoring 数值域与 fail-closed（F133/F132/F137 · spec T2+T5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-paths-familyanchor-f207f208f209f228-spec-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: paths family/anchor 解析完备（F207/F208/F209/F228 · spec T3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-f116-fail-fastspec-t3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: F116 逗号路径 fail-fast（spec T3）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-9-f217f367f606f607f623f233f218f219-spec-t3t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 9: 解析器静默覆盖/回退清剿（F217/F367/F606/F607/F623/F233残余/F218/F219 · spec T3+T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-10-checker-batch-1f420f422f421f430f405-spec-t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 10: checker 语义化 batch 1（F420/F422/F421/F430/F405 · spec T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-11-checker-batch-2f749f513-spec-t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 11: checker 语义化 batch 2（F749/F513 · spec T4）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-12-fail-closedskip-f381t305-spec-t5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 12: 杂项 fail-closed/SKIP 标注（F381/T305 · spec T5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-13-c13_regression-spec-t6-1-5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 13: c13_regression 回归集汇总与验收运行（spec T6 + 验收 1-5）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec 验收 → task → 命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        评分场景声明
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-39-implementation-plan">Spec #39 静默吞错与部分校验面修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [x]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 消除 C13 簇 30 条 active findings 的静默吞错与部分校验（吞门禁/假值数值域/解析器部分校验/checker 只验表面/杂项静默），配 <code>c13_regression</code> 违规构造翻转回归集（任务面 31 项，F233 以残余形态计入）。</p>
+<p><strong>Architecture:</strong> 五条修复线（对应 spec T1-T5）：吞门禁清剿（gates/audit 链路 except 窄化+结构化披露）、scoring 数值域前置校验、路径/字段/协议解析完备（含 F116 逗号 fail-fast helper）、g4/g7 checker 语义化、杂项 fail-closed。T6 回归集以 pytest marker <code>c13_regression</code> 汇总。全部为 infra 级（gates/contracts/dispatcher/audit/orchestration）→ <strong>协调者亲自实现，TDD 红-绿</strong>。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+, pytest, structlog, ruff (BLE001), uv/just。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>AGENTS.md：<code>src/shenbi/</code> 无 <code>print()</code>（structlog）；gate 检查器纯校验幂等无副作用；conventional commits；状态字面量唯一定义于 <code>src/shenbi/contracts/enums.py</code>（新增代码禁裸状态字符串，<code>tools/lint_status_strings.py</code> 必须保持绿）</li>
+<li>G0.9：对抗性违规样本<strong>内联写在 test 代码内</strong>，不入 <code>tests/fixtures/</code>；scenario 输入引用 <code>tests/fixtures/</code> 真实产物</li>
+<li>验证走 <code>just</code>/<code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）</li>
+<li>每个测试标注 <code>@pytest.mark.c13_regression</code>（翻转用例）；<strong>marker 注册（<code>pyproject.toml [tool.pytest.ini_options] markers</code>）在 Task 1 Step 0 先行落地</strong>（<code>--strict-markers</code> 下未注册 marker 会让 T1-T12 全部红测在 collection 阶段假红）；存量既有测试不迁移 marker</li>
+<li>commit 一律 pathspec 显式列文件</li>
+</ul>
+<hr />
+<h3 id="task-1-g7-f535f410-spec-t1t4">Task 1: G7 撕裂行检测（F535+F410 · spec T1+T4）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g7_trace.py:18-60</code>、<code>pyproject.toml</code>（pytest markers）
+- Test: <code>tests/unit/gates/test_g7_trace.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>_read_only_events(path) -&gt; tuple[list[TraceEvent], int, int]</code>（events, torn_at_line, total_nonblank_lines）；<code>audit_trace</code> 在 torn 时追加 <code>mf</code> 条目 <code>G7T.tamper: torn line at &lt;n&gt; (内容被改/链断裂)</code> 并在 checks 加 <code>{"id": "G7T.torn", "s": GateStatus.FAIL, "torn_line": n, "total_lines": m}</code></p>
+<ul>
+<li>[x] <strong>Step 0: 注册 marker</strong>：<code>pyproject.toml [tool.pytest.ini_options] markers</code> 追加 <code>"c13_regression: C13 cluster violation-construction flip tests (spec #39)"</code></li>
+<li>[x] <strong>Step 1: 红测</strong>（内联构造合法链 + 中段插入非法 JSON 行 → 期望检出 tamper，而非前缀 PASS）：</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">c13_regression</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_g7_torn_line_is_tamper_candidate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="c1"># build 3 valid events via TraceEvent + sign chain (reuse existing test helpers)</span>
+    <span class="o">...</span>
+    <span class="n">bad</span> <span class="o">=</span> <span class="n">valid_lines</span><span class="p">[:</span><span class="mi">1</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span><span class="s2">&quot;{not json&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">valid_lines</span><span class="p">[</span><span class="mi">1</span><span class="p">:]</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;trace.jsonl&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">bad</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">mf</span><span class="p">,</span> <span class="n">checks</span> <span class="o">=</span> <span class="n">audit_trace</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;torn&quot;</span> <span class="ow">in</span> <span class="n">m</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="n">mf</span><span class="p">)</span>  <span class="c1"># F535: 插入非法行必须检出</span>
+</code></pre></div>
+<p>另测尾部截断披露：文件末行撕裂 → checks 含 <code>G7T.torn</code> 且 <code>total_lines</code> 披露（F410）。注：既有 <code>tests/unit/gates/test_g7_trace.py</code> 仅 clean/tamper/absent 三用例、无 torn 前缀 PASS pin——若实跑发现有 pin 按新语义更新断言（解 pin 禁删测试）。
+- [x] <strong>Step 2:</strong> <code>uv run pytest tests/unit/gates/test_g7_trace.py -k torn -v</code> → FAIL（真实断言失败，非 marker 错误）
+- [x] <strong>Step 3:</strong> 实现：<code>_read_only_events</code> 改签名返回三元组；坏行不再 break——记录 <code>torn_line</code>（1-based 行号）后 <code>continue</code> 收集剩余可解析行；<code>audit_trace</code> 中 <code>torn_line is not None</code> → <code>mf.append(f"G7T.tamper: torn line at {torn_line} (内容被改/链断裂)")</code> + <code>checks.append({"id": "G7T.torn", "s": GateStatus.FAIL, "torn_line": ..., "total_lines": ...})</code>。既有 pin「坏行 break=PASS」测试按新语义改断言（解 pin，禁删除测试函数）。
+- [x] <strong>Step 4:</strong> 测试绿后 commit <code>fix: G7 torn-line tamper detection (F535/F410)</code>
+- [x] <strong>Step 5:</strong> 产出 <code>.superpowers/sdd/audit-T1.md</code></p>
+<h3 id="task-2-g53-f708-spec-t1">Task 2: G5.3 数值一致性解死代码（F708 · spec T1）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g5.py:151,157</code>
+- Test: <code>tests/unit/gates/test_g5.py</code>（追加；F708 pin 在 :139-163）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>num_pat = re.compile(r"(\d+)\s*(个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")</code>（单位组改捕获组，<code>m.group(2)</code> 合法）</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（内联构造两个 world md 文件，同一概念+单位不同数值 → 期望 <code>numeric:</code> conflict；当前因 IndexError 被吞永远无 conflict）：</li>
+<li>[x] <strong>Step 2:</strong> <code>uv run pytest tests/unit/gates/test_g5.py -k numeric_conflict -v</code> → FAIL</li>
+<li>[x] <strong>Step 3:</strong> 正则单位组去 <code>(?:</code> 改捕获；既有 pin 测试（若有断言"无 conflict"）按新语义更新</li>
+<li>[x] <strong>Step 4:</strong> 绿后 commit <code>fix: G5.3 numeric consistency un-dead via capture group (F708)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T2.md</li>
+</ul>
+<h3 id="task-3-g64-future_knowledge-f709-spec-t1">Task 3: G6.4 future_knowledge 守卫可达化（F709 · spec T1）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g6_checks.py:51-71</code>
+- Test: <code>tests/unit/gates/test_g6_checks.py</code>（追加；F709 pin 在 :130-146）</p>
+<p><strong>Interfaces:</strong> 保持 <code>check_continuity(chapters: list[Path])</code>（g6_checks.py:15）外部签名不变，内部改两遍扫描。</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（内联构造 chapter-001.md 引入"金手指"、chapter-003.md 写"知道金手指"→ 期望 <code>future_knowledge</code> violation；当前恒假检不出）</li>
+<li>[x] <strong>Step 2:</strong> 红</li>
+<li>[x] <strong>Step 3:</strong> 实现：第一遍按章号升序构建 <code>intro_map</code>（完整扫描全部章节后 intro_map 为全局最早引入章）；第二遍扫描 know_pat，命中时若 <code>intro_map[ent] &gt; cn</code>（实体在本章之后才首次引入）→ violation。章号排序用 <code>sorted(chapters, key=chapter_num)</code>；既有 pin 测试解 pin 更新</li>
+<li>[x] <strong>Step 4:</strong> 绿后 commit <code>fix: G6.4 future_knowledge guard reachable via two-pass scan (F709)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T3.md</li>
+</ul>
+<h3 id="task-4-write_auditcompute_stats-f507f610-spec-t1">Task 4: write_audit/compute_stats 吞错披露（F507/F610 · spec T1）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/audit/write_audit.py:30-38</code>、<code>src/shenbi/skill_utils/style_learning/compute_stats.py:355-372</code>
+- Test: <code>tests/unit/audit/test_write_audit.py</code>（追加 F507 用例）、<code>tests/unit/skill_utils/test_compute_stats.py</code>（追加 F610 用例）</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（write_audit：monkeypatch <code>derive_output_files</code> 抛 RuntimeError → 期望 WARN 日志事件 <code>derive_outputs_failed</code> + 返回 []；compute_stats：不可读文件（构造权限/不存在路径）→ WARN 事件 <code>chapter_read_failed</code> + 返回 dict 不含该文件）</li>
+<li>[x] <strong>Step 2:</strong> 红</li>
+<li>[x] <strong>Step 3:</strong> 实现：两处 <code>except Exception</code> 改 <code>except Exception as e: log.warning("derive_outputs_failed", skill=skill, error=repr(e)); return []</code>（compute_stats 同型 <code>log.warning("chapter_read_failed", path=str(p), error=repr(e))</code>）。窄化不加——derive_output_files 内部调用面广，WARN+上下文即满足 spec「窄化或结构化处理」二选一</li>
+<li>[x] <strong>Step 4:</strong> 绿后 commit <code>fix: write_audit/read_chapters swallow → WARN disclosure (F507/F610)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T4.md</li>
+</ul>
+<h3 id="task-5-ble001-blind-except-lint-spec-t1-1">Task 5: BLE001 blind-except lint 接入（spec T1 防复发 · 验收 1）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code> <code>[tool.ruff]</code> lint select 加 <code>"BLE"</code>；per-file ignores 逐文件豁免存量点
+- Test: <code>uv run ruff check src/shenbi/</code> 自身即验证</p>
+<p><strong>Interfaces:</strong> 豁免白名单 = T1-T4 修复后仍存的 <code>except Exception</code> 点（每处须有结构化处理注释）；新增违规 = CI 红。</p>
+<ul>
+<li>[x] <strong>Step 1:</strong> <code>grep -n "except Exception" src/shenbi/ -r</code> 盘点存量；<code>pyproject.toml</code> <code>[tool.ruff.lint] select</code> 追加 <code>"BLE"</code>，<code>[tool.ruff.lint.per-file-ignores]</code> 对存量非本 spec 范围文件豁免 <code>BLE001</code>（范围文件不豁免）</li>
+<li>[x] <strong>Step 2:</strong> <code>uv run ruff check src/shenbi/</code> 绿</li>
+<li>[x] <strong>Step 3:</strong> commit <code>chore: ruff BLE001 blind-except lint with explicit per-file allowlist</code></li>
+<li>[x] <strong>Step 4:</strong> audit-T5.md</li>
+</ul>
+<h3 id="task-6-scoring-fail-closedf133f132f137-spec-t2t5">Task 6: scoring 数值域与 fail-closed（F133/F132/F137 · spec T2+T5）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/scoring.py:55-70（权重解析）,204-208（validate_scores）,216-225（compute_score）,115-131（applicability）</code>
+- Test: <code>tests/unit/test_scoring.py</code>（追加数值域用例）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>validate_scores(dimensions, scores)</code> 新增拒绝：<code>isinstance(score, bool)</code> → REJECT；<code>not math.isfinite(score)</code> → REJECT。<code>compute_score</code>：任何 <code>d["weight"] &lt;= 0</code> → 返回前 <code>log.error("invalid_weight", ...)</code> 并 raise <code>ValueError</code>（负/零权重不再参与）。<code>parse_applicability</code> 缺格（cells 越界）→ 显式记 <code>missing_cell</code> 计数并按 NOT-APPLICABLE（fail-closed）处理，附 WARN。</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（全部 c13_regression，内联构造）：</li>
+<li>负权重 rubric（-20/+120）+ 分数 → 期望异常/FAIL 而非 final_score&gt;100</li>
+<li><code>{"1": float("nan")}</code> → REJECT；<code>{"1": True}</code> → REJECT</li>
+<li>applicability 表缺格 → 该维不计入（fail-closed）+ WARN</li>
+<li>[x] <strong>Step 2:</strong> 红</li>
+<li>[x] <strong>Step 3:</strong> 实现（isfinite/isinstance(bool) 前置；weight&lt;=0 raise；缺格 fail-closed + WARN）。存量产物影响：grep tests/fixtures 中 rubric 缺格形态，如触发 FAIL 先在 spec-deviations 记盘点结果再切换</li>
+<li>[x] <strong>Step 4:</strong> <code>uv run pytest tests/unit/test_scoring.py tests/unit/test_scoring_applicability.py -v</code> 全绿后 commit <code>fix: scoring weight/NaN/bool domain + applicability fail-closed (F133/F132/F137)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T6.md</li>
+</ul>
+<h3 id="task-7-paths-familyanchor-f207f208f209f228-spec-t3">Task 7: paths family/anchor 解析完备（F207/F208/F209/F228 · spec T3）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/paths.py:92-147</code>
+- Test: <code>tests/unit/contracts/test_paths_family.py</code>（新建；<code>tests/unit/contracts/</code> 已存在）</p>
+<p><strong>Interfaces:</strong>
+- <code>resolve_contract_path(path, chapter, ctx)</code>：family 键 <code>val is None</code> → raise <code>UnresolvedPathError(path)</code>（不再回退 chapter 语义）；替换后若仍含 <code>_FAMILY_N</code>（第二个同键或异键 family 占位符）→ raise；family 替换与 AC-NNN 替换不再互斥提前 return——先做 family（全部出现），再 anchor，再 <code>resolve_chapter_path</code>
+- NNN 无界 <code>path.replace(_NNN, ...)</code>（:143）改为 <code>_NNN_RE.sub(lambda _: f"{chapter:03d}", path)</code>（有界语义：NNN 是完整 token，正则锚定）</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（内联）：ctx.family 缺值含 family 占位符 → UnresolvedPathError；<code>f-{arc-N}/vol-{arc-N}</code> 双占位符全替换；<code>AC-NNN</code> + <code>vol-N</code> 共存路径两者都解析；NNN 不误伤 <code>ANNN</code> 类 token</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现→绿，commit <code>fix: contract path family/anchor explicit resolution (F207/F208/F209/F228)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T7.md；<code>just generate</code> 幂等 diff 核验（无契约源头变更应为空）</li>
+</ul>
+<h3 id="task-8-f116-fail-fastspec-t3">Task 8: F116 逗号路径 fail-fast（spec T3）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/contracts/file_list.py</code>（或置于 <code>audit/_shared.py</code>，按 import 方向选 contracts——被 dispatcher/scoring/phase_runner/pipeline 共用）
+- Modify: <code>src/shenbi/dispatcher/executor.py:131</code>、<code>src/shenbi/scoring.py:390</code>、<code>src/shenbi/pipeline/dispatch_helper.py:2699</code>、<code>src/shenbi/phase_runner.py:257,260</code>
+- Test: <code>tests/unit/contracts/test_file_list.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>def join_gate_file_list(files: list[str]) -&gt; str</code>：任一 <code>","</code> in f → raise <code>ValueError(f"gate file list cannot contain commas (C34 protocol migration pending): {f}")</code>；否则 <code>",".join(files)</code>。四个生产点全部改用（空列表返回 <code>""</code>）</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（c13_regression，内联）：<code>join_gate_file_list(["a,b.md", "c.md"])</code> → ValueError；正常列表 → 逗号串；<strong>四个生产点各 ≥1 含逗号拒斥断言</strong>（executor.run_g2/run_g4 monkeypatch run_subprocess_json、scoring gate-only 路径、dispatch_helper G4 cmd 构造、phase_runner post-skill——经各调用面既有测试文件追加）；空列表 → ""</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现+四点接线→<code>uv run pytest tests/unit/contracts/test_file_list.py tests/unit/dispatcher tests/unit/test_phase_runner.py -x -q</code>→绿，commit <code>fix: comma-path fail-fast across gate file-list producers (F116)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T8.md</li>
+</ul>
+<h3 id="task-9-f217f367f606f607f623f233f218f219-spec-t3t4">Task 9: 解析器静默覆盖/回退清剿（F217/F367/F606/F607/F623/F233残余/F218/F219 · spec T3+T4）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/dispatcher/executor.py:78-82,114-118</code>、<code>src/shenbi/pipeline/genesis.py:375</code>、<code>src/shenbi/records/drift.py:82,113-124</code>、<code>src/shenbi/records/parser.py:48</code>、<code>src/shenbi/contracts/fields.py:61-68</code>、<code>src/shenbi/dispatcher/modes/codex.py:129</code> 附近、<code>src/shenbi/dispatcher/modes/internal.py:15-27</code>
+- Test: <code>tests/unit/dispatcher/</code>（executor/codex/internal 对应文件）、<code>tests/unit/pipeline/test_genesis.py</code>、<code>tests/unit/records/test_drift.py</code>、<code>tests/unit/records/test_parser.py</code>、<code>tests/unit/contracts/test_fields.py:112-121</code>（F233 残余追加点）各追加</p>
+<p><strong>Interfaces / 修复形态：</strong>
+- F217：<code>derive_file_type</code>/<code>derive_input_files</code> 的 <code>except ContractError: return "chapter"/[]</code> → <code>log.error("contract_error_fallback", skill=skill)</code> 后返回原值（保留回退但披露；上层 run_g1/g2 已有 FAIL 透传路径）——显式降级注记而非静默
+- F367：<code>state.genesis.skills_done</code> 用前 <code>if step.skill not in state.genesis.skills_done:</code> 防重复 append（genesis 状态 schema 不变，list 语义保留、幂等写入；与 spec「set 语义」字面偏离已记 spec-deviations——语义等效无重复，避免 schema 迁移）
+- F607：drift.py:82 重复 id → <code>log.warning("duplicate_id_first_wins", id=rid)</code>（语义不变只披露，F658 兼容）
+- F606：<code>detect_cross_section_drift</code> 尾部追加反向遍历：<code>for rid in by_id: if rid not in md_rows: issues.append(f"drift: YAML id={rid} not in markdown table")</code>
+- F623：parser.py:48 改显式循环：非 dict 元素 <code>log.warning("record_row_not_dict_discarded", index=i)</code> + 计数
+- F233 残余：fields.py extract_h2_sections 重复 H2 → <code>log.warning("duplicate_h2_first_wins", heading=h)</code>
+- F218：codex.py <code>_extract_json_object</code> 成功后 <code>finally</code>/显式 <code>raw_out.unlink(missing_ok=True)</code>（在解析完成后、返回前清理 .raw）
+- F219：internal.py 报错文案与 docstring 删除 <code>SHENBI_LLM_API_KEY</code> 指引，改为实际语义：<code>"internal mode has no LLM backend, cannot score. Use codex CLI dispatch or the pipeline API entrypoint (pipeline/dispatch_helper)."</code></p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（c13_regression，内联逐条）：契约损坏 skill → 有 error 日志事件 + 回退值；重复 record_step 同 skill → skills_done 无重复；重复 id → WARN 事件；YAML-only id → drift 报；非 dict 行 → WARN；重复 H2 → WARN；dispatch 后 .raw 不存在；internal 报错文案不含 SHENBI_LLM_API_KEY</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现→绿，commit <code>fix: parser silent-override/fallback disclosure batch (F217/F367/F606/F607/F623/F233/F218/F219)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T9.md</li>
+</ul>
+<h3 id="task-10-checker-batch-1f420f422f421f430f405-spec-t4">Task 10: checker 语义化 batch 1（F420/F422/F421/F430/F405 · spec T4）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/review_arc_payoff.py:34,102</code>、<code>src/shenbi/gates/g4/review_resonance.py:121</code>、<code>src/shenbi/gates/g4/character_design.py:60-75</code>、<code>src/shenbi/gates/g4/genre_config.py:29-44</code>、<code>src/shenbi/gates/g4/generic.py:178-192</code>
+- Test: <code>tests/unit/gates/g4/test_review_arc_payoff.py</code>、<code>tests/unit/gates/g4/test_character_design.py</code>、<code>tests/unit/gates/g4/test_genre_config.py</code>、<code>tests/unit/gates/g4/test_generic.py</code> 各追加</p>
+<p><strong>修复形态：</strong>
+- F420：<code>_FORESHADOW_FLOOR_RE</code> 改语义解析：<code>re.compile(r"伏笔兑现质量[^\d]{0,10}(\d+(?:\.\d+)?)")</code> 提取报告分值 v，<code>v &gt;= 15</code> PASS，否则 mf <code>G4.ap.foreshadow_subfloor:{v}&lt;15</code>；无匹配 → mf <code>G4.ap.foreshadow_floor_missing</code>
+- F422：证据正则改<strong>上下文锚定方案（唯一方案，禁止裸 <code>:\d+</code> 变体）</strong>：匹配 <code>(?:line|行|L)\s*(\d+)</code> 或同行含 <code>file|文件</code> 字段的 <code>:(\d+)</code>——实现上要求匹配处同行存在文件引用字样才算 file:line 证据；红测双向断言：纯时间戳 "发生于 12:30" 不再满足（收紧），<code>行 42</code>/<code>line 42</code> 仍算证据（防误收紧的正向断言）
+- F421：character_design <code>_validate_protagonist</code> 逐字段：字段在 mf（missing_<em>）时</em><em>不</em><em>追加对应 PASS check；同字段互斥
+- F430：genre_config 遍历 <code>for gc in fps:</code>（全部文件逐个 validate），不再只 <code>fps[0]</code>
+- F405：generic.py 否定过滤对</em><em>每个</em>*匹配位置检查（<code>for m in re.finditer(re.escape(sug), content, re.IGNORECASE)</code> 任一位置无否定即算 real_suggestion），替换 <code>.index()</code> 首位置</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（c13_regression，内联违规样本）："伏笔兑现质量 12 &lt; 子地板 15 ✗" → FAIL；"发生于 12:30" 证据行不算 file:line；同字段 PASS+must_fix 不共存；两文件第二份 invalid → 报；否定词在第二出现处 → 正确判定</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现→绿，commit <code>fix: g4 checkers semantic validation batch 1 (F420/F422/F421/F430/F405)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T10.md</li>
+</ul>
+<h3 id="task-11-checker-batch-2f749f513-spec-t4">Task 11: checker 语义化 batch 2（F749/F513 · spec T4）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/chapter_drafting.py:42-50</code>、<code>src/shenbi/orchestration/escalation_bridge.py:20</code>
+- Test: <code>tests/unit/gates/g4/test_chapter_drafting.py</code>（F749 追加锚）、<code>tests/unit/orchestration/test_bridges.py</code>（F513 追加）</p>
+<p><strong>修复形态：</strong>
+- F749：先切出 Section 7（<code>re.split(r"^## ", plan_text, flags=re.MULTILINE)</code> 取标题匹配 <code>Section 7|Hook Ledger</code> 的块；无该节 → 返回 [] 或按 plan 无 hooks 语义）再 findall；docstring 同步为真实行为
+- F513：<code>if val &gt; 0:</code> → <code>if val &gt;= 0:</code>（0 分保留；负值仍跳过——非分数噪声）
+- <strong>F522 已剔除</strong>（plan 审查 R1 复核：truth_index 的 <code>extra=</code> 是 IndexEntry dataclass 字段、estimate.py 是 stdlib logging 合法用法，structlog 调用零 <code>extra=</code> kwarg——指控形态在 main 不存在；spec 修订记录已同步）</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（c13_regression，内联）：plan Section 3 出现 MH-999、Section 7 无 → 不报 hook_unfulfilled；trend 表 0 分行被 parse 进 scores</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现→绿，commit <code>fix: hook scan Section-7 scoping + zero-score retention (F749/F513)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T11.md</li>
+</ul>
+<h3 id="task-12-fail-closedskip-f381t305-spec-t5">Task 12: 杂项 fail-closed/SKIP 标注（F381/T305 · spec T5）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/orchestration/escalation_bridge.py:31-38</code>、<code>src/shenbi/skill_utils/escalation/check.py:56,88,129,144</code>、<code>src/shenbi/contracts/fields.py:107-117</code>
+- Test: <code>tests/unit/orchestration/test_bridges.py</code>（F381 追加）、<code>tests/unit/contracts/test_fields.py</code>（T305 追加）</p>
+<p><strong>修复形态：</strong>
+- F381：<code>run_escalation_check</code> 的 <code>volume_objective_met: bool = True</code> → <code>bool | None = None</code>；<strong>同步 <code>check_escalation</code> 签名</strong>（check.py:56 <code>volume_objective_met: bool</code> → <code>bool | None</code>，mypy/basedpyright strict 下必改）；判定处 <code>volume_objective_met is None</code> → <code>log.warning("volume_objective_unknown_skip")</code> 且不触发 signal（显式 SKIP，不再默认满足）；<code>False</code> → signal 照旧。<strong>既有调用点两处</strong>（chapter_loop.py:1103 传 <code>_check_volume_completion</code> 计算值、check.py:144 CLI 入口）传 bool 子类型签名兼容；CLI flag <code>--volume-objective-met</code> 默认值同步改 <code>none</code>（choices true/false/none）保持 fail-closed 语义一致
+- T305：<code>filter_to_fields</code> 末尾 <code>return text, True</code> → <code>log.warning("field_filter_unknown_extension_passthrough", path=path)</code> 后原样返回</p>
+<ul>
+<li>[x] <strong>Step 1: 红测</strong>（c13_regression）：unknown volume objective 不产生 volume_objective_missed 误报、不默认满足；未知扩展名 → WARN 事件</li>
+<li>[x] <strong>Step 2-4:</strong> 红→实现→绿，commit <code>fix: volume objective explicit SKIP + unknown extension WARN (F381/T305)</code></li>
+<li>[x] <strong>Step 5:</strong> audit-T12.md</li>
+</ul>
+<h3 id="task-13-c13_regression-spec-t6-1-5">Task 13: c13_regression 回归集汇总与验收运行（spec T6 + 验收 1-5）</h3>
+<p><strong>Files:</strong>
+- Verify: <code>pyproject.toml</code> marker 注册（Task 1 Step 0 已落地，此处仅核验存在）
+- Test: 核验既有 T1-T12 测试 marker 覆盖</p>
+<p><strong>Interfaces:</strong> <code>uv run pytest -m c13_regression -q</code> 全绿 = spec 验收 2。</p>
+<ul>
+<li>[x] <strong>Step 1:</strong> 对账 T6 锚点清单 27 项（F133/F132/F207/F208/F209/F228/F116/F217/F367/F420/F421/F422/F430/F405/F410/F535/F708/F709/F606/F607/F623/F513/F749/F381/F137/T305/F233残余）逐一 grep 对应测试存在；缺则补</li>
+<li>[x] <strong>Step 2:</strong> 运行并粘贴验收命令输出到 progress.md：</li>
+<li><code>git grep -n "except Exception" src/shenbi/gates/ src/shenbi/scoring.py src/shenbi/audit/</code>（人工清单核销）</li>
+<li><code>uv run pytest -m c13_regression -q</code></li>
+<li><code>uv run shenbi-validate G4 &lt;skill&gt; &lt;files&gt;</code>：正常面用真实 fixture（如 <code>tests/fixtures/chapter-2-draft.md</code>，按 G4 checker 实际消费的 fixture 目录执行时以 <code>ls tests/fixtures/</code> 现核为准）；含逗号路径为对抗性内联输入 → 显式 ValueError</li>
+<li><code>just check</code></li>
+<li>[x] <strong>Step 3:</strong> commit <code>test: c13_regression marker registration + coverage reconciliation (spec #39 T6)</code></li>
+<li>[x] <strong>Step 4:</strong> audit-T13.md</li>
+</ul>
+<hr />
+<h2 id="spec-task">验收覆盖表（spec 验收 → task → 命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. except Exception 人工清单 + BLE001 CI</td>
+<td>T4/T5</td>
+<td>git grep 输出 + <code>uv run ruff check src/shenbi/</code></td>
+</tr>
+<tr>
+<td>2. 回归套件全绿（7 代表翻转用例）</td>
+<td>T13</td>
+<td><code>uv run pytest -m c13_regression -q</code></td>
+</tr>
+<tr>
+<td>3. G4 含逗号路径显式报错</td>
+<td>T8/T13</td>
+<td><code>uv run shenbi-validate G4 ...</code> + 内联 ValueError 测试</td>
+</tr>
+<tr>
+<td>4. F218 .raw 不残留 / F219 文案</td>
+<td>T9</td>
+<td>红测断言</td>
+</tr>
+<tr>
+<td>5. just check 全绿</td>
+<td>T13</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="_1">评分场景声明</h2>
+<p>本 spec 无评分流程变更（G3.4 不适用）；全部验证为确定性测试与只读 CLI。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

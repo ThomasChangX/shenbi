@@ -1,0 +1,1634 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec31-g3-independence/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122） - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122） - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec31-g3-independence.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec31-g3-independence/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122） - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec31-g3-independence.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-31-g3-implementation-plandone-pr-122" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122）
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2026-08-31-main-3f02813a-plan-dispatch_codex-dual-bool-false-helper-codexpyexecutorpy-dual" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        现状锚点（2026-08-31 main 3f02813a 实读；交付后注记：本 plan 交付时 dispatch_codex 已增 dual: bool = False 参数、坍缩/双评分 helper 已并入 codex.py、executor.py 调用点已接 dual 开关——锚点描述的是实施前基线）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="现状锚点（2026-08-31 main 3f02813a 实读；交付后注记：本 plan 交付时 dispatch_codex 已增 dual: bool = False 参数、坍缩/双评分 helper 已并入 codex.py、executor.py 调用点已接 dual 开关——锚点描述的是实施前基线）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-t4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: T4 坍缩语义修正（先于接线）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-t3-provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: T3 provenance 三值真实化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-t2a-codex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: T2a 坍缩检测接线 codex 独立评分点
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-t2b-opt-in-off" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: T2b 双评分一致性（opt-in，默认 OFF）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-t2c-escalation_bridge" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: T2c escalation_bridge 对账
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-t5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: T5 护栏测试 + 验收执行
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-31-g3-implementation-plandone-pr-122">Spec #31 G3 独立性与评分防坍缩接线 Implementation Plan（Done PR #122）</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 给 scoring_bridge/escalation_bridge 接上真实生产消费者，修正坍缩误报语义，provenance 三值真实化，并以护栏测试锁定 G3 fail-closed 防复发。</p>
+<p><strong>Architecture:</strong> 全部任务为 infra 级（涉及 <code>dispatcher/modes/codex.py</code>、<code>pipeline/state.py</code>、<code>gates/shared.py</code>、<code>contracts/enums.py</code>、<code>scoring.py</code>），由协调者亲自实现（v6 协议 leaf/infra 分流）。T4 语义修正先于 T2a 接线；T2b 双评分默认 OFF；T2c 为对账任务（两结局）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，structlog，pathlib，pytest，dataclasses（PipelineConfig）。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-16-audit-g3-independence-fix.md</code>（Revised 2026-08-31）</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>验证一律 <code>uv run</code> / <code>just</code>（CI 同构）；系统 python 不算证据</li>
+<li><code>src/shenbi/</code> 禁 <code>print()</code>（structlog）；pathlib 文件 I/O；gate 检查器纯函数幂等</li>
+<li>Literal 词表唯一定义于 <code>src/shenbi/contracts/enums.py</code> 并登记 <code>ALL_ENUMS</code></li>
+<li>测试 fixture 只能用真实产物或其精确副本 + 脚本化最小 delta（G0.9）</li>
+<li>commit 走 Conventional Commits + 显式 pathspec（禁 <code>git add -A</code>）</li>
+<li>禁为验证触发真实 dispatch（核心原则 8）——所有 codex exec 测试用 monkeypatch 假 subprocess</li>
+</ul>
+<h2 id="2026-08-31-main-3f02813a-plan-dispatch_codex-dual-bool-false-helper-codexpyexecutorpy-dual">现状锚点（2026-08-31 main 3f02813a 实读；交付后注记：本 plan 交付时 dispatch_codex 已增 <code>dual: bool = False</code> 参数、坍缩/双评分 helper 已并入 codex.py、executor.py 调用点已接 dual 开关——锚点描述的是实施前基线）</h2>
+<ul>
+<li><code>src/shenbi/scoring.py:303-337</code>：<code>check_scorer_agreement(scores_a, scores_b, threshold=5.0) -&gt; dict</code>、<code>flag_score_collapse(scores) -&gt; dict</code>（signals: all_identical / majority_at_single_value）</li>
+<li><code>src/shenbi/scoring.py:507</code>：<code>"scored_by": "subagent" if "--subagent" in sys.argv else "interactive"</code></li>
+<li><code>src/shenbi/orchestration/scoring_bridge.py</code>：<code>validate_dual_scorer(scores_a, scores_b, threshold=5.0)</code>、<code>check_single_scorer_collapse(scores)</code>——零生产调用</li>
+<li><code>src/shenbi/orchestration/escalation_bridge.py</code>：<code>parse_resonance_scores(trend_path)</code>、<code>run_escalation_check(...)</code>——零生产调用；check_escalation 本体已在 chapter_loop:1127 直接消费</li>
+<li><code>src/shenbi/dispatcher/modes/codex.py:64-139</code>：<code>dispatch_codex(skill, test_type, round_dir, prompt, agent_id, output_files=None) -&gt; int</code>；scores 落 <code>{round_dir}/t1-reports/{skill}-{test_type}-scores-subagent.json</code>（:73）；唯一调用方 <code>src/shenbi/dispatcher/executor.py:214-216</code></li>
+<li><code>src/shenbi/gates/shared.py:230-260</code>：<code>parse_report_stem</code> 剥 <code>("-scores-subagent", "-scores")</code>；<code>find_report</code> 同序尝试</li>
+<li><code>src/shenbi/pipeline/state.py:56-70</code>：<code>PipelineConfig</code> dataclass（默认值模式）</li>
+<li><code>src/shenbi/pipeline/dispatch_helper.py:2455-2473</code>：<code>_record_gate_manifest(project_dir, phase, chapter, skill, gate, result)</code>（best-effort）</li>
+<li>共振趋势真实读方：<code>src/shenbi/skill_utils/drift_detection/compute_drift.py:246</code>（自带 parse_trend，非 bridge）</li>
+</ul>
+<hr />
+<h3 id="task-1-t4">Task 1: T4 坍缩语义修正（先于接线）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/scoring.py:303-337</code>（flag_score_collapse）
+- Test: <code>tests/unit/test_scoring_anti_collapse.py</code>（既有文件，扩展）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>flag_score_collapse(scores: dict[int, Any]) -&gt; dict[str, Any]</code> 签名不变；语义变更：坍缩定义 = ≥2 有效数值维度且非全零下全同（all_identical）；majority_at_single_value 对全零结果不触发（既有 ≥3 下限保留）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（追加到 tests/unit/test_scoring_anti_collapse.py）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">TestCollapseSemanticsSpec31</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;F120: 单维/全零豁免（spec #31 T4）。&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_single_dimension_no_collapse</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="mi">85</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;signals&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_all_zero_multi_dim_exempt_both_signals</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 5 维全 0（kill-switch 合法结果）：all_identical 与 majority 信号均不触发</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">({</span><span class="n">i</span><span class="p">:</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">6</span><span class="p">)})</span>
+        <span class="k">assert</span> <span class="n">result</span> <span class="o">==</span> <span class="p">{</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;signals&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_multi_dim_identical_nonzero_still_collapses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+        <span class="k">assert</span> <span class="s2">&quot;all_identical&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">]</span>
+        <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">s</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;majority_at_single_value&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">test_multi_dim_zero_mixed_identical_nonzero_collapses</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="c1"># 含 0 但非全零、其余全同非零 → 仍坍缩</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">flag_score_collapse</span><span class="p">({</span><span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">})</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring_anti_collapse.py -k Spec31 -v</code>
+Expected: 2 FAIL（test_single_dimension_no_collapse、test_all_zero_multi_dim_exempt_both_signals——另两例现行已通过，属语义锁定）</p>
+<ul>
+<li>[ ] <strong>Step 3: 最小实现</strong>（scoring.py flag_score_collapse 内，在 <code>if not values: return</code> 之后插入）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># spec #31 T4 (F120): collapse requires &gt;=2 dimensions and a non-all-zero</span>
+    <span class="c1"># result. Single-dimension rubrics and all-zero kill-switch outcomes are</span>
+    <span class="c1"># legitimate and exempt from BOTH signals.</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">values</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="ow">or</span> <span class="nb">all</span><span class="p">(</span><span class="n">v</span> <span class="o">==</span> <span class="mi">0</span> <span class="k">for</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">values</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="s2">&quot;signals&quot;</span><span class="p">:</span> <span class="p">[]}</span>
+</code></pre></div>
+<p>（置于现有 <code>if len(set(values)) == 1</code> 与 Counter 逻辑之前——早退使两信号同受豁免）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑全文件测试确认通过 + 旧行为锁定</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring_anti_collapse.py -v</code>
+Expected: 全 PASS（含既有 all-95 用例——其仍应坍缩）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>tests/unit/test_scoring_anti_collapse.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: flag_score_collapse exempts single-dim/all-zero results (F120, spec #31 T4)&quot;</span>
+</code></pre></div>
+<h3 id="task-2-t3-provenance">Task 2: T3 provenance 三值真实化</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/enums.py</code>（新增 ScoredBy）、<code>src/shenbi/scoring.py:500-515</code>
+- Test: <code>tests/unit/test_scoring_provenance.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>ScoredBy = Literal["file", "interactive", "subagent"]</code>（登记 ALL_ENUMS）；scoring.py provenance 判定：<code>--subagent</code> in argv → "subagent"；<code>--interactive</code> in argv → "interactive"；否则 → "file"。<code>src/shenbi/contracts/schemas/scores.py:24</code> 的 <code>scored_by: str = ""</code> 保持宽松不动。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（tests/unit/test_scoring_provenance.py）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #31 T3 (F113 residual): scored_by provenance 三值。&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts.enums</span><span class="w"> </span><span class="kn">import</span> <span class="n">ScoredBy</span><span class="p">,</span> <span class="n">ALL_ENUMS</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scored_by_in_all_enums</span><span class="p">():</span>
+    <span class="k">assert</span> <span class="n">ALL_ENUMS</span><span class="p">[</span><span class="s2">&quot;ScoredBy&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">ScoredBy</span>
+
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">parametrize</span><span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;argv_extra&quot;</span><span class="p">,</span> <span class="s2">&quot;expected&quot;</span><span class="p">),</span>
+    <span class="p">[</span>
+        <span class="p">([</span><span class="s2">&quot;--subagent&quot;</span><span class="p">],</span> <span class="s2">&quot;subagent&quot;</span><span class="p">),</span>
+        <span class="p">([</span><span class="s2">&quot;--interactive&quot;</span><span class="p">],</span> <span class="s2">&quot;interactive&quot;</span><span class="p">),</span>
+        <span class="p">([],</span> <span class="s2">&quot;file&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_scored_by_three_values</span><span class="p">(</span><span class="n">monkeypatch</span><span class="p">,</span> <span class="n">argv_extra</span><span class="p">,</span> <span class="n">expected</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_scored_by</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="s2">&quot;sys.argv&quot;</span><span class="p">,</span> <span class="p">[</span><span class="s2">&quot;scoring.py&quot;</span><span class="p">,</span> <span class="s2">&quot;r.md&quot;</span><span class="p">,</span> <span class="s2">&quot;s.json&quot;</span><span class="p">,</span> <span class="o">*</span><span class="n">argv_extra</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">_resolve_scored_by</span><span class="p">()</span> <span class="o">==</span> <span class="n">expected</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/test_scoring_provenance.py -v</code>
+Expected: FAIL（ScoredBy 不存在 / _resolve_scored_by 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p>enums.py 追加（ALL_ENUMS 前）：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># spec #31 T3 (F113): scoring provenance — who produced the score.</span>
+<span class="n">ScoredBy</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="s2">&quot;interactive&quot;</span><span class="p">,</span> <span class="s2">&quot;subagent&quot;</span><span class="p">]</span>
+</code></pre></div>
+<p>ALL_ENUMS 字典追加 <code>"ScoredBy": ScoredBy,</code>。</p>
+<p>scoring.py：新增模块级函数（:507 provenance 处改调用）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_resolve_scored_by</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Explicit provenance (spec #31 T3): subagent dispatch / interactive CLI /</span>
+<span class="sd">    default batch-file invocation. Replaces the two-value argv sniff.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;--subagent&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;subagent&quot;</span>
+    <span class="k">if</span> <span class="s2">&quot;--interactive&quot;</span> <span class="ow">in</span> <span class="n">sys</span><span class="o">.</span><span class="n">argv</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;interactive&quot;</span>
+    <span class="k">return</span> <span class="s2">&quot;file&quot;</span>
+</code></pre></div>
+<p>provenance 字典改 <code>"scored_by": _resolve_scored_by(),</code>。</p>
+<ul>
+<li>[ ] <strong>Step 4: 检查 --interactive 分支既有消费面</strong></li>
+</ul>
+<p>Run: <code>grep -rn "interactive" src/shenbi/scoring.py | head -20</code> 确认 interactive 模式入口无 assumed provenance 依赖；跑 <code>uv run pytest tests/unit/test_scoring_anti_collapse.py tests/unit/test_scoring_provenance.py -q</code>
+Expected: PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/contracts/enums.py<span class="w"> </span>src/shenbi/scoring.py<span class="w"> </span>tests/unit/test_scoring_provenance.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: scored_by provenance file/interactive/subagent via explicit flags (F113, spec #31 T3)&quot;</span>
+</code></pre></div>
+<h3 id="task-3-t2a-codex">Task 3: T2a 坍缩检测接线 codex 独立评分点</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/dispatcher/modes/codex.py</code>（scores 解析后 :106 附近）
+- Test: <code>tests/unit/dispatcher/test_codex_collapse_check.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>scoring_bridge.check_single_scorer_collapse(scores)</code>、Task 1 修正后的语义
+- Produces: <code>codex.py::_record_collapse_check(round_dir: Path, skill: str, test_type: str, scores: dict) -&gt; dict</code>——写 <code>{round_dir}/t1-reports/{skill}-{test_type}-collapse-check.json</code>，疑似坍缩时 <code>log.warning("score_collapse_suspected", ...)</code>；返回结果 dict。dispatch_codex 在 <code>safe_write(scores_file, ...)</code> 后调用。</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #31 T2a: 独立评分后坍缩检测落盘（F114 接线，零额外派发）。&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes.codex</span><span class="w"> </span><span class="kn">import</span> <span class="n">_record_collapse_check</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collapse_check_written</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">scores</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">95</span><span class="p">,</span> <span class="mi">3</span><span class="p">:</span> <span class="mi">95</span><span class="p">}</span>  <span class="c1"># 多维非全零全同 → 坍缩（Task 1 语义）</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_record_collapse_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span> <span class="o">/</span> <span class="s2">&quot;sk-generative-collapse-check.json&quot;</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+    <span class="k">assert</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">())</span> <span class="o">==</span> <span class="n">result</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collapse_check_all_zero_no_flag</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_record_collapse_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="p">{</span><span class="mi">1</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">:</span> <span class="mi">0</span><span class="p">})</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_codex_collapse_check.py -v</code>
+Expected: FAIL（ImportError: _record_collapse_check）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（codex.py，dispatch_codex 的 <code>safe_write(scores_file, json.dumps(scores))</code> 之后）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># spec #31 T2a (F114): deterministic collapse check on every independent</span>
+    <span class="c1"># scoring dispatch — first production consumer of scoring_bridge.</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.orchestration.scoring_bridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_single_scorer_collapse</span>
+
+    <span class="n">_record_collapse_check</span><span class="p">(</span><span class="n">round_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+</code></pre></div>
+<p>模块级函数（_record_completion 旁）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_record_collapse_check</span><span class="p">(</span><span class="n">round_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">skill</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">test_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Persist single-scorer collapse check next to the scores file (spec #31 T2a).</span>
+
+<span class="sd">    Separate artifact (NOT a key inside scores-subagent.json): parse_scores_dict</span>
+<span class="sd">    drops non-numeric keys with a WARN, so embedding would be noise.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.orchestration.scoring_bridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_single_scorer_collapse</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">check_single_scorer_collapse</span><span class="p">(</span><span class="n">scores</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">round_dir</span> <span class="o">/</span> <span class="s2">&quot;t1-reports&quot;</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">skill</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">test_type</span><span class="si">}</span><span class="s2">-collapse-check.json&quot;</span>
+    <span class="n">out</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">ensure_ascii</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;collapse_suspected&quot;</span><span class="p">):</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;score_collapse_suspected&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="o">=</span><span class="n">test_type</span><span class="p">,</span> <span class="n">signals</span><span class="o">=</span><span class="n">result</span><span class="p">[</span><span class="s2">&quot;signals&quot;</span><span class="p">])</span>
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+<p>（import 放函数内是既有文件模式——codex.py 顶部保持薄 import，避免 dispatcher 启动拉 orchestration）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 存量 codex 测试回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/ -q</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/dispatcher/modes/codex.py<span class="w"> </span>tests/unit/dispatcher/test_codex_collapse_check.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: wire scoring_bridge collapse check into codex scoring dispatch (F114/F506, spec #31 T2a)&quot;</span>
+</code></pre></div>
+<h3 id="task-4-t2b-opt-in-off">Task 4: T2b 双评分一致性（opt-in，默认 OFF）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/state.py</code>（PipelineConfig + to_dict/from_dict 序列化面）、<code>src/shenbi/dispatcher/modes/codex.py</code>、<code>src/shenbi/dispatcher/executor.py:214-216</code>、<code>src/shenbi/gates/shared.py:230-260</code>
+- Test: <code>tests/unit/dispatcher/test_codex_dual_scorer.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>scoring_bridge.validate_dual_scorer</code>、<code>gates.gate_manifest.record_gate_result</code>
+- Produces: <code>PipelineConfig.dual_scorer: bool = False</code>（state dict 键 <code>dual_scorer</code>）；<code>dispatch_codex(..., dual: bool = False)</code>；<code>codex.py::_run_dual_scorer_check(round_dir, skill, test_type, prompt, scores) -&gt; dict | None</code>——dual 开启时执行第二次派发并比对，<code>needs_arbitration</code> 时写 gate manifest（gate="G3-arb"，T1 轮 phase="t1"、chapter=0）+ WARN；<code>codex.py::_codex_exec_scores(round_dir, prompt, out_file) -&gt; dict</code> 共用派发 helper。shared.py 剥离序更新为 <code>("-scores-subagent-2", "-scores-subagent", "-scores")</code>（parse_report_stem 与 find_report 两处）。</p>
+<ul>
+<li>[ ] <strong>Step 1: PipelineConfig 加开关</strong>（state.py PipelineConfig）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1">#: spec #31 T2b: opt-in dual independent scoring per dispatch. Default</span>
+    <span class="c1">#: OFF — the AGENTS.md independence minimum (dispatcher never scores) is</span>
+    <span class="c1">#: already met by the subagent route; dual scoring doubles paid dispatches.</span>
+    <span class="n">dual_scorer</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+</code></pre></div>
+<p>检查 state.py to_dict/from_dict（:277 附近 config 序列化）按既有字段模式补 <code>dual_scorer</code>；跑 <code>uv run pytest tests/unit/pipeline/ -q -k state</code> 确认序列化测试通过。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写失败测试</strong>（tests/unit/dispatcher/test_codex_dual_scorer.py）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #31 T2b: dual-scorer agreement, opt-in, mocked-subprocess unit tests.</span>
+
+<span class="sd">G0.9 注记：本测试的对象是 dispatch 控制流（subprocess 打桩），scores dict 是</span>
+<span class="sd">程序内构造的输入而非「真实技能产物 fixture」——dispatch 内部 JSON 协议不属于</span>
+<span class="sd">G0.9 管辖的 scenario fixture 面；第二评分 = 主评分的程序化副本 + 单维度受控 delta。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.dispatcher.modes</span><span class="w"> </span><span class="kn">import</span> <span class="n">codex</span> <span class="k">as</span> <span class="n">codex_mod</span>
+
+<span class="n">REAL_SCORES</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;1&quot;</span><span class="p">:</span> <span class="mi">90</span><span class="p">,</span> <span class="s2">&quot;2&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">,</span> <span class="s2">&quot;3&quot;</span><span class="p">:</span> <span class="mi">80</span><span class="p">,</span> <span class="s2">&quot;4&quot;</span><span class="p">:</span> <span class="mi">88</span><span class="p">,</span> <span class="s2">&quot;5&quot;</span><span class="p">:</span> <span class="mi">82</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_fake_codex_exec</span><span class="p">(</span><span class="n">second_scores</span><span class="p">:</span> <span class="nb">dict</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;subprocess.run fake: codex-exec calls write .raw JSON; shenbi-score returns score.&quot;&quot;&quot;</span>
+    <span class="n">calls</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">run</span><span class="p">(</span><span class="n">cmd</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;shenbi-score&quot;</span> <span class="ow">in</span> <span class="n">cmd</span><span class="p">:</span>  <span class="c1"># scoring subprocess: no -o flag</span>
+            <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;returncode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;stderr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">({</span><span class="s2">&quot;final_score&quot;</span><span class="p">:</span> <span class="mi">85</span><span class="p">})})()</span>
+        <span class="c1"># codex exec: cmd 形如 [&quot;codex&quot;,&quot;exec&quot;,&quot;-C&quot;,str(round_dir),&quot;-o&quot;,str(raw_out),prompt]</span>
+        <span class="n">idx</span> <span class="o">=</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span>
+        <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+        <span class="n">out_path</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">cmd</span><span class="p">[</span><span class="n">cmd</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;-o&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">])</span>
+        <span class="n">out_path</span><span class="o">.</span><span class="n">parent</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">out_path</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">second_scores</span> <span class="k">if</span> <span class="n">idx</span> <span class="o">==</span> <span class="mi">1</span> <span class="k">else</span> <span class="n">REAL_SCORES</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">type</span><span class="p">(</span><span class="s2">&quot;P&quot;</span><span class="p">,</span> <span class="p">(),</span> <span class="p">{</span><span class="s2">&quot;returncode&quot;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s2">&quot;stderr&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="s2">&quot;stdout&quot;</span><span class="p">:</span> <span class="s2">&quot;&quot;</span><span class="p">})()</span>
+
+    <span class="k">return</span> <span class="n">run</span><span class="p">,</span> <span class="n">calls</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">((</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;pipeline-manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dual_scorer_agreement_no_arbitration</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">run</span><span class="p">,</span> <span class="n">calls</span> <span class="o">=</span> <span class="n">_fake_codex_exec</span><span class="p">(</span><span class="nb">dict</span><span class="p">(</span><span class="n">REAL_SCORES</span><span class="p">))</span>  <span class="c1"># 两份一致</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">codex_mod</span><span class="o">.</span><span class="n">subprocess</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_DUAL_SCORER&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">codex_mod</span><span class="o">.</span><span class="n">dispatch_codex</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;a1&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="k">assert</span> <span class="n">calls</span><span class="p">[</span><span class="s2">&quot;n&quot;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">3</span>  <span class="c1"># 2×codex exec + ≥1 score</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;pipeline-manifest.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>  <span class="c1"># 一致 → 无仲裁记录</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dual_scorer_dispute_writes_arbitration</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="n">disputed</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">REAL_SCORES</span><span class="p">);</span> <span class="n">disputed</span><span class="p">[</span><span class="s2">&quot;2&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">70</span>  <span class="c1"># 差 15 &gt; 5</span>
+    <span class="n">run</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_fake_codex_exec</span><span class="p">(</span><span class="n">disputed</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">codex_mod</span><span class="o">.</span><span class="n">subprocess</span><span class="p">,</span> <span class="s2">&quot;run&quot;</span><span class="p">,</span> <span class="n">run</span><span class="p">)</span>
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setenv</span><span class="p">(</span><span class="s2">&quot;SHENBI_DUAL_SCORER&quot;</span><span class="p">,</span> <span class="s2">&quot;1&quot;</span><span class="p">)</span>
+    <span class="n">rc</span> <span class="o">=</span> <span class="n">codex_mod</span><span class="o">.</span><span class="n">dispatch_codex</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="s2">&quot;generative&quot;</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;p&quot;</span><span class="p">,</span> <span class="s2">&quot;a1&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rc</span> <span class="o">==</span> <span class="mi">0</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="n">_manifest</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)[</span><span class="s2">&quot;gates&quot;</span><span class="p">][</span><span class="s2">&quot;t1&quot;</span><span class="p">][</span><span class="s2">&quot;0&quot;</span><span class="p">][</span><span class="s2">&quot;sk&quot;</span><span class="p">][</span><span class="s2">&quot;G3-arb&quot;</span><span class="p">]</span>  <span class="c1"># list-append 结构</span>
+    <span class="k">assert</span> <span class="n">entries</span> <span class="ow">and</span> <span class="n">entries</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">][</span><span class="s2">&quot;result&quot;</span><span class="p">][</span><span class="s2">&quot;needs_arbitration&quot;</span><span class="p">]</span> <span class="ow">is</span> <span class="kc">True</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: fixture 裁定（阶段 5 审查 I4 已核）</strong>——<code>tests/fixtures/</code> 与 <code>tests/rounds/</code> 均无真实 subagent 评分 JSON。G0.9 裁定：本测试对象是 dispatch 控制流（subprocess 打桩），scores 是程序内输入而非技能产物 fixture，不构成 G0.9 违规；测试头已注记此裁定。第二评分恒为主评分程序化副本 + 单维度受控 delta（脚本化，非手写整份）。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 跑测试确认失败</strong></p>
+</li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/test_codex_dual_scorer.py -v</code>
+Expected: FAIL（dual_scorer 开关/第二派发不存在；无 G3-arb 记录）</p>
+<ul>
+<li>[ ] <strong>Step 5: 实现</strong></li>
+</ul>
+<p>codex.py <code>dispatch_codex</code> 签名加 <code>dual: bool = False</code>（显式开关参数；env <code>SHENBI_DUAL_SCORER=1</code> 亦可开启，两者 OR）。主评分流程完成后（emit_json 前）：</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">dual</span> <span class="ow">or</span> <span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SHENBI_DUAL_SCORER&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;1&quot;</span><span class="p">:</span>
+        <span class="n">_run_dual_scorer_check</span><span class="p">(</span><span class="n">round_dir</span><span class="p">,</span> <span class="n">skill</span><span class="p">,</span> <span class="n">test_type</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="n">scores</span><span class="p">)</span>
+</code></pre></div>
+<p><code>_run_dual_scorer_check</code>：第二次 codex exec（同 prompt，输出 <code>*-scores-subagent-2.json</code>）→ 解析 → <code>validate_dual_scorer(scores, scores2)</code> → <code>needs_arbitration</code> 时 <code>record_gate_result(gate_manifest_dir=round_dir, phase="t1", chapter=0, skill=skill, gate="G3-arb", result=agreement_dict)</code> + <code>log.warning("dual_scorer_dispute", ...)</code>。codex exec + JSON 抽取逻辑提取为 <code>_codex_exec_scores(round_dir: Path, prompt: str, out_file: Path) -&gt; dict</code> 内部 helper，主/副派发共用（<code>scores_suffix</code> 参数取消——副文件名由 <code>_run_dual_scorer_check</code> 内部拼装，dispatch_codex 公开签名只加 <code>dual: bool = False</code>，最小爆炸面）。</p>
+<p>executor.py:216 附近接线：executor.py:208 已探测 <code>(round_dir / "pipeline-state.json").exists()</code> 但从未读取其 config——实现为：存在时用 <code>shenbi.pipeline.state</code> 的既有反序列化入口加载（打开 state.py 确认 <code>from_json</code>/等价 loader 的实际名），取 <code>config.dual_scorer</code> 为 True 时向 dispatch_codex 传 <code>dual=True</code>。若 loader 不存在则读 JSON dict 的 <code>config.dual_scorer</code> 键（fail-open False）。</p>
+<p>shared.py 两处剥离序改 <code>("-scores-subagent-2", "-scores-subagent", "-scores")</code>；<code>find_report</code> 尝试序同改（dual 文件不是主评分文件，find_report 找主文件优先级不变——只在 parse_report_stem 剥离与 find_report 后备序中纳入，防 g_reconcile 把 dual 文件解析成独立技能）。</p>
+<ul>
+<li>[ ] <strong>Step 6: 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/dispatcher/ tests/unit/gates/ -q</code>
+Expected: 全 PASS。补一例 stem 归一断言（注意：<code>parse_report_stem("sk-generative-scores-subagent-2")</code> 靠最长技能前缀匹配在改动前后都返回 "sk"——该例是行为锁定而非变更守护；变更的守护由 g_reconcile 既有测试套回归承担）</p>
+<ul>
+<li>[ ] <strong>Step 7: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/state.py<span class="w"> </span>src/shenbi/dispatcher/modes/codex.py<span class="w"> </span>src/shenbi/dispatcher/executor.py<span class="w"> </span>src/shenbi/gates/shared.py<span class="w"> </span>tests/unit/dispatcher/test_codex_dual_scorer.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: opt-in dual-scorer agreement check with arbitration record (F114/F506, spec #31 T2b)&quot;</span>
+</code></pre></div>
+<h3 id="task-5-t2c-escalation_bridge">Task 5: T2c escalation_bridge 对账</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/plans/...</code>（无）；产出物为对账结论 + <code>src/shenbi/pipeline/chapter_loop.py:1435-1460</code> docstring 修正 + <code>.superpowers/sdd/spec-deviations.md</code>
+- Test: 无新测试（对账任务；结局 (b) 时删除面归 C37）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 阶段 3 审查事实：resonance_trend.md 唯一真实读方是 <code>skill_utils/drift_detection/compute_drift.py:246</code> 的 parse_trend（自带解析，不经 bridge）</p>
+<ul>
+<li>[ ] <strong>Step 1: 复核实读</strong>——<code>grep -rn "resonance_trend" src/shenbi --include='*.py'</code>：确认生产读方清单；核实 <code>parse_resonance_scores</code> 无语义归属点。</li>
+<li>[ ] <strong>Step 2: 裁决</strong>——预期结论（两轮审查一致）：<code>escalation_bridge</code> 的文件包装层冗余（check_escalation 本体已有直接消费者 chapter_loop:1127；trend 文件由 compute_drift.parse_trend 读取，与 bridge 无关）→ <strong>结局 (b)</strong>：记 <code>.superpowers/sdd/spec-deviations.md ### T5</code>（移交 C37/#51 删除处置；验收 2 escalation_bridge 分量豁免）。</li>
+<li>[ ] <strong>Step 3: 修正幻影消费者注释</strong>（chapter_loop.py <code>_build_resonance_trend_row</code> docstring）——「Format stays compatible with parse_resonance_scores (escalation_bridge.py:15-25)」改为指向真实读方 compute_drift.parse_trend；同 docstring 内 <code>_parse_resonance_score (chapter_loop.py:667)</code> 行号改 <code>:1389</code>。</li>
+</ul>
+<div class="highlight"><pre><span></span><code>        <span class="n">Format</span> <span class="n">stays</span> <span class="n">parseable</span> <span class="n">by</span> <span class="n">the</span> <span class="n">real</span> <span class="n">trend</span> <span class="n">reader</span>
+        <span class="p">(</span><span class="n">skill_utils</span><span class="o">/</span><span class="n">drift_detection</span><span class="o">/</span><span class="n">compute_drift</span><span class="o">.</span><span class="n">py</span> <span class="n">parse_trend</span><span class="p">):</span> <span class="n">it</span>
+        <span class="n">requires</span> <span class="o">&gt;=</span><span class="mi">7</span> <span class="n">cells</span> <span class="ow">and</span> <span class="n">reads</span> <span class="n">cells</span><span class="p">[</span><span class="mi">6</span><span class="p">]</span> <span class="k">as</span> <span class="n">the</span> <span class="n">overall</span> <span class="n">score</span><span class="o">.</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 验证 + Commit</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_chapter_loop.py -q</code>（docstring-only 改动应全绿）
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs: re-point resonance trend row docstring at real reader; fix stale line refs (spec #31 T2c)&quot;</span>
+</code></pre></div></p>
+<h3 id="task-6-t5">Task 6: T5 护栏测试 + 验收执行</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/unit/pipeline/test_g3_fail_closed_guard.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>run_gate_g3</code>（dispatch_helper.py:2408+）、Task 3/4 产物</p>
+<ul>
+<li>[ ] <strong>Step 1: G3 fail-closed 防复发测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;spec #31 T5: G3 must fail closed without fabricating progress.json (F794 guard).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">run_gate_g3</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_g3_fail_closed_no_progress_fabrication</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">rd</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;round&quot;</span>
+    <span class="n">rd</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">run_gate_g3</span><span class="p">(</span><span class="s2">&quot;sk&quot;</span><span class="p">,</span> <span class="n">rd</span><span class="p">)</span>  <span class="c1"># 签名: (skill, round_dir, chapter=None, phase=None) -&gt; dict</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">rd</span> <span class="o">/</span> <span class="s2">&quot;progress.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>  <span class="c1"># 不得自造</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑通</strong> <code>uv run pytest tests/unit/pipeline/test_g3_fail_closed_guard.py -v</code> → PASS（若现行签名/返回形态不同，修测试对齐真实形态——能力已由 #8 落地，本测试是锁定）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 验收 2 执行</strong></p>
+</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;scoring_bridge&quot;</span><span class="w"> </span>src/shenbi<span class="w"> </span>--<span class="w"> </span><span class="s1">&#39;:!*/orchestration/*&#39;</span>
+</code></pre></div>
+Expected: codex.py 调用表达式 ≥1（Task 3/4 产出）</p>
+<ul>
+<li>[ ] <strong>Step 4: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/unit/pipeline/test_g3_fail_closed_guard.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: lock G3 fail-closed no-fabrication guard (F794, spec #31 T5)&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 阶段 7 门禁</strong>——<code>just check</code> 全绿（见 progress.md 门禁输出）</li>
+</ul>
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1 G3 FAIL 无自造</td>
+<td>Task 6</td>
+<td><code>uv run pytest tests/unit/pipeline/test_g3_fail_closed_guard.py -v</code></td>
+</tr>
+<tr>
+<td>2 scoring_bridge 调用表达式 ≥1</td>
+<td>Task 3/4 + Task 6 Step 3</td>
+<td><code>git grep -n "scoring_bridge" src/shenbi -- ':!*/orchestration/*'</code>（escalation_bridge 分量按 T2c 结局 (b) 豁免，记 spec-deviations）</td>
+</tr>
+<tr>
+<td>3a 双评分一致/分歧</td>
+<td>Task 4</td>
+<td><code>uv run pytest tests/unit/dispatcher/test_codex_dual_scorer.py -v</code></td>
+</tr>
+<tr>
+<td>3b 坍缩三用例</td>
+<td>Task 1</td>
+<td><code>uv run pytest tests/unit/test_scoring_anti_collapse.py -k Spec31 -v</code></td>
+</tr>
+<tr>
+<td>4 just check</td>
+<td>Task 6 Step 5</td>
+<td><code>just check</code></td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

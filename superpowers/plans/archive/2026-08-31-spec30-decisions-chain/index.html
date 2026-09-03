@@ -1,0 +1,1551 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec30-decisions-chain/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #30 decisions-chain 契约链修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #30 decisions-chain 契约链修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec30-decisions-chain.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-31-spec30-decisions-chain/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #30 decisions-chain 契约链修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-31-spec30-decisions-chain.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-30-decisions-chain-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #30 decisions-chain 契约链修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        任务依赖图
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="任务依赖图">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-g2-t101f438f205" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: G2 逐产物分区（T101/F438/F205）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-g4-decisions-sidecarf434t103f795" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: G4 文件集接入 decisions sidecar（F434/T103/F795）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-g4-raw_decode-t3-t6" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: G4 读侧 raw_decode 恢复对齐（T3 残余 + T6 前半）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-p25-f212f431t108f908" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: P2.5 矩阵四源一致 + 错误消息（F212/F431/T108/F908）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-producer-lintf439t106" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: producer 声明补全 + 四源对账 lint（F439/T106）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-g2g4-15-t104" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: G2/G4 对撞回归 15 例（T104）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7-agentsmd-decisions-t107" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: AGENTS.md decisions 条款对齐（T107）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-8-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 8: spec 定稿修订 + 全量验收
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#self-review" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Self-Review
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8m-2026-08-31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        终审（阶段 8）M 项处置记录 · 2026-08-31
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-30-decisions-chain-implementation-plan">Spec #30 decisions-chain 契约链修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 修复 decisions-sidecar 契约链四层断裂：路由（T1）、G4 文件集（T2）、G2/G4 容错收敛（T3/T6）、producer 声明（T4）、P2.5 矩阵四源一致（T5）、AGENTS.md 条款（T7）。</p>
+<p><strong>Architecture:</strong> T1 采用<strong>文件名分区</strong>（阶段 3 审查 I1 裁决）：<code>gate_G2</code> 在 <code>file_type="decisions"</code> 时按后缀分流——<code>.json</code> 走 decisions 分支，<code>.md</code> 落入通用路径并按 chapter 检查——CLI <code>shenbi-validate G2 &lt;files&gt; &lt;type&gt;</code> 协议零变更（镜像 G4 <code>decisions_validator.py:176-181</code> 复合分区的既有先例）。T2 在 <code>_resolve_g4_files</code> 按契约 writes 追加 decisions sidecar。T3/T6 使 G4 读侧采用与 G2 相同的 raw_decode 截断恢复（恢复仅产 FAIL+诊断，不静默放行），配 15 例 G2/G4 对撞回归。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pydantic DecisionsDoc / pytest / just（CI 同构验证）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>契约 schema 版本号保持 <code>shenbi-decisions-v1</code> 不动（spec 回滚条款）</li>
+<li>状态字面量唯一定义于 <code>src/shenbi/contracts/enums.py</code>；gate 检查器纯函数幂等无副作用</li>
+<li>验证命令一律 <code>just</code>/<code>uv run</code>；fixture 只用真实产物或其精确副本（G0.9），来源 <code>novel-output/xinghuo-ranqiong</code>（145 个真实 decisions.json，基线重测 2026-08-31：ok=5 / bad_json=83 / bad_schema=57）</li>
+<li>改 SKILL.md 契约段后必须 <code>just generate</code> 同步（deps.json/docs diff 为空）；禁止手改生成物</li>
+<li>全部 task 为 <strong>infra</strong>（gates/g4、dispatcher、pipeline、contracts、skills 契约面）→ 协调者亲自实现，逐 task TDD + fresh-context 重审（audit-T<N>.md）</li>
+<li>WARN-then-FAIL 滚动已从 spec 风险条款降级删除（阶段 3 I2 裁决）：pipeline 路径本就跳过非管道 G2（executor.py:221-227），爆炸面限于非管道 dispatch；task 内以只读盘点测试代替</li>
+</ul>
+<h2 id="_1">任务依赖图</h2>
+<p>T1（g2 路由）→ 独立；T2（G4 文件集）依赖 T1 的分区语义命名对齐；T3（G4 读侧恢复）→ T6（对撞测试）依赖 T1+T3；T4（producer 声明）依赖 T5（P2.5 矩阵定稿）；T5/T7 文档回写依赖 T1/T3 的最终行为。</p>
+<hr />
+<h3 id="task-1-g2-t101f438f205">Task 1: G2 逐产物分区（T101/F438/F205）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g2.py:78-169</code>（decisions 分支）
+- Test: <code>tests/test_g2_decisions_partition.py</code>（新建）
+- Fixture: <code>tests/fixtures/decisions/</code>（新建，真实产物副本，见步骤 1）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>gate_G2</code> 行为变更——<code>file_type="decisions"</code> 时 <code>.md</code> 文件落入 G2.4-G2.10 通用检查（chapter 语义）；<code>.json</code> 走 G2.dec 分支。签名不变：<code>gate_G2(file_paths: str | list[str] | None, file_type: str = "chapter", round_dir: str | None = None, project_dir: str | None = None) -&gt; str</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 建 fixture（真实产物副本，G0.9）</strong></li>
+</ul>
+<p>从生产树复制三类真实样本（不手写）：</p>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/fixtures/decisions
+<span class="c1"># 合法样本（5 个 ok 之一）</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">import json</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">from shenbi.contracts.schemas.decisions import DecisionsDoc</span>
+<span class="s">src = sorted(Path(&quot;novel-output&quot;).rglob(&quot;*decisions*.json&quot;))</span>
+<span class="s">out = Path(&quot;tests/fixtures/decisions&quot;)</span>
+<span class="s">n = 0</span>
+<span class="s">for f in src:</span>
+<span class="s">    try:</span>
+<span class="s">        DecisionsDoc.model_validate(json.loads(f.read_text()))</span>
+<span class="s">        (out / &quot;valid-chapter-decisions.json&quot;).write_text(f.read_text())</span>
+<span class="s">        n += 1</span>
+<span class="s">        break</span>
+<span class="s">    except Exception:</span>
+<span class="s">        continue</span>
+<span class="s">print(&quot;copied valid:&quot;, n)</span>
+<span class="s">EOF</span>
+<span class="c1"># 尾随/拼接样本：按失败形态确定性筛选（json.loads 抛错但 raw_decode 可提取首对象）</span>
+uv<span class="w"> </span>run<span class="w"> </span>python<span class="w"> </span>-<span class="w"> </span><span class="s">&lt;&lt;&#39;EOF&#39;</span>
+<span class="s">import json</span>
+<span class="s">from pathlib import Path</span>
+<span class="s">from json import JSONDecoder</span>
+<span class="s">src = sorted(Path(&quot;novel-output&quot;).rglob(&quot;*decisions*.json&quot;))</span>
+<span class="s">out = Path(&quot;tests/fixtures/decisions&quot;)</span>
+<span class="s">for f in src:</span>
+<span class="s">    raw = f.read_text()</span>
+<span class="s">    try:</span>
+<span class="s">        json.loads(raw)</span>
+<span class="s">        continue  # 合法 JSON，非尾随形态</span>
+<span class="s">    except json.JSONDecodeError:</span>
+<span class="s">        try:</span>
+<span class="s">            obj, _ = JSONDecoder().raw_decode(raw)</span>
+<span class="s">            if isinstance(obj, dict) and &quot;$schema&quot; in obj:</span>
+<span class="s">                (out / &quot;trailing-sample.json&quot;).write_text(raw)</span>
+<span class="s">                print(&quot;copied trailing:&quot;, f)</span>
+<span class="s">                break</span>
+<span class="s">        except json.JSONDecodeError:</span>
+<span class="s">            continue</span>
+<span class="s">EOF</span>
+</code></pre></div>
+<p>并复制一份真实章节草稿作 .md 主产物：<code>cp novel-output/xinghuo-ranqiong/chapters/chapter-2.md tests/fixtures/decisions/</code>（路径以实际存在为准；同时生成 copy-then-degrade 违规版 <code>chapter-too-short.md</code> = 同文件截断至 &lt; CHAPTER_WORD_FLOOR 字）。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="c1"># tests/test_g2_decisions_partition.py</span>
+<span class="sd">&quot;&quot;&quot;T101: decisions-双产物技能的 .md 主产物不得绕过 G2 章节检查。&quot;&quot;&quot;</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g2</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G2</span>
+
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;fixtures&quot;</span> <span class="o">/</span> <span class="s2">&quot;decisions&quot;</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_res</span><span class="p">(</span><span class="n">files</span><span class="p">,</span> <span class="n">ftype</span><span class="o">=</span><span class="s2">&quot;decisions&quot;</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gate_G2</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">],</span> <span class="n">ftype</span><span class="p">))</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_md_gets_chapter_checks_under_decisions_type</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_res</span><span class="p">([</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;chapter-too-short.md&quot;</span><span class="p">])</span>
+    <span class="c1"># FAIL 条目落 &quot;must_fix&quot;（shared.py fail() 结构，阶段 5 审查 I4 已核实）</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G2.6&quot;</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;FAIL&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;must_fix&quot;</span><span class="p">])</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_json_still_gets_decisions_branch</span><span class="p">():</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_res</span><span class="p">([</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;valid-chapter-decisions.json&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;G2.dec&quot;</span> <span class="ow">and</span> <span class="n">c</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;s&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="s2">&quot;PASS&quot;</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;checks&quot;</span><span class="p">])</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_dual_product_round_violating_chapter_fails</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验收 2 前半：含违规章节的双产物 round，G2 对 .md FAIL。&quot;&quot;&quot;</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">_res</span><span class="p">([</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;chapter-too-short.md&quot;</span><span class="p">,</span> <span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;valid-chapter-decisions.json&quot;</span><span class="p">])</span>
+    <span class="k">assert</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;status&quot;</span><span class="p">]</span> <span class="o">!=</span> <span class="s2">&quot;PASS&quot;</span>
+</code></pre></div>
+<p>（<code>checks</code>/<code>mf</code> 的实际返回键以 gate_G2 现有 JSON 结构为准，实现前先打印一次真实输出校正断言字段名。）</p>
+<ul>
+<li>[ ] <strong>Step 3: 跑测试确认 FAIL</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_g2_decisions_partition.py -v</code> — 期望 test_md_gets_chapter_checks 与 dual_product FAIL（现状 .md 被 continue 跳过 → PASS）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 实现（eff_type 机制，阶段 5 审查 C1 裁决）</strong></li>
+</ul>
+<p>chapter 检查的门条件是 <code>file_type == "chapter"</code>（g2.py:223 G2.6-G2.9、:338 G2.13），仅删 decisions 分支的 <code>continue</code> 不足以让 .md 落入 G2.6。改为在循环体内先算逐文件有效类型：</p>
+<div class="highlight"><pre><span></span><code>        <span class="c1"># Per-file partition (T101): .json sidecars keep the decisions branch;</span>
+        <span class="c1"># the .md main artifact is validated with chapter semantics instead of</span>
+        <span class="c1"># bypassing G2.4-G2.10 (formerly a silent skip — spec #30 T1).</span>
+        <span class="n">eff_type</span> <span class="o">=</span> <span class="n">file_type</span>
+        <span class="k">if</span> <span class="n">file_type</span> <span class="o">==</span> <span class="s2">&quot;decisions&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">fp</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.json&quot;</span><span class="p">):</span>
+                <span class="o">...</span> <span class="n">existing</span> <span class="n">G2</span><span class="o">.</span><span class="n">dec</span><span class="mf">.4</span><span class="o">/</span><span class="mf">.1</span><span class="o">/</span><span class="mf">.2</span><span class="o">/</span><span class="mf">.3</span> <span class="n">logic</span><span class="p">,</span> <span class="n">ending</span> <span class="ow">in</span> <span class="err">`</span><span class="k">continue</span><span class="err">`</span> <span class="o">...</span>
+            <span class="n">eff_type</span> <span class="o">=</span> <span class="s2">&quot;chapter&quot;</span>  <span class="c1"># .md main artifact falls through as chapter</span>
+</code></pre></div>
+<p>随后把 g2.py:223 与 :338 的 <code>if file_type == "chapter":</code> 改为 <code>if eff_type == "chapter":</code>（G2.4/G2.5/G2.10/G2.12 等后缀驱动检查不动，天然对 .md 生效）。同时删除 g2.py:84-89 的失实注释（「.md validated by their own file_type gate」——该 gate 不存在）。</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认 PASS + 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/test_g2_decisions_partition.py -v</code>（PASS）&amp;&amp; <code>uv run pytest tests/ -k "g2" -x -q</code>（无回归）。</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit + audit</strong></li>
+</ul>
+<p><code>git add src/shenbi/gates/g2.py tests/test_g2_decisions_partition.py tests/fixtures/decisions/ &amp;&amp; git commit -m "fix: G2 per-file partition — decisions-skill .md main artifacts no longer bypass G2.4+ (spec #30 T1, T101/F438/F205)"</code> → 产出 <code>.superpowers/sdd/audit-T1.md</code>（fresh-context 重审）。</p>
+<hr />
+<h3 id="task-2-g4-decisions-sidecarf434t103f795">Task 2: G4 文件集接入 decisions sidecar（F434/T103/F795）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:600-619</code>（<code>_resolve_g4_files</code>）
+- Test: <code>tests/test_g4_files_decisions.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>load_contract(skill) -&gt; dict</code>（<code>shenbi.contracts</code>，含 <code>writes</code>/<code>updates</code>）；<code>resolve_chapter_path(path, chapter)</code>（chapter_loop 既有）
+- Produces: <code>_resolve_g4_files</code> 返回值新增 decisions sidecar 路径（staging 步骤带 <code>staging/</code> 前缀），G4.dec marker 不再 <code>{"s":"SKIP","r":"no files"}</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;F434: chapter-drafting 双产物 step 的 decisions sidecar 必须进 G4 文件列表。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_resolve_g4_files</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_mk_step</span><span class="p">(</span><span class="o">**</span><span class="n">kw</span><span class="p">):</span>  <span class="c1"># 真实 ChapterStep dataclass，字段以 chapter_loop 定义为准</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">ChapterStep</span>
+    <span class="n">base</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{chapter}</span><span class="s2">.md&quot;</span><span class="p">,</span>
+                <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-drafting&quot;</span><span class="p">,</span> <span class="n">uses_staging</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">base</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">kw</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ChapterStep</span><span class="p">(</span><span class="o">**</span><span class="n">base</span><span class="p">)</span>  <span class="c1"># 缺省字段以 dataclass 默认值补齐，实现前核对构造签名</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_decisions_sidecar_in_g4_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">;</span> <span class="n">ch</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-2.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# 第二章</span><span class="se">\n</span><span class="s2">正文&quot;</span> <span class="o">*</span> <span class="mi">50</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-2-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s1">&#39;{&quot;$schema&quot;: &quot;shenbi-decisions-v1&quot;}&#39;</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">_resolve_g4_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">_mk_step</span><span class="p">(),</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-2-decisions.json&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;chapters/chapter-2.md&quot;</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_state_settling_glob_not_short_circuited</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;C2 回归：契约扩展不得短路 state-settling 的 staging/truth/*.md glob。&quot;&quot;&quot;</span>
+    <span class="n">st</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span><span class="p">;</span> <span class="n">st</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">st</span> <span class="o">/</span> <span class="s2">&quot;current_state.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;x&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;staging&quot;</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;state-settling-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">_mk_step</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-state-settling&quot;</span><span class="p">,</span> <span class="n">uses_staging</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">_resolve_g4_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;current_state.md&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>          <span class="c1"># .md 不丢</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;state-settling-decisions.json&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>  <span class="c1"># sidecar 追加</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_and_nonchapter_sidecars</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;I2：chapter-revision / genre-config sidecar 的追加行为不破坏复合分区。&quot;&quot;&quot;</span>
+    <span class="n">ch</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span><span class="p">;</span> <span class="n">ch</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-3-revision.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;y&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">ch</span> <span class="o">/</span> <span class="s2">&quot;chapter-3-revision-decisions.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">{}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">step</span> <span class="o">=</span> <span class="n">_mk_step</span><span class="p">(</span><span class="n">output_path</span><span class="o">=</span><span class="s2">&quot;chapters/chapter-</span><span class="si">{chapter}</span><span class="s2">-revision.md&quot;</span><span class="p">,</span>
+                    <span class="n">skill</span><span class="o">=</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="n">_resolve_g4_files</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;revision-decisions.json&quot;</span> <span class="ow">in</span> <span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">files</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 确认 FAIL</strong> — <code>uv run pytest tests/test_g4_files_decisions.py -v</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong></p>
+</li>
+</ul>
+<p>在 <code>_resolve_g4_files</code> 内重构为「先解析主清单、后追加契约 sidecar」（阶段 5 审查 C2 裁决——契约扩展只追加，绝不短路 state-settling glob）：</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_resolve_g4_files</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">step</span><span class="p">:</span> <span class="n">ChapterStep</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="n">single</span> <span class="o">=</span> <span class="n">_resolve_g4_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">step</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">files</span> <span class="o">=</span> <span class="p">[</span><span class="n">single</span><span class="p">]</span> <span class="k">if</span> <span class="n">single</span> <span class="k">else</span> <span class="p">[]</span>
+
+    <span class="c1"># State-settling writes multiple truth files to staging/ (unchanged, runs</span>
+    <span class="c1"># BEFORE sidecar expansion so contract expansion can&#39;t short-circuit it)</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">uses_staging</span> <span class="ow">and</span> <span class="s2">&quot;state-settling&quot;</span> <span class="ow">in</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">STAGING_DIR</span>
+        <span class="n">staging_truth</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">STAGING_DIR</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+        <span class="k">if</span> <span class="n">staging_truth</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+            <span class="n">files</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">STAGING_DIR</span><span class="si">}</span><span class="s2">/truth/</span><span class="si">{</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">staging_truth</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;*.md&quot;</span><span class="p">)</span>
+            <span class="p">)</span>
+
+    <span class="c1"># F434: contract-declared decisions sidecars join the G4 file list so</span>
+    <span class="c1"># G4.dec actually runs for dual-product skills instead of SKIP. Existence-</span>
+    <span class="c1"># gated to avoid spurious FAILs; composite G4 re-partitions by suffix.</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.contracts</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_contract</span><span class="p">,</span> <span class="n">ContractError</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="n">load_contract</span><span class="p">(</span><span class="n">step</span><span class="o">.</span><span class="n">skill</span><span class="p">)</span>
+    <span class="k">except</span> <span class="p">(</span><span class="n">ContractError</span><span class="p">,</span> <span class="ne">ImportError</span><span class="p">):</span>
+        <span class="n">c</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">if</span> <span class="n">c</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">out</span> <span class="ow">in</span> <span class="n">c</span><span class="p">[</span><span class="s2">&quot;writes&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="s2">&quot;decisions&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">Path</span><span class="p">(</span><span class="n">out</span><span class="p">)</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">resolved</span> <span class="o">=</span> <span class="n">resolve_chapter_path</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.checkpoint</span><span class="w"> </span><span class="kn">import</span> <span class="n">STAGING_DIR</span>
+            <span class="n">cand</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">STAGING_DIR</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">resolved</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">uses_staging</span> <span class="k">else</span> <span class="n">resolved</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">project_dir</span> <span class="o">/</span> <span class="n">cand</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">cand</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">files</span><span class="p">:</span>
+                <span class="n">files</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cand</span><span class="p">)</span>
+    <span class="k">return</span> <span class="nb">sorted</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">files</span><span class="p">))</span> <span class="k">if</span> <span class="n">files</span> <span class="k">else</span> <span class="p">[]</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 4: PASS + 回归</strong> — <code>uv run pytest tests/test_g4_files_decisions.py -v &amp;&amp; uv run pytest tests/ -k "g4" -x -q</code></p>
+</li>
+<li>
+<p>[ ] <strong>Step 5: 验收 2 后半实测</strong> — 构造临时 project_dir（复制 Task 1 fixture 双产物 + 最小 pipeline-state），断言 G4 marker 含 <code>G4.dec</code> 且 <code>s != "SKIP"</code>；命令与输出粘贴 progress.md。</p>
+</li>
+<li>
+<p>[ ] <strong>Step 6: Commit + audit-T2.md</strong> — <code>fix: route decisions sidecars into G4 file set (spec #30 T2, F434/T103/F795)</code></p>
+</li>
+</ul>
+<hr />
+<h3 id="task-3-g4-raw_decode-t3-t6">Task 3: G4 读侧 raw_decode 恢复对齐（T3 残余 + T6 前半）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/gates/g4/decisions_validator.py:91-118</code>（G4.dec 读侧）
+- Test: <code>tests/test_g4_decisions_recovery.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: g2.py 既有 raw_decode 截断恢复口径（<code>g2.py:115-139</code>）
+- Produces: G4 对尾随/拼接 JSON 产出结构化 <code>G4.dec.4</code>/<code>G4.dec.1</code> FAIL（含截断诊断），与 G2 同文件判定一致；不静默放行</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;T104 前半：同一损坏 decisions.json，G2 与 G4 判定必须一致。&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.gates.g2</span><span class="w"> </span><span class="kn">import</span> <span class="n">gate_G2</span>
+<span class="c1"># G4 判定入口以 decisions_validator 现有导出为准（run/validate 函数签名实现前核对）</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_trailing_json_g2_g4_agree</span><span class="p">(</span><span class="n">fixture_path</span><span class="p">):</span>
+    <span class="n">g2</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">gate_G2</span><span class="p">([</span><span class="nb">str</span><span class="p">(</span><span class="n">fixture_path</span><span class="p">)],</span> <span class="s2">&quot;decisions&quot;</span><span class="p">))</span>
+    <span class="n">g4</span> <span class="o">=</span> <span class="n">_run_g4_decisions</span><span class="p">(</span><span class="n">fixture_path</span><span class="p">)</span>   <span class="c1"># 以真实入口替换</span>
+    <span class="k">assert</span> <span class="n">_verdict</span><span class="p">(</span><span class="n">g2</span><span class="p">)</span> <span class="o">==</span> <span class="n">_verdict</span><span class="p">(</span><span class="n">g4</span><span class="p">)</span>    <span class="c1"># 两者都 FAIL 且 reason 类别相同</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: FAIL 确认</strong> → <strong>Step 3: 实现</strong>（G4 读侧改为与 g2 相同的 <code>raw_decode</code> 首对象提取 + <code>count('"$schema"')&gt;1</code> 拼接检测，恢复出的对象仍须过 <code>DecisionsDoc.model_validate</code>；提取失败/拼接 → FAIL 带诊断，绝不放行）→ <strong>Step 4: PASS + <code>pytest -k "decisions" -x -q</code> 回归</strong> → <strong>Step 5: Commit + audit-T3.md</strong>（<code>fix: G4.dec read side adopts G2 raw_decode recovery policy (spec #30 T3/T6, T104)</code>）</li>
+</ul>
+<hr />
+<h3 id="task-4-p25-f212f431t108f908">Task 4: P2.5 矩阵四源一致 + 错误消息（F212/F431/T108/F908）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/contracts/schemas/decisions.py:42</code>（错误消息补 medium）
+- Modify: <code>docs/framework/decisions-schema.md:64-88</code>（P2.5 表补 medium 行、severity 枚举补 medium）
+- Test: <code>tests/test_decisions_p25_medium.py</code>（新建）</p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong> — 断言 medium 无 rationale 的 ValidationError message 含 <code>"medium"</code>；</li>
+<li>[ ] <strong>Step 2: FAIL</strong> → <strong>Step 3: 错误消息改为 <code>"rationale REQUIRED for medium/high-severity or manual_override"</code>；decisions-schema.md severity 节补 <code>- medium (rationale required)</code> 行、P2.5 表补 medium 行</strong> → <strong>Step 4: PASS</strong> → <strong>Step 5: Commit + audit-T4.md</strong>（<code>fix: P2.5 rationale matrix four-source alignment — medium row (spec #30 T5, F212/F431/T108/F908)</code>）</li>
+</ul>
+<hr />
+<h3 id="task-5-producer-lintf439t106">Task 5: producer 声明补全 + 四源对账 lint（F439/T106）</h3>
+<p><strong>Files:</strong>
+- Modify: 6 个生产技能 SKILL.md（chapter-drafting/chapter-revision/context-composing/genre-config/market-radar/short-drafting）——writes 段后嵌 decisions 输出模板（必填字段 <code>$schema/skill/chapter/produced_at</code> + selections/adjustments 骨架）
+- Create: <code>tools/lint_decisions_sources.py</code>（<strong>三源</strong>对账，阶段 5 审查 I1 裁决——第四源「实产样本」由 Task 6 对撞语料测试承担，lint 不依赖它：decisions-schema.md 技能清单 ↔ truth-files.yaml kind=decisions ↔ SKILL.md writes 含 decisions）
+- Modify: <code>justfile</code>（<strong><code>check</code> recipe 内单列一行</strong>，镜像 <code>tools/lint_status_strings.py</code> 在 justfile:15 的挂法；非只挂 lint-contracts）
+- Test: <code>tests/test_lint_decisions_sources.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 失败测试</strong>（lint 对齐的 skill 集断言 + SKILL.md 含 <code>produced_at</code> 模板字段断言）</li>
+<li>[ ] <strong>Step 2: FAIL</strong> → <strong>Step 3: 实现</strong>（SKILL.md 模板段用统一片段；lint 脚本输出三方清单 diff，退出码非 0 即不一致）→ <strong>Step 4: <code>just generate</code> 后 deps.json/docs diff 为空；<code>just lint-contracts</code> 绿</strong> → <strong>Step 5: Commit + audit-T5.md</strong>（<code>feat: decisions producer declarations + four-source reconciliation lint (spec #30 T4, F439/T106)</code>）</li>
+</ul>
+<hr />
+<h3 id="task-6-g2g4-15-t104">Task 6: G2/G4 对撞回归 15 例（T104）</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/test_g2_g4_decisions_collision.py</code>（新建，参数化 15 例）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1/3 后的 gate_G2 与 G4.dec 判定入口
+- Fixture: <code>tests/fixtures/decisions/corpus/</code>（15 个真实损坏样本副本：从 novel-output 83 bad_json + 57 bad_schema 中各取代表 + 5 ok，选取以覆盖不同损坏形态——多对象拼接/截断/前缀散文/缺必填/枚举越表/rationale 缺失）</p>
+<ul>
+<li>[ ] <strong>Step 1: 选样复制（G0.9 真实副本）并写参数化测试</strong> — 每例断言 G2 与 G4 verdict 一致（同为 PASS 或同为 FAIL 且 reason 类别一致）</li>
+<li>[ ] <strong>Step 2: FAIL/不一致暴露</strong> → <strong>Step 3: 修残余分歧（在 Task 3 基础上补漏）</strong> → <strong>Step 4: 全 15 例 PASS</strong> → <strong>Step 5: Commit + audit-T6.md</strong>（<code>test: 15-case G2/G4 decisions collision regression suite (spec #30 T6, T104)</code>）</li>
+</ul>
+<hr />
+<h3 id="task-7-agentsmd-decisions-t107">Task 7: AGENTS.md decisions 条款对齐（T107）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>AGENTS.md:63-73</code>——G2 描述改为「per-file 分区：.json 走 G2.dec，.md 走章节检查」；P2.5 条款补 medium；四源对账 lint 提及
+- Test: 无独立测试（docs）；核验 <code>grep -n "medium" AGENTS.md docs/framework/decisions-schema.md src/shenbi/contracts/schemas/decisions.py</code> 三处一致</p>
+<ul>
+<li>[ ] <strong>Step 1: 修改</strong> → <strong>Step 2: 核验命令粘贴 progress.md</strong> → <strong>Step 3: Commit + audit-T7.md</strong>（<code>docs: align AGENTS.md decisions-sidecar clause with final rulings (spec #30 T7, T107)</code>）</li>
+</ul>
+<hr />
+<h3 id="task-8-spec">Task 8: spec 定稿修订 + 全量验收</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/specs/2026-08-16-audit-decisions-chain-fix.md</code>——回写阶段 3 裁决（I1 文件名分区形状、I2 WARN 模式删除、I3 基线数字 5/83/57）、<code>Status: Revised 2026-08-31</code>（本分支内修订，随主 PR 合并）</p>
+<p><strong>Steps:</strong>
+- [ ] 回写 spec 三处裁决 + 验收 1 改 fixtures 口径、验收 2 补「copy-then-degrade 真实产物」措辞（Minor 4）
+- [ ] 逐条跑 spec 验收 1-4（fixtures 全量 DecisionsDoc 校验 100% 通过口径、G2 .md FAIL、G4.dec 非 SKIP、15 例对撞、<code>just check</code>），输出粘贴 progress.md <code>## 验收证据</code>
+- [ ] Commit + audit-T8.md（<code>docs(spec): revise spec #30 per phase-3 rulings and verified baselines</code>）</p>
+<h2 id="self-review">Self-Review</h2>
+<ul>
+<li>覆盖：17 簇成员 → T1(F205/F438/T101) T2(F434/T103/F795) T3+T6(F237 残余/F791/T104) T5→Task4(F212/F431/F908/T108) T4→Task5(F439/T106) T7→Task7(T107) F1102→Task6 语料基线。验收 1→Task6+8；验收 2→Task1/2；验收 3→Task6；验收 4→阶段 7。无孤儿。</li>
+<li>无占位符：代码块均为实现形状，标注「以现有结构为准」处为核对指令非延后实现。</li>
+<li>类型一致：<code>_resolve_g4_files</code> 返回 <code>list[str]</code>；gate_G2 签名不变。</li>
+</ul>
+<h2 id="8m-2026-08-31">终审（阶段 8）M 项处置记录 · 2026-08-31</h2>
+<ul>
+<li>终审一轮 0C/3I/4M：I1（staged_decisions_targets 静默吞 ContractError）、I2（两处内联 sidecar glob 未走共享机制）、I3（phase_runner.py 陈旧注释）、M4（重复 import）→ 均已修（commit fc899236）</li>
+<li>M5 case16 为 copy-then-degrade 构造（真实副本+尾随块），T104 判别用例，<strong>不修（by design）</strong></li>
+<li>M6 parse_decisions_payload 内 "FAIL" 字面量沿袭被替换的 g2 旧内联形态，<strong>不修（既有模式）</strong></li>
+<li>M7 plan 原写 sorted(set(files))，实现为插入序+dedupe guard，行为等价且保留主产物优先序，<strong>不修（实现更优）</strong></li>
+<li>终审二轮 0C/0I/2M(新)：M1 契约驱动提交比旧 glob 严格（未声明 sidecar 会被清场丢弃）——by design（契约单源），观察缺口遗留；M2 本处置块</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

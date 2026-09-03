@@ -1,0 +1,1933 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>消除 cyclic-import 簇（pipeline + dispatcher/audit，10 sites）Spec - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="消除 cyclic-import 簇（pipeline + dispatcher/audit，10 sites）Spec - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="消除 cyclic-import 簇（pipeline + dispatcher/audit，10 sites）Spec - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/specs/archive/2026-08-02-issue24-cyclic-import-refactor-design.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#cyclic-import-pipeline-dispatcheraudit10-sitesspec" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              消除 cyclic-import 簇（pipeline + dispatcher/audit，10 sites）Spec
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1. 背景
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="1. 背景">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.1 来由
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#12" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.2 为什么必须重构（不能继续压注释）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#13" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        1.3 当前功能影响
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2. 诊断：两个真实环（已逐边核实）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="2. 诊断：两个真实环（已逐边核实）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#21-cluster-1pipeline-4-" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.1 Cluster 1：pipeline 4-节点环
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#22-cluster-2dispatcheraudit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        2.2 Cluster 2：dispatcher/audit 环
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#3-_shared" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3. 修复方案：下沉共享符号到中性 _shared 模块
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. 修复方案：下沉共享符号到中性 _shared 模块">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#31" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.1 总原则
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#32-cluster-1-srcshenbipipeline_sharedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.2 Cluster 1 修复 → 新建 src/shenbi/pipeline/_shared.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.2 Cluster 1 修复 → 新建 src/shenbi/pipeline/_shared.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        迁移后边的变化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-export 策略（向后兼容）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#33-cluster-2-srcshenbiaudit_sharedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.3 Cluster 2 修复 → 新建 src/shenbi/audit/_shared.py
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3.3 Cluster 2 修复 → 新建 src/shenbi/audit/_shared.py">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        迁移后边的变化
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#re-export_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Re-export 策略
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#34-11-write_truth_file-re-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        3.4 附带：消除第 11 条告警（write_truth_file re-export）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. 实施阶段（4 阶段，含验证点）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="4. 实施阶段（4 阶段，含验证点）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#phase-1-pipeline_sharedpy-volume-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 1：新建 pipeline/_shared.py，下沉 volume-map 解析域
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-2-audit_sharedpy-derive_output_files-auditresult" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 2：新建 audit/_shared.py，下沉 derive_output_files + AuditResult
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-3-write_truth_file-re-export-11" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 3：消除 write_truth_file re-export（第 11 条告警）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#phase-4-codeql" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Phase 4：全量验证 + CodeQL 重扫确认归零
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        5. 验证标准（验收清单）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#6-plan-spec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6. 待决策项（plan 阶段定，spec 只记选项）
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="6. 待决策项（plan 阶段定，spec 只记选项）">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#61-_sharedpy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.1 _shared.py 命名
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#62-_bridge_activation_window-_resolve_volume_at_runtime-re-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.2 _BRIDGE_ACTIVATION_WINDOW / _resolve_volume_at_runtime 是否保留 re-export
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#63-write_truth_file-re-export" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.3 write_truth_file re-export 处置
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#64-pr" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        6.4 PR 拆分
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        7. 风险与回滚
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#8-out-of-scope" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        8. 不做的事（Out of Scope）
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#9" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        9. 相关
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="cyclic-import-pipeline-dispatcheraudit10-sitesspec">消除 cyclic-import 簇（pipeline + dispatcher/audit，10 sites）Spec</h1>
+<blockquote>
+<p><strong>Date:</strong> 2026-08-02
+<strong>Series:</strong> 架构债清理（独立，承接 PR #25 §9 follow-up）
+<strong>Depends on:</strong> Issue #24；PR #25（已合并 <code>56fe7e7</code>，引入 10 条 <code># py/cyclic-import</code> 注释压制）
+<strong>Status:</strong> 设计中（Design）
+<strong>Severity:</strong> 🟡 Medium（功能零影响；阻碍 CodeQL 归零 + 模块边界清晰化）
+<strong>目的:</strong> 通过把跨环共享的纯函数/常量/类型下沉到中性 <code>_shared</code> 模块，将两个真实 import 环（4-node + 3-node）改造为 DAG，使 CodeQL <code>py/cyclic-import</code> 告警从 10 归零，并删除全部 10 条压制注释。</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 背景</h2>
+<h3 id="11">1.1 来由</h3>
+<p>PR #25（<code>eliminate-existing-warnings</code>，squash <code>56fe7e7</code>，2026-08-01 合并）修复了 94 条 CodeQL 告警中的 83 条。剩余 12 条中：</p>
+<ul>
+<li><strong>10 条 <code>py/cyclic-import</code></strong>：位于两个真实 import 环上。PR §9 决定<strong>不在该 PR 内重构</strong>，用注释 <code># py/cyclic-import (CodeQL): cycle with X — lazy import where needed; see follow-up. Spec §9 no refactor.</code> 临时标注，follow-up 即 Issue #24。</li>
+<li><strong>1 条 <code>py/unused-import</code></strong>：<code>dispatch_helper.py:57</code> 的 <code>write_truth_file</code> re-export（<code># noqa: F401</code> 锚点）。CodeQL 不认 <code># noqa</code>。</li>
+<li><strong>1 条 false-positive</strong>：record 在别处，非本 spec 范围。</li>
+</ul>
+<p>本 spec 处理 <strong>10 条 cyclic + 1 条 unused-import</strong>（共 11 条，对齐 Issue #24 全部内容）。</p>
+<h3 id="12">1.2 为什么必须重构（不能继续压注释）</h3>
+<p><code>py/cyclic-import</code> 是 <strong>CodeQL 图级别</strong> 检查：</p>
+<ul>
+<li><strong>不</strong>遵守 <code># noqa</code> / <code># type: ignore</code> / 行内注释（与 ruff / pyright 不同）。</li>
+<li><strong>只</strong>看模块依赖图拓扑——只有让图变成 DAG（有向无环图），告警才会消失。</li>
+</ul>
+<p>实测：PR #25 的 10 条 <code># py/cyclic-import</code> 注释对 CodeQL <strong>完全无效</strong>，告警数未减。这是 CodeQL 的设计行为，非 bug。</p>
+<h3 id="13">1.3 当前功能影响</h3>
+<p><strong>零。</strong> Python 的 lazy import（函数内 <code>import</code>）在运行时正常解析；<code>TYPE_CHECKING</code> 块更不触发。两个环都不阻塞当前任何功能。这是纯<strong>工程债 / 质量基线</strong>问题。</p>
+<hr />
+<h2 id="2">2. 诊断：两个真实环（已逐边核实）</h2>
+<blockquote>
+<p>下表行号基于 main HEAD <code>ad3b998</code>（2026-08-02）。Issue #24 正文行号是 PR #25 分支当时的快照，有少量偏移；环结构不变。</p>
+</blockquote>
+<h3 id="21-cluster-1pipeline-4-">2.1 Cluster 1：pipeline 4-节点环</h3>
+<div class="highlight"><pre><span></span><code>triggers ──► dispatch_helper ──► plan_skeleton ──► context_assemble ──┐
+     ▲                                                                │
+     └────────────────────────────────────────────────────────────────┘
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>边</th>
+<th>方向</th>
+<th>位置</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>triggers → dispatch_helper</td>
+<td><code>from shenbi.pipeline.dispatch_helper import dispatch_skill, run_gate_g4</code></td>
+<td><code>triggers.py:55</code></td>
+<td>top</td>
+</tr>
+<tr>
+<td>triggers → dispatch_helper</td>
+<td><code>from shenbi.pipeline.dispatch_helper import run_gate_g3</code></td>
+<td><code>triggers.py:645</code></td>
+<td>lazy</td>
+</tr>
+<tr>
+<td>dispatch_helper → plan_skeleton</td>
+<td><code>from shenbi.pipeline.plan_skeleton import generate_plan_skeleton</code></td>
+<td><code>dispatch_helper.py:689</code></td>
+<td>lazy</td>
+</tr>
+<tr>
+<td>plan_skeleton → context_assemble</td>
+<td><code>from shenbi.pipeline.context_assemble import _BRIDGE_ACTIVATION_WINDOW</code></td>
+<td><code>plan_skeleton.py:32</code></td>
+<td>top</td>
+</tr>
+<tr>
+<td>plan_skeleton → context_assemble</td>
+<td><code>from shenbi.pipeline.context_assemble import _resolve_volume_at_runtime</code></td>
+<td><code>plan_skeleton.py:200</code></td>
+<td>lazy</td>
+</tr>
+<tr>
+<td><strong>context_assemble → triggers</strong></td>
+<td><code>from shenbi.pipeline.triggers import read_volume_boundaries</code></td>
+<td><code>context_assemble.py:208</code>（在 <code>_resolve_volume_at_runtime</code> 体内）</td>
+<td>lazy</td>
+</tr>
+</tbody>
+</table>
+<p><strong>回边（构成环的唯一边）</strong>：<code>context_assemble → triggers</code>（L208）。</p>
+<p><strong>关键依赖事实</strong>：<code>_resolve_volume_at_runtime</code>（定义于 <code>context_assemble.py:201</code>）<strong>本身就调用</strong> <code>read_volume_boundaries</code>（定义于 <code>triggers.py:326</code>）。两者同属"volume map 解析"职责域——<code>read_volume_boundaries</code> 解析 <code>outline/volume_map.md</code> 得到分卷末章集合，<code>_resolve_volume_at_runtime</code> 基于该集合计算 <code>(volume_name, ch_start, ch_end)</code>。这是<strong>语义耦合</strong>，不只是语法环。</p>
+<h3 id="22-cluster-2dispatcheraudit">2.2 Cluster 2：dispatcher/audit 环</h3>
+<div class="highlight"><pre><span></span><code>executor ──► write_audit ──► executor        (2-节点环，实质)
+   │            ▲
+   └──► record ─┘  (TYPE_CHECKING，类型注解环)
+</code></pre></div>
+<table>
+<thead>
+<tr>
+<th>边</th>
+<th>方向</th>
+<th>位置</th>
+<th>类型</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>executor → record</td>
+<td><code>from shenbi.audit.record import record_audit_outcome</code></td>
+<td><code>executor.py:259</code></td>
+<td>lazy</td>
+</tr>
+<tr>
+<td>executor → write_audit</td>
+<td><code>from shenbi.audit.write_audit import audit_writes</code></td>
+<td><code>executor.py:263</code></td>
+<td>lazy</td>
+</tr>
+<tr>
+<td><strong>write_audit → executor</strong></td>
+<td><code>from shenbi.dispatcher.executor import derive_output_files</code></td>
+<td><code>write_audit.py:30</code>（在 <code>_declared_patterns</code> 体内）</td>
+<td>lazy</td>
+</tr>
+<tr>
+<td><strong>record → write_audit</strong></td>
+<td><code>from shenbi.audit.write_audit import AuditResult</code></td>
+<td><code>record.py:16</code></td>
+<td>TYPE_CHECKING</td>
+</tr>
+</tbody>
+</table>
+<p><strong>回边</strong>：<code>write_audit → executor</code>（L30，运行时环）+ <code>record → write_audit</code>（L16，仅类型注解环）。</p>
+<p><strong>重要消歧（同名异类）</strong>：codebase 有<strong>两个无关的 <code>AuditResult</code> 类</strong>——
+- <code>shenbi.pipeline.audit_layer.AuditResult</code>（L85，chapter_loop 用，<strong>不在本环</strong>）
+- <code>shenbi.audit.write_audit.AuditResult</code>（L20，本环，<code>record.py</code> 引用的就是它）</p>
+<p>字段集不同，互不通用。本 spec 的 <code>AuditResult</code> 一律指后者（<code>write_audit.AuditResult</code>：<code>skill</code>/<code>violations</code>/<code>drift</code>/<code>checked_files</code>）。</p>
+<hr />
+<h2 id="3-_shared">3. 修复方案：下沉共享符号到中性 <code>_shared</code> 模块</h2>
+<h3 id="31">3.1 总原则</h3>
+<p>环的本质是"双方互相需要对方的符号"。打破方式：识别出<strong>被环内多个成员依赖、但自身不依赖任何环内成员</strong>的符号，把它们迁移到一个新的中性模块。迁移后，原模块对中性模块形成<strong>单向</strong>依赖（<code>模块 → _shared</code>），回边消失，图变 DAG。</p>
+<p><strong>不下沉的判断标准</strong>（守住职责边界，避免 <code>_shared</code> 沦为杂物间）：
+- 模块的核心职责符号（如 <code>dispatch_skill</code> / <code>audit_writes</code> / <code>generate_plan_skeleton</code>）<strong>保留原地</strong>。
+- 只下沉：纯常量、纯函数（无环内反向依赖）、共享类型（dataclass）。</p>
+<h3 id="32-cluster-1-srcshenbipipeline_sharedpy">3.2 Cluster 1 修复 → 新建 <code>src/shenbi/pipeline/_shared.py</code></h3>
+<p>下沉 3 个符号（构成完整 volume-map 解析域）：</p>
+<table>
+<thead>
+<tr>
+<th>下沉符号</th>
+<th>当前位置</th>
+<th>类型</th>
+<th>依赖（确认无环内反向依赖）</th>
+<th>被谁用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>_BRIDGE_ACTIVATION_WINDOW</code></td>
+<td><code>context_assemble.py:45</code></td>
+<td>常量（<code>= 3</code>）</td>
+<td>无</td>
+<td><code>plan_skeleton</code> (top)</td>
+</tr>
+<tr>
+<td><code>read_volume_boundaries</code></td>
+<td><code>triggers.py:326</code></td>
+<td>纯函数</td>
+<td>仅 <code>VOLUME_MAP_PATH</code>/<code>_END_RE</code>/<code>_RANGE_RE</code>（同下沉）+ <code>re</code>/<code>pathlib</code></td>
+<td><code>context_assemble</code> (lazy)</td>
+</tr>
+<tr>
+<td><code>_resolve_volume_at_runtime</code></td>
+<td><code>context_assemble.py:201</code></td>
+<td>纯函数</td>
+<td>仅调 <code>read_volume_boundaries</code>（同下沉）</td>
+<td><code>plan_skeleton</code> (lazy)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>附带下沉的私有常量</strong>（<code>read_volume_boundaries</code> 的依赖）：
+- <code>VOLUME_MAP_PATH = "outline/volume_map.md"</code>（<code>triggers.py:78</code>）
+- <code>_END_RE</code> / <code>_RANGE_RE</code>（<code>triggers.py:316</code>/<code>320</code>）</p>
+<h4 id="_1">迁移后边的变化</h4>
+<div class="highlight"><pre><span></span><code>                          ┌──────────────────▼
+                          ▼                   │
+              _shared.py（新，无环内依赖）     │
+                          ▲                   │
+                          │                   │
+triggers ──► dispatch_helper ──► plan_skeleton ─► context_assemble
+   ▲                                                         │
+   │                                                         │
+   └──── context_assemble 仍直接调 read_volume_boundaries ──┘  ← 回边消失！
+         （改成 from shenbi.pipeline._shared import read_volume_boundaries）
+</code></pre></div>
+<p><code>context_assemble → triggers</code> 这条回边<strong>消失</strong>（改为 <code>context_assemble → _shared</code>）。4-节点环被打断。</p>
+<h4 id="re-export">Re-export 策略（向后兼容）</h4>
+<p><code>read_volume_boundaries</code> 被 <strong>5 处运行时消费者 + 1 处测试</strong> 直接 import（全部经 <code>from shenbi.pipeline.triggers import read_volume_boundaries</code>）：
+- <code>src/shenbi/pipeline/closure.py:30</code>（<strong>顶层 import</strong>，load-bearing）
+- <code>src/shenbi/pipeline/chapter_loop.py:976</code>（lazy）
+- <code>src/shenbi/pipeline/cli.py:154</code>（lazy）
+- <code>src/shenbi/pipeline/triggers.py:360</code>（模块内自调，<code>is_volume_boundary</code>）
+- <code>src/shenbi/pipeline/context_assemble.py:209</code>（lazy，本环回边，Phase 1 后改指 <code>_shared</code>）
+- <code>tests/unit/pipeline/test_triggers.py:40</code>（测试锚点）</p>
+<p>下沉后 <code>triggers.py</code> 的 re-export 是 <strong>MANDATORY</strong>（非"为安全"）—— 删 re-export 会让 <code>closure.py</code> 顶层 import 在 import-time 崩溃，<code>chapter_loop</code>/<code>cli</code> 运行时崩。re-export 行：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># triggers.py —— 下沉后保留 re-export（MANDATORY：closure.py 顶层 import + 3 处运行时消费者依赖此 surface）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline._shared</span><span class="w"> </span><span class="kn">import</span> <span class="n">read_volume_boundaries</span><span class="p">,</span> <span class="n">VOLUME_MAP_PATH</span>  <span class="c1"># noqa: F401</span>
+</code></pre></div>
+<blockquote>
+<p><code>_BRIDGE_ACTIVATION_WINDOW</code> / <code>_resolve_volume_at_runtime</code> 经核实<strong>无 src/tests 直接 import</strong>（grep 零命中；仅 <code>context_assemble.py</code> 自身用 <code>_BRIDGE_ACTIVATION_WINDOW</code>，Phase 1 已改 import 自 <code>_shared</code>）。这两个 <code>_</code>-前缀符号的 re-export 是 <strong>可选</strong>（§6.2 Option A/B）。</p>
+</blockquote>
+<h3 id="33-cluster-2-srcshenbiaudit_sharedpy">3.3 Cluster 2 修复 → 新建 <code>src/shenbi/audit/_shared.py</code></h3>
+<p>下沉 2 个符号：</p>
+<table>
+<thead>
+<tr>
+<th>下沉符号</th>
+<th>当前位置</th>
+<th>类型</th>
+<th>依赖（确认无环内反向依赖）</th>
+<th>被谁用</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>derive_output_files</code></td>
+<td><code>executor.py:110</code></td>
+<td>纯函数</td>
+<td><code>load_contract</code>（contracts 包，非环内）+ <code>resolve_or_skip</code> + <code>ContractError</code></td>
+<td><code>write_audit</code> (lazy L30)</td>
+</tr>
+<tr>
+<td><code>AuditResult</code></td>
+<td><code>write_audit.py:20</code></td>
+<td>frozen dataclass</td>
+<td>无</td>
+<td><code>record</code> (TYPE_CHECKING L16) + <code>write_audit</code>/<code>executor</code> 自用</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_2">迁移后边的变化</h4>
+<div class="highlight"><pre><span></span><code>                ┌─────────────▼
+                ▼              │
+        _shared.py（新）       │  derive_output_files, AuditResult
+                ▲              │
+        ┌───────┴──────┐       │
+        │              │       │
+   write_audit     record      │
+        ▲              ▲       │
+        │              │       │
+        └── executor ──┘       │
+            (单向 → record, write_audit, _shared)
+</code></pre></div>
+<ul>
+<li><code>write_audit → executor</code>（L30）改为 <code>write_audit → _shared</code>，运行时环消失。</li>
+<li><code>record → write_audit</code>（L16 TYPE_CHECKING）改为 <code>record → _shared</code>，类型注解环消失。</li>
+</ul>
+<blockquote>
+<p><strong>依赖方向说明</strong>（plan 阶段注意）：<code>executor.py</code>（在 <code>dispatcher/</code> 包）改为顶部 <code>from shenbi.audit._shared import derive_output_files</code>，使 <code>dispatcher → audit</code> 包级依赖出现。这是有意接受的——<code>audit/_shared.py</code> 是 <strong>叶子模块</strong>（只 import <code>shenbi.contracts.*</code> + 标准库，不回 import <code>dispatcher</code>/<code>audit.write_audit</code>/<code>audit.record</code>，Phase 1 核实过 <code>derive_output_files</code> 函数体）。<code>audit</code> 前缀是组织性的（包内私有 <code>_shared</code>），非语义层。<code>derive_output_files</code> 本质是 contracts-resolving helper（<code>load_contract</code> + <code>resolve_or_skip</code> 的薄封装），非 "audit" 概念；放在 <code>audit/_shared</code> 而非 <code>contracts/paths.py</code> 是为最小改动（避免改 <code>contracts</code> 包导入方向）。</p>
+</blockquote>
+<h4 id="re-export_1">Re-export 策略</h4>
+<ul>
+<li><code>derive_output_files</code> 被 <strong>2 处运行时消费者 + 1 处测试</strong> 直接 import（全部经 <code>from shenbi.dispatcher.executor import derive_output_files</code>）：</li>
+<li><code>src/shenbi/phase_runner.py:190</code>（lazy，T2 phase 状态机用）</li>
+<li><code>src/shenbi/audit/write_audit.py:31</code>（lazy，<code>_declared_patterns</code>——本环回边，Phase 2 后改指 <code>_shared</code>）</li>
+<li><code>tests/unit/test_dispatcher_executor.py:13</code>（测试锚点，多行绝对导入块）</li>
+<li>另：<code>executor.py</code> 自身在 L218/L245 内部调用（经顶部 re-export 解析）。</li>
+<li>re-export 在 <code>executor.py</code> 顶部 <code>from shenbi.audit._shared import derive_output_files  # noqa: F401</code> 是 <strong>MANDATORY</strong>（<code>phase_runner.py</code> + 测试依赖此 surface）。</li>
+<li><code>AuditResult</code> 被 <code>tests/unit/audit/test_record.py:7</code> 直接 import（<code>from shenbi.audit.write_audit import AuditResult</code>），且 <code>src/shenbi/audit/__init__.py:8</code> 把它列为公开 API（<code>from shenbi.audit.write_audit import AuditResult, audit_writes</code>）。需在 <code>write_audit.py</code> 保留 re-export：<code>from shenbi.audit._shared import AuditResult  # noqa: F401</code>。</li>
+<li><strong>消歧订正（Phase 1 核实）</strong>：原 spec 误引 <code>tests/unit/pipeline/test_audit_layer.py:21</code> 作为锚点——该测试 import 的是 <code>shenbi.pipeline.audit_layer.AuditResult</code>（同名异类，§2.2 列出的 out-of-cycle 类），<strong>不依赖</strong> <code>write_audit</code> 的 re-export。<code>write_audit.AuditResult</code> 的真实测试消费者是 <code>test_record.py:7</code>。</li>
+</ul>
+<h3 id="34-11-write_truth_file-re-export">3.4 附带：消除第 11 条告警（<code>write_truth_file</code> re-export）</h3>
+<p>Issue #24 末尾提到的 <code>dispatch_helper.py:57</code> <code>py/unused-import</code>：</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># dispatch_helper.py:57（当前）</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.truth_io</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_truth_file</span>  <span class="c1"># noqa: F401  # pyright: ignore[reportUnusedImport]</span>
+</code></pre></div>
+<p>这条 re-export 的<strong>唯一消费者</strong>是 <code>tests/unit/pipeline/test_dispatch_write_semantics.py:46</code>：
+<div class="highlight"><pre><span></span><code><span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;shenbi.pipeline.dispatch_helper.write_truth_file&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock_wtf</span><span class="p">:</span>
+</code></pre></div></p>
+<p><strong>根因</strong>：<code>patch</code> 需要在 <code>dispatch_helper</code> 模块命名空间里能找到 <code>write_truth_file</code>，因此加了 re-export。但 CodeQL 不认 <code># noqa</code>。</p>
+<p><strong>修复（两种选项，§6.3 决策）</strong>：</p>
+<ul>
+<li><strong>选项 A（推荐，彻底）</strong>：核实 <code>dispatch_helper</code> 运行时是否真的用 <code>write_truth_file</code>（grep 显示 <code>dispatch_helper</code> 体内无调用，仅 re-export 行）。若运行时不用，删除 re-export 行；同时把 test 的 patch 路径改为 <code>shenbi.pipeline.truth_io.write_truth_file</code>（真实定义处）。告警自然消失。</li>
+<li><strong>选项 B（保守）</strong>：把 <code>write_truth_file</code> 的真实 import 移到 <code>dispatch_helper</code> 顶部并实际调用（若确有调用点），消除"unused"判定。</li>
+</ul>
+<p>倾向选项 A（需在 plan 阶段 grep 确认 <code>dispatch_helper</code> 运行时零调用 <code>write_truth_file</code>）。</p>
+<hr />
+<h2 id="4-4">4. 实施阶段（4 阶段，含验证点）</h2>
+<blockquote>
+<p>每阶段结束必须过 <code>just check</code> 的相关子集；全量验证在 Phase 4。</p>
+</blockquote>
+<h3 id="phase-1-pipeline_sharedpy-volume-map">Phase 1：新建 <code>pipeline/_shared.py</code>，下沉 volume-map 解析域</h3>
+<p><strong>改动文件</strong>：
+1. 新建 <code>src/shenbi/pipeline/_shared.py</code>：迁移 <code>_BRIDGE_ACTIVATION_WINDOW</code>、<code>VOLUME_MAP_PATH</code>、<code>_END_RE</code>、<code>_RANGE_RE</code>、<code>read_volume_boundaries</code>、<code>_resolve_volume_at_runtime</code>。
+2. <code>src/shenbi/pipeline/triggers.py</code>：删除上述符号定义，顶部加 <code>from shenbi.pipeline._shared import read_volume_boundaries, VOLUME_MAP_PATH  # noqa: F401</code>（re-export 守测试锚点）。删除 L208 的 cyclic 注释。
+3. <code>src/shenbi/pipeline/context_assemble.py</code>：删除 <code>_BRIDGE_ACTIVATION_WINDOW</code>/<code>_resolve_volume_at_runtime</code> 定义。顶部 import <code>from shenbi.pipeline._shared import _BRIDGE_ACTIVATION_WINDOW, _resolve_volume_at_runtime</code>（<code>_BRIDGE_ACTIVATION_WINDOW</code> 仍被 <code>_load_volume_context</code> 在 L287 使用，<strong>必须</strong>一并 import，否则 NameError）。L208 的 <code>from shenbi.pipeline.triggers import read_volume_boundaries</code> 改为 <code>from shenbi.pipeline._shared import read_volume_boundaries</code>（回边消失）。删除 cyclic 注释。
+4. <code>src/shenbi/pipeline/plan_skeleton.py</code>：L32/L200 的 <code>from shenbi.pipeline.context_assemble import ...</code> 改为指向 <code>_shared</code>。删除 cyclic 注释。</p>
+<p><strong>验证</strong>：
+- <code>pytest tests/unit/pipeline/test_triggers.py tests/unit/pipeline/test_context_assemble.py tests/unit/pipeline/test_plan_skeleton.py -v</code> 全绿。
+  - <code>test_triggers.py</code> 覆盖 <code>read_volume_boundaries</code>（L218/L224 用例）；<code>test_context_assemble.py</code> 覆盖 <code>_load_volume_context</code>（L287 用 <code>_BRIDGE_ACTIVATION_WINDOW</code>，catch C1 类 NameError）；<code>test_plan_skeleton.py</code> 覆盖 <code>generate_plan_skeleton</code>（用 <code>_resolve_volume_at_runtime</code>）。
+- <code>ruff check src/shenbi/pipeline/_shared.py src/shenbi/pipeline/triggers.py src/shenbi/pipeline/context_assemble.py src/shenbi/pipeline/plan_skeleton.py</code>。
+- <code>grep -rn "py/cyclic-import" src/shenbi/pipeline/</code> 应只剩 Cluster 1 中已处理的 0 条（Cluster 2 在 Phase 3）。</p>
+<h3 id="phase-2-audit_sharedpy-derive_output_files-auditresult">Phase 2：新建 <code>audit/_shared.py</code>，下沉 derive_output_files + AuditResult</h3>
+<p><strong>改动文件</strong>：
+1. 新建 <code>src/shenbi/audit/_shared.py</code>：迁移 <code>derive_output_files</code>（连同其依赖 <code>load_contract</code>/<code>resolve_or_skip</code>/<code>ContractError</code> 的 import）、<code>AuditResult</code> dataclass。
+2. <code>src/shenbi/dispatcher/executor.py</code>：删除 <code>derive_output_files</code> 定义，顶部加 <code>from shenbi.audit._shared import derive_output_files  # noqa: F401</code>（re-export）。
+3. <code>src/shenbi/audit/write_audit.py</code>：删除 <code>AuditResult</code> 定义，加 <code>from shenbi.audit._shared import AuditResult  # noqa: F401</code>。L30 的 <code>from shenbi.dispatcher.executor import derive_output_files</code> 改为 <code>from shenbi.audit._shared import derive_output_files</code>。删除 cyclic 注释。
+4. <code>src/shenbi/audit/record.py</code>：L16 的 <code>from shenbi.audit.write_audit import AuditResult</code> 改为 <code>from shenbi.audit._shared import AuditResult</code>。删除 cyclic 注释。
+5. <code>src/shenbi/dispatcher/executor.py</code>：L259/L263 的 cyclic 注释删除（import 语句本身保留——它们指向 <code>audit.record</code>/<code>audit.write_audit</code>，是合法单向依赖）。</p>
+<p><strong>验证</strong>：
+- <code>pytest tests/unit/test_dispatcher_executor.py tests/unit/audit/test_record.py -v</code> 全绿。
+  - <code>test_dispatcher_executor.py</code> 覆盖 <code>derive_output_files</code>（L13 import）；<code>test_record.py</code> 覆盖 <code>write_audit.AuditResult</code>（L7 import，是 cycle 内那个 AuditResult 的真实消费者）。注：<code>test_audit_layer.py</code> 测的是 <code>audit_layer.AuditResult</code>（同名异类、out-of-cycle），与本 phase 无关，不纳入。
+- <code>grep -rn "py/cyclic-import" src/shenbi/</code> 应返回 <strong>0 条</strong>。</p>
+<h3 id="phase-3-write_truth_file-re-export-11">Phase 3：消除 <code>write_truth_file</code> re-export（第 11 条告警）</h3>
+<p><strong>前置确认</strong>（plan 阶段做，已 Phase 1 核实）：<code>grep -n "write_truth_file" src/shenbi/pipeline/dispatch_helper.py</code> 返回 4 hit——L57（re-export 本身）+ L1034/L1137/L1214（docstring/comment 文本提及，非可执行调用）。运行时零调用，走选项 A 成立。</p>
+<p><strong>改动</strong>（选项 A）：
+1. <code>src/shenbi/pipeline/dispatch_helper.py</code>：删除 L53-57 整块（4 行解释注释 + 1 行 re-export）。
+2. <code>tests/unit/pipeline/test_dispatch_write_semantics.py</code>：<code>TestAppendDedupNotRoutedInDispatch.test_append_dedup_truth_file_is_written_whole_not_upserted</code>（L37-58）—— 删除 L46-47 的 <code>with patch("shenbi.pipeline.dispatch_helper.write_truth_file") as mock_wtf:</code> + <code>mock_wtf.return_value = None</code> 包裹层，以及 L55 的 <code>mock_wtf.assert_not_called()</code>。<strong>保留</strong> L57-58 的正面断言（whole-file 写入经 <code>safe_write</code>）。注：该 patch 本就是 vacuous negative-assertion（<code>_write_parsed_outputs</code> 从不调 <code>write_truth_file</code>，patch 拦截的符号永不分发），删 re-export 后 patch 目标不存在，整个 <code>with</code> 块失去意义。改后测试仍验证真实信号（whole-file 写入行为）。</p>
+<p><strong>验证</strong>：
+- <code>pytest tests/unit/pipeline/test_dispatch_write_semantics.py -v</code> 全绿。
+- <code>grep -n "import.*write_truth_file" src/shenbi/pipeline/dispatch_helper.py</code> 返回空（确认 re-export 行已删；docstring/comment 文本提及不在 grep 模式内）。</p>
+<h3 id="phase-4-codeql">Phase 4：全量验证 + CodeQL 重扫确认归零</h3>
+<ol>
+<li><code>just check</code>（lint_status_strings + lint_repo_consistency + lint-contracts + ruff check + ruff format --check + mypy + basedpyright + shenbi-sync-contracts idempotency + pytest）。<strong>基线</strong>：2787 passed + 4 last-marked，85.03% coverage（PR #25 后 main 实测值）。<strong>不回归</strong>。</li>
+<li>推 branch，开 PR，等 CodeQL 扫描。<strong>验收标准</strong>：<code>py/cyclic-import</code> = <strong>0</strong>，<code>py/unused-import</code> 在 <code>dispatch_helper.py</code> = <strong>0</strong>。</li>
+<li>若 CodeQL 仍报残留：plan 阶段须列出每条的 file:line + 当前依赖路径，判断是否漏迁或环拓扑判断有误（回 §2 重新核实边）。</li>
+</ol>
+<hr />
+<h2 id="5">5. 验证标准（验收清单）</h2>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>标准</th>
+<th>命令 / 证据</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>V1</td>
+<td><code>just check</code> 全绿，测试数不回归（≥2787 passed）</td>
+<td><code>just check</code> 末尾 pytest 输出</td>
+</tr>
+<tr>
+<td>V2</td>
+<td>coverage 不回归（≥85.03%）</td>
+<td><code>just check</code> 覆盖率行</td>
+</tr>
+<tr>
+<td>V3</td>
+<td>codebase 内零 <code># py/cyclic-import</code> 注释</td>
+<td><code>grep -rn "py/cyclic-import" src/shenbi/</code> 返回空</td>
+</tr>
+<tr>
+<td>V4</td>
+<td>CodeQL <code>py/cyclic-import</code> 告警 = 0</td>
+<td>PR 的 CodeQL 扫描结果</td>
+</tr>
+<tr>
+<td>V5</td>
+<td>CodeQL <code>py/unused-import</code>（dispatch_helper.py:57）= 0</td>
+<td>同上</td>
+</tr>
+<tr>
+<td>V6</td>
+<td>被迁移符号的既有测试全绿</td>
+<td>Phase 1/2/3 各阶段 pytest</td>
+</tr>
+<tr>
+<td>V7</td>
+<td>ruff/mypy/basedpyright 对新 <code>_shared</code> 模块全绿</td>
+<td><code>just check</code> 内的 lint 阶段</td>
+</tr>
+<tr>
+<td>V8</td>
+<td><code>__init__.py</code> 公开 API 不变（<code>AuditResult</code> 仍可 <code>from shenbi.audit import AuditResult</code>）</td>
+<td><code>python -c "from shenbi.audit import AuditResult; print(AuditResult)"</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-plan-spec">6. 待决策项（plan 阶段定，spec 只记选项）</h2>
+<h3 id="61-_sharedpy">6.1 <code>_shared.py</code> 命名</h3>
+<ul>
+<li><strong>选项 A（推荐）</strong>：<code>_shared.py</code>（下划线前缀表"包内私有，勿从外部直接 import"）。</li>
+<li><strong>选项 B</strong>：按职责命名——<code>pipeline/_volume_map.py</code>（volume 解析域）、<code>audit/_contract_extract.py</code>（契约提取 + 审计结果类型）。语义更清晰但跨两个符号职责略杂。</li>
+</ul>
+<h3 id="62-_bridge_activation_window-_resolve_volume_at_runtime-re-export">6.2 <code>_BRIDGE_ACTIVATION_WINDOW</code> / <code>_resolve_volume_at_runtime</code> 是否保留 re-export</h3>
+<blockquote>
+<p>仅适用于这两个 <code>_</code>-前缀符号。<code>read_volume_boundaries</code> / <code>VOLUME_MAP_PATH</code> 的 re-export 是 <strong>MANDATORY</strong>（§3.2 已述 5 处运行时消费者），不在此决策项内。</p>
+</blockquote>
+<ul>
+<li><strong>选项 A（推荐）</strong>：保留 re-export（成本极低，守未知外部 import）。</li>
+<li><strong>选项 B</strong>：不保留（<code>_</code> 前缀本就不保证稳定，强制调用方迁移到 <code>_shared</code>）。</li>
+</ul>
+<h3 id="63-write_truth_file-re-export">6.3 <code>write_truth_file</code> re-export 处置</h3>
+<ul>
+<li><strong>选项 A（推荐）</strong>：删 re-export + 改 test patch 路径（彻底，前提是 <code>dispatch_helper</code> 运行时零调用）。</li>
+<li><strong>选项 B</strong>：保留但改为实际调用（若 plan 阶段发现确有调用点）。</li>
+</ul>
+<h3 id="64-pr">6.4 PR 拆分</h3>
+<ul>
+<li><strong>选项 A（推荐）</strong>：单 PR（11 条告警同一根因簇，三 Phase 强相关，合并审阅更清晰）。</li>
+<li><strong>选项 B</strong>：拆 3 PR（每 Phase 一个），降低单 PR 体量但增加 review 轮次。</li>
+</ul>
+<hr />
+<h2 id="7">7. 风险与回滚</h2>
+<table>
+<thead>
+<tr>
+<th>风险</th>
+<th>概率</th>
+<th>影响</th>
+<th>缓解</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>迁移符号时遗漏私有依赖（如 <code>_END_RE</code> 漏迁）</td>
+<td>中</td>
+<td>import error，pytest 即刻红</td>
+<td>Phase 1/2 后立即跑相关模块测试</td>
+</tr>
+<tr>
+<td>re-export 忘加导致外部 import 断裂</td>
+<td>低</td>
+<td><code>ImportError</code>，CI 红</td>
+<td>V8 显式验证 <code>__init__.py</code> 公开 API</td>
+</tr>
+<tr>
+<td>CodeQL 对"图改变"判定与预期不符（如把 <code>_shared</code> 视为环的一部分）</td>
+<td>低</td>
+<td>告警不归零</td>
+<td>V4 CodeQL 重扫；若残留，回 §2 重核边</td>
+</tr>
+<tr>
+<td>同名 <code>AuditResult</code> 误迁移（迁成 <code>audit_layer.AuditResult</code>）</td>
+<td>低</td>
+<td>chapter_loop 类型错配</td>
+<td>§2.2 已消歧；Phase 2 改动前 grep 确认 <code>write_audit.AuditResult</code> 字段</td>
+</tr>
+<tr>
+<td><code>write_truth_file</code> patch 路径改错（选项 A）</td>
+<td>中</td>
+<td>test 静默不再 patch 真实符号</td>
+<td>Phase 3 后跑 <code>test_dispatch_write_semantics.py</code> + 手查 mock 是否被调用</td>
+</tr>
+</tbody>
+</table>
+<p><strong>回滚</strong>：纯重构，无数据/契约/schema 变更。任一 Phase 失败直接 <code>git revert</code>，不影响其他。三 Phase 互相独立可分别回滚。</p>
+<hr />
+<h2 id="8-out-of-scope">8. 不做的事（Out of Scope）</h2>
+<ol>
+<li><strong>不重构环内成员的核心职责</strong>（如把 <code>dispatch_skill</code> 也下沉）——那会制造巨型 <code>_shared</code>，违反 §3.1 原则。</li>
+<li><strong>不处理第 12 条 CodeQL false-positive</strong>（非 cyclic/unused 类，需单独诊断）。</li>
+<li><strong>不借机"顺便"优化 volume_map 解析逻辑</strong>——本 spec 是纯迁移，行为零变更。任何逻辑改进另开 spec。</li>
+<li><strong>不改 <code>audit_layer.AuditResult</code></strong>（同名异类，不在本环）。</li>
+<li><strong>不动 <code>__init__.py</code> 的公开 API 声明</strong>（只改内部 import 来源，公开 surface 保持稳定）。</li>
+</ol>
+<hr />
+<h2 id="9">9. 相关</h2>
+<ul>
+<li><strong>Issue #24</strong>：本 spec 的来源，跟踪这 10 + 1 条告警。</li>
+<li><strong>PR #25</strong>（<code>56fe7e7</code>）：引入注释压制的 PR，§9 决策"no refactor, follow-up"。</li>
+<li><strong><code>docs/superpowers/specs/archive/2026-08-01-eliminate-existing-warnings-plan.md</code></strong>：PR #25 的 plan，§9 同一决策。</li>
+<li><strong>CodeQL <code>py/cyclic-import</code> 文档</strong>：图级别检查，不认 <code># noqa</code>，唯一解法是改变依赖图拓扑。</li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

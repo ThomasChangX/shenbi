@@ -1,0 +1,1872 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-24-output-side-waste-f10-aggregate/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>输出侧浪费 F10：审计聚合去重层 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="输出侧浪费 F10：审计聚合去重层 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-24-output-side-waste-f10-aggregate.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-24-output-side-waste-f10-aggregate/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="输出侧浪费 F10：审计聚合去重层 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-24-output-side-waste-f10-aggregate.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#f10-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              输出侧浪费 F10：审计聚合去重层 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-0-fixture" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 0: 真实审计 fixture 集
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-1-audit_aggregatepy-tdd" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: audit_aggregate.py 聚合模块（TDD）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-chapter_loop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: chapter_loop 双触发点接线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-g1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: 契约切换 + G1 前回退 + 注册表登记
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: 验收证据 + 全量门禁
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#spec-6-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表（spec §6 → task → 命令）
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="f10-implementation-plan">输出侧浪费 F10：审计聚合去重层 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 在 revision 派发前用确定性（零 LLM）聚合去重层取代 <code>shenbi-chapter-revision</code> 对 <code>audits/chapter-N-*.md</code> raw glob 的读取，消除 ~60-120KB/次的冗余输入与共振文件双读。</p>
+<p><strong>Architecture:</strong> 新纯函数模块 <code>src/shenbi/pipeline/audit_aggregate.py</code> 产出 <code>audits/chapter-N.aggregate.md</code>（点分隔，不落 <code>chapter-N-*.md</code> glob 命名空间）；<code>chapter_loop.py</code> 两条 revision 派发入口前置触发；SKILL.md reads 改单文件 + dispatch_helper reads 解析阶段（G1 之前）fail-open 回退 raw glob。spec §5.1a 为权威设计。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / structlog / pytest（fixtures 驱动，G0.9）。</p>
+<p><strong>Spec:</strong> <code>docs/superpowers/specs/2026-08-01-output-side-waste-audit-design.md</code>（2026-08-24 修订版；F8/F7 已关闭，本 plan 只实施 F10 + 2.3b）</p>
+<p><strong>分类:</strong> 全部 task 为 <strong>infra</strong>（触及 <code>src/shenbi/pipeline/</code> 与契约）→ 协调者亲自实现，不分派。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>聚合层<strong>零 LLM 调用</strong>（spec §5.1a：纯 Python、structlog、pathlib、幂等）</li>
+<li>聚合文件名必须<strong>不匹配</strong> <code>chapter-N-*.md</code> glob（用 <code>.</code> 分隔：<code>chapter-N.aggregate.md</code>）</li>
+<li>聚合格式<strong>不得以 <code>---</code> 开头</strong>（G1.3 frontmatter 解析）</li>
+<li>无损不变量：raw 报告中全部 severity-bearing finding 单元（BLOCKING/CRITICAL/WARNING/ERROR 家族）必须存在于聚合（verbatim 或合并键+报告方清单），resonance 报告（<code>chapter-N-resonance.md</code>，若存在）<strong>全文逐字保留</strong></li>
+<li>测试输入只用 <code>tests/fixtures/</code> 真实产物（G0.9）；dispatch 边界可用 mock（聚合逻辑本身走真实代码路径）</li>
+<li>状态字面量不新增（无新状态）；框架代码无 <code>print()</code></li>
+<li>契约变更走源头 + <code>just generate</code>，禁手改 deps.json/docs 生成物</li>
+<li>commit 用 Conventional Commits，pathspec-only add</li>
+</ul>
+<hr />
+<h3 id="task-0-fixture">Task 0: 真实审计 fixture 集</h3>
+<p><strong>Files:</strong>
+- Create: <code>tests/fixtures/audits/chapter-1-consistency.md</code>
+- Create: <code>tests/fixtures/audits/chapter-1-character.md</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: 两份真实审计报告 fixture（内容 = <code>tests/fixtures/audit-report-example.md</code> 的逐字节副本，G0.11 源文件哈希镜像；文件名模拟生产布局 <code>chapter-N-&lt;dim&gt;.md</code>；同一真实内容两份文件构成「多审计器报告同一缺陷」的重叠场景——内容是真实 skill 输出，非手写）</p>
+<ul>
+<li>[ ] <strong>Step 1: 复制真实产物为镜像 fixture</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/fixtures/audits
+cp<span class="w"> </span>tests/fixtures/audit-report-example.md<span class="w"> </span>tests/fixtures/audits/chapter-1-consistency.md
+cp<span class="w"> </span>tests/fixtures/audit-report-example.md<span class="w"> </span>tests/fixtures/audits/chapter-1-character.md
+shasum<span class="w"> </span>-a<span class="w"> </span><span class="m">256</span><span class="w"> </span>tests/fixtures/audit-report-example.md<span class="w"> </span>tests/fixtures/audits/chapter-1-*.md
+</code></pre></div>
+<p>Expected: 三份哈希一致。</p>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/fixtures/audits/chapter-1-consistency.md<span class="w"> </span>tests/fixtures/audits/chapter-1-character.md
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: add real-output audit fixtures for F10 aggregate layer (G0.11 mirror)&quot;</span>
+</code></pre></div>
+<p>Deviation notes（记 spec-deviations.md）：
+1. spec 曾设想「5 份相互重叠的真实审计报告」fixture，但仓内仅有 1 份真实审计产物，且 SDD 纪律禁为验证触发真实 dispatch（核心原则 8）——用同内容双副本表达重叠场景；severity-regex 行为测试用内联样例行（G0.9 管辖 scenario 输入，regex 单测不属）。
+2. dedup 键实现为精确 <code>(severity, normalized text)</code>——比 spec §5.1a 的「段落+缺陷类型」更保守：跨审计器同缺陷不同措辞不会误合并（over-merge 质量风险为零），代价是冗余消除率可能低于 ~80% 目标。安全优先。
+3. resonance 无真实 fixture：verbatim 保留机制以文件名 <code>chapter-N-resonance.md</code> 驱动，测试用真实 fixture 字节充当输入内容。</p>
+<h3 id="task-1-audit_aggregatepy-tdd">Task 1: <code>audit_aggregate.py</code> 聚合模块（TDD）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/pipeline/audit_aggregate.py</code>
+- Test: <code>tests/pipeline/test_audit_aggregate.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces:
+  - <code>AGGREGATE_SUFFIX = ".aggregate.md"</code>
+  - <code>@dataclass(frozen=True) class FindingUnit: severity: str; text: str; reporters: tuple[str, ...]</code>
+  - <code>def aggregate_path(project_dir: Path, chapter: int) -&gt; Path</code>
+  - <code>def extract_finding_units(report_name: str, content: str) -&gt; tuple[list[FindingUnit], list[str]]</code> — 返回（severity-bearing finding 单元, 保留的上下文行：<code>**结果**</code>/<code>### 评分</code> 等）
+  - <code>def render_aggregate(chapter: int, units: list[FindingUnit], context: dict[str, list[str]], resonance_bodies: dict[str, str] | None = None) -&gt; str</code>
+  - <code>def write_audit_aggregate(project_dir: Path | str, chapter: int) -&gt; Path | None</code> — 主入口；无 raw 报告返回 None；<code>chapter-N-resonance.md</code> 全文逐字保留；safe_write 落盘；structlog info</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（核心断言：无损（含 fixture 真实 WARNING 发现）、去重、字节下降、无 <code>---</code> 开头、幂等、resonance verbatim）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;T1 tests for the F10 audit aggregation layer (spec §5.1a).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">FindingUnit</span><span class="p">,</span>
+    <span class="n">extract_finding_units</span><span class="p">,</span>
+    <span class="n">render_aggregate</span><span class="p">,</span>
+    <span class="n">write_audit_aggregate</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/audits/chapter-1-consistency.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_content</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extract_captures_real_fixture_warning_findings</span><span class="p">():</span>
+    <span class="c1"># 真实 fixture：发现项表 warning 行 + 建议修复 **[WARNING]** 列表项</span>
+    <span class="n">units</span><span class="p">,</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="n">_content</span><span class="p">())</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;WARNING&quot;</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;了&quot;</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;密度&quot;</span> <span class="ow">in</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">)</span>
+    <span class="c1"># 上下文保留结果/评分行</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span><span class="s2">&quot;通过&quot;</span> <span class="ow">in</span> <span class="n">line</span> <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">ctx</span><span class="p">)</span>
+    <span class="c1"># 空表行（全 — 的 OOC 行）与 BDI PASS 行不得成为 finding</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">}</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_extract_captures_blocking_and_critical_forms</span><span class="p">():</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;## Findings</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| 段落 | 类型 | 严重度 |</span><span class="se">\n</span><span class="s2">|---|---|---|</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;| P3 | 了-密度 | **BLOCKING** |</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;- P5 对白信息倾倒：severity: CRITICAL</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">units</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;chapter-1-x.md&quot;</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">assert</span> <span class="n">units</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;BLOCKING&quot;</span>
+    <span class="k">assert</span> <span class="n">units</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;CRITICAL&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_render_is_lossless_and_deduped</span><span class="p">():</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">_content</span><span class="p">()</span>
+    <span class="n">units</span><span class="p">,</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span>
+    <span class="n">units2</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span>
+    <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">FindingUnit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">units</span><span class="p">,</span> <span class="o">*</span><span class="n">units2</span><span class="p">]:</span>
+        <span class="n">merged</span><span class="o">.</span><span class="n">setdefault</span><span class="p">((</span><span class="n">u</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="p">),</span> <span class="n">u</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">render_aggregate</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="p">{</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">:</span> <span class="n">ctx</span><span class="p">})</span>
+    <span class="c1"># 无损：每个 raw 单元的 text 都出现在聚合（fixture 有真实 WARNING，非空集）</span>
+    <span class="k">assert</span> <span class="n">units</span><span class="p">,</span> <span class="s2">&quot;fixture must yield at least one finding (non-vacuous)&quot;</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="n">units</span><span class="p">,</span> <span class="o">*</span><span class="n">units2</span><span class="p">]:</span>
+        <span class="k">assert</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span> <span class="ow">in</span> <span class="n">out</span>
+    <span class="c1"># 不以 --- 开头（G1.3）</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="n">out</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">)</span>
+    <span class="c1"># 双份相同内容 → 聚合显著小于 2×raw</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">out</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span> <span class="o">*</span> <span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_resonance_report_preserved_verbatim</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">_content</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-resonance.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">raw</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="n">agg</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># resonance 全文逐字保留（spec §5.1a：其单条 read 已删，只能经聚合存活）</span>
+    <span class="k">assert</span> <span class="n">raw</span> <span class="ow">in</span> <span class="n">agg</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_audit_aggregate_end_to_end</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">_content</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">out</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;chapter-1.aggregate.md&quot;</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># 幂等：重跑内容一致</span>
+    <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">first</span>
+    <span class="c1"># 点分隔：聚合文件不被 chapter-1-*.md glob 匹配</span>
+    <span class="k">assert</span> <span class="nb">all</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="o">!=</span> <span class="s2">&quot;chapter-1.aggregate.md&quot;</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-1-*.md&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_write_returns_none_when_no_reports</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="k">assert</span> <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_audit_aggregate.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: FAIL（ModuleNotFoundError / ImportError）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>src/shenbi/pipeline/audit_aggregate.py</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Deterministic pre-revision audit aggregation (spec #4 F10 / §5.1a).</span>
+
+<span class="sd">Merges the raw per-auditor reports ``audits/chapter-N-*.md`` into a single</span>
+<span class="sd">deduplicated ``audits/chapter-N.aggregate.md`` before chapter revision is</span>
+<span class="sd">dispatched. Zero LLM calls: pure parsing + rendering, idempotent.</span>
+
+<span class="sd">Design invariants (spec §5.1a):</span>
+<span class="sd">- the aggregate filename uses a DOT separator so it never matches the</span>
+<span class="sd">  ``chapter-N-*.md`` glob consumed by revision_router / drift-guidance;</span>
+<span class="sd">- the file never starts with ``---`` (G1.3 frontmatter parsing);</span>
+<span class="sd">- lossless: every severity-bearing finding unit (BLOCKING/CRITICAL/WARNING/</span>
+<span class="sd">  ERROR in any surface form) from the raw reports is present in the</span>
+<span class="sd">  aggregate, merged only on exact (severity, text) key;</span>
+<span class="sd">- resonance reports (chapter-N-resonance.md) are preserved verbatim in</span>
+<span class="sd">  full — their dedicated read is deleted from the revision contract, so</span>
+<span class="sd">  the aggregate is their only path into the revision skill.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.logging</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_logger</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.revision_router</span><span class="w"> </span><span class="kn">import</span> <span class="n">AUDIT_DIR</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">get_logger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+
+<span class="n">AGGREGATE_SUFFIX</span> <span class="o">=</span> <span class="s2">&quot;.aggregate.md&quot;</span>
+
+<span class="c1">#: Severity value matched anywhere in a finding entry line (bolded marker</span>
+<span class="c1">#: ``**BLOCKING**``, bracketed ``**[WARNING]**``, severity-key form, or a</span>
+<span class="c1">#: bare table-cell value like ``| warning |`` — the real production form in</span>
+<span class="c1">#: tests/fixtures/audit-report-example.md). Single capture group.</span>
+<span class="n">_SEVERITY_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\b(BLOCKING|CRITICAL|WARNING|ERROR)\b&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+<span class="c1">#: Table rows filled with em-dashes are empty placeholders, not findings.</span>
+<span class="n">_PLACEHOLDER_ROW_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^\|[\s—\-|]*\|$&quot;</span><span class="p">)</span>
+<span class="c1">#: Context lines worth preserving verbatim (result / score / target headers).</span>
+<span class="n">_CONTEXT_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^(\*\*(结果|审计目标文件|章节)\*\*|###\s*评分)&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">IGNORECASE</span><span class="p">)</span>
+<span class="c1">#: Resonance reports are preserved verbatim in full (spec §5.1a).</span>
+<span class="n">_RESONANCE_NAME_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^chapter-\d+-resonance\.md$&quot;</span><span class="p">)</span>
+
+
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">FindingUnit</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;One severity-bearing finding, merged across reporters on its key.&quot;&quot;&quot;</span>
+
+    <span class="n">severity</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">reporters</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">aggregate_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">AUDIT_DIR</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}{</span><span class="n">AGGREGATE_SUFFIX</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_normalize</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">re</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\s+&quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="p">,</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_severity_of</span><span class="p">(</span><span class="n">line</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_SEVERITY_RE</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">line</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="k">if</span> <span class="n">m</span> <span class="k">else</span> <span class="kc">None</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">extract_finding_units</span><span class="p">(</span>
+    <span class="n">report_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">content</span><span class="p">:</span> <span class="nb">str</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="n">FindingUnit</span><span class="p">],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Split *content* into finding units and preserved context lines.</span>
+
+<span class="sd">    A finding unit is a markdown list item or table row that carries a</span>
+<span class="sd">    BLOCKING/CRITICAL/WARNING/ERROR severity value (any surface form).</span>
+<span class="sd">    Placeholder rows (all em-dashes) never produce units.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">units</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FindingUnit</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">context</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">line</span> <span class="ow">in</span> <span class="n">content</span><span class="o">.</span><span class="n">splitlines</span><span class="p">():</span>
+        <span class="n">stripped</span> <span class="o">=</span> <span class="n">line</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">stripped</span> <span class="ow">or</span> <span class="n">_PLACEHOLDER_ROW_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">stripped</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">is_entry</span> <span class="o">=</span> <span class="n">stripped</span><span class="o">.</span><span class="n">startswith</span><span class="p">((</span><span class="s2">&quot;- &quot;</span><span class="p">,</span> <span class="s2">&quot;* &quot;</span><span class="p">,</span> <span class="s2">&quot;|&quot;</span><span class="p">))</span>
+        <span class="n">sev</span> <span class="o">=</span> <span class="n">_severity_of</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">is_entry</span> <span class="ow">and</span> <span class="n">sev</span><span class="p">:</span>
+            <span class="n">text</span> <span class="o">=</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">_SEVERITY_RE</span><span class="o">.</span><span class="n">sub</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">stripped</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(</span><span class="s2">&quot;-*| &quot;</span><span class="p">))</span>
+            <span class="n">units</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">FindingUnit</span><span class="p">(</span><span class="n">sev</span><span class="p">,</span> <span class="n">text</span><span class="p">,</span> <span class="p">(</span><span class="n">report_name</span><span class="p">,)))</span>
+        <span class="k">elif</span> <span class="n">_CONTEXT_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">stripped</span><span class="p">):</span>
+            <span class="n">context</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">stripped</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">units</span><span class="p">,</span> <span class="n">context</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render_aggregate</span><span class="p">(</span>
+    <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span>
+    <span class="n">units</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FindingUnit</span><span class="p">],</span>
+    <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">resonance_bodies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;# Chapter </span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2"> — Audit Aggregate&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">]</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **来源报告数**: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">context</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nb">len</span><span class="p">(</span><span class="n">resonance_bodies</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="p">{})</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- **去重后缺陷条目**: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">sev</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;BLOCKING&quot;</span><span class="p">,</span> <span class="s2">&quot;CRITICAL&quot;</span><span class="p">,</span> <span class="s2">&quot;WARNING&quot;</span><span class="p">,</span> <span class="s2">&quot;ERROR&quot;</span><span class="p">):</span>
+        <span class="n">sev_units</span> <span class="o">=</span> <span class="p">[</span><span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span> <span class="k">if</span> <span class="n">u</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="n">sev</span><span class="p">]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">sev_units</span><span class="p">:</span>
+            <span class="k">continue</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;## </span><span class="si">{</span><span class="n">sev</span><span class="si">}</span><span class="s2"> Findings (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">sev_units</span><span class="p">)</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">sev_units</span><span class="p">:</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;  - 报告方: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">reporters</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resonance_bodies</span><span class="p">:</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## Resonance 报告（逐字保留）&quot;</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">body</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">resonance_bodies</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">body</span><span class="o">.</span><span class="n">rstrip</span><span class="p">())</span>
+            <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;## 报告上下文&quot;</span><span class="p">)</span>
+    <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">lines</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">context</span><span class="o">.</span><span class="n">items</span><span class="p">()):</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;### </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+        <span class="n">parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">parts</span><span class="p">)</span><span class="o">.</span><span class="n">rstrip</span><span class="p">()</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_audit_aggregate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span> <span class="o">|</span> <span class="nb">str</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Aggregate raw audits for *chapter*; returns the aggregate path.</span>
+
+<span class="sd">    Returns ``None`` when there are no raw reports (nothing to aggregate —</span>
+<span class="sd">    the dispatcher fallback then injects whatever exists).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">project_dir</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">)</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="n">AUDIT_DIR</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">audit_dir</span><span class="o">.</span><span class="n">is_dir</span><span class="p">():</span>
+        <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">chapter</span><span class="si">}</span><span class="s2">-*.md&quot;</span><span class="p">))</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">None</span>
+
+    <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">],</span> <span class="n">FindingUnit</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">context</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="n">resonance_bodies</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">report</span> <span class="ow">in</span> <span class="n">raw</span><span class="p">:</span>
+        <span class="n">content</span> <span class="o">=</span> <span class="n">report</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">_RESONANCE_NAME_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">name</span><span class="p">):</span>
+            <span class="n">resonance_bodies</span><span class="p">[</span><span class="n">report</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">content</span>
+            <span class="k">continue</span>
+        <span class="n">units</span><span class="p">,</span> <span class="n">ctx</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="n">report</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">content</span><span class="p">)</span>
+        <span class="n">context</span><span class="p">[</span><span class="n">report</span><span class="o">.</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">ctx</span>
+        <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">:</span>
+            <span class="n">key</span> <span class="o">=</span> <span class="p">(</span><span class="n">u</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">merged</span><span class="p">:</span>
+                <span class="n">prev</span> <span class="o">=</span> <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
+                <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">FindingUnit</span><span class="p">(</span>
+                    <span class="n">u</span><span class="o">.</span><span class="n">severity</span><span class="p">,</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">dict</span><span class="o">.</span><span class="n">fromkeys</span><span class="p">([</span><span class="o">*</span><span class="n">prev</span><span class="o">.</span><span class="n">reporters</span><span class="p">,</span> <span class="o">*</span><span class="n">u</span><span class="o">.</span><span class="n">reporters</span><span class="p">]))</span>
+                <span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">merged</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">u</span>
+
+    <span class="n">out</span> <span class="o">=</span> <span class="n">aggregate_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="n">rendered</span> <span class="o">=</span> <span class="n">render_aggregate</span><span class="p">(</span><span class="n">chapter</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">merged</span><span class="o">.</span><span class="n">values</span><span class="p">()),</span> <span class="n">context</span><span class="p">,</span> <span class="n">resonance_bodies</span><span class="p">)</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">out</span><span class="p">,</span> <span class="n">rendered</span><span class="p">)</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;audit_aggregate_written&quot;</span><span class="p">,</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+        <span class="n">reports</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">raw</span><span class="p">),</span>
+        <span class="n">findings</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">merged</span><span class="p">),</span>
+        <span class="n">resonance</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">resonance_bodies</span><span class="p">),</span>
+        <span class="nb">bytes</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">rendered</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="n">out</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_audit_aggregate.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: 6 PASS。</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/audit_aggregate.py<span class="w"> </span>tests/pipeline/test_audit_aggregate.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: deterministic audit aggregation module for pre-revision dedup (spec #4 F10)&quot;</span>
+</code></pre></div>
+<h3 id="task-2-chapter_loop">Task 2: chapter_loop 双触发点接线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（通用派发处 ~:2902 之前；BLOCKING 重派处 ~:3073 之前）
+- Test: <code>tests/pipeline/test_audit_aggregate_wiring.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>write_audit_aggregate(project_dir, chapter) -&gt; Path | None</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（接线断言：revision 派发前聚合文件已生成）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Wiring tests: aggregate is refreshed before every revision dispatch.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">chapter_loop</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="n">aggregate_path</span>
+
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/audits/chapter-1-consistency.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_generic_step_writes_aggregate_before_revision_dispatch</span><span class="p">(</span>
+    <span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">:</span> <span class="n">pytest</span><span class="o">.</span><span class="n">MonkeyPatch</span>
+<span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="c1"># 必须用 character 维度文件名（_any_audit_has_findings 只扫固定 atype</span>
+    <span class="c1"># 清单，含 character 不含 consistency），且需含 BLOCKING/FAIL 字样才</span>
+    <span class="c1"># 触发条件步——在 tmp 副本末尾追加（fixture 文件本身不动）</span>
+    <span class="n">body</span> <span class="o">=</span> <span class="n">FIX</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">body</span> <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">| P3 | 测试注入 | **BLOCKING** |</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">calls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">class</span><span class="w"> </span><span class="nc">_Result</span><span class="p">:</span>
+        <span class="n">success</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">returncode</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">stdout</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="n">stderr</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_fake_dispatch</span><span class="p">(</span><span class="n">skill</span><span class="p">,</span> <span class="n">project_dir</span><span class="p">,</span> <span class="n">prompt</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">skill</span><span class="p">)</span>
+        <span class="c1"># dispatch_skill 是子进程边界 mock；聚合必须发生在它之前</span>
+        <span class="k">assert</span> <span class="n">aggregate_path</span><span class="p">(</span><span class="n">Path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">(),</span> <span class="p">(</span>
+            <span class="s2">&quot;aggregate must exist before shenbi-chapter-revision dispatch&quot;</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_Result</span><span class="p">()</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;dispatch_skill&quot;</span><span class="p">,</span> <span class="n">_fake_dispatch</span><span class="p">)</span>
+    <span class="n">state</span> <span class="o">=</span> <span class="n">chapter_loop</span><span class="o">.</span><span class="n">PipelineState</span><span class="p">()</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">project_dir</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">current_chapter</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="c1"># 定位 Step 16（shenbi-chapter-revision）</span>
+    <span class="n">idx</span> <span class="o">=</span> <span class="nb">next</span><span class="p">(</span>
+        <span class="n">i</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">CHAPTER_STEPS</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">s</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span>
+    <span class="p">)</span>
+    <span class="n">state</span><span class="o">.</span><span class="n">chapter_loop</span><span class="o">.</span><span class="n">step_index</span> <span class="o">=</span> <span class="n">idx</span>
+    <span class="c1"># 派发后的 G4/步进处理在 tmp_path 下可能走重试/checkpoint 分支——</span>
+    <span class="c1"># 断言只依赖 fake-dispatch 闭包（派发时聚合已存在）与 calls 记录，</span>
+    <span class="c1"># 返回值不约束</span>
+    <span class="n">chapter_loop</span><span class="o">.</span><span class="n">run_chapter_step</span><span class="p">(</span><span class="n">state</span><span class="p">,</span> <span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span> <span class="ow">in</span> <span class="n">calls</span>
+</code></pre></div>
+<p>（tmp 副本追加的 BLOCKING 行仅用于满足条件步触发——scenario 主体仍是真实 fixture；fixture 文件本身零改动。）</p>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_audit_aggregate_wiring.py<span class="w"> </span>-v
+</code></pre></div>
+Expected: FAIL（aggregate 不存在）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p><code>chapter_loop.py</code> 顶部 import 区加：</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_audit_aggregate</span>
+</code></pre></div>
+<p>通用派发路径（<code>_run_chapter_step_impl</code> 内 <code># Dispatch the skill.</code> 注释后、<code>result = dispatch_skill(</code> 之前）加：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># F10 (spec §5.1a): refresh the audit aggregate right before revision</span>
+    <span class="c1"># is dispatched — the revision skill reads the aggregate, not the raw</span>
+    <span class="c1"># glob, so the aggregate must reflect the latest audit set.</span>
+    <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">:</span>
+        <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<p>BLOCKING 重派路径（<code>rev = dispatch_skill("shenbi-chapter-revision", ...)</code> 之前）加：</p>
+<div class="highlight"><pre><span></span><code>            <span class="c1"># F10: re-audit changed the audit set — regenerate the aggregate</span>
+            <span class="c1"># so revision never consumes a stale one (correctness, not just</span>
+            <span class="c1"># efficiency).</span>
+            <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 全模块回归</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_audit_aggregate_wiring.py<span class="w"> </span>tests/pipeline/<span class="w"> </span>-v
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/pipeline/test_audit_aggregate_wiring.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: refresh audit aggregate at both revision dispatch sites (spec #4 F10 wiring)&quot;</span>
+</code></pre></div>
+<h3 id="task-3-g1">Task 3: 契约切换 + G1 前回退 + 注册表登记</h3>
+<p><strong>Files:</strong>
+- Modify: <code>skills/shenbi-chapter-revision/SKILL.md</code>（frontmatter reads：删 <code>audits/chapter-N-*.md</code> 与 <code>audits/chapter-N-resonance.md</code>，加 <code>audits/chapter-N.aggregate.md</code>）
+- Modify: <code>docs/framework/truth-files.yaml</code>（concepts 加 <code>- {name: audits/chapter-N.aggregate.md, kind: report, producer: pipeline}</code>；register/glob 区按 lint 要求补）
+- Modify: <code>src/shenbi/pipeline/dispatch_helper.py</code>（三处：reads 解析循环聚合 read 缺失 → 回退 raw glob + WARN；<code>OPTIONAL_READS</code> 登记 <code>shenbi-chapter-revision → chapter-*.aggregate.md</code> 使 executor G1 前丢弃缺失聚合 read——executor.py:177-190 的既有机制；<code>_is_audit_file</code> 排除 <code>.aggregate.md</code>）
+- Test: <code>tests/pipeline/test_aggregate_fallback.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>aggregate_path</code>、<code>AGGREGATE_SUFFIX</code>、<code>OPTIONAL_READS</code>（<code>dispatch_helper.py:379-394</code> 既有）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Fallback tests: missing aggregate read fails open to the raw glob pre-G1.&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">fnmatch</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.dispatch_helper</span><span class="w"> </span><span class="kn">import</span> <span class="n">OPTIONAL_READS</span><span class="p">,</span> <span class="n">_resolve_read_with_fallback</span>
+
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/audits/chapter-1-consistency.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_missing_aggregate_falls_back_to_raw_glob</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span>
+        <span class="n">FIX</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span>
+    <span class="p">)</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">_resolve_read_with_fallback</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;audits/chapter-1.aggregate.md&quot;</span>
+    <span class="p">)</span>
+    <span class="c1"># 回退注入 raw glob 的全部匹配</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_present_aggregate_is_used_directly</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.aggregate.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;# agg</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">paths</span> <span class="o">=</span> <span class="n">_resolve_read_with_fallback</span><span class="p">(</span>
+        <span class="n">tmp_path</span><span class="p">,</span> <span class="s2">&quot;audits/chapter-1.aggregate.md&quot;</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">p</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">paths</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;chapter-1.aggregate.md&quot;</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_aggregate_registered_as_optional_read</span><span class="p">():</span>
+    <span class="c1"># executor G1 前丢弃缺失 optional read 的既有机制（executor.py:177-190）</span>
+    <span class="c1"># 必须覆盖聚合 read——否则 G1.1 对缺失 declared read 硬 FAIL，</span>
+    <span class="c1"># reads-loop 回退在 executor 路径上永远走不到</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="n">OPTIONAL_READS</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="k">assert</span> <span class="nb">any</span><span class="p">(</span>
+        <span class="n">fnmatch</span><span class="o">.</span><span class="n">fnmatch</span><span class="p">(</span><span class="s2">&quot;chapter-1.aggregate.md&quot;</span><span class="p">,</span> <span class="n">pat</span><span class="p">)</span> <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span>
+    <span class="p">),</span> <span class="sa">f</span><span class="s2">&quot;aggregate not optional for G1: </span><span class="si">{</span><span class="n">patterns</span><span class="si">}</span><span class="s2">&quot;</span>
+</code></pre></div>
+<ul>
+<li>
+<p>[ ] <strong>Step 2: 跑测试确认失败</strong>（<code>_resolve_read_with_fallback</code> 不存在）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 3: 实现</strong></p>
+</li>
+</ul>
+<p><code>dispatch_helper.py</code> 在 <code>_resolve_read_path</code> 之后新增：</p>
+<div class="highlight"><pre><span></span><code><span class="c1">#: Fallback map: declared reads whose producer is the framework aggregate</span>
+<span class="c1">#: layer (spec #4 F10 §5.1a). When the aggregate is missing (legacy project</span>
+<span class="c1">#: dirs), the read fails open to the raw glob BEFORE G1 input readiness runs</span>
+<span class="c1">#: (G1.1 hard-FAILs on missing declared reads).</span>
+<span class="n">_AGGREGATE_READ_FALLBACK_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;^audits/chapter-(\d+)\.aggregate\.md$&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_resolve_read_with_fallback</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">read_path</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="n">Path</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Resolve a read path, failing aggregate reads open to the raw glob.&quot;&quot;&quot;</span>
+    <span class="n">resolved</span> <span class="o">=</span> <span class="n">_resolve_read_path</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">read_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">resolved</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">resolved</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_AGGREGATE_READ_FALLBACK_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">read_path</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;audit_aggregate_missing_fallback_raw_glob&quot;</span><span class="p">,</span>
+            <span class="n">read_path</span><span class="o">=</span><span class="n">read_path</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">_resolve_read_path</span><span class="p">(</span>
+            <span class="n">project_dir</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;audits/chapter-</span><span class="si">{</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="si">}</span><span class="s2">-*.md&quot;</span>
+        <span class="p">)</span>
+    <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+<p>读取循环（<code>raw_inputs</code> 装配处）将 <code>resolved_paths = _resolve_read_path(project_dir, resolved)</code> 改为 <code>resolved_paths = _resolve_read_with_fallback(project_dir, resolved)</code>。</p>
+<p><strong>OPTIONAL_READS 登记（executor G1 路径的回退——缺此登记则 G1.1 先拦）</strong>：在既有 <code>OPTIONAL_READS</code> dict（<code>dispatch_helper.py:378-394</code>）加一项：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># F10 (spec #4 §5.1a): the framework-written audit aggregate may be</span>
+    <span class="c1"># absent on legacy project dirs — G1 must drop the missing read instead</span>
+    <span class="c1"># of hard-failing before the reads-loop fallback can substitute the raw</span>
+    <span class="c1"># glob (executor drops optional non-existent reads pre-G1). Note: this</span>
+    <span class="c1"># env-gated drop only runs on the legacy subprocess route; the API/IDE</span>
+    <span class="c1"># routes get the raw-glob substitution via _resolve_read_with_fallback.</span>
+    <span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">:</span> <span class="p">[</span><span class="s2">&quot;chapter-*.aggregate.md&quot;</span><span class="p">],</span>
+</code></pre></div>
+<p><code>_is_audit_file</code> 的 docstring/逻辑补一行排除：</p>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># The framework-written aggregate (chapter-N.aggregate.md) is NOT an</span>
+    <span class="c1"># LLM audit report (spec #4 F10).</span>
+    <span class="k">if</span> <span class="n">stem</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.aggregate&quot;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+<p>（注意 <code>Path("chapter-1.aggregate.md").stem == "chapter-1.aggregate"</code>，故用 <code>.endswith(".aggregate")</code>。）</p>
+<ul>
+<li>[ ] <strong>Step 4: SKILL.md 契约修改</strong></li>
+</ul>
+<p>frontmatter reads 段改为：</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">reads</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">chapters/chapter-N-decisions.json</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">audits/chapter-N.aggregate.md</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">file</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">plans/chapter-N-plan.md</span>
+<span class="w">      </span><span class="nt">fields</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;1.</span><span class="nv"> </span><span class="s">当前任务&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;6.</span><span class="nv"> </span><span class="s">章尾必须发生的改变&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;8.</span><span class="nv"> </span><span class="s">不要做&quot;</span><span class="p p-Indicator">]</span>
+</code></pre></div>
+<p>（删 <code>audits/chapter-N-*.md</code> glob 与 <code>audits/chapter-N-resonance.md</code>——共振结论并入聚合。）</p>
+<ul>
+<li>[ ] <strong>Step 5: truth-files.yaml 登记</strong></li>
+</ul>
+<p>concepts 报告区（<code>chapter-N-review-summary.md</code> 行旁）加：</p>
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="nv">audits/chapter-N.aggregate.md</span><span class="p p-Indicator">,</span><span class="nt"> kind</span><span class="p">:</span><span class="w"> </span><span class="nv">report</span><span class="p p-Indicator">,</span><span class="nt"> producer</span><span class="p">:</span><span class="w"> </span><span class="nv">pipeline</span><span class="p p-Indicator">}</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 6: 生成物同步 + lint</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>generate<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>just<span class="w"> </span>lint-contracts
+git<span class="w"> </span>status<span class="w"> </span>--short<span class="w">   </span><span class="c1"># deps.json/docs 生成物 diff 为生成所致，一并提交</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 7: 跑测试 + Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/pipeline/test_aggregate_fallback.py<span class="w"> </span>tests/unit/gates/<span class="w"> </span>-v
+<span class="c1"># 生成物按 git status 实际清单 pathspec 逐个列出（禁 git add -u / -A）：</span>
+git<span class="w"> </span>status<span class="w"> </span>--short
+git<span class="w"> </span>add<span class="w"> </span>skills/shenbi-chapter-revision/SKILL.md<span class="w"> </span>docs/framework/truth-files.yaml<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>src/shenbi/pipeline/dispatch_helper.py<span class="w"> </span>tests/pipeline/test_aggregate_fallback.py<span class="w"> </span><span class="se">\</span>
+<span class="w">  </span>&lt;生成物路径按<span class="w"> </span>status<span class="w"> </span>清单逐一补列&gt;
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat: switch chapter-revision reads to aggregate + pre-G1 fallback + registry (spec #4 F10/2.3b)&quot;</span>
+</code></pre></div>
+<p>（执行时以 <code>git status</code> 实际清单做 pathspec commit，禁 <code>git add -A</code>。）</p>
+<h3 id="task-4">Task 4: 验收证据 + 全量门禁</h3>
+<p><strong>Files:</strong>
+- Test: <code>tests/pipeline/test_audit_aggregate_acceptance.py</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 验收测试</strong>（spec §6 三条：字节下降、无损、<code>just check</code> 由阶段 7 跑）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Acceptance tests for spec #4 §6 (F10).&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="n">write_audit_aggregate</span>
+
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/audits/chapter-1-consistency.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_input_bytes_drop_with_overlap</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">FIX</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">raw_bytes</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span>
+        <span class="n">p</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">audit_dir</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">&quot;chapter-1-*.md&quot;</span><span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">out</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">out</span><span class="o">.</span><span class="n">stat</span><span class="p">()</span><span class="o">.</span><span class="n">st_size</span> <span class="o">&lt;</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="n">raw_bytes</span>  <span class="c1"># 双份重叠 → 显著下降</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_lossless_every_raw_finding_survives</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.audit_aggregate</span><span class="w"> </span><span class="kn">import</span> <span class="n">extract_finding_units</span>
+
+    <span class="n">audit_dir</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;audits&quot;</span>
+    <span class="n">audit_dir</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="s2">&quot;chapter-1-character.md&quot;</span><span class="p">):</span>
+        <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="n">name</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">FIX</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">write_audit_aggregate</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="p">(</span><span class="n">audit_dir</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.aggregate.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">raw</span> <span class="o">=</span> <span class="n">FIX</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">units</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">extract_finding_units</span><span class="p">(</span><span class="s2">&quot;chapter-1-consistency.md&quot;</span><span class="p">,</span> <span class="n">raw</span><span class="p">)</span>
+    <span class="c1"># 非空集护栏（fixture 有真实 WARNING 发现——发现项表行 + 建议修复项）</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">units</span><span class="p">)</span> <span class="o">&gt;=</span> <span class="mi">2</span><span class="p">,</span> <span class="s2">&quot;lossless check must be non-vacuous&quot;</span>
+    <span class="c1"># 独立覆盖断言（非自证）：聚合含全部 raw finding 的 text</span>
+    <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">units</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">u</span><span class="o">.</span><span class="n">text</span> <span class="ow">in</span> <span class="n">out</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;finding lost: </span><span class="si">{</span><span class="n">u</span><span class="o">.</span><span class="n">text</span><span class="p">[:</span><span class="mi">60</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
+    <span class="c1"># 修复建议（WARNING 级）逐字存活——revision 的可操作输入</span>
+    <span class="k">assert</span> <span class="s2">&quot;了字密度&quot;</span> <span class="ow">in</span> <span class="n">out</span> <span class="ow">or</span> <span class="s2">&quot;了&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+    <span class="c1"># 每份 raw 报告在聚合中被引用</span>
+    <span class="k">assert</span> <span class="s2">&quot;chapter-1-consistency.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+    <span class="k">assert</span> <span class="s2">&quot;chapter-1-character.md&quot;</span> <span class="ow">in</span> <span class="n">out</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: Commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tests/pipeline/test_audit_aggregate_acceptance.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;test: F10 acceptance evidence — byte drop + lossless invariant (spec #4 §6)&quot;</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 全量门禁（阶段 7 在本 task 后统一跑）</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>just<span class="w"> </span>check
+</code></pre></div>
+<h2 id="spec-6-task">验收覆盖表（spec §6 → task → 命令）</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>revision 输入审计字节 ~60-120KB → 显著下降</td>
+<td>T4</td>
+<td><code>test_revision_input_bytes_drop_with_overlap</code></td>
+</tr>
+<tr>
+<td>聚合无损（raw ⊆ 聚合，含 resonance 若存在）</td>
+<td>T1/T4</td>
+<td><code>test_render_is_lossless_and_deduped</code> / <code>test_lossless_*</code></td>
+</tr>
+<tr>
+<td><code>just check</code> PASS</td>
+<td>T4/阶段 7</td>
+<td><code>just check</code> 完整输出</td>
+</tr>
+<tr>
+<td>聚合不落 glob 命名空间 / 不以 <code>---</code> 开头</td>
+<td>T1</td>
+<td><code>test_write_audit_aggregate_end_to_end</code> / <code>test_render_*</code></td>
+</tr>
+<tr>
+<td>契约同步幂等</td>
+<td>T3</td>
+<td><code>just generate</code> diff 空 + lint-contracts</td>
+</tr>
+<tr>
+<td>ORPHAN_READ 不触发</td>
+<td>T3</td>
+<td><code>just lint-contracts</code> / contract-graph lint 在 <code>just check</code> 内</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

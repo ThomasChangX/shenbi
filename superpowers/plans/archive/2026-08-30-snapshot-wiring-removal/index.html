@@ -1,0 +1,1295 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-30-snapshot-wiring-removal/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>快照子系统路径 3 移除（SDD #26）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="快照子系统路径 3 移除（SDD #26）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-30-snapshot-wiring-removal.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-30-snapshot-wiring-removal/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="快照子系统路径 3 移除（SDD #26）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-30-snapshot-wiring-removal.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#3-sdd-26implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              快照子系统路径 3 移除（SDD #26）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-step-15" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: 步骤表收缩——删 step 15 条目并重编号
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-chapter_loop-last_snapshot" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: chapter_loop 死代码四函数 + last_snapshot 状态面下线
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-cmd_rollback" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: cmd_rollback 删除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-snapshot_diff" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: snapshot_diff 模块整体删除
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-57" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: 文档与台账同步 + #57 失效注记
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-6-depsjson" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 6: 契约生成物同步（deps.json）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-7" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 7: 全量门禁
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="3-sdd-26implementation-plan">快照子系统路径 3 移除（SDD #26）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 按 spec #26 三路裁决的路径 3，移除快照子系统死代码面（差分三件套 + step 15 + cmd_rollback + last_snapshot 字段），保留已接线的 crash 应急快照与 shenbi-snapshot-manage skill 路径。</p>
+<p><strong>Architecture:</strong> 纯删除 + 步骤表收缩 + 状态字段下线。恢复语义不降级：checkpoint REJECT→redo（自动）+ skill rollback（用户驱动）+ crash 应急快照三重覆盖已在位。所有 task 均为 <strong>infra</strong>（pipeline/state 多文件联动）→ 协调者亲自实现，不分派。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+ / pathlib / structlog / pytest（uv run 同构）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>spec：<code>docs/superpowers/specs/archive/2026-08-15-snapshot-subsystem-wiring-design.md</code>（路径 3 验收节）</li>
+<li>死符号清单含 helper：<code>_get_core_snapshot_files</code>、<code>_has_minimum_chinese_chars</code>（chapter_loop.py，唯一调用方在死函数 <code>_snapshot_chapter_files</code> 内，属死链）</li>
+<li>保留面：<code>crash_recovery.py</code> 全部（含其自身 <code>_snapshot_chapter_files:155</code>）、<code>skills/shenbi-snapshot-manage/</code>、CONDITIONAL_STEPS step 3</li>
+<li>step 编号是日志字段，步骤身份键是 <code>step.skill</code>（<code>add_step_done</code> 按技能名记账）——删 step 15 条目后把 step 16 的编号字段改为 15，<code>step_index</code> 为列表位置，跨版本 resume 的错位属可接受迁移注记（记 spec-deviations）</li>
+<li>状态字面量单一信源 / structlog 无 print / gate 幂等 / conventional commits / 显式 pathspec commit（禁 <code>git add -A</code>）</li>
+<li>验证一律 <code>uv run pytest ...</code> / <code>just check</code>（与 CI 同构）</li>
+</ul>
+<hr />
+<h3 id="task-1-step-15">Task 1: 步骤表收缩——删 step 15 条目并重编号</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:247-256</code>（step 15 条目 + step 16 注释/编号）、<code>chapter_loop.py:133</code>（步骤列举注释）
+- Test: <code>tests/unit/pipeline/test_chapter_loop.py</code>（新增 characterization）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>CHAPTER_STEPS: list[ChapterStep]</code>（chapter_loop.py 现状；编号字段实名 <code>step_num</code>，chapter_loop.py:96）
+- Produces: <code>CHAPTER_STEPS</code> 15 条（原 16 减一），<code>shenbi-chapter-revision</code> step_num=15；无 <code>pipeline-pre-revision-snapshot</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 更新存量步骤表断言</strong>（<code>tests/unit/pipeline/test_chapter_loop.py</code>）：</li>
+<li><code>:65</code> <code>assert len(CHAPTER_STEPS) == 16</code> → <code>== 15</code></li>
+<li><code>:68</code> <code>range(1, 17)</code> → <code>range(1, 16)</code></li>
+<li><code>:282/296/309</code> <code>step_index = 15  # last step (chapter-revision)</code> → <code>= 14</code>（同注释）；后续若有以 15 为完成态的断言按新表（完成判定是 <code>step_index &gt;= len(CHAPTER_STEPS)</code>，需逐处核语义后改）</li>
+<li><code>:663-695</code>、<code>:763-772</code> 逐步测试：删除 pre-revision-snapshot 那一步的 <code>run_chapter_step</code> 调用与 <code>step_index == 14</code>（旧 15 号位）断言，后续索引整体 -1；顺带清理 <code>:663,666,692,763</code> 与 <code>test_chapter_loop_full.py:244,418</code> 的 <code>pre-revision-snapshot</code> 过时注释（对齐 Task 5 grep 门）及 M2 注释腐化：<code>test_chapter_loop.py:654</code> docstring「step 16 (chapter-revision)…」→ 15、<code>:746-749</code>「Steps 15 (snapshot)… step 16」重写为移除后步骤、<code>test_chapter_loop_full.py:7</code> 管线顺序 docstring 删 snapshot 字样</li>
+<li>[ ] <strong>Step 2: 新增 characterization 测试</strong>（加到 <code>tests/unit/pipeline/test_chapter_loop.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_step_table_has_no_pre_revision_snapshot</span><span class="p">():</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">skill</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">CHAPTER_STEPS</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="s2">&quot;pipeline-pre-revision-snapshot&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">skills</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_revision_step_follows_sensitivity_audit</span><span class="p">():</span>
+    <span class="n">skills</span> <span class="o">=</span> <span class="p">[</span><span class="n">s</span><span class="o">.</span><span class="n">skill</span> <span class="k">for</span> <span class="n">s</span> <span class="ow">in</span> <span class="n">CHAPTER_STEPS</span><span class="p">]</span>
+    <span class="k">assert</span> <span class="n">skills</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;shenbi-review-sensitivity&quot;</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">==</span> <span class="n">skills</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s2">&quot;shenbi-chapter-revision&quot;</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 3: 跑测试确认新两条 FAIL</strong>：<code>uv run pytest tests/unit/pipeline/test_chapter_loop.py -k "pre_revision or revision_step_follows" -v</code></li>
+<li>[ ] <strong>Step 4: 删除 step 15 条目</strong>（chapter_loop.py 247-252 的 <code>ChapterStep(15, "pipeline-pre-revision-snapshot", ...)</code> 块与 <code># Step 15: Pre-revision snapshot (deterministic)</code> 注释），step 16 的 <code>ChapterStep(16, ...)</code> 改 <code>ChapterStep(15, ...)</code>，<code># Step 16:</code> 注释改 <code># Step 15:</code>；同步修 <code>:127</code>（<code>16 core steps</code> → <code>15</code>）与 <code>:131-133</code> 注释列举（删 <code>pre-revision-snapshot</code> 字样）</li>
+<li>[ ] <strong>Step 5: 全文件测试 PASS</strong>：<code>uv run pytest tests/unit/pipeline/test_chapter_loop.py tests/unit/pipeline/test_chapter_loop_full.py -v</code>（不限 -k，存量+新增全绿）</li>
+<li>[ ] <strong>Step 6: Commit</strong>：<code>git add src/shenbi/pipeline/chapter_loop.py tests/unit/pipeline/test_chapter_loop.py tests/unit/pipeline/test_chapter_loop_full.py &amp;&amp; git commit -m "refactor: remove no-op step 15 pre-revision-snapshot from chapter step table (spec #26 path 3)"</code></li>
+</ul>
+<p><strong>迁移注记（记 spec-deviations）</strong>：<code>step_index</code> 为列表位置、无 heal；跨版本持久化 state 若停在新旧 15 号位（旧=revision、新=完成），resume 会静默跳过 revision 一步——记为已知迁移错位，框架预生产期可接受。<code>steps_done</code> 按技能名记账、<code>_FIRST/_LAST_AUDIT_IDX</code> 重算不受影响（audit 步均在索引 14 之前）。</p>
+<h3 id="task-2-chapter_loop-last_snapshot">Task 2: chapter_loop 死代码四函数 + last_snapshot 状态面下线</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（删 62 行 import；删 <code>_prune_old_snapshots</code>(1583-1645)、<code>_get_core_snapshot_files</code>(1647-1666)、<code>_has_minimum_chinese_chars</code>(1668-1684)、<code>_snapshot_chapter_files</code>(1686-1811) 四函数整段）
+- Modify: <code>src/shenbi/pipeline/state.py:171,274,355</code>（<code>last_snapshot</code> 字段：dataclass field、to_dict、from_dict 三处）
+- Modify: <code>src/shenbi/pipeline/state_heal.py:3,76-95,107</code>（docstring 提及、<code>_heal_last_snapshot</code> 整函数、调用行）
+- Modify: <code>src/shenbi/pipeline/cli.py:785</code>（注释删 <code>last_snapshot</code> 字样，保留 retry_budget/revision_count heal 说明）
+- Test delete: <code>tests/unit/pipeline/test_snapshot_pruning.py</code>、<code>tests/unit/pipeline/test_last_snapshot.py</code>
+- Test modify: <code>tests/unit/pipeline/test_snapshot_coverage.py</code>（删 chapter_loop import 与其测试类 <code>TestCoreSnapshotFiles</code>/<code>TestMinChineseChars</code>，保留 crash_recovery 测试）、<code>tests/unit/pipeline/test_state_heal.py</code>（删 <code>test_heals_last_snapshot_from_disk</code>）、<code>tests/unit/pipeline/test_adaptive_triggers.py</code>（删 <code>_snapshot_chapter_files</code> import 与 <code>TestFileSnapshot</code> 类）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>PipelineState</code> 无 <code>last_snapshot</code> 属性；<code>heal_state_counters</code> 返回不含 <code>last_snapshot_healed:</code> 动作</p>
+<ul>
+<li>[ ] <strong>Step 1: 先删测试文件与测试面</strong>（上列 delete/modify），跑 <code>uv run pytest tests/unit/pipeline/test_state_heal.py tests/unit/pipeline/test_adaptive_triggers.py -v</code> 确认现存测试无 import 错误</li>
+<li>[ ] <strong>Step 2: 删 chapter_loop 四函数与 import</strong>；<code>uv run python -c "from shenbi.pipeline import chapter_loop"</code> 确认模块可导入</li>
+<li>[ ] <strong>Step 3: state.py 三处 + state_heal.py 删 heal 面 + cli.py 注释</strong>；<code>uv run pytest tests/unit/pipeline/test_state.py tests/unit/pipeline/test_state_heal.py -v</code> PASS</li>
+<li>[ ] <strong>Step 4: 残留 grep</strong>：<code>grep -rn "last_snapshot\|_prune_old_snapshots\|_get_core_snapshot_files\|_has_minimum_chinese_chars\|_snapshot_chapter_files" src/</code> 仅允许命中 crash_recovery.py 自身实现与其调用（139 行）</li>
+<li>[ ] <strong>Step 5: 全量快测</strong>：<code>uv run pytest -n auto -m "not last" -q</code>（此时 snapshot_diff 尚在，其测试仍绿）</li>
+<li>[ ] <strong>Step 6: Commit</strong>：<code>git add src/shenbi/pipeline/chapter_loop.py src/shenbi/pipeline/state.py src/shenbi/pipeline/state_heal.py src/shenbi/pipeline/cli.py tests/unit/pipeline/test_snapshot_pruning.py tests/unit/pipeline/test_last_snapshot.py tests/unit/pipeline/test_snapshot_coverage.py tests/unit/pipeline/test_state_heal.py tests/unit/pipeline/test_adaptive_triggers.py &amp;&amp; git commit -m "refactor: remove dead snapshot trio + last_snapshot state field (spec #26 path 3)"</code>（删除文件加 <code>-u</code> 不需要——显式列路径即含删除）</li>
+</ul>
+<h3 id="task-3-cmd_rollback">Task 3: cmd_rollback 删除</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/cli.py:921-943</code>（<code>cmd_rollback</code> 整函数）
+- Test delete: <code>tests/unit/pipeline/test_cli_rollback_removed.py</code>
+- Test modify: <code>tests/unit/pipeline/test_cli.py:517-532</code>（删「cmd_rollback retained for direct callers」断言测试；保留 <code>test_help_does_not_list_rollback</code> 的等价断言若存在于 test_cli.py——help 不列 rollback 的性质已由子命令注册缺失天然保持）</p>
+<p><strong>Interfaces:</strong>
+- Produces: <code>shenbi.pipeline.cli</code> 无 <code>cmd_rollback</code> 属性</p>
+<ul>
+<li>[ ] <strong>Step 1: 删测试面</strong> → <strong>Step 2: 删函数</strong> → <strong>Step 3:</strong> <code>uv run python -c "from shenbi.pipeline import cli; assert not hasattr(cli, 'cmd_rollback')"</code> + <code>uv run pytest tests/unit/pipeline/test_cli.py -q</code> PASS → <strong>Step 4: Commit</strong> <code>fix: remove dead cmd_rollback (subparser already removed; rollback served by shenbi-snapshot-manage skill) (spec #26 path 3)</code></li>
+</ul>
+<h3 id="task-4-snapshot_diff">Task 4: snapshot_diff 模块整体删除</h3>
+<p><strong>Files:</strong>
+- Delete: <code>src/shenbi/pipeline/snapshot_diff.py</code>、<code>tests/pipeline/test_snapshot_diff.py</code>
+- Verify: <code>grep -rn "snapshot_diff\|create_differential_snapshot\|restore_from_snapshot" src/</code> 零输出；<code>tests/</code> 仅归档文档外零输出</p>
+<ul>
+<li>[ ] <strong>Step 1: 删两文件</strong> → <strong>Step 2: grep 零残留</strong>（命令+输出记 progress.md 验收证据）→ <strong>Step 3:</strong> <code>uv run pytest -n auto -m "not last" -q</code> 全绿 → <strong>Step 4: Commit</strong> <code>refactor: delete snapshot_diff module (differential snapshot engine dead-wired, spec #26 path 3)</code></li>
+</ul>
+<h3 id="task-5-57">Task 5: 文档与台账同步 + #57 失效注记</h3>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-14/findings-ledger.md:63</code>（F303 状态 <code>specced</code> → <code>removed (spec #26 path 3)</code>）
+- Modify: <code>docs/superpowers/specs/INDEX.md</code> #57 条目（加「<strong>2026-08-30 注记</strong>: #26 已裁决路径 3（移除）——本 spec 按其 T0 大部分自动失效，存活面仅 T4 truth-files.yaml/词面协调，待其自身价值门复核」）
+- Modify: <code>docs/superpowers/specs/2026-08-16-audit-snapshot-unify-fix.md</code>（#57 spec 头加同义失效注记——其正文多处引用差分机制与 F351「step-15 空操作」，头部注记为权威失效声明，正文不逐条改）
+- Modify: <code>docs/superpowers/specs/archive/2026-08-15-snapshot-subsystem-wiring-design.md</code>（本 spec 头 Status 加「三路裁决: 路径 3（移除）· 2026-08-30」——spec 自身在文档同步面内）
+- Modify: <code>tests/unit/contracts/test_registry_pipeline_producers.py:42-44</code>（D20 注释：<code>chapter_loop._snapshot_chapter_files</code> 已删，改指 <code>crash_recovery._snapshot_chapter_files</code>——grep 该注释实际文本后改写）</p>
+<ul>
+<li>[ ] <strong>Step 1: 五处文档改动</strong> → <strong>Step 2:</strong> <code>uv run pytest tests/unit/contracts/test_registry_pipeline_producers.py -q</code> PASS → <strong>Step 3:</strong> <code>grep -rn "pre-revision-snapshot" --include="*.py" src/ tests/</code> 零输出（测试注释已在 T1 Step 1 清理；audit-runs 历史记录按 spec 豁免）→ <strong>Step 4: Commit</strong> <code>docs: sync F303 ledger + #57 invalidation note after spec #26 path-3 removal</code></li>
+</ul>
+<h3 id="task-6-depsjson">Task 6: 契约生成物同步（deps.json）</h3>
+<p><strong>Files:</strong>
+- Regenerate: <code>tests/tiers/deps.json</code>（sha256 钉住了 chapter_loop.py/snapshot_diff.py/state.py/state_heal.py——T1-T4 改动后必脏）</p>
+<ul>
+<li>[ ] <strong>Step 1:</strong> <code>just generate</code>（即 <code>shenbi-sync-contracts</code>，禁手改生成物）→ <code>git diff --stat</code> 确认变更仅为 deps.json（及 docs/framework 若有）→ <strong>Step 2:</strong> <code>git add tests/tiers/deps.json docs/framework 2&gt;/dev/null; git commit -m "chore: sync deps.json hashes after snapshot removal (spec #26 path 3)"</code></li>
+</ul>
+<h3 id="task-7">Task 7: 全量门禁</h3>
+<ul>
+<li>[ ] <strong>Step 1:</strong> <code>just check</code> 全绿（含 shenbi-sync-contracts 幂等 diff——T6 先行使之为空 diff），完整输出粘贴 progress.md <code>## 门禁输出</code></li>
+<li>[ ] <strong>Step 2:</strong> spec 路径 3 验收逐条跑：死符号清单全清 grep / <code>git grep create_differential_snapshot -- src/</code> 零输出 / <code>just check</code> 绿——记 <code>## 验收证据</code></li>
+</ul>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

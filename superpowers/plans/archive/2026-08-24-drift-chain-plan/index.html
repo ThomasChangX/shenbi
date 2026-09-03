@@ -1,0 +1,2010 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-24-drift-chain-plan/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Drift 检测干预链修复（SDD #11）Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Drift 检测干预链修复（SDD #11）Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-24-drift-chain-plan.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-08-24-drift-chain-plan/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Drift 检测干预链修复（SDD #11）Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-08-24-drift-chain-plan.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#drift-sdd-11implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Drift 检测干预链修复（SDD #11）Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-r1-establish_baseline-f602" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: R1 — establish_baseline 接线（F602）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r2-off-by-onef601" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R2 — 对话塌陷 off-by-one（F601）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-r3-severity-is_drift-f612" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: R3 — severity 阶梯解除 is_drift 门控（F612）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-r4-driftescalationerror-f620" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: R4 — DriftEscalationError 不再被吞（F620）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-r5-pending_hooks-canonical-f637" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: R5 — pending_hooks 双源 canonical 格式链（F637）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="drift-sdd-11implementation-plan">Drift 检测干预链修复（SDD #11）Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> 修复语言漂移检测干预链的 5 处失效（R1 baseline 接线 / R2 off-by-one / R3 severity 门控 / R4 吞异常 / R5 pending_hooks 双源格式链），使 ESCALATE 暂停安全网真实可达。</p>
+<p><strong>Architecture:</strong> R1-R4 是 <code>src/shenbi/skill_utils/drift_detection/</code> 与 <code>src/shenbi/pipeline/chapter_loop.py</code> 内的小面修改；R5 新增 <code>src/shenbi/records/writer.py</code>（canonical 双源写 + 并集迁移），<code>hook_planting._append_to_pending_hooks</code> 改走它。执行顺序 R1→R2→R3→R4→R5（R3/R4 验收依赖 R1/R2 先落地）。</p>
+<p><strong>Tech Stack:</strong> Python 3.11+，pathlib/yaml/json，structlog，pytest；验证一律 <code>uv run pytest</code>（与 CI <code>uv run --frozen</code> 同构）。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>框架代码无 <code>print()</code>（structlog）；<code>pathlib.Path</code> 文件 I/O；gate/检查器纯函数幂等</li>
+<li>测试 scenario 输入只引用 <code>tests/fixtures/</code> 真实产物（G0.9 禁手写 fixture；复制到 tmp_path 使用是合法形态）</li>
+<li>状态字面量不新增裸字符串（既有 <code>"NONE"/"WARN"/"HARD"/"ESCALATE"</code>、<code>"PLANTED"/"PENDING"</code> 均为现行字面量，沿用）</li>
+<li>每个 task 独立 conventional commit（<code>fix: R&lt;N&gt; …</code>）；commit 显式列文件路径，禁 <code>git add -A</code></li>
+<li>全部 task 属 <strong>infra</strong>（触及 pipeline/、records/、被多模块 import）→ 协调者亲自实现，不派 implementer 子 agent；每 task commit 后 fresh-context 重审产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code></li>
+<li>真实签名（源码核对 2026-08-24，commit cc477cc 基线）：</li>
+<li><code>establish_baseline(project_dir: Path | str, chapters: list[int]) -&gt; dict[str, float]</code>（baseline.py:24）</li>
+<li><code>detect_drift(current: dict[str, float], baseline: dict[str, float]) -&gt; DriftResult</code>（linguistic_drift.py:182）</li>
+<li><code>_check_linguistic_drift(project_dir: Path, chapter: int) -&gt; DriftResult | None</code>（chapter_loop.py:2026）</li>
+<li><code>parse_records(text: str) -&gt; list[dict[str, Any]]</code> / <code>serialize_records(records) -&gt; str</code>（records/parser.py:48/53）</li>
+<li><code>parse_markdown_table(text: str) -&gt; dict[str, dict[str, str]]</code> / <code>detect_cross_section_drift(yaml_records, md_rows) -&gt; list[str]</code>（records/drift.py:26/72）</li>
+<li><code>_append_to_pending_hooks(project_dir: Path, entries: list[dict[str, Any]], chapter: int) -&gt; int</code>（hook_planting.py:204）</li>
+</ul>
+<hr />
+<h3 id="task-1-r1-establish_baseline-f602">Task 1: R1 — establish_baseline 接线（F602）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2044-2050</code>（<code>_check_linguistic_drift</code> baseline 加载段）
+- Test: <code>tests/unit/pipeline/test_drift_baseline_wiring.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>establish_baseline</code>（现有，不改）
+- Produces: chapter ≥ 4 且 <code>style/linguistic_baseline.json</code> 缺失时惰性建立 baseline（chapters [1,2,3]）；chapter ≤ 3 保持现状（warning + return None）</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;R1 (F602): establish_baseline wiring — baseline exists from chapter 4 on.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">FIXTURE_CHAPTERS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">)</span>  <span class="c1"># 真实章节产物 (G0.9)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">FIXTURE_CHAPTERS</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span> <span class="n">chapters</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_lazily_established_from_ch4</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_linguistic_drift</span>
+
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+    <span class="n">result</span> <span class="o">=</span> <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+    <span class="n">baseline_file</span> <span class="o">=</span> <span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span>
+    <span class="k">assert</span> <span class="n">baseline_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>  <span class="c1"># 验收：第 4 章起 baseline 文件存在</span>
+    <span class="k">assert</span> <span class="n">result</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>  <span class="c1"># 检查真实执行（非 no_linguistic_baseline 早退）</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_not_established_before_ch4</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_linguistic_drift</span>
+
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span>  <span class="c1"># ch1-3 无 baseline 属预期</span>
+    <span class="k">assert</span> <span class="ow">not</span> <span class="p">(</span><span class="n">project</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_baseline_reused_not_rebuilt</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">_check_linguistic_drift</span>
+
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">5</span><span class="p">):</span>  <span class="c1"># 含 ch5，否则 ch5 检查在文件存在性早退、断言空转</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">FIXTURE_CHAPTERS</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span> <span class="n">chapters</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span>
+    <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+    <span class="n">baseline_file</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span>
+    <span class="n">first</span> <span class="o">=</span> <span class="n">baseline_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="c1"># 篡改章节后重跑：已存在的 baseline 不重建</span>
+    <span class="p">(</span><span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span> <span class="o">/</span> <span class="s2">&quot;chapter-1.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;完全不同的文本&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">baseline_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">first</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_baseline_wiring.py -v</code>
+Expected: <code>test_baseline_lazily_established_from_ch4</code> FAIL（baseline 不存在，<code>_check_linguistic_drift</code> 在 no_linguistic_baseline 早退）；<code>test_baseline_not_established_before_ch4</code> PASS；<code>test_baseline_reused_not_rebuilt</code> ERROR（首次 <code>_check(…,4)</code> 未建 baseline，随后 read_text 抛 FileNotFoundError——同样由 Step 3 转绿）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（chapter_loop.py <code>_check_linguistic_drift</code> 内，替换现有 baseline 加载段）</li>
+</ul>
+<div class="highlight"><pre><span></span><code>    <span class="c1"># Load baseline (established from first 3 chapters — see Task 6 / spec §3.5).</span>
+    <span class="c1"># R1 (F602): lazily establish the canonical baseline (style/) once chapter 4</span>
+    <span class="c1"># is reached; chapters 1-3 ARE the baseline corpus, absence is expected.</span>
+    <span class="n">baseline_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;style&quot;</span> <span class="o">/</span> <span class="s2">&quot;linguistic_baseline.json&quot;</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">baseline_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="k">if</span> <span class="n">chapter</span> <span class="o">&gt;=</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.baseline</span><span class="w"> </span><span class="kn">import</span> <span class="n">establish_baseline</span>
+
+            <span class="n">establish_baseline</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">])</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;no_linguistic_baseline&quot;</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">baseline_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+</code></pre></div>
+<p>（删除原 <code>if baseline_file.exists(): ... else: log.warning(...); return None</code> 块。）</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_baseline_wiring.py -v</code>
+Expected: 3 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑邻近回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_intervention.py tests/unit/skill_utils/drift_detection/ -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_drift_baseline_wiring.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: R1 (F602) wire establish_baseline into chapter_loop — ch4+ lazy baseline&quot;</span>
+</code></pre></div>
+→ fresh-context 审查写 <code>.superpowers/sdd/audit-T1.md</code></p>
+<hr />
+<h3 id="task-2-r2-off-by-onef601">Task 2: R2 — 对话塌陷 off-by-one（F601）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py:191-218</code>（<code>detect_drift</code>）
+- Test: <code>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Produces: 模块级常量 <code>_DEVIATION_DRIFT_THRESHOLD: Final[float] = 5.0</code>；对话塌陷时 <code>max_deviation_ratio</code> 置为该常量且 <code>is_drift</code> 判据改 <code>&gt;=</code>（塌陷可触发）；比值类超阈（&gt;500%）行为不变</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_dialogue_collapse_triggers_drift</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R2 (F601): dialogue ratio &lt; 0.2 must set is_drift=True (was unreachable).&quot;&quot;&quot;</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">5.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>  <span class="c1"># ratio 0.1 &lt; 0.2</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span> <span class="ow">is</span> <span class="kc">True</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">deviations</span><span class="p">[</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="mf">0.1</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_drift_threshold_semantics_unchanged_for_ratios</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;比值恰在 5.0x（非塌陷路径）不触发——塌陷用 &gt;=，比值路径语义保持。&quot;&quot;&quot;</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">10.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">6.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>  <span class="c1"># ratio 0.6 正常</span>
+    <span class="k">assert</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span><span class="o">.</span><span class="n">is_drift</span> <span class="ow">is</span> <span class="kc">False</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py::test_dialogue_collapse_triggers_drift -v</code>
+Expected: FAIL（is_drift False——<code>max(...,5.0)</code> 后 <code>&gt;5.0</code> 恒假）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（linguistic_drift.py；模块顶部 import 区后加常量，<code>detect_drift</code> 内两处改）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Final</span><span class="p">,</span> <span class="n">Literal</span>
+<span class="c1"># ...</span>
+<span class="c1"># R2 (F601): single source for the drift threshold. Dialogue collapse sets the</span>
+<span class="c1"># deviation ratio to exactly this value, so the trigger test must be &gt;=.</span>
+<span class="n">_DEVIATION_DRIFT_THRESHOLD</span><span class="p">:</span> <span class="n">Final</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span> <span class="o">=</span> <span class="mf">5.0</span>
+</code></pre></div>
+<p><code>detect_drift</code> 内：
+<div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">dialogue_ratio</span> <span class="o">&lt;</span> <span class="mf">0.2</span><span class="p">:</span>
+            <span class="n">max_deviation_ratio</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">max_deviation_ratio</span><span class="p">,</span> <span class="n">_DEVIATION_DRIFT_THRESHOLD</span><span class="p">)</span>
+            <span class="n">trigger_metric</span> <span class="o">=</span> <span class="n">trigger_metric</span> <span class="ow">or</span> <span class="s2">&quot;dialogue_density&quot;</span>
+
+    <span class="n">is_drift</span> <span class="o">=</span> <span class="n">max_deviation_ratio</span> <span class="o">&gt;=</span> <span class="n">_DEVIATION_DRIFT_THRESHOLD</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 全模块回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/skill_utils/drift_detection/ -v &amp;&amp; uv run pytest tests/unit/pipeline/test_drift_intervention.py -v</code>
+Expected: 全 PASS（含 Task 2 Step 1 两条与既有用例）</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/skill_utils/drift_detection/linguistic_drift.py<span class="w"> </span>tests/unit/skill_utils/drift_detection/test_linguistic_drift.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: R2 (F601) dialogue-collapse drift reachable — shared threshold constant, &gt;= semantics&quot;</span>
+</code></pre></div>
+→ <code>.superpowers/sdd/audit-T2.md</code></p>
+<hr />
+<h3 id="task-3-r3-severity-is_drift-f612">Task 3: R3 — severity 阶梯解除 is_drift 门控（F612）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py:2056</code>（<code>if result.is_drift:</code> → <code>if result.severity != "NONE":</code>）
+- Modify: <code>src/shenbi/skill_utils/drift_detection/linguistic_drift.py:231-238</code>（message 按 severity 生成）
+- Test: <code>tests/unit/pipeline/test_drift_intervention.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的 <code>detect_drift</code>（不变签名）
+- Produces: 干预由 <code>severity != "NONE"</code> 驱动；<code>DriftResult.message</code> 在 severity ≠ NONE 时描述 severity 而非"未检出"</p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_escalate_without_is_drift_raises</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R3 (F612): stm &gt;100‰ (ESCALATE) must intervene even when is_drift=False.</span>
+<span class="sd">    baseline stm=30 使比值 110/30≈3.7 不越阈——正是 F612 的「baseline 污染」场景。&quot;&quot;&quot;</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">110.0</span><span class="p">}</span>  <span class="c1"># 比值正常, stm 超标</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="o">==</span> <span class="s2">&quot;ESCALATE&quot;</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">is_drift</span> <span class="ow">is</span> <span class="kc">False</span>  <span class="c1"># 正是 F612 场景</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_is_drift_implies_at_least_warn</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R3 安全前提（须固化）：is_drift=True ⇒ severity ≥ WARN——门控改 severity 不放大 NONE 面。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">itertools</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.skill_utils.drift_detection.linguistic_drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_drift</span> <span class="k">as</span> <span class="n">dd</span>
+
+    <span class="k">for</span> <span class="n">stm</span><span class="p">,</span> <span class="n">dlg</span> <span class="ow">in</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">([</span><span class="mf">0.0</span><span class="p">,</span> <span class="mf">35.0</span><span class="p">,</span> <span class="mf">60.0</span><span class="p">,</span> <span class="mf">110.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">50.0</span><span class="p">,</span> <span class="mf">5.0</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">]):</span>
+        <span class="n">base</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">1.0</span><span class="p">}</span>
+        <span class="n">cur</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="n">dlg</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="n">stm</span><span class="p">}</span>
+        <span class="n">r</span> <span class="o">=</span> <span class="n">dd</span><span class="p">(</span><span class="n">cur</span><span class="p">,</span> <span class="n">base</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">is_drift</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="n">r</span><span class="o">.</span><span class="n">severity</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;WARN&quot;</span><span class="p">,</span> <span class="s2">&quot;HARD&quot;</span><span class="p">,</span> <span class="s2">&quot;ESCALATE&quot;</span><span class="p">),</span> <span class="p">(</span><span class="n">stm</span><span class="p">,</span> <span class="n">dlg</span><span class="p">,</span> <span class="n">r</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escalate_message_reflects_severity</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R3 附带：severity=ESCALATE + is_drift=False 时 message 不得称&#39;未检出&#39;。&quot;&quot;&quot;</span>
+    <span class="n">baseline</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">50.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">}</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;dialogue_density&quot;</span><span class="p">:</span> <span class="mf">30.0</span><span class="p">,</span> <span class="s2">&quot;system_term_density&quot;</span><span class="p">:</span> <span class="mf">110.0</span><span class="p">}</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">detect_drift</span><span class="p">(</span><span class="n">current</span><span class="p">,</span> <span class="n">baseline</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;No linguistic drift&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">message</span>
+    <span class="k">assert</span> <span class="s2">&quot;ESCALATE&quot;</span> <span class="ow">in</span> <span class="n">r</span><span class="o">.</span><span class="n">message</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_intervention.py -v</code>
+Expected: <code>test_escalate_message_reflects_severity</code> FAIL（message 现为 "No linguistic drift detected."）；<code>test_escalate_without_is_drift_raises</code> PASS（detect_drift 层 ESCALATE 已可达——该条固化 F612 场景）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong></li>
+</ul>
+<p>chapter_loop.py:2056：
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">severity</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+</code></pre></div>
+（其上 log.warning 的 <code>severity=result.severity</code> 不变；ESCALATE/HARD/WARN 分支不动。）</p>
+<p>linguistic_drift.py message 段：
+<div class="highlight"><pre><span></span><code>    <span class="k">if</span> <span class="n">is_drift</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Drift detected: </span><span class="si">{</span><span class="n">trigger_metric</span><span class="si">}</span><span class="s2"> deviated </span><span class="si">{</span><span class="n">max_deviation_ratio</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">x &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;from baseline. System term density: </span><span class="si">{</span><span class="n">stm_density</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> per mille.&quot;</span>
+        <span class="p">)</span>
+    <span class="k">elif</span> <span class="n">severity</span> <span class="o">!=</span> <span class="s2">&quot;NONE&quot;</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;Severity </span><span class="si">{</span><span class="n">severity</span><span class="si">}</span><span class="s2">: system term density </span><span class="si">{</span><span class="n">stm_density</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2"> per mille &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;(absolute threshold breach; ratio metrics within bounds).&quot;</span>
+        <span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">message</span> <span class="o">=</span> <span class="s2">&quot;No linguistic drift detected.&quot;</span>
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_intervention.py tests/unit/skill_utils/drift_detection/ tests/unit/pipeline/test_drift_baseline_wiring.py -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>src/shenbi/skill_utils/drift_detection/linguistic_drift.py<span class="w"> </span>tests/unit/pipeline/test_drift_intervention.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: R3 (F612) drive drift intervention by severity, not is_drift; severity-aware message&quot;</span>
+</code></pre></div>
+→ <code>.superpowers/sdd/audit-T3.md</code></p>
+<hr />
+<h3 id="task-4-r4-driftescalationerror-f620">Task 4: R4 — DriftEscalationError 不再被吞（F620）</h3>
+<p><strong>Files:</strong>
+- Modify: <code>src/shenbi/pipeline/chapter_loop.py</code>（新增模块级 helper <code>_run_linguistic_drift_check</code>；调用点 2853-2861 改调它）
+- Test: <code>tests/unit/pipeline/test_drift_escalation_propagation.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1/3 后的 <code>_check_linguistic_drift</code> + <code>DriftEscalationError</code>（chapter_loop.py:533，同模块）
+- Produces: <code>_run_linguistic_drift_check(project_dir: Path, chapter: int) -&gt; None</code>——ESCALATE 异常向外传播（到达暂停逻辑）；其余异常保持 non-blocking warning。调用点 2853-2861 改为一行 <code>_run_linguistic_drift_check(project_dir, chapter)</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;R4 (F620): DriftEscalationError must escape the step call site; other</span>
+<span class="sd">exceptions stay non-blocking. Tested via the extracted helper</span>
+<span class="sd">``_run_linguistic_drift_check`` (the production call-site handler).&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+
+<span class="n">FIXTURE_CHAPTERS</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/multi-chapter-example&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">ch4_text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Path</span><span class="p">:</span>
+    <span class="n">chapters</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;chapters&quot;</span>
+    <span class="n">chapters</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">ch</span> <span class="ow">in</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">):</span>
+        <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">FIXTURE_CHAPTERS</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">,</span> <span class="n">chapters</span> <span class="o">/</span> <span class="sa">f</span><span class="s2">&quot;chapter-</span><span class="si">{</span><span class="n">ch</span><span class="si">}</span><span class="s2">.md&quot;</span><span class="p">)</span>
+    <span class="p">(</span><span class="n">chapters</span> <span class="o">/</span> <span class="s2">&quot;chapter-4.md&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">ch4_text</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">tmp_path</span>
+
+
+<span class="n">DEGRADED</span> <span class="o">=</span> <span class="s2">&quot;冷在场于第七层深度。冷值7.3，在场度0.89。系统阈值参数格式串。&quot;</span> <span class="o">*</span> <span class="mi">30</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_escalation_propagates_out_of_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftEscalationError</span><span class="p">,</span> <span class="n">_check_linguistic_drift</span>
+
+    <span class="n">project</span> <span class="o">=</span> <span class="n">_make_project</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">DEGRADED</span><span class="p">)</span>
+    <span class="c1"># 直接断言底层可达（stm&gt;100‰ → ESCALATE → raise）</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">DriftEscalationError</span><span class="p">):</span>
+        <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">project</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_call_site_helper_rethrows_escalation</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;R4 核心：调用点 helper 不得把 DriftEscalationError 降级为 warning。&quot;&quot;&quot;</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.chapter_loop</span><span class="w"> </span><span class="kn">import</span> <span class="n">DriftEscalationError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fake_check</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="n">DriftEscalationError</span><span class="p">(</span><span class="s2">&quot;escalated&quot;</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;_check_linguistic_drift&quot;</span><span class="p">,</span> <span class="n">fake_check</span><span class="p">)</span>
+    <span class="k">with</span> <span class="n">pytest</span><span class="o">.</span><span class="n">raises</span><span class="p">(</span><span class="n">DriftEscalationError</span><span class="p">):</span>
+        <span class="n">chapter_loop</span><span class="o">.</span><span class="n">_run_linguistic_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_call_site_helper_swallows_other_exceptions</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">monkeypatch</span><span class="p">):</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">chapter_loop</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">fake_check</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">):</span>
+        <span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s2">&quot;transient&quot;</span><span class="p">)</span>
+
+    <span class="n">monkeypatch</span><span class="o">.</span><span class="n">setattr</span><span class="p">(</span><span class="n">chapter_loop</span><span class="p">,</span> <span class="s2">&quot;_check_linguistic_drift&quot;</span><span class="p">,</span> <span class="n">fake_check</span><span class="p">)</span>
+    <span class="c1"># 不外抛即通过（helper 内部 log.warning 降级）</span>
+    <span class="n">chapter_loop</span><span class="o">.</span><span class="n">_run_linguistic_drift_check</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="mi">4</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_escalation_propagation.py -v</code>
+Expected: <code>test_call_site_helper_rethrows_escalation</code> / <code>test_call_site_helper_swallows_other_exceptions</code> FAIL（<code>_run_linguistic_drift_check</code> 不存在）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现</strong>（chapter_loop.py：新增模块级 helper，放在 <code>DriftEscalationError</code> 定义之后；调用点 2853-2861 的 try/except 块整体替换为一行调用）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">_run_linguistic_drift_check</span><span class="p">(</span><span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span> <span class="n">chapter</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Run the linguistic drift check for a pipeline-internal step.</span>
+
+<span class="sd">    R4 (F620): ESCALATE must pause the pipeline — DriftEscalationError</span>
+<span class="sd">    propagates to the checkpoint logic. Any other failure stays</span>
+<span class="sd">    non-blocking (warning only).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">_check_linguistic_drift</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">DriftEscalationError</span><span class="p">:</span>
+        <span class="k">raise</span>
+    <span class="k">except</span> <span class="ne">Exception</span><span class="p">:</span>
+        <span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;linguistic_drift_check_failed&quot;</span><span class="p">,</span>
+            <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+            <span class="n">exc_info</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+        <span class="p">)</span>
+</code></pre></div>
+<p>调用点（2853-2861）替换为：</p>
+<div class="highlight"><pre><span></span><code>        <span class="k">if</span> <span class="n">step</span><span class="o">.</span><span class="n">skill</span> <span class="o">==</span> <span class="s2">&quot;pipeline-linguistic-drift-check&quot;</span><span class="p">:</span>
+            <span class="n">_run_linguistic_drift_check</span><span class="p">(</span><span class="n">project_dir</span><span class="p">,</span> <span class="n">chapter</span><span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试确认通过 + 回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/pipeline/test_drift_escalation_propagation.py tests/unit/pipeline/test_drift_intervention.py -v</code>
+Expected: 全 PASS</p>
+<ul>
+<li>[ ] <strong>Step 5: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/pipeline/chapter_loop.py<span class="w"> </span>tests/unit/pipeline/test_drift_escalation_propagation.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: R4 (F620) re-raise DriftEscalationError at call site — ESCALATE reaches pause logic&quot;</span>
+</code></pre></div>
+→ <code>.superpowers/sdd/audit-T4.md</code></p>
+<hr />
+<h3 id="task-5-r5-pending_hooks-canonical-f637">Task 5: R5 — pending_hooks 双源 canonical 格式链（F637）</h3>
+<p><strong>Files:</strong>
+- Create: <code>src/shenbi/records/writer.py</code>
+- Modify: <code>src/shenbi/pipeline/hook_planting.py:204-276</code>（<code>_append_to_pending_hooks</code> 走 writer）
+- Test: <code>tests/unit/records/test_writer.py</code>（新建；<code>tests/unit/records/__init__.py</code> 如缺则建）
+- Test: <code>tests/unit/pipeline/test_hook_planting_canonical.py</code>（新建）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: <code>parse_records</code>/<code>serialize_records</code>（records/parser.py）、<code>parse_markdown_table</code>/<code>detect_cross_section_drift</code>/<code>_MD_HEADER_TO_KEY</code>（records/drift.py）、<code>safe_write</code>
+- Produces（writer.py 公共 API，hook_planting 与测试依赖）:
+  - <code>TABLE_COLUMNS: list[str]</code> — 8 列键序 <code>["id","type","dimension","subtlety","escalation_curve","plant_chapter","operation","state"]</code>（值 = <code>list(_MD_HEADER_TO_KEY.values())</code>，与 drift.py 表头映射同源）
+  - <code>normalize_record(rec: dict[str, Any]) -&gt; dict[str, Any]</code> — 8 列集补齐（缺列 <code>""</code>；无 <code>state</code> 的 ID-only 记录补 <code>"PENDING"</code>；保留富字段）
+  - <code>collect_records(text: str) -&gt; list[dict[str, Any]]</code> — 并集迁移源：frontmatter <code>hooks</code> ∪ body <code>## hooks</code> 块（<code>parse_records</code>）∪ body 自由文本 ID 扫描（<code>_HOOK_ID_RE = re.compile(r"(?:[HM]\d+|P\d*-\d+)")</code>，与 truth_index.py:32 同式）∪ <code>## 活跃伏笔</code> 表（<code>parse_markdown_table</code>，值转 str 后并入 field-level 合并）；冲突 field-level 合并、按键有值者优先，来源优先序 body-YAML &gt; frontmatter &gt; 表 &gt; ID-only；列表序 = 首次出现序（frontmatter 先、body 后）；全部过 <code>normalize_record</code>
+  - <code>render_pending_hooks(records: list[dict[str, Any]]) -&gt; str</code> — 三段 canonical：YAML frontmatter（<code>{"hooks": &lt;原序原样 dict 列表&gt;}</code>，<code>yaml.safe_dump(..., sort_keys=True, allow_unicode=True)</code>）+ <code>\n## hooks\n\n</code> + <code>serialize_records(records)</code> + <code>\n\n## 活跃伏笔\n\n</code> + 8 列 markdown 表（表头中文列名 = <code>_MD_HEADER_TO_KEY</code> 逆映射；单元格 = 记录列值的 str 形式，<code>plant_chapter</code>/<code>subtlety</code> 保持 YAML 解析原值的 <code>str()</code>；表由同一记录集生成故与 YAML 同源）
+  - <code>preserve_keys(text: str) -&gt; dict[str, Any]</code> — 返回 frontmatter 中非 <code>hooks</code> 键（project/last_updated/version 等），重写时经 <code>render_pending_hooks(records, preserve_frontmatter=...)</code> 保留
+  - <code>write_pending_hooks(project_dir: Path, records, preserve_frontmatter: dict | None = None) -&gt; None</code> — <code>safe_write(project_dir / "truth" / "pending_hooks.md", render_pending_hooks(records, preserve_frontmatter=preserve_frontmatter))</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 写失败测试</strong>（<code>tests/unit/records/test_writer.py</code>）</li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;R5 (F637): pending_hooks dual-source canonical writer + union migration.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_cross_section_drift</span><span class="p">,</span> <span class="n">parse_markdown_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_records</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">collect_records</span><span class="p">,</span> <span class="n">render_pending_hooks</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/truth-pending_hooks.md&quot;</span><span class="p">)</span>  <span class="c1"># 真实产物 (G0.9)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collect_records_union_all_sources</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;fixture（frontmatter 无、body YAML+表全）→ 三源并入不丢记录。&quot;&quot;&quot;</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">))</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;hook-ch1-001&quot;</span><span class="p">,</span> <span class="s2">&quot;hook-ch1-002&quot;</span><span class="p">,</span> <span class="s2">&quot;hook-ch1-003&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">ids</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collect_records_body_only_freetext</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;body-only 自由文本生产态：ID 扫描兜底得 PENDING 记录，非空集。</span>
+<span class="sd">    （合成 stimulus：collect_records 纯函数输入，非 fixture 产物）&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="s2">&quot;# 伏笔池</span><span class="se">\n\n</span><span class="s2">主角提到 H7 与 P0-3 已种下。</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;H7&quot;</span><span class="p">,</span> <span class="s2">&quot;P0-3&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">ids</span>
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;H7&quot;</span><span class="p">,</span> <span class="s2">&quot;P0-3&quot;</span><span class="p">):</span>
+            <span class="k">assert</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;PENDING&quot;</span>
+            <span class="k">assert</span> <span class="n">r</span><span class="p">[</span><span class="s2">&quot;type&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_collect_records_field_level_merge_body_wins</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;同 id 双源：body 值优先，frontmatter 富字段保留。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">hooks:</span><span class="se">\n</span><span class="s2">- id: H1</span><span class="se">\n</span><span class="s2">  state: PLANTED</span><span class="se">\n</span><span class="s2">  content: 富字段</span><span class="se">\n</span><span class="s2">---</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;## hooks</span><span class="se">\n\n</span><span class="s2">- id: H1</span><span class="se">\n</span><span class="s2">  state: RESOLVED</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="nb">len</span><span class="p">(</span><span class="n">records</span><span class="p">)</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;RESOLVED&quot;</span>
+    <span class="k">assert</span> <span class="n">records</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s2">&quot;content&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="s2">&quot;富字段&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_render_roundtrip_idempotent_and_drift_free</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;验收：writer 往返幂等 + append 后 detect_cross_section_drift == []。&quot;&quot;&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">once</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">rendered</span> <span class="o">=</span> <span class="n">render_pending_hooks</span><span class="p">(</span><span class="n">once</span><span class="p">)</span>
+    <span class="n">twice</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">once</span><span class="p">]</span> <span class="o">==</span> <span class="p">[</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">twice</span><span class="p">]</span>  <span class="c1"># 首现序稳定</span>
+    <span class="k">assert</span> <span class="n">detect_cross_section_drift</span><span class="p">(</span>
+        <span class="n">parse_records</span><span class="p">(</span><span class="n">rendered</span><span class="p">),</span> <span class="n">parse_markdown_table</span><span class="p">(</span><span class="n">rendered</span><span class="p">)</span>
+    <span class="p">)</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_render_resembles_real_fixture_shape</span><span class="p">():</span>
+    <span class="n">rendered</span> <span class="o">=</span> <span class="n">render_pending_hooks</span><span class="p">(</span><span class="n">collect_records</span><span class="p">(</span><span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)))</span>
+    <span class="k">assert</span> <span class="n">rendered</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;## hooks&quot;</span> <span class="ow">in</span> <span class="n">rendered</span>
+    <span class="k">assert</span> <span class="s2">&quot;## 活跃伏笔&quot;</span> <span class="ow">in</span> <span class="n">rendered</span>
+    <span class="k">assert</span> <span class="s2">&quot;| Hook ID |&quot;</span> <span class="ow">in</span> <span class="n">rendered</span>
+</code></pre></div>
+<p>（<code>tests/unit/pipeline/test_hook_planting_canonical.py</code>：）</p>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;R5: _append_to_pending_hooks preserves body sections + dual-source write.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">shutil</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">detect_cross_section_drift</span><span class="p">,</span> <span class="n">parse_markdown_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_records</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.pipeline.hook_planting</span><span class="w"> </span><span class="kn">import</span> <span class="n">_append_to_pending_hooks</span>
+
+<span class="n">FIXTURE</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="s2">&quot;tests/fixtures/truth-pending_hooks.md&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_append_preserves_existing_body_and_table</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;破坏性整写禁止：append 后既有 body/表仍在且新增记录三段同步。&quot;&quot;&quot;</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">shutil</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">FIXTURE</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;hook_id&quot;</span><span class="p">:</span> <span class="s2">&quot;H99&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;新伏笔&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}]</span>
+    <span class="n">planted</span> <span class="o">=</span> <span class="n">_append_to_pending_hooks</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span>
+
+    <span class="k">assert</span> <span class="n">planted</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;## hooks&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;## 活跃伏笔&quot;</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># body 段保留</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">parse_records</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">records</span><span class="p">}</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;hook-ch1-001&quot;</span><span class="p">,</span> <span class="s2">&quot;H99&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">ids</span>  <span class="c1"># 旧记录未丢 + 新记录入 body</span>
+    <span class="n">fm_ids</span> <span class="o">=</span> <span class="n">_frontmatter_ids</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;H99&quot;</span> <span class="ow">in</span> <span class="n">fm_ids</span>  <span class="c1"># frontmatter 同步（三个 frontmatter 读取方继续可用）</span>
+    <span class="k">assert</span> <span class="n">detect_cross_section_drift</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">parse_markdown_table</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frontmatter_ids</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+    <span class="n">parts</span> <span class="o">=</span> <span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;---&quot;</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+    <span class="n">fm</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">parts</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="s2">&quot;id&quot;</span> <span class="ow">in</span> <span class="n">h</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_frontmatter_only_variant</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;历史生产 writer 形态：真实 body 记录整体移入 frontmatter，body 全丢</span>
+<span class="sd">    （派生自真实 skill 输出，G0.9 合法变体）。&quot;&quot;&quot;</span>
+    <span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+    <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_records</span> <span class="k">as</span> <span class="n">pr</span>
+
+    <span class="n">real</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">records</span> <span class="o">=</span> <span class="n">pr</span><span class="p">(</span><span class="n">real</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">({</span><span class="s2">&quot;hooks&quot;</span><span class="p">:</span> <span class="n">records</span><span class="p">},</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_body_freetext_only_variant</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;body-only 自由文本生产态（truth_index Source-2 记载）。ID 用</span>
+<span class="sd">    _HOOK_ID_RE 实际匹配的形态（H&lt;N&gt;），映射自真实 fixture 的表行序。&quot;&quot;&quot;</span>
+    <span class="n">real</span> <span class="o">=</span> <span class="n">FIXTURE</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="mi">1</span> <span class="k">for</span> <span class="n">ln</span> <span class="ow">in</span> <span class="n">real</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span> <span class="k">if</span> <span class="n">ln</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;| hook-ch&quot;</span><span class="p">))</span>
+    <span class="n">prose_ids</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;H</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">n_rows</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;# 伏笔池</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;主角注意到 </span><span class="si">{</span><span class="n">hid</span><span class="si">}</span><span class="s2"> 的伏笔已种下。&quot;</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">prose_ids</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_append_migrates_frontmatter_only_legacy</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;frontmatter-only 存量 append 后自动迁移为三段，frontmatter 记录不丢。&quot;&quot;&quot;</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">_frontmatter_only_variant</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;hook_id&quot;</span><span class="p">:</span> <span class="s2">&quot;H99&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}]</span>
+    <span class="n">_append_to_pending_hooks</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">target</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="s2">&quot;## hooks&quot;</span> <span class="ow">in</span> <span class="n">text</span> <span class="ow">and</span> <span class="s2">&quot;## 活跃伏笔&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="n">ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">r</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="n">parse_records</span><span class="p">(</span><span class="n">text</span><span class="p">)}</span>
+    <span class="k">assert</span> <span class="p">{</span><span class="s2">&quot;hook-ch1-001&quot;</span><span class="p">,</span> <span class="s2">&quot;hook-ch1-002&quot;</span><span class="p">,</span> <span class="s2">&quot;hook-ch1-003&quot;</span><span class="p">,</span> <span class="s2">&quot;H99&quot;</span><span class="p">}</span> <span class="o">&lt;=</span> <span class="n">ids</span>
+    <span class="k">assert</span> <span class="n">detect_cross_section_drift</span><span class="p">(</span><span class="n">parse_records</span><span class="p">(</span><span class="n">text</span><span class="p">),</span> <span class="n">parse_markdown_table</span><span class="p">(</span><span class="n">text</span><span class="p">))</span> <span class="o">==</span> <span class="p">[]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_append_dedup_reads_union_source</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;去重走并集源：body-only 自由文本记录的 id 也算已存在，不重复植入。&quot;&quot;&quot;</span>
+    <span class="n">truth</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span>
+    <span class="n">truth</span><span class="o">.</span><span class="n">mkdir</span><span class="p">()</span>
+    <span class="n">target</span> <span class="o">=</span> <span class="n">truth</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+    <span class="n">target</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="n">_body_freetext_only_variant</span><span class="p">(),</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="n">entries</span> <span class="o">=</span> <span class="p">[{</span><span class="s2">&quot;hook_id&quot;</span><span class="p">:</span> <span class="s2">&quot;H1&quot;</span><span class="p">,</span> <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;x&quot;</span><span class="p">,</span> <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;category&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">}]</span>
+    <span class="k">assert</span> <span class="n">_append_to_pending_hooks</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">,</span> <span class="n">entries</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 2: 跑测试确认失败</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/records/test_writer.py tests/unit/pipeline/test_hook_planting_canonical.py -v</code>
+Expected: writer 用例 FAIL（ModuleNotFoundError: shenbi.records.writer）；hook_planting 用例 FAIL（body 段被整写摧毁）</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 <code>src/shenbi/records/writer.py</code></strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;pending_hooks.md canonical dual-source writer (SDD #11 R5 / F637).</span>
+
+<span class="sd">Canonical three-part format, same shape as the real fixture</span>
+<span class="sd">``tests/fixtures/truth-pending_hooks.md``:</span>
+<span class="sd">  1. YAML frontmatter ``hooks`` list — read by pipeline/context_curation.py,</span>
+<span class="sd">     pipeline/review_checklist.py, chapter_loop._count_triggered_hooks;</span>
+<span class="sd">  2. ``## hooks`` YAML body block — read by records/parser.parse_records</span>
+<span class="sd">     (authority per spec New-F), audit/write_audit.py;</span>
+<span class="sd">  3. ``## 活跃伏笔`` markdown table — read by records/drift.parse_markdown_table.</span>
+
+<span class="sd">Table and YAML block are generated from ONE record set, so</span>
+<span class="sd">detect_cross_section_drift is empty by construction. Migration</span>
+<span class="sd">(collect_records) is a union over all legacy shapes — frontmatter-only,</span>
+<span class="sd">body-YAML-block, and body free-text (the production state per</span>
+<span class="sd">truth_index.py) — with field-level merge and first-appearance ordering;</span>
+<span class="sd">serialization is deterministic, so migration is idempotent.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">yaml</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.drift</span><span class="w"> </span><span class="kn">import</span> <span class="n">_MD_HEADER_TO_KEY</span><span class="p">,</span> <span class="n">parse_markdown_table</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_records</span><span class="p">,</span> <span class="n">serialize_records</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.safe_write</span><span class="w"> </span><span class="kn">import</span> <span class="n">safe_write</span>
+
+<span class="c1"># Same pattern as pipeline/truth_index.py _HOOK_ID_RE (body free-text IDs).</span>
+<span class="n">_HOOK_ID_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;(?:[HM]\d+|P\d*-\d+)&quot;</span><span class="p">)</span>
+
+<span class="c1"># 8 canonical table columns, sourced from the drift checker&#39;s header map.</span>
+<span class="n">TABLE_COLUMNS</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">_MD_HEADER_TO_KEY</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+<span class="n">_KEY_TO_HEADER</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span><span class="n">v</span><span class="p">:</span> <span class="n">k</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">_MD_HEADER_TO_KEY</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span>
+
+<span class="n">_FM_RE</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;\A---\s*\n(.*?)\n---\s*\n?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">DOTALL</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="nb">str</span><span class="p">]:</span>
+    <span class="n">m</span> <span class="o">=</span> <span class="n">_FM_RE</span><span class="o">.</span><span class="n">match</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">m</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">text</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">fm</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_load</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">))</span> <span class="ow">or</span> <span class="p">{}</span>
+    <span class="k">except</span> <span class="n">yaml</span><span class="o">.</span><span class="n">YAMLError</span><span class="p">:</span>
+        <span class="k">return</span> <span class="p">{},</span> <span class="n">text</span>
+    <span class="k">return</span> <span class="n">fm</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fm</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="k">else</span> <span class="p">{},</span> <span class="n">text</span><span class="p">[</span><span class="n">m</span><span class="o">.</span><span class="n">end</span><span class="p">():]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">normalize_record</span><span class="p">(</span><span class="n">rec</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Pad every record to the 8-column set; ID-only records get PENDING.</span>
+
+<span class="sd">    _values_equal(None, &quot;&quot;) is False, so a missing column would fabricate</span>
+<span class="sd">    drift against the generated table&#39;s empty cell.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">rec</span><span class="p">)</span>
+    <span class="n">has_state</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;state&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">())</span>
+    <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">TABLE_COLUMNS</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">col</span> <span class="o">==</span> <span class="s2">&quot;state&quot;</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">has_state</span><span class="p">:</span>
+                <span class="n">out</span><span class="p">[</span><span class="s2">&quot;state&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;PENDING&quot;</span>
+        <span class="k">elif</span> <span class="n">out</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">col</span><span class="p">)</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">collect_records</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Union-migrate all record sources in ``text`` into normalized records.</span>
+
+<span class="sd">    Value precedence per key (field-level merge, first non-empty wins):</span>
+<span class="sd">    body-YAML &gt; frontmatter &gt; markdown table &gt; ID-only. Appearance order</span>
+<span class="sd">    (output list order): frontmatter order first, then first appearance in</span>
+<span class="sd">    body sources — stable across round-trips.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fm</span><span class="p">,</span> <span class="n">body</span> <span class="o">=</span> <span class="n">_split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+
+    <span class="n">fm_records</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">h</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[])</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">h</span><span class="p">,</span> <span class="nb">dict</span><span class="p">)</span> <span class="ow">and</span> <span class="n">h</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+    <span class="p">]</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">fm</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;hooks&quot;</span><span class="p">),</span> <span class="nb">list</span><span class="p">)</span> <span class="k">else</span> <span class="p">[]</span>
+    <span class="n">body_block</span> <span class="o">=</span> <span class="n">parse_records</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">table_rows</span> <span class="o">=</span> <span class="n">parse_markdown_table</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="n">free_ids</span> <span class="o">=</span> <span class="n">_HOOK_ID_RE</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="n">body</span><span class="p">)</span>
+
+    <span class="c1"># Appearance order: frontmatter first, then body block, then remaining</span>
+    <span class="c1"># table-only / free-text IDs in scan order.</span>
+    <span class="n">order</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">fm_records</span> <span class="o">+</span> <span class="n">body_block</span><span class="p">:</span>
+        <span class="n">rid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">rid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+            <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="nb">list</span><span class="p">(</span><span class="n">table_rows</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">free_ids</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">rid</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">order</span><span class="p">:</span>
+            <span class="n">order</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rid</span><span class="p">)</span>
+
+    <span class="c1"># Value precedence: apply lowest-priority sources first, then overwrite.</span>
+    <span class="n">layered</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">hid</span><span class="p">}</span> <span class="k">for</span> <span class="n">hid</span> <span class="ow">in</span> <span class="n">free_ids</span><span class="p">],</span>
+        <span class="p">[{</span><span class="s2">&quot;id&quot;</span><span class="p">:</span> <span class="n">rid</span><span class="p">,</span> <span class="o">**</span><span class="n">row</span><span class="p">}</span> <span class="k">for</span> <span class="n">rid</span><span class="p">,</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">table_rows</span><span class="o">.</span><span class="n">items</span><span class="p">()],</span>
+        <span class="n">fm_records</span><span class="p">,</span>
+        <span class="n">body_block</span><span class="p">,</span>  <span class="c1"># authoritative — applied last</span>
+    <span class="p">]</span>
+    <span class="n">merged</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="n">layered</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">source</span><span class="p">:</span>
+            <span class="n">rid</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">rid</span><span class="p">:</span>
+                <span class="k">continue</span>
+            <span class="n">target</span> <span class="o">=</span> <span class="n">merged</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">rid</span><span class="p">,</span> <span class="p">{})</span>
+            <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">rec</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">if</span> <span class="n">v</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">v</span><span class="o">.</span><span class="n">strip</span><span class="p">()):</span>
+                    <span class="k">continue</span>  <span class="c1"># empty values never overwrite richer ones</span>
+                <span class="n">target</span><span class="p">[</span><span class="n">k</span><span class="p">]</span> <span class="o">=</span> <span class="n">v</span>
+
+    <span class="k">return</span> <span class="p">[</span><span class="n">normalize_record</span><span class="p">(</span><span class="n">merged</span><span class="p">[</span><span class="n">rid</span><span class="p">])</span> <span class="k">for</span> <span class="n">rid</span> <span class="ow">in</span> <span class="n">order</span><span class="p">]</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_render_table</span><span class="p">(</span><span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">header</span> <span class="o">=</span> <span class="s2">&quot;| &quot;</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">_KEY_TO_HEADER</span><span class="p">[</span><span class="n">c</span><span class="p">]</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">TABLE_COLUMNS</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; |&quot;</span>
+    <span class="n">sep</span> <span class="o">=</span> <span class="s2">&quot;|&quot;</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="s2">&quot;---&quot;</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">TABLE_COLUMNS</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;|&quot;</span>
+    <span class="n">lines</span> <span class="o">=</span> <span class="p">[</span><span class="n">header</span><span class="p">,</span> <span class="n">sep</span><span class="p">]</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
+        <span class="n">cells</span> <span class="o">=</span> <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">c</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">))</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">TABLE_COLUMNS</span><span class="p">]</span>
+        <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;| &quot;</span> <span class="o">+</span> <span class="s2">&quot; | &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">cells</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; |&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">lines</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">render_pending_hooks</span><span class="p">(</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span> <span class="o">*</span><span class="p">,</span> <span class="n">preserve_frontmatter</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Render the canonical three-part document from one record set.</span>
+
+<span class="sd">    ``preserve_frontmatter`` carries non-hooks frontmatter keys (project /</span>
+<span class="sd">    last_updated / ...) from the file being rewritten so they survive.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">fm</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">preserve_frontmatter</span> <span class="ow">or</span> <span class="p">{})</span>
+    <span class="n">fm</span><span class="p">[</span><span class="s2">&quot;hooks&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">records</span>
+    <span class="n">frontmatter</span> <span class="o">=</span> <span class="n">yaml</span><span class="o">.</span><span class="n">safe_dump</span><span class="p">(</span>
+        <span class="n">fm</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">allow_unicode</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">default_flow_style</span><span class="o">=</span><span class="kc">False</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="s2">&quot;---</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">frontmatter</span>
+        <span class="o">+</span> <span class="s2">&quot;---</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="s2">&quot;## hooks</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">serialize_records</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">## 活跃伏笔</span><span class="se">\n\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="n">_render_table</span><span class="p">(</span><span class="n">records</span><span class="p">)</span>
+        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">preserve_keys</span><span class="p">(</span><span class="n">text</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Non-hooks frontmatter keys of ``text`` (to survive a canonical rewrite).&quot;&quot;&quot;</span>
+    <span class="n">fm</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_split_frontmatter</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">k</span><span class="p">:</span> <span class="n">v</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="n">fm</span><span class="o">.</span><span class="n">items</span><span class="p">()</span> <span class="k">if</span> <span class="n">k</span> <span class="o">!=</span> <span class="s2">&quot;hooks&quot;</span><span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">write_pending_hooks</span><span class="p">(</span>
+    <span class="n">project_dir</span><span class="p">:</span> <span class="n">Path</span><span class="p">,</span>
+    <span class="n">records</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]],</span>
+    <span class="n">preserve_frontmatter</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">safe_write</span><span class="p">(</span>
+        <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span><span class="p">,</span>
+        <span class="n">render_pending_hooks</span><span class="p">(</span><span class="n">records</span><span class="p">,</span> <span class="n">preserve_frontmatter</span><span class="o">=</span><span class="n">preserve_frontmatter</span><span class="p">),</span>
+    <span class="p">)</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 4: 改 <code>_append_to_pending_hooks</code></strong>（hook_planting.py）</li>
+</ul>
+<p>替换 222-269 段的读取与写回：</p>
+<div class="highlight"><pre><span></span><code>    <span class="n">hooks_file</span> <span class="o">=</span> <span class="n">project_dir</span> <span class="o">/</span> <span class="s2">&quot;truth&quot;</span> <span class="o">/</span> <span class="s2">&quot;pending_hooks.md&quot;</span>
+
+    <span class="c1"># R5 (F637): union-source read (frontmatter ∪ body block ∪ table ∪ body IDs)</span>
+    <span class="c1"># — dedup must see records written by any legacy shape.</span>
+    <span class="n">existing_hooks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">existing_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">exists</span><span class="p">():</span>
+        <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">collect_records</span><span class="p">,</span> <span class="n">preserve_keys</span>
+
+        <span class="n">_old_text</span> <span class="o">=</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+        <span class="n">_preserve</span> <span class="o">=</span> <span class="n">preserve_keys</span><span class="p">(</span><span class="n">_old_text</span><span class="p">)</span>
+        <span class="n">existing_hooks</span> <span class="o">=</span> <span class="n">collect_records</span><span class="p">(</span><span class="n">_old_text</span><span class="p">)</span>
+        <span class="n">existing_ids</span> <span class="o">=</span> <span class="p">{</span><span class="n">h</span><span class="p">[</span><span class="s2">&quot;id&quot;</span><span class="p">]</span> <span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">existing_hooks</span> <span class="k">if</span> <span class="s2">&quot;id&quot;</span> <span class="ow">in</span> <span class="n">h</span><span class="p">}</span>
+
+    <span class="c1"># Collect new hooks (skip duplicates).</span>
+    <span class="n">new_hooks</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">entry</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
+        <span class="n">hook_id</span> <span class="o">=</span> <span class="n">entry</span><span class="p">[</span><span class="s2">&quot;hook_id&quot;</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">hook_id</span> <span class="ow">in</span> <span class="n">existing_ids</span><span class="p">:</span>
+            <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;hook_plant_duplicate_skipped&quot;</span><span class="p">,</span> <span class="n">hook_id</span><span class="o">=</span><span class="n">hook_id</span><span class="p">,</span> <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">)</span>
+            <span class="k">continue</span>
+        <span class="n">new_hooks</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">_generate_hook_yaml</span><span class="p">(</span><span class="n">entry</span><span class="p">,</span> <span class="n">chapter</span><span class="p">))</span>
+        <span class="n">existing_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">hook_id</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">new_hooks</span><span class="p">:</span>
+        <span class="c1"># Still migrate a legacy-shaped file to canonical form (idempotent).</span>
+        <span class="k">if</span> <span class="n">hooks_file</span><span class="o">.</span><span class="n">exists</span><span class="p">()</span> <span class="ow">and</span> <span class="n">existing_hooks</span><span class="p">:</span>
+            <span class="kn">from</span><span class="w"> </span><span class="nn">shenbi.records.writer</span><span class="w"> </span><span class="kn">import</span> <span class="n">render_pending_hooks</span>
+
+            <span class="n">safe_write</span><span class="p">(</span>
+                <span class="n">hooks_file</span><span class="p">,</span>
+                <span class="n">render_pending_hooks</span><span class="p">(</span><span class="n">existing_hooks</span><span class="p">,</span> <span class="n">preserve_frontmatter</span><span class="o">=</span><span class="n">_preserve</span><span class="p">),</span>
+            <span class="p">)</span>
+        <span class="k">return</span> <span class="mi">0</span>
+
+    <span class="n">all_hooks</span> <span class="o">=</span> <span class="n">existing_hooks</span> <span class="o">+</span> <span class="n">new_hooks</span>
+    <span class="n">safe_write</span><span class="p">(</span><span class="n">hooks_file</span><span class="p">,</span> <span class="n">render_pending_hooks</span><span class="p">(</span><span class="n">all_hooks</span><span class="p">,</span> <span class="n">preserve_frontmatter</span><span class="o">=</span><span class="n">_preserve</span><span class="p">))</span>
+    <span class="n">log</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+        <span class="s2">&quot;hook_plant_appended_to_pending_hooks&quot;</span><span class="p">,</span>
+        <span class="n">chapter</span><span class="o">=</span><span class="n">chapter</span><span class="p">,</span>
+        <span class="n">new_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">new_hooks</span><span class="p">),</span>
+        <span class="n">total_count</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">all_hooks</span><span class="p">),</span>
+    <span class="p">)</span>
+    <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_hooks</span><span class="p">)</span>
+</code></pre></div>
+<p>（顶部补 <code>from shenbi.records.writer import collect_records, render_pending_hooks</code> 可改为模块级 import——按文件既有 import 风格放模块顶部更佳。）</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试确认通过 + 全量回归</strong></li>
+</ul>
+<p>Run: <code>uv run pytest tests/unit/records/ tests/unit/pipeline/test_hook_planting_canonical.py -v &amp;&amp; uv run pytest tests/unit -q -k "hook or pending or truth_index or context_curation or review_checklist"</code>
+Expected: 全 PASS（含 truth_index 双源读取对新格式的兼容）</p>
+<ul>
+<li>[ ] <strong>Step 6: Commit + audit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>src/shenbi/records/writer.py<span class="w"> </span>src/shenbi/pipeline/hook_planting.py<span class="w"> </span>tests/unit/records/<span class="w"> </span>tests/unit/pipeline/test_hook_planting_canonical.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix: R5 (F637) pending_hooks canonical dual-source writer — union migration, body-preserving append&quot;</span>
+</code></pre></div>
+→ <code>.superpowers/sdd/audit-T5.md</code></p>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>可执行验证</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 第 4 章起 baseline 文件存在</td>
+<td>T1</td>
+<td><code>uv run pytest tests/unit/pipeline/test_drift_baseline_wiring.py -v</code></td>
+</tr>
+<tr>
+<td>R2 dialogue ratio&lt;0.2 → is_drift=True</td>
+<td>T2</td>
+<td><code>uv run pytest tests/unit/skill_utils/drift_detection/test_linguistic_drift.py::test_dialogue_collapse_triggers_drift -v</code></td>
+</tr>
+<tr>
+<td>R3 stm 110‰ 触发 ESCALATE</td>
+<td>T3</td>
+<td><code>uv run pytest tests/unit/pipeline/test_drift_intervention.py::test_escalate_without_is_drift_raises -v</code></td>
+</tr>
+<tr>
+<td>R4 ESCALATE 到达暂停逻辑</td>
+<td>T4</td>
+<td><code>uv run pytest tests/unit/pipeline/test_drift_escalation_propagation.py -v</code></td>
+</tr>
+<tr>
+<td>R5 真实文件检出 drift / 往返幂等</td>
+<td>T5</td>
+<td><code>uv run pytest tests/unit/records/test_writer.py tests/unit/pipeline/test_hook_planting_canonical.py -v</code></td>
+</tr>
+</tbody>
+</table>
+<p>不涉及评分场景，无需 G3.4 子 agent。全部 task = infra（pipeline/records），协调者亲实现。</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

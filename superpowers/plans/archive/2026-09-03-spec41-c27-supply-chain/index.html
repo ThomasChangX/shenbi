@@ -1,0 +1,1614 @@
+
+<!doctype html>
+<html lang="zh" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Novel-writing AI skill framework">
+      
+      
+      
+        <link rel="canonical" href="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-03-spec41-c27-supply-chain/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.6">
+    
+    
+      
+        <title>Spec #41 C27 供应链/安全审计盲区修复 Implementation Plan - Shenbi</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
+    
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Spec #41 C27 供应链/安全审计盲区修复 Implementation Plan - Shenbi" />
+<meta property="og:description" content="Novel-writing AI skill framework" />
+<meta property="og:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-03-spec41-c27-supply-chain.png" />
+<meta property="og:image:type" content="image/png" />
+<meta property="og:image:width" content="1200" />
+<meta property="og:image:height" content="630" />
+<meta property="og:url" content="https://thomaschangx.github.io/shenbi/superpowers/plans/archive/2026-09-03-spec41-c27-supply-chain/" />
+<meta property="twitter:card" content="summary_large_image" />
+<meta property="twitter:title" content="Spec #41 C27 供应链/安全审计盲区修复 Implementation Plan - Shenbi" />
+<meta property="twitter:description" content="Novel-writing AI skill framework" />
+<meta property="twitter:image" content="https://thomaschangx.github.io/shenbi/assets/images/social/superpowers/plans/archive/2026-09-03-spec41-c27-supply-chain.png" />
+</head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#spec-41-c27-implementation-plan" class="md-skip">
+          跳转至
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+<header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="页眉">
+    <a href="../../../.." title="Shenbi" class="md-header__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Shenbi
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Spec #41 C27 供应链/安全审计盲区修复 Implementation Plan
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="indigo" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="搜索" placeholder="搜索" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="查找">
+        
+        <button type="reset" class="md-search__icon md-icon" title="清空当前内容" aria-label="清空当前内容" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            正在初始化搜索引擎
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+            
+<nav class="md-tabs" aria-label="标签" data-md-component="tabs">
+  <div class="md-grid">
+    <ul class="md-tabs__list">
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../.." class="md-tabs__link">
+        
+  
+  
+    
+  
+  首页 / Home
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../getting-started/installation/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  快速开始 / Getting Started
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../skills/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  技能目录 / Skills
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../architecture/overview/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  架构概览 / Architecture
+
+      </a>
+    </li>
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../framework/gates/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  Framework
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    
+    
+      <li class="md-tabs__item">
+        <a href="../../../../api/exceptions/" class="md-tabs__link">
+          
+  
+  
+    
+  
+  API
+
+        </a>
+      </li>
+    
+  
+
+      
+        
+  
+  
+  
+  
+    <li class="md-tabs__item">
+      <a href="../../../../adr/" class="md-tabs__link">
+        
+  
+  
+    
+  
+  Architecture Decisions
+
+      </a>
+    </li>
+  
+
+      
+    </ul>
+  </div>
+</nav>
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+  
+
+
+<nav class="md-nav md-nav--primary md-nav--lifted" aria-label="导航栏" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../../../.." title="Shenbi" class="md-nav__button md-logo" aria-label="Shenbi" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Shenbi
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/ThomasChangX/shenbi" title="前往仓库" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    ThomasChangX/shenbi
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    首页 / Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    快速开始 / Getting Started
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    快速开始 / Getting Started
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    安装 / Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/concepts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    核心概念 / Concepts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../getting-started/first-novel/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    第一本小说 / Your First Novel
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../skills/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    技能目录 / Skills
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../architecture/overview/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    架构概览 / Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Framework
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Framework
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/gates/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Gates
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/scoring/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scoring
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/dispatcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Dispatcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../framework/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+      
+        
+      
+        
+      
+    
+    
+    
+      
+      
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+          
+        
+        <input class="md-nav__toggle md-toggle md-toggle--indeterminate" type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    API
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    API
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/exceptions/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Exceptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../api/logging/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../../../adr/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture Decisions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="目录">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      目录
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-constraints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Global Constraints
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Global Constraints">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-1-r1-t1301t1303" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 1: R1 审计口径对齐（T1301+T1303）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-2-r2-sbom-t1304-f1041" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 2: R2 SBOM 按组分层（T1304 面 + F1041）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-3-r2r3-check_licensespy" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 3: R2+R3 check_licenses.py + 豁免登记机械执法（协调者亲自实现）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-4-r4-t1305f1008f1009f912" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 4: R4 死依赖清理 + 防线真实化（T1305/F1008/F1009/F912）
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-5-ledger-d1-baseline" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Task 5: ledger 回写 + d1-baseline 注记（簇级验收收尾）
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        验收覆盖表
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="spec-41-c27-implementation-plan">Spec #41 C27 供应链/安全审计盲区修复 Implementation Plan</h1>
+<blockquote>
+<p><strong>For agentic workers:</strong> REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (<code>- [ ]</code>) syntax for tracking.</p>
+</blockquote>
+<p><strong>Goal:</strong> Security 门审计对象对齐 uv.lock 全集（含 docs 组与 extras）、SBOM 按组分层、许可证/豁免机械执法、死依赖清理与防线真实化。</p>
+<p><strong>Architecture:</strong> 全部为 CI workflow / 工具脚本 / 依赖配置改动，无 src/shenbi 运行时代码变更。审计口径统一为 <code>uv export --frozen --all-groups --all-extras --no-emit-project</code> → <code>pip-audit -r &lt;file&gt; --no-deps --disable-pip</code>；SBOM 用 <code>cyclonedx-py requirements</code> 按组生成；新增 <code>tools/check_licenses.py</code> 同时执法许可证例外表与 pip-audit <code>--ignore-vuln</code> 豁免登记。</p>
+<p><strong>Tech Stack:</strong> uv 0.10.7、pip-audit 2.10.1、cyclonedx-bom 7.3.1、GitHub Actions、pytest。</p>
+<h2 id="global-constraints">Global Constraints</h2>
+<ul>
+<li>禁止真实 LLM dispatch 验证（核心原则 8）；一切验证走 <code>just</code>/<code>uv run</code>（与 CI <code>uv run --frozen</code> 同构）</li>
+<li>fixtures 只能是真实产物或其改制副本 + provenance 成文（G0.9）；禁止手写 SBOM/requirements</li>
+<li>框架代码（若有）无 print、pathlib；本 plan 不触 src/shenbi</li>
+<li>conventional commits；每 task commit 后产出 <code>.superpowers/sdd/audit-T&lt;N&gt;.md</code></li>
+<li>C25（#63）合写面：security.yml 改动处加注释占位，C25 侧只做清单对账不重排步骤</li>
+<li>spec：docs/superpowers/specs/2026-08-16-c27-supply-chain-audit-design.md（Revised 2026-09-03 版，commit d8f0e834）</li>
+</ul>
+<hr />
+<h3 id="task-1-r1-t1301t1303">Task 1: R1 审计口径对齐（T1301+T1303）</h3>
+<p><strong>复杂度: infra · test_kind: regression_guard（workflow 结构断言）+ 手动 FAIL 路径验证</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/security.yml</code>（全文件重写 audit job 步骤）
+- Modify: <code>tools/pre-push-check.sh:37-39</code>（本地镜像同步同口径）
+- Create: <code>tests/fixtures/security/req-vulnerable.txt</code>（真实 export 产物改制）
+- Create: <code>tests/fixtures/security/PROVENANCE.md</code>
+- Test: <code>tests/unit/tools/test_security_workflow_contract.py</code></p>
+<p><strong>Interfaces:</strong>
+- Produces: security.yml audit 口径命令串（Task 2 SBOM 步骤与其同处一文件）；fixture <code>req-vulnerable.txt</code>（Task 3 check_licenses 测试不依赖它，独立）
+- 审计口径（唯一信源，后续 task 引用）：
+  <code>uv export --frozen --all-groups --all-extras --no-emit-project -o &lt;file&gt; &amp;&amp; uv run pip-audit -r &lt;file&gt; --no-deps --disable-pip</code></p>
+<ul>
+<li>[ ] <strong>Step 1: 生成真实 export fixture 并注入已知漏洞 pin</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>mkdir<span class="w"> </span>-p<span class="w"> </span>tests/fixtures/security
+uv<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--frozen<span class="w"> </span>--all-groups<span class="w"> </span>--all-extras<span class="w"> </span>--no-emit-project<span class="w"> </span>-o<span class="w"> </span>tests/fixtures/security/req-vulnerable.txt
+</code></pre></div>
+然后编辑该文件：将其中一行 pin 替换为带已知 CVE 的版本（用 <code>requests==2.30.0 \</code> 替换现有 requests pin 行，保留该行原有的 <code>--hash</code> 行删除——pip-audit <code>--no-deps</code> 模式不校验哈希完整性；requests 2.30.0 有 PYSEC-2023-262 等已知漏洞）。保留文件头 uv 自动生成注释。</p>
+<p><code>tests/fixtures/security/PROVENANCE.md</code> 内容：
+<div class="highlight"><pre><span></span><code><span class="gh"># fixtures/security provenance</span>
+
+<span class="k">-</span><span class="w"> </span><span class="sb">`req-vulnerable.txt`</span>: 真实 <span class="sb">`uv export --frozen --all-groups --all-extras --no-emit-project`</span>
+  产物（2026-09-03，uv 0.10.7，main @ &lt;commit&gt;），仅将 requests pin 行替换为
+  <span class="sb">`requests==2.30.0`</span>（已知 CVE：CVE-2023-32681 等）用于 pip-audit FAIL 路径回归。
+  替换行原 --hash 已随替换移除（--no-deps 模式不校验）。
+</code></pre></div></p>
+<ul>
+<li>[ ] <strong>Step 2: 重写 security.yml audit 步骤</strong></li>
+</ul>
+<p>新 audit job steps（checkout/setup-uv 不变；<code>actions/checkout@v4</code>、<code>astral-sh/setup-uv@v3</code> 维持现状不动——版本 bump 归 dependabot）：</p>
+<p><div class="highlight"><pre><span></span><code><span class="nt">jobs</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">audit</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ubuntu-latest</span>
+<span class="w">    </span><span class="nt">steps</span><span class="p">:</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/checkout@v4</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">astral-sh/setup-uv@v3</span>
+<span class="w">      </span><span class="c1"># Spec #41 (C27) R1: 审计对象 = uv.lock 全集（--all-groups 含 docs 组，</span>
+<span class="w">      </span><span class="c1"># --all-extras 含 embeddings；默认 export 仅 prod+dev 是 T1303 盲区）。</span>
+<span class="w">      </span><span class="c1"># C25 (#63) 合写面：本 audit 步骤归 spec #41 R1 所有，C25 侧清单对账勿重排。</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv export --frozen --all-groups --all-extras --no-emit-project -o req-audit.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run pip-audit -r req-audit.txt --no-deps --disable-pip</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py requirements -o sbom.cdx.json req-audit.txt</span><span class="w">   </span><span class="c1"># Task 2 改为分组三份</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom.cdx.json</span>
+</code></pre></div>
+（注：删除 <code>uv sync</code> 行后 <code>uv run</code> 会隐式 sync 默认组使 pip-audit/cyclonedx 可解析——无需恢复显式 sync 行。Task 1 阶段 cyclonedx 行先保持单份 <code>environment</code>→<code>requirements</code> 最小变更也可；Task 2 统一改分组——两 task 同文件串行，以 Task 2 终态为准。）</p>
+<ul>
+<li>[ ] <strong>Step 3: 同步 pre-push-check.sh 本地镜像</strong></li>
+</ul>
+<p><code>tools/pre-push-check.sh</code> :37-39 的 <code>uv sync --frozen --group dev</code> + <code>uv run pip-audit</code> 替换为同一 export+audit 管线（echo 文案同步改为 "pip-audit (uv.lock full set, mirroring CI security.yml)"）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 写 workflow 契约测试</strong></li>
+</ul>
+<p><code>tests/unit/tools/test_security_workflow_contract.py</code>：
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #41 (C27) R1: security.yml 审计口径契约——审计对象必须是 uv.lock 全集。</span>
+
+<span class="sd">T1301/T1303 回归守卫：任何收窄审计范围的改动（如恢复 --group dev、去掉</span>
+<span class="sd">--all-groups/--all-extras、退回 uvx pip-audit/环境审计）都会使本测试 FAIL。</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">WORKFLOW</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;.github/workflows/security.yml&quot;</span>
+<span class="n">PRE_PUSH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;tools/pre-push-check.sh&quot;</span>
+<span class="n">REQUIRED_EXPORT</span> <span class="o">=</span> <span class="s2">&quot;uv export --frozen --all-groups --all-extras --no-emit-project&quot;</span>
+<span class="n">FORBIDDEN</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;--group dev&quot;</span><span class="p">,</span> <span class="s2">&quot;uvx pip-audit&quot;</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_security_yml_audits_full_lock_set</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">WORKFLOW</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">REQUIRED_EXPORT</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;pip-audit -r&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">FORBIDDEN</span><span class="p">:</span>
+        <span class="k">assert</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span><span class="p">,</span> <span class="sa">f</span><span class="s2">&quot;audit scope narrowed: </span><span class="si">{</span><span class="n">token</span><span class="si">!r}</span><span class="s2"> re-introduced&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_pre_push_mirrors_ci_audit_scope</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">PRE_PUSH</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">REQUIRED_EXPORT</span> <span class="ow">in</span> <span class="n">text</span>
+</code></pre></div>
+（cyclonedx 行不在断言范围——Task 2 会改它，避免跨 task 耦合。）</p>
+<ul>
+<li>[ ] <strong>Step 5: 跑测试 + FAIL 路径实证验收</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/tools/test_security_workflow_contract.py<span class="w"> </span>-v<span class="w">   </span><span class="c1"># PASS</span>
+uv<span class="w"> </span>run<span class="w"> </span>pip-audit<span class="w"> </span>-r<span class="w"> </span>tests/fixtures/security/req-vulnerable.txt<span class="w"> </span>--no-deps<span class="w"> </span>--disable-pip<span class="w"> </span><span class="p">;</span><span class="w"> </span><span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;rc=</span><span class="nv">$?</span><span class="s2">&quot;</span>
+</code></pre></div>
+预期第二条 rc=1 且输出含 requests 2.30.0 漏洞条目——这是 spec R1 验收（同一调用能报漏洞），输出全文粘贴 progress.md <code>## 验收证据</code>。</p>
+<ul>
+<li>[ ] <strong>Step 6: <code>uv run yamllint --strict .github/workflows/security.yml</code> + commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>.github/workflows/security.yml<span class="w"> </span>tools/pre-push-check.sh<span class="w"> </span>tests/fixtures/security/<span class="w"> </span>tests/unit/tools/test_security_workflow_contract.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(security): audit uv.lock full set (all-groups+all-extras) — C27 T1301/T1303, spec #41 R1&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-2-r2-sbom-t1304-f1041">Task 2: R2 SBOM 按组分层（T1304 面 + F1041）</h3>
+<p><strong>复杂度: infra · test_kind: regression_guard（workflow 结构断言）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>.github/workflows/security.yml</code>（SBOM 步骤）
+- Modify: <code>.github/workflows/release.yml:14-18,46</code>
+- Modify: <code>SECURITY.md:25</code>
+- Test: <code>tests/unit/tools/test_security_workflow_contract.py</code>（追加）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 1 的 export 口径
+- Produces: 三份 SBOM 产物名 <code>sbom-prod.cdx.json</code> / <code>sbom-dev.cdx.json</code> / <code>sbom-docs.cdx.json</code>（Task 3 check_licenses.py 在 CI 中解析的输入名）</p>
+<ul>
+<li>[ ] <strong>Step 1: security.yml SBOM 步骤改分组三份</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code><span class="w">      </span><span class="c1"># Spec #41 (C27) R2: SBOM 按组分层（F1041——environment 子命令无法分组，</span>
+<span class="w">      </span><span class="c1"># 且 dev/docs 组不分发）。prod 必须 --no-dev（默认 export 是 prod+dev）。注：uv 不允许 --only-group 与 --all-extras 同用（实测 error）——extras 不属于 dev/docs 组；dev 组 SBOM 仍含 ML 栈（sentence-transformers 是 dev 直接依赖）。</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv export --frozen --no-dev --all-extras --no-emit-project -o req-prod.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv export --frozen --only-group dev --no-emit-project -o req-dev.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv export --frozen --only-group docs --no-emit-project -o req-docs.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py requirements --output-reproducible -o sbom-prod.cdx.json req-prod.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py requirements --output-reproducible -o sbom-dev.cdx.json req-dev.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run cyclonedx-py requirements --output-reproducible -o sbom-docs.cdx.json req-docs.txt</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">uv run python tools/check_licenses.py sbom-prod.cdx.json sbom-dev.cdx.json sbom-docs.cdx.json</span><span class="w">   </span><span class="c1"># Task 3 接线</span>
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">actions/upload-artifact@v7</span>
+<span class="w">        </span><span class="nt">with</span><span class="p">:</span>
+<span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">sbom</span>
+<span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">|</span>
+<span class="w">            </span><span class="no">sbom-prod.cdx.json</span>
+<span class="w">            </span><span class="no">sbom-dev.cdx.json</span>
+<span class="w">            </span><span class="no">sbom-docs.cdx.json</span>
+</code></pre></div>
+（check_licenses 行在 Task 3 落地前先注释占位或本 task 提前到 Task 3 一起启用——串行执行，Task 3 完成后终态启用；本 task commit 时脚本尚不存在则该行必须留到 Task 3，避免 CI 红。）</p>
+<ul>
+<li>[ ] <strong>Step 2: release.yml 同步</strong></li>
+</ul>
+<p>release.yml:14-18 的 <code>uv sync --frozen --group dev</code> + <code>cyclonedx-py environment -o sbom.cdx.json</code> 替换为与 security.yml 相同的三组 export+cyclonedx 管线（release 面只需 prod+dev+docs 三份同生成）；:46 <code>files:</code> 列表 <code>sbom.cdx.json</code> 替换为三份新文件名。</p>
+<ul>
+<li>[ ] <strong>Step 3: SECURITY.md:25 措辞</strong></li>
+</ul>
+<p><code>SBOM ... attached to GitHub Releases</code> 相关行改为反映三份分组 SBOM（prod=分发面 / dev、docs=不分发，仅溯源）。</p>
+<ul>
+<li>[ ] <strong>Step 4: 追加契约测试断言</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">test_sbom_layered_per_group</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">WORKFLOW</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;prod&quot;</span><span class="p">,</span> <span class="s2">&quot;dev&quot;</span><span class="p">,</span> <span class="s2">&quot;docs&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="sa">f</span><span class="s2">&quot;sbom-</span><span class="si">{</span><span class="n">group</span><span class="si">}</span><span class="s2">.cdx.json&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;cyclonedx-py environment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># F1041: environment 无法分组</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_release_uploads_three_group_sboms</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">release</span> <span class="o">=</span> <span class="n">WORKFLOW</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">&quot;release.yml&quot;</span>
+    <span class="n">text</span> <span class="o">=</span> <span class="n">release</span><span class="o">.</span><span class="n">read_text</span><span class="p">(</span><span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;sbom-prod.cdx.json&quot;</span><span class="p">,</span> <span class="s2">&quot;sbom-dev.cdx.json&quot;</span><span class="p">,</span> <span class="s2">&quot;sbom-docs.cdx.json&quot;</span><span class="p">):</span>
+        <span class="k">assert</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;cyclonedx-py requirements&quot;</span> <span class="ow">in</span> <span class="n">text</span>
+    <span class="k">assert</span> <span class="s2">&quot;cyclonedx-py environment&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">text</span>  <span class="c1"># F1041 原发地</span>
+</code></pre></div>
+<ul>
+<li>[ ] <strong>Step 5: 验收 + commit</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/tools/test_security_workflow_contract.py<span class="w"> </span>-v
+uv<span class="w"> </span>run<span class="w"> </span>yamllint<span class="w"> </span>--strict<span class="w"> </span>.github/workflows/security.yml<span class="w"> </span>.github/workflows/release.yml
+git<span class="w"> </span>add<span class="w"> </span>.github/workflows/security.yml<span class="w"> </span>.github/workflows/release.yml<span class="w"> </span>SECURITY.md<span class="w"> </span>tests/unit/tools/test_security_workflow_contract.py
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;fix(security): per-group layered SBOM (prod/dev/docs) — C27 F1041, spec #41 R2&quot;</span>
+</code></pre></div>
+（SBOM 含 mkdocs 栈的验收在 CI 真实运行时由 sbom-docs 产物体现；本地可先 <code>uv run cyclonedx-py requirements -o /tmp/t.cdx.json req-docs.txt &amp;&amp; grep -c pymdown /tmp/t.cdx.json</code> 实证 ≥1，粘贴 progress.md。）</p>
+<hr />
+<h3 id="task-3-r2r3-check_licensespy">Task 3: R2+R3 check_licenses.py + 豁免登记机械执法（协调者亲自实现）</h3>
+<p><strong>复杂度: infra · test_kind: tdd_red_green</strong></p>
+<p><strong>Files:</strong>
+- Create: <code>tools/check_licenses.py</code>
+- Create: <code>tools/supply_chain_exceptions.json</code>
+- Create: <code>docs/framework/licenses.md</code>（LICENSES 口径文档）
+- Modify: <code>.github/workflows/security.yml</code>（启用 check_licenses 行）
+- Create: <code>tests/fixtures/security/sbom-gpl-fixture.cdx.json</code>（真实 cyclonedx 输出改制）
+- Modify: <code>tests/fixtures/security/PROVENANCE.md</code>
+- Test: <code>tests/unit/tools/test_check_licenses.py</code></p>
+<p><strong>Interfaces:</strong>
+- Consumes: Task 2 的三份 SBOM 文件名；pip-audit <code>--ignore-vuln</code>（若 security.yml 未来出现）ID 集
+- Produces: <code>python tools/check_licenses.py &lt;sbom...&gt;</code> — rc=0 全过 / rc=1 发现未登记 copyleft 或未登记 ignore-vuln；异常表 schema：
+<div class="highlight"><pre><span></span><code><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;licenses&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">    </span><span class="nt">&quot;GPL-3.0-or-later&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;package&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;yamllint&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ledger&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1304&quot;</span><span class="p">,</span>
+<span class="w">                          </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev-only CI tool, wheel only packages src/shenbi, no distribution contagion&quot;</span><span class="p">},</span>
+<span class="w">    </span><span class="nt">&quot;LGPL-2.1-or-later&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span><span class="nt">&quot;package&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;chardet&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;group&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;dev&quot;</span><span class="p">,</span><span class="w"> </span><span class="nt">&quot;ledger&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;T1304&quot;</span><span class="p">,</span>
+<span class="w">                          </span><span class="nt">&quot;reason&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;transitive of cyclonedx-bom, dev-only, not distributed&quot;</span><span class="p">}</span>
+<span class="w">  </span><span class="p">},</span>
+<span class="w">  </span><span class="nt">&quot;ignore_vulns&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{}</span>
+<span class="p">}</span>
+</code></pre></div>
+（chardet 实际 license 字段以真实 SBOM 为准——实现时以 fixture 实测值填 key；UNKNOWN/无 license 字段组件不 FAIL，仅记 WARN。）</p>
+<ul>
+<li>[ ] <strong>Step 1: 生成真实 SBOM fixture</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span><span class="nb">export</span><span class="w"> </span>--frozen<span class="w"> </span>--only-group<span class="w"> </span>docs<span class="w"> </span>--no-emit-project<span class="w"> </span>-o<span class="w"> </span>/tmp/req-docs.txt
+uv<span class="w"> </span>run<span class="w"> </span>cyclonedx-py<span class="w"> </span>requirements<span class="w"> </span>--output-reproducible<span class="w"> </span>-o<span class="w"> </span>tests/fixtures/security/sbom-gpl-fixture.cdx.json<span class="w"> </span>/tmp/req-docs.txt
+</code></pre></div>
+再复制一份将任一组件 license 改为 <code>GPL-3.0-only</code>（改制副本，PROVENANCE.md 记录改了哪个组件）→ <code>sbom-gpl-injected.cdx.json</code>。PROVENANCE.md 追加两条记录。</p>
+<ul>
+<li>[ ] <strong>Step 2: 写失败测试</strong></li>
+</ul>
+<p><code>tests/unit/tools/test_check_licenses.py</code>：
+<div class="highlight"><pre><span></span><code><span class="sd">&quot;&quot;&quot;Spec #41 (C27) R2/R3: check_licenses.py 许可证例外表 + ignore-vuln 豁免机械执法。&quot;&quot;&quot;</span>
+
+<span class="c1"># noqa 惯例见同目录既有测试；tmp_path 为 pytest 内建 fixture</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">subprocess</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">REPO</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">3</span><span class="p">]</span>
+<span class="n">FIX</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tests/fixtures/security&quot;</span>
+<span class="n">TOOL</span> <span class="o">=</span> <span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools/check_licenses.py&quot;</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">run_tool</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">CompletedProcess</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">return</span> <span class="n">subprocess</span><span class="o">.</span><span class="n">run</span><span class="p">([</span><span class="n">sys</span><span class="o">.</span><span class="n">executable</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">TOOL</span><span class="p">),</span> <span class="o">*</span><span class="n">args</span><span class="p">],</span> <span class="n">capture_output</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">text</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_clean_sbom_passes</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">run_tool</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;sbom-gpl-fixture.cdx.json&quot;</span><span class="p">),</span> <span class="s2">&quot;--exceptions&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools/supply_chain_exceptions.json&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">0</span><span class="p">,</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span> <span class="o">+</span> <span class="n">result</span><span class="o">.</span><span class="n">stderr</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_unregistered_gpl_fails</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">run_tool</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;sbom-gpl-injected.cdx.json&quot;</span><span class="p">),</span> <span class="s2">&quot;--exceptions&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools/supply_chain_exceptions.json&quot;</span><span class="p">))</span>
+    <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+    <span class="k">assert</span> <span class="s2">&quot;GPL-3.0-only&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_ignore_vuln_must_be_registered</span><span class="p">(</span><span class="n">tmp_path</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="c1"># 模拟 security.yml 含未登记 --ignore-vuln ID</span>
+    <span class="n">wf</span> <span class="o">=</span> <span class="n">tmp_path</span> <span class="o">/</span> <span class="s2">&quot;fake-workflow.yml&quot;</span>
+    <span class="n">wf</span><span class="o">.</span><span class="n">write_text</span><span class="p">(</span><span class="s2">&quot;run: pip-audit --ignore-vuln PYSEC-FAKE-0001</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">run_tool</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">FIX</span> <span class="o">/</span> <span class="s2">&quot;sbom-gpl-fixture.cdx.json&quot;</span><span class="p">),</span>
+                          <span class="s2">&quot;--exceptions&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">REPO</span> <span class="o">/</span> <span class="s2">&quot;tools/supply_chain_exceptions.json&quot;</span><span class="p">),</span>
+                          <span class="s2">&quot;--workflows&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">wf</span><span class="p">))</span>
+        <span class="k">assert</span> <span class="n">result</span><span class="o">.</span><span class="n">returncode</span> <span class="o">==</span> <span class="mi">1</span>
+        <span class="k">assert</span> <span class="s2">&quot;PYSEC-FAKE-0001&quot;</span> <span class="ow">in</span> <span class="n">result</span><span class="o">.</span><span class="n">stdout</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">wf</span><span class="o">.</span><span class="n">unlink</span><span class="p">()</span>
+</code></pre></div>
+（fake-workflow.yml 写入 pytest tmp_path 运行时临时目录，非 repo fixture 树，不违反 G0.9。）
+Run: <code>uv run pytest tests/unit/tools/test_check_licenses.py -v</code> → FAIL（模块不存在）。</p>
+<ul>
+<li>[ ] <strong>Step 3: 实现 check_licenses.py</strong></li>
+</ul>
+<p>要点（完整实现约 120 行）：
+- argparse：位置参数 sbom 文件列表；<code>--exceptions</code>（默认 <code>tools/supply_chain_exceptions.json</code>）；<code>--workflows</code>（默认 <code>.github/workflows/security.yml</code>，可多值）
+- 解析 CycloneDX JSON：<code>components[].licenses[].license.id</code>（无 id 用 <code>.name</code>）；GPL/LGPL/AGPL/SSPL 前缀族命中 copyleft
+- copyleft 命中且不在 exceptions.licenses（key=license id 且 package 匹配）→ print 违规行 + rc=1；在表内 → print 登记引用（ledger ID）
+- 解析 workflows 文本提取全部 <code>--ignore-vuln &lt;ID&gt;</code>，任一 ID 不在 exceptions.ignore_vulns → rc=1
+- 无 license 字段/UNKNOWN → stderr WARN 不 FAIL
+- 纯 stdlib（json/argparse/pathlib/re/sys），rc 语义与 tools/ 既有 lint 一致</p>
+<ul>
+<li>[ ] <strong>Step 4: 跑测试到绿 + 接线 security.yml</strong></li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>tests/unit/tools/test_check_licenses.py<span class="w"> </span>-v
+</code></pre></div>
+security.yml 启用 Task 2 预留的 <code>uv run python tools/check_licenses.py sbom-prod.cdx.json sbom-dev.cdx.json sbom-docs.cdx.json</code> 行。</p>
+<ul>
+<li>[ ] <strong>Step 5: docs/framework/licenses.md 口径文档</strong></li>
+</ul>
+<p>内容框架：wheel 只打包 src/shenbi（[tool.hatch.build.targets.wheel]）→ 分发面=prod 组运行时依赖；dev/docs 组不分发；GPL 家族（yamllint GPL-3.0-or-later、chardet LGPL）判定 dev-only 无传染；例外表 <code>tools/supply_chain_exceptions.json</code> 由 check_licenses.py 机械执法；新增 copyleft 依赖必须先登记（带 ledger/reason）再进锁。</p>
+<ul>
+<li>[ ] <strong>Step 6: commit</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>add<span class="w"> </span>tools/check_licenses.py<span class="w"> </span>tools/supply_chain_exceptions.json<span class="w"> </span>docs/framework/licenses.md<span class="w"> </span>.github/workflows/security.yml<span class="w"> </span>tests/unit/tools/test_check_licenses.py<span class="w"> </span>tests/fixtures/security/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;feat(security): license exception registry + ignore-vuln enforcement — C27 T1304/R3 closure rule, spec #41&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-4-r4-t1305f1008f1009f912">Task 4: R4 死依赖清理 + 防线真实化（T1305/F1008/F1009/F912）</h3>
+<p><strong>复杂度: infra（依赖面） · test_kind: regression_guard（uv lock + 全量测试）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>pyproject.toml</code>（:14 numpy、:30/:33/:48 三删、:472 asyncio_mode、:22-23 embeddings extra）
+- Modify: <code>uv.lock</code>（<code>uv lock</code> 再生成）
+- Modify: <code>.pre-commit-config.yaml:42</code>（rev v1.33.0 → v1.38.0）
+- Modify: <code>.github/workflows/security.yml</code>（加 weekly schedule）
+- Modify: <code>SECURITY.md:26</code>（weekly 声明变为真实）</p>
+<p><strong>Interfaces:</strong>
+- Consumes: 无
+- Produces: numpy 归位 embeddings extra；<code>uv lock --check</code> 绿</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 1: pyproject 编辑</strong></p>
+</li>
+<li>
+<p><code>[project.dependencies]</code> 删 <code>"numpy&gt;=1.26.0",</code> 行（含注释行）</p>
+</li>
+<li><code>[project.optional-dependencies]</code> embeddings = <code>["sentence-transformers&gt;=5.7.0", "numpy&gt;=1.26.0"]</code></li>
+<li>dev 组删 <code>"pytest-asyncio&gt;=0.23.0",</code>、<code>"pytest-ordering&gt;=0.6",</code>、<code>"setuptools&gt;=81.0.0",</code></li>
+<li><code>[tool.pytest.ini_options]</code> 删 <code>asyncio_mode = "auto"</code> 行</li>
+<li><code>[tool.mypy.overrides] module = "numpy.*"</code>（pyproject:88-91）随迁移变死配置，一并删除</li>
+<li>
+<p>保留 sentence-transformers dev 双声明（embeddings-smoke.yml 有意重复）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 2: 重新锁 + 验证</strong></p>
+</li>
+</ul>
+<p><div class="highlight"><pre><span></span><code>uv<span class="w"> </span>lock
+uv<span class="w"> </span>lock<span class="w"> </span>--check<span class="w">          </span><span class="c1"># 绿</span>
+uv<span class="w"> </span>sync<span class="w"> </span>--group<span class="w"> </span>dev<span class="w"> </span>--group<span class="w"> </span>docs
+uv<span class="w"> </span>run<span class="w"> </span>pytest<span class="w"> </span>-n<span class="w"> </span>auto<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;not last&quot;</span><span class="w"> </span>--no-cov<span class="w"> </span>-q<span class="w"> </span><span class="p">|</span><span class="w"> </span>tail<span class="w"> </span>-3
+grep<span class="w"> </span>-c<span class="w"> </span><span class="s1">&#39;name = &quot;pytest-asyncio&quot;\|name = &quot;pytest-ordering&quot;\|name = &quot;setuptools&quot;&#39;</span><span class="w"> </span>uv.lock<span class="w">  </span><span class="c1"># 0</span>
+</code></pre></div>
+（numpy 仍在锁内——dev 组 sentence-transformers 传递依赖；<code>uv tree | grep -i pymdown</code> 仍 11.0.1。）</p>
+<ul>
+<li>
+<p>[ ] <strong>Step 3: pre-commit rev + weekly schedule</strong></p>
+</li>
+<li>
+<p><code>.pre-commit-config.yaml</code> yamllint hook <code>rev: v1.38.0</code></p>
+</li>
+<li>
+<p>security.yml <code>on:</code> 加：
+<div class="highlight"><pre><span></span><code><span class="w">  </span><span class="nt">schedule</span><span class="p">:</span>
+<span class="w">    </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">cron</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;0</span><span class="nv"> </span><span class="s">3</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">*</span><span class="nv"> </span><span class="s">1&quot;</span>
+</code></pre></div>
+（周一 03:00 UTC，与 codeql 周一 cron、autoupdate 周一 02:00 错峰；F912——使 SECURITY.md:26 weekly 声明成真。）</p>
+</li>
+<li>
+<p>[ ] <strong>Step 4: 验收 + commit</strong></p>
+</li>
+</ul>
+<div class="highlight"><pre><span></span><code>uv<span class="w"> </span>run<span class="w"> </span>pre-commit<span class="w"> </span>run<span class="w"> </span>yamllint<span class="w"> </span>--all-files<span class="w"> </span><span class="o">||</span><span class="w"> </span><span class="nb">true</span><span class="w">   </span><span class="c1"># rev 变更后需 uv sync（已做）</span>
+git<span class="w"> </span>add<span class="w"> </span>pyproject.toml<span class="w"> </span>uv.lock<span class="w"> </span>.pre-commit-config.yaml<span class="w"> </span>.github/workflows/security.yml
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;chore(deps): drop dead deps (pytest-asyncio/ordering/setuptools), numpy→embeddings extra, yamllint rev 1.38.0, weekly audit schedule — C27 T1305/F1008/F1009/F912, spec #41 R4&quot;</span>
+</code></pre></div>
+<hr />
+<h3 id="task-5-ledger-d1-baseline">Task 5: ledger 回写 + d1-baseline 注记（簇级验收收尾）</h3>
+<p><strong>复杂度: leaf（纯 docs） · test_kind: n/a（git grep 验证）</strong></p>
+<p><strong>Files:</strong>
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md</code>（9 行）
+- Modify: <code>docs/superpowers/audit-runs/2026-08-15/d1/d1-baseline.md</code>（⑨ 勘误终态注记）</p>
+<p><strong>Interfaces:</strong> 无</p>
+<ul>
+<li>[ ] <strong>Step 1: 9 条 findings 回写</strong></li>
+</ul>
+<p>F912/F1008/F1009/F1041/T1301/T1302/T1304/T1305 状态列 open→closed，处置列记 <code>fixed by spec #41 (T1303 代表条目, PR #N)</code>；T1303 行同样关闭并加代表注记（<code>merged-into 关系：T1303 &lt;- F912,F1008-F1009,F1041,T1301-T1302,T1304-T1305</code>）。PR 号合并后补（先写 <code>PR #&lt;pending&gt;</code>，阶段 10 后 amend 或在归档 PR 补）。</p>
+<ul>
+<li>[ ] <strong>Step 2: d1-baseline ⑨ 终态注记</strong></li>
+</ul>
+<p>勘误块追加一句：<code>2026-09-03 终态：审计口径已按 spec #41 (C27) R1 固化为 uv export --all-groups --all-extras → pip-audit -r（security.yml + pre-push 镜像）</code>。</p>
+<ul>
+<li>[ ] <strong>Step 3: commit + 簇级验收核对</strong></li>
+</ul>
+<div class="highlight"><pre><span></span><code>git<span class="w"> </span>grep<span class="w"> </span>-n<span class="w"> </span><span class="s2">&quot;T1301\|T1302\|T1303\|T1304\|T1305\|F912\|F1008\|F1009\|F1041&quot;</span><span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/findings-ledger.md<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>-c<span class="w"> </span>closed<span class="w">  </span><span class="c1"># 9</span>
+git<span class="w"> </span>add<span class="w"> </span>docs/superpowers/audit-runs/2026-08-15/
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;docs(ledger): close C27 cluster 9 findings via spec #41 (T1303 representative)&quot;</span>
+</code></pre></div>
+<hr />
+<h2 id="_1">验收覆盖表</h2>
+<table>
+<thead>
+<tr>
+<th>spec 验收</th>
+<th>task</th>
+<th>验证命令</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>R1 FAIL 路径</td>
+<td>T1</td>
+<td><code>uv run pip-audit -r tests/fixtures/security/req-vulnerable.txt --no-deps --disable-pip</code> rc=1</td>
+</tr>
+<tr>
+<td>R1 口径固化</td>
+<td>T1</td>
+<td><code>test_security_yml_audits_full_lock_set</code> + <code>git grep "--group dev" security.yml</code> = 0</td>
+</tr>
+<tr>
+<td>R2 SBOM 含 mkdocs 栈</td>
+<td>T2</td>
+<td>本地 cyclonedx 生成 docs 组 SBOM grep pymdown ≥1 + CI artifact</td>
+</tr>
+<tr>
+<td>R2 license FAIL 路径</td>
+<td>T3</td>
+<td><code>test_unregistered_gpl_fails</code> rc=1</td>
+</tr>
+<tr>
+<td>R3 豁免执法</td>
+<td>T3</td>
+<td><code>test_ignore_vuln_must_be_registered</code> rc=1</td>
+</tr>
+<tr>
+<td>R3 ledger 注记</td>
+<td>T5</td>
+<td>ledger T1302 行含关闭注记</td>
+</tr>
+<tr>
+<td>R4 死依赖清零</td>
+<td>T4</td>
+<td>uv.lock grep 三包 = 0 + <code>uv lock --check</code> 绿</td>
+</tr>
+<tr>
+<td>R4 文档/workflow 一致</td>
+<td>T4</td>
+<td>security.yml 有 schedule + SECURITY.md:26 保留 weekly</td>
+</tr>
+<tr>
+<td>R4 pre-commit 对齐</td>
+<td>T4</td>
+<td><code>.pre-commit-config.yaml:42</code> rev == 锁内 yamllint 版本</td>
+</tr>
+<tr>
+<td>簇级：just check 全绿</td>
+<td>全部</td>
+<td><code>just check</code></td>
+</tr>
+<tr>
+<td>簇级：本地复现同口径</td>
+<td>T1</td>
+<td>pre-push 管线同命令</td>
+</tr>
+</tbody>
+</table>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+  <script>var tabs=__md_get("__tabs");if(Array.isArray(tabs))e:for(var set of document.querySelectorAll(".tabbed-set")){var labels=set.querySelector(".tabbed-labels");for(var tab of tabs)for(var label of labels.getElementsByTagName("label"))if(label.innerText.trim()===tab){var input=document.getElementById(label.htmlFor);input.checked=!0;continue e}}</script>
+
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  回到页面顶部
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../../../..", "features": ["navigation.tabs", "navigation.sections", "navigation.expand", "navigation.indexes", "navigation.top", "search.suggest", "search.highlight", "content.code.copy", "content.code.annotate", "content.tabs.link"], "search": "../../../../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "\u5df2\u590d\u5236", "clipboard.copy": "\u590d\u5236", "search.result.more.one": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.more.other": "\u5728\u8be5\u9875\u4e0a\u8fd8\u6709 # \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.none": "\u6ca1\u6709\u627e\u5230\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.one": "\u627e\u5230 1 \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.other": "# \u4e2a\u7b26\u5408\u6761\u4ef6\u7684\u7ed3\u679c", "search.result.placeholder": "\u952e\u5165\u4ee5\u5f00\u59cb\u641c\u7d22", "search.result.term.missing": "\u7f3a\u5c11", "select.version": "\u9009\u62e9\u5f53\u524d\u7248\u672c"}, "version": null}</script>
+    
+    
+      <script src="../../../../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
