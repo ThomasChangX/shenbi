@@ -63,7 +63,7 @@ from shenbi.pipeline.llm_output_integrity import (
     check_prose_leakage,
     detect_write_failure,
 )
-from shenbi.safe_write import locked_transact, safe_write
+from shenbi.safe_write import safe_write
 from shenbi.status import GateStatus
 
 log = get_logger(__name__)
@@ -1156,21 +1156,22 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     num = m.group(1) if m else "unknown"
     out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
 
-    def _append(existing: object) -> str:
-        text = str(existing) if existing else ""
-        for issue in issues:
-            text += (
-                json.dumps(
-                    {"file": str(file_path.relative_to(project_dir)), "finding": issue},
-                    ensure_ascii=False,
-                )
-                + "\n"
-            )
-        return text
+    # T1610 (C28 R3b): true append (O(k) total bytes; was O(k^2) read-rewrite
+    # via locked_transact) in the same directory-flock domain (spec #37 F347
+    # concurrency semantics preserved). The reader (g4/generic.py
+    # g4_post_write_integrity) already skips undecodable tail lines,
+    # tolerating a torn final line on crash.
+    from shenbi.safe_write import locked_append
 
-    # spec #37 F347/T601: read-modify-write under one critical section — the
-    # old read-outside-lock shape let concurrent per-chapter auditors drop lines.
-    locked_transact(out, _append)
+    payload = "".join(
+        json.dumps(
+            {"file": str(file_path.relative_to(project_dir)), "finding": issue},
+            ensure_ascii=False,
+        )
+        + "\n"
+        for issue in issues
+    )
+    locked_append(out, payload)
 
 
 _TRUTH_DIR_PREFIX = "truth/"

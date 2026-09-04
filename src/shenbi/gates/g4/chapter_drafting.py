@@ -113,6 +113,30 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
     return issues
 
 
+# F415-0815 (C28 R3b): in-process (path, mtime_ns, size) fingerprint
+# memoization. Production G4 runs are subprocess-per-call (cold per spawn) —
+# the cache serves in-process multi-file callers (g5.5's embedded gate_G4
+# loop, tests) and future in-process gate invocation. Failures are never
+# cached; verdicts stay idempotent under the stat key.
+_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[int]] = {}
+
+
+def _fingerprint_of(path: Path) -> frozenset[int]:
+    """Fingerprint of a chapter file, memoized per (path, mtime_ns, size)."""
+    try:
+        st = path.stat()
+        key = (str(path), st.st_mtime_ns, st.st_size)
+        hit = _FINGERPRINT_CACHE.get(key)
+        if hit is not None:
+            return hit
+        fp = frozenset(_text_fingerprint(path.read_text(encoding="utf-8")))
+    except (OSError, UnicodeDecodeError) as e:
+        log.warning("file_read_failed", file=str(path), error=str(e))
+        return frozenset()
+    _FINGERPRINT_CACHE[key] = fp
+    return fp
+
+
 def _text_fingerprint(text: str, min_len: int = 50) -> set[int]:
     """Build a set of paragraph hashes for content overlap comparison."""
     body = re.sub(r"^---.*?---", "", text, flags=re.DOTALL)
@@ -287,15 +311,14 @@ def g4_chapter_drafting(
                     for other in other_chapters:
                         if str(other) == str(pf):
                             continue
-                        try:
-                            other_content = other.read_text(encoding="utf-8")
-                            other_fp = _text_fingerprint(other_content)
-                            overlap = len(this_fingerprint & other_fp) / max(
-                                len(this_fingerprint), 1
-                            )
-                            max_overlap = max(max_overlap, overlap)
-                        except (OSError, UnicodeDecodeError) as e:
-                            log.warning("file_read_failed", file=str(other), error=str(e))
+                        # F415-0815 (C28 R3b): memoized per (path, mtime_ns,
+                        # size) — was a full re-read + re-hash of every other
+                        # chapter on each per-chapter invocation (O(N^2)).
+                        # Read failure yields an empty fingerprint (overlap 0),
+                        # matching the previous except-branch semantics.
+                        other_fp = _fingerprint_of(other)
+                        overlap = len(this_fingerprint & other_fp) / max(len(this_fingerprint), 1)
+                        max_overlap = max(max_overlap, overlap)
                     if max_overlap > 0.40:
                         mf.append(f"G4.cd.content_overlap:{fp}:{max_overlap:.0%}")
                     else:

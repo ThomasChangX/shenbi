@@ -243,6 +243,33 @@ def locked_transact(
     return result
 
 
+def locked_append(path: Path, text: str) -> None:
+    """Append ``text`` under the same directory flock as :func:`locked_transact`.
+
+    T1610 (C28 R3b): true O(k) append for append-only JSONL writers —
+    ``locked_transact`` is a read-mutate-atomic-replace cycle (O(k^2) byte
+    traffic for repeated appends) and cannot express append semantics.
+    Readers must tolerate a torn final line on crash (undecodable tail lines
+    are skipped by design).
+    """
+    import os
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    lock_fd, lockfile = _acquire_lock(path)
+    try:
+        with path.open(
+            "a", encoding="utf-8"
+        ) as f:  # write-audit-exempt: append-only JSONL under flock (T1610, O(k) vs O(k^2))
+            f.write(text)
+    finally:
+        os.close(lock_fd)
+        if lockfile is not None:
+            try:
+                os.unlink(lockfile)
+            except FileNotFoundError:
+                pass
+
+
 def _write_payload(
     path: Path,
     payload: str,
