@@ -90,7 +90,7 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
     if re.search(r"第\d+章", title):
         issues.append(
             "G4.cd.title:contains_chapter_number -- "
-            "title must not include chapter number (SKILL.md:125)"
+            "title must not include chapter number (SKILL.md「章节标题不要包含章节号」)"
         )
 
     # HARD FAIL: Duplicate title
