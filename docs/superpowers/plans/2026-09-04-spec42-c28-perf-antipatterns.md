@@ -26,8 +26,8 @@
 | R1-2 章节 read_text 次数 == 1（当前 9） | T4 | 同上 `-k read_count` |
 | R1-3 读抑制开/关 prompt 字节等价 | T4 | 同上 `-k byte_equality` |
 | R1-4 world/rules.md 键存在 | T4 | 同上 `-k world_rules_key` |
-| R2-1 registry 解析次数（不变 1 / touch 2） | T2 | `uv run pytest tests/unit/contracts/test_registry.py -k cache -q` |
-| R2-2 模板齐全不扫描 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k template_shortcircuit -q`（并入 T4 测试文件） |
+| R2-1 registry 解析次数（不变 1 / touch 2） | T2 | `uv run pytest tests/unit/contracts/test_legacy_registry_cache.py -q` |
+| R2-2 模板齐全不扫描 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k shortcircuit -q`（T2 新建该测试文件；T4 追加 R1 部分） |
 | R2-3 Route B 负缓存（第二次无网络） | T3 | `uv run pytest tests/unit/pipeline/test_truth_embed_singleton.py -k negative_cache -q` |
 | R2-4 单例并发构造 == 1 | T3 | 同上 `-k concurrent_init` |
 | R3-1 标题读取 ≤4096B×N + meta-first 双提取非空 | T5 | `uv run pytest tests/unit/pipeline/test_chapter_titles.py -q` |
@@ -56,7 +56,6 @@
 ```python
 # tests/unit/test_gates_cli_import_cost.py
 """T1604: gates.cli top-level import must stay under 50ms (importtime cumulative)."""
-import re
 import subprocess
 import sys
 
@@ -96,7 +95,8 @@ import sys
 # T1604 (C28 R4): lazy per-gate loading — the 11 gate modules (plus
 # logging/cli_utils/gates.shared chains) cost ~370ms of the ~380ms
 # subprocess spawn; only the requested gate's module is imported now.
-from typing import Any, Callable
+from collections.abc import Callable
+from typing import Any
 
 
 def _gate_G0() -> Callable[..., Any]:
@@ -113,19 +113,40 @@ _GATES: dict[str, Callable[[], Callable[..., Any]]] = {
 }
 ```
 
-main() 内：`configure_logging()`/`emit_json`/`PROJECT`/`write_gate_marker`/`GateStatus`/`log` 的 import 与绑定移入 main() 函数体（`log` 移为 main() 内局部 + 各分支按需使用）；各 `gate_GX(...)` 调用改 `_GATES[gate]()` 形态（或按分支局部 `from shenbi.gates.gX import gate_GX`）。SHORT_MAP 纯数据保留模块级（无 import 成本）。
+main() 内：`configure_logging()`/`emit_json`/`PROJECT`/`write_gate_marker`/`GateStatus`/`log` 的 import 与绑定移入 main() 函数体（`log` 移为 main() 内局部 + 各分支按需使用）；各分支局部 `from shenbi.gates.gX import gate_GX`（G4 分支需导全部三个 callable：`gate_G4`/`gate_G4_bughunt`/`gate_G4_clean`）。`from typing import` 改 `from collections.abc import Callable`（repo 风格，UP035）。SHORT_MAP 纯数据保留模块级（无 import 成本）。
 
-- [ ] **Step 4: 实现——cjk.py jieba 移函数体**
+- [ ] **Step 4: 实现——cjk.py jieba 懒单例（模块级 `_TOKENIZER`/`_POSEG` 才是 import 成本载体）**
+
+顶层删除 `import jieba` / `import jieba.posseg as pseg` 与 `:138-139` 的即刻构造；`find_terms` 不用 jieba（纯子串匹配）无需改。tokenizer 改 None 哨兵懒单例（保持 spec #32 F615 隔离语义：私有实例、不动全局 `jieba.dt`）：
 
 ```python
-# src/shenbi/text/cjk.py 顶部删除：
-# import jieba
-# import jieba.posseg
-# 各使用函数体内加局部 import：
-def find_terms(text: str) -> list[str]:  # 签名不变
-    import jieba.posseg  # noqa: PLC0415 — lazy: only G6 needs jieba (~105ms)
+# src/shenbi/text/cjk.py
+_TOKENIZER: Any = None      # lazy: jieba import costs ~105ms and only G6 path needs it
+_POSEG: Any = None
+_TOKENIZER_LOCK = threading.Lock()
 
-    ...
+
+def _get_tokenizers() -> tuple[Any, Any]:
+    """Lazily construct the isolated tokenizers (T1604: jieba off the
+    import critical path; isolation semantics of spec #32 F615 preserved)."""
+    global _TOKENIZER, _POSEG
+    if _TOKENIZER is None:
+        with _TOKENIZER_LOCK:
+            if _TOKENIZER is None:
+                import jieba
+                import jieba.posseg as pseg
+
+                _TOKENIZER = jieba.Tokenizer()
+                _POSEG = pseg.POSTokenizer(_TOKENIZER)
+    return _TOKENIZER, _POSEG
+
+
+def tokenize(text: str, domain_dict: Iterable[str] | None = None) -> list[Token]:
+    tokenizer, poseg = _get_tokenizers()
+    if domain_dict:
+        for term in domain_dict:
+            tokenizer.add_word(term)
+    return [Token(word=w, pos=f) for w, f in poseg.cut(text) if w.strip()]
 ```
 
 - [ ] **Step 5: 实现——F415-0814 行号引用改符号引用**
@@ -155,7 +176,7 @@ git commit -m "perf: spec42 C28 R4 lazy gate loading (<50ms import), jieba into 
 **Files:**
 - Modify: `src/shenbi/contracts/legacy.py:106-126`（`load_registry`）
 - Modify: `src/shenbi/pipeline/dispatch_helper.py`（`_init_truth_templates` :1596-1615 前置短路）
-- Test: `tests/unit/contracts/test_registry.py`（追加）、`tests/unit/pipeline/test_dispatch_helper_read_suppression.py`（新建，含 T2/T4 测试）
+- Test: `tests/unit/contracts/test_legacy_registry_cache.py`（新建——`tests/unit/contracts/test_registry.py` 测的是另一 registry，勿混）、`tests/unit/pipeline/test_dispatch_helper_read_suppression.py`（新建，含 T2/T4 测试）
 
 **Interfaces:**
 - Consumes: `load_registry() -> TruthFilesRegistry`（现签名）
@@ -164,12 +185,14 @@ git commit -m "perf: spec42 C28 R4 lazy gate loading (<50ms import), jieba into 
 - [ ] **Step 1: 写失败测试**
 
 ```python
-# tests/unit/contracts/test_registry.py 追加
+# tests/unit/contracts/test_legacy_registry_cache.py（新建）
 def test_load_registry_caches_until_mtime_changes(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     """T1613/F215: same mtime_ns+size -> exactly 1 YAML parse; touch -> re-parse."""
-    import shutil
+    import os
+
+    import pytest  # noqa: F401  (module 顶部统一 import：Path/pytest)
     import shenbi.contracts.legacy as legacy
 
     reg_src = legacy.REGISTRY_PATH  # canonical docs/framework/truth-files.yaml
@@ -181,7 +204,9 @@ def test_load_registry_caches_until_mtime_changes(
         return real_safe_load(*a, **k)
 
     monkeypatch.setattr(legacy.yaml, "safe_load", counting_safe_load)
-    legacy._REGISTRY_CACHE = None  # reset (fixture)
+    # os.utime 只动真实 registry 的 mtime（内容不变，ns 键缓存语义内安全）；
+    # 缓存重置经 monkeypatch 保证测试隔离
+    monkeypatch.setattr(legacy, "_REGISTRY_CACHE", None)
     legacy.load_registry()
     legacy.load_registry()
     legacy.load_registry()
@@ -215,7 +240,7 @@ def test_init_truth_templates_shortcircuits_when_all_exist(
 
 - [ ] **Step 2: 跑测试确认失败**
 
-Run: `uv run pytest tests/unit/contracts/test_registry.py -k cache -q` 和 `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k template -q`
+Run: `uv run pytest tests/unit/contracts/test_legacy_registry_cache.py -q` 和 `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k template -q`
 Expected: FAIL（无缓存：n==3；无短路：n==1）
 
 - [ ] **Step 3: 实现**
@@ -271,10 +296,12 @@ def load_registry() -> TruthFilesRegistry:
 Run: `uv run pytest tests/unit/contracts/ tests/unit/pipeline/test_dispatch_helper_read_suppression.py -q`
 Expected: PASS
 
+Run: `bash tests/lock-tool-hashes.sh`（legacy.py 改动）并把 `tests/tiers/deps.json` 并入 commit。
+
 - [ ] **Step 5: Commit + 审查**
 
 ```bash
-git add src/shenbi/contracts/legacy.py src/shenbi/pipeline/dispatch_helper.py tests/unit/contracts/test_registry.py tests/unit/pipeline/test_dispatch_helper_read_suppression.py
+git add src/shenbi/contracts/legacy.py src/shenbi/pipeline/dispatch_helper.py tests/unit/contracts/test_legacy_registry_cache.py tests/unit/pipeline/test_dispatch_helper_read_suppression.py tests/tiers/deps.json
 git commit -m "perf: spec42 C28 R2a registry (mtime_ns,size) cache + truth template short-circuit"
 ```
 产出 `audit-T2.md`。
@@ -333,16 +360,21 @@ def test_concurrent_init_constructs_once(te_reset_cache, monkeypatch) -> None:
 
 
 def test_negative_cache_suppresses_retry(te_reset_cache, monkeypatch) -> None:
+    constructed = {"n": 0}
+
     class _Boom:
         def __init__(self, name: str) -> None:
+            constructed["n"] += 1
             raise RuntimeError("HF 401")
 
     _patch_st(monkeypatch, _Boom)
-    assert te.get_shared_model() is None  # failure cached
-    assert te.get_shared_model() is None  # within TTL: no reconstruction
-    # (_Boom has no counter here; construction failure itself is the signal)
+    assert te.get_shared_model() is None  # failure cached (constructed 1)
+    assert te.get_shared_model() is None  # within TTL: suppressed
+    assert te.get_shared_model() is None
+    assert constructed["n"] == 1  # no retry within TTL
     te._NEG_CACHE_UNTIL = 0.0  # expire
     assert te.get_shared_model() is None  # retries once, fails again
+    assert constructed["n"] == 2
 ```
 
 conftest fixture（同文件或 conftest）：
@@ -436,6 +468,8 @@ _FIX = Path("tests/fixtures")
 
 def _assemble_project(tmp_path: Path) -> Path:
     """Real-output fixture project (G0.9): copies, never hand-writes."""
+    for sub in ("chapters", "truth", "world", "style"):
+        (tmp_path / sub).mkdir(parents=True, exist_ok=True)
     for src in sorted((_FIX / "multi-chapter-example").glob("chapter-*.md")):
         shutil.copy(src, tmp_path / "chapters" / src.name)
     shutil.copy(_FIX / "snapshots/chapter-025/truth/character_matrix.md", tmp_path / "truth/character_matrix.md")
@@ -481,22 +515,25 @@ def test_chapter_read_count_is_one(tmp_path: Path, monkeypatch: pytest.MonkeyPat
     monkeypatch.setattr(Path, "read_text", counting_read)
     ctx = build_shared_audit_context(project, 3)  # the ONE legitimate read
     for skill in AUDIT_SKILLS:
-        _build_skill_prompt(skill=skill, project_dir=project, chapter=3, shared_context=ctx)
+        _build_skill_prompt(skill=skill, project_dir=project, prompt="审计本章",
+                            chapter=3, shared_context=ctx)
     assert counter["n"] == 1  # was 9 (6 contract + 3 checklist cold path)
 
 
 def test_byte_equality_switch_on_off(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     project = _assemble_project(tmp_path)
     ctx_on = build_shared_audit_context(project, 3)
-    prompts_on = [_build_skill_prompt(skill=s, project_dir=project, chapter=3, shared_context=ctx_on)
+    prompts_on = [_build_skill_prompt(skill=s, project_dir=project, prompt="审计本章",
+                                      chapter=3, shared_context=ctx_on)
                   for s in AUDIT_SKILLS]
     ctx_off = replace(ctx_on, raw_files={})  # suppression OFF (path fixes stay)
-    prompts_off = [_build_skill_prompt(skill=s, project_dir=project, chapter=3, shared_context=ctx_off)
+    prompts_off = [_build_skill_prompt(skill=s, project_dir=project, prompt="审计本章",
+                                       chapter=3, shared_context=ctx_off)
                    for s in AUDIT_SKILLS]
     assert prompts_on == prompts_off
 ```
 
-（`_build_skill_prompt` 真实签名以源码为准——实施时按实际参数名对齐；测试文件顶部 import 之。）
+（`_build_skill_prompt` 实际签名 `(skill, project_dir, prompt: str, chapter, uses_staging=False, shared_context=None, json_mode=False, path_context=None) -> tuple[str, str, list[str]]`——`prompt` 必填，测试已含。返回三元组，取 `[0]`/`[1]`（system/user）做字节对比。）
 
 - [ ] **Step 2: 跑测试确认失败**
 
@@ -564,7 +601,7 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
 ```
 
 注入块 ：683/:691 键改 `world/rules.md`、`style/style_profile.md`。
-checklist 接线：`_build_skill_prompt` 调 review_checklist 处传 `chapter_content=shared_context.raw_files.get(f"chapters/chapter-{chapter}.md")`（shared_context 为 None 时传 None，走原路径）；review_checklist 两函数签名加 `chapter_content: str | None = None`，非 None 时三读点全用之（`wc = word_count_md_text(chapter_content)`）；`word_count_md(fp)` 重构为 `word_count_md_text(Path(fp).read_text(...))` 委托。
+checklist 接线：`_build_skill_prompt` 调 review_checklist 处传 `chapter_content=shared_context.raw_files.get(f"chapters/chapter-{chapter}.md")`（shared_context 为 None 时传 None，走原路径）；`chapter_content: str | None = None` 沿 **四层签名** 穿透：`generate_review_checklist` → `_build_checklist` → `_deterministic_precompute`（+ 其内 `_extract_voice_constraints` 如需）——非 None 时三读点全用之（`wc = word_count_md_text(chapter_content)`）；`word_count_md(fp)` 重构为 `word_count_md_text(Path(fp).read_text(...))` 委托。byte-equality 测试的 OFF 侧会吃到 checklist mtime 缓存（第二遍不重走磁盘路径）——命名已如实（对比的是装配产物，非每遍重读）。
 
 - [ ] **Step 4: 跑测试确认通过 + 既有回归**
 
@@ -585,7 +622,7 @@ git commit -m "perf: spec42 C28 R1 raw-files read suppression (9->1 reads) + 4-s
 
 **Files:**
 - Modify: `src/shenbi/pipeline/chapter_loop.py:2135-2170`（`_extract_chapter_title` + `_load_previous_titles`）
-- Create: `tests/pipeline/helpers/c28_corpus.py`（确定性语料扩展器；tests/ 内 helper 非 fixture，G0.9 允许——源是真实产物变体）
+- Create: `tests/pipeline/helpers/__init__.py` + `tests/pipeline/helpers/c28_corpus.py`（确定性语料扩展器；tests/ 是常规包，统一 `from tests.pipeline.helpers.c28_corpus import ...` 包导入，禁 sys.path.insert）
 - Test: `tests/unit/pipeline/test_chapter_titles.py`（新建）
 
 **Interfaces:**
@@ -616,6 +653,8 @@ def test_previous_titles_include_meta_first_chapters(tmp_path: Path) -> None:
 
 
 def test_title_lookup_reads_bounded_bytes(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
+
     expand_chapter_corpus(Path("tests/fixtures/multi-chapter-example"), tmp_path, n=56)
     read_bytes = {"n": 0}
     real_open = Path.open
@@ -628,8 +667,34 @@ def test_title_lookup_reads_bounded_bytes(tmp_path: Path, monkeypatch: pytest.Mo
     monkeypatch.setattr(Path, "open", counting_open)
     titles = _load_previous_titles(tmp_path, 56)
     assert len(titles) == 55
-    # bounded prefix: each file contributes <= 4096 bytes (was ~24KB full text)
-    # — asserted structurally by _read_title_prefix reading a fixed window.
+
+
+def test_title_lookup_reads_at_most_4kb_per_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    """R3-1 spec acceptance: 单章标题查重文件读取字节数 <= 4096*N (was ~24KB*N)."""
+    from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
+
+    expand_chapter_corpus(Path("tests/fixtures/multi-chapter-example"), tmp_path, n=8)
+    read_bytes = {"n": 0}
+    real_open = Path.open
+
+    def bounded_open(self: Path, *a: object, **k: object) -> object:
+        fh = real_open(self, *a, **k)  # type: ignore[arg-type]
+        if self.suffix == ".md" and self.parent.name == "chapters":
+            orig_read = fh.read
+
+            def counting_read(n: int = -1) -> bytes:  # type: ignore[no-untyped-def]
+                data = orig_read(n)
+                read_bytes["n"] += len(data)
+                return data
+
+            fh.read = counting_read  # type: ignore[method-assign,assignment]
+        return fh
+
+    monkeypatch.setattr(Path, "open", bounded_open)
+    _load_previous_titles(tmp_path, 8)
+    assert read_bytes["n"] <= 4096 * 7  # 7 previous chapters, <=4KB each
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -707,7 +772,7 @@ git commit -m "perf: spec42 C28 R3a bounded-prefix title reads + dual extractor 
 - Test: `tests/gates/g4/test_content_uniqueness_cache.py`、`tests/unit/pipeline/test_integrity_append.py`（新建）
 
 **Interfaces:**
-- Produces: chapter_drafting 模块级 `_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[str]]` + `_fingerprint_of(path: Path) -> frozenset[str]`（(path, mtime_ns, size) 键，读失败返回 frozenset() 不缓存）；`_append_integrity_findings` 改 `open("a")`（同 flock 临界区，jsonl 语义不变）
+- Produces: chapter_drafting 模块级 `_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[int]]` + `_fingerprint_of(path: Path) -> frozenset[int]`（`_text_fingerprint` 返回 `set[int]` 段落哈希）（(path, mtime_ns, size) 键，读失败返回 frozenset() 不缓存）；`_append_integrity_findings` 改 `open("a")`（同 flock 临界区，jsonl 语义不变）
 
 - [ ] **Step 1: 写失败测试**
 
@@ -715,11 +780,9 @@ git commit -m "perf: spec42 C28 R3a bounded-prefix title reads + dual extractor 
 # tests/gates/g4/test_content_uniqueness_cache.py
 """F415-0815: content_uniqueness fingerprint cache — second in-process pass
 reads each chapter once (cache hits N-1)."""
-import sys
 from pathlib import Path
 
-sys.path.insert(0, str(Path("tests/pipeline/helpers").resolve()))
-from c28_corpus import expand_chapter_corpus  # noqa: E402
+from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
 
 
 def test_second_pass_reads_each_chapter_once(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
@@ -746,55 +809,63 @@ def test_second_pass_reads_each_chapter_once(tmp_path: Path, monkeypatch: pytest
 
 ```python
 # tests/unit/pipeline/test_integrity_append.py
-"""T1610: true-append integrity findings — byte-identical output, O(k) writes."""
+"""T1610: true-append integrity findings — byte-identical output, O(1) reads/append.
+
+现状 locked_transact 每 append 全量 read_text 该 jsonl（O(k^2) 字节搬运）——
+本测试 spy read_text 计数做红灯判别（现状 200 次读，append 后 0 次）。
+注：locked_transact 的写路径经 tempfile+os.replace，不走 Path.write_text——
+不能用 write_text 计数判别（那是绿前绿后的假测试）。"""
 import json
 
 from shenbi.pipeline.dispatch_helper import _append_integrity_findings
 
 
-def test_append_output_matches_and_is_linear(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_append_output_matches_and_reads_constant(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     target = tmp_path / "chapters" / "chapter-1.md"
     target.parent.mkdir()
     target.write_text("x", encoding="utf-8")
-    writes = {"n": 0}
-    real_write = Path.write_text
+    out = tmp_path / "audits" / ".integrity-findings-1.jsonl"
+    reads = {"n": 0}
+    real_read = Path.read_text
 
-    def counting(self: Path, *a: object, **k: object) -> int:
-        writes["n"] += 1
-        return real_write(self, *a, **k)  # type: ignore[arg-type]
+    def counting(self: Path, *a: object, **k: object) -> str:
+        if self == out:
+            reads["n"] += 1
+        return real_read(self, *a, **k)  # type: ignore[arg-type]
 
-    monkeypatch.setattr(Path, "write_text", counting)
+    monkeypatch.setattr(Path, "read_text", counting)
     for i in range(200):
         _append_integrity_findings(tmp_path, target, [f"issue-{i}"])
-    assert writes["n"] == 0  # no full-file rewrites (append mode, not write_text)
-    lines = (tmp_path / "audits" / ".integrity-findings-1.jsonl").read_text(encoding="utf-8").splitlines()
-    assert len(lines) == 200
-    assert json.loads(lines[0]) == {"file": "chapters/chapter-1.md", "finding": "issue-0"}
-    assert json.loads(lines[199])["finding"] == "issue-199"
+    assert reads["n"] == 0  # was 200: locked_transact re-read the whole file per append
+    reference = "".join(
+        json.dumps({"file": "chapters/chapter-1.md", "finding": f"issue-{i}"}, ensure_ascii=False) + "\n"
+        for i in range(200)
+    )
+    assert out.read_text(encoding="utf-8") == reference  # 逐字节一致 vs 直接构造参照
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
 
 Run: `uv run pytest tests/gates/g4/test_content_uniqueness_cache.py tests/unit/pipeline/test_integrity_append.py -q`
-Expected: FAIL（缓存不存在；现状 locked_transact 全量重写 write_text 计数 ~200）
+Expected: FAIL（缓存不存在；现状 locked_transact 每 append 全量 read_text jsonl → reads==200）
 
 - [ ] **Step 3: 实现**
 
 ```python
 # chapter_drafting.py
-_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[str]] = {}
+_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[int]] = {}
 # In-process memoization only: production G4 runs are subprocess-per-call
 # (cold per spawn); benefits in-process multi-file callers (g5.5, tests).
 
 
-def _fingerprint_of(path: Path) -> frozenset[str]:
+def _fingerprint_of(path: Path) -> frozenset[int]:
     try:
         st = path.stat()
         key = (str(path), st.st_mtime_ns, st.st_size)
         hit = _FINGERPRINT_CACHE.get(key)
         if hit is not None:
             return hit
-        fp = _text_fingerprint(path.read_text(encoding="utf-8"))
+        fp = frozenset(_text_fingerprint(path.read_text(encoding="utf-8")))
     except (OSError, UnicodeDecodeError):
         return frozenset()
     _FINGERPRINT_CACHE[key] = fp
@@ -809,10 +880,15 @@ content_uniqueness 循环内：`other_content = other.read_text(...)` + `other_f
 def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[str]) -> None:
     """Persist post-write integrity findings for the G4 checker to read.
 
-    True append (O(k) total bytes, was O(k^2) full rewrite) inside the same
-    flock critical section (spec #37 F347). Reader (g4/generic.py) already
-    skips undecodable tail lines, tolerating a torn final line on crash.
+    True append (O(k) total bytes, was O(k^2) read-rewrite) inside the same
+    directory-flock critical section as locked_transact (spec #37 F347).
+    Reader (g4/generic.py) already skips undecodable tail lines, tolerating
+    a torn final line on crash.
     """
+    import os
+
+    from shenbi.safe_write import _acquire_lock
+
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
     out = project_dir / "audits" / f".integrity-findings-{num}.jsonl"
@@ -825,12 +901,20 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
         + "\n"
         for issue in issues
     )
-    with _lock_path(out):  # safe_write 的既有 flock 机制（与 locked_transact 同锁）
-        with out.open("a", encoding="utf-8") as f:
+    lock_fd, lockfile = _acquire_lock(out)  # 与 locked_transact 同一锁序
+    try:
+        with out.open("a", encoding="utf-8") as f:  # write-audit-exempt: true-append under flock (T1610, O(k) vs O(k^2))
             f.write(payload)
+    finally:
+        os.close(lock_fd)
+        if lockfile is not None:
+            try:
+                os.unlink(lockfile)
+            except FileNotFoundError:
+                pass
 ```
 
-（`_lock_path` 以 safe_write 模块实际导出的锁原语为准——实施时核对 `locked_transact` 内部用的 flock helper 名并复用之。）
+（`# write-audit-exempt:` 注释必须与 `open("a")` 同行或上一行——`tools/lint_bare_writes.py` 对 src/ 内裸 append 模式执法，缺注记 `just check` 红。）
 
 - [ ] **Step 4: 跑测试确认通过**
 
@@ -865,6 +949,7 @@ import subprocess
 import sys
 import time
 from pathlib import Path
+from typing import Any
 
 import pytest
 
@@ -873,11 +958,11 @@ from shenbi.contracts.legacy import _parse_registry_uncached
 pytestmark = pytest.mark.benchmark
 
 
-def test_registry_parse_baseline(benchmark: object) -> None:
+def test_registry_parse_baseline(benchmark: Any) -> None:
     benchmark(_parse_registry_uncached)
 
 
-def test_gate_cold_start_baseline(benchmark: object) -> None:
+def test_gate_cold_start_baseline(benchmark: Any) -> None:
     def _cold_import_ms() -> float:
         t0 = time.perf_counter()
         subprocess.run(
@@ -888,7 +973,7 @@ def test_gate_cold_start_baseline(benchmark: object) -> None:
     benchmark(_cold_import_ms)
 
 
-def test_title_bounded_read_baseline(benchmark: object, tmp_path: Path) -> None:
+def test_title_bounded_read_baseline(benchmark: Any, tmp_path: Path) -> None:
     from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
     from shenbi.pipeline.chapter_loop import _load_previous_titles
 
@@ -919,3 +1004,5 @@ git commit -m "test: spec42 C28 benchmark baselines (registry parse, gate cold s
 1. `just check` 全绿（Iron Law：当轮消息粘贴输出）
 2. `ls .superpowers/sdd/audit-T*.md | wc -l` == 7 == plan task 数
 3. spec 全部验收条目按覆盖表逐条跑过并粘贴 progress.md `## 验收证据`
+4. 改动了 `src/shenbi/**` 的 task 提交前跑 `bash tests/lock-tool-hashes.sh` 更新 `tests/tiers/deps.json` 哈希并随 commit 提交（repo 惯例；R3-2 验收证据注明 `_fingerprint_of` 直测是 spec「N 章两遍」验收的组件级代理）
+5. 新 benchmark 会在 `just check` 的 `-m "not last"` 段内运行（marker 未被排除）——门禁冷启动基线带 warmup ~10 次 spawn，CI 时长 +~5s 可接受
