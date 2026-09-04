@@ -65,6 +65,7 @@ class ReviewChecklist:
 def generate_review_checklist(
     project_dir: Path | str,
     chapter: int,
+    chapter_content: str | None = None,
 ) -> ReviewChecklist:
     """Generate (or load cached) a review checklist for the given chapter.
 
@@ -75,6 +76,8 @@ def generate_review_checklist(
     Args:
         project_dir: Project root directory.
         chapter: Chapter number (1-indexed).
+        chapter_content: Optional pre-read chapter bytes (C28 R1 shared audit
+            context) — skips the file reads on the cold path.
 
     Returns:
         A ``ReviewChecklist`` for the chapter.
@@ -112,7 +115,7 @@ def generate_review_checklist(
 
     # Generate fresh checklist.
     log.info("review_checklist_generating", chapter=chapter)
-    checklist = _build_checklist(project_dir, chapter)
+    checklist = _build_checklist(project_dir, chapter, chapter_content=chapter_content)
 
     # Cache to disk.
     data = {
@@ -187,13 +190,19 @@ def inject_checklist_into_prompt(prompt: str, checklist: ReviewChecklist) -> str
 # ---------------------------------------------------------------------------
 
 
-def _build_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
+def _build_checklist(
+    project_dir: Path, chapter: int, chapter_content: str | None = None
+) -> ReviewChecklist:
     """Build a fresh ``ReviewChecklist`` from project source files.
 
     Each extractor handles missing files gracefully — no crashes.
+    ``chapter_content`` (C28 R1) lets callers hand in the chapter bytes from
+    the shared audit context so the cold path does not re-read the file.
     """
     genre_config = _load_genre_config(project_dir)
-    precompute = _deterministic_precompute(project_dir, chapter, genre_config)
+    precompute = _deterministic_precompute(
+        project_dir, chapter, genre_config, chapter_content=chapter_content
+    )
 
     return ReviewChecklist(
         chapter=chapter,
@@ -203,7 +212,9 @@ def _build_checklist(project_dir: Path, chapter: int) -> ReviewChecklist:
         paragraph_cv=precompute["paragraph_cv"],
         ai_blacklist=_extract_ai_blacklist(genre_config),
         fatigue_warnings=_extract_fatigue_warnings(genre_config),
-        voice_constraints=_extract_voice_constraints(project_dir, chapter),
+        voice_constraints=_extract_voice_constraints(
+            project_dir, chapter, chapter_content=chapter_content
+        ),
         pov_mode=genre_config.get("povMode", ""),
         hook_deliverables=_extract_hook_deliverables(project_dir, chapter),
         ending_constraints=_get_recent_ending_types(project_dir, chapter),
@@ -255,7 +266,10 @@ def _get_max_source_mtime(project_dir: Path, chapter: int) -> float:
 
 
 def _deterministic_precompute(
-    project_dir: Path, chapter: int, genre_config: dict[str, Any]
+    project_dir: Path,
+    chapter: int,
+    genre_config: dict[str, Any],
+    chapter_content: str | None = None,
 ) -> dict[str, Any]:
     """Spec #33 T3: deterministic anti-ai checks, precomputed pre-dispatch.
 
@@ -263,16 +277,20 @@ def _deterministic_precompute(
     is ``word_count_md`` (same as G4, gates/shared) — NOT the legacy
     all-characters estimate.
     """
-    from shenbi.gates.shared import count_transition_words, word_count_md
+    from shenbi.gates.shared import count_transition_words, word_count_md_text
     from shenbi.skill_utils.style_learning.compute_stats import segment_paragraphs
 
     ch_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    try:
-        content = ch_path.read_text(encoding="utf-8") if ch_path.exists() else ""
-        wc = word_count_md(ch_path) if ch_path.exists() else 0
-    except OSError as exc:
-        log.warning("review_precompute_read_failed", chapter=chapter, error=str(exc))
-        content, wc = "", 0
+    if chapter_content is not None:
+        content = chapter_content
+        wc = word_count_md_text(content) if content else 0
+    else:
+        try:
+            content = ch_path.read_text(encoding="utf-8") if ch_path.exists() else ""
+            wc = word_count_md_text(content) if content else 0
+        except OSError as exc:
+            log.warning("review_precompute_read_failed", chapter=chapter, error=str(exc))
+            content, wc = "", 0
     transition_budget = max(5, wc // 1000)
     transition_count = count_transition_words(content) if content else 0
     blacklist = _extract_ai_blacklist(genre_config)
@@ -342,16 +360,20 @@ def _extract_fatigue_warnings(genre_config: dict[str, Any]) -> dict[str, Any]:
     return fw if isinstance(fw, dict) else {}
 
 
-def _extract_voice_constraints(project_dir: Path, chapter: int) -> dict[str, str]:
+def _extract_voice_constraints(
+    project_dir: Path, chapter: int, chapter_content: str | None = None
+) -> dict[str, str]:
     """Extract voice fingerprints for characters appearing in this chapter.
 
     Deterministic name-matching — simpler and more reliable than embedding search.
     """
     chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
-    if not chapter_path.exists():
-        return {}
-
-    chapter_text = chapter_path.read_text(encoding="utf-8")
+    if chapter_content is None:
+        if not chapter_path.exists():
+            return {}
+        chapter_text = chapter_path.read_text(encoding="utf-8")
+    else:
+        chapter_text = chapter_content
     characters_dir = project_dir / "characters"
     if not characters_dir.exists():
         return {}

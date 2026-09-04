@@ -108,7 +108,15 @@ def word_count_md(fp: str | Path) -> int:
     """Count Chinese characters in Markdown body (excluding frontmatter,
     code blocks, and meta sections).
     """
-    c = Path(fp).read_text(encoding="utf-8")
+    return word_count_md_text(Path(fp).read_text(encoding="utf-8"))
+
+
+def word_count_md_text(content: str) -> int:
+    """Content-based variant of :func:`word_count_md` (C28 R1: callers that
+    already hold the chapter bytes — e.g. the shared audit context — must not
+    re-read the file just to count).
+    """
+    c = content
     # Strip YAML frontmatter
     c = re.sub(r"^---\n.*?\n---\n", "", c, flags=re.DOTALL)
     # Strip code blocks
