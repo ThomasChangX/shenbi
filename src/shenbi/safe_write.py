@@ -252,8 +252,6 @@ def locked_append(path: Path, text: str) -> None:
     Readers must tolerate a torn final line on crash (undecodable tail lines
     are skipped by design).
     """
-    import os
-
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_fd, lockfile = _acquire_lock(path)
     try:

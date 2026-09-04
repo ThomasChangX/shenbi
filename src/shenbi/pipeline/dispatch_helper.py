@@ -1161,7 +1161,7 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     # concurrency semantics preserved). The reader (g4/generic.py
     # g4_post_write_integrity) already skips undecodable tail lines,
     # tolerating a torn final line on crash.
-    from shenbi.safe_write import locked_append
+    from shenbi.safe_write import locked_append  # local: cold path only
 
     payload = "".join(
         json.dumps(
