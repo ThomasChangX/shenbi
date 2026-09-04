@@ -19,7 +19,7 @@ def _importtime_cumulative_us(dotted: str) -> int:
     )
     # importtime stderr lines: "import time: self [us] | cumulative | package"
     for line in reversed(proc.stderr.splitlines()):
-        if line.rstrip().endswith(f"| shenbi.gates.{dotted}"):
+        if line.split("|")[-1].strip() == f"shenbi.gates.{dotted}":
             parts = [p.strip() for p in line.replace("import time:", "").split("|") if p.strip()]
             if len(parts) >= 2:
                 return int(parts[1])

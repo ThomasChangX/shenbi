@@ -9,9 +9,10 @@ conventions.
 
 T1604 (C28 R4): every gate module is imported lazily inside its dispatch
 branch. The gate CLI is spawned as a subprocess ~5-6 times per chapter and
-96% of each 0.29-0.37s spawn was import cost (jieba via text.cjk, the eager
-g0-g7/g_dispatch/g_reconcile/g_transition block, and the logging/cli_utils/
-gates.shared chains). Only the requested gate's dependency chain is paid now.
+96% of each 0.29-0.37s spawn was import cost (the eager g0-g7/g_dispatch/g_reconcile/
+g_transition block, the logging/cli_utils/gates.shared chains, and jieba
+pulled in top-level by text.cjk — now also lazy there). Only the requested
+gate's dependency chain is paid now.
 """
 
 import json
