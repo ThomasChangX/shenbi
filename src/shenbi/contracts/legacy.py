@@ -20,6 +20,7 @@ from __future__ import annotations
 
 import fnmatch
 import re
+import threading
 from enum import StrEnum
 from pathlib import Path
 from typing import Any, TypedDict
@@ -103,6 +104,11 @@ def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[
     )
 
 
+# single-cell holder dict (avoids ``global``): {"entry": (stat_key, model)}
+_registry_cache: dict[str, tuple[tuple[int, int], TruthFilesRegistry]] = {}
+_REGISTRY_CACHE_LOCK = threading.Lock()
+
+
 def load_registry() -> TruthFilesRegistry:
     """Load and return the canonical file registry as a typed model.
 
@@ -111,7 +117,30 @@ def load_registry() -> TruthFilesRegistry:
     malformed concept/glob/pattern surfaces as a ``ValidationError`` at load
     rather than a silent synonym later. Consumers read model attributes
     (``registry.concepts``, ``registry.patterns``, ``registry.globs``).
+
+    T1613/F215 (C28 R2a): results are cached per ``(mtime_ns, size)`` stat key
+    — every dispatch, gate subprocess, and skill-template scan used to
+    re-parse the 9KB YAML (~8.5ms each). The key granularity satisfies the
+    deliberate no-cache rationale at audit/snapshot.py (cross-round
+    vocabulary changes alter mtime_ns). The cached model instance is shared:
+    callers must not mutate it (audited 2026-09-04 — zero mutation sites).
     """
+    if not REGISTRY_PATH.exists():
+        raise ContractError("registry missing", registry=str(REGISTRY_PATH))
+    stat = REGISTRY_PATH.stat()
+    key = (stat.st_mtime_ns, stat.st_size)
+    with _REGISTRY_CACHE_LOCK:
+        cached = _registry_cache.get("entry")
+        if cached is not None and cached[0] == key:
+            return cached[1]
+    model = _parse_registry_uncached()
+    with _REGISTRY_CACHE_LOCK:
+        _registry_cache["entry"] = (key, model)
+    return model
+
+
+def _parse_registry_uncached() -> TruthFilesRegistry:
+    """Original parse path, kept public as the benchmark baseline (C28 T7)."""
     if not REGISTRY_PATH.exists():
         raise ContractError("registry missing", registry=str(REGISTRY_PATH))
     try:

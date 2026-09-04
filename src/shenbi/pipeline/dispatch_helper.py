@@ -1602,6 +1602,10 @@ def _init_truth_templates(project_dir: Path) -> None:
     must match one of the modes accepted by ``write_truth_file()``.
     """
     truth_dir = project_dir / "truth"
+    # T1606 (C28 R2a): skip the 74-skill contract scan (~655ms) when every
+    # template already exists — the scan result only fills new templates.
+    if all((truth_dir / fn).exists() for fn in _TRUTH_FILE_TITLES):
+        return
     truth_dir.mkdir(parents=True, exist_ok=True)
     declared_fields = _collect_declared_truth_fields()
     for filename, (title, mode) in _TRUTH_FILE_TITLES.items():
