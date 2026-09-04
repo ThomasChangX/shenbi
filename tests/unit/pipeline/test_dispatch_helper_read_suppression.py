@@ -145,6 +145,10 @@ def test_byte_equality_suppression_switch(tmp_path: Path) -> None:
         )
         for s in AUDIT_SKILLS
     ]
+    # force the checklist cold path on the OFF side too (mtime cache would
+    # otherwise mask the disk-read wiring difference)
+    for cache in (project / "context").glob("review-checklist-*.json"):
+        cache.unlink()
     ctx_off = replace(ctx_on, raw_files={})  # suppression OFF (path fixes stay)
     prompts_off = [
         _build_skill_prompt(

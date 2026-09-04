@@ -22,10 +22,10 @@
 
 | spec 验收 | task | 验证命令 |
 |---|---|---|
-| R1-1 raw_files 完整原文（5 文件） | T4 | `uv run pytest tests/unit/pipeline/test_audit_context_cache.py -k raw_files -q` |
-| R1-2 章节 read_text 次数 == 1（当前 9） | T4 | 同上 `-k read_count` |
-| R1-3 读抑制开/关 prompt 字节等价 | T4 | 同上 `-k byte_equality` |
-| R1-4 world/rules.md 键存在 | T4 | 同上 `-k world_rules_key` |
+| R1-1 raw_files 完整原文（5 文件） | T4 | `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k raw_files -q` |
+| R1-2 章节 read_text 次数 == 1（当前 9） | T4 | 同上 `-k read_count_is_one` |
+| R1-3 读抑制开/关 prompt 字节等价 | T4 | 同上 `-k byte_equality_suppression_switch` |
+| R1-4 world/rules.md 键存在 | T4 | 同上 `-k world_rules_key_present` |
 | R2-1 registry 解析次数（不变 1 / touch 2） | T2 | `uv run pytest tests/unit/contracts/test_legacy_registry_cache.py -q` |
 | R2-2 模板齐全不扫描 | T2 | `uv run pytest tests/unit/pipeline/test_dispatch_helper_read_suppression.py -k shortcircuit -q`（T2 新建该测试文件；T4 追加 R1 部分） |
 | R2-3 Route B 负缓存（第二次无网络） | T3 | `uv run pytest tests/unit/pipeline/test_truth_embed_singleton.py -k negative_cache -q` |
