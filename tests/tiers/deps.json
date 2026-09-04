@@ -308,7 +308,7 @@
     "src/shenbi/contracts/file_list.py": "sha256:5cf11adbae473bce90eb062b9d79b3423384475d93e6963b1206db26efa9c783",
     "src/shenbi/contracts/ownership.py": "sha256:fb25f9164dd105eb67c1db941f1c1e57191b61e9b17951c5faf5b8b8e6af9590",
     "src/shenbi/contracts/enums.py": "sha256:978fb6c15a68d46ca2faea2d135b38806b355146f48dce667312e8c40be3c134",
-    "src/shenbi/contracts/legacy.py": "sha256:1118fb09e828a9902f080dfaffe5083d341e3a45c78cdeb827db6ef867c2dd91",
+    "src/shenbi/contracts/legacy.py": "sha256:5bf1cbd22e7189bc6bf1d7c594c4f96292e1af59a7ee3139c2595c53fbfa7c65",
     "src/shenbi/contracts/fields.py": "sha256:9c7b1eea52819f8699e7337a4992ca195b3bbe79966947b499f0ed3b9d4a821d",
     "src/shenbi/contracts/paths.py": "sha256:2418df7e74a56cf3d830fab17d8da873b254d857c02693c1f7eae1b4517b0614",
     "src/shenbi/contracts/thresholds.py": "sha256:648ad915be5a51f5c0a0f2440a83b615b7ef4b60c8297c6deb4d9641c16ad953",

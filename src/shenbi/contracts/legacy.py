@@ -105,7 +105,7 @@ def _normalize_write_item(item: Any, field: str, skill: str) -> tuple[str, dict[
 
 
 # single-cell holder dict (avoids ``global``): {"entry": (stat_key, model)}
-_registry_cache: dict[str, tuple[tuple[int, int], TruthFilesRegistry]] = {}
+_registry_cache: dict[str, tuple[tuple[str, int, int], TruthFilesRegistry]] = {}
 _REGISTRY_CACHE_LOCK = threading.Lock()
 
 
@@ -128,7 +128,7 @@ def load_registry() -> TruthFilesRegistry:
     if not REGISTRY_PATH.exists():
         raise ContractError("registry missing", registry=str(REGISTRY_PATH))
     stat = REGISTRY_PATH.stat()
-    key = (stat.st_mtime_ns, stat.st_size)
+    key = (str(REGISTRY_PATH), stat.st_mtime_ns, stat.st_size)
     with _REGISTRY_CACHE_LOCK:
         cached = _registry_cache.get("entry")
         if cached is not None and cached[0] == key:
