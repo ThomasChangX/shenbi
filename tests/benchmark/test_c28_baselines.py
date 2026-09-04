@@ -1,7 +1,7 @@
 """C28 防回归基线三条 (spec #42 簇级验收): registry 解析 / 门禁冷启动 / 标题有界读取.
 
-These are tracking baselines (no threshold assertions) — pytest-benchmark
-records timings on every run; regressions show up in the saved stats.
+These are tracking baselines (no threshold assertions) — deterministic
+thresholds live in the T1/T5 unit tests; compare console stats across runs.
 """
 
 from __future__ import annotations
