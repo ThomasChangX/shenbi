@@ -15,7 +15,7 @@
 根因：无性能回归防线（无 benchmark 基线，C17），每处局部"正确但浪费"的实现累积成全局税。
 
 ## 目标
-1. 审计波 I/O 去重：同章多审计派发共享单一磁盘读取（读抑制 + checklist 路径），章节文件每章被读次数 8→1（含共享上下文构建的那一次）；**读抑制机制本身不改变 prompt 字节**（字节等价验收只锁开关对比）；F312 路径修复按修复意图改变注入内容（world_rules 从恒空变为真内容、幻影 style 重复项消失）——这是缺陷修复的预期效果，不在字节等价闸内
+1. 审计波 I/O 去重：同章多审计派发共享单一磁盘读取（读抑制 + checklist 路径），章节文件每章被读次数 9→1（6 契约直读 + 3 checklist 冷路径；含共享上下文构建的那一次）；**读抑制机制本身不改变 prompt 字节**（字节等价验收只锁开关对比）；F312 路径修复按修复意图改变注入内容（world_rules 从恒空变为真内容、幻影 style 重复项消失）——这是缺陷修复的预期效果，不在字节等价闸内
 2. 热路径缓存化：registry/技能模板解析按 (path, mtime_ns, size) 进程内缓存；SentenceTransformer 进程级单例 + 失败 TTL 负缓存
 3. gate 侧 O(N²) 重读消除（进程内路径）：标题有界前缀读取 + 指纹 mtime 缓存 + 真 append
 4. 门禁 import 懒加载：`import shenbi.gates.cli` 顶层 <50ms（按 gate 名懒加载 11 个门禁模块；jieba 移入函数体；logging/cli_utils/gates.shared/status 延迟到 main()）
