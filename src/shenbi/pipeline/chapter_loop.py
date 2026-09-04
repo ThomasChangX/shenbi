@@ -2132,10 +2132,24 @@ def _extract_key_terms(text: str) -> list[str]:
     return filtered
 
 
+_TITLE_PREFIX_BYTES = 4096
+# T1609 (C28 R3a): title H1 lives in the file head, but real outputs front-load
+# a ``## PRE_WRITE_CHECK`` block (H1 at ~line 10). The old extractors anchored
+# ``re.match`` at position 0 (MULTILINE does NOT move that anchor) — both
+# returned "" for meta-first chapters and the title dedup was a silent
+# full-chain no-op. Search the first 4KB instead of reading the whole file.
+_H1_RE = re.compile(r"^#\s+(.+?)$", re.MULTILINE)
+
+
+def _read_title_prefix(path: Path) -> str:
+    """Read the first 4KB of a chapter (enough for the H1) — bounded-prefix read."""
+    with path.open("rb") as f:
+        return f.read(_TITLE_PREFIX_BYTES).decode("utf-8", errors="ignore")
+
+
 def _extract_chapter_title(chapter_path: Path) -> str:
     """Extract title from chapter markdown file. Title is first H1 heading."""
-    text = chapter_path.read_text(encoding="utf-8")
-    match = re.match(r"^#\s+(.+?)$", text, re.MULTILINE)
+    match = _H1_RE.search(_read_title_prefix(chapter_path))
     return match.group(1).strip() if match else ""
 
 
@@ -2157,10 +2171,10 @@ def _load_previous_titles(project_dir: Path, current_chapter: int) -> dict[str, 
         if ch_num >= current_chapter:
             continue
         try:
-            ch_text = ch_file.read_text(encoding="utf-8")
+            ch_text = _read_title_prefix(ch_file)
         except (OSError, UnicodeDecodeError):
             continue
-        ch_title_match = re.match(r"^#\s+(.+)", ch_text)
+        ch_title_match = _H1_RE.search(ch_text)
         if ch_title_match:
             ch_raw = ch_title_match.group(1).strip()
             # Clean chapter number prefix for dedup key
