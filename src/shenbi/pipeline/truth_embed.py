@@ -154,7 +154,9 @@ def embed_and_store(
     ``route_b_degraded`` and Routes A+C continue). Called by the orchestrator
     after state-settling (to embed chapter summaries) and after memory-distill
     (to embed arc syntheses). Uses the process singleton (C28 R2b) — no
-    per-call model construction.
+    per-call model construction. Construction failure now logs one
+    ``embed_model_unavailable_cached`` warning per TTL window and per-chunk
+    ``route_b_unavailable`` info rows (was: per-chunk ``embed_failed``).
     """
     if not is_embed_available():
         log.info("route_b_unavailable", chunk_id=chunk_id)
@@ -257,6 +259,7 @@ __all__ = [
     "EmbeddingResult",
     "EmbeddingStore",
     "embed_and_store",
+    "get_shared_model",
     "is_embed_available",
 ]
 
