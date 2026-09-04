@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-04 R2) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-04 R3) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C28）| **依赖:** C10（token 计量接线——已由 spec36/PR #137 落地，三条派发路径全落账）| **范围:** contracts/legacy.py registry 缓存、gates/cli 懒加载、truth_embed/context_assemble 模型单例、audit_context_cache 四处路径错配+读抑制、gate 侧 O(N²) 重读 | **核心洞察:** registry 每次重解析（8.5ms×每派发×每门禁子进程）、门禁子进程 96% import 开销（实测 368.6ms/spawn）、gate 侧 O(N²) 全量重读——性能债直接折算为 token 与墙钟成本
 > **修订注记（2026-09-04 R2，设计审查第 2 轮收敛）**：T1607 已被 spec #26 路径 3（commit 66e7f69d/PR #105）移除差分子系统而消解；T1608（save_state 步级全量 dump）**让位** C30（#44 拥有 resume 游标锚定与 staging 生命周期语义）；R1 机制从「摘要字段注入」改为「原始字节表读抑制」（摘要字段注入会破坏字节等价——字段是截断值非文件原文）；F312 死键清单从 2 处扩至 **4 处路径错配**（builder 3 + 注入块 1 组）；volume_context 无审计波消费者移出 R1；F415 有两个跨轮同号条目（C35 已立案的编号碰撞）：08-15 轮 = gate 侧 O(N²) 重读放大（本 spec R3 承接 content_uniqueness 面），08-14 轮 = chapter_drafting.py 行号引用漂移（R4 顺手修正）
 
@@ -30,12 +30,12 @@
 ## 任务分解
 ### R1 · 审计波共享读取（T1614/F312 + T1601-I/O 面，P1）
 - **原始字节表（读抑制的数据源）**：`SharedAuditContext` 新增 `raw_files: dict[str, str]`——键 = `_input_key(path, project_dir)`，值 = **文件完整原文**（不截断、不摘要、不提取）。`build_shared_audit_context` 为 5 个文件填充：`chapters/chapter-{chapter}.md`、`world/rules.md`、`truth/character_matrix.md`、`style/style_profile.md`、`truth/pending_hooks.md`。既有摘要字段（world_rules/character_list/style_profile/pending_hooks）保留用于现状注入块（行为不变），**不得**作为读抑制数据源（截断值 ≠ 磁盘字节，会破坏字节等价）
-- **F312 四处路径错配修复**（对照 docs/framework/truth-files.yaml 规范路径）：builder `:49` `chapters/chapter-{chapter:03d}.md` → `chapters/chapter-{chapter}.md`（对齐生产写方 chapter_loop/crash_recovery/confidence_calibration 的无填充形态）；builder `:53` `truth/world_rules.md` → `world/rules.md`（truth-files.yaml:15）；builder `:71` `truth/volume_map.md` → `outline/volume_map.md`（对齐 `_shared.py:42 VOLUME_MAP_PATH`）；注入块 `dispatch_helper.py:683/:691` 的 `truth/world_rules.md` → `world/rules.md`、`truth/style_profile.md` → `style/style_profile.md`（builder 实际读 style/ 下，注入键却指 truth/ 下——现状注入的是永空幻影键）
-- **读抑制机制**：`_build_skill_prompt` 的契约 reads 磁盘读循环先查 `raw_files`（同 `_input_key`）——命中则用缓存原文，未命中才 `read_text` 落盘；`filter_to_fields`（Layer B）与 `_strip_meta_for_non_drafting` 照常作用于命中后的字节（管线位置不变，仅数据源换）。**review_checklist 生成路径的章节读取同走缓存**（review_checklist.py:271/:354 冷缓存下每波 2 次全文读）——装配时将 `raw_files` 中的章节字节传入，消灭 checklist 侧读取
+- **F312 四处路径错配修复**（对照 docs/framework/truth-files.yaml 规范路径）：builder `:49` `chapters/chapter-{chapter:03d}.md` → `chapters/chapter-{chapter}.md`（对齐生产写方 chapter_loop/crash_recovery/confidence_calibration 的无填充形态）；builder `:53` `truth/world_rules.md` → `world/rules.md`（truth-files.yaml:15）；builder `:71` `truth/volume_map.md` → `outline/volume_map.md`（对齐 `_shared.py:42 VOLUME_MAP_PATH`）；注入块 `dispatch_helper.py:683/:691` 的 `truth/world_rules.md` → `world/rules.md`、`truth/style_profile.md` → `style/style_profile.md`（builder 实际读 style/ 下，注入键却指 truth/ 下——world_rules 键因 builder 死路径恒空注入，style 键注入的是真内容的截断重复项，修复后重复项消失）
+- **读抑制机制**：`_build_skill_prompt` 的契约 reads 磁盘读循环先查 `raw_files`（同 `_input_key`）——命中则用缓存原文，未命中才 `read_text` 落盘；`filter_to_fields`（Layer B）与 `_strip_meta_for_non_drafting` 照常作用于命中后的字节（管线位置不变，仅数据源换）。**review_checklist 生成路径的章节读取同走缓存**（review_checklist.py:271/:354 直读两处 + :272 `word_count_md` 内部再读一次 = 冷缓存下每波 3 次全文读）——装配时将 `raw_files` 中的章节字节传入（word_count_md 用缓存内容变体），消灭 checklist 侧全部读取
 - **语义不变约束**：读抑制开关（开 vs 关）不改变 prompt 字节——验收以字节等价测试锁定该开关对比；F312 路径修复带来的注入内容变化（见目标 1）不在此闸内
 - **验收**（fixture 项目 = `tmp_path` 内以真实 fixture 文件组装：`tests/fixtures/multi-chapter-example/chapter-*.md` 复制入 `chapters/`、`tests/fixtures/snapshots/chapter-025/truth/{character_matrix,pending_hooks}.md`、`tests/fixtures/world-rules-example.md` → `world/rules.md`、`tests/fixtures/style-profile-example.md` → `style/style_profile.md` 按规范布局放置——G0.9 合规，全部源为真实产物，无手写内容）：
   1. 单元：`raw_files[key] == path.read_text()` 对 5 文件逐一成立（断言**完整原文**，即等于文件 read_text 结果，非截断摘要）
-  2. I/O 计数：spy `Path.read_text`（monkeypatch 计数，含 builder 自身读取），装配 6 审计技能 prompt + checklist 全流程后章节文件 read_text 次数 == 1（当前 8+：6 契约 + 2 checklist 冷路径）
+  2. I/O 计数：spy `Path.read_text`（monkeypatch 计数，含 builder 自身读取），装配 6 审计技能 prompt + checklist 全流程后章节文件 read_text 次数 == 1（当前 9：6 契约 + 3 checklist 冷路径）
   3. 字节等价：读抑制开/关两种构建路径产出的全部 prompt 字节完全一致（`uv run pytest tests/unit/pipeline/ -k "read_suppression" -q`）
   4. 路径修复：fixture 项目上 `raw_files` 含 world/rules.md 键（修复前 builder 读 truth/world_rules.md 恒空）
 
@@ -61,12 +61,12 @@
 
 ## 验收（簇级）
 - `just check` 全绿；`uv run pytest tests/ -m benchmark -q` 三条基线绿（registry 解析、门禁冷启动、标题有界读取）防回归
-- 回写关闭 11 条：T1601（I/O 面）、T1603、T1604、T1609（含 no-op 行为修正注记）、T1610、T1613、T1614、F215、F328、F415-0815（content_uniqueness 面，进程内范围注记）、F415-0814；T1607 注 resolved-by-#26、T1608 注 transferred-to-#44
+- 回写关闭 11 条（同下方回写节口径）：T1601（I/O 面，吸收 T1614/F312）、T1603、T1604（吸收 F415-0814）、T1606、T1609（含 `_extract_chapter_title` 全链路 no-op 行为修正）、T1610、T1613（吸收 F215）、T1614、F215、F328、F415-0815（content_uniqueness 面，进程内范围注记）；T1607 注 resolved-by-#26、T1608 注 transferred-to-#44
 
 ## 风险
 - R1 读抑制：缓存键与 `_input_key` 不一致会把错字节注入 prompt——字节等价测试（开/关两路径对比）是硬闸；raw_files 必须存完整原文（摘要字段做数据源 = 字节等价破坏，已在机制层排除）
 - R2 registry 缓存：跨轮词表变更依赖 mtime_ns 失效——同秒原地编辑且 size 不变的病理场景接受为已知残余风险（生产中 registry 只经 PR 变更，进程生命期内不变）
-- R2 单例：~1.3GB 模型常驻进程——审计波 6 线程共享一实例（当前每线程各装一份更糟）；close 语义由 genesis finally 保证
+- R2 单例：~1.3GB 模型常驻进程——当前每次装配/每 genesis 条目重新构造（顺序执行，2×/章 + genesis 逐条目），单例化后全进程共享一份；EmbeddingStore 句柄由 genesis finally 关闭
 - R3 标题行为修正：meta-first 章查重从 no-op 变为生效——若历史产物存在同题章，pipeline resume 场景可能新报重题（这是查重本意，非回归；记 deviation 观察）
 - R3 真 append：现状 locked_transact 以原子替换收尾（不撕裂文件，最坏丢末条）；真 append 单调写崩溃时可撕裂**末行**——读取侧按行解析需容忍末行残缺（跳过不完整尾行）。为 O(k) 写放大收益接受此 delta，flock 临界区不变
 
