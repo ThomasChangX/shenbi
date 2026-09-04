@@ -29,7 +29,8 @@ def test_previous_titles_include_meta_first_chapters(tmp_path: Path) -> None:
     shutil.copy(_FIX / "chapter-7-example.md", chapters / "chapter-1.md")
     shutil.copy(_FIX / "chapter-8-example.md", chapters / "chapter-2.md")
     titles = _load_previous_titles(tmp_path, 3)
-    assert titles  # non-empty: meta-first chapters now contribute titles
+    # both copies share the fixture's H1 -> one deduped key at the later chapter
+    assert titles == {"毕业即失业与穿越即负债": 2}
 
 
 def test_title_lookup_read_count(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:

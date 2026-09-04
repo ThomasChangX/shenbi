@@ -2133,6 +2133,8 @@ def _extract_key_terms(text: str) -> list[str]:
 
 
 _TITLE_PREFIX_BYTES = 4096
+# Residual (accepted): a chapter whose H1 starts beyond the 4KB prefix yields
+# "" and is skipped by dedup — measured fixture H1 sits at byte ~1331.
 # T1609 (C28 R3a): title H1 lives in the file head, but real outputs front-load
 # a ``## PRE_WRITE_CHECK`` block (H1 at ~line 10). The old extractors anchored
 # ``re.match`` at position 0 (MULTILINE does NOT move that anchor) — both
