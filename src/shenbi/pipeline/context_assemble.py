@@ -142,9 +142,11 @@ def _route_b(project_dir: Path, plan_text: str) -> tuple[list[dict[str, Any]], b
     DB exists or search returns no hits, ``([], False)`` is returned.
     """
     try:
-        import importlib
-
-        from shenbi.pipeline.truth_embed import EmbeddingStore, is_embed_available
+        from shenbi.pipeline.truth_embed import (
+            EmbeddingStore,
+            get_shared_model,
+            is_embed_available,
+        )
 
         if not is_embed_available():
             return [], True
@@ -154,8 +156,9 @@ def _route_b(project_dir: Path, plan_text: str) -> tuple[list[dict[str, Any]], b
             # Model available but no embeddings indexed — not degradation.
             return [], False
 
-        st = importlib.import_module("sentence_transformers")
-        model = st.SentenceTransformer("bge-large-zh")
+        model = get_shared_model()
+        if model is None:
+            return [], True
         query_vec = model.encode(plan_text[:_PLAN_QUERY_CHARS]).astype("<f4").tobytes()
 
         store = EmbeddingStore(db_path)
