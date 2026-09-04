@@ -136,8 +136,13 @@ def _get_tokenizers() -> tuple[Any, Any]:
                 import jieba
                 import jieba.posseg as pseg
 
-                _TOKENIZER = jieba.Tokenizer()
-                _POSEG = pseg.POSTokenizer(_TOKENIZER)
+                tok = jieba.Tokenizer()
+                poseg = pseg.POSTokenizer(tok)
+                # publish order: _POSEG first, _TOKENIZER (the sentinel/flag) last —
+                # a lock-free fast-path reader must never see tokenizer set with
+                # _POSEG still None
+                _POSEG = poseg
+                _TOKENIZER = tok
     return _TOKENIZER, _POSEG
 
 
@@ -279,7 +284,7 @@ def load_registry() -> TruthFilesRegistry:
     return model
 ```
 
-`_init_truth_templates` 开头加：
+（spec R2「扫描结果同键缓存」在短路落地后残益可忽略——记 spec-deviations T2 声明性偏差，不实施。）`_init_truth_templates` 开头加：
 
 ```python
     truth_dir = project_dir / "truth"
@@ -325,7 +330,6 @@ git commit -m "perf: spec42 C28 R2a registry (mtime_ns,size) cache + truth templ
 # tests/unit/pipeline/test_truth_embed_singleton.py
 """T1603/F328: shared model singleton, TTL negative cache, defensive concurrency."""
 import threading
-import time
 from types import SimpleNamespace
 
 import shenbi.pipeline.truth_embed as te
@@ -684,17 +688,19 @@ def test_title_lookup_reads_at_most_4kb_per_file(
         if self.suffix == ".md" and self.parent.name == "chapters":
             orig_read = fh.read
 
-            def counting_read(n: int = -1) -> bytes:  # type: ignore[no-untyped-def]
+            def counting_read(n: int = -1) -> bytes:
                 data = orig_read(n)
                 read_bytes["n"] += len(data)
                 return data
 
-            fh.read = counting_read  # type: ignore[method-assign,assignment]
+            fh.read = counting_read
         return fh
 
     monkeypatch.setattr(Path, "open", bounded_open)
     _load_previous_titles(tmp_path, 8)
     assert read_bytes["n"] <= 4096 * 7  # 7 previous chapters, <=4KB each
+    #（spec 载 N=56/112/224；此处 n=8 断言每文件 ≤4KB 的等价单文件界——N 规模在
+    #  T7 基线与 T5 语料测试覆盖，语义相同）
 ```
 
 - [ ] **Step 2: 跑测试确认失败**
@@ -757,7 +763,7 @@ Expected: PASS
 - [ ] **Step 5: Commit + 审查**
 
 ```bash
-git add src/shenbi/pipeline/chapter_loop.py tests/pipeline/helpers/c28_corpus.py tests/unit/pipeline/test_chapter_titles.py
+git add src/shenbi/pipeline/chapter_loop.py tests/pipeline/helpers/__init__.py tests/pipeline/helpers/c28_corpus.py tests/unit/pipeline/test_chapter_titles.py
 git commit -m "perf: spec42 C28 R3a bounded-prefix title reads + dual extractor no-op fix"
 ```
 产出 `audit-T5.md`。
@@ -812,7 +818,7 @@ def test_second_pass_reads_each_chapter_once(tmp_path: Path, monkeypatch: pytest
 """T1610: true-append integrity findings — byte-identical output, O(1) reads/append.
 
 现状 locked_transact 每 append 全量 read_text 该 jsonl（O(k^2) 字节搬运）——
-本测试 spy read_text 计数做红灯判别（现状 200 次读，append 后 0 次）。
+本测试 spy read_text 计数做红灯判别（现状 199 次读——首次 append 无文件可读，append 后 0 次）。
 注：locked_transact 的写路径经 tempfile+os.replace，不走 Path.write_text——
 不能用 write_text 计数判别（那是绿前绿后的假测试）。"""
 import json
@@ -866,7 +872,8 @@ def _fingerprint_of(path: Path) -> frozenset[int]:
         if hit is not None:
             return hit
         fp = frozenset(_text_fingerprint(path.read_text(encoding="utf-8")))
-    except (OSError, UnicodeDecodeError):
+    except (OSError, UnicodeDecodeError) as e:
+        log.warning("file_read_failed", file=str(path), error=str(e))  # 保持原循环的观测语义
         return frozenset()
     _FINGERPRINT_CACHE[key] = fp
     return fp
@@ -887,7 +894,7 @@ def _append_integrity_findings(project_dir: Path, file_path: Path, issues: list[
     """
     import os
 
-    from shenbi.safe_write import _acquire_lock
+    from shenbi.safe_write import acquire_write_lock as _acquire_lock  # 公开别名（safe_write.py:184），跨实例写者同一锁域
 
     m = _CHAPTER_NUM_RE.search(file_path.stem)
     num = m.group(1) if m else "unknown"
