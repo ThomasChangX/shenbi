@@ -354,7 +354,7 @@
     "src/shenbi/gates/g4/style_polishing.py": "sha256:905d34063d2b0ba257cca2b99d174689b4ec68b2606770e1e44f1a59ec98d4b8",
     "src/shenbi/gates/g4/relationship_map.py": "sha256:0fc0e94b3c22950710241865a839fc0df500205581aefed4e85e1564aa77882e",
     "src/shenbi/gates/g4/worldbuilding.py": "sha256:ec1f0a3c39f9dfe1f2eee10fc3c3df68491d017fe120b8b85dd90ba4bdf15452",
-    "src/shenbi/gates/g4/chapter_drafting.py": "sha256:a438d726bddaaa136abe07cb0fe3b918df9726918e7116369ad4ff973e765c1c",
+    "src/shenbi/gates/g4/chapter_drafting.py": "sha256:d67a36a66a4f36bb1da9fcbd75aea957121f21eb50b3c1b0d88b8f6f4f32c250",
     "src/shenbi/gates/g4/escalation_review.py": "sha256:2928537f11fe290240a85b8383d684353de0322a6d7d6d22b5da0b03ae724911",
     "src/shenbi/gates/g4/plot_thread_weaver.py": "sha256:6f26faa235f001d528e4bc899b7c34af2977a8f001638068c49d6fc34757e08b",
     "src/shenbi/gates/g4/power_system.py": "sha256:6c7df4f982cac27da7d86b568043cc0f400b8be1e23e91e07b6b7f5c6e71691f",

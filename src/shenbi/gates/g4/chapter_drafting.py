@@ -117,23 +117,24 @@ def check_chapter_title(title: str, previous_titles: dict[str, int]) -> list[str
 # memoization. Production G4 runs are subprocess-per-call (cold per spawn) —
 # the cache serves in-process multi-file callers (g5.5's embedded gate_G4
 # loop, tests) and future in-process gate invocation. Failures are never
-# cached; verdicts stay idempotent under the stat key.
-_FINGERPRINT_CACHE: dict[tuple[str, int, int], frozenset[int]] = {}
+# cached; verdicts stay idempotent under the stat key. One slot per path:
+# each rewrite replaces the entry, so the cache is bounded by the number
+# of distinct files (no unbounded growth across chapter rewrites).
+_FINGERPRINT_CACHE: dict[str, tuple[tuple[int, int], frozenset[int]]] = {}
 
 
 def _fingerprint_of(path: Path) -> frozenset[int]:
-    """Fingerprint of a chapter file, memoized per (path, mtime_ns, size)."""
+    """Fingerprint of a chapter file, memoized per path under (mtime_ns, size)."""
     try:
         st = path.stat()
-        key = (str(path), st.st_mtime_ns, st.st_size)
-        hit = _FINGERPRINT_CACHE.get(key)
-        if hit is not None:
-            return hit
+        slot = _FINGERPRINT_CACHE.get(str(path))
+        if slot is not None and slot[0] == (st.st_mtime_ns, st.st_size):
+            return slot[1]
         fp = frozenset(_text_fingerprint(path.read_text(encoding="utf-8")))
     except (OSError, UnicodeDecodeError) as e:
         log.warning("file_read_failed", file=str(path), error=str(e))
         return frozenset()
-    _FINGERPRINT_CACHE[key] = fp
+    _FINGERPRINT_CACHE[str(path)] = ((st.st_mtime_ns, st.st_size), fp)
     return fp
 
 

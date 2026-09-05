@@ -8,6 +8,7 @@ read-only by convention (callers audited 2026-09-04: zero mutation sites).
 from __future__ import annotations
 
 import os
+import shutil
 from pathlib import Path
 from typing import Any
 
@@ -28,21 +29,25 @@ def _counting_safe_load(calls: dict[str, int]) -> Any:
 
 
 def test_load_registry_caches_until_mtime_changes(
-    monkeypatch: pytest.MonkeyPatch,
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     calls = {"n": 0}
     monkeypatch.setattr(yaml, "safe_load", _counting_safe_load(calls))
-    # cache reset for test isolation (os.utime below only touches mtime of the
-    # real registry file — content unchanged, safe under the ns-keyed cache)
     monkeypatch.setattr(legacy, "_registry_cache", {})
+    # tmp_path copy — the mtime bump below must never touch the tracked
+    # repo file (final-review M1: persistent stat side effects on a
+    # tracked file are hygiene debt)
+    reg = tmp_path / "truth-files.yaml"
+    shutil.copy(legacy.REGISTRY_PATH, reg)
+    monkeypatch.setattr(legacy, "REGISTRY_PATH", reg)
 
     legacy.load_registry()
     legacy.load_registry()
     legacy.load_registry()
     assert calls["n"] == 1
 
-    st = legacy.REGISTRY_PATH.stat()
-    os.utime(legacy.REGISTRY_PATH, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
+    st = reg.stat()
+    os.utime(reg, ns=(st.st_atime_ns, st.st_mtime_ns + 1_000_000))
     legacy.load_registry()
     assert calls["n"] == 2
 
@@ -64,8 +69,6 @@ def test_registry_cache_isolated_across_paths(
     path's model — the cache key includes the path (spec: (path, mtime_ns,
     size); guards tests that monkeypatch REGISTRY_PATH per-test).
     """
-    import shutil
-
     alt = tmp_path / "alt-truth-files.yaml"
     shutil.copy(legacy.REGISTRY_PATH, alt)
     st = alt.stat()

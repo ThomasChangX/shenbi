@@ -33,22 +33,16 @@ def test_previous_titles_include_meta_first_chapters(tmp_path: Path) -> None:
     assert titles == {"毕业即失业与穿越即负债": 2}
 
 
-def test_title_lookup_read_count(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_title_lookup_corpus_scale(tmp_path: Path) -> None:
+    """Outcome assertion at spec N=56 scale: every variant title survives the
+    dedup map (mechanism bound — bytes <= 4KB/file — is pinned by the test
+    below; pinning "which read API was used" would be a weak proxy).
+    """
     from tests.pipeline.helpers.c28_corpus import expand_chapter_corpus
 
     expand_chapter_corpus(_FIX / "multi-chapter-example", tmp_path, n=56)
-    reads = {"n": 0}
-    real_read = Path.read_text
-
-    def counting_read(self: Path, *a: object, **k: object) -> str:
-        if self.parent.name == "chapters" and self.suffix == ".md":
-            reads["n"] += 1
-        return real_read(self, *a, **k)  # type: ignore[arg-type]
-
-    monkeypatch.setattr(Path, "read_text", counting_read)
     titles = _load_previous_titles(tmp_path, 56)
     assert len(titles) == 55
-    assert reads["n"] == 0  # bounded prefix reads via open("rb"), not read_text
 
 
 def test_title_lookup_reads_at_most_4kb_per_file(
