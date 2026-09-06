@@ -102,7 +102,8 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
                         f"future_knowledge:ch{chn}:knows_{re_ent}_intro_ch{intro_map[re_ent]}"
                     )
 
-    mf = [f"G6.4:{v}" for v in violations[:10]]
+    g64_cap = violations[:10]  # C29 R2b: findings cap, disclosed below
+    mf = [f"G6.4:{v}" for v in g64_cap]
     if violations:
         # C29 R2: disclose sampling even on the FAIL branch — the verdict was
         # reached on clipped input, that is exactly when operators must know
@@ -112,6 +113,9 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
                     "id": "G6.4",
                     "s": GateStatus.WARN,
                     **({"input_sampled": True} if timeline_sampled else {}),
+                    **(
+                        {"findings_capped": f"10/{len(violations)}"} if len(violations) > 10 else {}
+                    ),
                 }
             ],
             mf,

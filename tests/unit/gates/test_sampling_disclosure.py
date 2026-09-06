@@ -122,11 +122,7 @@ class TestCountSamplingDisclosure:
         project_dir = tmp_path / "project-output"
         outline = project_dir / "outline"
         outline.mkdir(parents=True)
-        base = (
-            (_FIXTURES / "outline-example.md").read_text(encoding="utf-8")
-            if (_FIXTURES / "outline-example.md").exists()
-            else (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
-        )
+        base = (_FIXTURES / "outline-example.md").read_text(encoding="utf-8")
         # >12 outline files forces the [:3] count-sampling to bite
         for i in range(13):
             (outline / f"vol-{i:02d}.md").write_text(base, encoding="utf-8")
@@ -136,6 +132,27 @@ class TestCountSamplingDisclosure:
         parsed = _json.loads(gate_G5("foundation", str(round_dir), str(project_dir)))
         g53 = [chk for chk in parsed.get("checks", []) if chk.get("id") == "G5.3"]
         assert g53, f"expected G5.3 check, got checks={parsed.get('checks')}"
-        assert "files_sampled" in g53[0], f"expected files_sampled in {g53[0]}"
-        # 13 outline files, cap 3
-        assert g53[0]["files_sampled"].startswith("3/")
+        # exact denominator: 13 outline files, cap 3 — per-point encoding
+        assert g53[0].get("files_sampled") == "outline:3/13"
+
+    def test_g69_constraints_cap_disclosed(self, tmp_path: Path):
+        """C29 R2b: G6.9 constraints[:10] cap disclosed as findings_capped."""
+        import json as _json
+
+        from shenbi.gates.g6 import gate_G6
+
+        project_dir = tmp_path / "project-output"
+        world = project_dir / "world"
+        chapters = project_dir / "chapters"
+        world.mkdir(parents=True)
+        chapters.mkdir(parents=True)
+        # >10 distinct numeric constraints in world/rules.md (real-shape content)
+        rules = "\n".join(f"规则{i}: 不超过 {i + 2} 人参与" for i in range(12))
+        (world / "rules.md").write_text(rules, encoding="utf-8")
+        draft = (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
+        (chapters / "chapter-1.md").write_text(draft, encoding="utf-8")
+
+        parsed = _json.loads(gate_G6("long-form", str(tmp_path / "round"), str(project_dir)))
+        g69 = [chk for chk in parsed.get("checks", []) if chk.get("id") == "G6.9"]
+        assert g69, f"expected G6.9 check, got checks={parsed.get('checks')}"
+        assert g69[0].get("findings_capped") == "10/12"

@@ -205,14 +205,18 @@ def gate_G5(
                 if c1 > 0 and c2 > 0 and c1 + c2 > 3:
                     conflicts.append(f"term_mix:{t1}({c1})/{t2}({c2})")
 
-        # C29 R2b: count-sampling disclosure (inputs capped by file count)
+        # C29 R2b: count-sampling disclosure (inputs capped by file count);
+        # per-point encoding so distinct caps never mask each other
         g53_disclosure: dict[str, Any] = {}
+        sampled_parts: list[str] = []
         if outline_all and len(outline_all) > len(outline_sample):
-            g53_disclosure["files_sampled"] = f"{len(outline_sample)}/{len(outline_all)}"
+            sampled_parts.append(f"outline:{len(outline_sample)}/{len(outline_all)}")
         if len(output_files) > 8:
-            g53_disclosure.setdefault("files_sampled", f"8/{len(output_files)}")
+            sampled_parts.append(f"output:8/{len(output_files)}")
         if char_files_all and len(char_files_all) > len(char_files_sample):
-            g53_disclosure["chars_sampled"] = f"{len(char_files_sample)}/{len(char_files_all)}"
+            sampled_parts.append(f"chars:{len(char_files_sample)}/{len(char_files_all)}")
+        if sampled_parts:
+            g53_disclosure["files_sampled"] = "; ".join(sampled_parts)
         if len(conflicts) > 10:
             g53_disclosure["findings_capped"] = f"10/{len(conflicts)}"
 

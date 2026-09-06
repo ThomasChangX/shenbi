@@ -267,9 +267,9 @@ def gate_G6(
                 ),
                 **(
                     {
-                        "findings_capped": " / ".join(
-                            f"3/{len(v['catchphrases'])}"
-                            for v in char_voice.values()
+                        "findings_capped": ", ".join(
+                            f"{cname}:3/{len(v['catchphrases'])}"
+                            for cname, v in char_voice.items()
                             if len(v["catchphrases"]) > 3
                         )
                     }

@@ -2,8 +2,14 @@
 
 > C29 (spec #43) 目标 3 成文：哪些 gate 检查**有意**只读输入的一部分、采多少、为什么。
 > 其余检查读全文。所有下列采样点都在检查结果 JSON 中披露（`input_sampled` /
-> `files_sampled` / `chars_sampled` / `findings_capped`，见
+> `files_sampled` / `findings_capped`，见
 > [gates.md](gates.md#result-schema-sampling-disclosure-c29)）。
+>
+> **登记范围**：本表登记 C29 改动面的全部采样点（下三表）+ 既有的已自披露先例
+> （G6.10 `chapters_sampled`）。仓内其余历史截断点（g0.py rubric `[:10]`、
+> g_transition.py `[:10]`、g2.py removals `[:5]`、g4 各 errors `[:5]`、
+> plot_thread_weaver `[:3]`）不在 C29 改动面内、尚无披露——遗留清单，
+> 待后续清理 spec 承接（C35 审计过程卫生域）。
 
 ## 字符前缀采样（`clip_with_disclosure`）
 
@@ -21,17 +27,18 @@
 
 | 检查 | 采样点 | 量 | 理由 |
 |------|--------|-----|------|
-| G5.3 outline 扫描 | outline 目录 | 前 3 文件 | outline 文件族大且同构 |
-| G5.3 输出文件扫描 | world+outline 合集 | 前 8 文件 | 性能封顶 |
-| G5.3 角色文件 | characters 目录 | 前 6 文件 | 角色文件同构 |
-| G6.8 章节采样 | chapters | 前 15 章 | voice 检查对长篇的代表性截断 |
+| G5.3 outline 扫描 | outline 目录 | 前 3 文件 | outline 文件族大且同构（披露 `files_sampled` 的 `outline:3/N` 段） |
+| G5.3 输出文件扫描 | world+outline 合集 | 前 8 文件 | 性能封顶（`output:8/N` 段） |
+| G5.3 角色文件 | characters 目录 | 前 6 文件 | 角色文件同构（`chars:6/N` 段） |
+| G6.8 章节采样 | chapters | 前 15 章 | voice 检查对长篇的代表性截断（`files_sampled: "15/N"`） |
 
 ## 发现项封顶（findings，非输入采样）
 
 | 检查 | 采样点 | 量 | 理由 |
 |------|--------|-----|------|
 | G5.3 conflicts 输出 | 冲突列表 | 前 10 条 | must_fix 列表信噪比 |
-| G6.8 catchphrases | 每角色 | 前 3 条 | top-N 代表性 |
+| G6.4 violations 输出 | 时间线违例 | 前 10 条 | 既有行为（g6_checks，C29 登记补录） |
+| G6.8 catchphrases | 每角色 | 前 3 条 | top-N 代表性（`角色名:3/N` 带归属） |
 | G6.9 数值约束 | constraints | 前 10 条 | 性能封顶 |
 | G6.10 style outliers | 离群章节 | 前 8 条 | 既有行为（非本 spec 改动面） |
 
