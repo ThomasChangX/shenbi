@@ -23,7 +23,7 @@
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:314-337`（`_budgeted_truncate`）及调用点 `:728`
 - Modify: `src/shenbi/pipeline/audit_context_cache.py:96-98`（pending_hooks 截断）
-- Test: `tests/pipeline/test_budgeted_truncate.py`（扩展）
+- Test: `tests/pipeline/test_budgeted_truncate.py`（扩展；**既有 3 个测试须同步改写**——返回值从 dict 变 tuple，`result.get(...)`/`.values()` 全要改为解包后取 texts）
 
 **Interfaces:**
 - Produces:
@@ -63,13 +63,13 @@ def test_marker_survives_per_file_cap():
 def test_budget_surplus_redistributed():
     """F330: 短文件余量回补给被截断文件，且不越过 per-file cap。"""
     texts = {
-        "chapter-N.md": "X" * 40000,      # HIGH，会被截
-        "archive-notes.md": "Y" * 1000,   # LOW，远小于配额
+        "chapter-N.md": "X" * 40000,      # HIGH，配额 16667 会被截
+        "archive-notes.md": "Y" * 1000,   # LOW，配额 3333 只用 1000 → 余量 2333
     }
     out, records = _budgeted_truncate(texts, 20000)
-    kept = len(out["chapter-N.md"].rstrip())  # 去掉标记后近似
-    # 回补后保留量 > 纯按权重分配（40000*1.0/1.2≈33333 但 cap=32000 → 应接近 32000）
-    assert kept >= 30000
+    kept = records[0].kept_len
+    # 纯按权重分配 = 16667；回补后必须超过它（16667 + 2333 ≈ 19000）
+    assert kept > 17000
     # 回补不得越过 cap
     assert len(out["chapter-N.md"]) <= _INPUT_MAX_CHARS_PER_FILE + 64  # +标记长度余量
 
@@ -101,7 +101,8 @@ def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> tuple[dict[s
         kept[name] = min(len(content), min(alloc[name], _INPUT_MAX_CHARS_PER_FILE))
     # Pass 2 (F330): redistribute surplus from files allocated more than they need
     surplus = sum(max(0, min(alloc[n], _INPUT_MAX_CHARS_PER_FILE) - kept[n]) for n in input_texts)
-    for name in input_texts:  # 只补给仍被截的文件
+    # 补给循环：只补给仍被截的文件，按权重降序（HIGH 先得）
+    for name in sorted(input_texts, key=lambda n: -weights[n]):
         need = min(len(input_texts[name]), _INPUT_MAX_CHARS_PER_FILE) - kept[name]
         if need > 0 and surplus > 0:
             give = min(need, surplus)
@@ -119,11 +120,13 @@ def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> tuple[dict[s
             result[name] = content
     return result, records
 ```
-调用点（dispatch_helper.py:723-733）：`input_texts, trunc_records = _budgeted_truncate(...)`，随后
-```python
-for rec in trunc_records:
-    log.warning("input_truncated", file=rec.file, original_len=rec.original_len, kept_len=rec.kept_len)
-```
+调用点（dispatch_helper.py:723-741）改两处：
+1. 超预算路径 `:728`：`input_texts, trunc_records = _budgeted_truncate(...)`，随后
+   ```python
+   for rec in trunc_records:
+       log.warning("input_truncated", file=rec.file, original_len=rec.original_len, kept_len=rec.kept_len)
+   ```
+2. **欠预算路径 `:733-741`（F361 主形态——per-file cap 静默截断）**：dict comprehension 改为循环，超过 `_INPUT_MAX_CHARS_PER_FILE` 的文件走同一标记格式 + 同一 `input_truncated` WARN（抽一个模块内小 helper `_cap_single(text: str, fname: str) -> str` 复用标记与 log）。
 摘除 `:314` 行过时的 `# pyright: ignore[reportUnusedFunction]`。audit_context_cache.py:97 改为：
 ```python
 if len(raw) > 3000:
@@ -132,7 +135,7 @@ if len(raw) > 3000:
 else:
     ctx.pending_hooks = raw
 ```
-（模块顶部加 `log = structlog.get_logger(__name__)`；`_summarize_if_large` 的旧标记同步改为新哨兵格式保持一致。）
+（logger 已存在于模块 `:13` `log = get_logger(__name__)`，无需新增；`_summarize_if_large` 的旧标记同步改为新哨兵格式保持一致。）
 
 - [ ] **Step 4: 跑测试确认通过 + structlog capture**
 
@@ -155,7 +158,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 - Create: helper 于 `src/shenbi/gates/shared.py`
 - Modify: `src/shenbi/gates/g5.py:154,187,189`、`src/shenbi/gates/g6.py:224,234,291`、`src/shenbi/gates/g6_checks.py:37`
 - Modify: `src/shenbi/gates/g4/genre_config.py:38-48`（全量错误计数）
-- Modify: `src/shenbi/pipeline/audit_layer.py`（`_gate_passed` 旁加采样透传）
+- Modify: `src/shenbi/gates/g7.py:186-194`（G7.13 重跑分支透传 sampling_disclosed）
 - Test: `tests/unit/gates/test_sampling_disclosure.py`（新建）
 
 **Interfaces:**
@@ -165,14 +168,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
       """Return (text[:limit], sampled_flag). Pure, no side effects."""
   ```
   各 check dict 加键 `"input_sampled": True`（仅发生过截取时加；未截取不加，保持输出精简）。gate_G5/gate_G6 顶层结果加 `"sampling_disclosed": "<n>/<m> checks ran on sampled input"`（任一 check 采样时）。
-- 消费方（dead-wire 防护）：`audit_layer.py` `_gate_passed` 旁新增
-  ```python
-  def _sampled_checks_summary(result: dict[str, object]) -> str | None:
-      checks = result.get("checks") or []
-      sampled = sum(1 for c in checks if isinstance(c, dict) and c.get("input_sampled"))
-      return f"{sampled}/{len(checks)} checks ran on sampled input" if sampled else None
-  ```
-  `run_audit_layer` 中 G4 结果处理处（`g4 = run_gate_g4(...)` 之后）将非 None summary 记 `log.info("audit_gate_sampling", skill=skill, summary=...)`。
+- 消费方（dead-wire 防护，**接真实读方**）：`gates/g7.py:186-194`（G7.13 重跑 gate_G6 比对结果的真实消费点）——重跑分支中若 `rerun.get("sampling_disclosed")` 非 None，追加 check note：`c.append({"id": "G7.13", ..., "note": ..., "sampling": rerun["sampling_disclosed"]})` 既有 note 拼接即可；`write_gate_marker` 持久化的 PASS JSON 自带该字段（操作员/G7 可见）。**不要接 audit_layer**（它只跑 G4，看不到该字段——plan review C3）。
 
 - [ ] **Step 1: 失败测试** — 用 `tests/fixtures/chapter-10-draft.md` 拼接成 >5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 `clip_with_disclosure` 断言 `(prefix, True)`；对 `check_timeline`（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 `input_sampled`；genre_config 用真实 `tests/fixtures` 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 `+N more` 计数行
 - [ ] **Step 2:** `uv run pytest tests/unit/gates/test_sampling_disclosure.py -q` → FAIL
@@ -212,19 +208,20 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 ### Task 4: R3 章号数值排序（F326）
 
 **Files:**
-- Create: helper 于 `src/shenbi/pipeline/chapter_loop.py`（import 方向已合法：gates→pipeline 惰性 import 先例 g6.py:124）
-- Modify: `src/shenbi/pipeline/cli.py:928`、`src/shenbi/pipeline/chapter_loop.py:391`、`src/shenbi/gates/g6.py:68`
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（helper 定义）+ `src/shenbi/pipeline/cli.py:928`、`chapter_loop.py:391`、`src/shenbi/gates/g6.py:68`（g6 侧用**惰性 import**，先例 g6.py:124，避免把 pipeline 重依赖图拉进 gates 顶层）
 - Test: `tests/unit/pipeline/test_chapter_sort.py`（新建）
 
 **Interfaces:**
 - Produces:
   ```python
-  def chapter_sort_key(name_or_num: str) -> tuple[int, str]:
-      """"chapter-10.md" / "10" → (10, "chapter-10.md")；非数字前缀稳定排后（按原字符串）。"""
+  def chapter_sort_key(name_or_num: str | Path) -> tuple[int, str]:
+      """"chapter-10.md" / "10" / Path → (10, 原字符串)；非数字稳定排后。"""
       import re
-      m = re.search(r"(\d+)", name_or_num)
-      return (int(m.group(1)), name_or_num) if m else (10**9, str(name_or_num))
+      s = str(name_or_num)
+      m = re.search(r"(\d+)", s)
+      return (int(m.group(1)), s) if m else (10**9, s)
   ```
+  （`str()` 先转——g6.py:68 传入的是 Path 对象。）
 - [ ] **Step 1:** 失败测试 — 用 `tests/fixtures/chapter-{2..10}-draft.md` 文件名列表断言 `sorted(names, key=chapter_sort_key)` 为 2,3,…,10；对 `cmd_chapters` 构造含 `"10"`/`"2"` 键的 chapter_states（真实 state 数据结构，pydantic model 构造）断言输出顺序
 - [ ] **Step 2:** → FAIL（现行字典序 10 在 2 前）
 - [ ] **Step 3:** 三处 `sorted(...)` 加 `key=chapter_sort_key`（cli.py:928 对 items 的 key 元素取 `chapter_sort_key(kv[0])`；g6.py:68 `sorted(ch_dir.glob("chapter-*.md"), key=chapter_sort_key)`；chapter_loop.py:391 同理）
@@ -240,7 +237,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 - Modify: `src/shenbi/trace/replay.py:20-49`
 - Test: `tests/unit/trace/test_replay.py`（扩展，沿用既有 TraceWriter fixture 构造法）
 
-**Interfaces:** `replay(round_dir: Path) -> list[TraceEvent]` 签名不变；新增行为：torn line / signature gap 截断时 `log.warning("replay_truncated", path=str(path), kept_chars=keep_chars, dropped_chars=len(raw) - keep_chars)`，模块顶部 `log = structlog.get_logger(__name__)`。
+**Interfaces:** `replay(round_dir: Path) -> list[TraceEvent]` 签名不变；新增行为：torn line / signature gap 截断时 `log.warning("replay_truncated", path=str(path), kept_chars=keep_chars, dropped_chars=len(raw) - keep_chars)`，模块顶部 `from shenbi.logging import get_logger` + `log = get_logger(__name__)`（仓内规范 import，非 structlog 直引）。
 - [ ] **Step 1:** 失败测试 — 复用既有 `test_replay_truncates_torn_tail` 构造法（TraceWriter 写合法链 + 追加撕裂行），structlog capture 断言 `replay_truncated` WARN 含 dropped_chars>0，且返回事件数正确
 - [ ] **Step 2:** → FAIL
 - [ ] **Step 3:** 实现（两个 `break` 点改为记录 reason 后 break，函数尾部 `if keep_chars < len(raw):` 处发 WARN 再 `safe_write`）

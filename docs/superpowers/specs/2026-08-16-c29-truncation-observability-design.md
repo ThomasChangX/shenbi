@@ -33,9 +33,9 @@
 
 ### R2 · 检查面采样披露（F459 + F235）
 - G6.4/G6.8/G6.9/G6.10、G5.3 的 `[:3000]`/`[:5000]` 截取点统一收到一个 `clip_with_disclosure()` helper（**命名避开 g5.py:186 既有局部变量 `sample_text`**）：返回文本 + sampled 标志；检查结果 JSON 增加 `input_sampled: true/false` 字段（命名对齐既有先例 `chapters_sampled`，g6_checks.py:307），PASS 报告如实披露
-- `input_sampled` 消费方（dead-wire 防护）：`audit_layer.py` 聚合审计报告时透传该字段（audit reports 含「N of M checks ran on sampled input」摘要行）
+- `input_sampled` 消费方（dead-wire 防护）：接真实读方——G7.13（重跑 gate_G6 的核对路径）透传 `sampling_disclosed` 进 check note；`write_gate_marker` 持久化 JSON 自带该字段（操作员可见）。plan review 修正：原案接 audit_layer 不可行（其只跑 G4，看不到 G5/G6 字段）
 - g4_genre_config 诊断改为全量错误计数 + 首详例（`errors[:5]` + `+N more`）
-- **验收**：长章 fixture 下检查结果含采样披露字段且 audit_layer 聚合可见；gate 输出 schema 同步（C8 词表单源协同）
+- **验收**：长章 fixture 下检查结果含采样披露字段且 G7.13 重跑路径/marker JSON 可见 `sampling_disclosed`；gate 输出 schema 同步（C8 词表单源协同）
 
 ### R2b · 计数型采样披露与采样策略成文（F459 补全面）
 - 文件计数/列表位置型采样同样披露：g5.py:147（outline `[:3]`）、:152（`[:8]`）、:187（char_dir `[:6]`）、:199（conflicts `[:10]`）、g6.py:223/233（chapters `[:15]`、catchphrases `[:3]`）、g6.py:294（constraints `[:10]`）——结果 JSON 加 `files_sampled: "3/12"` 类字段（仅输入文件型采样；conflicts/catchphrases 属**发现项封顶**而非输入采样，用 `findings_capped: "10/N"` 区分字段，避免误述）
