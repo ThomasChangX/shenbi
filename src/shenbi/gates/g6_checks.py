@@ -104,7 +104,18 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
 
     mf = [f"G6.4:{v}" for v in violations[:10]]
     if violations:
-        return ([], mf)
+        # C29 R2: disclose sampling even on the FAIL branch — the verdict was
+        # reached on clipped input, that is exactly when operators must know
+        return (
+            [
+                {
+                    "id": "G6.4",
+                    "s": GateStatus.WARN,
+                    **({"input_sampled": True} if timeline_sampled else {}),
+                }
+            ],
+            mf,
+        )
     return (
         [
             {

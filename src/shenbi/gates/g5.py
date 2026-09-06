@@ -203,6 +203,14 @@ def gate_G5(
                     conflicts.append(f"term_mix:{t1}({c1})/{t2}({c2})")
 
         if conflicts:
+            # C29 R2: disclose sampling on the FAIL branch too (audit parity)
+            c.append(
+                {
+                    "id": "G5.3",
+                    "s": GateStatus.WARN,
+                    **({"input_sampled": True} if (numeric_sampled or term_sampled) else {}),
+                }
+            )
             mf.extend([f"G5.3:{x}" for x in conflicts[:10]])
         else:
             c.append(

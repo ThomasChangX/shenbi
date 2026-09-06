@@ -203,6 +203,11 @@ def gate_G7(round_dir: str) -> str:
             if g6_sampling_disclosures:
                 note += "；" + "；".join(g6_sampling_disclosures)
             c.append({"id": "G7.13", "s": GateStatus.PASS, "note": note})
+        elif g6_sampling_disclosures:
+            # Sibling-marker failures must not silently drop sampling disclosure
+            c.append(
+                {"id": "G7.13", "s": GateStatus.WARN, "note": "；".join(g6_sampling_disclosures)}
+            )
     else:
         c.append({"id": "G7.13", "s": GateStatus.SKIP, "r": "no gate-markers directory"})
 

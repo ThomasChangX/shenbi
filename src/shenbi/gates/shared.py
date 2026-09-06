@@ -6,7 +6,7 @@ import these helpers to keep behavior identical to the legacy monolith.
 
 from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
-from shenbi.status import GateStatus
+from shenbi.status import GateResult, GateStatus
 
 log = get_logger(__name__)
 
@@ -216,7 +216,7 @@ def fail(
     extra: dict[str, Any] | None = None,
 ) -> str:
     """Return FAIL JSON string."""
-    result: dict[str, Any] = {
+    result: GateResult = {
         "gate": gid,
         "status": GateStatus.FAIL,
         "timestamp": datetime.now(UTC).isoformat(),
@@ -224,9 +224,10 @@ def fail(
         "blocked_action": blocked,
         "must_fix": must_fix,
     }
+    merged = dict(result)
     if extra:
-        result.update(extra)
-    return json.dumps(result, indent=2, ensure_ascii=False)
+        merged.update(extra)
+    return json.dumps(merged, indent=2, ensure_ascii=False)
 
 
 def clip_with_disclosure(text: str, limit: int) -> tuple[str, bool]:
@@ -247,23 +248,25 @@ def sampled_checks_summary(checks: list[dict[str, Any]]) -> str | None:
     sampled. C29 R2: consumed by gate_G5/gate_G6 result assembly (persisted via
     write_gate_marker and surfaced by G7.13 re-runs).
     """
-    sampled = sum(1 for chk in checks if chk.get("input_sampled"))
+    executed = [chk for chk in checks if chk.get("s") is not GateStatus.SKIP]
+    sampled = sum(1 for chk in executed if chk.get("input_sampled"))
     if not sampled:
         return None
-    return f"{sampled}/{len(checks)} checks ran on sampled input"
+    return f"{sampled}/{len(executed)} checks ran on sampled input"
 
 
 def passed(gid: str, checks: list[dict[str, Any]], extra: dict[str, Any] | None = None) -> str:
     """Return PASS JSON string."""
-    result: dict[str, Any] = {
+    result: GateResult = {
         "gate": gid,
         "status": GateStatus.PASS,
         "timestamp": datetime.now(UTC).isoformat(),
         "checks": checks,
     }
+    merged = dict(result)
     if extra:
-        result.update(extra)
-    return json.dumps(result, indent=2, ensure_ascii=False)
+        merged.update(extra)
+    return json.dumps(merged, indent=2, ensure_ascii=False)
 
 
 def parse_report_stem(stem: str, known_skills: "tuple[str, ...] | list[str]") -> str | None:

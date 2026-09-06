@@ -76,3 +76,37 @@ class TestGenreConfigErrorCount:
         m = re.search(r"\+(\d+) more errors \(total (\d+)\)", result_str)
         assert m, f"expected '+N more errors (total M)' disclosure in: {result_str}"
         assert int(m.group(2)) > 5  # F235: full count, not the old errors[:5] silent drop
+
+
+class TestGateLevelAggregation:
+    def test_gate_g6_emits_sampling_disclosed(self, tmp_path: Path):
+        """C29 R2: top-level sampling_disclosed summary on the gate result."""
+        import json as _json
+
+        from shenbi.gates.g6 import gate_G6
+
+        round_dir = tmp_path / "round"
+        project_dir = tmp_path / "project-output"
+        chapters = project_dir / "chapters"
+        chapters.mkdir(parents=True)
+        draft = (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
+        for n in (1, 2, 3):
+            (chapters / f"chapter-{n}.md").write_text(draft * 3, encoding="utf-8")
+
+        parsed = _json.loads(gate_G6("long-form", str(round_dir), str(project_dir)))
+        assert "sampling_disclosed" in parsed
+        assert "checks ran on sampled input" in parsed["sampling_disclosed"]
+        # at least one check carries the per-check flag
+        assert any(chk.get("input_sampled") for chk in parsed.get("checks", []))
+
+    def test_sampled_checks_summary_skips_skip_checks(self):
+        from shenbi.gates.shared import sampled_checks_summary
+        from shenbi.status import GateStatus
+
+        checks = [
+            {"id": "A", "s": GateStatus.PASS},
+            {"id": "B", "s": GateStatus.PASS, "input_sampled": True},
+            {"id": "C", "s": GateStatus.SKIP, "r": "n/a"},
+        ]
+        assert sampled_checks_summary(checks) == "1/2 checks ran on sampled input"
+        assert sampled_checks_summary([{"id": "A", "s": GateStatus.PASS}]) is None
