@@ -58,6 +58,9 @@
 - 成本落账：C10 合入后 `shenbi-cost report` 含失败 attempt token（对照 R4）
 - 回归：`just check` 全绿
 
+## 对应 plan
+- `docs/superpowers/plans/2026-09-07-c33-retry-taxonomy.md`（✅ ready）
+
 ## 回写
 - merged 关系（phase4 §3）：`T507 <- F363, F365, F533, F977, T506, T508, T510-T512, T514`
 - 上轮承接：#24 的重试面（F301/F354/T501/T502）与 #4 的 F8 重试放大随本簇关闭；T513（上轮 T503-T505 断链重立）归 C35 承接机制处置
