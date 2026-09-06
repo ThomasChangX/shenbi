@@ -48,8 +48,7 @@ Run: `grep -rn "input_over_budget_applying_priority_truncation\|\[\.\.\. truncat
 - [ ] **Step 1: 写失败测试**
 
 ```python
-# tests/pipeline/test_budgeted_truncate.py 追加
-import logging
+# tests/pipeline/test_budgeted_truncate.py 追加（同时改写既有 3 个测试为 tuple 解包；import 处补 `_INPUT_MAX_CHARS_TOTAL, _INPUT_MAX_CHARS_PER_FILE`）
 
 def test_marker_survives_per_file_cap():
     """F361: 标记必须在 cap 切片之后追加，不可被 32K cap 切掉。"""
@@ -156,7 +155,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 
 **Files:**
 - Create: helper 于 `src/shenbi/gates/shared.py`
-- Modify: `src/shenbi/gates/g5.py:154,187,189`、`src/shenbi/gates/g6.py:224,234,291`、`src/shenbi/gates/g6_checks.py:37`
+- Modify: `src/shenbi/gates/g5.py:154,189`、`src/shenbi/gates/g6.py:224,234,291`、`src/shenbi/gates/g6_checks.py:37`（g5.py:187 属计数型采样，归 Task 3，不在本 task）
 - Modify: `src/shenbi/gates/g4/genre_config.py:38-48`（全量错误计数）
 - Modify: `src/shenbi/gates/g7.py:186-194`（G7.13 重跑分支透传 sampling_disclosed）
 - Test: `tests/unit/gates/test_sampling_disclosure.py`（新建）
@@ -167,8 +166,8 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
   def clip_with_disclosure(text: str, limit: int) -> tuple[str, bool]:
       """Return (text[:limit], sampled_flag). Pure, no side effects."""
   ```
-  各 check dict 加键 `"input_sampled": True`（仅发生过截取时加；未截取不加，保持输出精简）。gate_G5/gate_G6 顶层结果加 `"sampling_disclosed": "<n>/<m> checks ran on sampled input"`（任一 check 采样时）。
-- 消费方（dead-wire 防护，**接真实读方**）：`gates/g7.py:186-194`（G7.13 重跑 gate_G6 比对结果的真实消费点）——重跑分支中若 `rerun.get("sampling_disclosed")` 非 None，追加 check note：`c.append({"id": "G7.13", ..., "note": ..., "sampling": rerun["sampling_disclosed"]})` 既有 note 拼接即可；`write_gate_marker` 持久化的 PASS JSON 自带该字段（操作员/G7 可见）。**不要接 audit_layer**（它只跑 G4，看不到该字段——plan review C3）。
+  各 check dict 加键 `"input_sampled": True`（仅发生过截取时加；未截取不加，保持输出精简）。顶层 `sampling_disclosed` 机制：`GateResult` TypedDict（`src/shenbi/status.py:85`，total=False）加可选键 `sampling_disclosed: str`；`gate_G5`/`gate_G6` 在最终 `passed()/fail()` 前聚合 checks 计算 `"n/m checks ran on sampled input"`——实现方式：两个 gate 函数结尾改为先构造 `result: GateResult` dict、加键、再 `json.dumps`（不走 `passed()` 的固定形状；或给 `shared.py` 加可选参数 `extra: GateResult | None = None` 合并——实现时任选其一，禁止改 `passed()/fail()` 既有调用方语义）。schema 文档同步：`docs/framework/gates.md` 增补 `sampling_disclosed`/`input_sampled` 字段说明（C8 词表单源协同）。
+- 消费方（dead-wire 防护，**接真实读方**）：`gates/g7.py:186-199`（G7.13 重跑 gate_G6 比对结果的真实消费点）——重跑分支后**扩写既有** `c.append({"id": "G7.13", "s": PASS, "note": ...})` 的 note（g7.py:197-199）：`note` 拼接 `f"；{rerun['sampling_disclosed']}"` 当 `rerun.get("sampling_disclosed")` 非 None（**不新增第二条 G7.13 check**，避免重复 check dict）；`write_gate_marker` 持久化的 PASS JSON 自带该字段（操作员/G7 可见）。**不要接 audit_layer**（它只跑 G4，看不到该字段——plan review C3）。
 
 - [ ] **Step 1: 失败测试** — 用 `tests/fixtures/chapter-10-draft.md` 拼接成 >5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 `clip_with_disclosure` 断言 `(prefix, True)`；对 `check_timeline`（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 `input_sampled`；genre_config 用真实 `tests/fixtures` 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 `+N more` 计数行
 - [ ] **Step 2:** `uv run pytest tests/unit/gates/test_sampling_disclosure.py -q` → FAIL
@@ -222,7 +221,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
       return (int(m.group(1)), s) if m else (10**9, s)
   ```
   （`str()` 先转——g6.py:68 传入的是 Path 对象。）
-- [ ] **Step 1:** 失败测试 — 用 `tests/fixtures/chapter-{2..10}-draft.md` 文件名列表断言 `sorted(names, key=chapter_sort_key)` 为 2,3,…,10；对 `cmd_chapters` 构造含 `"10"`/`"2"` 键的 chapter_states（真实 state 数据结构，pydantic model 构造）断言输出顺序
+- [ ] **Step 1:** 失败测试 — 用 `tests/fixtures/chapter-{2,3,9,10}-draft.md` 真实文件名列表断言 `sorted(names, key=chapter_sort_key)` 为数值序（10 排在 2 后）；fixture round 人工核对所需 2..10 全序由测试内生成器从这 4 个真实稿复制派生补齐缺失章号（G0.9 真实产物副本）；对 `cmd_chapters` 构造含 `"10"`/`"2"` 键的 chapter_states（真实 state 数据结构，pydantic model 构造）断言输出顺序
 - [ ] **Step 2:** → FAIL（现行字典序 10 在 2 前）
 - [ ] **Step 3:** 三处 `sorted(...)` 加 `key=chapter_sort_key`（cli.py:928 对 items 的 key 元素取 `chapter_sort_key(kv[0])`；g6.py:68 `sorted(ch_dir.glob("chapter-*.md"), key=chapter_sort_key)`；chapter_loop.py:391 同理）
 - [ ] **Step 4:** → PASS
