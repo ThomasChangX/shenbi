@@ -393,8 +393,10 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         try:
             commit_staging(project_dir, [target])
         except FileNotFoundError:
-            # Expected: file may have been cleared since the checkpoint was raised.
-            pass
+            # Expected: file may have been cleared since the checkpoint was
+            # raised — but stay observable (C30 audit-T1 M3): a checkpointed
+            # survivor wiped elsewhere surfaces here as a silent loss.
+            log.warning("staging_commit_target_missing", target=target, checkpoint=cp.type.value)
 
     # Clear staging dir regardless (remove any remaining staged files).
     from shenbi.pipeline.checkpoint import clear_staging
@@ -644,6 +646,9 @@ def cmd_review(args: argparse.Namespace) -> int:
             if decision == ReviewDecision.APPROVE:
                 _commit_staging_for_checkpoint(project_dir, cp)
             elif decision == ReviewDecision.MODIFY:
+                # Contract (C30 audit-T1 I2): human edits must land on the
+                # COMMITTED artifact path or travel via modify_feedback —
+                # edits made only to the staged copy are discarded with it.
                 from shenbi.pipeline.checkpoint import discard_staging
 
                 discard_staging(project_dir, reason="modify_baseline_human_edit")

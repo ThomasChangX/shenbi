@@ -135,6 +135,10 @@ def mark_staging_checkpointed(project_dir: Path | str, targets: list[str]) -> No
     The marker lives in the existing ``.staging-meta.json`` sidecar so the
     staged/committed boundary is derivable by a NEW process after a crash —
     the emergency cleanup predicate must not rely on in-process memory.
+
+    Concurrency: load-modify-write of the meta is NOT locked here; callers
+    (pipeline run loop, cmd_review) run under the project WriteLock, which
+    is a precondition — any future unlocked writer risks a lost mark.
     """
     project_dir = Path(project_dir)
     meta = _load_staging_meta(project_dir)
@@ -228,6 +232,20 @@ def clear_staging(project_dir: Path | str, *, preserve_checkpointed: bool = Fals
         shutil.rmtree(staging_dir)
         log.info("staging_cleared", staging_dir=str(staging_dir))
         return
+    meta_path = staging_dir / ".staging-meta.json"
+    # Fail CLOSED on an unreadable meta (audit-T1 I1): if the marker source
+    # exists but cannot be parsed, we cannot know what is checkpointed —
+    # destroying everything would silently void pending approves.
+    if meta_path.exists():
+        try:
+            json.loads(meta_path.read_text(encoding="utf-8"))
+        except (OSError, ValueError) as e:
+            log.error(
+                "staging_meta_unreadable_preserve_aborted",
+                path=str(meta_path),
+                error=str(e),
+            )
+            return
     keep = staging_checkpointed_targets(project_dir)
     if not keep:
         shutil.rmtree(staging_dir)

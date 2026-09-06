@@ -686,16 +686,25 @@ def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: i
     """Mark a staging-bearing checkpoint's staged products (C30 R1, F318).
 
     Called where a checkpoint over ``uses_staging`` products is raised: the
-    staged outputs (main artifact + contract-declared decisions sidecars)
-    are now pending an explicit review decision and must survive the
-    emergency (atexit) staging clear.
+    staged outputs are now pending an explicit review decision and must
+    survive the emergency (atexit) staging clear. Target set mirrors
+    ``_commit_staging_for_checkpoint`` (CHAPTER_MEMO: plan + sidecars;
+    STATE_SETTLE: all staged truth files + sidecars) so what survives an
+    emergency clear is exactly what an approve would commit.
     """
     if not step.uses_staging:
         return
     from shenbi.pipeline.checkpoint import STAGING_DIR, mark_staging_checkpointed
 
     targets: list[str] = []
-    if step.output_path:
+    if step.skill == "shenbi-state-settling":
+        # Mirror the commit path (cli.py I3): state-settle commits glob ALL
+        # staged truth files — the settling step has no single output_path
+        # (and raises STATE_SETTLE out-of-band, so step.checkpoint is None).
+        staging_truth = project_dir / STAGING_DIR / "truth"
+        if staging_truth.is_dir():
+            targets.extend(f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md")))
+    elif step.output_path:
         targets.append(resolve_chapter_path(step.output_path, chapter))
     targets.extend(staged_decisions_targets(project_dir, step.skill, chapter))
     staged = [t for t in targets if (project_dir / STAGING_DIR / t).exists()]
@@ -2299,7 +2308,10 @@ def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
         log.debug("staging_cleanup_skipped", reason="pending staging steps")
         return
 
-    clear_staging(project_dir)
+    # C30 C2: products already inside a pending review decision (marked
+    # checkpointed) must survive the resume-time residual cleanup too —
+    # an emergency-clear survivor would otherwise be wiped by `resume`.
+    clear_staging(project_dir, preserve_checkpointed=True)
     log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
 
 

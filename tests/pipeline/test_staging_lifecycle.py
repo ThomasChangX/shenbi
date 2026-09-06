@@ -51,9 +51,41 @@ def test_checkpointed_staging_survives_emergency(project: Path) -> None:
 
 
 def test_marker_survives_new_process_simulated_crash(project: Path) -> None:
+    # Cross-process predicate: the marker round-trips through the on-disk
+    # JSON (json.dumps -> json.loads), which is what a new process reads.
     mark_staging_checkpointed(project, [PLAN_TARGET])
-    # 谓词跨进程：meta 从磁盘重读（新进程视角）后标记仍在
     assert staging_checkpointed_targets(project) == {PLAN_TARGET}
+
+
+def test_state_settle_marking_covers_all_staged_truth(project: Path) -> None:
+    """C1: STATE_SETTLE marking mirrors the commit glob (truth/*.md), not just sidecars."""
+    from shenbi.pipeline.chapter_loop import CHAPTER_STEPS, _mark_staged_for_checkpoint
+
+    truth = project / "staging" / "truth"
+    truth.mkdir(parents=True)
+    (truth / "pending_hooks.md").write_text("# hooks\n", encoding="utf-8")
+    (truth / "current_state.md").write_text("# state\n", encoding="utf-8")
+    settling_step = next(s for s in CHAPTER_STEPS if s.skill == "shenbi-state-settling")
+    _mark_staged_for_checkpoint(project, settling_step, 1)
+    marked = staging_checkpointed_targets(project)
+    assert "truth/pending_hooks.md" in marked
+    assert "truth/current_state.md" in marked
+
+
+def test_resume_residual_cleanup_preserves_checkpointed(project: Path) -> None:
+    """C2: resume-time residual cleanup must not wipe emergency survivors."""
+    from shenbi.pipeline.chapter_loop import _cleanup_residual_staging
+
+    mark_staging_checkpointed(project, [PLAN_TARGET])
+    _cleanup_residual_staging(project, has_pending_staging=False)
+    assert staging_path(project, PLAN_TARGET).exists()
+
+
+def test_unreadable_meta_fails_closed_under_preserve(project: Path) -> None:
+    """I1: unreadable marker source aborts the preserve-clear instead of wiping."""
+    (project / "staging" / ".staging-meta.json").write_text("{not json", encoding="utf-8")
+    clear_staging(project, preserve_checkpointed=True)
+    assert staging_path(project, PLAN_TARGET).exists()
 
 
 def test_reject_clears_everything_including_checkpointed(project: Path) -> None:
