@@ -487,7 +487,7 @@
 | F974 | 归档 plan 完成状态未回填：68 份中 63 份复选框全未勾 | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F975 | 本轮分区清单缺口：Z9-c.files 漏登 d1/coverage.xml | error | M | 见 Z9-c | 见 zone-reports/Z9-c.md | 见 Z9-c | 见 Z9-c | 见 Z9-c | Z9-c 初审 | open |
 | F976 | 上轮 F140（P1）断链复现：shenbi-score 成功路径恒 exit 1（console script 对非 int 返回值；协调者实跑复现 95 分 PASS excellent 退出码 1 + stderr 混入 dict repr） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | closed (C-12 spec #38, PR #142) |
-| F977 | 上轮 T501（P1）断链复现：tenacity 重试层对 openai SDK 异常永不触发（_is_retryable 仅 httpx 两分支；issubclass 双 False 协调者复算）（T506 事实修正：openai SDK 默认 max_retries=2 隐式兜底存在，零重试表述修正为 tenacity 层永不触发但 SDK 层 2 次；机制与修复必要性不变） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | verified |
+| F977 | 上轮 T501（P1）断链复现：tenacity 重试层对 openai SDK 异常永不触发（_is_retryable 仅 httpx 两分支；issubclass 双 False 协调者复算）（T506 事实修正：openai SDK 默认 max_retries=2 隐式兜底存在，零重试表述修正为 tenacity 层永不触发但 SDK 层 2 次；机制与修复必要性不变） | 漏报 | P1 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | F978 | 跨轮 ID 命名空间碰撞：上轮与本轮 F 编号重叠 72/123（同 ID 不同 finding） | 漏报 | P2 | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
 | F979 | 本轮 ledger F967-F975 标题列未转录（title=ID 占位）——本批已回填 | 漏报 | M | 见 Z9-review-r2 | 见 zone-reports/Z9-review-r2.md | 见 Z9-review-r2 | 见 Z9-review-r2 | 见 Z9-review-r2 | Z9 复核r2 | open |
 | F224 | Layer B 字段级 reads 过滤全链路断裂：唯一生产调用点是不可达死代码（dd1fc62 回归） | error | P1 | 见 Z2-review-r1 | 见 zone-reports/Z2-review-r1.md | 见 Z2-review-r1 | 见 Z2-review-r1 | 见 Z2-review-r1 | Z2 复核r1 | closed (fixed in main — spec #28 修订剔除) |
@@ -517,9 +517,9 @@
 | F360 | append_dedup 契约更新模式全链路零实现：truth 累积文件每章被整文件覆写（或被无法看到现状的 LLM 幻觉重建） | error | P0 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | closed (fixed by PR #43) |
 | F361 | 输入 per-file 32K 截断静默无标记、无日志；且预算截断标记本身可被 32K cap 切掉 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
 | F362 | 共享审计上下文注入的 pending_hooks 静默截断至 3000 字符：6 个核心审计中 5 个对该文件无契约读取，截断副本是其唯一视角 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
-| F363 | 并行审计波重试完全绕过持久重试预算：retry_counts/retry_budget_consumed 对默认审计路径恒零记录 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
+| F363 | 并行审计波重试完全绕过持久重试预算：retry_counts/retry_budget_consumed 对默认审计路径恒零记录 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | F364 | 审计波把 6 个审计步全部记为 steps_done（含被级联跳过/失败者）；audit_results["audit_reports"] 记录 4 个永不存在的幽灵 group-\* 路径 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | closed (C-1 spec #27, PR #107) |
-| F365 | lifecycle 派发失败 / 两步 G4 失败仍标记 steps_done：并行 post-draft 分支无重试、无升级、无预算记账 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
+| F365 | lifecycle 派发失败 / 两步 G4 失败仍标记 steps_done：并行 post-draft 分支无重试、无升级、无预算记账 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | F366 | `_maybe_materialize_progress` 的 %5 节拍在标准 16 步流程中永不触发——三个 5 倍数计数点全部落在不调用物化的代码路径 | error | P2 | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
 | F367 | genesis.skills_done 非幂等 append：REJECT 重做后 17 步流程出现 18 条记录 | error | M | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | closed (C-13 spec #39, PR #145) |
 | F368 | retry_feedback 永不清理：成功路径只清 retry_counts；30 条修剪逻辑在死代码 compact_pipeline_state 内 | error | M | 见 Z3-review-r2 | 见 zone-reports/Z3-review-r2.md | 见 Z3-review-r2 | 见 Z3-review-r2 | 见 Z3-review-r2 | Z3 复核r2 | open |
@@ -558,7 +558,7 @@
 | F530 | state.token_usage 不入 checkpoint（to_dict/from_dict 均无该字段）: resume 后 print_token_summary 只报 post-resume 用量，与 ledger 累计永久分歧 | error | P2 | 见 Z5-review-r3 | 见 zone-reports/Z5-review-r3.md | 见 Z5-review-r3 | 见 Z5-review-r3 | 见 Z5-review-r3 | Z5 复核r3 | closed (fixed in main — spec #36 修订剔除) |
 | F531 | 并行审计波 legacy 路由并发 record_audit_outcome→TraceWriter 自我声明的 TOCTOU 使 trace.jsonl seq 重复+签名链分叉→G7 对合法运行误报 tamper（实跑复现） | 漏报 | P1 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C-11 spec #37, PR #140) |
 | F532 | write_safety 按前缀而非契约分类：review-resonance 契约写 audit_drift/resonance_trend 却被判 READ_ONLY 进并行波，且有测试锁死误分类 | 漏报 | P2 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C-32 fixed by PR #43 — spec #46 Rejected) |
-| F533 | rc=2（写审计 GATE_FAIL）与瞬时失败在所有重试决策不可区分——test-validation 生产数据即重试放大实证（与 F529/F501 一并修） | 漏报 | P2 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | open |
+| F533 | rc=2（写审计 GATE_FAIL）与瞬时失败在所有重试决策不可区分——test-validation 生产数据即重试放大实证（与 F529/F501 一并修） | 漏报 | P2 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | F534 | write-audit.jsonl 无 fsync/锁/时间戳——与 TraceWriter/safe_write 的 durability 纪律不对称 | 漏报 | P2 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C-11 spec #37, PR #140) |
 | F535 | G7 _read_only_events 遇中段坏行静默 break 截断事件列表：非法 JSON 行插入可绕过防篡改门（协调者逐字核实 except-break；跨区 gates/g7_trace.py） | 漏报 | P1 | 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C-13 spec #39, PR #145) |
 | F536 | 审计链无跨调用互斥：dispatch_with_write_audit 全程无锁，分钟级 pre→post 窗口内他方写入被错误归属 | 漏报 | P1| 见 Z5-review-r4 | 见 zone-reports/Z5-review-r4.md | 见 Z5-review-r4 | 见 Z5-review-r4 | 见 Z5-review-r4 | Z5 复核r4 | closed (C-11 spec #37, PR #140) |
@@ -729,15 +729,15 @@
 | T408 | 跨实例无效假锁（F525 同族） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | closed (C-11 spec #37, PR #140) |
 | T409 | spec R1 验收无集成护栏——dead-wire 两次复发的根因 | 漏报 | P2 | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | closed (fixed in main — spec #36 修订剔除) |
 | T410 | retry 盲区（失败尝试 usage 丢弃） | 漏报 | M | 见 T4 报告 | 见 thread-reports/T4.md | 见 T4 报告 | 见 T4 报告 | 见 T4 报告 | T4 线程 | closed (C-10 spec #36, PR #137) |
-| T506 | openai SDK 默认 max_retries=2 实测存在——F977 零重试表述修正；tenacity 死层修复不加约束会放大为 27 请求/任务（协调者 inspect.signature 证实 default=2 且 dispatch_helper 未覆写） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | verified |
-| T507 | 传输层三套退避互不协调（SDK 隐式/tenacity 死层/parallel 外层） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
-| T508 | audit_retry_count 无任何重置路径：ESCALATION 解决后首个再 BLOCKING 立即再升级永不再尝试 revision——与 machine.py all per-phase retry counters are reset 契约矛盾（协调者 grep 证实零重置） | 漏报 | P1 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | verified |
+| T506 | openai SDK 默认 max_retries=2 实测存在——F977 零重试表述修正；tenacity 死层修复不加约束会放大为 27 请求/任务（协调者 inspect.signature 证实 default=2 且 dispatch_helper 未覆写） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
+| T507 | 传输层三套退避互不协调（SDK 隐式/tenacity 死层/parallel 外层） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
+| T508 | audit_retry_count 无任何重置路径：ESCALATION 解决后首个再 BLOCKING 立即再升级永不再尝试 revision——与 machine.py all per-phase retry counters are reset 契约矛盾（协调者 grep 证实零重置） | 漏报 | P1 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | T509 | 截断 ### FILE: 输出实测被解析器静默接受并落盘 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C-12 spec #38, PR #142) |
-| T510 | 串行三层零退避重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
-| T511 | scoring 路径无界重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
-| T512 | 确定性失败无跨层失败分类——单步最多 6 次全价 LLM 调用验证必然失败结局 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T510 | 串行三层零退避重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
+| T511 | scoring 路径无界重试 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
+| T512 | 确定性失败无跨层失败分类——单步最多 6 次全价 LLM 调用验证必然失败结局 | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | T513 | 上轮 T503/T504/T505 断链重立（实质） | 漏报 | P2 | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
-| T514 | RETRY_JITTER=2.0 量级合规但为全仓唯一显式 jitter | 漏报 | M | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | open |
+| T514 | RETRY_JITTER=2.0 量级合规但为全仓唯一显式 jitter | 漏报 | M | 见 T5 报告 | 见 thread-reports/T5.md | 见 T5 报告 | 见 T5 报告 | 见 T5 报告 | T5 线程 | closed (C33 fixed by PR #164 — spec #47 Done) |
 | T601 | 并行审计波 _append_integrity_findings 无锁读改写：同章并发审计互相覆盖 .integrity-findings-NN.jsonl，G4 检查面静默丢失（实跑 5/5；协调者代码核验 :1039 零锁） | 漏报 | P1 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | closed (C-11 spec #37, PR #140) |
 | T602 | TokenLedger 每实例新建锁=零互斥死锁原语 + state.token_usage += 绕过实例锁（潜伏态） | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | closed (C-11 spec #37, PR #140) |
 | T603 | safe_write M5 回退 1s 后无条件夺存活锁，互斥破坏（实跑复现；Windows/网络 FS 面） | 漏报 | P2 | 见 T6 报告 | 见 thread-reports/T6.md | 见 T6 报告 | 见 T6 报告 | 见 T6 报告 | T6 线程 | closed (C-11 spec #37, PR #140) |
