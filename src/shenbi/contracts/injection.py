@@ -8,8 +8,6 @@ cannot close the wrapper or smuggle a ```verdict fence.
 
 from __future__ import annotations
 
-import re
-
 
 def escape_attr(value: str) -> str:
     """Escape a value for use inside a double-quoted XML-ish attribute.
@@ -37,8 +35,3 @@ def wrap_untrusted_source(path: str, content: str | None = None) -> str:
     if content is None:
         return f'<untrusted-source path="{attr}"/>'
     return f'<untrusted-source path="{attr}">\n{escape_content(content)}\n</untrusted-source>'
-
-
-def is_untrusted_boundary(text: str) -> bool:
-    """True when *text* carries the untrusted-source boundary marker."""
-    return bool(re.search(r"^<untrusted-source\s+path=", text, re.MULTILINE))

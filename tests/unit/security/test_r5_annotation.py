@@ -5,7 +5,7 @@ wrapped (escaped) content.
 
 from pathlib import Path
 
-from shenbi.contracts.injection import is_untrusted_boundary, wrap_untrusted_source
+from shenbi.contracts.injection import wrap_untrusted_source
 from shenbi.gates.g4.verdict_fence import match_verdict_scoped
 
 CHAPTER_FIXTURE = Path("tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md")
@@ -26,8 +26,8 @@ def test_manifest_form_self_closing():
 def test_both_faces_share_boundary_marker():
     pipeline_block = wrap_untrusted_source("outline/chapter-1.md", UNTRUSTED)
     t1_manifest = wrap_untrusted_source("outline/chapter-1.md")
-    assert is_untrusted_boundary(pipeline_block)
-    assert is_untrusted_boundary(t1_manifest)
+    assert pipeline_block.startswith('<untrusted-source path="outline/chapter-1.md">')
+    assert t1_manifest.startswith('<untrusted-source path="outline/chapter-1.md"')
 
 
 def test_fenced_verdict_parser_inert_on_wrapped_content():
