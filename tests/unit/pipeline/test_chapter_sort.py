@@ -10,8 +10,6 @@ from shenbi.pipeline.chapter_loop import chapter_sort_key
 
 pytestmark = pytest.mark.unit
 
-_FIXTURES = Path(__file__).resolve().parents[2] / "fixtures"
-
 
 def test_sort_key_numeric_order():
     names = [f"tests/fixtures/chapter-{n}-draft.md" for n in (2, 3, 4, 5, 6, 7, 8, 9, 10)]

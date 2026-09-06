@@ -118,7 +118,7 @@ def test_budgeted_truncate_itself_is_pure_no_warn():
 
     texts_in = {"chapter-N.md": "X" * 40000, "archive-notes.md": "Y" * 1000}
     with capture_logs() as logs:
-        _out, records = _budgeted_truncate(texts_in, 20000)
+        _budgeted_truncate(texts_in, 20000)
     warns = [e for e in logs if e.get("log_level") == "warning" and e["event"] == "input_truncated"]
     # helper itself is pure: the WARN fires at the dispatch call boundary;
     # assert the contract here via _cap_single (under-budget path)

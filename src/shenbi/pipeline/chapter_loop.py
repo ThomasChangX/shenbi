@@ -388,8 +388,6 @@ def chapter_sort_key(name_or_num: str | Path) -> tuple[int, str]:
     chapter number — a hypothetical "chapter-rev2-10.md" would sort by 2 (no
     such producer exists today).
     """
-    import re
-
     s_val = str(name_or_num)
     m = re.search(r"(\d+)", s_val)
     return (int(m.group(1)), s_val) if m else (10**9, s_val)
