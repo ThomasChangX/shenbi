@@ -27,4 +27,10 @@ def _importtime_cumulative_us(dotted: str) -> int:
 
 
 def test_gates_cli_top_level_import_under_50ms() -> None:
-    assert _importtime_cumulative_us("cli") < 50_000
+    """Min of 3 samples: single-shot importtime is load-sensitive (observed
+    3.97ms typical but 57ms under pytest-xdist worker contention on main,
+    post-PR #153). The min approximates the unloaded cold-import cost, which
+    is the quantity this perf bound pins; max/median would re-introduce
+    CI-machine-load flakiness the bound cannot control.
+    """
+    assert min(_importtime_cumulative_us("cli") for _ in range(3)) < 50_000
