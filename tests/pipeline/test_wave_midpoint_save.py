@@ -9,21 +9,20 @@ from pathlib import Path
 
 import shenbi.pipeline.parallel_dispatch as pd
 from shenbi.pipeline.dispatch_helper import DispatchResult
-from shenbi.pipeline.parallel_dispatch import ReviewTask, dispatch_reviews_parallel
 
 OK_SKILL = "shenbi-review-group-factual"
 FAILING_SKILL = "shenbi-review-group-plan"
 
 
-def _tasks(tmp_path: Path) -> list[ReviewTask]:
+def _tasks(tmp_path: Path) -> list[pd.ReviewTask]:
     return [
-        ReviewTask(
+        pd.ReviewTask(
             skill=OK_SKILL,
             project_dir=tmp_path,
             prompt="audit ok",
             output_path="audits/chapter-1-factual.md",
         ),
-        ReviewTask(
+        pd.ReviewTask(
             skill=FAILING_SKILL,
             project_dir=tmp_path,
             prompt="audit fail",
@@ -46,7 +45,7 @@ def test_partial_wave_results_survive_via_callback(tmp_path: Path, monkeypatch) 
     monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch_skill)
 
     completed: list[int] = []
-    results = dispatch_reviews_parallel(
+    results = pd.dispatch_reviews_parallel(
         _tasks(tmp_path), on_task_complete=lambda i, r: completed.append(i)
     )
     assert completed == [0]  # success called back; failure NOT called back
@@ -60,7 +59,7 @@ def test_callback_not_required(tmp_path: Path, monkeypatch) -> None:
         "dispatch_skill",
         lambda skill, *a, **k: DispatchResult(True, 0, "ok", ""),
     )
-    results = dispatch_reviews_parallel(_tasks(tmp_path))  # default None: no crash
+    results = pd.dispatch_reviews_parallel(_tasks(tmp_path))  # default None: no crash
     assert all(r.success for r in results)
 
 
@@ -75,7 +74,7 @@ def test_callback_exception_does_not_break_wave(tmp_path: Path, monkeypatch) -> 
     def bad_callback(i, r):
         raise RuntimeError("callback blew up")
 
-    results = dispatch_reviews_parallel(_tasks(tmp_path), on_task_complete=bad_callback)
+    results = pd.dispatch_reviews_parallel(_tasks(tmp_path), on_task_complete=bad_callback)
     assert all(r.success for r in results)  # wave survives a broken callback
 
 
@@ -94,5 +93,6 @@ def test_replay_scope_limited_to_unfinished(tmp_path: Path, monkeypatch) -> None
 
 def test_empty_tasks_no_callback_invocation(tmp_path: Path) -> None:
     called: list[int] = []
-    assert dispatch_reviews_parallel([], on_task_complete=lambda i, r: called.append(i)) == []
+    results = pd.dispatch_reviews_parallel([], on_task_complete=lambda i, r: called.append(i))
+    assert results == []
     assert called == []
