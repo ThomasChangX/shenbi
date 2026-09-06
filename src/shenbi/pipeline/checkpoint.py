@@ -123,21 +123,131 @@ def commit_staging(project_dir: Path | str, target_paths: list[str]) -> list[Pat
             raise
         committed.append(dest)
         log.info("staging_committed", target=target_path, dest=str(dest))
+    if committed:
+        _unmark_checkpointed(project_dir, target_paths)
     log.info("staging_commit_batch", count=len(committed))
     return committed
 
 
-def clear_staging(project_dir: Path | str) -> None:
-    """Remove all staging files (used on review reject).
+def mark_staging_checkpointed(project_dir: Path | str, targets: list[str]) -> None:
+    """Mark staged targets as having entered a checkpoint (C30 R1, F318).
+
+    The marker lives in the existing ``.staging-meta.json`` sidecar so the
+    staged/committed boundary is derivable by a NEW process after a crash —
+    the emergency cleanup predicate must not rely on in-process memory.
+    """
+    project_dir = Path(project_dir)
+    meta = _load_staging_meta(project_dir)
+    changed = False
+    for target in targets:
+        entry = meta.get(target)
+        if entry is None:
+            entry = {}
+            meta[target] = entry
+        if entry.get("checkpointed") != "true":
+            entry["checkpointed"] = "true"
+            changed = True
+    if changed:
+        meta_path = project_dir / STAGING_DIR / ".staging-meta.json"
+        meta_path.parent.mkdir(parents=True, exist_ok=True)
+        safe_write(meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"))
+        log.info("staging_marked_checkpointed", count=len(targets))
+
+
+def staging_checkpointed_targets(project_dir: Path | str) -> set[str]:
+    """Return the set of staged targets marked as checkpoint-entered."""
+    meta = _load_staging_meta(Path(project_dir))
+    return {t for t, entry in meta.items() if entry.get("checkpointed") == "true"}
+
+
+def _unmark_checkpointed(project_dir: Path, targets: list[str]) -> None:
+    """Drop the checkpoint marker for committed targets (meta rewrite, best-effort)."""
+    meta = _load_staging_meta(project_dir)
+    changed = False
+    for target in targets:
+        entry = meta.get(target)
+        if entry is not None and entry.pop("checkpointed", None) is not None:
+            changed = True
+            if not entry:
+                meta.pop(target, None)
+    if changed:
+        meta_path = project_dir / STAGING_DIR / ".staging-meta.json"
+        if meta:
+            meta_path.parent.mkdir(parents=True, exist_ok=True)
+            safe_write(meta_path, json.dumps(meta, ensure_ascii=False, indent=2).encode("utf-8"))
+        elif meta_path.exists():
+            meta_path.unlink()
+            _prune_empty_dirs(project_dir, meta_path.parent)
+    log.debug("staging_unmarked_checkpointed", count=len(targets))
+
+
+def _prune_empty_dirs(project_dir: Path, leaf: Path) -> None:
+    """Remove now-empty staging subdirectories up to (not including) staging root."""
+    staging_root = project_dir / STAGING_DIR
+    node = leaf
+    while node != staging_root and staging_root in node.parents:
+        try:
+            node.rmdir()
+        except OSError:
+            break
+        node = node.parent
+
+
+def discard_staging(project_dir: Path | str, reason: str) -> None:
+    """Explicitly discard all staged products with an audit log (C30 R1, F323).
+
+    Used on the MODIFY baseline decision: human edits become the baseline and
+    the old staged LLM output is discarded through the same audited predicate
+    as reject — not a third silent cleanup path.
+    """
+    project_dir = Path(project_dir)
+    meta = _load_staging_meta(project_dir)
+    log.info("staging_discarded", reason=reason, targets=sorted(meta.keys()))
+    clear_staging(project_dir)
+
+
+def clear_staging(project_dir: Path | str, *, preserve_checkpointed: bool = False) -> None:
+    """Remove staging files (used on review reject / modify discard).
 
     Uses shutil.rmtree because deletion cannot be routed through safe_write
     (which only creates/replaces files). The file is on the purity-lint
     transitional allowlist for this reason.
+
+    C30 R1 (F318): with ``preserve_checkpointed=True`` (emergency/atexit
+    path), targets marked via :func:`mark_staging_checkpointed` SURVIVE —
+    they are pending an explicit review decision, destroying them would
+    silently void an approve. Explicit decision paths (reject, modify
+    baseline) call without the flag and clear everything.
     """
     project_dir = Path(project_dir)
     staging_dir = project_dir / STAGING_DIR
-    if staging_dir.exists():
+    if not staging_dir.exists():
+        log.debug("staging_clear_noop", reason="staging dir does not exist")
+        return
+    if not preserve_checkpointed:
         shutil.rmtree(staging_dir)
         log.info("staging_cleared", staging_dir=str(staging_dir))
-    else:
-        log.debug("staging_clear_noop", reason="staging dir does not exist")
+        return
+    keep = staging_checkpointed_targets(project_dir)
+    if not keep:
+        shutil.rmtree(staging_dir)
+        log.info("staging_cleared_preserving_checkpointed", preserved=0)
+        return
+    removed = 0
+    for path in sorted(staging_dir.rglob("*"), reverse=True):
+        if path.is_dir():
+            continue
+        rel = path.relative_to(staging_dir).as_posix()
+        if rel in keep or rel == ".staging-meta.json":
+            continue
+        path.unlink()
+        removed += 1
+    # Prune directories that only held removed files (bottom-up).
+    for node in sorted(
+        (p for p in staging_dir.rglob("*") if p.is_dir()), key=lambda p: len(p.parts), reverse=True
+    ):
+        try:
+            next(node.iterdir())
+        except StopIteration:
+            node.rmdir()
+    log.info("staging_cleared_preserving_checkpointed", preserved=len(keep), removed=removed)

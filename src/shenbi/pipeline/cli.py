@@ -636,10 +636,17 @@ def cmd_review(args: argparse.Namespace) -> int:
                     return 1
                 feedback = feedback_path.read_text(encoding="utf-8")
 
-            # Staging handling (spec section 2.7): approve/modify commits
-            # staging files to their final paths; reject clears staging.
-            if decision in (ReviewDecision.APPROVE, ReviewDecision.MODIFY):
+            # Staging handling (spec section 2.7): approve commits staging
+            # files to their final paths; reject clears staging. C30 F323:
+            # MODIFY = human edits are the baseline — the old staged LLM
+            # output is explicitly discarded (same audited predicate as
+            # reject), NOT committed and then overwritten by re-dispatch.
+            if decision == ReviewDecision.APPROVE:
                 _commit_staging_for_checkpoint(project_dir, cp)
+            elif decision == ReviewDecision.MODIFY:
+                from shenbi.pipeline.checkpoint import discard_staging
+
+                discard_staging(project_dir, reason="modify_baseline_human_edit")
             elif decision == ReviewDecision.REJECT:
                 from shenbi.pipeline.checkpoint import clear_staging
 

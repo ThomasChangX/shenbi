@@ -682,6 +682,27 @@ def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None)
     return targets
 
 
+def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: int) -> None:
+    """Mark a staging-bearing checkpoint's staged products (C30 R1, F318).
+
+    Called where a checkpoint over ``uses_staging`` products is raised: the
+    staged outputs (main artifact + contract-declared decisions sidecars)
+    are now pending an explicit review decision and must survive the
+    emergency (atexit) staging clear.
+    """
+    if not step.uses_staging:
+        return
+    from shenbi.pipeline.checkpoint import STAGING_DIR, mark_staging_checkpointed
+
+    targets: list[str] = []
+    if step.output_path:
+        targets.append(resolve_chapter_path(step.output_path, chapter))
+    targets.extend(staged_decisions_targets(project_dir, step.skill, chapter))
+    staged = [t for t in targets if (project_dir / STAGING_DIR / t).exists()]
+    if staged:
+        mark_staging_checkpointed(project_dir, staged)
+
+
 def _handle_failure(
     state: PipelineState,
     step: ChapterStep,
@@ -1235,6 +1256,7 @@ def _advance(
                 artifact=artifact,
                 context=f"Review {step.name} for chapter {chapter}",
             )
+            _mark_staged_for_checkpoint(project_dir, step, chapter)
             return True
 
     if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
@@ -2768,6 +2790,7 @@ def _run_chapter_step_impl(
             artifact=settling_artifact,
             context=f"Review {settling_step.name} for chapter {chapter}",
         )
+        _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
         return True
 
     # Context assembly (step 4): materialize package before chapter-drafting.
