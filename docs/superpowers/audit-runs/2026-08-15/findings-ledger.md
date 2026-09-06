@@ -46,7 +46,7 @@
 | F102 | cmd_start/cmd_finalize 把 str(None)="None" 当 project_dir 传给 G5，按 AGENTS.md 文档用法 G5 恒 FAIL | error | P1 | phase_runner.py:117,307; gates/g5.py:115,210,216-219 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (C-12 spec #38, PR #142) |
 | F103 | scoring T1 G3 集成 `except Exception: pass` 静默吞掉门禁失败，门禁可被静默跳过 | error | P1 | scoring.py:356-362 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (fixed by PR #142) |
 | F104 | 18 个 rubric 的 Dimension Applicability 表格式不被 load_applicability 解析，rubric 承诺的"N/A 豁免 + 权重重归一"静默不生效 | error | P1 | scoring.py:73-99; tests/tiers/t1-skill/shenbi-worldbuilding/rubric.md:24-33 等 18 文件 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (C-1 spec #27, PR #107) |
-| F105 | phase 参数未净化直接拼进 phase-state 文件路径，`../` 可穿越写出 round_dir（=已登记 F158，未修复） | security | P1 | phase_runner.py:37,46,365-366 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | verified |
+| F105 | phase 参数未净化直接拼进 phase-state 文件路径，`../` 可穿越写出 round_dir（=已登记 F158，未修复） | security | P1 | phase_runner.py:37,46,365-366 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (fixed by PR #63) |
 | F106 | run_gate 未捕获 subprocess.TimeoutExpired（60s），gate 超时导致整机 traceback 崩溃而非 BLOCKED | error | P2 | phase_runner.py:87-99 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (C-12 spec #38, PR #142) |
 | F107 | --gate-only 模式裸 json.loads 子进程 stdout + `--type` 缺值 IndexError，crash 而非结构化错误 | error | P2 | scoring.py:302-313 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | closed (C-12 spec #38, PR #142) |
 | F108 | error_guidance 全部 doc_url 指向不存在的 docs；action 引用不存在的 tests/build_registry.py；SHENBI_SUBAGENT_TIMEOUT 无人读取 | error | P2 | error_guidance.py:21-52 | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | 见 zone-reports/Z1.md | Z1 初审 | open |
@@ -69,7 +69,7 @@
 | F305 | 并行审计波零 G3/G4：requires_independent 技能（review-resonance）在默认流不跑 G3，审计输出无结构校验 | error | P1 | chapter_loop.py:2541-2656; write_safety.py:44-46 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | closed (spec #8 gate effectiveness, PR #63) |
 | F306 | 快照 ring-buffer 全文备份永不命中：零填充模式与非填充章节文件名不匹配，修订回滚无法恢复章节 | error | P2 | snapshot_diff.py:112-115 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | verified |
 | F307 | DriftEscalationError 被吞：ESCALATE 级漂移的 pause-for-review 被 except Exception 降级为 warning（裁决降 P2：F376 证明触发面为零；F376 修复后回升 P1） | error | P2| chapter_loop.py:2060-2066, 2757-2765 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | closed (fixed in main — spec #32 修订剔除) |
-| F308 | `<` 转义 no-op：`replace("<", "\u003c")` 恒等替换，防 `</document>` 注入防御为死代码 | security | P1 | dispatch_helper.py:747 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | verified |
+| F308 | `<` 转义 no-op：`replace("<", "\u003c")` 恒等替换，防 `</document>` 注入防御为死代码 | security | P1 | dispatch_helper.py:747 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | closed (fixed by PR #161) |
 | F309 | 并行审计失败静默放行：重试耗尽后无 escalation，blocking_found 基于 stdout 行首扫描（API 路径 stdout 为 JSON → 恒 False），未审计章节被标记 complete | error | P1 | parallel_dispatch.py:210-221; chapter_loop.py:2636-2642 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | closed (C-1 spec #27, PR #107) |
 | F310 | SCR 缓存无失效：章节修订后 extract_scr 返回修订前缓存（注释声称 "fresh"） | error | P1 | scr_extractor.py:428-433; chapter_loop.py:3072-3075 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | closed (C-30 spec #44, PR #158) |
 | F311 | curated 文档章节备忘错位到 P7 且 P1 显示"未产出"；且 curated 文件无任何 skill 消费者（step-3 写入为死输出） | error | P2 | context_curation.py:143-154, 453-464; skills/shenbi-chapter-drafting/SKILL.md:14-15 | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | 见 zone-reports/Z3.md | Z3 初审 | open (P1 错位已修 PR #120 链；零消费面视 C37 R0 裁决) |
@@ -459,7 +459,7 @@
 | F1158 | 43 个失败样本全部 stale：10 个测试 key 与当前 58 个 @given 函数 digest 0/10 匹配，本地重放价值为零 | error | P2 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
 | F1159 | 「Examples ARE committed」回归重放机制双重死亡：gitignore 压制使样本从未入库（CI/新克隆零重放），叠加上轮 F1318（M）未修 | error | P1 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
 | F1160 | .benchmarks 基准历史为单次冒烟 autosave：无真实性能基准套件，无跨运行可比性；与 tests/baselines/ 是两套无关体系 | optimization | P2 | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
-| F1161 | 本地会话日志残留 Google OAuth 流完整 URL（一次性 state/nonce/code_challenge 参数），无清理策略 | security | M | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | open |
+| F1161 | 本地会话日志残留 Google OAuth 流完整 URL（一次性 state/nonce/code_challenge 参数），无清理策略 | security | M | 见 Z11-b | 见 zone-reports/Z11-b.md | 见 Z11-b | 见 Z11-b | 见 Z11-b | Z11-b 初审 | closed (fixed by PR #161) |
 | F121 | T1 marker 读写协议错配：bug-hunt/clean 的 G4 marker 永不存在，marker 强制对 2/3 测试类型不可满足（裁决升 P1：F131 实跑证明 codex 生产路径恒传 test-type 必经死路） | error | P1| 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | closed (C-1 spec #27, PR #107) |
 | F122 | filter_dimensions_by_test_type 的 scope 号码抽取对区间只取端点："Shared audit (3-7)" → {3,7}，漏 4/5/6 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | closed (C-1 spec #27, PR #107) |
 | F123 | phase_runner main() 位置参数与 flag 共用 args 无解析器：缺位时 flag token 被绑定为 phase/skill 并写出垃圾状态文件 | error | P2 | 见 Z1-review-r1 | 见 zone-reports/Z1-review-r1.md | 见 Z1-review-r1 | 见 Z1-review-r1 | 见 Z1-review-r1 | Z1 复核r1 | closed (C-12 spec #38, PR #142) |
@@ -652,13 +652,13 @@
 | T1001 | D1 行号订正在归档 spec 中再次漂移（第三次，较上轮恶化 +22→+43 行，PR #42 dispatch_helper +61 行所致）；修复动作在、修复效果失效 | 部分回归 | P2 | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
 | T1002 | INDEX:91 torch "待 #3 follow-up" 注记过期——已由 PR #42（ac46663）重建 INDEX 时顺带移除，grep torch=0 命中 | 修复确认 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | closed（顺带修复） |
 | T1003 | F860 台账文本"12 patch"与磁盘 13 patch 不符（17 失败计数精确无误，纯清点笔误） | 文档漂移 | M | 见 T10 报告 | 见 thread-reports/T10.md | 见 T10 报告 | 见 T10 报告 | 见 T10 报告 | T10 线程 | open |
-| T1201 | 审计报告决策解析器无作用域 first-match：被审章节文本经证据引用伪造 G4 判定与共振分数（协调者独立 PoC 复现：真实判定阻断→gate 记 v=通过 PASS） | security | P1 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | verified |
-| T1202 | [path-context] carrier 行首行优先 vs 机器行末尾追加的优先级倒置：反馈通道内容可覆盖机器上下文重定向占位符读写 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1201 | 审计报告决策解析器无作用域 first-match：被审章节文本经证据引用伪造 G4 判定与共振分数（协调者独立 PoC 复现：真实判定阻断→gate 记 v=通过 PASS） | security | P1 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | closed (fixed by PR #161) |
+| T1202 | [path-context] carrier 行首行优先 vs 机器行末尾追加的优先级倒置：反馈通道内容可覆盖机器上下文重定向占位符读写 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | closed (fixed by PR #161) |
 | T1203 | run_pipeline.sh STATUS/PHASE 被 agent stderr 日志预览污染（崩溃路径无机器状态行） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
-| T1204 | symlink 重定向契约写逃出 project_dir（真实 _write_parsed_outputs 实证，上轮 T12-05 首证） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1204 | symlink 重定向契约写逃出 project_dir（真实 _write_parsed_outputs 实证，上轮 T12-05 首证） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | closed (fixed by PR #161) |
 | T1205 | F1013 证据升级实证：run_pipeline.sh 的 PROJECT_DIR 插值可执行任意 Python 代码（括号平衡前提）+ 朴素注入静默失败 + 同模式脚本清单 | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
-| T1206 | document name 属性注入全链实证（上轮 T12-01 未修，wildcard 接受含引号文件名） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
-| T1207 | env 全量继承使 SHENBI_LLM_API_KEY 可达 workspace-write codex 子进程（上轮 T12-04 未修复核） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | open |
+| T1206 | document name 属性注入全链实证（上轮 T12-01 未修，wildcard 接受含引号文件名） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | closed (fixed by PR #91) |
+| T1207 | env 全量继承使 SHENBI_LLM_API_KEY 可达 workspace-write codex 子进程（上轮 T12-04 未修复核） | security | P2 | 见 T12 报告 | 见 thread-reports/T12.md | 见 T12 报告 | 见 T12 报告 | 见 T12 报告 | T12 线程 | closed (fixed by PR #161) |
 | T1101 | 压力测试纯 prompt 无 harness——6 个 prompt md 零 CI/harness 引用，压力维度不可执行 | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1102 | benchmark 设施配置齐全但零用例 + norecursedirs 拼写不匹配（benchmarks vs benchmark） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
 | T1103 | gate-outputs 基线无消费者、G6/G7 再生路径已死（tests/rounds 不存在） | 可测性缺陷 | P2 | 见 T11 报告 | 见 thread-reports/T11.md | 见 T11 报告 | 见 T11 报告 | 见 T11 报告 | T11 线程 | open |
@@ -713,8 +713,8 @@
 | T303 | AGENTS.md 示例字段自身零命中即漂移源 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | closed (fixed in main — spec #28 修订剔除) |
 | T304 | 模板自愈环被 replace 写方首写即毁（机制根因） | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | closed (fixed by PR #43) |
 | T305 | 非 md/json 扩展静默直通不过滤 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | closed (C-13 spec #39, PR #145) |
-| T306 | 注入无过滤标注 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
-| T307 | T1 dispatch 面（shenbi-dispatch→codex exec）无任何 reads 注入、结构性无过滤 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | open |
+| T306 | 注入无过滤标注 | 漏报 | M | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | closed (fixed by PR #161) |
+| T307 | T1 dispatch 面（shenbi-dispatch→codex exec）无任何 reads 注入、结构性无过滤 | 漏报 | P2 | 见 T3 报告 | 见 thread-reports/T3.md | 见 T3 报告 | 见 T3 报告 | 见 T3 报告 | T3 线程 | closed (fixed by PR #161) |
 | T206 | worldbuilding.py 声称 Auto-generated 但无生成器、不在 CI diff 范围——kind 手改变异实验零检测（唯一编辑面声明实质反例，协调者抽验） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
 | T207 | 迁移表 CLASSIFICATION 自称 authoritative，与 frontmatter 漂移 18 格（2 kind+16 IO，11 技能），无对账 lint | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |
 | T208 | 存在性双向 closure 零门禁（G0.15 只查 G4_CHECKER_SKILLS 单向；deps/index.md/REGISTRY 三源无门禁） | 漏报 | P2 | 见 T2 报告 | 见 thread-reports/T2.md | 见 T2 报告 | 见 T2 报告 | 见 T2 报告 | T2 线程 | open |

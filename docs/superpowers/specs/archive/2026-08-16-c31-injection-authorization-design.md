@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design（Revised 2026-09-07 · SDD #45 事实核实：F105 已修 PR #63 剔除、T1206 已修 PR #91 维持让渡、T1204 降级防御性收口、F308 行号 747→872） | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #161)（Revised 2026-09-07 · SDD #45 事实核实：F105 已修 PR #63 剔除、T1206 已修 PR #91 维持让渡、T1204 降级防御性收口、F308 行号 747→872） | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C31）| **依赖:** 无硬前置；上轮 T12-01/T12-04/T12-05 未修复核在本簇重立（T1206/T1207/T1204）| **范围:** 审计报告判定解析、_write_parsed_outputs 路径校验、dispatch env、phase 参数净化、capability_fs、会话日志 | **核心洞察:** 被审内容可以伪造审查者的判定（T1201 PoC：章节文本经证据引用伪造 G4 PASS 与共振分数）——信任边界在"产物内容"与"框架判定"之间从未建立
 
 # C31 · 注入/越权安全面修复（injection-authorization）
