@@ -21,10 +21,12 @@ from shenbi.contracts.graph import dag_key
 from shenbi.gates.shared import (
     PROJECT,
     TESTS,
+    clip_with_disclosure,
     find_report,
     fail,
     jload,
     passed,
+    sampled_checks_summary,
 )
 from shenbi.contracts.thresholds import T2_PASS
 
@@ -149,9 +151,11 @@ def gate_G5(
             str, list[tuple[str, int]]
         ] = {}  # canonical_key -> set of (file, value)
         num_pat = re.compile(r"(\d+)\s*(个|种|人|章|次|处|条|名|位|倍|%|万|千|百)")
+        numeric_sampled = False  # C29 R2 (F459): disclose G5.3's 5000-char clips
         for wf in output_files[:8]:  # cap at 8 files for speed
             try:
-                ct = wf.read_text(encoding="utf-8")[:5000]
+                ct, _s = clip_with_disclosure(wf.read_text(encoding="utf-8"), 5000)
+                numeric_sampled = numeric_sampled or _s
                 for m in num_pat.finditer(ct):
                     val = int(m.group(1))
                     unit = m.group(2)
@@ -182,11 +186,14 @@ def gate_G5(
             ("庶民", "百姓"),
             ("穿越者", "穿越客"),
         ]
+        term_sampled = False  # C29 R2 (F459): disclose G5.3's 3000-char clips
         if char_dir and char_dir.exists():
             sample_text = ""
             for cf in list(char_dir.rglob("*.md"))[:6]:
                 try:
-                    sample_text += cf.read_text(encoding="utf-8")[:3000]
+                    _ct, _s = clip_with_disclosure(cf.read_text(encoding="utf-8"), 3000)
+                    sample_text += _ct
+                    term_sampled = term_sampled or _s
                 except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
                     continue  # tolerate unreadable char file; sample_text uses what parsed
             for t1, t2 in term_pairs:
@@ -199,7 +206,12 @@ def gate_G5(
             mf.extend([f"G5.3:{x}" for x in conflicts[:10]])
         else:
             c.append(
-                {"id": "G5.3", "s": GateStatus.PASS, "note": "no cross-skill conflicts detected"}
+                {
+                    "id": "G5.3",
+                    "s": GateStatus.PASS,
+                    "note": "no cross-skill conflicts detected",
+                    **({"input_sampled": True} if (numeric_sampled or term_sampled) else {}),
+                }
             )
     else:
         c.append({"id": "G5.3", "s": GateStatus.SKIP, "r": "need project_dir for this check"})
@@ -306,6 +318,10 @@ def gate_G5(
     else:
         c.append({"id": "G5.5", "s": GateStatus.SKIP, "r": "no phase outputs defined"})
 
+    extra: dict[str, Any] = {}
+    summary = sampled_checks_summary(c)
+    if summary:
+        extra["sampling_disclosed"] = summary
     if mf:
-        return fail("G5", c, "scoring", mf)
-    return passed("G5", c)
+        return fail("G5", c, "scoring", mf, extra or None)
+    return passed("G5", c, extra or None)

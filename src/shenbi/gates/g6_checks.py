@@ -3,6 +3,7 @@
 Extracted from g6.py to keep file length under 500 lines.
 """
 
+from shenbi.gates.shared import clip_with_disclosure
 from shenbi.status import GateStatus
 
 import re
@@ -24,6 +25,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         )
 
     violations: list[str] = []
+    timeline_sampled = False  # C29 R2 (F459): disclose G6.4's text-prefix clips
     day_pat = re.compile(r"第\s*(\d+)\s*(?:天|日|夜)")
     date_pat = re.compile(r"(\d+)\s*月\s*(\d+)\s*[日号]")
     stage_pat = re.compile(r"(?:阶段|第)\s*(\d+)\s*(?:阶段|步|回合)")
@@ -34,7 +36,8 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         if not cn_match:
             continue
         cn = int(cn_match.group(1))
-        ct = ch.read_text(encoding="utf-8")[:5000]
+        ct, _sampled = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
+        timeline_sampled = timeline_sampled or _sampled
         for m in day_pat.finditer(ct):
             timeline.append((cn, int(m.group(1)), "day"))
         for m in date_pat.finditer(ct):
@@ -60,7 +63,10 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
         return int(cn_match.group(1)) if cn_match else None
 
     def _chapter_text(ch: Path, limit: int) -> str:
-        return ch.read_text(encoding="utf-8")[:limit]
+        nonlocal timeline_sampled
+        clipped, _sampled = clip_with_disclosure(ch.read_text(encoding="utf-8"), limit)
+        timeline_sampled = timeline_sampled or _sampled
+        return clipped
 
     intro_map: dict[str, int] = {}
     for ch in chapters:
@@ -106,6 +112,7 @@ def check_continuity(chapters: list[Path]) -> tuple[list[dict[str, Any]], list[s
                 "s": GateStatus.PASS,
                 "chapters": len(chapters),
                 "note": "timeline and info-state ok",
+                **({"input_sampled": True} if timeline_sampled else {}),
             }
         ],
         [],

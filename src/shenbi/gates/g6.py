@@ -22,9 +22,11 @@ from shenbi.gates.shared import (
     FIXTURES,
     PROJECT,
     TESTS,
+    clip_with_disclosure,
     fail,
     jload,
     passed,
+    sampled_checks_summary,
 )
 
 
@@ -220,8 +222,10 @@ def gate_G6(
             except Exception as e:
                 log.warning("g6_char_voice_parse_failed", file=cf.name, error=str(e))
         # Ghost detection: character appears in chapters but no voice_profile
+        g68_sampled = False  # C29 R2 (F459): disclose G6.8's 5000-char clips
         for ch in chapters[:15]:  # sample up to 15 chapters
-            ct = ch.read_text(encoding="utf-8")[:5000]
+            ct, _s = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
+            g68_sampled = g68_sampled or _s
             for cname, vdata in char_voice.items():
                 if not vdata["has_voice_profile"] and cname in ct and len(cname) >= 2:
                     mf.append(f"G6.8:ghost_voice:{cname}:in_{ch.name}:no_voice_profile")
@@ -231,7 +235,9 @@ def gate_G6(
                 found_any = False
                 for cp in vdata["catchphrases"][:3]:  # check top 3 catchphrases
                     for ch in chapters[:15]:
-                        if cp in ch.read_text(encoding="utf-8")[:5000]:
+                        _ct, _s = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
+                        g68_sampled = g68_sampled or _s
+                        if cp in _ct:
                             found_any = True
                             break
                     if found_any:
@@ -250,6 +256,7 @@ def gate_G6(
                 "s": GateStatus.PASS,
                 "chars_with_voice": sum(1 for v in char_voice.values() if v["has_voice_profile"]),
                 "chars_total": len(char_voice),
+                **({"input_sampled": True} if g68_sampled else {}),
             }
         )
     else:
@@ -286,9 +293,12 @@ def gate_G6(
         # Scan chapters for violations of simple numerical constraints
         # Pre-read chapter contents for performance (avoid re-reading per constraint)
         ch_contents: list[Any] = []
+        g69_sampled = False  # C29 R2 (F459): disclose G6.9's 3000-char clips
         for ch in chapters:
             try:
-                ch_contents.append((ch.name, ch.read_text(encoding="utf-8")[:3000]))
+                _ct, _s = clip_with_disclosure(ch.read_text(encoding="utf-8"), 3000)
+                g69_sampled = g69_sampled or _s
+                ch_contents.append((ch.name, _ct))
             except Exception:
                 ch_contents.append((ch.name, ""))
         for const in constraints[:10]:  # limit to 10 constraints for performance
@@ -313,7 +323,14 @@ def gate_G6(
         g69_status = (
             GateStatus.WARN if any(str(m).startswith("G6.9:") for m in mf) else GateStatus.PASS
         )
-        c.append({"id": "G6.9", "s": g69_status, "constraints_extracted": len(constraints)})
+        c.append(
+            {
+                "id": "G6.9",
+                "s": g69_status,
+                "constraints_extracted": len(constraints),
+                **({"input_sampled": True} if g69_sampled else {}),
+            }
+        )
     else:
         c.append(
             {
@@ -482,6 +499,10 @@ def gate_G6(
             }
         )
 
+    extra: dict[str, Any] = {}
+    summary = sampled_checks_summary(c)
+    if summary:
+        extra["sampling_disclosed"] = summary
     if mf:
-        return fail("G6", c, "scoring", mf)
-    return passed("G6", c)
+        return fail("G6", c, "scoring", mf, extra or None)
+    return passed("G6", c, extra or None)

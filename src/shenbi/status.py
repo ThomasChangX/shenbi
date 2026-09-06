@@ -91,6 +91,7 @@ class GateResult(TypedDict, total=False):
     checks: list[dict[str, Any]]
     blocked_action: str
     must_fix: list[str]
+    sampling_disclosed: str
 
 
 class CommandResult(TypedDict, total=False):
