@@ -547,3 +547,38 @@ class TestDeterministicZeroRetryWiring:
         assert result.success is False
         assert len(calls) == 1  # deterministic → no wave retry
         assert task.attempts == 1
+
+
+class TestScoringSiteZeroRetryPin:
+    def test_scoring_exit2_through_real_site_escalates_first_try(self, tmp_path):
+        """Pin ③ through the real call site: review-resonance exit 2 routes
+        deterministic (zero retry) into _handle_failure.
+        """
+        from unittest.mock import MagicMock, patch
+
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.state import PipelineState
+
+        handle_failure = MagicMock(return_value=True)
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 12  # review-resonance scoring step
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.dispatch_skill",
+                return_value=DispatchResult(False, 2, "", "validation failed"),
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop.run_gate_g4",
+                return_value={"status": "PASS"},
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop._handle_failure",
+                handle_failure,
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        handle_failure.assert_called_once()
+        assert handle_failure.call_args.kwargs.get("failure_class") is not None
+        assert handle_failure.call_args.kwargs["failure_class"].value == "deterministic_content"

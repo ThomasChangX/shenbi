@@ -3196,7 +3196,7 @@ def _run_chapter_step_impl(
             exit_code=result.returncode,
             failure_class=fc.value,
         )
-        return _handle_failure(state, step, chapter, "scoring", project_dir)
+        return _handle_failure(state, step, chapter, "scoring", project_dir, failure_class=fc)
 
     if not result.success:
         log.error(
