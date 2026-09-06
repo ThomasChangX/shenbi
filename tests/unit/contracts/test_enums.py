@@ -36,6 +36,7 @@ def test_all_enums_complete() -> None:
         "ApprovalDecision",
         "NovelStatus",
         "WriteMode",
+        "FailureClass",  # C33 (spec #47 R1): dispatch 失败分类域
     }
 
 
