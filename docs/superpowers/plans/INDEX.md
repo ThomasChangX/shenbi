@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- `2026-09-07-c33-retry-taxonomy.md`（SDD #47 C33 重试/失败分类统一 · spec `2026-08-16-c33-retry-failure-taxonomy-design.md`）✅ ready
 
 
 
@@ -44,6 +43,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 - `2026-09-04-spec42-c28-perf-antipatterns.md`（SDD #42 C28 性能反模式，PR #153 + flake 修复 #154）
 - `2026-08-31-spec34-status-vocab.md`（SDD #34 状态词表单源，PR #129）
 - `2026-08-31-spec31-g3-independence.md`（SDD #31 G3 独立性 C5，PR #122）
+- `2026-09-07-c33-retry-taxonomy.md`（SDD #47 C33 重试/失败分类统一，PR #164）
 - `2026-08-31-spec30-decisions-chain.md`（SDD #30 decisions 链 C4，PR #120）
 - `2026-08-30-snapshot-wiring-removal.md`（SDD #26 快照子系统路径 3 移除，PR #105）
 - `2026-08-30-truth-write-path.md`（SDD #21 truth 写路径，PR #88）
