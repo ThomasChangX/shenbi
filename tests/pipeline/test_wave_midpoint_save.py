@@ -37,7 +37,6 @@ def test_partial_wave_results_survive_via_callback(tmp_path: Path, monkeypatch) 
     retry loop would otherwise turn a one-shot failure into a success).
     """
     monkeypatch.setattr(pd, "MAX_RETRIES", 0)
-    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.time.sleep", lambda s: None)
 
     def fake_dispatch_skill(skill, *args, **kwargs):
         if skill == FAILING_SKILL:
@@ -56,7 +55,6 @@ def test_partial_wave_results_survive_via_callback(tmp_path: Path, monkeypatch) 
 
 def test_callback_not_required(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(pd, "MAX_RETRIES", 0)
-    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.time.sleep", lambda s: None)
     monkeypatch.setattr(
         pd,
         "dispatch_skill",
@@ -68,7 +66,6 @@ def test_callback_not_required(tmp_path: Path, monkeypatch) -> None:
 
 def test_callback_exception_does_not_break_wave(tmp_path: Path, monkeypatch) -> None:
     monkeypatch.setattr(pd, "MAX_RETRIES", 0)
-    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.time.sleep", lambda s: None)
     monkeypatch.setattr(
         pd,
         "dispatch_skill",

@@ -366,10 +366,12 @@ def _wave_savepoint(
         def _on_complete(idx: int, result: DispatchResult) -> None:
             skill = tasks[idx].skill
             cs = state.chapter_loop.chapter_states.get(str(chapter))
-            done = (cs.audit_results.get("wave_completed") if cs else None) or []
+            done: list[str] = list(cs.audit_results.get("wave_completed") or []) if cs else []
             if skill not in done:
-                done = [*done, skill]
-                state.add_audit_result(chapter, "wave_completed", " ".join(done))
+                done.append(skill)
+                # List form (not joined string): crash forensics read exact
+                # membership without substring-collision ambiguity.
+                state.add_audit_result(chapter, "wave_completed", done)
             save_state(project_dir, state)
             log.info("parallel_wave_savepoint", chapter=chapter, skill=skill)
 
@@ -2858,7 +2860,15 @@ def _run_chapter_step_impl(
         # The consolidated summary always contains "- **BLOCKING Issues**: N".
         # Only the "## BLOCKING Issues" H2 section is present when actual
         # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
-        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
+        # C30 audit-T5 I1: on a post-crash replay where the whole wave was
+        # already filtered out (all outputs exist), ``consolidated`` is built
+        # from an empty result list and would under-report BLOCKING — derive
+        # from the durable artifacts of the FULL task set instead.
+        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
+            "## BLOCKING Issues" in (project_dir / task.output_path).read_text(encoding="utf-8")
+            for task in core_tasks + genre_tasks
+            if (project_dir / task.output_path).exists()
+        )
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
         # Per-skill history entries (F341/F726, spec #27 T5): the cascade
         # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
