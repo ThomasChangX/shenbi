@@ -103,7 +103,8 @@ def project(tmp_path: Path) -> Path:
     src = Path("tests/fixtures/chapter-plan-example.md")
     (plan / "chapter-1-plan.md").write_text(src.read_text(encoding="utf-8"), encoding="utf-8")
     (tmp_path / "staging" / "plans" / "chapter-1-plan-decisions.json").write_text(
-        '{"schema": "shenbi-decisions-v1"}', encoding="utf-8")
+        Path("tests/fixtures/decisions/valid-chapter-decisions.json").read_text(encoding="utf-8"),
+        encoding="utf-8")   # 真实 decisions 产物（G0.9），不手写
     return tmp_path
 
 def test_uncheckpointed_staging_cleared_emergency(project):
@@ -288,7 +289,8 @@ def test_clear_checkpoint_none_noop():
 
 ```python
 def test_scr_cache_invalidated_on_revision(tmp_path):
-    shutil.copy("tests/fixtures/chapter-2-draft.md", tmp_path / "chapters" / "chapter-2.md")  # mkdir 先
+    (tmp_path / "chapters").mkdir(parents=True)   # mkdir 先于 copy
+    shutil.copy("tests/fixtures/chapter-2-draft.md", tmp_path / "chapters" / "chapter-2.md")
     first = extract_scr(tmp_path, 2)
     # 模拟修订：改写章节文件（内容不同、可能同秒）
     p = tmp_path / "chapters" / "chapter-2.md"
@@ -323,7 +325,7 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 **复杂度:** infra · **test_kind:** tdd_red_green · **层级:** T1 + T2
 
-- [ ] **Step 1: 失败测试**（确定性故障注入：monkeypatch `dispatch_skill` 使第 2 个任务抛 `RuntimeError`，前 1 个已完成的结果须经回调落盘；fixture 输入用 `tests/fixtures/audits/` 真实审计产物）：
+- [ ] **Step 1: 失败测试**（确定性故障注入：fake `dispatch_skill` 对指定 skill 名**返回** `DispatchResult(success=False)` 持久失败——走 failure 分支而非 exception 分支；fixture 输入用 `tests/fixtures/audits/` 真实审计产物）：
 
 ```python
 def test_partial_wave_results_survive_crash(tmp_path, monkeypatch):
