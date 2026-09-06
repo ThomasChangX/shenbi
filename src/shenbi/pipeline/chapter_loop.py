@@ -35,9 +35,11 @@ import time
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
+    from shenbi.pipeline.dispatch_helper import DispatchResult
     from shenbi.pipeline.parallel_dispatch import ReviewTask
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
@@ -64,7 +66,7 @@ from shenbi.pipeline.crash_recovery import (
     is_shutdown_requested,
     register_emergency_handlers,
 )
-from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.machine import save_state, set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
@@ -339,6 +341,41 @@ def committed_chapter_anchor(project_dir: Path) -> int:
         if match:
             anchor = max(anchor, int(match.group(1)))
     return anchor
+
+
+def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
+    """C30 F377: drop audit tasks whose output product already exists.
+
+    After a mid-wave crash, re-entry replays only the unfinished segment —
+    skills that already wrote their audit report are not re-dispatched.
+    """
+    return [t for t in tasks if not (t.project_dir / t.output_path).exists()]
+
+
+def _wave_savepoint(
+    state: PipelineState, project_dir: Path, chapter: int
+) -> Callable[[list[ReviewTask]], Callable[[int, DispatchResult], None]]:
+    """C30 F377: return an ``on_task_complete`` closure for an audit wave.
+
+    Persists the finished skill in ``audit_results["wave_completed"]`` and
+    saves state after each completion — a crash loses at most the in-flight
+    skill, not the whole wave.
+    """
+
+    def _factory(tasks: list[ReviewTask]) -> Callable[[int, DispatchResult], None]:
+        def _on_complete(idx: int, result: DispatchResult) -> None:
+            skill = tasks[idx].skill
+            cs = state.chapter_loop.chapter_states.get(str(chapter))
+            done = (cs.audit_results.get("wave_completed") if cs else None) or []
+            if skill not in done:
+                done = [*done, skill]
+                state.add_audit_result(chapter, "wave_completed", " ".join(done))
+            save_state(project_dir, state)
+            log.info("parallel_wave_savepoint", chapter=chapter, skill=skill)
+
+        return _on_complete
+
+    return _factory
 
 
 def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> bool:
@@ -2752,10 +2789,13 @@ def _run_chapter_step_impl(
         core_tasks = [t for t in core_tasks if _keep_task(t)]
         core_wave, core_serial = _partition_review_wave(core_tasks)
 
+        core_wave = _filter_completed_audit_tasks(core_wave)
         core_results: list[DispatchResult] = []
         if core_wave:
             log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
-            core_results = dispatch_reviews_parallel(core_wave)
+            core_results = dispatch_reviews_parallel(
+                core_wave, on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave)
+            )
         else:
             log.info("parallel_review_wave1_empty", chapter=chapter)
         core_results.extend(_dispatch_serial_reviews(core_serial, project_dir))
@@ -2779,10 +2819,14 @@ def _run_chapter_step_impl(
         genre_tasks = [t for t in genre_tasks if _keep_task(t)]
         genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
+        genre_wave = _filter_completed_audit_tasks(genre_wave)
         genre_results: list[DispatchResult] = []
         if genre_wave:
             log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
-            genre_results = dispatch_reviews_parallel(genre_wave)
+            genre_results = dispatch_reviews_parallel(
+                genre_wave,
+                on_task_complete=_wave_savepoint(state, project_dir, chapter)(genre_wave),
+            )
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
         genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir))

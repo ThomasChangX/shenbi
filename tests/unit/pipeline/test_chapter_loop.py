@@ -500,7 +500,9 @@ class TestAuditCircleIntegration:
             ),
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+                side_effect=lambda tasks, on_task_complete=None: [
+                    DispatchResult(True, 0, "{}", "") for _ in tasks
+                ],
             ),
             patch(
                 "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
@@ -585,7 +587,9 @@ class TestRevisionRoutingIntegration:
         )
         patches["par_disp"] = patch(
             "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-            side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+            side_effect=lambda tasks, on_task_complete=None: [
+                DispatchResult(True, 0, "{}", "") for _ in tasks
+            ],
         )
         patches["par_cons"] = patch(
             "shenbi.pipeline.parallel_dispatch.consolidate_review_results",

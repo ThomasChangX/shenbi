@@ -144,7 +144,9 @@ def chapter_succeeds():
         par_disp = stack.enter_context(
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+                side_effect=lambda tasks, on_task_complete=None: [
+                    DispatchResult(True, 0, "{}", "") for _ in tasks
+                ],
             )
         )
         # Consolidation: return clean summary (no BLOCKING).
@@ -474,7 +476,9 @@ class TestAuditCircleAndRevisionRouting:
             # Parallel dispatch mocks (Task 7).
             patch(
                 "shenbi.pipeline.parallel_dispatch.dispatch_reviews_parallel",
-                side_effect=lambda tasks: [DispatchResult(True, 0, "{}", "") for _ in tasks],
+                side_effect=lambda tasks, on_task_complete=None: [
+                    DispatchResult(True, 0, "{}", "") for _ in tasks
+                ],
             ),
             patch(
                 "shenbi.pipeline.parallel_dispatch.consolidate_review_results",
