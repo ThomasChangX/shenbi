@@ -17,6 +17,7 @@
 - 验证命令一律 `uv run pytest ...`（与 CI `uv run --frozen` 同构）。
 - Conventional commits；每个 task commit 显式列文件路径（禁 `git add -A`）。
 - Scope 裁决：T102/F1110/F305/F1153/F379 已在 main 修复，本 plan 不重复实现；F311 零消费面留 C37 裁决。
+- **测试落点裁决（plan 审查 C1）**：本仓无 `tests/integration/pipeline/` 目录——pipeline 集成测试既有惯例落点为 `tests/pipeline/`，spec 验证命令中的 `tests/integration/pipeline/` 一律映射为 `tests/pipeline/`（记 spec-deviations）。R1/R2/R5 的链路级用例（确定性崩溃注入）落在对应 task 的测试文件内，标记 T2 层级。
 
 ## 现状签名（从源码复制，2026-09-06 main HEAD）
 
@@ -51,7 +52,9 @@ _FORESHADOWING_LIFECYCLE_IDX = 6          # :2299 字面量（F357）；_FIRST_A
 def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentation   # :435，缓存无失效（F310）
 
 # state.py
+class ChapterLoopStateData:   # :184，含 current_chapter/current_step/step_index/chapter_states
 class ChapterState: steps_done: list[str] = field(default_factory=list)   # :141（F797 旧代步名）
+def add_step_done(...)   # state.py:222 线程安全追加（幂等）
 
 # parallel_dispatch.py
 def dispatch_reviews_parallel(...)   # :150，无中途保存点（F377）
@@ -68,6 +71,8 @@ def dispatch_reviews_parallel(...)   # :150，无中途保存点（F377）
 - Modify: `src/shenbi/pipeline/checkpoint.py`
 - Modify: `src/shenbi/pipeline/crash_recovery.py:181-189`
 - Modify: `src/shenbi/pipeline/cli.py:636-659`
+- Modify: `src/shenbi/pipeline/machine.py`（Step 5 联动如触）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（Step 5 set_checkpoint 调用点标记）
 - Test: `tests/pipeline/test_staging_lifecycle.py`（新建）
 
 **Interfaces:**
@@ -120,7 +125,7 @@ def test_marker_survives_new_process_simulated_crash(project):
 def test_reject_clears_everything_including_checkpointed(project):
     mark_staging_checkpointed(project, ["plans/chapter-1-plan.md"])
     clear_staging(project)   # 显式决策路径不保留
-    assert not (project / "staging").exists()
+    assert not (project / "staging").exists()   # 整目录移除（含 .staging-meta.json），非"只删文件留目录"
 
 def test_discard_staging_logs_and_clears(project):
     discard_staging(project, reason="modify")
@@ -135,8 +140,9 @@ def test_commit_removes_checkpoint_marker(project):
 
 - [ ] **Step 2: 跑测确认失败**：`uv run pytest tests/pipeline/test_staging_lifecycle.py -q --no-cov` → Expected FAIL（`mark_staging_checkpointed` 不存在）
 - [ ] **Step 3: 实现**（checkpoint.py）：`mark_staging_checkpointed` 读 `_load_staging_meta`、给每个 target 写 `{"checkpointed": "true", **既有键}`、经 `write_safety` 原子回写 `.staging-meta.json`；`staging_checkpointed_targets` 返回键集合过滤 checkpointed；`clear_staging` 加 keyword 参数——`preserve_checkpointed=True` 时只删未标记文件与空目录（保留 `.staging-meta.json` 中标记条目）；`commit_staging` 成功后从 meta 删该 target 的 checkpointed 标记；`discard_staging(project, reason)` = `log.info("staging_discarded", reason=reason, targets=sorted(残留 targets))` + 全清
-- [ ] **Step 4: crash_recovery.py 步骤 4 改**：`clear_staging(project_dir)` → `clear_staging(project_dir, preserve_checkpointed=True)`，日志事件改 `staging_cleared_preserving_checkpointed`（保留条目数入 log）——不触锁（clear_staging 本无锁），latch 逻辑不动
-- [ ] **Step 5: set_checkpoint 联动**（machine.py）：`set_checkpoint` 时对 `uses_staging` 步骤的产物调用 `mark_staging_checkpointed`？——不可行（machine 无产物清单）。改为：`cli.py _commit_staging_for_checkpoint` 与 `chapter_loop.py` auto-commit 路径在 **checkpoint 设置处**（`set_checkpoint` 调用点）以 `staged_decisions_targets` + output_path 构造 target 清单并标记。实际落点：`chapter_loop.py` 调 `set_checkpoint(CheckpointType.CHAPTER_MEMO/STATE_SETTLE, ...)` 的两处，标记 `staging/` 下当前章全部 staged 文件（用 `staged_decisions_targets` + step output_path）。**实现时 grep `set_checkpoint(` 全部调用点逐一裁决标记清单**，裁决记 spec-deviations `### T1`
+- [ ] **Step 4: crash_recovery.py 步骤 4 改**：`clear_staging(project_dir)` → `clear_staging(project_dir, preserve_checkpointed=True)`，日志事件改 `staging_cleared_preserving_checkpointed`（保留条目数入 log）——不触锁（clear_staging 本无锁），latch 逻辑不动。顺手把该段既有 `except Exception: pass` 吞错改为 `except Exception as e: logger.warning("emergency_staging_clear_failed", error=str(e))`（best-effort 语义不变，可观测）
+- [ ] **Step 5: set_checkpoint 联动**（machine.py）：`set_checkpoint` 时对 `uses_staging` 步骤的产物调用 `mark_staging_checkpointed`？——不可行（machine 无产物清单）。改为：`cli.py _commit_staging_for_checkpoint` 与 `chapter_loop.py` auto-commit 路径在 **checkpoint 设置处**（`set_checkpoint` 调用点）以 `staged_decisions_targets` + output_path 构造 target 清单并标记。实际落点：`chapter_loop.py` 调 `set_checkpoint(CheckpointType.CHAPTER_MEMO/STATE_SETTLE, ...)` 的两处，标记 `staging/` 下当前章全部 staged 文件（用 `staged_decisions_targets` + step output_path）。**实现时 grep `set_checkpoint(` 全部调用点（全仓约 19 处：chapter_loop 7 + closure/error_handler/genesis/cli/triggers），产出裁决表记入 spec-deviations `### T1`**：仅 `uses_staging` 步的 checkpoint 标记；与 T2 的 `consumed` 字段（clear_checkpoint 侧）正交不冲突——T2 改 history 条目写侧，T1 改 staging 标记侧，无共享行
+- [ ] **Step 5b: 链路级集成用例（T2 层级，spec R1 验收「approve 后 sidecar 入 committed truth」）**：在 `test_staging_lifecycle.py` 追加——构造 staged plan+sidecar → `mark_staging_checkpointed` → 构造 `CheckpointData(type=CHAPTER_MEMO, chapter=1)` → 调 `cli._commit_staging_for_checkpoint(project, cp)` → 断言 `plans/chapter-1-plan.md` 与 `plans/chapter-1-plan-decisions.json` 均在 committed 路径且 staging 标记清空；再模拟 crash（`clear_staging(project, preserve_checkpointed=True)`）后重跑 approve → 产物仍完整
 - [ ] **Step 6: cli.py MODIFY 块改**（F323）：
 
 ```python
@@ -175,7 +181,7 @@ elif decision == ReviewDecision.REJECT:
 
 **复杂度:** infra · **test_kind:** tdd_red_green（迁移）+ characterization（先锁 cmd_resume 现行为再改，spec 风险节要求）· **层级:** T1 + T2（resume 链）
 
-- [ ] **Step 1: characterization 锁现行为**（防 pin 旧 bug：只锁「无 checkpoint 时 resume 不改 current_chapter」这一将被保留的面向）：在 `tests/pipeline/test_resume_anchor.py` 写 fixture 驱动用例：构造 `tests/fixtures/` 真实章节产物（`tests/fixtures/chapters/` 或 `chapter-N-draft.md` 族）落 `chapters/chapter-1..3.md`，state `current_chapter=4, step_index=0`，跑 `cmd_resume` 的锚定纯函数（不跑全 CLI——`_orchestrate_to_checkpoint` 会 dispatch；**只测新增纯函数 + cmd_resume 中锚定段的独立可测提取**，提取为 `_clamp_resume_cursor(cl: ChapterLoopState, project_dir: Path) -> None` 便于 T1 直测）
+- [ ] **Step 1: characterization 锁现行为**（防 pin 旧 bug：只锁「无 checkpoint 时 resume 不改 current_chapter」这一将被保留的面向）：在 `tests/pipeline/test_resume_anchor.py` 写 fixture 驱动用例：构造 `tests/fixtures/` 真实章节产物（`tests/fixtures/chapters/` 或 `chapter-N-draft.md` 族）落 `chapters/chapter-1..3.md`，state `current_chapter=4, step_index=0`，跑 `cmd_resume` 的锚定纯函数（不跑全 CLI——`_orchestrate_to_checkpoint` 会 dispatch；**只测新增纯函数 + cmd_resume 中锚定段的独立可测提取**，提取为 `_clamp_resume_cursor(cl: ChapterLoopStateData, project_dir: Path) -> None` 便于 T1 直测）
 - [ ] **Step 2: 失败测试**：
 
 ```python
@@ -183,7 +189,7 @@ def test_anchor_clamps_uncommitted_chapter(tmp_path):
     for n in (1, 2, 3):
         (tmp_path / "chapters").mkdir(exist_ok=True)
         (tmp_path / "chapters" / f"chapter-{n}.md").write_text(f"# 第{n}章\n", encoding="utf-8")
-    cl = ChapterLoopState(current_chapter=6, step_index=0, steps_done=[])
+    cl = ChapterLoopStateData(current_chapter=6, step_index=0, steps_done=[])   # 注：steps_done 在 ChapterState（chapter_states[N]）；锚定判据「当前章零进展」取 chapter_states.get(str(current_chapter)) 的 steps_done
     _clamp_resume_cursor(cl, tmp_path)
     assert cl.current_chapter == 4   # 锚=已提交 3，恢复从 4 续，不回 1 也不越 6 静默覆盖
 
@@ -232,8 +238,15 @@ def test_step3_calls_assembly_with_plan_guard():
     step3 = CHAPTER_STEPS[2]
     assert step3.calls_context_assembly is True      # 装配移至 step-3 首入口
 def test_foreshadowing_idx_derived_not_literal():
+    import re
     src = Path("src/shenbi/pipeline/chapter_loop.py").read_text(encoding="utf-8")
-    assert "_FORESHADOWING_LIFECYCLE_IDX = 6" not in src   # 字面量清零
+    assert not re.search(r"_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b", src)   # 字面量清零（含空格变体）
+def test_assembly_guard_skips_when_plan_missing(tmp_path, monkeypatch):
+    calls = []
+    monkeypatch.setattr("shenbi.pipeline.chapter_loop.assemble_context",
+                        lambda *a, **k: calls.append(1) or (_ for _ in ()).throw(AssertionError("must not assemble")))
+    # step-3 入口、plan 缺失 → 跳过装配且不写 fallback（调用计数 == 0）
+    ...  # 构造 state，走装配守卫函数，断言 calls == [] 且无 context/chapter-N-context.md 生成
 def test_clear_checkpoint_none_noop():
     state = PipelineState()
     state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE)
@@ -258,7 +271,7 @@ def test_clear_checkpoint_none_noop():
 
 **Files:**
 - Modify: `src/shenbi/pipeline/scr_extractor.py:435-460`
-- Modify: `src/shenbi/pipeline/chapter_loop.py`（完成标记前产物校验，现 :1343-1346 hard post-check 处）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（完成标记前产物校验——落点为 `state.add_step_done(` 调用族前置校验，grep 全部调用点逐处加；:1343-1346 的 curation post-check 是 curation 输出校验且发生在入表前，非 F1112 落点）
 - Test: `tests/pipeline/test_scr_cache_invalidation.py`（新建）
 
 **Interfaces:**
@@ -286,7 +299,7 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 - [ ] **Step 2: 确认失败**：`uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov` → FAIL（现缓存恒命中）
 - [ ] **Step 3: 实现**：`extract_scr` 缓存读取前 stat `chapter_path` 得 `(size, mtime_ns)`；缓存 JSON 顶层存 `"_cache_key": {"size":…, "mtime_ns":…}`；不匹配则重提取并回写（json 经 `write_safety` 原子写，如该模块未用则与仓库写惯例核对）。`StructuredChapterRepresentation(**cached)` 需剥离 `_cache_key` 键（cached.pop）
-- [ ] **Step 4: state 完成校验降级**（F1112 残余）：chapter_loop 现有产物 hard post-check（:1343-1346 一带 `log.error`）升级——产物缺失时将该步从 `steps_done` 移除（或标记未完成）+ `log.warning("step_output_missing_downgraded", …)`，state 不声称完成。字面量入 log 事件名，不新增状态字面量；如需新的完成标志字段，`Literal` 入 enums.py。实现时打开该段核实现有数据结构（ChapterState 无 per-step status —— 降级 = 从 steps_done 移除该步 skill 名）
+- [ ] **Step 4: state 完成校验降级**（F1112 残余）：落点 = `chapter_loop.py` 中 `state.add_step_done(` 调用族（grep 全部调用点）：有 `output_path` 的步在入表前校验产物存在（`output_path.format`/replace N 后 resolve 到 project_dir），缺失则**不入表** + `log.warning("step_output_missing_downgraded", step=…, expected=…)`——降级 = 不声称完成（而非事后移除）。字面量入 log 事件名，不新增状态字面量；如需新的完成标志字段，`Literal` 入 enums.py
 - [ ] **Step 5: 跑测 + 回归**：`uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov`；`uv run pytest tests/pipeline -k "scr or extract" -q --no-cov`；相关 chapter_loop 测试族
 - [ ] **Step 6: Commit**：`git add src/shenbi/pipeline/scr_extractor.py src/shenbi/pipeline/chapter_loop.py src/shenbi/contracts/enums.py tests/pipeline/test_scr_cache_invalidation.py && git commit -m "fix: C30 R4 SCR cache (path,size,mtime) invalidation + step-output downgrade (F310/F1112)"`
 
@@ -296,12 +309,13 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 **Files:**
 - Modify: `src/shenbi/pipeline/parallel_dispatch.py:150-190`（或其 chapter_loop 调用波处）
+- Modify: `src/shenbi/pipeline/chapter_loop.py`（波调用处闭包）
 - Modify: `docs/superpowers/audit-runs/2026-08-15/findings-ledger.md`（回写 C30 状态）
 - Test: `tests/pipeline/test_wave_midpoint_save.py`（新建）
 
 **Interfaces:**
 - Consumes: `dispatch_reviews_parallel(tasks, ...)`、`as_completed` 循环
-- Produces: `on_task_complete: Callable[[int, DispatchResult], None] | None = None` keyword 参数（完成后回调，chapter_loop 波调用处传「持久化该 skill audit 结果 + save_state」闭包）
+- Produces: `on_task_complete: Callable[[int, DispatchResult], None] | None = None` keyword 参数（**回调契约：仅成功完成的任务回调；失败/异常任务不回调**，重放范围由未完成段定义，契约写 docstring）
 
 **复杂度:** infra · **test_kind:** tdd_red_green · **层级:** T1 + T2
 
@@ -309,14 +323,25 @@ def test_cache_key_uses_size_and_mtime(tmp_path):
 
 ```python
 def test_partial_wave_results_survive_crash(tmp_path, monkeypatch):
-    saved = []
-    def fake_dispatch(task_idx_list):  # 第一个成功、第二个抛错
-        ...
-    # 断言：崩溃时已完成的 1 个结果已通过 on_task_complete 回调上抛（可 save）
-    # 重放范围 = 未完成段（重放清单不含已完成 skill）
+    from shenbi.pipeline.parallel_dispatch import ReviewTask, dispatch_reviews_parallel
+    from shenbi.pipeline.dispatch_helper import DispatchResult
+    real = Path("tests/fixtures/audits").glob("*.md")  # 实现时取 2 个真实审计产物为 prompt 上下文
+    calls = {"n": 0}
+    completed_cb = []
+    def fake_dispatch_skill(skill, project_dir, prompt, *a, **k):
+        calls["n"] += 1
+        if calls["n"] == 2:
+            raise RuntimeError("injected crash")
+        return DispatchResult(success=True, skill=skill, output="ok", returncode=0)
+    monkeypatch.setattr("shenbi.pipeline.parallel_dispatch.dispatch_skill", fake_dispatch_skill)
+    tasks = [ReviewTask(...), ReviewTask(...)]   # 两个真实 skill 名
+    with pytest.raises(RuntimeError):
+        dispatch_reviews_parallel(tasks, project_dir=tmp_path, on_task_complete=lambda i, r: completed_cb.append(i))
+    assert completed_cb == [0]   # 成功者已回调（可 save），失败者不回调
+    # 重放范围 = 未完成段：调用方以 completed 集合差集构造重放清单（同文件加用例断言差集逻辑）
 ```
 
-- [ ] **Step 2: 确认失败** → **Step 3: 实现**：`dispatch_reviews_parallel` 的 `as_completed(futures)` 循环内，每个 future 完成即调 `on_task_complete(idx, result)`（异常任务传异常或跳过，回调契约写 docstring）；chapter_loop 并行审计波调用处传闭包：合并该 skill 的 audit_results 进 state（走既有 `add_step_done`/audit_results 串行化设施，state.py:222 线程安全面）+ `save_state`。触发器扇出处（若 parallel 波之外的扇出点存在，grep `dispatch_reviews_parallel(` 全部调用方逐一接回调）——裁决记 spec-deviations `### T5`
+- [ ] **Step 2: 确认失败** → **Step 3: 实现**：`dispatch_reviews_parallel` 的 `as_completed(futures)` 循环内，每个成功完成的 future 即调 `on_task_complete(idx, result)`（异常/失败任务不回调，docstring 定契约）；chapter_loop 并行审计波调用处传闭包：合并该 skill 的 audit_results 进 state（走既有 `add_step_done`/audit_results 串行化设施，state.py:222 线程安全面）+ `save_state`。触发器扇出处（若 parallel 波之外的扇出点存在，grep `dispatch_reviews_parallel(` 全部调用方逐一接回调）——裁决记 spec-deviations `### T5`
 - [ ] **Step 4: 跑测 + 回归**：`uv run pytest tests/pipeline/test_wave_midpoint_save.py -q --no-cov`；`uv run pytest tests/pipeline -k "parallel or wave or review" -q --no-cov`
 - [ ] **Step 5: ledger 回写**：`docs/superpowers/audit-runs/2026-08-15/findings-ledger.md` 中 C30 的 14 条本 spec 关闭改 `closed-by PR（本 PR #）`、5 条按 spec closed-by 标签（T102/F1110→#120、F305→#63、F1153→ac466632+2b00ff53、F379→8d3f5c7e）、T1108 移交注记、F311 视 C37（保持 open + 注记）。PR 号在 merge 前未知——回写用 `fixed by SDD #44`，merge 后 squash SHA 由归档 commit 补
 - [ ] **Step 6: Commit**：`git add src/shenbi/pipeline/parallel_dispatch.py src/shenbi/pipeline/chapter_loop.py tests/pipeline/test_wave_midpoint_save.py docs/superpowers/audit-runs/2026-08-15/findings-ledger.md && git commit -m "fix: C30 R5 parallel wave midpoint save points + ledger write-back (F377)"`
@@ -332,7 +357,7 @@ def test_partial_wave_results_survive_crash(tmp_path, monkeypatch):
 | R2 F371 场景恢复零覆盖 | T2 | `uv run pytest tests/pipeline/test_resume_anchor.py -q --no-cov` |
 | R2 旧 state fixture 迁移测试 | T2 | `uv run pytest tests/pipeline/test_resume_anchor.py -k migration -q --no-cov` |
 | R3 step-2 不空跑装配、停顿 ≤1（调用计数代理） | T3 | `uv run pytest tests/pipeline/test_step3_assembly_gate.py -q --no-cov` |
-| R3 `git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量 | T3 | `git grep "_FORESHADOWING_LIFECYCLE_IDX = 6" -- src/` → 空 |
+| R3 `git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量 | T3 | `git grep -E "_FORESHADOWING_LIFECYCLE_IDX\s*=\s*6\b" -- src/` → 空 |
 | R3 F380 回归锁定 | T3 | `uv run pytest tests/pipeline/test_chapter_steps_restructured.py -q --no-cov` |
 | R4 修订后 SCR 含新文本 | T4 | `uv run pytest tests/pipeline/test_scr_cache_invalidation.py -q --no-cov` |
 | R4 state claims 与产物一致性 | T4 | T4 Step 4 降级逻辑测试（同上文件补用例） |
