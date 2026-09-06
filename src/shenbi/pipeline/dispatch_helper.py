@@ -1481,6 +1481,36 @@ def _write_parsed_outputs(
     literal_paths = [p for p in output_paths if "*" not in p and "?" not in p]
     wildcard_patterns = [p for p in output_paths if "*" in p or "?" in p]
 
+    project_root = project_dir.resolve(strict=False)
+
+    def _validate_output_path(full_path: Path) -> None:
+        """T1204/T12-02 (spec #45 R3): authoritative path boundary for the
+        codex write face. resolve() follows symlinks, so a link pointing out
+        of project_dir fails the prefix check. Framework-owned state files
+        (phase-state/, gate-markers, scores family) are deny-listed: they are
+        written exclusively by framework code via safe_write.
+        """
+        resolved = full_path.resolve(strict=False)
+        if not resolved.is_relative_to(project_root):
+            log.error("dispatch_output_path_escape", path=str(full_path), project=str(project_root))
+            raise DispatchWriteFailureError(
+                f"output path escapes project_dir: {full_path}", signature="path_escape"
+            )
+        rel = resolved.relative_to(project_root)
+        rel_posix = rel.as_posix()
+        denied = (
+            rel_posix.startswith("phase-state/")
+            or rel_posix.startswith("gate-markers/")
+            or rel_posix.endswith("/scores.json")
+            or rel_posix == "scores.json"
+        )
+        if denied:
+            log.error("dispatch_state_file_write_denied", path=rel_posix)
+            raise DispatchWriteFailureError(
+                f"codex write face may not write framework state file: {rel_posix}",
+                signature="state_file_write_denied",
+            )
+
     def _write_one(rel_path: str, content: str) -> None:
         """Write a single output file with validation, write-failure detection,
         and size guard. After writing, runs post-write integrity checks
@@ -1488,6 +1518,7 @@ def _write_parsed_outputs(
         and logs findings without blocking the write.
         """
         full_path = project_dir / rel_path
+        _validate_output_path(full_path)
 
         # 1. WRITE-FAILURE DETECTION (pre-write, blocks the write).
         is_failure, signature = detect_write_failure(content)
@@ -1540,7 +1571,7 @@ def _write_parsed_outputs(
             _m = _CHAPTER_NUM_RE.match(Path(rel_path).stem)
             if _m and not _is_audit_file(Path(rel_path).name):
                 content = ensure_chapter_header(content, int(_m.group(1)))
-            safe_write(full_path, content)
+            safe_write(full_path, content, allowed_roots=(project_root,))
             written.append(rel_path)
             log.info("output_written", path=rel_path, size=len(content), mode=mode_meta.get("mode"))
 

@@ -317,7 +317,25 @@ def safe_write(
     round_dir: Path | None = None,
     trace_action: str | None = None,
     trace_target: str | None = None,
+    allowed_roots: tuple[Path, ...] | None = None,
 ) -> None:
+    """Atomic write with optional path-boundary defense (spec #45 R3, T12-05).
+
+    When *allowed_roots* is given, the resolved parent of *path* must fall
+    under one of the roots — symlinks are followed by resolve(), so a link
+    pointing outside the roots fails loudly. None preserves the historical
+    behavior for the 66 existing call sites; security-critical callers pass
+    their project/round dir explicitly.
+    """
+    if allowed_roots is not None:
+        resolved_parent = path.parent.resolve(strict=False)
+        if not any(
+            resolved_parent.is_relative_to(root.resolve(strict=False)) for root in allowed_roots
+        ):
+            raise ValueError(
+                f"safe_write path escapes allowed roots: {path} not under "
+                f"{[str(root) for root in allowed_roots]}"
+            )
     path.parent.mkdir(parents=True, exist_ok=True)
     lock_fd, lockfile = _acquire_lock(path)  # held open across write (I3)
     try:

@@ -107,11 +107,12 @@ def test_hardening_superscript_digits_not_int():
     assert ctx is not None and ctx.chapter == "²"  # str sentinel, no ValueError
 
 
-def test_parse_multiple_context_lines_first_wins():
+def test_parse_multiple_context_lines_last_wins():
+    # T1202 (spec #45 R3): machine carrier line is appended last and wins.
     from shenbi.contracts.paths import parse_path_context
 
     ctx = parse_path_context("[path-context] chapter=1\n[path-context] chapter=2")
-    assert ctx is not None and ctx.chapter == 1
+    assert ctx is not None and ctx.chapter == 2
 
 
 def test_format_empty_context_returns_empty_string():

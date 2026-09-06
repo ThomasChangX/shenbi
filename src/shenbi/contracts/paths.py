@@ -60,12 +60,16 @@ _UNSAFE_VALUE_RE = re.compile(r"[/\\]|\.\.")
 
 
 def parse_path_context(prompt: str) -> PathContext | None:
-    r"""Parse the first ``[path-context]`` line of a prompt; None when absent.
+    r"""Parse the LAST ``[path-context]`` line of a prompt; None when absent.
 
-    Str-valued sentinel values containing ``/``, ``\\`` or ``..`` are dropped:
-    they are substituted into output paths, and a prompt-injected carrier line
-    (parse takes the FIRST such line) must not gain path traversal.
+    T1202 (spec #45 R3): the machine-written carrier line is appended LAST
+    (triggers.format_path_context); parsing takes the LAST carrier line so a
+    forged line echoed earlier in reviewed text cannot override the machine
+    context. Str-valued sentinel values containing ``/``, ``\\`` or ``..``
+    are dropped: they are substituted into output paths, and a prompt-injected
+    carrier line must not gain path traversal.
     """
+    found: PathContext | None = None
     for line in prompt.splitlines():
         s = line.strip()
         if not s.startswith(PATH_CONTEXT_PREFIX):
@@ -80,8 +84,8 @@ def parse_path_context(prompt: str) -> PathContext | None:
                     elif not _UNSAFE_VALUE_RE.search(v):
                         kv[k] = v
         if kv:
-            return PathContext(**kv)  # type: ignore[arg-type]
-    return None
+            found = PathContext(**kv)  # type: ignore[arg-type]
+    return found
 
 
 def build_trigger_context(chapter: int, boundaries: set[int]) -> PathContext:
