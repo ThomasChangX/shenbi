@@ -861,17 +861,32 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
             cl_state = state.chapter_loop
             _clamp_resume_cursor(cl_state, project_dir)
+            state_dirty = False
             for ch_key, cs in list(cl_state.chapter_states.items()):
                 migrated, changed = migrate_steps_done(cs.steps_done)
                 if changed:
                     log.warning("steps_done_migrated", chapter=ch_key)
                     cs.steps_done = migrated
-                    save_state(project_dir, state)
+                    state_dirty = True
 
             if state.checkpoint_history:
                 # C30 F371: consume the transition event instead of guessing
                 # from history[-1] — the newest UNCONSUMED approve entry is
                 # the one this resume acts on; older ones are already handled.
+                # Entries written by pre-C30 versions carry no "consumed"
+                # field and are treated as already handled (default True):
+                # a one-way, WARN-noted discard — replaying them would
+                # double-dispatch snapshot-manage.
+                legacy_approves = [
+                    e
+                    for e in state.checkpoint_history
+                    if e.get("decision") == "approve" and "consumed" not in e
+                ]
+                if legacy_approves:
+                    log.warning(
+                        "legacy_checkpoint_events_discarded",
+                        count=len(legacy_approves),
+                    )
                 pending_event = next(
                     (
                         e
@@ -883,6 +898,7 @@ def cmd_resume(args: argparse.Namespace) -> int:
                 last = pending_event
                 if last is not None:
                     last["consumed"] = True
+                    state_dirty = True
                 if last is not None and last.get("decision") == "approve":
                     cp_type = last.get("type")
                     if cp_type == CheckpointType.GENESIS_COMPLETE.value:
@@ -929,6 +945,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
                     # through to _orchestrate_to_checkpoint runs step 10. The
                     # runner then sets closure=COMPLETED and the orchestrator
                     # calls transition_closure_to_completed (spec section 8).
+
+            # Persist clamp/migration/consumption BEFORE the BLOCKED early
+            # return, or every resume re-replays them (audit-T2 I3).
+            if state_dirty:
+                save_state(project_dir, state)
 
             if is_at_checkpoint(state):
                 emit_json(

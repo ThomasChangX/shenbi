@@ -265,7 +265,9 @@ CHAPTER_STEPS: list[ChapterStep] = [
 # step_index semantics across table generations.
 # bump rule: ANY rename/reorder of CHAPTER_STEPS bumps PIPELINE_STEPS_VERSION
 # and adds a migration table entry (old -> new; merged-away names map to
-# nothing and are dropped so the successor step re-runs).
+# nothing and are dropped so the successor step re-runs). The version number
+# is a pin anchor for the snapshot test; migration itself is content-driven
+# (idempotent), so the runtime path does not read the number.
 PIPELINE_STEPS_VERSION = 2
 
 STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
@@ -278,7 +280,9 @@ STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
         "pipeline-context-assemble": "pipeline-context-prepare",
         "shenbi-context-composing": "pipeline-context-prepare",
         # MERGE-2: serial auditors folded into review-group-* — no 1:1
-        # successor, drop so the audit groups re-run
+        # successor, drop so the audit groups re-run. EXCEPT character:
+        # group-character is a verbatim continuation of the old character
+        # audit domain, so done-ness carries over (do NOT re-run).
         "shenbi-review-anti-ai": None,
         "shenbi-review-continuity": None,
         "shenbi-review-foreshadowing": None,
@@ -306,7 +310,10 @@ def migrate_steps_done(steps: list[str]) -> tuple[list[str], bool]:
         if name in current:
             migrated.append(name)
             continue
-        target = lookup.get(name, name)
+        if name not in lookup:
+            migrated.append(name)  # unknown name (not ours to rewrite)
+            continue
+        target = lookup[name]
         if target is None:
             changed = True
             continue  # merged away: drop so the successor re-runs
@@ -352,6 +359,10 @@ def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
     old = cl.current_chapter
     cl.current_chapter = anchor + 1
     cl.step_index = 0
+    # Keep the current_step/step_index invariant (see run_chapter_step):
+    # a stale skill name from the runaway chapter would misreport the
+    # resumed position in logs and crash-recovery healing.
+    cl.current_step = CHAPTER_STEPS[0].skill
     log.warning(
         "resume_cursor_clamped",
         old_chapter=old,
