@@ -324,13 +324,13 @@ class TestLifecycleFailureRouting:
     """
 
     def test_lifecycle_dispatch_failure_routes_to_handle_failure(self, tmp_path):
-        from unittest.mock import patch
+        from unittest.mock import MagicMock, patch
 
         from shenbi.pipeline.chapter_loop import run_chapter_step
         from shenbi.pipeline.dispatch_helper import DispatchResult
         from shenbi.pipeline.state import PipelineState
 
-        routed = {}
+        handle_failure = MagicMock(return_value=True)
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6
@@ -348,20 +348,23 @@ class TestLifecycleFailureRouting:
             ),
             patch(
                 "shenbi.pipeline.chapter_loop._handle_failure",
-                side_effect=lambda *a, **k: routed.setdefault("called", True) or True,
+                handle_failure,
             ),
         ):
             run_chapter_step(state, tmp_path)
-        assert routed.get("called") is True
+        # Discriminating assertion: routed as "dispatch" failure (the new C33
+        # branch), NOT the pre-existing output_missing fallback.
+        handle_failure.assert_called_once()
+        assert handle_failure.call_args.args[3] == "dispatch"
 
     def test_g4_failure_routes_to_handle_failure(self, tmp_path):
-        from unittest.mock import patch
+        from unittest.mock import MagicMock, patch
 
         from shenbi.pipeline.chapter_loop import run_chapter_step
         from shenbi.pipeline.dispatch_helper import DispatchResult
         from shenbi.pipeline.state import PipelineState
 
-        routed = {}
+        handle_failure = MagicMock(return_value=True)
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
         state.chapter_loop.step_index = 6
@@ -379,8 +382,38 @@ class TestLifecycleFailureRouting:
             ),
             patch(
                 "shenbi.pipeline.chapter_loop._handle_failure",
-                side_effect=lambda *a, **k: routed.setdefault("called", True) or True,
+                handle_failure,
             ),
         ):
             run_chapter_step(state, tmp_path)
-        assert routed.get("called") is True
+        # Discriminating assertion: routed as "g4" failure (the new C33 branch).
+        handle_failure.assert_called_once()
+        assert handle_failure.call_args.args[3] == "g4"
+
+    def test_dispatch_with_retry_records_attempts(self, tmp_path, monkeypatch):
+        """F363 wiring: _dispatch_with_retry stamps ReviewTask.attempts even
+        when all attempts fail (exception path).
+        """
+        from shenbi.pipeline import parallel_dispatch as pd
+
+        calls = []
+
+        def fake_dispatch(**kwargs):
+            calls.append(1)
+            raise RuntimeError("boom")
+
+        monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch)
+        import time
+        from threading import Semaphore
+
+        monkeypatch.setattr(time, "sleep", lambda s: None)
+        task = pd.ReviewTask(
+            skill="shenbi-review-anti-ai",
+            project_dir=tmp_path,
+            prompt="p",
+            output_path="o",
+        )
+        result = pd._dispatch_with_retry(task, Semaphore(4))
+        assert result.success is False
+        assert task.attempts == pd.MAX_RETRIES + 1
+        assert len(calls) == pd.MAX_RETRIES + 1
