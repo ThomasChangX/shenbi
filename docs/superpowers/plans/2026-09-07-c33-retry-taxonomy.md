@@ -4,7 +4,7 @@
 
 **Goal:** Unify the three uncoordinated retry layers (openai SDK implicit / tenacity dead predicate / outer serial+parallel+scoring loops) behind a single `FailureClass` taxonomy, a chapter-durable retry budget, deterministic-failure zero-retry routing, and a correct `audit_retry_count` lifecycle — per `docs/superpowers/specs/2026-08-16-c33-retry-failure-taxonomy-design.md` (Revised 2026-09-07).
 
-**Architecture:** `FailureClass` lives in `src/shenbi/contracts/enums.py` (C8 single source). A pure classifier `classify_dispatch_failure` in `dispatch_helper.py` feeds four mandatory classification points (tenacity predicate, write-audit rc=2 downgrade, chapter-loop scoring exit, parallel wave retry). All transient retries converge on the tenacity layer (SDK `max_retries=0`); durable accounting reuses the existing `retry_budget_consumed` machinery. Parallel waves report per-task attempt counts aggregated into state at wave completion (no cross-thread state writes).
+**Architecture:** `FailureClass` lives in `src/shenbi/contracts/enums.py` (C8 single source). A pure classifier `classify_dispatch_failure` in `dispatch_helper.py` feeds four mandatory classification points (tenacity predicate, write-audit rc=2 downgrade, chapter-loop scoring exit, parallel wave retry — the last is spec point ④ "audit_layer 派发失败出口" rendered as the wave's per-task failure branch). All transient retries converge on the tenacity layer (SDK `max_retries=0`); durable accounting reuses the existing `retry_budget_consumed` machinery. Parallel waves report per-task attempt counts aggregated into state at wave completion (no cross-thread state writes).
 
 **Tech Stack:** Python 3.11+, tenacity, openai SDK, structlog, pytest. Validation via `just`/`uv run` only.
 
@@ -176,7 +176,7 @@ git commit -m "feat: C33 R1 FailureClass taxonomy + classifier + trace failure_c
 
 **Interfaces:**
 - Consumes: `FailureClass`, `classify_dispatch_failure`, `_is_retryable_exception_tree` (Task 1)
-- Produces: `OpenAI(..., max_retries=0)`; every `_emit_dispatch_trace` call passes `failure_class=`; `_with_write_audit` downgrade site classifies rc=2
+- Produces: `OpenAI(..., max_retries=0)`; `_with_write_audit` downgrade site classifies rc=2; **all four** `_emit_dispatch_trace` call sites pass `failure_class=` (:2165 timeout → `classify_dispatch_failure(exc=<exc>)`, :2180 generic exception → same, :2228 content_filter cap-raise → `FailureClass.DETERMINISTIC_CONTENT` literal, :2355 final success outcome → `None`)
 
 - [ ] **Step 1: Write failing tests** (append to test_retry_taxonomy.py)
 
@@ -192,13 +192,7 @@ class TestSdgMaxRetriesZero:
         src = inspect.getsource(dh)
         assert "max_retries=0" in src
 
-    def test_retryable_predicate_accepts_sdk_wrapper(self, monkeypatch):
-        calls: list[BaseException] = []
-
-        class FakeClient:
-            def __init__(self, *a, **k):
-                raise AssertionError("should not construct real client")
-
+    def test_retryable_predicate_accepts_sdk_wrapper(self):
         class FakeRetryable(Exception):
             def __init__(self):
                 super().__init__("sdk")
@@ -245,7 +239,7 @@ Constructor (dispatch_helper.py:2129):
                 log.warning("write_audit_gate_fail_classified", skill=skill, failure_class=fc.value)
 ```
 
-Both `_emit_dispatch_trace` call sites (:2165 success, :2180 failure): pass `failure_class=` — success site `None`, failure site `classify_dispatch_failure(returncode=<rc>, stderr=<stderr>)`. Check the actual call-site locals and wire the values present there.
+Both `_emit_dispatch_trace` call sites inside the dispatch try/except (:2165 timeout, :2180 generic exception): pass `failure_class=classify_dispatch_failure(exc=<the caught exception>)`. Additionally the other two sites: :2228 (content_filter cap-raise) pass `failure_class=FailureClass.DETERMINISTIC_CONTENT`; :2355 (final outcome, success path) pass `failure_class=None` (default). Check the actual call-site locals and wire the values present there.
 
 - [ ] **Step 4: Run test to verify it passes**
 
@@ -265,12 +259,14 @@ git commit -m "feat: C33 R2a SDK max_retries=0 + tenacity FailureClass predicate
 
 **Files:**
 - Modify: `src/shenbi/pipeline/error_handler.py` (`handle_scoring_failure` :89-101 + module docstring)
-- Modify: `src/shenbi/pipeline/chapter_loop.py` (scoring branch :3103-3115; `_handle_failure` retry sleep)
+- Modify: `src/shenbi/pipeline/chapter_loop.py` (scoring branch :3103-3115; `_handle_failure` retry sleep; module-top `import random`)
+- Modify: `tests/unit/pipeline/test_full_flows.py:215-219` (old bool-semantics assertions)
+- Modify: `tests/unit/pipeline/test_chapter_loop.py:947-967` (old bool-semantics assertions)
 - Test: `tests/unit/pipeline/test_retry_taxonomy.py` (append)
 
 **Interfaces:**
 - Consumes: `FailureClass`, `classify_dispatch_failure` (Task 1); `_handle_failure(state, step, chapter, failure, project_dir, *, budget_pre_consumed=False) -> bool`
-- Produces: `handle_scoring_failure(state, exit_code) -> tuple[bool, FailureClass]` — **BREAKING internal signature**; only caller is chapter_loop.py:3108 (update in same task)
+- Produces: `handle_scoring_failure(state, exit_code) -> tuple[bool, FailureClass]` — **BREAKING internal signature**; production caller = chapter_loop.py:3108, legacy test callers in test_full_flows.py + test_chapter_loop.py updated in this same task (rewrite their assertions to `retry, fc = handle_scoring_failure(...)`; `retry is False`, exit 2 → `FailureClass.DETERMINISTIC_CONTENT`, exit 3 → `FailureClass.DETERMINISTIC_GATE`)
 
 - [ ] **Step 1: Write failing tests** (append)
 
@@ -321,13 +317,28 @@ class TestSerialBackoff:
         slept: list[float] = []
         monkeypatch.setattr(cl.time, "sleep", lambda s: slept.append(s))
         st = PipelineState()
-        st.chapter_loop.retry_counts["ch1-review-resonance"] = st.config.max_audit_retries - 1  # one retry left
-        step = type("S", (), {"skill": "shenbi-review-resonance"})()
-        # one more failure: budget exhausts → RetryExhaustedError raised, but
-        # the sleep must have happened before that decision point.
-        with pytest.raises(cl.RetryExhaustedError):
-            cl._handle_failure(st, step, 1, "scoring", "/tmp")
+        key = "ch1-shenbi-review-resonance"
+        st.chapter_loop.retry_counts[key] = 0
+        st.chapter_loop.retry_budget_consumed[key] = 0  # budget NOT exhausted → retry path
+        step = type("S", (), {"skill": "shenbi-review-resonance", "step_num": 3})()
+        # retry path: _handle_failure returns False (retry) and must have slept.
+        retried = cl._handle_failure(st, step, 1, "scoring", "/tmp")
+        assert retried is False
         assert any(d > 0 for d in slept)
+
+    def test_budget_exhausted_raises_before_sleep(self, monkeypatch):
+        """Exhausted budget raises RetryExhaustedError without backoff sleep."""
+        from shenbi.pipeline import chapter_loop as cl
+
+        slept: list[float] = []
+        monkeypatch.setattr(cl.time, "sleep", lambda s: slept.append(s))
+        st = PipelineState()
+        key = "ch9-shenbi-review-resonance"
+        st.chapter_loop.retry_budget_consumed[key] = st.config.max_audit_retries
+        step = type("S", (), {"skill": "shenbi-review-resonance", "step_num": 3})()
+        with pytest.raises(cl.RetryExhaustedError):
+            cl._handle_failure(st, step, 9, "scoring", "/tmp")
+        assert slept == []
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -383,29 +394,27 @@ Update module docstring scoring line to: `* scoring failure -- exit 2/3 are dete
         return _handle_failure(state, step, chapter, "scoring", project_dir)
 ```
 
-`_handle_failure` — add backoff before the return-False (retry) decision. Insert after the budget check, before `handle_dispatch_failure` invocation, gated on an injectable module-level sleep (the test monkeypatches `cl.time.sleep`; ensure `chapter_loop` imports `time`):
+`_handle_failure` — add backoff on the retry path only. Insert AFTER the budget check (so `RetryExhaustedError` raises before any sleep) and BEFORE the `handle_dispatch_failure` invocation; use module-top `import random` in chapter_loop.py (it already imports `time` at :34):
 
 ```python
     # C33 R2 (T510): serial-layer backoff with jitter — reuse the
     # parallel_dispatch RETRY_JITTER pattern (spec §5.3/§2.8 magnitude rule).
-    import random as _random
-
-    _delay = 2.0 ** (count - 1) + _random.uniform(0, 2.0)
+    _delay = 2.0 ** (count - 1) + random.uniform(0, 2.0)
     log.debug("serial_retry_backoff", chapter=chapter, skill=step.skill, delay=_delay)
     time.sleep(_delay)
 ```
 
-(If `chapter_loop.py` lacks `import time`, add it at module top. `time.sleep` runs on every retry-eligible failure — the RetryExhaustedError raise must happen BEFORE the sleep for the exhausted case; verify order: budget check raises first, sleep only on the retry path. Adjust placement accordingly.)
+- [ ] **Step 4: Update legacy test callers, then run**
 
-- [ ] **Step 4: Run test to verify it passes**
+Rewrite the old bool-semantics assertions in `tests/unit/pipeline/test_full_flows.py:215-219` and `tests/unit/pipeline/test_chapter_loop.py:947-967` to the tuple API (`retry, fc = handle_scoring_failure(state, n)`; exit 2 → `(False, FailureClass.DETERMINISTIC_CONTENT)`, exit 3 → `(False, FailureClass.DETERMINISTIC_GATE)`).
 
-Run: `uv run pytest tests/unit/pipeline/test_retry_taxonomy.py -q && uv run pytest tests/unit/pipeline/ -q -k "scoring or retry"`
-Expected: PASS (run the neighboring suite to catch callers of the old bool signature)
+Run: `uv run pytest tests/unit/pipeline/test_retry_taxonomy.py tests/unit/pipeline/test_full_flows.py tests/unit/pipeline/test_chapter_loop.py -q`
+Expected: PASS
 
 - [ ] **Step 5: Commit**
 
 ```bash
-git add src/shenbi/pipeline/error_handler.py src/shenbi/pipeline/chapter_loop.py tests/unit/pipeline/test_retry_taxonomy.py
+git add src/shenbi/pipeline/error_handler.py src/shenbi/pipeline/chapter_loop.py tests/unit/pipeline/test_retry_taxonomy.py tests/unit/pipeline/test_full_flows.py tests/unit/pipeline/test_chapter_loop.py
 git commit -m "feat: C33 R2b scoring exit-2/3 zero-retry + serial backoff jitter + amplification cap (spec #47)"
 ```
 
@@ -426,46 +435,50 @@ git commit -m "feat: C33 R2b scoring exit-2/3 zero-retry + serial backoff jitter
 
 ```python
 class TestAuditRetryReset:
-    def _state_with_checkpoint(self):
+    """Real arities (verified): set_checkpoint(state, cp_type, chapter=,
+    artifact=, context=, options=); clear_checkpoint(state, decision);
+    chapter_states lives at state.chapter_loop.chapter_states, STR-keyed
+    (key = str(chapter), convention of add_step_done, state.py:234)."""
+
+    def _state_with_checkpoint(self, chapter: int | None = 3):
+        from shenbi.pipeline.machine import set_checkpoint
+        from shenbi.pipeline.state import CheckpointType
+
+        st = PipelineState()
+        key = str(chapter)
+        st.chapter_loop.chapter_states[key].audit_retry_count = st.config.max_audit_retries
+        st.chapter_loop.chapter_states[key].revision_count = st.config.max_audit_retries
+        set_checkpoint(st, CheckpointType.ESCALATION, chapter=chapter, context="audit_blocking")
+        return st
+
+    def test_approve_resets_counters(self):
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        st = self._state_with_checkpoint()
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        cs = st.chapter_loop.chapter_states["3"]
+        assert cs.audit_retry_count == 0 and cs.revision_count == 0
+
+    def test_reject_and_modify_also_reset(self):
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        for decision in (ReviewDecision.REJECT, ReviewDecision.MODIFY):
+            st = self._state_with_checkpoint()
+            clear_checkpoint(st, decision)
+            assert st.chapter_loop.chapter_states["3"].audit_retry_count == 0
+
+    def test_chapter_none_clears_all(self):
         from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
         from shenbi.pipeline.state import CheckpointType, ReviewDecision
 
         st = PipelineState()
-        st.chapter_states[3].audit_retry_count = st.config.max_audit_retries
-        st.chapter_states[3].revision_count = st.config.max_audit_retries
-        set_checkpoint(st, CheckpointType.ESCALATION, chapter=3, reason="audit_blocking")
-        return st, clear_checkpoint
-
-    def test_approve_resets_counters(self):
-        from shenbi.pipeline.state import ReviewDecision
-
-        st, clear = self._state_with_checkpoint()
-        clear(st, ReviewDecision.APPROVE, feedback=None)
-        assert st.chapter_states[3].audit_retry_count == 0
-        assert st.chapter_states[3].revision_count == 0
-
-    def test_reject_and_modify_also_reset(self):
-        from shenbi.pipeline.state import ReviewDecision
-
-        for decision in (ReviewDecision.REJECT, ReviewDecision.MODIFY):
-            st, clear = self._state_with_checkpoint()
-            clear(st, decision, feedback="x")
-            assert st.chapter_states[3].audit_retry_count == 0
-
-    def test_chapter_none_clears_all(self):
-        from shenbi.pipeline.state import ReviewDecision
-
-        st = PipelineState()
-        for ch in (1, 2):
-            st.chapter_states[ch].audit_retry_count = 5
-        from shenbi.pipeline.machine import set_checkpoint
-        from shenbi.pipeline.state import CheckpointType
-
-        set_checkpoint(st, CheckpointType.ESCALATION, chapter=None, reason="pipeline")
-        from shenbi.pipeline.machine import clear_checkpoint
-
-        clear_checkpoint(st, ReviewDecision.APPROVE, feedback=None)
-        assert all(cs.audit_retry_count == 0 for cs in st.chapter_states.values())
+        for ch in ("1", "2"):
+            st.chapter_loop.chapter_states[ch].audit_retry_count = 5
+        set_checkpoint(st, CheckpointType.ESCALATION, chapter=None, context="pipeline")
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        assert all(cs.audit_retry_count == 0 for cs in st.chapter_loop.chapter_states.values())
 
     def test_post_resolve_blocking_routes_to_revision(self):
         """T508 acceptance (T2-tier): ESCALATION resolved → new BLOCKING must
@@ -475,13 +488,12 @@ class TestAuditRetryReset:
         from shenbi.pipeline.state import CheckpointType, ReviewDecision
 
         st = PipelineState()
-        st.chapter_states[5].audit_retry_count = st.config.max_audit_retries
-        set_checkpoint(st, CheckpointType.ESCALATION, chapter=5, reason="audit_blocking")
-        clear_checkpoint(st, ReviewDecision.APPROVE, feedback=None)
-        assert handle_audit_blocking(st, 5, st.chapter_states[5].audit_retry_count) is True
+        st.chapter_loop.chapter_states["5"].audit_retry_count = st.config.max_audit_retries
+        set_checkpoint(st, CheckpointType.ESCALATION, chapter=5, context="audit_blocking")
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        cs = st.chapter_loop.chapter_states["5"]
+        assert handle_audit_blocking(st, 5, cs.audit_retry_count) is True
 ```
-
-(Adapt constructor/arities of `set_checkpoint`/`clear_checkpoint`/`ReviewDecision` import location to the real signatures in `machine.py`/`state.py` when implementing — check before writing the test.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -490,17 +502,18 @@ Expected: FAIL — counters stay non-zero after clear_checkpoint
 
 - [ ] **Step 3: Implement**
 
-`machine.py` `clear_checkpoint` ESCALATION branch — after the three `.clear()` calls add:
+`machine.py` `clear_checkpoint` ESCALATION branch — after the three `.clear()` calls add (NOTE: `chapter_states` is STR-keyed at `state.chapter_loop.chapter_states`):
 
 ```python
         # C33 R3 (T508): per-chapter audit counters share the reset contract.
         # New scope rule: chapter set → clear that chapter only; None → all
         # (mirrors _reset_retry_budget prefix semantics, NOT dict clear-all).
-        _chapters = (
-            [cp.chapter] if cp.chapter is not None else list(state.chapter_states)
+        _keys = (
+            [str(cp.chapter)] if cp.chapter is not None
+            else list(state.chapter_loop.chapter_states)
         )
-        for ch in _chapters:
-            cs = state.chapter_states.get(ch)
+        for k in _keys:
+            cs = state.chapter_loop.chapter_states.get(k)
             if cs is not None:
                 cs.audit_retry_count = 0
                 cs.revision_count = 0
@@ -508,11 +521,11 @@ Expected: FAIL — counters stay non-zero after clear_checkpoint
 
 Add to the `machine.py` docstring: `All per-phase retry counters — including per-chapter audit_retry_count/revision_count — are reset when an ESCALATION checkpoint is resolved (approve/reject/modify).`
 
-`cli.py` `_reset_retry_budget` — same loop appended inside the function (idempotent mirror):
+`cli.py` `_reset_retry_budget` — same loop appended inside the function (idempotent mirror; same STR-key convention):
 
 ```python
-    for ch in ([cp.chapter] if cp.chapter is not None else list(state.chapter_states)):
-        cs = state.chapter_states.get(ch)
+    for k in ([str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states)):
+        cs = state.chapter_loop.chapter_states.get(k)
         if cs is not None:
             cs.audit_retry_count = 0
             cs.revision_count = 0
@@ -584,17 +597,18 @@ class TestLifecycleFailureRouting:
         """F365 residual: lifecycle dispatch failure must retry/escalate via
         _handle_failure, not just log.error."""
         from shenbi.pipeline import chapter_loop as cl
-        from shenbi.pipeline.parallel_dispatch import DispatchResult
 
-        called = {}
+        routed = {}
         monkeypatch.setattr(cl, "_handle_failure",
-                            lambda *a, **k: called.setdefault("routed", True) or True)
-        # drive the post-draft lifecycle block with a failing lifecycle_result;
-        # exact harness: reuse the existing test in this file that exercises
-        # the post-draft two-step block and flip lifecycle_result to failed.
+                            lambda *a, **k: routed.setdefault("called", True) or True)
+        # Harness: copy the state/step fixtures from the nearest existing
+        # post-draft two-step test (grep "parallel_post_draft_g4" in
+        # tests/unit/pipeline/) verbatim, then flip the lifecycle dispatch
+        # result to DispatchResult(False, 1, "", "x") and run the block;
+        # assert routed["called"] is True.
 ```
 
-(Build the concrete harness on top of the existing post-draft tests already in `test_retry_budget.py`/`test_chapter_loop*` — copy their fixture setup verbatim rather than inventing state.)
+(CONCRETE IMPLEMENTER NOTE: locate the existing post-draft tests by `grep -rn "parallel_post_draft" tests/unit/pipeline/`; reuse their fixture setup verbatim rather than inventing state. The test MUST end with `assert routed.get("called") is True` — a harness without this assertion is a plan failure.)
 
 - [ ] **Step 2: Run test to verify it fails**
 
@@ -627,17 +641,20 @@ def _charge_wave_retries(
     cross-thread writes); the main thread charges once at wave completion.
     Idempotent: max(current, attempts - 1) so crash-resume replay cannot
     double-count; trace failure_class/attempts are the reconciliation source.
+    (Locking: write under `state._lock` for convention parity with
+    add_step_done even though this is main-thread-only.)
     """
-    for task, _result in results:
-        retries = max(0, task.attempts - 1)
-        if retries == 0:
-            continue
-        key = _retry_key(chapter, task.skill)
-        current = state.chapter_loop.retry_budget_consumed.get(key, 0)
-        state.chapter_loop.retry_budget_consumed[key] = max(current, retries)
+    with state._lock:
+        for task, _result in results:
+            retries = max(0, task.attempts - 1)
+            if retries == 0:
+                continue
+            key = _retry_key(chapter, task.skill)
+            current = state.chapter_loop.retry_budget_consumed.get(key, 0)
+            state.chapter_loop.retry_budget_consumed[key] = max(current, retries)
 ```
 
-Call it at the parallel-audit-wave completion site where `ReviewTask` futures are collected (locate the `as_completed` / result-gathering block in the wave function ~:2740-2940; insert after all futures resolve, before `_wave_savepoint`).
+Call it at each wave's result-gathering block — there are TWO waves (core wave and genre wave); after each wave's `for task, result in zip(...)` collection loop (~:2874 pattern) in the wave function (~:2740-2960), insert `_charge_wave_retries(state, chapter, list(zip(tasks, results)))`. Note: `_wave_savepoint` is a per-task `on_task_complete` callback that runs DURING the wave — the charge goes at the zip-gathering site, not near the savepoint.
 
 Lifecycle dispatch failure (:2937-2944) — replace log-only with routing:
 
@@ -704,13 +721,13 @@ git commit -m "feat: C33 R4 wave retry budget aggregation + lifecycle/G4 failure
 
 ```python
     def test_approve_keeps_budget_escalates_on_next_failure(self):
-        from shenbi.pipeline.exceptions import RetryExhaustedError
+        from shenbi.exceptions import RetryExhaustedError
         from shenbi.pipeline.chapter_loop import _handle_failure
 
         st = PipelineState()
         key = "ch9-shenbi-review-resonance"
         st.chapter_loop.retry_budget_consumed[key] = st.config.max_audit_retries
-        step = type("S", (), {"skill": "shenbi-review-resonance"})()
+        step = type("S", (), {"skill": "shenbi-review-resonance", "step_num": 3})()
         with pytest.raises(RetryExhaustedError):
             _handle_failure(st, step, 9, "scoring", "/tmp")
 ```
