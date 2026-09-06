@@ -213,7 +213,7 @@ class TestErrorHandling:
         assert handle_dispatch_failure(state, "test-skill", 3) is False  # escalate
 
     def test_scoring_failure_exit_code_routing(self) -> None:
-        """handle_scoring_failure has recovery paths for exit 2 and 3 only."""
+        """C33: exit 2/3 are deterministic (zero retry); classification per FailureClass."""
         state = PipelineState.default("/x")
         # C33 (spec #47): exit 2/3 are deterministic — zero retry.
         assert handle_scoring_failure(state, 2) == (False, FailureClass.DETERMINISTIC_CONTENT)

@@ -125,11 +125,17 @@ class TestAmplificationCap:
         to tenacity-only attempts: SDK max_retries=0 (T2) + outer scoring
         zero-retry deterministic (T3) + tenacity stop_after_attempt(3).
         """
+        import inspect
+
         import tenacity
         from tenacity import Retrying, stop_after_attempt
 
-        # The production decorator uses stop_after_attempt(3); asserting that
-        # policy directly avoids touching the decorated FunctionType attribute.
+        # Bind to the PRODUCTION decorator's policy (not a fresh copy): the
+        # tenacity wiring at dispatch_helper must remain stop_after_attempt(3).
+        from shenbi.pipeline import dispatch_helper as dh
+
+        assert "stop_after_attempt(3)" in inspect.getsource(dh)
+
         retrying = Retrying(stop=stop_after_attempt(3))
         rs = tenacity.RetryCallState(retry_object=retrying, fn=None, args=(), kwargs={})
         rs.attempt_number = 3
@@ -155,9 +161,16 @@ class TestSerialBackoff:
         st.chapter_loop.retry_budget_consumed[key] = 0  # budget NOT exhausted → retry path
         step = ChapterStep(step_num=3, skill="shenbi-review-resonance", name="review-resonance")
         monkeypatch.setattr(cl, "dispatch_escalation", lambda *a, **k: None)
+        import random
+
+        monkeypatch.setattr(random, "uniform", lambda a, b: 1.5)
         retried = cl._handle_failure(st, step, 1, "scoring", tmp_path)
         assert retried is False
-        assert any(d > 0 for d in slept)
+        # Curve shape (count=1): 2.0**0 + U(0,2) == 1.0 + 1.5 == 2.5
+        assert slept == [2.5]
+        # Exponential growth (count=2): 2.0**1 + 1.5 == 3.5
+        retried2 = cl._handle_failure(st, step, 1, "scoring", tmp_path)
+        assert retried2 is False and slept[-1] == 3.5
 
     def test_budget_exhausted_raises_before_sleep(self, monkeypatch, tmp_path):
         """Exhausted budget raises RetryExhaustedError without backoff sleep."""
