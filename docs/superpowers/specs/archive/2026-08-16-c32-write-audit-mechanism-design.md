@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟥 P0 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Rejected (2026-09-07 · R1-R4 全部已由 PR #43 等效修复于 main，11 条成员 findings 逐条核验 closed；F513 残留待新归属) | **Severity:** 🟥 P0 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C32）| **依赖:** 无前置（本簇是 C33 rc 分类与 C1 键空间对账的输入）| **范围:** src/shenbi/audit/write_audit.py、audit/snapshot.py、_matches_declared/_declared_patterns、API/IDE 派发路由 | **核心洞察:** 写审计是"纯假阳性机器"——合法 glob 声明写恒判未声明（3 次生产 GATE_FAIL），而删除/重建、非法 JSON 替换、API/IDE 路由三类真违规整体逃逸
 
 # C32 · 写审计机制修复（write-audit-mechanism）
