@@ -94,7 +94,12 @@ def build_shared_audit_context(project_dir: Path, chapter: int) -> SharedAuditCo
     hooks_file = project_dir / "truth" / "pending_hooks.md"
     if hooks_file.exists():
         raw = hooks_file.read_text(encoding="utf-8")
-        ctx.pending_hooks = raw[:3000]
+        if len(raw) > 3000:
+            # C29 R1 (F362): fallback-injection copy is truncated — disclose it
+            ctx.pending_hooks = raw[:3000] + f"\n\n[TRUNCATED 3000/{len(raw)} chars]"
+            log.warning("pending_hooks_truncated", original_len=len(raw))
+        else:
+            ctx.pending_hooks = raw
         ctx.raw_files[_rel(hooks_file, project_dir)] = raw
 
     # volume_context has zero consumers in the audit wave (C28 spec R2 drop)
@@ -116,7 +121,7 @@ def _summarize_if_large(text: str, max_chars: int = 5000) -> str:
     """Truncate text if it exceeds max_chars, adding summary indicator."""
     if len(text) <= max_chars:
         return text
-    return text[:max_chars] + f"\n\n[... truncated from {len(text)} chars]"
+    return text[:max_chars] + f"\n\n[TRUNCATED {max_chars}/{len(text)} chars]"
 
 
 def _extract_volume_chapter(volume_map_text: str, chapter: int) -> str:
