@@ -6,7 +6,7 @@ dispatch 派生的子进程不再继承全量 `os.environ`（原行为使 `SHENB
 
 ## codex 面（`codex exec` CLI）
 
-精确名单：`PATH` `HOME` `LANG` `LC_ALL` `LC_CTYPE` `TERM` `TMPDIR` `CODEX_HOME` `OPENAI_BASE_URL` `OPENAI_API_BASE` `HTTPS_PROXY` `HTTP_PROXY` `NO_PROXY`（及小写代理变体）
+精确名单：`PATH` `HOME` `LANG` `LC_ALL` `LC_CTYPE` `TERM` `TMPDIR` `CODEX_HOME` `XDG_CONFIG_HOME` `XDG_DATA_HOME` `SSL_CERT_FILE` `REQUESTS_CA_BUNDLE` `OPENAI_BASE_URL` `OPENAI_API_BASE` `HTTPS_PROXY` `HTTP_PROXY` `NO_PROXY`（及小写代理变体）
 
 前缀：`SHENBI_*`
 
@@ -16,7 +16,7 @@ dispatch 派生的子进程不再继承全量 `os.environ`（原行为使 `SHENB
 
 ## 密钥排除与逃生阀
 
-- 变量名含 `KEY` / `TOKEN` / `SECRET` / `PASSWORD`（不区分大小写）一律不透传——含 `SHENBI_LLM_API_KEY`、`OPENAI_API_KEY`
+- 变量名含 `KEY` / `TOKEN` / `SECRET` / `PASSWORD`（不区分大小写）一律不透传——含 `SHENBI_LLM_API_KEY`、`OPENAI_API_KEY`。注意：若部署依赖 `OPENAI_API_KEY`（而非 `CODEX_HOME/auth.json` 登录），codex exec 会鉴权失败——用 `SHENBI_ENV_PASSTHROUGH=OPENAI_API_KEY` 显式透传
 - 运维显式追加通道：`SHENBI_ENV_PASSTHROUGH="VAR1:VAR2"`（冒号分隔）——被点名变量即使密钥命名也透传（点名即意图），并记 INFO 日志 `env_passthrough_explicit` 供审计
 - 框架内部 gate subprocess（G3/G4 CLI 直调）不属本策略范围（框架内部面，密钥可达性低）
 
