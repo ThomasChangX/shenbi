@@ -100,6 +100,14 @@ def chapter_loop_succeeds() -> Iterator[SimpleNamespace]:
         g4 = stack.enter_context(
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS)
         )
+        # Dispatch stubbed -> declared outputs never materialize; neutralize
+        # the F1112 output guard (dedicated tests: test_step_output_downgrade).
+        stack.enter_context(
+            patch(
+                "shenbi.pipeline.chapter_loop._step_output_exists",
+                return_value=True,
+            )
+        )
         yield SimpleNamespace(dispatch=dispatch, g4=g4)
 
 

@@ -14,6 +14,7 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 
 
@@ -48,6 +49,8 @@ class StructuredChapterRepresentation:
 
 # --- META stripping ---
 from shenbi.gates.shared import META_BLOCK_RE as _META_RE  # 单源别名（z11 F1301）
+
+log = get_logger(__name__)
 
 
 def extract_prose(text: str) -> str:
@@ -437,16 +440,25 @@ def _compute_confidence(prose: str) -> float:
 def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentation:
     """Once per chapter: deterministic structured extraction from chapter prose.
 
-    Caches result to context/chapter-N-scr.json.
+    Caches result to context/chapter-N-scr.json. C30 F310: the cache key is
+    (size, mtime_ns) of the chapter file — a revision invalidates the cache;
+    plain existence (the old behavior) served pre-revision SCR forever.
     """
     cache_path = project_dir / "context" / f"chapter-{chapter}-scr.json"
+    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
 
-    # Return cached if available and fresh
+    cache_key: dict[str, int] | None = None
+    if chapter_path.exists():
+        stat = chapter_path.stat()
+        cache_key = {"size": stat.st_size, "mtime_ns": stat.st_mtime_ns}
+
     if cache_path.exists():
         cached = json.loads(cache_path.read_text(encoding="utf-8"))
-        return StructuredChapterRepresentation(**cached)
+        cached_key = cached.pop("_cache_key", None)
+        if cached_key == cache_key and cache_key is not None:
+            return StructuredChapterRepresentation(**cached)
+        log.info("scr_cache_invalidated", chapter=chapter)
 
-    chapter_path = project_dir / "chapters" / f"chapter-{chapter}.md"
     if not chapter_path.exists():
         raise FileNotFoundError(f"Chapter file not found: {chapter_path}")
 
@@ -475,6 +487,7 @@ def extract_scr(project_dir: Path, chapter: int) -> StructuredChapterRepresentat
         extraction_confidence=_compute_confidence(prose),
     )
 
-    # Cache to disk
-    safe_write(cache_path, json.dumps(asdict(scr), ensure_ascii=False, indent=2))
+    # Cache to disk (with the invalidation key)
+    payload = {"_cache_key": cache_key, **asdict(scr)}
+    safe_write(cache_path, json.dumps(payload, ensure_ascii=False, indent=2))
     return scr

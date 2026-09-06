@@ -178,15 +178,17 @@ def _emergency_cleanup(
     except Exception as e:
         logger.error("emergency_snapshot_failed", error=str(e))
 
-    # 4. Clear staging
+    # 4. Clear staging — C30 R1 (F318): preserve products that already
+    # entered a checkpoint (pending an explicit review decision); only
+    # never-checkpointed temporaries are destroyed here.
     try:
         from shenbi.pipeline.checkpoint import clear_staging
 
-        clear_staging(project_dir)
-        logger.info("staging_cleared")
-    except Exception:
+        clear_staging(project_dir, preserve_checkpointed=True)
+        logger.info("staging_cleared_preserving_checkpointed")
+    except Exception as e:
         # Best-effort staging wipe; failures here must not block process exit.
-        pass
+        logger.warning("emergency_staging_clear_failed", error=str(e))
 
 
 def _snapshot_chapter_files(

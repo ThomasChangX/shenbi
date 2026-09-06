@@ -290,6 +290,7 @@ class TestEndToEndErrorPaths:
         with (
             patch("shenbi.pipeline.chapter_loop.dispatch_skill") as mock_ch_disp,
             patch("shenbi.pipeline.chapter_loop.run_gate_g4") as mock_ch_g4,
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
         ):
             mock_ch_disp.return_value = DispatchResult(True, 0, "{}", "")
             mock_ch_g4.return_value = {"status": "PASS"}

@@ -90,17 +90,25 @@ def set_checkpoint(
 def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
     """Clear the pending checkpoint and record it in history.
 
-    When an ESCALATION checkpoint is resolved (APPROVE, REJECT, or
-    MODIFY), all per-phase retry counters are reset so the pipeline gets
-    a fresh set of retry attempts rather than immediately re-escalating.
+    C30 F338: a NONE checkpoint (no real checkpoint pending) is a no-op —
+    it must not enter the history that ``cmd_resume`` keys phase
+    transitions off.
+
+    C30 F371: history entries carry ``consumed=False``; the resume command
+    that ACTS on an approve event flips it to True, so transitions no
+    longer guess from ``history[-1]``.
     """
     cp = state.pending_checkpoint
+    if cp.type == CheckpointType.NONE:
+        state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE)
+        return
     state.checkpoint_history.append(
         {
             "type": cp.type.value,
             "chapter": cp.chapter,
             "decision": decision.value,
             "resolved_at": _now_iso(),
+            "consumed": False,
         }
     )
     if cp.type == CheckpointType.ESCALATION and decision in (

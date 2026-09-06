@@ -393,8 +393,10 @@ def _commit_staging_for_checkpoint(project_dir: Path, cp: CheckpointData) -> Non
         try:
             commit_staging(project_dir, [target])
         except FileNotFoundError:
-            # Expected: file may have been cleared since the checkpoint was raised.
-            pass
+            # Expected: file may have been cleared since the checkpoint was
+            # raised — but stay observable (C30 audit-T1 M3): a checkpointed
+            # survivor wiped elsewhere surfaces here as a silent loss.
+            log.warning("staging_commit_target_missing", target=target, checkpoint=cp.type.value)
 
     # Clear staging dir regardless (remove any remaining staged files).
     from shenbi.pipeline.checkpoint import clear_staging
@@ -636,10 +638,20 @@ def cmd_review(args: argparse.Namespace) -> int:
                     return 1
                 feedback = feedback_path.read_text(encoding="utf-8")
 
-            # Staging handling (spec section 2.7): approve/modify commits
-            # staging files to their final paths; reject clears staging.
-            if decision in (ReviewDecision.APPROVE, ReviewDecision.MODIFY):
+            # Staging handling (spec section 2.7): approve commits staging
+            # files to their final paths; reject clears staging. C30 F323:
+            # MODIFY = human edits are the baseline — the old staged LLM
+            # output is explicitly discarded (same audited predicate as
+            # reject), NOT committed and then overwritten by re-dispatch.
+            if decision == ReviewDecision.APPROVE:
                 _commit_staging_for_checkpoint(project_dir, cp)
+            elif decision == ReviewDecision.MODIFY:
+                # Contract (C30 audit-T1 I2): human edits must land on the
+                # COMMITTED artifact path or travel via modify_feedback —
+                # edits made only to the staged copy are discarded with it.
+                from shenbi.pipeline.checkpoint import discard_staging
+
+                discard_staging(project_dir, reason="modify_baseline_human_edit")
             elif decision == ReviewDecision.REJECT:
                 from shenbi.pipeline.checkpoint import clear_staging
 
@@ -839,9 +851,60 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
             _auto_rebuild_progress_if_stale(project_dir)
 
+            # C30 R2 (F371): clamp a runaway cursor to the committed-product
+            # anchor BEFORE any transition logic keys off it, and migrate
+            # old-generation steps_done names (F797).
+            from shenbi.pipeline.chapter_loop import (
+                _clamp_resume_cursor,  # pyright: ignore[reportPrivateUsage]
+                migrate_steps_done,
+            )
+
+            cl_state = state.chapter_loop
+            before = (cl_state.current_chapter, cl_state.step_index, cl_state.current_step)
+            _clamp_resume_cursor(cl_state, project_dir)
+            state_dirty = (
+                cl_state.current_chapter,
+                cl_state.step_index,
+                cl_state.current_step,
+            ) != before
+            for ch_key, cs in list(cl_state.chapter_states.items()):
+                migrated, changed = migrate_steps_done(cs.steps_done)
+                if changed:
+                    log.warning("steps_done_migrated", chapter=ch_key)
+                    cs.steps_done = migrated
+                    state_dirty = True
+
             if state.checkpoint_history:
-                last = state.checkpoint_history[-1]
-                if last.get("decision") == "approve":
+                # C30 F371: consume the transition event instead of guessing
+                # from history[-1] — the newest UNCONSUMED approve entry is
+                # the one this resume acts on; older ones are already handled.
+                # Entries written by pre-C30 versions carry no "consumed"
+                # field and are treated as already handled (default True):
+                # a one-way, WARN-noted discard — replaying them would
+                # double-dispatch snapshot-manage.
+                legacy_approves = [
+                    e
+                    for e in state.checkpoint_history
+                    if e.get("decision") == "approve" and "consumed" not in e
+                ]
+                if legacy_approves:
+                    log.warning(
+                        "legacy_checkpoint_events_discarded",
+                        count=len(legacy_approves),
+                    )
+                pending_event = next(
+                    (
+                        e
+                        for e in reversed(state.checkpoint_history)
+                        if e.get("decision") == "approve" and not e.get("consumed", True)
+                    ),
+                    None,
+                )
+                last = pending_event
+                if last is not None:
+                    last["consumed"] = True
+                    state_dirty = True
+                if last is not None and last.get("decision") == "approve":
                     cp_type = last.get("type")
                     if cp_type == CheckpointType.GENESIS_COMPLETE.value:
                         from shenbi.pipeline.transitions import (
@@ -871,6 +934,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
                                 chapter=snap_ch,
                                 rc=snap_result.returncode,
                             )
+                            # Keep the event unconsumed so the next resume
+                            # retries the snapshot (final-review I2: consuming
+                            # here would permanently drop a failed dispatch).
+                            last["consumed"] = False
+                            state_dirty = False
                         # If this boundary was also the book-closure point,
                         # transition to closure (the step_index guard prevents
                         # the trigger block from re-firing on re-entry).
@@ -887,6 +955,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
                     # through to _orchestrate_to_checkpoint runs step 10. The
                     # runner then sets closure=COMPLETED and the orchestrator
                     # calls transition_closure_to_completed (spec section 8).
+
+            # Persist clamp/migration/consumption BEFORE the BLOCKED early
+            # return, or every resume re-replays them (audit-T2 I3).
+            if state_dirty:
+                save_state(project_dir, state)
 
             if is_at_checkpoint(state):
                 emit_json(

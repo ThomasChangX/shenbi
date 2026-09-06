@@ -14,6 +14,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from threading import Semaphore
 from typing import Any
+from collections.abc import Callable
 
 from shenbi.logging import get_logger
 from shenbi.pipeline.dispatch_helper import DispatchResult, dispatch_skill
@@ -149,6 +150,7 @@ def assert_parallelizable(tasks: list[ReviewTask]) -> None:
 
 def dispatch_reviews_parallel(
     tasks: list[ReviewTask],
+    on_task_complete: Callable[[int, DispatchResult], None] | None = None,
 ) -> list[DispatchResult]:
     """Dispatch multiple reviews in parallel with rate limiting.
 
@@ -157,6 +159,11 @@ def dispatch_reviews_parallel(
 
     Args:
         tasks: List of ReviewTask objects to dispatch.
+        on_task_complete: C30 F377 midpoint save point — invoked from the
+            collecting loop as each task finishes, with ``(task_index,
+            result)``. Contract: called ONLY for successful results (failed
+            tasks are not called back); called from the single collecting
+            thread; a raising callback is logged and does not abort the wave.
 
     Returns:
         List of DispatchResult objects, one per task (order preserved).
@@ -184,6 +191,15 @@ def dispatch_reviews_parallel(
                     error=str(exc),
                 )
                 results[idx] = DispatchResult(False, -1, "", str(exc))
+            if on_task_complete is not None and results[idx].success:
+                try:
+                    on_task_complete(idx, results[idx])
+                except Exception as cb_exc:
+                    log.error(
+                        "parallel_wave_callback_failed",
+                        index=idx,
+                        error=str(cb_exc),
+                    )
 
     return [results[i] for i in range(len(tasks))]
 

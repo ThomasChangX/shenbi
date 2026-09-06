@@ -35,9 +35,11 @@ import time
 from dataclasses import dataclass
 from enum import StrEnum
 from pathlib import Path
+from collections.abc import Callable
 from typing import TYPE_CHECKING, Any, cast
 
 if TYPE_CHECKING:
+    from shenbi.pipeline.dispatch_helper import DispatchResult
     from shenbi.pipeline.parallel_dispatch import ReviewTask
     from shenbi.skill_utils.drift_detection.linguistic_drift import DriftResult
 
@@ -64,7 +66,7 @@ from shenbi.pipeline.crash_recovery import (
     is_shutdown_requested,
     register_emergency_handlers,
 )
-from shenbi.pipeline.machine import set_checkpoint
+from shenbi.pipeline.machine import save_state, set_checkpoint
 from shenbi.pipeline.revision_router import (
     RevisionRoute,
     check_resonance,
@@ -73,6 +75,7 @@ from shenbi.pipeline.revision_router import (
     route_chapter_revision,
 )
 from shenbi.pipeline.state import (
+    ChapterLoopStateData,
     ChapterStatus,
     ChapterState,
     CheckpointType,
@@ -145,6 +148,8 @@ CHAPTER_STEPS: list[ChapterStep] = [
         step_type="checkpoint",
     ),
     # Step 2: Chapter planning (LLM)
+    # C30 T1602/F358: NO context assembly here — the plan does not exist
+    # yet; assembly moved to step-3's first entry (plan-existence guarded).
     ChapterStep(
         2,
         "shenbi-chapter-planning",
@@ -153,7 +158,6 @@ CHAPTER_STEPS: list[ChapterStep] = [
         checkpoint=CheckpointType.CHAPTER_MEMO,
         uses_staging=True,
         output_path="plans/chapter-N-plan.md",
-        calls_context_assembly=True,
     ),
     # Step 3: Context prepare (deterministic, merged context-assemble + curation)
     ChapterStep(
@@ -258,7 +262,175 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
 ]
 
-# Conditional steps (not in main list, invoked only when gates open).
+# ---------------------------------------------------------------------------
+# Step-table versioning (C30 R2, F797): old-generation steps_done entries
+# migrate on resume so a stale step name never silently misaligns the
+# step_index semantics across table generations.
+# bump rule: ANY rename/reorder of CHAPTER_STEPS bumps PIPELINE_STEPS_VERSION
+# and adds a migration table entry (old -> new; merged-away names map to
+# nothing and are dropped so the successor step re-runs). The version number
+# is a pin anchor for the snapshot test; migration itself is content-driven
+# (idempotent), so the runtime path does not read the number.
+PIPELINE_STEPS_VERSION = 2
+
+STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
+    1: {
+        # MERGE-1: three foreshadowing skills -> one lifecycle skill
+        "shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle",
+        "shenbi-foreshadowing-track": "shenbi-foreshadowing-lifecycle",
+        "shenbi-foreshadowing-recall": "shenbi-foreshadowing-lifecycle",
+        # context assembly + curation merged into one deterministic step
+        "pipeline-context-assemble": "pipeline-context-prepare",
+        "shenbi-context-composing": "pipeline-context-prepare",
+        # MERGE-2: serial auditors folded into review-group-* — no 1:1
+        # successor, drop so the audit groups re-run. EXCEPT character:
+        # group-character is a verbatim continuation of the old character
+        # audit domain, so done-ness carries over (do NOT re-run).
+        "shenbi-review-anti-ai": None,
+        "shenbi-review-continuity": None,
+        "shenbi-review-foreshadowing": None,
+        "shenbi-review-memo-compliance": None,
+        "shenbi-review-pacing": None,
+        "shenbi-review-pov": None,
+        "shenbi-review-character": "shenbi-review-group-character",
+    },
+}
+
+
+def migrate_steps_done(steps: list[str]) -> tuple[list[str], bool]:
+    """Migrate old-generation step names through every migration table.
+
+    Returns ``(migrated_steps, changed)``. Idempotent: names already in the
+    current generation pass through untouched.
+    """
+    current = {s.skill for s in CHAPTER_STEPS}
+    lookup: dict[str, str | None] = {}
+    for table in STEP_NAME_MIGRATIONS.values():
+        lookup.update(table)
+    migrated: list[str] = []
+    changed = False
+    for name in steps:
+        if name in current:
+            migrated.append(name)
+            continue
+        if name not in lookup:
+            migrated.append(name)  # unknown name (not ours to rewrite)
+            continue
+        target = lookup[name]
+        if target is None:
+            changed = True
+            continue  # merged away: drop so the successor re-runs
+        if target not in migrated:
+            migrated.append(target)
+        changed = True
+    return migrated, changed
+
+
+def committed_chapter_anchor(project_dir: Path) -> int:
+    """Highest chapter number with a COMMITTED chapter product (C30 R2, F371).
+
+    Only exact ``chapter-N.md`` files count — snapshot/label copies
+    (``chapter-N-emergency.md`` etc.) are not committed products.
+    """
+    chapters_dir = project_dir / "chapters"
+    if not chapters_dir.is_dir():
+        return 0
+    anchor = 0
+    for path in chapters_dir.iterdir():
+        match = re.fullmatch(r"chapter-(\d+)\.md", path.name)
+        if match:
+            anchor = max(anchor, int(match.group(1)))
+    return anchor
+
+
+def _filter_completed_audit_tasks(tasks: list[ReviewTask]) -> list[ReviewTask]:
+    """C30 F377: drop audit tasks whose output product already exists.
+
+    After a mid-wave crash, re-entry replays only the unfinished segment —
+    skills that already wrote their audit report are not re-dispatched.
+    """
+    return [t for t in tasks if not (t.project_dir / t.output_path).exists()]
+
+
+def _wave_savepoint(
+    state: PipelineState, project_dir: Path, chapter: int
+) -> Callable[[list[ReviewTask]], Callable[[int, DispatchResult], None]]:
+    """C30 F377: return an ``on_task_complete`` closure for an audit wave.
+
+    Persists the finished skill in ``audit_results["wave_completed"]`` and
+    saves state after each completion — a crash loses at most the in-flight
+    skill, not the whole wave.
+    """
+
+    def _factory(tasks: list[ReviewTask]) -> Callable[[int, DispatchResult], None]:
+        def _on_complete(idx: int, result: DispatchResult) -> None:
+            skill = tasks[idx].skill
+            cs = state.chapter_loop.chapter_states.get(str(chapter))
+            done: list[str] = list(cs.audit_results.get("wave_completed") or []) if cs else []
+            if skill not in done:
+                done.append(skill)
+                # List form (not joined string): crash forensics read exact
+                # membership without substring-collision ambiguity.
+                state.add_audit_result(chapter, "wave_completed", done)
+            save_state(project_dir, state)
+            log.info("parallel_wave_savepoint", chapter=chapter, skill=skill)
+
+        return _on_complete
+
+    return _factory
+
+
+def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> bool:
+    """C30 F1112: verify a dispatched step's declared output exists.
+
+    Steps without a declared output_path (audits via aggregate, parallel
+    pairs) are not guarded here — their completion is tracked by their own
+    post-checks. Staging steps are checked in staging/.
+    """
+    from shenbi.pipeline.checkpoint import STAGING_DIR
+
+    if step.skill == "shenbi-state-settling":
+        truth_dir = project_dir / STAGING_DIR / "truth"
+        return truth_dir.is_dir() and any(truth_dir.glob("*.md"))
+    if not step.output_path:
+        return True
+    resolved = resolve_chapter_path(step.output_path, chapter)
+    if step.uses_staging:
+        resolved = f"{STAGING_DIR}/{resolved}"
+    return (project_dir / resolved).exists()
+
+
+def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
+    cl: ChapterLoopStateData, project_dir: Path
+) -> None:
+    """Clamp a runaway resume cursor to the committed-product anchor (F371).
+
+    Fires only when the cursor is MORE than one chapter past the last
+    committed product AND the current chapter has zero recorded progress —
+    a mid-chapter revision interrupt (progress recorded) is legitimate and
+    must not be touched.
+    """
+    anchor = committed_chapter_anchor(project_dir)
+    if cl.current_chapter <= anchor + 1:
+        return
+    cs = cl.chapter_states.get(str(cl.current_chapter))
+    if cs is not None and cs.steps_done:
+        return
+    old = cl.current_chapter
+    cl.current_chapter = anchor + 1
+    cl.step_index = 0
+    # Keep the current_step/step_index invariant (see run_chapter_step):
+    # a stale skill name from the runaway chapter would misreport the
+    # resumed position in logs and crash-recovery healing.
+    cl.current_step = CHAPTER_STEPS[0].skill
+    log.warning(
+        "resume_cursor_clamped",
+        old_chapter=old,
+        new_chapter=cl.current_chapter,
+        committed_anchor=anchor,
+    )
+
+
 # NOTE: escalation-review is intentionally ABSENT -- it is dispatched
 # reactively from revision_router.dispatch_escalation (Spec 5), NOT from here.
 CONDITIONAL_STEPS: list[ChapterStep] = [
@@ -680,6 +852,36 @@ def staged_decisions_targets(project_dir: Path, skill: str, chapter: int | None)
         if (project_dir / STAGING_DIR / resolved).exists():
             targets.append(resolved)
     return targets
+
+
+def _mark_staged_for_checkpoint(project_dir: Path, step: ChapterStep, chapter: int) -> None:
+    """Mark a staging-bearing checkpoint's staged products (C30 R1, F318).
+
+    Called where a checkpoint over ``uses_staging`` products is raised: the
+    staged outputs are now pending an explicit review decision and must
+    survive the emergency (atexit) staging clear. Target set mirrors
+    ``_commit_staging_for_checkpoint`` (CHAPTER_MEMO: plan + sidecars;
+    STATE_SETTLE: all staged truth files + sidecars) so what survives an
+    emergency clear is exactly what an approve would commit.
+    """
+    if not step.uses_staging:
+        return
+    from shenbi.pipeline.checkpoint import STAGING_DIR, mark_staging_checkpointed
+
+    targets: list[str] = []
+    if step.skill == "shenbi-state-settling":
+        # Mirror the commit path (cli.py I3): state-settle commits glob ALL
+        # staged truth files — the settling step has no single output_path
+        # (and raises STATE_SETTLE out-of-band, so step.checkpoint is None).
+        staging_truth = project_dir / STAGING_DIR / "truth"
+        if staging_truth.is_dir():
+            targets.extend(f"truth/{p.name}" for p in sorted(staging_truth.glob("*.md")))
+    elif step.output_path:
+        targets.append(resolve_chapter_path(step.output_path, chapter))
+    targets.extend(staged_decisions_targets(project_dir, step.skill, chapter))
+    staged = [t for t in targets if (project_dir / STAGING_DIR / t).exists()]
+    if staged:
+        mark_staging_checkpointed(project_dir, staged)
 
 
 def _handle_failure(
@@ -1235,6 +1437,7 @@ def _advance(
                 artifact=artifact,
                 context=f"Review {step.name} for chapter {chapter}",
             )
+            _mark_staged_for_checkpoint(project_dir, step, chapter)
             return True
 
     if state.chapter_loop.step_index >= len(CHAPTER_STEPS):
@@ -1254,6 +1457,13 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     """
     plan_path = f"plans/chapter-{chapter}-plan.md"
     context_path = project_dir / "context" / f"chapter-{chapter}-context.md"
+    # C30 T1602/F358: plan-existence guard. Without it an early assembly
+    # trigger ran a doomed pass (assemble throws on the missing plan) and
+    # the hard post-check below then wrote a discarded minimal fallback —
+    # one wasted assembly + one wasted write per chapter.
+    if not (project_dir / plan_path).exists():
+        log.error("assembly_skipped_no_plan", chapter=chapter, plan=plan_path)
+        return
     try:
         from shenbi.pipeline.context_assemble import (
             assemble_context,
@@ -2277,7 +2487,10 @@ def _cleanup_residual_staging(  # pyright: ignore[reportUnusedFunction]
         log.debug("staging_cleanup_skipped", reason="pending staging steps")
         return
 
-    clear_staging(project_dir)
+    # C30 C2: products already inside a pending review decision (marked
+    # checkpointed) must survive the resume-time residual cleanup too —
+    # an emergency-clear survivor would otherwise be wiped by `resume`.
+    clear_staging(project_dir, preserve_checkpointed=True)
     log.info("residual_staging_cleaned_at_resume", project_dir=str(project_dir))
 
 
@@ -2294,9 +2507,12 @@ def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[
 # ---------------------------------------------------------------------------
 
 
-# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS.
-# Used to trigger parallel execution of steps 6-7 together.
-_FORESHADOWING_LIFECYCLE_IDX = 6
+# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS (C30 F357:
+# derived, same method as _FIRST/_LAST_AUDIT_IDX -- a literal silently
+# misaligns on the next table reorder). Triggers the lifecycle+settling pair.
+_FORESHADOWING_LIFECYCLE_IDX = next(
+    i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-foreshadowing-lifecycle"
+)
 
 
 def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
@@ -2575,10 +2791,13 @@ def _run_chapter_step_impl(
         core_tasks = [t for t in core_tasks if _keep_task(t)]
         core_wave, core_serial = _partition_review_wave(core_tasks)
 
+        core_wave = _filter_completed_audit_tasks(core_wave)
         core_results: list[DispatchResult] = []
         if core_wave:
             log.info("parallel_review_wave1_start", chapter=chapter, count=len(core_wave))
-            core_results = dispatch_reviews_parallel(core_wave)
+            core_results = dispatch_reviews_parallel(
+                core_wave, on_task_complete=_wave_savepoint(state, project_dir, chapter)(core_wave)
+            )
         else:
             log.info("parallel_review_wave1_empty", chapter=chapter)
         core_results.extend(_dispatch_serial_reviews(core_serial, project_dir))
@@ -2602,10 +2821,14 @@ def _run_chapter_step_impl(
         genre_tasks = [t for t in genre_tasks if _keep_task(t)]
         genre_wave, genre_serial = _partition_review_wave(genre_tasks)
 
+        genre_wave = _filter_completed_audit_tasks(genre_wave)
         genre_results: list[DispatchResult] = []
         if genre_wave:
             log.info("parallel_review_wave2_start", chapter=chapter, count=len(genre_wave))
-            genre_results = dispatch_reviews_parallel(genre_wave)
+            genre_results = dispatch_reviews_parallel(
+                genre_wave,
+                on_task_complete=_wave_savepoint(state, project_dir, chapter)(genre_wave),
+            )
         else:
             log.info("parallel_review_wave2_empty", chapter=chapter)
         genre_results.extend(_dispatch_serial_reviews(genre_serial, project_dir))
@@ -2637,7 +2860,15 @@ def _run_chapter_step_impl(
         # The consolidated summary always contains "- **BLOCKING Issues**: N".
         # Only the "## BLOCKING Issues" H2 section is present when actual
         # blocking issues exist (see consolidate_review_results in parallel_dispatch.py).
-        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated
+        # C30 audit-T5 I1: on a post-crash replay where the whole wave was
+        # already filtered out (all outputs exist), ``consolidated`` is built
+        # from an empty result list and would under-report BLOCKING — derive
+        # from the durable artifacts of the FULL task set instead.
+        cs.audit_results["blocking_found"] = "## BLOCKING Issues" in consolidated or any(
+            "## BLOCKING Issues" in (project_dir / task.output_path).read_text(encoding="utf-8")
+            for task in core_tasks + genre_tasks
+            if (project_dir / task.output_path).exists()
+        )
         cs.audit_results["audit_reports"] = [t.output_path for t in core_tasks + genre_tasks]
         # Per-skill history entries (F341/F726, spec #27 T5): the cascade
         # (_should_skip_audit/_get_audit_history) consumes exactly this shape.
@@ -2728,11 +2959,23 @@ def _run_chapter_step_impl(
                     skill=pstep.skill,
                 )
 
-        # Record both steps as done and advance past them.
-        state.add_step_done(chapter, lifecycle_step.skill)
-        _reset_retries(state, lifecycle_step, chapter)
-        state.add_step_done(chapter, settling_step.skill)
-        _reset_retries(state, settling_step, chapter)
+        # Record both steps as done and advance past them. C30 F1112:
+        # missing declared outputs downgrade — same semantics as the generic
+        # success path (route to _handle_failure so the step retries and
+        # escalates; final-review I1: silently advancing would complete the
+        # chapter with un-updated truth).
+        for pstep in (lifecycle_step, settling_step):
+            if _step_output_exists(project_dir, pstep, chapter):
+                state.add_step_done(chapter, pstep.skill)
+                _reset_retries(state, pstep, chapter)
+            else:
+                log.warning(
+                    "step_output_missing_downgraded",
+                    chapter=chapter,
+                    step=pstep.skill,
+                    expected=pstep.output_path or "staging/truth/*.md",
+                )
+                return _handle_failure(state, pstep, chapter, "output_missing", project_dir)
 
         # Advance past both steps (idx 6 and 7 -> idx 8)
         next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
@@ -2768,6 +3011,7 @@ def _run_chapter_step_impl(
             artifact=settling_artifact,
             context=f"Review {settling_step.name} for chapter {chapter}",
         )
+        _mark_staged_for_checkpoint(project_dir, settling_step, chapter)
         return True
 
     # Context assembly (step 4): materialize package before chapter-drafting.
@@ -3049,7 +3293,21 @@ def _run_chapter_step_impl(
 
         _route_revision_after_resonance(state, project_dir, chapter)
 
-    # Success: record, reset retries, advance.
+    # Success: record, reset retries, advance. C30 F1112: a step whose
+    # declared output is missing must NOT be recorded as done — downgrade
+    # (skip the done-marking) with a WARN so state never claims completion
+    # without the product on disk.
+    if not _step_output_exists(project_dir, step, chapter):
+        # Downgrade = not done. Route through the failure path so the step
+        # RETRIES and eventually escalates (audit-T4 I1: silently advancing
+        # would permanently skip a productless step).
+        log.warning(
+            "step_output_missing_downgraded",
+            chapter=chapter,
+            step=step.skill,
+            expected=step.output_path,
+        )
+        return _handle_failure(state, step, chapter, "output_missing", project_dir)
     state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
 

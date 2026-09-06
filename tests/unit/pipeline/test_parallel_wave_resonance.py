@@ -63,7 +63,8 @@ def _run_wave(tmp_path: Path, monkeypatch, report_text: str | None) -> PipelineS
             report.write_text(report_text, encoding="utf-8")
         return [DispatchResult(True, 0, "", "") for _ in serial_tasks]
 
-    ok = lambda tasks: [DispatchResult(True, 0, "", "") for _ in tasks]  # noqa: E731
+    # C30 F377: production passes on_task_complete; stub accepts it.
+    ok = lambda tasks, on_task_complete=None: [DispatchResult(True, 0, "", "") for _ in tasks]  # noqa: E731
 
     monkeypatch.setattr(
         "shenbi.pipeline.audit_context_cache.build_shared_audit_context",
