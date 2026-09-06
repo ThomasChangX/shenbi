@@ -146,6 +146,8 @@ CHAPTER_STEPS: list[ChapterStep] = [
         step_type="checkpoint",
     ),
     # Step 2: Chapter planning (LLM)
+    # C30 T1602/F358: NO context assembly here — the plan does not exist
+    # yet; assembly moved to step-3's first entry (plan-existence guarded).
     ChapterStep(
         2,
         "shenbi-chapter-planning",
@@ -154,7 +156,6 @@ CHAPTER_STEPS: list[ChapterStep] = [
         checkpoint=CheckpointType.CHAPTER_MEMO,
         uses_staging=True,
         output_path="plans/chapter-N-plan.md",
-        calls_context_assembly=True,
     ),
     # Step 3: Context prepare (deterministic, merged context-assemble + curation)
     ChapterStep(
@@ -1397,6 +1398,13 @@ def _run_context_assembly(project_dir: Path, chapter: int) -> None:
     """
     plan_path = f"plans/chapter-{chapter}-plan.md"
     context_path = project_dir / "context" / f"chapter-{chapter}-context.md"
+    # C30 T1602/F358: plan-existence guard. Without it an early assembly
+    # trigger ran a doomed pass (assemble throws on the missing plan) and
+    # the hard post-check below then wrote a discarded minimal fallback —
+    # one wasted assembly + one wasted write per chapter.
+    if not (project_dir / plan_path).exists():
+        log.error("assembly_skipped_no_plan", chapter=chapter, plan=plan_path)
+        return
     try:
         from shenbi.pipeline.context_assemble import (
             assemble_context,
@@ -2440,9 +2448,12 @@ def _has_pending_staging_step(state: PipelineState) -> bool:  # pyright: ignore[
 # ---------------------------------------------------------------------------
 
 
-# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS.
-# Used to trigger parallel execution of steps 6-7 together.
-_FORESHADOWING_LIFECYCLE_IDX = 6
+# Index of the foreshadowing-lifecycle step in CHAPTER_STEPS (C30 F357:
+# derived, same method as _FIRST/_LAST_AUDIT_IDX -- a literal silently
+# misaligns on the next table reorder). Triggers the lifecycle+settling pair.
+_FORESHADOWING_LIFECYCLE_IDX = next(
+    i for i, s in enumerate(CHAPTER_STEPS) if s.skill == "shenbi-foreshadowing-lifecycle"
+)
 
 
 def run_parallel_post_draft_steps(state: PipelineState) -> tuple[Any, Any]:
