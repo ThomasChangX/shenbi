@@ -25,7 +25,7 @@
 > **Scope 裁决（2026-09-06 驳斥复核）**：T102/F1110（PR #120）、F305（PR #63）、F1153（PR #6 链）、F379 已在 main 修复——本 spec 不重复实现，归档回写记 closed-by 对应 PR；F380/F311/F1112/F1114 降级承接（见各 R 条目）；R5 缩为 F377 单条。
 
 ### R1 · staging 清理谓词定稿（F318 + F323，最高优先；T102/F1110 已修剔除）
-- 谓词单一信源 = staging manifest（或等价落盘登记，经 `write_safety` 原子写）：产物进入 checkpoint 时落盘标记，崩溃后新进程由 manifest 重建 staged/committed 边界——"从未进入 checkpoint"必须跨进程可推导，不得依赖进程内记忆
+- 谓词单一信源 = 扩展现有 staging meta（`checkpoint.py` `_load_staging_meta` 所辖登记，非新建平行 manifest 文件）：产物进入 checkpoint 时落盘标记，经 `write_safety` 原子写，崩溃后新进程由该登记重建 staged/committed 边界——"从未进入 checkpoint"必须跨进程可推导，不得依赖进程内记忆
 - atexit 紧急清理只清"manifest 中从未进入 checkpoint 的临时文件"；checkpoint approve/reject 时 commit（含 sidecar 整目录）或显式 discard，二者必居其一且留审计日志（structlog）
 - atexit/信号路径复用 spec #37（PR #140）one-shot latch，清理谓词在锁协议约束下求值；新增清理入口不得盲取 WriteLock（atexit 盲取 = 确定性自死锁，crash_recovery.py:136-156 已有不变量）；与 C11 联合回归验收
 - MODIFY 语义裁决：人工编辑后重派 = 以人工编辑为基线 = 对旧 staging 显式 discard（走同一审计日志谓词），不构成第三种清理路径；`pipeline-review MODIFY` 路径重写
@@ -33,7 +33,7 @@
 
 ### R2 · resume 游标锚定（F371 + F1114 + F797）
 - 游标 = 已提交章产物号（R1 commit 语义定稿后唯一来源），checkpoint 显式锚仅作下界校验（显式锚 > 已提交章号时 WARN 并取已提交章号——防未提交章被 resume 重生成覆盖）；phase 转换事件化并消费（不再读 history[-1] 猜）；新事件/状态字面量以 `Literal` 定义于 `src/shenbi/contracts/enums.py`
-- steps_done 步名版本化：`PIPELINE_STEPS_VERSION` 常量（步骤表任何重命名/重排即 +1）+ 迁移表（旧名→新名），resume 时迁移并 WARN（structlog）
+- steps_done 步名版本化：`PIPELINE_STEPS_VERSION` 常量（步骤表任何重命名/重排即 +1，由 pin 步骤表快照的回归测试强制——快照与版本常量不一致即测试红）+ 迁移表（旧名→新名），resume 时迁移并 WARN（structlog）
 - **验收**：F371 复现场景（auto 模式中断于章中）恢复后从断点章继续且零覆盖；旧 state fixture 迁移测试
 
 ### R3 · 步骤表与装配触发（T1602 + F358 + F380 + F357 + F338）
@@ -51,7 +51,7 @@
 
 ## 验收（簇级）
 - `just check` 全绿；新增 `tests/integration/pipeline/` 生命周期用例（真实 fixture，覆盖 R1/R2/R5 确定性崩溃注入）
-- 19 条本 spec 关闭（F318 代表 + 其余存活/降级承接项）+ T1108 移交注记不计验收 + F311 零消费面视 C37 裁决分支 + T102/F1110/F305/F1153/F379 五条 closed-by 既有 PR（#120/#63/#6 链）——回写按此口径，非"全部 20 条本 spec 关闭"
+- 19 条关闭（20 − T1108 移交不计），其中 5 条 closed-by 既有 PR（T102/F1110→#120、F305→#63、F1153→#6 链、F379）、14 条本 spec 关闭（含 F311 零消费面视 C37 裁决分支）——回写按此口径，不双重计数
 
 ## 风险
 - 前置已满足：C3 = PR #117 Done、C4 = PR #120 Done（2026-09-06 复核）；剩 C19（#26 已归档）共享面回归与 C37 对 F311 的分支裁决
@@ -67,4 +67,5 @@
 
 ## 回写
 - merged 关系（phase4 §3）：`F318 <- F305, F310-F311, F323, F338, F357-F358, F371, F377, F379-F380, F797, F1110, F1112, F1114, F1153, T102, T1108, T1602`
+- closed-by 标签（机器可读，防回写工具重开已修项）：T102/F1110 closed-by PR #120 · F305 closed-by PR #63 · F1153 closed-by PR #6 链 · F379 closed-by main 既有修复；其余 14 条本 spec 关闭
 - 移交注记：T1108（离线可执行模式）为独立设计裁决，本 spec 尾注移交不计入验收；F311 curated 零消费者面若 C37 R0 裁决删除则随 C37 关闭
