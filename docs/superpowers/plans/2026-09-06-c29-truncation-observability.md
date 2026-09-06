@@ -23,7 +23,7 @@
 **Files:**
 - Modify: `src/shenbi/pipeline/dispatch_helper.py:314-337`（`_budgeted_truncate`）及调用点 `:728`
 - Modify: `src/shenbi/pipeline/audit_context_cache.py:96-98`（pending_hooks 截断）
-- Test: `tests/pipeline/test_budgeted_truncate.py`（扩展；**既有 3 个测试须同步改写**——返回值从 dict 变 tuple，`result.get(...)`/`.values()` 全要改为解包后取 texts）
+- Test: `tests/pipeline/test_budgeted_truncate.py`（扩展；**既有 2 个调用 `_budgeted_truncate` 的测试须同步改写**——返回值从 dict 变 tuple，`result.get(...)` 改为解包后取 texts（`test_priority_weights_exist_for_all_keys` 不调用该函数，不动））
 
 **Interfaces:**
 - Produces:
@@ -48,7 +48,7 @@ Run: `grep -rn "input_over_budget_applying_priority_truncation\|\[\.\.\. truncat
 - [ ] **Step 1: 写失败测试**
 
 ```python
-# tests/pipeline/test_budgeted_truncate.py 追加（同时改写既有 3 个测试为 tuple 解包；import 处补 `_INPUT_MAX_CHARS_TOTAL, _INPUT_MAX_CHARS_PER_FILE`）
+# tests/pipeline/test_budgeted_truncate.py 追加（同时改写既有 2 个调用方测试为 tuple 解包；import 处补 `_INPUT_MAX_CHARS_TOTAL, _INPUT_MAX_CHARS_PER_FILE`）
 
 def test_marker_survives_per_file_cap():
     """F361: 标记必须在 cap 切片之后追加，不可被 32K cap 切掉。"""
@@ -171,7 +171,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 
 - [ ] **Step 1: 失败测试** — 用 `tests/fixtures/chapter-10-draft.md` 拼接成 >5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 `clip_with_disclosure` 断言 `(prefix, True)`；对 `check_continuity`（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 `input_sampled`；genre_config 用真实 `tests/fixtures` 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 `+N more` 计数行
 - [ ] **Step 2:** `uv run pytest tests/unit/gates/test_sampling_disclosure.py -q` → FAIL
-- [ ] **Step 3:** 实现 helper + 六处 `[:3000]`/`[:5000]` 改 `text, sampled = clip_with_disclosure(...)`，check dict 条件加键；genre_config 改为：
+- [ ] **Step 3:** 实现 helper + 八处 `[:3000]`/`[:5000]` 改 `text, sampled = clip_with_disclosure(...)`（g6.py:234 为内联 `cp in ...[:5000]` 形态：先绑定 `text, sampled` 再做 membership，sampled 聚合进 G6.8 check dict），check dict 条件加键；genre_config 改为：
   ```python
   errors = e.errors()
   for err in errors[:5]:
