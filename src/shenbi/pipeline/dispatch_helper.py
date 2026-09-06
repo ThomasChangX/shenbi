@@ -1999,8 +1999,9 @@ def classify_dispatch_failure(
     if returncode is not None and returncode != 0:
         return FailureClass.DETERMINISTIC_CONTENT
     # Exception face: httpx direct OR openai SDK wrappers (cause chain) are
-    # transient; unknown failures also classify as TRANSIENT — the retry
-    # budget (retry_budget_consumed) is the guard against their amplification.
+    # transient (predicate: _is_retryable_exception_tree, wired into tenacity
+    # via _is_retryable); unknown failures also classify as TRANSIENT — the
+    # retry budget (retry_budget_consumed) guards their amplification.
     return FailureClass.TRANSIENT
 
 

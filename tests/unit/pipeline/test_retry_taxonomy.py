@@ -40,3 +40,22 @@ class TestClassifier:
     def test_plain_exception_defaults_transient(self):
         # unknown → transient-or-escalate rule (M1): transient, budget still guards.
         assert classify_dispatch_failure(exc=RuntimeError("x")) is FailureClass.TRANSIENT
+
+
+class TestPredicateTreeWalk:
+    """F977 acceptance: the tenacity predicate itself accepts SDK wrappers."""
+
+    def test_retryable_predicate_accepts_sdk_wrapper(self):
+        from shenbi.pipeline.dispatch_helper import _is_retryable
+
+        class FakeSdkError(Exception):
+            def __init__(self):
+                super().__init__("sdk")
+                self.__cause__ = httpx.ReadTimeout("read timed out")
+
+        assert _is_retryable(FakeSdkError()) is True
+
+    def test_predicate_rejects_plain_error(self):
+        from shenbi.pipeline.dispatch_helper import _is_retryable
+
+        assert _is_retryable(ValueError("nope")) is False
