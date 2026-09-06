@@ -1884,7 +1884,7 @@ def _emit_dispatch_trace(
     """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
 
     C33 spec #47 R1: failure_class carries the FailureClass taxonomy when the
-    dispatch failed — the cost report joins on this field.
+    dispatch failed — reserved for the C10 cost report join.
 
     Only appends when a trace stream already exists in project_dir — dispatch
     must not silently create new trace surfaces. payload is a free dict, so
@@ -1996,7 +1996,10 @@ def classify_dispatch_failure(
     """
     if returncode == 2 and "write-audit GATE_FAIL" in stderr:
         return FailureClass.DETERMINISTIC_GATE
-    if returncode is not None and returncode != 0:
+    if returncode == 2:
+        # rc=2 is the deterministic-violation exit (write-audit / validation);
+        # other nonzero exits (1/-1 subprocess crashes) stay transient —
+        # retrying those is spec S11 semantics, guarded by the budget.
         return FailureClass.DETERMINISTIC_CONTENT
     # Exception face: httpx direct OR openai SDK wrappers (cause chain) are
     # transient (predicate: _is_retryable_exception_tree, wired into tenacity

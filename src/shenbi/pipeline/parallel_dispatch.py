@@ -109,6 +109,22 @@ def _dispatch_with_retry(
                     returncode=result.returncode,
                     stderr=result.stderr[:200],
                 )
+                # C33 R1 classification point ④ (F533, spec #47): deterministic
+                # failures (rc=2 write-audit GATE_FAIL etc.) are not retried —
+                # retrying a deterministic outcome burns full-price dispatches.
+                from shenbi.contracts.enums import FailureClass
+                from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
+
+                if (
+                    classify_dispatch_failure(returncode=result.returncode, stderr=result.stderr)
+                    is not FailureClass.TRANSIENT
+                ):
+                    log.warning(
+                        "parallel_dispatch_deterministic_no_retry",
+                        skill=task.skill,
+                        returncode=result.returncode,
+                    )
+                    return result
         except Exception as exc:
             log.error(
                 "parallel_dispatch_exception",

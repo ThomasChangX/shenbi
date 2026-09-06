@@ -45,6 +45,8 @@ class TestDurableCounter:
             "shenbi.pipeline.error_handler.handle_dispatch_failure",
             lambda state, skill, count: True,
         )
+        # C33 R2: serial retry now back-offs — patch the clock (no CI real-sleep).
+        monkeypatch.setattr("shenbi.pipeline.chapter_loop.time.sleep", lambda _s: None)
         escalated = _handle_failure(s, _step(), chapter=1, failure="gate", project_dir=tmp_path)
         assert escalated is False  # retries, does not escalate yet
         key = _retry_key(1, "shenbi-chapter-drafting")

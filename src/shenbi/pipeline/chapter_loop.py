@@ -75,6 +75,8 @@ from shenbi.pipeline.revision_router import (
     dispatch_escalation,
     route_chapter_revision,
 )
+from shenbi.contracts.enums import FailureClass
+from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
 from shenbi.pipeline.state import (
     ChapterLoopStateData,
     ChapterStatus,
@@ -918,6 +920,7 @@ def _handle_failure(
     project_dir: Path | str,
     *,
     budget_pre_consumed: bool = False,
+    failure_class: FailureClass | None = None,
 ) -> bool:
     """Record a dispatch/gate failure for a chapter step.
 
@@ -954,17 +957,27 @@ def _handle_failure(
             f"(consumed {consumed})"
         )
 
-    # C33 R2 (T510): serial-layer backoff with jitter — reuse the
-    # parallel_dispatch RETRY_JITTER magnitude rule (spec §5.3/§2.8).
-    # Placed after the budget check above so RetryExhaustedPath raises
-    # without sleeping.
-    _delay = 2.0 ** (count - 1) + random.uniform(0, 2.0)
-    log.debug("serial_retry_backoff", chapter=chapter, skill=step.skill, delay=_delay)
-    time.sleep(_delay)
-
     from shenbi.pipeline.error_handler import handle_dispatch_failure
 
+    # C33 R1/R2 (F533, spec #47): deterministic failures zero-retry — route
+    # straight to escalation instead of burning retry attempts.
+    _deterministic = failure_class is not None and failure_class is not FailureClass.TRANSIENT
+    if _deterministic:
+        log.warning(
+            "deterministic_failure_no_retry",
+            chapter=chapter,
+            skill=step.skill,
+            failure_class=failure_class.value if failure_class else None,
+        )
+        return _escalate_step_failure(state, step, chapter, failure, count, project_dir)
+
     if handle_dispatch_failure(state, step.skill, count):
+        # C33 R2 (T510): serial-layer backoff with jitter — reuse the
+        # parallel_dispatch RETRY_JITTER magnitude rule (spec §5.3/§2.8).
+        # Inside the retry branch only: escalation pays no backoff sleep.
+        _delay = 2.0 ** (count - 1) + random.uniform(0, 2.0)
+        log.debug("serial_retry_backoff", chapter=chapter, skill=step.skill, delay=_delay)
+        time.sleep(_delay)
         log.warning(
             "chapter_step_failed_retrying",
             chapter=chapter,
@@ -976,6 +989,22 @@ def _handle_failure(
         )
         return False
     # Retries exhausted: dispatch escalation-review first, then set checkpoint.
+    return _escalate_step_failure(state, step, chapter, failure, count, project_dir)
+
+
+def _escalate_step_failure(
+    state: PipelineState,
+    step: ChapterStep,
+    chapter: int,
+    failure: str,
+    count: int,
+    project_dir: Path | str,
+) -> bool:
+    """Dispatch escalation-review and raise the ESCALATION checkpoint.
+
+    Shared by the retry-exhausted path and the C33 deterministic zero-retry
+    path of _handle_failure (spec #47 R2 goal 3).
+    """
     from shenbi.pipeline.revision_router import dispatch_escalation
 
     dispatch_escalation(
@@ -3176,7 +3205,16 @@ def _run_chapter_step_impl(
             step=step.step_num,
             skill=step.skill,
         )
-        return _handle_failure(state, step, chapter, "dispatch", project_dir)
+        return _handle_failure(
+            state,
+            step,
+            chapter,
+            "dispatch",
+            project_dir,
+            failure_class=classify_dispatch_failure(
+                returncode=result.returncode, stderr=result.stderr
+            ),
+        )
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)

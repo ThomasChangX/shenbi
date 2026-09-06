@@ -142,6 +142,15 @@ class TestAmplificationCap:
         assert retrying.stop(rs) is True
         rs.attempt_number = 2
         assert retrying.stop(rs) is False
+        # Bind the PRODUCTION decorator's actual policy object (not just the
+        # source string): getattr avoids basedpyright FunctionMemberAccess.
+        prod = getattr(dh._call_llm_streaming_with_retry, "retry", None)
+        assert prod is not None
+        rs2 = tenacity.RetryCallState(retry_object=prod, fn=None, args=(), kwargs={})
+        rs2.attempt_number = 3
+        assert prod.stop(rs2) is True
+        rs2.attempt_number = 2
+        assert prod.stop(rs2) is False
 
 
 class TestSerialBackoff:
@@ -439,3 +448,102 @@ class TestApprovePathBudgetSemantics:
         with pytest.raises(RetryExhaustedError):
             _handle_failure(st, step, 9, "scoring", tmp_path)
         assert slept == []
+
+
+class TestClassifierRcSemantics:
+    def test_rc1_subprocess_crash_stays_transient(self):
+        """rc=1 (generic subprocess failure) keeps S11 retry semantics —
+        only rc=2 is the deterministic-violation exit.
+        """
+        assert classify_dispatch_failure(returncode=1) is FailureClass.TRANSIENT
+        assert classify_dispatch_failure(returncode=-1) is FailureClass.TRANSIENT
+
+
+class TestDeterministicZeroRetryWiring:
+    def test_handle_failure_deterministic_escalates_immediately(self, monkeypatch, tmp_path):
+        """C1 final-review fix: rc=2 dispatch failure → zero retry, straight
+        to ESCALATION checkpoint.
+        """
+        import time
+
+        from shenbi.pipeline.chapter_loop import ChapterStep, _handle_failure
+        from shenbi.pipeline.state import CheckpointType, PipelineState
+
+        slept: list[float] = []
+        monkeypatch.setattr(time, "sleep", slept.append)
+        monkeypatch.setattr(
+            "shenbi.pipeline.revision_router.dispatch_escalation", lambda *a, **k: None
+        )
+        st = PipelineState.default(str(tmp_path))
+        step = ChapterStep(step_num=3, skill="shenbi-chapter-draft", name="chapter-draft")
+        escalated = _handle_failure(
+            st,
+            step,
+            1,
+            "dispatch",
+            tmp_path,
+            failure_class=classify_dispatch_failure(
+                returncode=2, stderr="write-audit GATE_FAIL: drift"
+            ),
+        )
+        assert escalated is True
+        assert st.pending_checkpoint.type is CheckpointType.ESCALATION
+        assert slept == []  # no backoff paid on deterministic path
+
+    def test_run_chapter_step_rc2_zero_retry(self, tmp_path):
+        """End-to-end: a dispatch returning rc=2 GATE_FAIL escalates on the
+        FIRST failure (no retry loop).
+        """
+        from unittest.mock import patch
+
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.state import CheckpointType, PipelineState
+
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 1  # chapter-planning
+        calls = []
+
+        def fail_rc2(*args, **kwargs):
+            calls.append(1)
+            return DispatchResult(False, 2, "", "write-audit GATE_FAIL: drift")
+
+        with (
+            patch("shenbi.pipeline.chapter_loop.dispatch_skill", side_effect=fail_rc2),
+            patch(
+                "shenbi.pipeline.revision_router.dispatch_skill",
+                return_value=DispatchResult(True, 0, "{}", ""),
+            ),
+        ):
+            result = run_chapter_step(state, tmp_path)
+        assert result is True
+        assert state.pending_checkpoint.type is CheckpointType.ESCALATION
+        assert len(calls) == 1  # zero retry
+
+    def test_wave_deterministic_failure_not_retried(self, tmp_path, monkeypatch):
+        """Point ④: wave retry loop stops on deterministic rc=2."""
+        import time
+        from threading import Semaphore
+
+        from shenbi.pipeline import parallel_dispatch as pd
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+
+        calls = []
+
+        def fake_dispatch(**kwargs):
+            calls.append(1)
+            return DispatchResult(False, 2, "", "write-audit GATE_FAIL: drift")
+
+        monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch)
+        monkeypatch.setattr(time, "sleep", lambda s: None)
+        task = pd.ReviewTask(
+            skill="shenbi-review-anti-ai",
+            project_dir=tmp_path,
+            prompt="p",
+            output_path="o",
+        )
+        result = pd._dispatch_with_retry(task, Semaphore(4))
+        assert result.success is False
+        assert len(calls) == 1  # deterministic → no wave retry
+        assert task.attempts == 1
