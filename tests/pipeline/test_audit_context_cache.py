@@ -77,3 +77,40 @@ def test_shared_context_fields_are_injectable():
     assert "truth/pending_hooks.md" in raw_inputs
     # Chapter text from the original read is preserved
     assert raw_inputs["chapters/chapter-1.md"] == "chapter content"
+
+
+def test_pending_hooks_truncation_disclosed():
+    """C29 R1 (F362): >3000-char pending_hooks gets cap-proof sentinel + WARN."""
+    from structlog.testing import capture_logs
+
+    with tempfile.TemporaryDirectory() as tmp:
+        project_dir = Path(tmp)
+        hooks_dir = project_dir / "truth"
+        hooks_dir.mkdir(parents=True)
+        # Real product content (G0.9) — chapter draft repeated to exceed 3000 chars
+        base = (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
+        (hooks_dir / "pending_hooks.md").write_text(base * 3, encoding="utf-8")
+
+        with capture_logs() as logs:
+            ctx = build_shared_audit_context(project_dir, 1)
+
+        total = len(base) * 3
+        assert ctx.pending_hooks.endswith(f"[TRUNCATED 3000/{total} chars]")
+        warn_events = [
+            e
+            for e in logs
+            if e.get("log_level") == "warning" and e["event"] == "pending_hooks_truncated"
+        ]
+        assert len(warn_events) == 1
+        # Full bytes still retained for read-suppression (C28 contract)
+        assert ctx.raw_files["truth/pending_hooks.md"] == base * 3
+
+
+def test_summarize_if_large_uses_new_sentinel():
+    """C29 R1: world_rules/character_list truncation uses the [TRUNCATED k/n] sentinel."""
+    from shenbi.pipeline.audit_context_cache import _summarize_if_large
+
+    base = (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
+    out = _summarize_if_large(base * 3, max_chars=5000)
+    assert out.endswith(f"[TRUNCATED 5000/{len(base) * 3} chars]")
+    assert "[... truncated from" not in out

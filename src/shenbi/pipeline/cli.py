@@ -30,6 +30,7 @@ from typing import Any
 from shenbi.cli_utils import emit_json
 from shenbi.logging import configure_logging, get_logger
 from shenbi.pipeline.filelock_utils import ReadLock, WriteLock
+from shenbi.pipeline.chapter_loop import chapter_sort_key
 from shenbi.pipeline.machine import (
     clear_checkpoint,
     is_at_checkpoint,
@@ -925,7 +926,9 @@ def cmd_chapters(args: argparse.Namespace) -> int:
             "resonance_score": ch_state.resonance_score,
             "revision_count": ch_state.revision_count,
         }
-        for ch_num_str, ch_state in sorted(state.chapter_loop.chapter_states.items())
+        for ch_num_str, ch_state in sorted(
+            state.chapter_loop.chapter_states.items(), key=lambda kv: chapter_sort_key(kv[0])
+        )
     ]
 
     emit_json(

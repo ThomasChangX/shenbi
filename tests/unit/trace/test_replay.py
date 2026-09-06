@@ -33,3 +33,65 @@ def test_replay_drops_bad_signature(tmp_path: Path) -> None:
     rec["actor"] = "tampered"  # 改了内容但签名没重算
     p.write_text(json.dumps(rec, ensure_ascii=False) + "\n", encoding="utf-8")
     assert replay(tmp_path) == []
+
+
+def test_replay_truncation_warns_with_reason(tmp_path: Path) -> None:
+    """C29 R4 (F620): torn tail triggers replay_truncated WARN with byte accounting."""
+    from structlog.testing import capture_logs
+
+    w = TraceWriter(tmp_path)
+    w.append(actor="d", actor_role="GATE", action="A", target="t")
+    p = tmp_path / "trace.jsonl"
+    torn = '{"seq":2,"incomplete":'
+    p.write_text(p.read_text(encoding="utf-8") + torn, encoding="utf-8")
+
+    with capture_logs() as logs:
+        evs = replay(tmp_path)
+
+    assert [e.seq for e in evs] == [1]
+    warns = [
+        e for e in logs if e.get("log_level") == "warning" and e["event"] == "replay_truncated"
+    ]
+    assert len(warns) == 1
+    entry = warns[0]
+    assert entry["drop_reason"] == "torn_line"
+    assert entry["kept_events"] == 1
+    assert entry["dropped_chars"] == len(torn)
+
+
+def test_replay_signature_gap_warns(tmp_path: Path) -> None:
+    """C29 R4 (F620): signature-gap truncation also WARNs."""
+    from structlog.testing import capture_logs
+
+    w = TraceWriter(tmp_path)
+    w.append(actor="d", actor_role="GATE", action="A", target="t")
+    p = tmp_path / "trace.jsonl"
+    rec = json.loads(p.read_text(encoding="utf-8").strip())
+    rec["actor"] = "tampered"
+    p.write_text(json.dumps(rec, ensure_ascii=False) + "\n", encoding="utf-8")
+
+    with capture_logs() as logs:
+        assert replay(tmp_path) == []
+
+    warns = [
+        e for e in logs if e.get("log_level") == "warning" and e["event"] == "replay_truncated"
+    ]
+    assert len(warns) == 1
+    assert warns[0]["drop_reason"] == "signature_gap"
+    assert warns[0]["kept_events"] == 0
+
+
+def test_replay_clean_file_no_warn(tmp_path: Path) -> None:
+    """C29 R4: clean chain and already-truncated file emit no replay_truncated."""
+    from structlog.testing import capture_logs
+
+    w = TraceWriter(tmp_path)
+    w.append(actor="d", actor_role="GATE", action="A", target="t")
+    w.append(actor="d", actor_role="GATE", action="B", target="t")
+    with capture_logs() as logs:
+        assert len(replay(tmp_path)) == 2
+    assert not [e for e in logs if e["event"] == "replay_truncated"]
+    # already-truncated file replays idempotently without a second WARN
+    with capture_logs() as logs2:
+        assert len(replay(tmp_path)) == 2
+    assert not [e for e in logs2 if e["event"] == "replay_truncated"]

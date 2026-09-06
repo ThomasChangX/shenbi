@@ -42,6 +42,11 @@ def g4_genre_config(
                 errors = e.errors()
                 for err in errors[:5]:
                     mf.append(f"G4.gc.{Path(gc_path).name}:{err['loc']}: {err['msg']}")
+                if len(errors) > 5:  # C29 R2 (F235): disclose the silently dropped rest
+                    mf.append(
+                        f"G4.gc.{Path(gc_path).name}: +{len(errors) - 5} more errors"
+                        f" (total {len(errors)})"
+                    )
         except Exception:  # noqa: BLE001 (C13 allowlist: intentional broad catch, structured handling per spec #39 T5)
             mf.append(f"G4.gc.invalid_json:{Path(gc_path).name}")
 

@@ -143,6 +143,7 @@ def gate_G7(round_dir: str) -> str:
 
     # G7.13 — Gate re-run verification
     marker_dir = rd / "gate-markers"
+    g6_sampling_disclosures: list[str] = []
     if marker_dir.exists():
         for mf_path in sorted(marker_dir.glob("*.json")):
             try:
@@ -191,11 +192,21 @@ def gate_G7(round_dir: str) -> str:
                     )
                     if rerun.get("status") == "FAIL":
                         mf.append(f"G7.13:{mf_path.stem}:marker_PASS_rerun_FAIL")
+                    _disclosure = rerun.get("sampling_disclosed")
+                    if _disclosure:
+                        g6_sampling_disclosures.append(f"{stem}:{_disclosure}")
             except Exception as e:
                 mf.append(f"G7.13:{mf_path.stem}:rerun_error:{e}")
         if not any(x.startswith("G7.13:") for x in mf):
+            note = "all markers verified by re-run"
+            # C29 R2: surface G6 sampling disclosures seen during re-runs
+            if g6_sampling_disclosures:
+                note += "；" + "；".join(g6_sampling_disclosures)
+            c.append({"id": "G7.13", "s": GateStatus.PASS, "note": note})
+        elif g6_sampling_disclosures:
+            # Sibling-marker failures must not silently drop sampling disclosure
             c.append(
-                {"id": "G7.13", "s": GateStatus.PASS, "note": "all markers verified by re-run"}
+                {"id": "G7.13", "s": GateStatus.WARN, "note": "；".join(g6_sampling_disclosures)}
             )
     else:
         c.append({"id": "G7.13", "s": GateStatus.SKIP, "r": "no gate-markers directory"})

@@ -311,30 +311,75 @@ def _get_priority(filename: str) -> float:
     return _FILE_PRIORITY_WEIGHTS["default"]
 
 
-def _budgeted_truncate(input_texts: dict[str, str], budget: int) -> dict[str, str]:  # pyright: ignore[reportUnusedFunction]
+@dataclass(frozen=True)
+class TruncateRecord:
+    """Disclosure metadata for one truncated input file (C29 R1, F361/F330)."""
+
+    file: str
+    original_len: int
+    kept_len: int
+    offset: int  # 0 — current implementation only clips from the head
+
+
+def _cap_single(text: str, fname: str) -> str:
+    """Apply the per-file cap with a cap-proof sentinel + WARN (F361 under-budget path)."""
+    log.warning(
+        "input_truncated",
+        file=fname,
+        original_len=len(text),
+        kept_len=_INPUT_MAX_CHARS_PER_FILE,
+    )
+    return (
+        text[:_INPUT_MAX_CHARS_PER_FILE]
+        + f"\n\n[TRUNCATED {_INPUT_MAX_CHARS_PER_FILE}/{len(text)} chars]"
+    )
+
+
+def _budgeted_truncate(
+    input_texts: dict[str, str], budget: int
+) -> tuple[dict[str, str], list[TruncateRecord]]:
     """Truncate input texts to fit within budget, preserving high-priority content.
 
     Uses weighted allocation: high-priority files get proportionally more budget.
+    Surplus from files that need less than their allocation is redistributed to
+    truncated files (capped at ``_INPUT_MAX_CHARS_PER_FILE``). Returns the texts
+    with a cap-proof ``[TRUNCATED k/n chars]`` sentinel appended *after* slicing,
+    plus one :class:`TruncateRecord` per truncated file for WARN logging (C29 R1).
     """
     if not input_texts:
-        return {}
+        return {}, []
 
-    # Calculate total weight
     weights = {name: _get_priority(name) for name in input_texts}
     total_weight = sum(weights.values())
 
-    # Allocate budget proportionally by weight
-    result: dict[str, str] = {}
+    # Pass 1: proportional allocation
+    alloc = {name: int(budget * w / total_weight) for name, w in weights.items()}
+    kept: dict[str, int] = {}
     for name, content in input_texts.items():
-        allocation = int(budget * weights[name] / total_weight)
-        if len(content) <= allocation:
-            result[name] = content
+        kept[name] = min(len(content), alloc[name], _INPUT_MAX_CHARS_PER_FILE)
+    # Pass 2 (F330): redistribute surplus from files allocated more than they need;
+    # weight-descending so HIGH-priority files absorb surplus first
+    surplus = sum(max(0, min(alloc[n], _INPUT_MAX_CHARS_PER_FILE) - kept[n]) for n in input_texts)
+    for name in sorted(input_texts, key=lambda n: -weights[n]):
+        need = min(len(input_texts[name]), _INPUT_MAX_CHARS_PER_FILE) - kept[name]
+        if need > 0 and surplus > 0:
+            give = min(need, surplus)
+            kept[name] += give
+            surplus -= give
+    # Pass 3: build outputs — sentinel appended AFTER the cap slice (F361: it can
+    # never be clipped by _INPUT_MAX_CHARS_PER_FILE)
+    result: dict[str, str] = {}
+    records: list[TruncateRecord] = []
+    for name, content in input_texts.items():
+        k = kept[name]
+        if k < len(content):
+            result[name] = content[:k] + f"\n\n[TRUNCATED {k}/{len(content)} chars]"
+            records.append(
+                TruncateRecord(file=name, original_len=len(content), kept_len=k, offset=0)
+            )
         else:
-            result[name] = content[:allocation] + f"\n\n[... truncated from {len(content)} chars]"
-        # Enforce per-file character ceiling
-        result[name] = result[name][:_INPUT_MAX_CHARS_PER_FILE]
-
-    return result
+            result[name] = content
+    return result, records
 
 
 # Regex matching control characters EXCEPT newline (\n), carriage return (\r),
@@ -725,20 +770,23 @@ def _build_skill_prompt(
                 total_chars=total_raw,
                 budget=_INPUT_MAX_CHARS_TOTAL,
             )
-            input_texts = _budgeted_truncate(raw_inputs, _INPUT_MAX_CHARS_TOTAL)
-            # _budgeted_truncate respects _INPUT_MAX_CHARS_PER_FILE per file via
-            # the weights; if a stricter per-file ceiling is still required, cap
-            # each result here AFTER budgeted truncation.
-        else:
-            # Under budget: still enforce the per-file cap.
-            input_texts = {
-                fname: (
-                    text[:_INPUT_MAX_CHARS_PER_FILE]
-                    if len(text) > _INPUT_MAX_CHARS_PER_FILE
-                    else text
+            input_texts, trunc_records = _budgeted_truncate(raw_inputs, _INPUT_MAX_CHARS_TOTAL)
+            for rec in trunc_records:
+                log.warning(
+                    "input_truncated",
+                    file=rec.file,
+                    original_len=rec.original_len,
+                    kept_len=rec.kept_len,
                 )
-                for fname, text in raw_inputs.items()
-            }
+        else:
+            # Under budget: still enforce the per-file cap — with the same
+            # sentinel + WARN disclosure (F361: this path was fully silent).
+            input_texts = {}
+            for fname, text in raw_inputs.items():
+                if len(text) > _INPUT_MAX_CHARS_PER_FILE:
+                    input_texts[fname] = _cap_single(text, fname)
+                else:
+                    input_texts[fname] = text
 
     # Collect output paths
     output_paths: list[str] = []

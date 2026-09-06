@@ -6,8 +6,11 @@ from __future__ import annotations
 
 from pathlib import Path
 
+from shenbi.logging import get_logger
 from shenbi.safe_write import safe_write
 from shenbi.trace.event import GENESIS_PREV, TraceEvent, canonical_payload, sign
+
+log = get_logger(__name__)
 
 _TRACE_NAME = "trace.jsonl"
 
@@ -30,6 +33,7 @@ def replay(round_dir: Path) -> list[TraceEvent]:
     out: list[TraceEvent] = []
     prev = GENESIS_PREV
     keep_chars = 0
+    drop_reason: str | None = None  # C29 R4 (F620): why the chain was cut
     for ln in lines:
         content = ln.rstrip("\r\n")
         if not content.strip():
@@ -38,12 +42,22 @@ def replay(round_dir: Path) -> list[TraceEvent]:
         try:
             event = TraceEvent.model_validate_json(content)
         except Exception:
+            drop_reason = "torn_line"
             break  # torn line: truncate
         if not _verify(event, prev):
+            drop_reason = "signature_gap"
             break  # signature gap: truncate
         out.append(event)
         prev = event.signature
         keep_chars += len(ln)
     if keep_chars < len(raw):
+        log.warning(
+            "replay_truncated",
+            path=str(path),
+            drop_reason=drop_reason,
+            kept_chars=keep_chars,
+            dropped_chars=len(raw) - keep_chars,
+            kept_events=len(out),
+        )
         safe_write(path, raw[:keep_chars])
     return out

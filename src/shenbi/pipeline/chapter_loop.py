@@ -380,6 +380,19 @@ def _should_skip_audit(skill: str, audit_history: list[dict[str, Any]]) -> bool:
     return True  # N=3 streak of zero-HARD-failure passes → cascade-skip
 
 
+def chapter_sort_key(name_or_num: str | Path) -> tuple[int, str]:
+    """Numeric sort key for chapter identifiers (C29 R3, F326).
+
+    Accepts `"10"`, `"chapter-10.md"`, or a Path to one; non-numeric names
+    sort stably after all numbered chapters. Note: the FIRST digit run is the
+    chapter number — a hypothetical "chapter-rev2-10.md" would sort by 2 (no
+    such producer exists today).
+    """
+    s_val = str(name_or_num)
+    m = re.search(r"(\d+)", s_val)
+    return (int(m.group(1)), s_val) if m else (10**9, s_val)
+
+
 def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[str, Any]]:
     """Extract audit results from previous chapters in pipeline state.
 
@@ -388,7 +401,9 @@ def _get_audit_history(state: PipelineState, current_chapter: int) -> list[dict[
     The returned list is most-recent-last (sorted by chapter number).
     """
     results: list[dict[str, Any]] = []
-    for ch_num, ch_state in sorted(state.chapter_loop.chapter_states.items()):
+    for ch_num, ch_state in sorted(
+        state.chapter_loop.chapter_states.items(), key=lambda kv: chapter_sort_key(kv[0])
+    ):
         ch_num_int = int(ch_num)
         if ch_num_int >= current_chapter:
             continue
