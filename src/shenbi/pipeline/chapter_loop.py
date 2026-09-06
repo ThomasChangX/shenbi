@@ -2960,12 +2960,10 @@ def _run_chapter_step_impl(
                 )
 
         # Record both steps as done and advance past them. C30 F1112:
-        # missing declared outputs downgrade (not done) — lifecycle via its
-        # output_path, settling via the staging/truth glob (it declares no
-        # single output_path).
-        # C30 F1112: missing declared outputs downgrade (not done) —
-        # lifecycle via its output_path, settling via the staging/truth
-        # glob inside the same guard helper.
+        # missing declared outputs downgrade — same semantics as the generic
+        # success path (route to _handle_failure so the step retries and
+        # escalates; final-review I1: silently advancing would complete the
+        # chapter with un-updated truth).
         for pstep in (lifecycle_step, settling_step):
             if _step_output_exists(project_dir, pstep, chapter):
                 state.add_step_done(chapter, pstep.skill)
@@ -2977,6 +2975,7 @@ def _run_chapter_step_impl(
                     step=pstep.skill,
                     expected=pstep.output_path or "staging/truth/*.md",
                 )
+                return _handle_failure(state, pstep, chapter, "output_missing", project_dir)
 
         # Advance past both steps (idx 6 and 7 -> idx 8)
         next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8

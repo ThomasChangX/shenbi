@@ -860,8 +860,13 @@ def cmd_resume(args: argparse.Namespace) -> int:
             )
 
             cl_state = state.chapter_loop
+            before = (cl_state.current_chapter, cl_state.step_index, cl_state.current_step)
             _clamp_resume_cursor(cl_state, project_dir)
-            state_dirty = False
+            state_dirty = (
+                cl_state.current_chapter,
+                cl_state.step_index,
+                cl_state.current_step,
+            ) != before
             for ch_key, cs in list(cl_state.chapter_states.items()):
                 migrated, changed = migrate_steps_done(cs.steps_done)
                 if changed:
@@ -929,6 +934,11 @@ def cmd_resume(args: argparse.Namespace) -> int:
                                 chapter=snap_ch,
                                 rc=snap_result.returncode,
                             )
+                            # Keep the event unconsumed so the next resume
+                            # retries the snapshot (final-review I2: consuming
+                            # here would permanently drop a failed dispatch).
+                            last["consumed"] = False
+                            state_dirty = False
                         # If this boundary was also the book-closure point,
                         # transition to closure (the step_index guard prevents
                         # the trigger block from re-firing on re-entry).
