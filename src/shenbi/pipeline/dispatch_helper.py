@@ -55,6 +55,7 @@ from shenbi.contracts.paths import (
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
 from shenbi.env_policy import build_child_env
+from shenbi.contracts.injection import wrap_untrusted_source
 from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
@@ -616,11 +617,6 @@ def _input_key(full_path: Path, project_dir: Path) -> str:
     except ValueError:
         # full_path is not under project_dir (defensive); fall back to full str.
         return str(full_path)
-
-
-# T306/R5 (spec #45): escape helpers live in contracts.injection (single
-# source, shared by both dispatch faces); local aliases keep call sites.
-from shenbi.contracts.injection import wrap_untrusted_source
 
 
 def _build_skill_prompt(
