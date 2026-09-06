@@ -11,6 +11,7 @@ from typing import Any
 from shenbi.safe_write import locked_transact, safe_write
 
 from shenbi.cli_utils import emit_json
+from shenbi.env_policy import build_child_env
 from shenbi.exceptions import ShenbiError, SubAgentProtocolError, SubAgentTimeoutError
 from shenbi.logging import get_logger
 from shenbi.status import SkillProgressStatus
@@ -119,6 +120,7 @@ def _codex_exec_scores(round_dir: Path, prompt: str, out_file: Path, skill: str)
                 timeout=600,
                 capture_output=True,
                 text=True,
+                env=build_child_env("codex"),
             )
         except subprocess.TimeoutExpired as e:
             raise SubAgentTimeoutError("codex exec timed out after 600s") from e
@@ -296,6 +298,7 @@ def dispatch_codex(
         ],
         capture_output=True,
         text=True,
+        env=build_child_env("uv"),
     )
     if result.returncode != 0:
         return result.returncode

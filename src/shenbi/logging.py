@@ -12,8 +12,23 @@ for diagnostics/logs).
 import os
 import sys
 from typing import Any, cast
+from collections.abc import MutableMapping
 
 import structlog
+
+from shenbi.env_policy import redact
+
+
+def structlog_redact(
+    logger: Any, method_name: str, event_dict: MutableMapping[str, Any]
+) -> MutableMapping[str, Any]:
+    """F1161 (spec #45 R4): mask secrets (OAuth params, sk- keys, Bearer
+    tokens) in every log event value before rendering.
+    """
+    for key, value in event_dict.items():
+        if isinstance(value, str):
+            event_dict[key] = redact(value)
+    return event_dict
 
 
 def configure_logging() -> None:
@@ -31,6 +46,7 @@ def configure_logging() -> None:
             structlog.processors.TimeStamper(fmt="iso"),
             structlog.processors.StackInfoRenderer(),
             structlog.processors.format_exc_info,
+            structlog_redact,
             renderer,
         ],
         logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),

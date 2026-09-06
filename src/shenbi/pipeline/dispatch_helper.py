@@ -54,6 +54,7 @@ from shenbi.contracts.paths import (
 )
 from shenbi.cost.ledger import TokenLedger
 from shenbi.logging import get_logger
+from shenbi.env_policy import build_child_env
 from shenbi.exceptions import DispatchWriteFailureError, ShenbiError, TruthFileParseError
 from shenbi.pipeline.llm_output_integrity import (
     RETRY_WRITE_CONFIRMATION,
@@ -2460,7 +2461,12 @@ def _dispatch_via_ide(
     log.info("ide_dispatch_start", skill=skill, cmd=cmd[0], chapter=chapter)
     try:
         r = subprocess.run(
-            cmd, input=full_prompt, capture_output=True, text=True, timeout=ide_timeout
+            cmd,
+            input=full_prompt,
+            capture_output=True,
+            text=True,
+            timeout=ide_timeout,
+            env=build_child_env("codex"),
         )
     except subprocess.TimeoutExpired:
         _handle_timeout_gracefully(skill, chapter)
@@ -2771,7 +2777,7 @@ def dispatch_skill(
             skill=skill,
             hint="legacy subprocess path records no token usage; cost evidence requires the API path (C10 spec T5)",
         )
-    env = os.environ.copy()
+    env = build_child_env("uv")
     if patterns:
         env[_G1_SKIP_ENV_VAR] = ",".join(patterns)
         log.debug("dispatch_skip_reads", skill=skill, patterns=patterns)
