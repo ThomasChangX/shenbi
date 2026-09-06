@@ -38,10 +38,10 @@
 - **验收**：长章 fixture 下检查结果含采样披露字段且 audit_layer 聚合可见；gate 输出 schema 同步（C8 词表单源协同）
 
 ### R2b · 计数型采样披露与采样策略成文（F459 补全面）
-- 文件计数/列表位置型采样同样披露：g5.py:147（outline `[:3]`）、:152（`[:8]`）、:187（char_dir `[:6]`）、:199（conflicts `[:10]`）、g6.py:223/233（chapters `[:15]`、catchphrases `[:3]`）、g6.py:294（constraints `[:10]`）——结果 JSON 加 `files_sampled: "3/12"` 类字段
-- 采样策略成文（目标 3 的落地）：一页文档（`docs/framework/sampling-policy.md`）列出哪些检查有意采样、采多少、为什么
+- 文件计数/列表位置型采样同样披露：g5.py:147（outline `[:3]`）、:152（`[:8]`）、:187（char_dir `[:6]`）、:199（conflicts `[:10]`）、g6.py:223/233（chapters `[:15]`、catchphrases `[:3]`）、g6.py:294（constraints `[:10]`）——结果 JSON 加 `files_sampled: "3/12"` 类字段（仅输入文件型采样；conflicts/catchphrases 属**发现项封顶**而非输入采样，用 `findings_capped: "10/N"` 区分字段，避免误述）
+- 采样策略成文（目标 3 的落地）：一页文档（`docs/framework/sampling-policy.md`）列出哪些检查有意采样、采多少、为什么——覆盖 R2 字符截取点（`[:3000]`/`[:5000]`）与 R2b 计数型采样点两类
 - **验收**：>12 文件 fixture 下 G5 结果含 files_sampled；sampling-policy.md 存在且覆盖全部列出的采样点
-- **fixture 出处（G0.9）**：>32K 输入 fixture 由 tests/fixtures 真实章节稿拼接生成；>12 文件 fixture 复用真实 outline 产物族；撕裂 trace 为真实 trace 副本 + 注入断行（健康运行不产撕裂行，属 upstream-generator 场景，于测试内注明生成方式）
+- **fixture 出处（G0.9）**：>32K 输入 fixture 由 tests/fixtures 真实章节稿拼接生成；>12 文件 fixture 复用真实 outline 产物族；撕裂 trace 为真实 trace 副本 + 注入断行（健康运行不产撕裂行，以测试内生成器函数（upstream-generator）落 fixtures，注明生成方式）
 
 ### R3 · 数值排序（F326）
 - 章号解析 helper（int 化 + 非数字尾缀稳定排序）应用于 cmd_chapters、_get_audit_history、G6 章节遍历
