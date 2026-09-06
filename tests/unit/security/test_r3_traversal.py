@@ -56,3 +56,12 @@ def test_normal_relative_path_still_writes(tmp_path: Path) -> None:
     )
     assert written == ["outline/chapter-1.md"]
     assert "content" in (project / "outline" / "chapter-1.md").read_text(encoding="utf-8")
+
+
+def test_scores_family_variants_denied(tmp_path: Path) -> None:
+    project = tmp_path / "proj"
+    project.mkdir()
+    for rel in ("final-scores.json", "round/g4-scores.json"):
+        with pytest.raises(DispatchWriteFailureError) as ei:
+            _write_parsed_outputs(_resp(rel), [rel], project)
+        assert getattr(ei.value, "signature", "") == "state_file_write_denied"

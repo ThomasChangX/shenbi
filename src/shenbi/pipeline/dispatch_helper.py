@@ -1483,6 +1483,9 @@ def _write_parsed_outputs(
 
     project_root = project_dir.resolve(strict=False)
 
+    # scores-family state files: `scores.json` or any `*-scores.json` basename
+    _SCORES_FILE_RE = re.compile(r"(^|/)[^/]*scores\.json$")
+
     def _validate_output_path(full_path: Path) -> None:
         """T1204/T12-02 (spec #45 R3): authoritative path boundary for the
         codex write face. resolve() follows symlinks, so a link pointing out
@@ -1501,8 +1504,7 @@ def _write_parsed_outputs(
         denied = (
             rel_posix.startswith("phase-state/")
             or rel_posix.startswith("gate-markers/")
-            or rel_posix.endswith("/scores.json")
-            or rel_posix == "scores.json"
+            or _SCORES_FILE_RE.search(rel_posix) is not None
         )
         if denied:
             log.error("dispatch_state_file_write_denied", path=rel_posix)
@@ -1519,6 +1521,7 @@ def _write_parsed_outputs(
         """
         full_path = project_dir / rel_path
         _validate_output_path(full_path)
+        full_path.parent.mkdir(parents=True, exist_ok=True)
 
         # 1. WRITE-FAILURE DETECTION (pre-write, blocks the write).
         is_failure, signature = detect_write_failure(content)
@@ -1614,8 +1617,8 @@ def _write_parsed_outputs(
         if not content.strip():
             log.warning("output_empty", path=rel_path)
             continue
-        full_path = project_dir / rel_path
-        full_path.parent.mkdir(parents=True, exist_ok=True)
+        # mkdir lives INSIDE _write_one (after path validation) so a rejected
+        # traversal/symlink path cannot leave directories outside project_dir.
         # append_dedup-declared truth targets branch INSIDE _write_one into
         # _route_append_dedup_write (keyed upsert merge); everything else is a
         # whole-file write.
