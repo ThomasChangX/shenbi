@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #158) | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C30）| **依赖:** C3（truth 写路径/staging 提交路由——staging 语义先定稿）；与 C19（spec #26 快照三路裁决）共享 crash_recovery 面 | **范围:** src/shenbi/pipeline/{cli.py, machine.py, crash_recovery.py, chapter_loop.py}、staging 提交/清理语义 | **核心洞察:** 章循环状态机的生命周期不变量从未定义——staging 何时晋升、何时清理、崩溃后游标指向哪，四套直觉各自实现，交互模式下每 checkpoint 确定性销毁未提交产物（F318）
 
 # C30 · 章循环状态机与 staging 生命周期修复（chapter-loop-staging）
