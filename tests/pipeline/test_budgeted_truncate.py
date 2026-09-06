@@ -110,8 +110,10 @@ def test_records_metadata_shape():
     assert 0 < rec.kept_len < 50000
 
 
-def test_input_truncated_warn_emitted_per_record():
-    """C29 R1: caller-side WARN per truncated file (structlog capture)."""
+def test_budgeted_truncate_itself_is_pure_no_warn():
+    """C29 R1: the helper is pure — the input_truncated WARN fires at the dispatch
+    call boundary, not inside _budgeted_truncate (structlog capture proves it).
+    """
     from structlog.testing import capture_logs
 
     texts_in = {"chapter-N.md": "X" * 40000, "archive-notes.md": "Y" * 1000}

@@ -384,7 +384,9 @@ def chapter_sort_key(name_or_num: str | Path) -> tuple[int, str]:
     """Numeric sort key for chapter identifiers (C29 R3, F326).
 
     Accepts `"10"`, `"chapter-10.md"`, or a Path to one; non-numeric names
-    sort stably after all numbered chapters.
+    sort stably after all numbered chapters. Note: the FIRST digit run is the
+    chapter number — a hypothetical "chapter-rev2-10.md" would sort by 2 (no
+    such producer exists today).
     """
     import re
 
