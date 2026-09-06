@@ -348,10 +348,13 @@ def _step_output_exists(project_dir: Path, step: ChapterStep, chapter: int) -> b
     pairs) are not guarded here — their completion is tracked by their own
     post-checks. Staging steps are checked in staging/.
     """
-    if not step.output_path:
-        return True
     from shenbi.pipeline.checkpoint import STAGING_DIR
 
+    if step.skill == "shenbi-state-settling":
+        truth_dir = project_dir / STAGING_DIR / "truth"
+        return truth_dir.is_dir() and any(truth_dir.glob("*.md"))
+    if not step.output_path:
+        return True
     resolved = resolve_chapter_path(step.output_path, chapter)
     if step.uses_staging:
         resolved = f"{STAGING_DIR}/{resolved}"
@@ -2902,11 +2905,24 @@ def _run_chapter_step_impl(
                     skill=pstep.skill,
                 )
 
-        # Record both steps as done and advance past them.
-        state.add_step_done(chapter, lifecycle_step.skill)
-        _reset_retries(state, lifecycle_step, chapter)
-        state.add_step_done(chapter, settling_step.skill)
-        _reset_retries(state, settling_step, chapter)
+        # Record both steps as done and advance past them. C30 F1112:
+        # missing declared outputs downgrade (not done) — lifecycle via its
+        # output_path, settling via the staging/truth glob (it declares no
+        # single output_path).
+        # C30 F1112: missing declared outputs downgrade (not done) —
+        # lifecycle via its output_path, settling via the staging/truth
+        # glob inside the same guard helper.
+        for pstep in (lifecycle_step, settling_step):
+            if _step_output_exists(project_dir, pstep, chapter):
+                state.add_step_done(chapter, pstep.skill)
+                _reset_retries(state, pstep, chapter)
+            else:
+                log.warning(
+                    "step_output_missing_downgraded",
+                    chapter=chapter,
+                    step=pstep.skill,
+                    expected=pstep.output_path or "staging/truth/*.md",
+                )
 
         # Advance past both steps (idx 6 and 7 -> idx 8)
         next_idx = _FORESHADOWING_LIFECYCLE_IDX + 2  # 8
@@ -3229,14 +3245,16 @@ def _run_chapter_step_impl(
     # (skip the done-marking) with a WARN so state never claims completion
     # without the product on disk.
     if not _step_output_exists(project_dir, step, chapter):
+        # Downgrade = not done. Route through the failure path so the step
+        # RETRIES and eventually escalates (audit-T4 I1: silently advancing
+        # would permanently skip a productless step).
         log.warning(
             "step_output_missing_downgraded",
             chapter=chapter,
             step=step.skill,
             expected=step.output_path,
         )
-        _reset_retries(state, step, chapter)
-        return _advance(state, step_idx, step, chapter, project_dir=project_dir)
+        return _handle_failure(state, step, chapter, "output_missing", project_dir)
     state.add_step_done(chapter, step.skill)
     _reset_retries(state, step, chapter)
 

@@ -6,6 +6,7 @@ pre-revision cache; and a step whose declared output is missing must not be
 recorded as done.
 """
 
+import json
 import os
 import shutil
 from pathlib import Path
@@ -49,8 +50,6 @@ def test_cache_key_uses_size_and_mtime(tmp_path: Path) -> None:
 def test_cache_key_recorded_in_json(tmp_path: Path) -> None:
     _stage_chapter(tmp_path)
     extract_scr(tmp_path, 2)
-    import json
-
     payload = json.loads((tmp_path / "context" / "chapter-2-scr.json").read_text(encoding="utf-8"))
     assert "_cache_key" in payload
     assert {"size", "mtime_ns"} <= set(payload["_cache_key"])

@@ -465,6 +465,7 @@ class TestAuditCircleAndRevisionRouting:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ) as mock_serial_disp,
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
             patch("shenbi.pipeline.chapter_loop.run_gate_g3", return_value=_GATE_PASS),
             patch(
                 "shenbi.pipeline.chapter_loop.requires_independent",
@@ -537,6 +538,7 @@ class TestCLIChapterLoop:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ),
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
         ):
             rc = _run(["next", str(project)], monkeypatch)
 
@@ -561,6 +563,7 @@ class TestCLIChapterLoop:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ),
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
         ):
             _run(["next", str(project)], monkeypatch)
 
@@ -595,6 +598,7 @@ class TestCLIChapterLoop:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ),
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
         ):
             _run(["next", str(project)], monkeypatch)
 
@@ -627,6 +631,7 @@ class TestCLIChapterLoop:
                 return_value=DispatchResult(True, 0, "{}", ""),
             ) as mock_disp,
             patch("shenbi.pipeline.chapter_loop.run_gate_g4", return_value=_GATE_PASS),
+            patch("shenbi.pipeline.chapter_loop._step_output_exists", return_value=True),
         ):
             rc1 = _run(["next", str(project)], monkeypatch)
             assert rc1 == 0

@@ -38,6 +38,15 @@ def _reset_crash_state():
     reset_emergency_state()
 
 
+@pytest.fixture(autouse=True)
+def _neutral_output_guard(monkeypatch):
+    """Dispatch is stubbed throughout this module, so declared outputs never
+    materialize — neutralize the F1112 output guard (dedicated tests live in
+    tests/pipeline/test_step_output_downgrade.py).
+    """
+    monkeypatch.setattr("shenbi.pipeline.chapter_loop._step_output_exists", lambda *a, **k: True)
+
+
 # ---------------------------------------------------------------------------
 # Step table structure (brief verbatim + structural invariants)
 # ---------------------------------------------------------------------------
