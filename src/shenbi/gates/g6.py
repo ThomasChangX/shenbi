@@ -67,7 +67,11 @@ def gate_G6(
     nums: list[int] = []
     ch_dir = pd / "chapters"
     if ch_dir.exists():
-        chapters = sorted(ch_dir.glob("chapter-*.md"))
+        from shenbi.pipeline.chapter_loop import (
+            chapter_sort_key,
+        )  # lazy: avoid heavy import at gates top level
+
+        chapters = sorted(ch_dir.glob("chapter-*.md"), key=chapter_sort_key)
         if len(chapters) < min_chapters:
             mf.append(f"G6.1:{len(chapters)}<{min_chapters}(ceil({expected}*{min_ratio}))")
         else:
