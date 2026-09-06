@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Design（Revised 2026-09-07 · SDD #45 事实核实：F105 已修 PR #63 剔除、T1206 已修 PR #91 维持让渡、T1204 降级防御性收口、F308 行号 747→872） | **Severity:** 🟠 P1 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C31）| **依赖:** 无硬前置；上轮 T12-01/T12-04/T12-05 未修复核在本簇重立（T1206/T1207/T1204）| **范围:** 审计报告判定解析、_write_parsed_outputs 路径校验、dispatch env、phase 参数净化、capability_fs、会话日志 | **核心洞察:** 被审内容可以伪造审查者的判定（T1201 PoC：章节文本经证据引用伪造 G4 PASS 与共振分数）——信任边界在"产物内容"与"框架判定"之间从未建立
 
 # C31 · 注入/越权安全面修复（injection-authorization）
@@ -12,7 +12,7 @@
 ## 背景与根因
 四类信任边界缺失：
 1. **判定伪造**（T1201 P1 verified）：审计报告决策解析器无作用域 first-match——被审章节文本通过"证据引用"格式即可写入伪造的 G4 判定行与共振分数，gate 记 v=通过。协调者独立 PoC 复现（真实判定被阻断→伪造行通过）。
-2. **防御死代码**（F308 P1 verified）：`replace("<", "\u003c")` 恒等替换（`\u003c` 就是 `<`），防 `</document>` 注入的声称防御从未生效。
+2. **防御死代码**（F308 P1 verified，现 dispatch_helper.py:872）：`replace("<", "\u003c")` 恒等替换（`\u003c` 就是 `<`），防 `</document>` 注入的声称防御从未生效。
 3. **路径/参数越权**（F105 P1 verified：phase 参数未净化拼进 phase-state 路径，`../` 可穿越写出 round_dir；T1204 P2：symlink 重定向契约写逃出 project_dir，_write_parsed_outputs 实证；T1202 P2：carrier 行优先级倒置，反馈内容可覆盖机器上下文占位符）。
 4. **env 与日志泄露**（T1207 P2：env 全量继承使 SHENBI_LLM_API_KEY 可达 workspace-write codex 子进程；F1161 M：本地会话日志残留完整 Google OAuth URL 含一次性 state/nonce/code_challenge；T306 M/T307 P2：注入无过滤标注、T1 dispatch 面结构性无 reads 注入过滤）。
 
@@ -30,8 +30,8 @@
 - `<` 转义改为 `&lt;`（或删除该声称防御，改用 CDATA 包裹注入内容）；全仓 grep 同型恒等转义（`replace(x, esc(x))` 形态）零残留
 - **验收**：含 `</document>` 的技能输出/输入不再截断后续解析；单测覆盖
 
-### R3 · 路径与参数边界（F105 + T1204 + T1202）
-- phase 参数白名单校验（`../` 拒绝 + 报错信封）；`_write_parsed_outputs` 每个输出路径 `resolve(strict=False)` 后校验 `is_relative_to(project_dir)`，symlink 先 resolve 再校验；carrier/机器行优先级反转（机器行最后写、解析取机器行）
+### R3 · 路径与参数边界（T1204 + T1202；F105 已修 PR #63 `phase_runner._sanitize_phase`，剔除）
+- ~~phase 参数白名单校验~~（closed-by PR #63，不重复实现）；`_write_parsed_outputs` 每个输出路径 `resolve(strict=False)` 后校验 `is_relative_to(project_dir)`，symlink 先 resolve 再校验；carrier/机器行优先级反转（机器行最后写、解析取机器行；T1204 可达面已收窄，按防御性收口承接）
 - 边界扩容（2026-08-30 自 #22 让渡）：`safe_write` 层同型 resolve+前缀校验（T12-05 残留「safe_write 零规范化」）；pipeline-state/gate-markers/scores 状态文件的 codex 写面预防性只读保护（T12-02 残留）并入本 R 路径边界范围
 - **验收**：穿越用例（`../escape.md`、symlink 指外）FAIL 且不落盘；正常相对路径全绿
 
