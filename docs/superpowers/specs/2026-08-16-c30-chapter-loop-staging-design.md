@@ -38,7 +38,7 @@
 
 ### R3 · 步骤表与装配触发（T1602 + F358 + F380 + F357 + F338）
 - 装配触发移到 step-3 首入口（plan 存在性守卫）；C1 守卫补新章 step-1（F380 表象已修，补回归锁定测试）；魔法索引改推导式（与 `_FIRST_AUDIT_IDX` 同法）；clear_checkpoint 对 None checkpoint no-op
-- **验收**：T16 实测场景回归——step-2 不再空跑装配/写废弃 fallback（每章网络停顿 ≤1 次）；`git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量；F380 回归测试锁定新章从 step-1 起
+- **验收**：T16 实测场景回归——step-2 不再空跑装配/写废弃 fallback（可测代理指标：每章装配/派发调用计数 ≤1，注入计数器断言，等价于网络停顿 ≤1 次）；`git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量；F380 回归测试锁定新章从 step-1 起
 
 ### R4 · 缓存失效与状态真实性（F310 + F1112 + F311）
 - SCR 缓存键加 (path, size, mtime)（mtime 单字段在 git checkout/同秒修订下假命中或假失效）；state 标记完成前校验产物存在（不存在则降级未完成 + WARN，structlog；降级态字面量入 enums.py）；F311 仅剩零消费者面——若 C37 R0 裁决删除死输出则从其裁决，本 spec 不实现 curated 消费方
@@ -59,7 +59,7 @@
 - F371 修复涉及 checkpoint 事件模型，改动面大——先写迁移测试锁定现行为再改（C14 弱断言治理协同，避免新测试 pin 旧 bug）
 
 ## 验证命令
-- staging 生命周期：`pytest tests/integration/pipeline/ -k "staging or checkpoint" -q`（含 F318 atexit 用例与 T102 sidecar 用例）
+- staging 生命周期：`pytest tests/integration/pipeline/ -k "staging or checkpoint" -q`（T102 sidecar 用例指复用 PR #120 既有测试作回归基线，本 spec 不新增 T102 实现）
 - resume 游标：`pytest tests/integration/pipeline/ -k resume -q`（F371 场景：auto 模式中断恢复不回退章号）
 - 旧步名迁移：`pytest tests/unit/pipeline/ -k steps_migration -q`（F797）
 - 状态真实性：对真实 round 跑 `shenbi-pipeline status`，state claims 与磁盘产物 diff 为空
@@ -67,5 +67,5 @@
 
 ## 回写
 - merged 关系（phase4 §3）：`F318 <- F305, F310-F311, F323, F338, F357-F358, F371, F377, F379-F380, F797, F1110, F1112, F1114, F1153, T102, T1108, T1602`
-- closed-by 标签（机器可读，防回写工具重开已修项）：T102/F1110 closed-by PR #120 · F305 closed-by PR #63 · F1153 closed-by PR #6 链 · F379 closed-by main 既有修复；其余 14 条本 spec 关闭
+- closed-by 标签（机器可读，防回写工具重开已修项）：T102/F1110 closed-by PR #120 · F305 closed-by PR #63 · F1153 closed-by ac466632 (PR #42, spec #6 F304) + 2b00ff53 · F379 closed-by 8d3f5c7e (PR #11)；其余 14 条本 spec 关闭
 - 移交注记：T1108（离线可执行模式）为独立设计裁决，本 spec 尾注移交不计入验收；F311 curated 零消费者面若 C37 R0 裁决删除则随 C37 关闭
