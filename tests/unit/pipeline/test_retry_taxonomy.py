@@ -188,3 +188,75 @@ class TestSerialBackoff:
         with pytest.raises(RetryExhaustedError):
             cl._handle_failure(st, step, 9, "scoring", tmp_path)
         assert slept == []
+
+
+class TestAuditRetryReset:
+    """T508 (spec #47 R3): audit_retry_count/revision_count reset on ESCALATION
+    resolution — all three decisions, chapter-scoped, str-keyed states.
+    """
+
+    def _state_with_checkpoint(self, chapter: int | None = 3):
+        from shenbi.pipeline.machine import set_checkpoint
+        from shenbi.pipeline.state import ChapterState, CheckpointType
+
+        st = PipelineState()
+        key = str(chapter)
+        st.chapter_loop.chapter_states[key] = ChapterState()
+        st.chapter_loop.chapter_states[key].audit_retry_count = st.config.max_audit_retries
+        st.chapter_loop.chapter_states[key].revision_count = st.config.max_audit_retries
+        set_checkpoint(st, CheckpointType.ESCALATION, chapter=chapter, context="audit_blocking")
+        return st
+
+    def test_approve_resets_counters(self):
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        st = self._state_with_checkpoint()
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        cs = st.chapter_loop.chapter_states["3"]
+        assert cs.audit_retry_count == 0 and cs.revision_count == 0
+
+    def test_reject_and_modify_also_reset(self):
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        for decision in (ReviewDecision.REJECT, ReviewDecision.MODIFY):
+            st = self._state_with_checkpoint()
+            clear_checkpoint(st, decision)
+            assert st.chapter_loop.chapter_states["3"].audit_retry_count == 0
+
+    def test_chapter_none_clears_all(self):
+        from shenbi.pipeline.machine import clear_checkpoint, set_checkpoint
+        from shenbi.pipeline.state import ChapterState, CheckpointType, ReviewDecision
+
+        st = PipelineState()
+        for ch in ("1", "2"):
+            st.chapter_loop.chapter_states[ch] = ChapterState()
+            st.chapter_loop.chapter_states[ch].audit_retry_count = 5
+        set_checkpoint(st, CheckpointType.ESCALATION, chapter=None, context="pipeline")
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        assert all(cs.audit_retry_count == 0 for cs in st.chapter_loop.chapter_states.values())
+
+    def test_post_resolve_blocking_routes_to_revision(self):
+        """T508 acceptance (T2-tier): ESCALATION resolved → new BLOCKING must
+        retry revision instead of instantly re-escalating.
+        """
+        from shenbi.pipeline.error_handler import handle_audit_blocking
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import ReviewDecision
+
+        st = self._state_with_checkpoint(chapter=5)
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        cs = st.chapter_loop.chapter_states["5"]
+        assert handle_audit_blocking(st, 5, cs.audit_retry_count) is True
+
+    def test_non_escalation_checkpoint_does_not_reset(self):
+        from shenbi.pipeline.machine import clear_checkpoint
+        from shenbi.pipeline.state import CheckpointType, ReviewDecision
+
+        st = self._state_with_checkpoint()
+        st.pending_checkpoint = type(st.pending_checkpoint)(
+            type=CheckpointType.PER_CHAPTER, chapter=3
+        )
+        clear_checkpoint(st, ReviewDecision.APPROVE)
+        assert st.chapter_loop.chapter_states["3"].audit_retry_count == st.config.max_audit_retries

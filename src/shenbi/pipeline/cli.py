@@ -575,6 +575,15 @@ def _reset_retry_budget(state: PipelineState, cp: CheckpointData) -> None:
     }
     state.genesis.retry_counts.clear()
     state.closure_retry_counts.clear()
+    # C33 R3 (T508, spec #47): idempotent mirror of clear_checkpoint's new
+    # per-chapter audit counter reset (clear_checkpoint is authoritative).
+    for k in (
+        [str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states)
+    ):
+        cs = state.chapter_loop.chapter_states.get(k)
+        if cs is not None:
+            cs.audit_retry_count = 0
+            cs.revision_count = 0
 
 
 def _apply_reject_redo(
