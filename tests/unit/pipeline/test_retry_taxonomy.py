@@ -417,3 +417,25 @@ class TestLifecycleFailureRouting:
         assert result.success is False
         assert task.attempts == pd.MAX_RETRIES + 1
         assert len(calls) == pd.MAX_RETRIES + 1
+
+
+class TestApprovePathBudgetSemantics:
+    """I4 (spec #47 R2): APPROVE keeps retry_budget_consumed at the ceiling —
+    the next failure escalates without burning budget retries.
+    """
+
+    def test_approve_keeps_budget_escalates_on_next_failure(self, monkeypatch, tmp_path):
+        import time
+
+        from shenbi.exceptions import RetryExhaustedError
+        from shenbi.pipeline.chapter_loop import ChapterStep, _handle_failure
+
+        slept: list[float] = []
+        monkeypatch.setattr(time, "sleep", slept.append)
+        st = PipelineState.default(str(tmp_path))
+        key = "ch9-shenbi-review-resonance"
+        st.chapter_loop.retry_budget_consumed[key] = st.config.max_audit_retries
+        step = ChapterStep(step_num=3, skill="shenbi-review-resonance", name="review-resonance")
+        with pytest.raises(RetryExhaustedError):
+            _handle_failure(st, step, 9, "scoring", tmp_path)
+        assert slept == []
