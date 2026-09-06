@@ -79,3 +79,19 @@ def test_replay_signature_gap_warns(tmp_path: Path) -> None:
     assert len(warns) == 1
     assert warns[0]["drop_reason"] == "signature_gap"
     assert warns[0]["kept_events"] == 0
+
+
+def test_replay_clean_file_no_warn(tmp_path: Path) -> None:
+    """C29 R4: clean chain and already-truncated file emit no replay_truncated."""
+    from structlog.testing import capture_logs
+
+    w = TraceWriter(tmp_path)
+    w.append(actor="d", actor_role="GATE", action="A", target="t")
+    w.append(actor="d", actor_role="GATE", action="B", target="t")
+    with capture_logs() as logs:
+        assert len(replay(tmp_path)) == 2
+    assert not [e for e in logs if e["event"] == "replay_truncated"]
+    # already-truncated file replays idempotently without a second WARN
+    with capture_logs() as logs2:
+        assert len(replay(tmp_path)) == 2
+    assert not [e for e in logs2 if e["event"] == "replay_truncated"]
