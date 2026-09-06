@@ -626,6 +626,17 @@ def _escape_attr(value: str) -> str:
     )
 
 
+def _escape_content(content: str) -> str:
+    """F308 (spec #45 R2): entity-escape untrusted document content.
+
+    The former escape replaced each '<' with the same character spelled as a
+    unicode escape — an identity no-op, so the claimed ``</document>``
+    wrapper-injection defense never fired. '&' first so entity output is not
+    double-escaped.
+    """
+    return content.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+
+
 def _build_skill_prompt(
     skill: str,
     project_dir: Path,
@@ -866,10 +877,9 @@ def _build_skill_prompt(
     if input_texts:
         user_parts.append("\n## Input Files (read-only reference)")
         for fname, content in input_texts.items():
-            # Escape ALL '<' in content to '\u003c' to prevent any tag injection.
-            # (Spec 8 §3 Bug 2: the wrapper is </document>, NOT </doc>; the safest
-            # approach is escaping every '<' rather than only replacing the tag.)
-            safe_content = content.replace("<", "\u003c")
+            # F308 (spec #45 R2): entity-escape ALL angle brackets so untrusted
+            # content cannot close the </document> wrapper early.
+            safe_content = _escape_content(content)
             user_parts.append(
                 f'<document name="{_escape_attr(fname)}">\n{safe_content}\n</document>'
             )
