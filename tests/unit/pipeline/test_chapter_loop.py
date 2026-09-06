@@ -225,9 +225,14 @@ class TestContextAssembly:
     @patch("shenbi.pipeline.context_assemble.write_context_file")
     @patch("shenbi.pipeline.context_assemble.assemble_context")
     def test_context_assembly_called(self, mock_assemble, mock_write, tmp_path):
-        """Step 2 (chapter-planning) calls context assembly (calls_context_assembly=True)."""
+        """Step 3 (context-prepare) is the sole assembly entry — C30 R3 moved
+        the trigger off step 2 (the plan does not exist there yet).
+        """
         from unittest.mock import patch as _patch
 
+        plans = tmp_path / "plans"
+        plans.mkdir(parents=True, exist_ok=True)
+        (plans / "chapter-1-plan.md").write_text("# plan\n", encoding="utf-8")
         with (
             _patch(
                 "shenbi.pipeline.chapter_loop.dispatch_skill",
@@ -237,11 +242,11 @@ class TestContextAssembly:
         ):
             state = PipelineState.default(str(tmp_path))
             state.chapter_loop.current_chapter = 1
-            state.chapter_loop.step_index = 1  # chapter-planning (step 2)
+            state.chapter_loop.step_index = 2  # context-prepare (step 3)
             run_chapter_step(state, tmp_path)
             mock_assemble.assert_called_once_with(tmp_path, "plans/chapter-1-plan.md")
             mock_write.assert_called_once()
-            assert state.chapter_loop.step_index == 2
+            assert state.chapter_loop.step_index == 3
 
     @patch(
         "shenbi.pipeline.context_assemble.assemble_context",

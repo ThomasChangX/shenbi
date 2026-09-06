@@ -330,38 +330,45 @@ class TestStagingAndCheckpointArtifacts:
 class TestContextAssemblyIntegration:
     """Steps 2-3 materialize the three-route context package before drafting."""
 
+    def _approve_with_committed_plan(self, state: PipelineState, project_dir: Path) -> None:
+        """Drive to the CHAPTER_MEMO checkpoint, approve, and materialize the
+        committed plan (C30 R3: dispatch is stubbed, so the committed plan the
+        step-3 assembly guard requires must be created explicitly).
+        """
+        _drive_to_checkpoint(state, project_dir)
+        clear_checkpoint(state, ReviewDecision.APPROVE)
+        plans = project_dir / "plans"
+        plans.mkdir(parents=True, exist_ok=True)
+        (plans / "chapter-1-plan.md").write_text("# plan\n", encoding="utf-8")
+
     def test_assemble_context_called_with_chapter_plan(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """assemble_context receives the project dir and chapter-1 plan path (twice:
-        once for step 2 chapter-planning, once for step 3 context-prepare).
+        """assemble_context receives the project dir and chapter-1 plan path
+        (once: step-3 context-prepare only — C30 R3 moved assembly off step 2).
         """
+        self._approve_with_committed_plan(chapter_state, tmp_path)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
-        _drive_to_checkpoint(chapter_state, tmp_path)
-        # Called twice: step 2 and step 3 both trigger context assembly.
-        assert chapter_succeeds.assemble.call_count == 2
+        assert chapter_succeeds.assemble.call_count == 1
         chapter_succeeds.assemble.assert_any_call(tmp_path, "plans/chapter-1-plan.md")
 
     def test_write_context_file_called_once(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """write_context_file materializes context/chapter-1-context.md (twice:
-        once for step 2, once for step 3).
+        """write_context_file materializes context/chapter-1-context.md once
+        (step-3 only — C30 R3 moved assembly off step 2).
         """
+        self._approve_with_committed_plan(chapter_state, tmp_path)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
-        _drive_to_checkpoint(chapter_state, tmp_path)
-        assert chapter_succeeds.write_ctx.call_count == 2
+        assert chapter_succeeds.write_ctx.call_count == 1
 
     def test_context_assembly_before_drafting(
         self, chapter_state: PipelineState, chapter_succeeds, tmp_path: Path
     ) -> None:
-        """Context materialization (steps 2-3) happens before chapter-drafting (step 4)."""
+        """Context materialization (step 3) happens before chapter-drafting (step 4)."""
+        self._approve_with_committed_plan(chapter_state, tmp_path)
         _drive_to_checkpoint(chapter_state, tmp_path)
-        clear_checkpoint(chapter_state, ReviewDecision.APPROVE)
-        _drive_to_checkpoint(chapter_state, tmp_path)
-        assert chapter_succeeds.assemble.call_count == 2
+        assert chapter_succeeds.assemble.call_count == 1
         dispatch_skills = [c[0][0] for c in chapter_succeeds.dispatch.call_args_list]
         assert "shenbi-chapter-drafting" in dispatch_skills
 
