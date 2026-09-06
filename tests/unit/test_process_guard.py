@@ -39,13 +39,15 @@ def test_os_error_returns_fail() -> None:
 
 
 def test_run_gate_timeout_propagates_blocked(monkeypatch, tmp_path) -> None:
-    # run_gate 不显式传 timeout(约定由本测试钉死),默认被 patch 为 0.1s 时,
-    # 真实 `python -m shenbi.gates.cli` 启动 ~0.4s → 必须结构化 blocked 而非
-    # TimeoutExpired traceback。
+    # run_gate 不显式传 timeout(约定由本测试钉死),默认被 patch 为 1ms 时,
+    # spawn+`python -m shenbi.gates.cli` 物理上不可能完成 → 必须结构化 blocked
+    # 而非 TimeoutExpired traceback。(spec42 T1 懒加载后门禁启动 ~4ms,原 0.1s
+    # 补丁值与本测试「启动 ~0.4s 必然超时」的前提被合法推翻——CI 上变成竞态;
+    # 1ms < 任意平台的最小 fork+exec 时延,恢复确定性。)
     import shenbi.phase_runner as pr
     import shenbi.process_guard as pg
 
-    monkeypatch.setattr(pg, "SUBPROCESS_TIMEOUT_DEFAULT", 0.1)
+    monkeypatch.setattr(pg, "SUBPROCESS_TIMEOUT_DEFAULT", 0.001)
     r = pr.run_gate("G5", ["t2-skill", str(tmp_path), str(tmp_path)])
     assert r.get("status") == "blocked"
 
