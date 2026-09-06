@@ -145,8 +145,9 @@ def gate_G5(
             output_files.extend(world_dir.rglob("*.md"))
         # also scan outline files
         outline_dir = pd5 / "outline"
-        if outline_dir.exists():
-            output_files.extend(list(outline_dir.rglob("*.md"))[:3])
+        outline_all = list(outline_dir.rglob("*.md")) if outline_dir.exists() else []
+        outline_sample = outline_all[:3]  # C29 R2b: intentional count-sampling
+        output_files.extend(outline_sample)
         numeric_registry: dict[
             str, list[tuple[str, int]]
         ] = {}  # canonical_key -> set of (file, value)
@@ -187,9 +188,11 @@ def gate_G5(
             ("穿越者", "穿越客"),
         ]
         term_sampled = False  # C29 R2 (F459): disclose G5.3's 3000-char clips
+        char_files_all = list(char_dir.rglob("*.md")) if (char_dir and char_dir.exists()) else []
+        char_files_sample = char_files_all[:6]  # C29 R2b: intentional count-sampling
         if char_dir and char_dir.exists():
             sample_text = ""
-            for cf in list(char_dir.rglob("*.md"))[:6]:
+            for cf in char_files_sample:
                 try:
                     _ct, _s = clip_with_disclosure(cf.read_text(encoding="utf-8"), 3000)
                     sample_text += _ct
@@ -202,6 +205,17 @@ def gate_G5(
                 if c1 > 0 and c2 > 0 and c1 + c2 > 3:
                     conflicts.append(f"term_mix:{t1}({c1})/{t2}({c2})")
 
+        # C29 R2b: count-sampling disclosure (inputs capped by file count)
+        g53_disclosure: dict[str, Any] = {}
+        if outline_all and len(outline_all) > len(outline_sample):
+            g53_disclosure["files_sampled"] = f"{len(outline_sample)}/{len(outline_all)}"
+        if len(output_files) > 8:
+            g53_disclosure.setdefault("files_sampled", f"8/{len(output_files)}")
+        if char_files_all and len(char_files_all) > len(char_files_sample):
+            g53_disclosure["chars_sampled"] = f"{len(char_files_sample)}/{len(char_files_all)}"
+        if len(conflicts) > 10:
+            g53_disclosure["findings_capped"] = f"10/{len(conflicts)}"
+
         if conflicts:
             # C29 R2: disclose sampling on the FAIL branch too (audit parity)
             c.append(
@@ -209,6 +223,7 @@ def gate_G5(
                     "id": "G5.3",
                     "s": GateStatus.WARN,
                     **({"input_sampled": True} if (numeric_sampled or term_sampled) else {}),
+                    **g53_disclosure,
                 }
             )
             mf.extend([f"G5.3:{x}" for x in conflicts[:10]])
@@ -219,6 +234,7 @@ def gate_G5(
                     "s": GateStatus.PASS,
                     "note": "no cross-skill conflicts detected",
                     **({"input_sampled": True} if (numeric_sampled or term_sampled) else {}),
+                    **g53_disclosure,
                 }
             )
     else:

@@ -110,3 +110,32 @@ class TestGateLevelAggregation:
         ]
         assert sampled_checks_summary(checks) == "1/2 checks ran on sampled input"
         assert sampled_checks_summary([{"id": "A", "s": GateStatus.PASS}]) is None
+
+
+class TestCountSamplingDisclosure:
+    def test_g53_files_sampled_disclosed(self, tmp_path: Path):
+        """C29 R2b: file-count sampling (outline[:3], output[:8], char_dir[:6]) disclosed."""
+        import json as _json
+
+        from shenbi.gates.g5 import gate_G5
+
+        project_dir = tmp_path / "project-output"
+        outline = project_dir / "outline"
+        outline.mkdir(parents=True)
+        base = (
+            (_FIXTURES / "outline-example.md").read_text(encoding="utf-8")
+            if (_FIXTURES / "outline-example.md").exists()
+            else (_FIXTURES / "chapter-8-example.md").read_text(encoding="utf-8")
+        )
+        # >12 outline files forces the [:3] count-sampling to bite
+        for i in range(13):
+            (outline / f"vol-{i:02d}.md").write_text(base, encoding="utf-8")
+
+        round_dir = tmp_path / "round"
+        round_dir.mkdir()
+        parsed = _json.loads(gate_G5("foundation", str(round_dir), str(project_dir)))
+        g53 = [chk for chk in parsed.get("checks", []) if chk.get("id") == "G5.3"]
+        assert g53, f"expected G5.3 check, got checks={parsed.get('checks')}"
+        assert "files_sampled" in g53[0], f"expected files_sampled in {g53[0]}"
+        # 13 outline files, cap 3
+        assert g53[0]["files_sampled"].startswith("3/")

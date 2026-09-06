@@ -223,7 +223,8 @@ def gate_G6(
                 log.warning("g6_char_voice_parse_failed", file=cf.name, error=str(e))
         # Ghost detection: character appears in chapters but no voice_profile
         g68_sampled = False  # C29 R2 (F459): disclose G6.8's 5000-char clips
-        for ch in chapters[:15]:  # sample up to 15 chapters
+        g68_chapters_sample = chapters[:15]  # C29 R2b: intentional count-sampling
+        for ch in g68_chapters_sample:
             ct, _s = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
             g68_sampled = g68_sampled or _s
             for cname, vdata in char_voice.items():
@@ -233,8 +234,10 @@ def gate_G6(
         for cname, vdata in char_voice.items():
             if vdata["catchphrases"] and vdata["has_voice_profile"]:
                 found_any = False
-                for cp in vdata["catchphrases"][:3]:  # check top 3 catchphrases
-                    for ch in chapters[:15]:
+                cp_all = vdata["catchphrases"]
+                cp_sample = cp_all[:3]  # C29 R2b: findings cap, top-3 catchphrases
+                for cp in cp_sample:
+                    for ch in g68_chapters_sample:
                         _ct, _s = clip_with_disclosure(ch.read_text(encoding="utf-8"), 5000)
                         g68_sampled = g68_sampled or _s
                         if cp in _ct:
@@ -257,6 +260,22 @@ def gate_G6(
                 "chars_with_voice": sum(1 for v in char_voice.values() if v["has_voice_profile"]),
                 "chars_total": len(char_voice),
                 **({"input_sampled": True} if g68_sampled else {}),
+                **(
+                    {"files_sampled": f"{len(g68_chapters_sample)}/{len(chapters)}"}
+                    if len(chapters) > len(g68_chapters_sample)
+                    else {}
+                ),
+                **(
+                    {
+                        "findings_capped": " / ".join(
+                            f"3/{len(v['catchphrases'])}"
+                            for v in char_voice.values()
+                            if len(v["catchphrases"]) > 3
+                        )
+                    }
+                    if any(len(v["catchphrases"]) > 3 for v in char_voice.values())
+                    else {}
+                ),
             }
         )
     else:
@@ -301,7 +320,8 @@ def gate_G6(
                 ch_contents.append((ch.name, _ct))
             except Exception:
                 ch_contents.append((ch.name, ""))
-        for const in constraints[:10]:  # limit to 10 constraints for performance
+        g69_constraints_sample = constraints[:10]  # C29 R2b: intentional count-sampling
+        for const in g69_constraints_sample:
             val = const["val"]
             ctx = const["ctx"]
             if "人" in ctx or "个" in ctx:
@@ -329,6 +349,11 @@ def gate_G6(
                 "s": g69_status,
                 "constraints_extracted": len(constraints),
                 **({"input_sampled": True} if g69_sampled else {}),
+                **(
+                    {"findings_capped": f"{len(g69_constraints_sample)}/{len(constraints)}"}
+                    if len(constraints) > len(g69_constraints_sample)
+                    else {}
+                ),
             }
         )
     else:
