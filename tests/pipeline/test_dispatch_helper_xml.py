@@ -17,8 +17,10 @@ def test_prompt_uses_xml_tags_not_nested_fences():
             "shenbi-worldbuilding", project_dir, "test prompt", chapter=None
         )
 
-        # Must use <document> tags, not nested ``` fences
-        assert "<document" in user_prompt, "Expected <document> tags in user prompt"
+        # T306/R5 (spec #45): unified untrusted-source boundary, not nested ``` fences
+        assert "<untrusted-source" in user_prompt, (
+            "Expected untrusted-source markers in user prompt"
+        )
         assert "```\n```" not in user_prompt, "Found nested code fences in user prompt"
 
 
@@ -42,7 +44,8 @@ def test_document_attr_escaped(tmp_path):
     )
 
     assert (
-        '<document name="source_canon/x&quot; onload=&quot;1.md&lt;document&gt;">' in user_prompt
+        '<untrusted-source path="source_canon/x&quot; onload=&quot;1.md&lt;document&gt;">'
+        in user_prompt
     ), "attribute value must be entity-escaped"
-    assert '<document name="source_canon/a&amp;b.md">' in user_prompt
-    assert 'name="source_canon/x" onload' not in user_prompt
+    assert '<untrusted-source path="source_canon/a&amp;b.md">' in user_prompt
+    assert 'path="source_canon/x" onload' not in user_prompt

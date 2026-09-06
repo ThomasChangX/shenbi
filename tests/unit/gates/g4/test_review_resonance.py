@@ -13,7 +13,8 @@ from typing import Any
 
 import pytest
 
-from shenbi.gates.g4.review_resonance import _match_verdict, g4_review_resonance
+from shenbi.gates.g4.review_resonance import g4_review_resonance
+from shenbi.gates.g4.verdict_fence import match_verdict_scoped as _match_verdict
 
 
 def _run(fps: list[str], rd: str | None = None) -> dict[str, Any]:
