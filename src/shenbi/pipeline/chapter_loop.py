@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import re
+import random
 import time
 from dataclasses import dataclass
 from enum import StrEnum
@@ -74,6 +75,8 @@ from shenbi.pipeline.revision_router import (
     dispatch_escalation,
     route_chapter_revision,
 )
+from shenbi.contracts.enums import FailureClass
+from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
 from shenbi.pipeline.state import (
     ChapterLoopStateData,
     ChapterStatus,
@@ -773,6 +776,25 @@ def _retry_key(chapter: int, skill: str) -> str:
     return f"ch{chapter}-{skill}"
 
 
+def _charge_wave_retries(
+    state: PipelineState,
+    chapter: int,
+    results: list[tuple[ReviewTask, DispatchResult]],
+) -> None:
+    """C33 R4 (F363, spec #47): charge wave retry consumption into the durable budget.
+
+    Wave-aggregation design: workers never touch state (no cross-thread
+    writes); the main thread charges once at wave completion. Idempotent:
+    max(current, attempts - 1) so crash-resume replay cannot double-count;
+    trace failure_class/attempts are the reconciliation source.
+    """
+    for task, _result in results:
+        retries = max(0, task.attempts - 1)
+        if retries == 0:
+            continue
+        state.charge_retry_budget(chapter, task.skill, retries)
+
+
 def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     """Resolve the output file path for G4 validation.
 
@@ -898,6 +920,7 @@ def _handle_failure(
     project_dir: Path | str,
     *,
     budget_pre_consumed: bool = False,
+    failure_class: FailureClass | None = None,
 ) -> bool:
     """Record a dispatch/gate failure for a chapter step.
 
@@ -936,7 +959,25 @@ def _handle_failure(
 
     from shenbi.pipeline.error_handler import handle_dispatch_failure
 
+    # C33 R1/R2 (F533, spec #47): deterministic failures zero-retry — route
+    # straight to escalation instead of burning retry attempts.
+    _deterministic = failure_class is not None and failure_class is not FailureClass.TRANSIENT
+    if _deterministic:
+        log.warning(
+            "deterministic_failure_no_retry",
+            chapter=chapter,
+            skill=step.skill,
+            failure_class=failure_class.value if failure_class else None,
+        )
+        return _escalate_step_failure(state, step, chapter, failure, count, project_dir)
+
     if handle_dispatch_failure(state, step.skill, count):
+        # C33 R2 (T510): serial-layer backoff with jitter — reuse the
+        # parallel_dispatch RETRY_JITTER magnitude rule (spec §5.3/§2.8).
+        # Inside the retry branch only: escalation pays no backoff sleep.
+        _delay = 2.0 ** (count - 1) + random.uniform(0, 2.0)
+        log.debug("serial_retry_backoff", chapter=chapter, skill=step.skill, delay=_delay)
+        time.sleep(_delay)
         log.warning(
             "chapter_step_failed_retrying",
             chapter=chapter,
@@ -948,6 +989,22 @@ def _handle_failure(
         )
         return False
     # Retries exhausted: dispatch escalation-review first, then set checkpoint.
+    return _escalate_step_failure(state, step, chapter, failure, count, project_dir)
+
+
+def _escalate_step_failure(
+    state: PipelineState,
+    step: ChapterStep,
+    chapter: int,
+    failure: str,
+    count: int,
+    project_dir: Path | str,
+) -> bool:
+    """Dispatch escalation-review and raise the ESCALATION checkpoint.
+
+    Shared by the retry-exhausted path and the C33 deterministic zero-retry
+    path of _handle_failure (spec #47 R2 goal 3).
+    """
     from shenbi.pipeline.revision_router import dispatch_escalation
 
     dispatch_escalation(
@@ -2871,6 +2928,19 @@ def _run_chapter_step_impl(
         # hard_failures counts BLOCKING/CRITICAL markers in the audit report
         # artifact (the durable writer surface), not subprocess stdout.
         blocking_re = _BLOCKING_MARKER_RE
+        # C33 R4 (F363): aggregate wave retry attempts into the durable budget
+        # (single main-thread charge point for both waves + serial extensions).
+        _charge_wave_retries(
+            state,
+            chapter,
+            list(
+                zip(
+                    core_wave + core_serial + genre_wave + genre_serial,
+                    core_results + genre_results,
+                    strict=True,
+                )
+            ),
+        )
         for task, result in zip(
             core_wave + core_serial + genre_wave + genre_serial,
             core_results + genre_results,
@@ -2933,13 +3003,24 @@ def _run_chapter_step_impl(
             )
             return True  # checkpoint raised, pause for human
 
-        # Lifecycle failure: log but do not block (settling succeeded).
+        # Lifecycle failure: C33 R4 (F365 residual) — route to the failure
+        # handler (retry budget + escalation) instead of silently continuing.
         if not lifecycle_result.success:
             log.error(
                 "chapter_dispatch_failed",
                 chapter=chapter,
                 step=lifecycle_step.step_num,
                 skill=lifecycle_step.skill,
+            )
+            return _handle_failure(
+                state,
+                lifecycle_step,
+                chapter,
+                "dispatch",
+                project_dir,
+                failure_class=classify_dispatch_failure(
+                    returncode=lifecycle_result.returncode, stderr=lifecycle_result.stderr
+                ),
             )
 
         # G4: structural validation for both steps (main thread only).
@@ -2954,6 +3035,11 @@ def _run_chapter_step_impl(
                     chapter=chapter,
                     skill=pstep.skill,
                 )
+                # C33 R4 (F365 residual): G4 failure escalates through the
+                # failure handler instead of marking the step done anyway.
+                # No pre-charge at this site (unlike the audit-wave G4
+                # hard-fail path) → let _handle_failure charge the budget.
+                return _handle_failure(state, pstep, chapter, "g4", project_dir)
 
         # Record both steps as done and advance past them. C30 F1112:
         # missing declared outputs downgrade — same semantics as the generic
@@ -3101,18 +3187,25 @@ def _run_chapter_step_impl(
         )
         return True  # checkpoint raised, pause for human
 
-    # Scoring failure (review-resonance): exit code 2/3 need special handling.
+    # Scoring failure (review-resonance): C33 — exit 2/3 deterministic, zero retry.
     if not result.success and "review-resonance" in step.skill:
         from shenbi.pipeline.error_handler import handle_scoring_failure
 
-        if handle_scoring_failure(state, result.returncode):
+        retry, fc = handle_scoring_failure(state, result.returncode)
+        if retry:  # pragma: no cover — no retry path remains; kept for API truth
             log.warning(
                 "scoring_failure_retry",
                 chapter=chapter,
                 exit_code=result.returncode,
             )
-            return False  # retry this step, don't advance step_index
-        return _handle_failure(state, step, chapter, "scoring", project_dir)
+            return False
+        log.warning(
+            "scoring_failure_deterministic",
+            chapter=chapter,
+            exit_code=result.returncode,
+            failure_class=fc.value,
+        )
+        return _handle_failure(state, step, chapter, "scoring", project_dir, failure_class=fc)
 
     if not result.success:
         log.error(
@@ -3121,7 +3214,16 @@ def _run_chapter_step_impl(
             step=step.step_num,
             skill=step.skill,
         )
-        return _handle_failure(state, step, chapter, "dispatch", project_dir)
+        return _handle_failure(
+            state,
+            step,
+            chapter,
+            "dispatch",
+            project_dir,
+            failure_class=classify_dispatch_failure(
+                returncode=result.returncode, stderr=result.stderr
+            ),
+        )
 
     # G4: skill-specific structural validation (every dispatched step).
     g4_files = _resolve_g4_files(project_dir, step, chapter)
@@ -3264,7 +3366,16 @@ def _run_chapter_step_impl(
                 state=state,
             )
             if not rev.success:
-                return _handle_failure(state, step, chapter, "audit-revision", project_dir)
+                return _handle_failure(
+                    state,
+                    step,
+                    chapter,
+                    "audit-revision",
+                    project_dir,
+                    failure_class=classify_dispatch_failure(
+                        returncode=rev.returncode, stderr=rev.stderr
+                    ),
+                )
 
         if cs.audit_retry_count >= 100:
             log.error(

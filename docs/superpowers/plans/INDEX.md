@@ -9,6 +9,8 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
+- `2026-09-07-c33-retry-taxonomy.md`（SDD #47 C33 重试/失败分类统一 · spec `2026-08-16-c33-retry-failure-taxonomy-design.md`）✅ ready
+
 
 
 

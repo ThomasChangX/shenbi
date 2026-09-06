@@ -90,6 +90,11 @@ def set_checkpoint(
 def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
     """Clear the pending checkpoint and record it in history.
 
+    C33 (spec #47 R3): resolving an ESCALATION checkpoint (approve/reject/
+    modify) resets ALL per-phase retry counters — the three retry_counts
+    maps AND per-chapter audit_retry_count/revision_count.
+
+
     C30 F338: a NONE checkpoint (no real checkpoint pending) is a no-op —
     it must not enter the history that ``cmd_resume`` keys phase
     transitions off.
@@ -119,6 +124,17 @@ def clear_checkpoint(state: PipelineState, decision: ReviewDecision) -> None:
         state.genesis.retry_counts.clear()
         state.chapter_loop.retry_counts.clear()
         state.closure_retry_counts.clear()
+        # C33 R3 (T508, spec #47): per-chapter audit counters share the reset
+        # contract. Scope rule: chapter set → clear that chapter only; None →
+        # all (mirrors _reset_retry_budget prefix semantics, NOT dict clear-all).
+        _keys = (
+            [str(cp.chapter)] if cp.chapter is not None else list(state.chapter_loop.chapter_states)
+        )
+        for k in _keys:
+            cs = state.chapter_loop.chapter_states.get(k)
+            if cs is not None:
+                cs.audit_retry_count = 0
+                cs.revision_count = 0
         log.info("retry_counters_reset", reason="escalation_resolved", decision=decision.value)
     state.pending_checkpoint = CheckpointData(type=CheckpointType.NONE)
 

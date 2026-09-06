@@ -56,6 +56,10 @@ class ReviewTask:
     prompt: str
     output_path: str
     shared_context: Any = None
+    #: C33 R4 (F363, spec #47): attempts used (1 = first try). Set by
+    #: _dispatch_with_retry; aggregated into retry_budget_consumed at wave
+    #: completion by the main thread (_charge_wave_retries in chapter_loop).
+    attempts: int = 0
 
 
 def _dispatch_with_retry(
@@ -76,6 +80,7 @@ def _dispatch_with_retry(
         DispatchResult indicating success or failure.
     """
     for attempt in range(MAX_RETRIES + 1):
+        task.attempts = attempt + 1
         try:
             with semaphore:
                 log.info(
@@ -104,6 +109,22 @@ def _dispatch_with_retry(
                     returncode=result.returncode,
                     stderr=result.stderr[:200],
                 )
+                # C33 R1 classification point ④ (F533, spec #47): deterministic
+                # failures (rc=2 write-audit GATE_FAIL etc.) are not retried —
+                # retrying a deterministic outcome burns full-price dispatches.
+                from shenbi.contracts.enums import FailureClass
+                from shenbi.pipeline.dispatch_helper import classify_dispatch_failure
+
+                if (
+                    classify_dispatch_failure(returncode=result.returncode, stderr=result.stderr)
+                    is not FailureClass.TRANSIENT
+                ):
+                    log.warning(
+                        "parallel_dispatch_deterministic_no_retry",
+                        skill=task.skill,
+                        returncode=result.returncode,
+                    )
+                    return result
         except Exception as exc:
             log.error(
                 "parallel_dispatch_exception",
