@@ -27,21 +27,21 @@
 - `FailureClass` 枚举入 enums.py（C8 单源；同步登记契约 schema 文档）；分类器统一放 dispatch 边界。**分类点清单（M3，全部接线，缺一即 dead-wire）**：① tenacity 谓词（dispatch_helper.py `_is_retryable`）按 FailureClass 判定，openai SDK 异常（含 `__cause__` 链上的 httpx 异常）→ transient；② `_with_write_audit` rc=2 GATE_FAIL 降级点 → deterministic_gate；③ `run_chapter_step` gate/scoring 出口（chapter_loop.py）→ deterministic_content；④ audit_layer 派发失败出口。T507 已由 PR #103 修复（typed timeout 路由），分类器建立在已有 typed exception 分支之上
 - **验收**：F977 复现用例——SDK 异常进 tenacity 重试；rc=2 样本零重试直达升级；分类结果写 trace（**字段名 `failure_class`**，M5——C10 成本报告可 join；`_emit_dispatch_trace` 现有点位扩展）
 
-### R2 · 全局预算与层间协调（T506 + T507 + T510 + T511）
+### R2 · 全局预算与层间协调（T506 + T507 残留协调面 + T510 + T511）——T507 的 timeout 路由子面已由 PR #103 修复，本任务只承接其层间协调部分
 - 每 dispatch 携带 retry_budget（章级持久字段，复用既有 `retry_budget_consumed` 机制而非另建）；**SDK max_retries 强制设 0**（单点：dispatch_helper OpenAI() 构造；"或 1"方案删除——SDK 不暴露内部重试计数，无法计入预算，C2），全部瞬时重试收敛到 tenacity 层（其 attempts 已有 `usage_acc["attempts"]` 计数）；scoring/串行路径加同一分类门（deterministic 不重试）+ 指数退避含 jitter（复用 parallel_dispatch 的 RETRY_JITTER 模式，T514 收敛为"串行/scoring 路径复用"）
-- **exit-2/exit-3 重分类为显式交付物（I2）**：error_handler.py `handle_scoring_failure` 的 exit-2 validation-failure 无限重试路径（T511）改 deterministic 零重试直达 `_handle_failure`；模块 docstring 与 S11 语义同步修订
+- **exit-2/exit-3 重分类为显式交付物（I2）**：error_handler.py `handle_scoring_failure` 的 exit-2 validation-failure 与 exit-3 marker-file-missing 两条无限重试路径（T511）改零重试直达 `_handle_failure`（exit-2 → deterministic_content；exit-3 → deterministic_gate——产物结构性缺失非重试可解）；模块 docstring 与 S11 语义同步修订
 - **APPROVE 路径预算语义成文（I4）**：ESCALATION approve 后 `retry_budget_consumed` 保持在顶（人工担保语义，machine.py 现状）——本簇不改该行为，但在 R3 验收中显式断言（approve 后新失败应走升级而非再次烧预算重试），防止语义未定义
 - **验收**：模拟持续 5xx 的任务总请求数 ≤ 预算上限（T506 的 27 请求放大场景测试断言 ≤ 上限）；退避曲线单测（注入 fake clock/tenacity wait 工厂，禁真实 sleep，M4b）
 
 ### R3 · audit_retry_count 生命周期（T508）
-- ESCALATION checkpoint 解决时重置对应 per-phase 计数器——**覆盖全部三种决策 APPROVE/REJECT/MODIFY（C1）**：`clear_checkpoint`（machine.py）ESCALATION 分支增清 `chapter_states[ch].audit_retry_count` 与 `revision_count`；`_reset_retry_budget`（cli.py）同步扩展纳入两字段（与既有 `retry_budget_consumed` 处理对齐）；machine.py "all per-phase retry counters are reset" 契约兑现
+- ESCALATION checkpoint 解决时重置对应 per-phase 计数器——**覆盖全部三种决策 APPROVE/REJECT/MODIFY（C1）**：`clear_checkpoint`（machine.py）ESCALATION 分支增清 `audit_retry_count` 与 `revision_count`，**作用域对齐既有 all-clear 约定**（cp.chapter 为 None 时清全部章，有章时清该章）；`_reset_retry_budget`（cli.py）同步扩展纳入两字段（与既有 `retry_budget_consumed` 处理对齐；两函数重叠于 _apply_reject_redo ESCALATION 路径——**clear_checkpoint 为权威实现，_reset_retry_budget 保持幂等一致**）；machine.py "all per-phase retry counters are reset" 契约兑现
 - **验收**：ESCALATION→每种决策解决→再 BLOCKING 场景走 revision 重试而非立即再升级（状态机集成测试，T2 层级，M4c）；approve 后新失败走升级（I4 断言）
 
 ### R4 · 预算记账接线（F363 + F365 残留半面）
 - **并行审计波预算接线设计（I3）**：`_dispatch_with_retry`（parallel_dispatch.py）工作线程无 state 句柄——采用**波次聚合**方案：worker 返回 attempts 计数（ReviewTask 增字段），波完成时主线程一次性计入 `retry_budget_consumed`（持锁写，避开 ThreadPool 内跨线程写 state）；崩溃一致性 = 波次聚合幂等重放（savepoint 已有语义），trace 为对账源
 - F365 残留半面（PR #158 已修"缺失产物不标 steps_done"）：lifecycle 派发失败（chapter_loop.py 仅 log.error）与两步 G4 失败（仅 log.warning）改路由 `_handle_failure`（failed 步 + 可重试状态 + 预算记账）
 - 与 C10 协同：每次重试的 token 消耗落 TokenLedger（含失败 attempt，修正上轮 F520 面）
-- **验收**：注入失败 fixture 跑并行波（**具体路径：`tests/unit/pipeline/test_retry_budget.py` / `test_retry_accounting.py` 扩展**，M4a），state 中预算字段非零且与 trace `failure_class`/attempts 一致
+- **验收**：注入失败 fixture 跑并行波（**具体路径：`tests/unit/pipeline/test_retry_budget.py` / `test_retry_accounting.py` 扩展**，M4a；fixture 输入须为 `tests/fixtures/` 真实产物，G0.9 禁合成失败载荷），state 中预算字段非零且与 trace `failure_class`/attempts 一致
 
 ## 验收（簇级）
 - `just check` 全绿；`tests/unit/pipeline/test_retry_taxonomy.py` 覆盖 R1-R4 全部分类×层级矩阵
