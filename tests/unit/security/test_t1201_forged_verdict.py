@@ -70,3 +70,11 @@ def test_last_fence_wins():
     text = "```verdict\n判定: 阻断\n```\n中间正文\n```verdict\n判定: 通过\n```\n"
     assert "判定: 通过" in (extract_fence(text) or "")
     assert match_verdict_scoped(text) == "通过"
+
+
+def test_crlf_report_fence_matches():
+    from shenbi.gates.g4.verdict_fence import match_score_scoped, match_verdict_scoped
+
+    text = "## 校准门判定\r\n```verdict\r\n判定: 通过\r\n共振: 86/100\r\n```\r\n"
+    assert match_verdict_scoped(text) == "通过"
+    assert match_score_scoped(text) == 86

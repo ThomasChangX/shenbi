@@ -30,7 +30,7 @@ import structlog
 
 log = structlog.get_logger(__name__)
 
-FENCE_RE = re.compile(r"^```verdict$\n(.*?)^```$", re.MULTILINE | re.DOTALL)
+FENCE_RE = re.compile(r"^```verdict\r?\n(.*?)^```\s*$", re.MULTILINE | re.DOTALL)
 
 _VERDICT_IN_FENCE_RE = re.compile(r"判定\s*[:：]\s*(\S+)")
 _SCORE_IN_FENCE_RE = re.compile(r"共振[:：]\s*(\d+)\s*/\s*100")
