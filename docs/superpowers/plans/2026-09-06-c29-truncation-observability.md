@@ -155,7 +155,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 
 **Files:**
 - Create: helper 于 `src/shenbi/gates/shared.py`
-- Modify: `src/shenbi/gates/g5.py:154,189`、`src/shenbi/gates/g6.py:224,234,291`、`src/shenbi/gates/g6_checks.py:37` 及 `_chapter_text(ch, 3000)` 两处调用（:70/:89，G6.10 双 pass——直接改 `_chapter_text` 内部走 `clip_with_disclosure` 并向调用方回传 sampled，聚合进 G6.10 check dict）（g5.py:187 属计数型采样，归 Task 3，不在本 task）
+- Modify: `src/shenbi/gates/g5.py:154,189`、`src/shenbi/gates/g6.py:224,234,291`、`src/shenbi/gates/g6_checks.py:37` 及 `_chapter_text(ch, 3000)` 两处调用（:70/:89，属 **G6.4 check_continuity** 双 pass——直接改 `_chapter_text` 内部走 `clip_with_disclosure` 并向调用方回传 sampled，聚合进 **G6.4** check dict；G6.10 `check_style_consistency` 读全文无字符截取，不在改面）（g5.py:187 属计数型采样，归 Task 3，不在本 task）
 - Modify: `src/shenbi/gates/g4/genre_config.py:38-48`（全量错误计数）
 - Modify: `src/shenbi/gates/g7.py:186-194`（G7.13 重跑分支透传 sampling_disclosed）
 - Test: `tests/unit/gates/test_sampling_disclosure.py`（新建）
@@ -169,7 +169,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
   各 check dict 加键 `"input_sampled": True`（仅发生过截取时加；未截取不加，保持输出精简）。顶层 `sampling_disclosed` 机制：`GateResult` TypedDict（`src/shenbi/status.py:85`，total=False）加可选键 `sampling_disclosed: str`；`gate_G5`/`gate_G6` 在最终 `passed()/fail()` 前聚合 checks 计算 `"n/m checks ran on sampled input"`——实现方式：两个 gate 函数结尾改为先构造 `result: GateResult` dict、加键、再 `json.dumps`（不走 `passed()` 的固定形状；或给 `shared.py` 加可选参数 `extra: GateResult | None = None` 合并——实现时任选其一，禁止改 `passed()/fail()` 既有调用方语义）。schema 文档同步：`docs/framework/gates.md` 增补 `sampling_disclosed`/`input_sampled` 字段说明（C8 词表单源协同）。
 - 消费方（dead-wire 防护，**接真实读方**）：`gates/g7.py:186-199`（G7.13 重跑 gate_G6 比对结果的真实消费点）——重跑循环中**收集**每次 `rerun.get("sampling_disclosed")` 非 None 的值（跨多个 marker 聚合，不只留最后一个），循环后**扩写既有** `c.append({"id": "G7.13", "s": PASS, "note": ...})` 的 note（g7.py:197-199）：拼接聚合到的全部 `sampling_disclosed`（**不新增第二条 G7.13 check**，避免重复 check dict）；`write_gate_marker` 持久化的 PASS JSON 自带该字段（操作员/G7 可见）。**不要接 audit_layer**（它只跑 G4，看不到该字段——plan review C3）。
 
-- [ ] **Step 1: 失败测试** — 用 `tests/fixtures/chapter-10-draft.md` 拼接成 >5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 `clip_with_disclosure` 断言 `(prefix, True)`；对 `check_timeline`（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 `input_sampled`；genre_config 用真实 `tests/fixtures` 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 `+N more` 计数行
+- [ ] **Step 1: 失败测试** — 用 `tests/fixtures/chapter-10-draft.md` 拼接成 >5000 字临时文件（tmp_path + 真实产物内容复制，G0.9 合规），对 `clip_with_disclosure` 断言 `(prefix, True)`；对 `check_continuity`（g6_checks）传 chapter fixture 列表断言结果 violations 之外的 check 元数据含 `input_sampled`；genre_config 用真实 `tests/fixtures` 下 genre/JSON 配置构造 ValidationError 场景断言 mf 含 `+N more` 计数行
 - [ ] **Step 2:** `uv run pytest tests/unit/gates/test_sampling_disclosure.py -q` → FAIL
 - [ ] **Step 3:** 实现 helper + 六处 `[:3000]`/`[:5000]` 改 `text, sampled = clip_with_disclosure(...)`，check dict 条件加键；genre_config 改为：
   ```python
@@ -236,7 +236,7 @@ git commit -m "feat: C29 R1 truncation marker protocol — cap-proof sentinel, s
 - Modify: `src/shenbi/trace/replay.py:20-49`
 - Test: `tests/unit/trace/test_replay.py`（扩展，沿用既有 TraceWriter fixture 构造法）
 
-**Interfaces:** `replay(round_dir: Path) -> list[TraceEvent]` 签名不变；新增行为：torn line / signature gap 截断时 `log.warning("replay_truncated", path=str(path), kept_chars=keep_chars, dropped_chars=len(raw) - keep_chars)`，模块顶部 `from shenbi.logging import get_logger` + `log = get_logger(__name__)`（仓内规范 import，非 structlog 直引）。
+**Interfaces:** `replay(round_dir: Path) -> list[TraceEvent]` 签名不变；新增行为：torn line / signature gap 截断时 `log.warning("replay_truncated", path=str(path), kept_chars=keep_chars, dropped_chars=len(raw) - keep_chars, kept_events=len(out), drop_reason=reason)`（reason ∈ {"torn_line", "signature_gap"}；行号范围由 kept_chars/内容长度可推，如需精确可在循环中记最后有效行号），模块顶部 `from shenbi.logging import get_logger` + `log = get_logger(__name__)`（仓内规范 import，非 structlog 直引）。
 - [ ] **Step 1:** 失败测试 — 复用既有 `test_replay_truncates_torn_tail` 构造法（TraceWriter 写合法链 + 追加撕裂行），structlog capture 断言 `replay_truncated` WARN 含 dropped_chars>0，且返回事件数正确
 - [ ] **Step 2:** → FAIL
 - [ ] **Step 3:** 实现（两个 `break` 点改为记录 reason 后 break，函数尾部 `if keep_chars < len(raw):` 处发 WARN 再 `safe_write`）
