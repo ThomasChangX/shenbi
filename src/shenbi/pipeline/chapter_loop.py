@@ -73,6 +73,7 @@ from shenbi.pipeline.revision_router import (
     route_chapter_revision,
 )
 from shenbi.pipeline.state import (
+    ChapterLoopStateData,
     ChapterStatus,
     ChapterState,
     CheckpointType,
@@ -258,7 +259,107 @@ CHAPTER_STEPS: list[ChapterStep] = [
     ),
 ]
 
-# Conditional steps (not in main list, invoked only when gates open).
+# ---------------------------------------------------------------------------
+# Step-table versioning (C30 R2, F797): old-generation steps_done entries
+# migrate on resume so a stale step name never silently misaligns the
+# step_index semantics across table generations.
+# bump rule: ANY rename/reorder of CHAPTER_STEPS bumps PIPELINE_STEPS_VERSION
+# and adds a migration table entry (old -> new; merged-away names map to
+# nothing and are dropped so the successor step re-runs).
+PIPELINE_STEPS_VERSION = 2
+
+STEP_NAME_MIGRATIONS: dict[int, dict[str, str | None]] = {
+    1: {
+        # MERGE-1: three foreshadowing skills -> one lifecycle skill
+        "shenbi-foreshadowing-plant": "shenbi-foreshadowing-lifecycle",
+        "shenbi-foreshadowing-track": "shenbi-foreshadowing-lifecycle",
+        "shenbi-foreshadowing-recall": "shenbi-foreshadowing-lifecycle",
+        # context assembly + curation merged into one deterministic step
+        "pipeline-context-assemble": "pipeline-context-prepare",
+        "shenbi-context-composing": "pipeline-context-prepare",
+        # MERGE-2: serial auditors folded into review-group-* — no 1:1
+        # successor, drop so the audit groups re-run
+        "shenbi-review-anti-ai": None,
+        "shenbi-review-continuity": None,
+        "shenbi-review-foreshadowing": None,
+        "shenbi-review-memo-compliance": None,
+        "shenbi-review-pacing": None,
+        "shenbi-review-pov": None,
+        "shenbi-review-character": "shenbi-review-group-character",
+    },
+}
+
+
+def migrate_steps_done(steps: list[str]) -> tuple[list[str], bool]:
+    """Migrate old-generation step names through every migration table.
+
+    Returns ``(migrated_steps, changed)``. Idempotent: names already in the
+    current generation pass through untouched.
+    """
+    current = {s.skill for s in CHAPTER_STEPS}
+    lookup: dict[str, str | None] = {}
+    for table in STEP_NAME_MIGRATIONS.values():
+        lookup.update(table)
+    migrated: list[str] = []
+    changed = False
+    for name in steps:
+        if name in current:
+            migrated.append(name)
+            continue
+        target = lookup.get(name, name)
+        if target is None:
+            changed = True
+            continue  # merged away: drop so the successor re-runs
+        if target not in migrated:
+            migrated.append(target)
+        changed = True
+    return migrated, changed
+
+
+def committed_chapter_anchor(project_dir: Path) -> int:
+    """Highest chapter number with a COMMITTED chapter product (C30 R2, F371).
+
+    Only exact ``chapter-N.md`` files count — snapshot/label copies
+    (``chapter-N-emergency.md`` etc.) are not committed products.
+    """
+    chapters_dir = project_dir / "chapters"
+    if not chapters_dir.is_dir():
+        return 0
+    anchor = 0
+    for path in chapters_dir.iterdir():
+        match = re.fullmatch(r"chapter-(\d+)\.md", path.name)
+        if match:
+            anchor = max(anchor, int(match.group(1)))
+    return anchor
+
+
+def _clamp_resume_cursor(  # pyright: ignore[reportUnusedFunction]
+    cl: ChapterLoopStateData, project_dir: Path
+) -> None:
+    """Clamp a runaway resume cursor to the committed-product anchor (F371).
+
+    Fires only when the cursor is MORE than one chapter past the last
+    committed product AND the current chapter has zero recorded progress —
+    a mid-chapter revision interrupt (progress recorded) is legitimate and
+    must not be touched.
+    """
+    anchor = committed_chapter_anchor(project_dir)
+    if cl.current_chapter <= anchor + 1:
+        return
+    cs = cl.chapter_states.get(str(cl.current_chapter))
+    if cs is not None and cs.steps_done:
+        return
+    old = cl.current_chapter
+    cl.current_chapter = anchor + 1
+    cl.step_index = 0
+    log.warning(
+        "resume_cursor_clamped",
+        old_chapter=old,
+        new_chapter=cl.current_chapter,
+        committed_anchor=anchor,
+    )
+
+
 # NOTE: escalation-review is intentionally ABSENT -- it is dispatched
 # reactively from revision_router.dispatch_escalation (Spec 5), NOT from here.
 CONDITIONAL_STEPS: list[ChapterStep] = [

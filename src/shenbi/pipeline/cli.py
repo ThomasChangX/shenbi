@@ -851,9 +851,39 @@ def cmd_resume(args: argparse.Namespace) -> int:
 
             _auto_rebuild_progress_if_stale(project_dir)
 
+            # C30 R2 (F371): clamp a runaway cursor to the committed-product
+            # anchor BEFORE any transition logic keys off it, and migrate
+            # old-generation steps_done names (F797).
+            from shenbi.pipeline.chapter_loop import (
+                _clamp_resume_cursor,  # pyright: ignore[reportPrivateUsage]
+                migrate_steps_done,
+            )
+
+            cl_state = state.chapter_loop
+            _clamp_resume_cursor(cl_state, project_dir)
+            for ch_key, cs in list(cl_state.chapter_states.items()):
+                migrated, changed = migrate_steps_done(cs.steps_done)
+                if changed:
+                    log.warning("steps_done_migrated", chapter=ch_key)
+                    cs.steps_done = migrated
+                    save_state(project_dir, state)
+
             if state.checkpoint_history:
-                last = state.checkpoint_history[-1]
-                if last.get("decision") == "approve":
+                # C30 F371: consume the transition event instead of guessing
+                # from history[-1] — the newest UNCONSUMED approve entry is
+                # the one this resume acts on; older ones are already handled.
+                pending_event = next(
+                    (
+                        e
+                        for e in reversed(state.checkpoint_history)
+                        if e.get("decision") == "approve" and not e.get("consumed", True)
+                    ),
+                    None,
+                )
+                last = pending_event
+                if last is not None:
+                    last["consumed"] = True
+                if last is not None and last.get("decision") == "approve":
                     cp_type = last.get("type")
                     if cp_type == CheckpointType.GENESIS_COMPLETE.value:
                         from shenbi.pipeline.transitions import (
