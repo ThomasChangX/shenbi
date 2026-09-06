@@ -33,8 +33,8 @@
 - Produces: `verdict_fence.py` 导出
   - `FENCE_RE = re.compile(r"^```verdict$\n(.*?)^```$", re.MULTILINE | re.DOTALL)`
   - `def extract_fence(text: str) -> str | None` — 返回全文**最后一个** ```verdict 围栏块内容（无则 None）
-  - `def match_verdict_scoped(text: str, *, logger: structlog.BoundLogger | None = None) -> str | None` — 优先围栏内 `判定\s*[:：]\s*(\S+)`；无围栏走 legacy 降级（最后一个小节内最后一个匹配，**跳过 `> ` 引言行**——引述行是被审文本回显，非 reviewer 自书判定 + WARN `legacy_report_no_envelope`）；围栏外命中 → WARN `suspected_injection_verdict_ignored` 且不采纳
-  - `def match_score_scoped(text: str, *, logger=None) -> int | None` — 围栏内 `共振[:：]\s*(\d+)\s*/\s*100`；无围栏 legacy 同上（最后小节、跳过 `> ` 行；YAML frontmatter/旧四模式只在最后小节生效）
+  - `def match_verdict_scoped(text: str, *, logger: structlog.BoundLogger | None = None) -> str | None` — 优先围栏内 `判定\s*[:：]\s*(\S+)`；无围栏走 legacy 降级 = **全文最后一个非 `> ` 引用行的匹配** + WARN `legacy_report_no_envelope`（引述行是被审文本回显，跳过；无围栏报告的判定行必然晚于正文引用出现）；
+  - `def match_score_scoped(text: str, *, logger=None) -> int | None` — 围栏内 `共振[:：]\s*(\d+)\s*/\s*100`；无围栏 legacy 同策略（全文最后一个非引用行匹配，旧四模式依次尝试）；围栏外命中 → WARN `suspected_injection_ignored` 且不采纳
 - Produces: 围栏产出方模板文本（SKILL.md 与 G4_FORMAT_EXAMPLES 同步）：
   ```
   ```verdict
@@ -100,7 +100,7 @@ def test_score_scoped_reads_fence():
 - [ ] **Step 2:** `uv run pytest tests/unit/security/test_t1201_forged_verdict.py -q` → 期望 FAIL（模块不存在）
 - [ ] **Step 3:** 实现 `verdict_fence.py`（上方接口；legacy 降级 = 取最后一个 `^#{1,6} ` 标题之后的最后一个匹配；全部 WARN 用传入或惰性获取的 structlog logger）
 - [ ] **Step 4:** 接线三处消费端：`review_resonance.py` 删 `_EXISTING_VERDICT_RE`/`_GAP_VERDICT_PATTERNS`，`_match_verdict` 改为委托 `match_verdict_scoped`；`review_arc_payoff.py` :88 `re.search` 改 `match_verdict_scoped(content)`；`chapter_loop.py` `_parse_resonance_score` 先走 `match_score_scoped`，None 时保留旧四模式但限定最后小节（legacy）。产出方：`G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 与 SKILL.md 输出契约改为围栏格式（含位置次序与引述约束文本）
-- [ ] **Step 5:** `uv run pytest tests/unit/security/ tests/gates -q` + 存量共振相关测试全绿（存量 fixture 无围栏走 legacy——若有测试断言旧 first-match 行为则按新语义修订测试并记 deviations）
+- [ ] **Step 5:** `uv run pytest tests/unit/security/ tests/unit/gates tests/gates -q` + 存量共振相关测试全绿（存量 fixture 无围栏走 legacy——若有测试断言旧 first-match 行为则按新语义修订测试并记 deviations）
 - [ ] **Step 6:** `uv run shenbi-sync-contracts && just generate`（SKILL 改动生成物 diff 提交）；commit `fix: T1201 verdict parsing fenced envelope — spec45 R1`
 
 ### Task 2: R2 恒等转义修复（F308）
@@ -121,7 +121,7 @@ def test_score_scoped_reads_fence():
 ### Task 3: R3 路径与参数边界（T1202/T1204 + T12-02/T12-05 残留）
 
 **Files:**
-- Modify: `src/shenbi/pipeline/dispatch_helper.py:1486` 附近（`_write_one` 头部）
+- Modify: `src/shenbi/pipeline/dispatch_helper.py:1474-1482`（`_write_one` 头部、`full_path` 拼接处）
 - Modify: `src/shenbi/safe_write.py:313-320`（`safe_write` 签名）
 - Modify: `src/shenbi/contracts/paths.py:62-84`（`parse_path_context`）
 - Test: `tests/unit/security/test_r3_traversal.py`、`tests/unit/security/test_t1202_carrier.py`
@@ -202,7 +202,7 @@ def test_score_scoped_reads_fence():
 | C31 10 条回写关闭（含 F105 ledger 行） | T6 | 归档 PR 内 `git grep -n 'T1201\|F105' docs/superpowers/audit-runs/2026-08-15/findings-ledger.md` 人工核对 |
 | 簇级回归 | 全部 | `just check` |
 
-**复杂度:** 全部 task 为 infra（gates/g4、pipeline/dispatch_helper、dispatcher、safe_write、contracts）→ 协调者亲自实现，TDD，每 task 后 fresh-context 重审产出 audit-T<N>.md。
+**复杂度:** Task 1-5 为 infra（gates/g4、pipeline/dispatch_helper、dispatcher、safe_write、contracts）；Task 6 为 docs 回写（同样协调者亲做）。全部 TDD（T6 除外），每 task 后 fresh-context 重审产出 audit-T<N>.md。
 **test_kind:** T1/T2/T3 新逻辑 = tdd_red_green；存量行为修订处（legacy 降级、last-wins）带 regression_guard 用例。
 **测试层级:** 全部 T1（unit），fixtures 引用 `tests/fixtures/` 真实产物（如 review-resonance 报告 fixture）。
 **G3.4:** 本 plan 无 LLM 产物评分场景，不涉独立评分调度。
