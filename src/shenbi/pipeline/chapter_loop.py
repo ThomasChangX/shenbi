@@ -3012,7 +3012,16 @@ def _run_chapter_step_impl(
                 step=lifecycle_step.step_num,
                 skill=lifecycle_step.skill,
             )
-            return _handle_failure(state, lifecycle_step, chapter, "dispatch", project_dir)
+            return _handle_failure(
+                state,
+                lifecycle_step,
+                chapter,
+                "dispatch",
+                project_dir,
+                failure_class=classify_dispatch_failure(
+                    returncode=lifecycle_result.returncode, stderr=lifecycle_result.stderr
+                ),
+            )
 
         # G4: structural validation for both steps (main thread only).
         for pstep in (lifecycle_step, settling_step):
@@ -3357,7 +3366,16 @@ def _run_chapter_step_impl(
                 state=state,
             )
             if not rev.success:
-                return _handle_failure(state, step, chapter, "audit-revision", project_dir)
+                return _handle_failure(
+                    state,
+                    step,
+                    chapter,
+                    "audit-revision",
+                    project_dir,
+                    failure_class=classify_dispatch_failure(
+                        returncode=rev.returncode, stderr=rev.stderr
+                    ),
+                )
 
         if cs.audit_retry_count >= 100:
             log.error(
