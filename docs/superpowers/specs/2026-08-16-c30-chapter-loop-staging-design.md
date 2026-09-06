@@ -22,35 +22,40 @@
 3. 步骤表去魔法索引、装配触发点后移，消除每章空跑
 
 ## 任务分解
-### R1 · staging 清理谓词定稿（F318 + T102 + F1110 + F323，最高优先）
-- atexit 紧急清理只清"从未进入 checkpoint 的临时文件"；checkpoint approve/reject 时 commit（含 sidecar 整目录）或显式 discard，二者必居其一且留审计日志
-- MODIFY 语义裁决：人工编辑后重派 = 以人工编辑为基线（不 commit 旧 staging 再覆盖）；`pipeline-review MODIFY` 路径重写
-- **验收**：交互模式跑 1 章 fixture——staged decisions sidecar 在 approve 后出现在 committed truth；F318 的 atexit 用例（注册两次 + 中断）不丢产物
+> **Scope 裁决（2026-09-06 驳斥复核）**：T102/F1110（PR #120）、F305（PR #63）、F1153（PR #6 链）、F379 已在 main 修复——本 spec 不重复实现，归档回写记 closed-by 对应 PR；F380/F311/F1112/F1114 降级承接（见各 R 条目）；R5 缩为 F377 单条。
+
+### R1 · staging 清理谓词定稿（F318 + F323，最高优先；T102/F1110 已修剔除）
+- 谓词单一信源 = staging manifest（或等价落盘登记，经 `write_safety` 原子写）：产物进入 checkpoint 时落盘标记，崩溃后新进程由 manifest 重建 staged/committed 边界——"从未进入 checkpoint"必须跨进程可推导，不得依赖进程内记忆
+- atexit 紧急清理只清"manifest 中从未进入 checkpoint 的临时文件"；checkpoint approve/reject 时 commit（含 sidecar 整目录）或显式 discard，二者必居其一且留审计日志（structlog）
+- atexit/信号路径复用 spec #37（PR #140）one-shot latch，清理谓词在锁协议约束下求值；新增清理入口不得盲取 WriteLock（atexit 盲取 = 确定性自死锁，crash_recovery.py:136-156 已有不变量）；与 C11 联合回归验收
+- MODIFY 语义裁决：人工编辑后重派 = 以人工编辑为基线 = 对旧 staging 显式 discard（走同一审计日志谓词），不构成第三种清理路径；`pipeline-review MODIFY` 路径重写
+- **验收**：交互模式跑 1 章 fixture（确定性故障注入，非真实信号 kill）——staged decisions sidecar 在 approve 后出现在 committed truth；F318 的 atexit 用例（latch 复用 + 崩溃后 manifest 重建）不丢产物
 
 ### R2 · resume 游标锚定（F371 + F1114 + F797）
-- 游标 = max(已提交章号, checkpoint 显式锚)，phase 转换事件化并消费（不再读 history[-1] 猜）
-- steps_done 步名版本化：`PIPELINE_STEPS_VERSION` 常量 + 迁移表（旧名→新名），resume 时迁移并 WARN
+- 游标 = 已提交章产物号（R1 commit 语义定稿后唯一来源），checkpoint 显式锚仅作下界校验（显式锚 > 已提交章号时 WARN 并取已提交章号——防未提交章被 resume 重生成覆盖）；phase 转换事件化并消费（不再读 history[-1] 猜）；新事件/状态字面量以 `Literal` 定义于 `src/shenbi/contracts/enums.py`
+- steps_done 步名版本化：`PIPELINE_STEPS_VERSION` 常量（步骤表任何重命名/重排即 +1）+ 迁移表（旧名→新名），resume 时迁移并 WARN（structlog）
 - **验收**：F371 复现场景（auto 模式中断于章中）恢复后从断点章继续且零覆盖；旧 state fixture 迁移测试
 
 ### R3 · 步骤表与装配触发（T1602 + F358 + F380 + F357 + F338）
-- 装配触发移到 step-3 首入口（plan 存在性守卫）；C1 守卫补新章 step-1；魔法索引改推导式（与 `_FIRST_AUDIT_IDX` 同法）；clear_checkpoint 对 None checkpoint no-op
-- **验收**：T16 实测场景回归——每章 Route B 停顿 ≤1 次；`git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量
+- 装配触发移到 step-3 首入口（plan 存在性守卫）；C1 守卫补新章 step-1（F380 表象已修，补回归锁定测试）；魔法索引改推导式（与 `_FIRST_AUDIT_IDX` 同法）；clear_checkpoint 对 None checkpoint no-op
+- **验收**：T16 实测场景回归——step-2 不再空跑装配/写废弃 fallback（每章网络停顿 ≤1 次）；`git grep _FORESHADOWING_LIFECYCLE_IDX` 零字面量；F380 回归测试锁定新章从 step-1 起
 
 ### R4 · 缓存失效与状态真实性（F310 + F1112 + F311）
-- SCR 缓存键加 (path, mtime)；state 标记完成前校验产物存在（不存在则降级未完成 + WARN）；curated 文档错位归 P7 的分层修正（若 C37 裁决删除死输出则从其裁决）
-- **验收**：修订后 SCR 提取含新文本；state claims 与磁盘产物一致性检查器（可并入 G7 面，与 C1 对账 lint 衔接）
+- SCR 缓存键加 (path, size, mtime)（mtime 单字段在 git checkout/同秒修订下假命中或假失效）；state 标记完成前校验产物存在（不存在则降级未完成 + WARN，structlog；降级态字面量入 enums.py）；F311 仅剩零消费者面——若 C37 R0 裁决删除死输出则从其裁决，本 spec 不实现 curated 消费方
+- **验收**：修订后 SCR 提取含新文本（fixture 驱动）；state claims 与磁盘产物一致性检查器（可并入 G7 面，与 C1 对账 lint 衔接）
 
-### R5 · 失败路径补全（F305 + F377 + F1153）
-- 并行审计波对 requires_independent 技能强制 G3/结构校验（与 C5 独立性接线协同）；触发器扇出/审计波加中途保存点；预算耗尽路径补派 escalation-review（与 C33 失败分类对接）
+### R5 · 失败路径补全（仅剩 F377；F305/F1153/F379 已修剔除）
+- 触发器扇出/审计波加中途保存点（每 skill 段完成后落盘进度，崩溃重放范围 ≤ 当前段）
 - T1108（离线模式）登记为独立设计裁决，本 spec 不实现，只在 spec 尾注移交
-- **验收**：崩溃注入测试（中途 kill）重放范围 ≤ 当前触发器段；escalation 派发产物存在
+- **验收**：确定性崩溃注入（故障 hook，fixture 取 `tests/fixtures/` 真实归档 round）重放范围 ≤ 当前触发器段
 
 ## 验收（簇级）
-- `just check` 全绿；新增 `tests/integration/pipeline/` 生命周期用例（真实 fixture，覆盖 R1/R2/R5 崩溃注入）
-- C30 全部 20 条 merged-into F318 回写关闭
+- `just check` 全绿；新增 `tests/integration/pipeline/` 生命周期用例（真实 fixture，覆盖 R1/R2/R5 确定性崩溃注入）
+- 19 条本 spec 关闭（F318 代表 + 其余存活/降级承接项）+ T1108 移交注记不计验收 + F311 零消费面视 C37 裁决分支 + T102/F1110/F305/F1153/F379 五条 closed-by 既有 PR（#120/#63/#6 链）——回写按此口径，非"全部 20 条本 spec 关闭"
 
 ## 风险
-- R1 语义变更影响 C4（decisions sidecar 链）与 C3（staging 提交路由）——三簇联合验收，C3 spec 定稿写路径后本 spec R1 才能合入
+- 前置已满足：C3 = PR #117 Done、C4 = PR #120 Done（2026-09-06 复核）；剩 C19（#26 已归档）共享面回归与 C37 对 F311 的分支裁决
+- R1 改动叠在 spec #37（PR #140）one-shot latch/锁协议之上——联合回归验收，不得破坏其不变量（依赖图：R2 的"已提交章号"依赖 R1 commit 语义定稿，R1 先行）
 - F371 修复涉及 checkpoint 事件模型，改动面大——先写迁移测试锁定现行为再改（C14 弱断言治理协同，避免新测试 pin 旧 bug）
 
 ## 验证命令
