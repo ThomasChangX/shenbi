@@ -38,9 +38,10 @@
 - **验收**：长章 fixture 下检查结果含采样披露字段且 audit_layer 聚合可见；gate 输出 schema 同步（C8 词表单源协同）
 
 ### R2b · 计数型采样披露与采样策略成文（F459 补全面）
-- 文件计数/列表位置型采样同样披露：g5.py:147（outline `[:3]`）、:152（`[:8]`）、:199（conflicts `[:10]`）、g6.py:223/233（chapters `[:15]`、catchphrases `[:3]`）、g6.py:294（constraints `[:10]`）——结果 JSON 加 `files_sampled: "3/12"` 类字段
+- 文件计数/列表位置型采样同样披露：g5.py:147（outline `[:3]`）、:152（`[:8]`）、:187（char_dir `[:6]`）、:199（conflicts `[:10]`）、g6.py:223/233（chapters `[:15]`、catchphrases `[:3]`）、g6.py:294（constraints `[:10]`）——结果 JSON 加 `files_sampled: "3/12"` 类字段
 - 采样策略成文（目标 3 的落地）：一页文档（`docs/framework/sampling-policy.md`）列出哪些检查有意采样、采多少、为什么
 - **验收**：>12 文件 fixture 下 G5 结果含 files_sampled；sampling-policy.md 存在且覆盖全部列出的采样点
+- **fixture 出处（G0.9）**：>32K 输入 fixture 由 tests/fixtures 真实章节稿拼接生成；>12 文件 fixture 复用真实 outline 产物族；撕裂 trace 为真实 trace 副本 + 注入断行（健康运行不产撕裂行，属 upstream-generator 场景，于测试内注明生成方式）
 
 ### R3 · 数值排序（F326）
 - 章号解析 helper（int 化 + 非数字尾缀稳定排序）应用于 cmd_chapters、_get_audit_history、G6 章节遍历
@@ -62,7 +63,7 @@
 ## 验证命令
 - 截断基线实证（推理假设闸门，被动式）：`grep -rn "input_over_budget_applying_priority_truncation\|\[\.\.\. truncated from" <既有 round 目录>/ `（0 命中 = 既有 round 影响面为零，记 deviation 供裁决，不自动降级）
 - 标记协议：`pytest tests/unit/pipeline/ -k truncate -q`（structlog capture + 纯函数断言，无 dispatch）
-- 采样披露：>5000 字 fixture 跑 `just gate G6 <files> generative`，输出 JSON 含 input_sampled 字段
+- 采样披露：>5000 字 fixture 跑 `shenbi-validate G6 <pipeline_name> <round_dir> <project_dir>`（G6 三参签名，gates/cli.py:170-176），输出 JSON 含 input_sampled 字段
 - 排序：章 2-10 fixture 下 `shenbi-pipeline chapters` 与审计历史人工核对 2..10 顺序
 - 回归：`just check` 全绿
 
