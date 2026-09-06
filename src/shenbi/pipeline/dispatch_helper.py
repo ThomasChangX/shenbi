@@ -2174,6 +2174,10 @@ def _dispatch_via_api(
     client = OpenAI(
         api_key=os.environ[_ENV_LLM_API_KEY],
         base_url=os.environ.get(_ENV_LLM_BASE_URL, _DEFAULT_BASE_URL),
+        # C33 R2 (T506, spec #47): SDK internal retries are invisible to the
+        # retry budget — eliminate them; all transient retries go through
+        # tenacity where usage_acc["attempts"] counts them.
+        max_retries=0,
     )
     model = os.environ.get(_ENV_LLM_MODEL, _DEFAULT_MODEL)
 
@@ -2203,7 +2207,7 @@ def _dispatch_via_api(
             timeout=api_timeout,
             usage_acc=usage_acc,
         )
-    except httpx.TimeoutException:
+    except httpx.TimeoutException as exc:
         # Exception-TYPED timeout routing — message sniffing breaks silently
         # when the provider library rewords its errors (F395, stage-8 review).
         _account_failed_attempt(skill, chapter, usage_acc, system_prompt, user_prompt, project_dir)
@@ -2216,6 +2220,7 @@ def _dispatch_via_api(
             usage_acc.get("usage") is None,
             usage_acc.get("attempts", 1),
             success=False,
+            failure_class=classify_dispatch_failure(exc=exc),
         )
         _handle_timeout_gracefully(skill, chapter)
         log.error("api_call_timeout", skill=skill)
@@ -2231,6 +2236,7 @@ def _dispatch_via_api(
             usage_acc.get("usage") is None,
             usage_acc.get("attempts", 1),
             success=False,
+            failure_class=classify_dispatch_failure(exc=exc),
         )
         log.error("api_call_failed", skill=skill, error=str(exc))
         return DispatchResult(False, -1, "", f"API call failed: {exc}")
@@ -2279,6 +2285,7 @@ def _dispatch_via_api(
             usage is None,
             usage_acc.get("attempts", 1),
             success=False,
+            failure_class=FailureClass.DETERMINISTIC_CONTENT,
         )
         log.error("content_filter_blocked", skill=skill)
         return DispatchResult(
@@ -2674,6 +2681,10 @@ def _with_write_audit(
                     else f"write-audit GATE_FAIL: {reasons}"
                 )
                 rc = DispatchResult(False, 2, rc.stdout, stderr)
+                # C33 R1 (F533): rc=2 write-audit GATE_FAIL is deterministic —
+                # classification point ②; consumers zero-retry this class.
+                fc = classify_dispatch_failure(returncode=2, stderr=stderr)
+                log.warning("write_audit_gate_fail_classified", skill=skill, failure_class=fc.value)
     if dispatch_exc is not None:
         raise dispatch_exc
     return rc
