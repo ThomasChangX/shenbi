@@ -43,6 +43,22 @@ ApprovalDecision = Literal["approved", "rejected"]
 WriteMode = Literal["create_or_overwrite", "append_dedup", "merge_prose"]
 # spec #34 T911: novel.json status（生产两文件持值，立域不删字段）
 NovelStatus = Literal["worldbuilding", "worldbuilding_complete"]
+
+
+# spec #47 C33 R1: dispatch 失败分类单源域（每层重试决策消费同一分类）。
+class FailureClass(StrEnum):
+    """Failure taxonomy domain — single source (spec #47 C33 R1).
+
+    budget-exhausted is a routing OUTCOME (RetryExhaustedError → escalation),
+    not a failure signature, so it is deliberately not a member. Unknown
+    failures classify as TRANSIENT and remain guarded by the retry budget.
+    """
+
+    TRANSIENT = "transient"
+    DETERMINISTIC_GATE = "deterministic_gate"
+    DETERMINISTIC_CONTENT = "deterministic_content"
+
+
 # v2 C4: object 非 type——Literal 是 _LiteralGenericAlias 不是 type，mypy strict 拒 dict[str,type]
 ALL_ENUMS: dict[str, Any] = {
     "Severity": Severity,
@@ -58,4 +74,5 @@ ALL_ENUMS: dict[str, Any] = {
     "ApprovalDecision": ApprovalDecision,
     "NovelStatus": NovelStatus,
     "WriteMode": WriteMode,
+    "FailureClass": FailureClass,
 }

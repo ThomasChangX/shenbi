@@ -41,6 +41,7 @@ from tenacity import (
     wait_exponential_jitter,
 )
 
+from shenbi.contracts.enums import FailureClass
 from shenbi.contracts.fields import filter_to_fields
 from shenbi.contracts.file_list import join_gate_file_list
 from shenbi.contracts.paths import (
@@ -1878,8 +1879,12 @@ def _emit_dispatch_trace(
     attempt: int,
     *,
     success: bool,
+    failure_class: FailureClass | None = None,
 ) -> None:
     """C10 spec #36 T7 (F1116): DISPATCH trace event with finish_reason.
+
+    C33 spec #47 R1: failure_class carries the FailureClass taxonomy when the
+    dispatch failed — the cost report joins on this field.
 
     Only appends when a trace stream already exists in project_dir — dispatch
     must not silently create new trace surfaces. payload is a free dict, so
@@ -1892,20 +1897,23 @@ def _emit_dispatch_trace(
     try:
         from shenbi.trace.writer import TraceWriter
 
+        payload: dict[str, Any] = {
+            "chapter": chapter,
+            "model": model,
+            "finish_reason": finish_reason,
+            "estimated": estimated,
+            "attempt": attempt,
+            "success": success,
+        }
+        if failure_class is not None:
+            payload["failure_class"] = failure_class.value
         TraceWriter(Path(project_dir)).append(
             actor="dispatch_helper",
             actor_role="SYSTEM",
             action="DISPATCH",
             target=f"skill:{skill}",
             skill=skill,
-            payload={
-                "chapter": chapter,
-                "model": model,
-                "finish_reason": finish_reason,
-                "estimated": estimated,
-                "attempt": attempt,
-                "success": success,
-            },
+            payload=payload,
         )
     except Exception:
         log.warning("dispatch_trace_append_failed", skill=skill, exc_info=True)
@@ -1951,13 +1959,49 @@ def print_token_summary(state: Any) -> None:
 _RETRYABLE_STATUSES: set[int] = {429, 500, 502, 503, 504}
 
 
-def _is_retryable(exception: BaseException) -> bool:
-    """Determine if an HTTP error is retryable."""
-    if isinstance(exception, httpx.TimeoutException):
-        return True
-    if isinstance(exception, httpx.HTTPStatusError):
-        return exception.response.status_code in _RETRYABLE_STATUSES
+def _is_retryable_exception_tree(exc: BaseException) -> bool:
+    """True if exc or any __cause__/__context__ ancestor is a retryable httpx error.
+
+    F977 (spec #47): openai SDK exceptions never subclass httpx — they wrap
+    it, so an isinstance-only predicate is a dead layer for SDK calls.
+    """
+    seen: set[int] = set()
+    node: BaseException | None = exc
+    while node is not None and id(node) not in seen:
+        seen.add(id(node))
+        if isinstance(node, httpx.TimeoutException):
+            return True
+        if isinstance(node, httpx.HTTPStatusError):
+            return node.response.status_code in _RETRYABLE_STATUSES
+        node = node.__cause__ or node.__context__
     return False
+
+
+def _is_retryable(exception: BaseException) -> bool:
+    """Determine if a dispatch failure is transient (C33 FailureClass face)."""
+    return _is_retryable_exception_tree(exception)
+
+
+def classify_dispatch_failure(
+    exc: BaseException | None = None,
+    returncode: int | None = None,
+    *,
+    stderr: str = "",
+) -> FailureClass:
+    """C33 R1 (spec #47): classify a dispatch failure for every retry decision.
+
+    Classification points: ① tenacity predicate (_is_retryable), ② write-audit
+    rc=2 GATE_FAIL downgrade in _with_write_audit, ③ chapter_loop scoring
+    exits, ④ parallel wave retry branch.
+    """
+    if returncode == 2 and "write-audit GATE_FAIL" in stderr:
+        return FailureClass.DETERMINISTIC_GATE
+    if returncode is not None and returncode != 0:
+        return FailureClass.DETERMINISTIC_CONTENT
+    # Exception face: httpx direct OR openai SDK wrappers (cause chain) are
+    # transient; unknown failures also classify as TRANSIENT — the retry
+    # budget (retry_budget_consumed) is the guard against their amplification.
+    return FailureClass.TRANSIENT
 
 
 def _call_llm_streaming(
