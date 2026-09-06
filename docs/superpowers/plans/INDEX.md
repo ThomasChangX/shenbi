@@ -1,7 +1,7 @@
 # Plan 执行索引
 
-> **最后更新**：2026-09-04
-> **活跃 plan 数**：1 | **已归档**：91（见 `archive/`）
+> **最后更新**：2026-09-06
+> **活跃 plan 数**：0 | **已归档**：92（见 `archive/`）
 
 Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency 总纲 P0+P1）已交付并归档。
 
@@ -9,7 +9,6 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 ## 活跃 Plan
 
-- **2026-09-04-spec42-c28-perf-antipatterns.md** — spec #42 C28 性能反模式（7 task 全 infra：R1 读抑制/R2 缓存/R3 O(N²)/R4 懒加载）· ✅ ready
 
 
 
@@ -41,6 +40,7 @@ Plan 文件在 spec 进入实施阶段后才创建。PR #39（Token-efficiency �
 
 最近归档项：
 
+- `2026-09-04-spec42-c28-perf-antipatterns.md`（SDD #42 C28 性能反模式，PR #153 + flake 修复 #154）
 - `2026-08-31-spec34-status-vocab.md`（SDD #34 状态词表单源，PR #129）
 - `2026-08-31-spec31-g3-independence.md`（SDD #31 G3 独立性 C5，PR #122）
 - `2026-08-31-spec30-decisions-chain.md`（SDD #30 decisions 链 C4，PR #120）
