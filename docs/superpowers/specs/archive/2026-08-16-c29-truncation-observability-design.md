@@ -1,4 +1,4 @@
-> **Date:** 2026-08-16 | **Status:** Design (Revised 2026-09-06 · SDD #43 阶段 3 设计审查修订：基线命令改被动式、新增 R2b、helper 改名、消费方接线) | **Severity:** 🟡 P2 | **方法:** systematic-debugging 四阶段
+> **Date:** 2026-08-16 | **Status:** Done (PR #156) | **Severity:** 🟡 P2 | **方法:** systematic-debugging 四阶段
 > **系列:** 2026-08-15 全项目审计 · 阶段 5 修复 spec（批次 C，簇 C29）| **依赖:** 无硬前置（标记协议与 C10 token 证据链、C28 冗余量化互为消费方）| **范围:** dispatch_helper._budgeted_truncate、共享审计上下文注入、g4/g5/g6 采样检查、cli 章号排序、trace/replay | **核心洞察:** 一切截断/采样/排序都静默进行——检测结果基于多少输入、丢了哪些输入，事后不可审计（唯一推理假设簇，T1615 有三规模实测旁证）
 
 # C29 · 截断/采样/排序静默修复（truncation-observability）
