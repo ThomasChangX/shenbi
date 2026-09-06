@@ -34,6 +34,7 @@ from unittest.mock import patch
 
 import pytest
 
+from shenbi.contracts.enums import FailureClass
 from shenbi.pipeline.cli import main
 from shenbi.pipeline.crash_recovery import reset_emergency_state
 from shenbi.pipeline.dispatch_helper import DispatchResult
@@ -214,9 +215,10 @@ class TestErrorHandling:
     def test_scoring_failure_exit_code_routing(self) -> None:
         """handle_scoring_failure has recovery paths for exit 2 and 3 only."""
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 2) is True  # validation fail -> retry
-        assert handle_scoring_failure(state, 3) is True  # marker missing -> retry
-        assert handle_scoring_failure(state, 1) is False  # other error -> give up
+        # C33 (spec #47): exit 2/3 are deterministic — zero retry.
+        assert handle_scoring_failure(state, 2) == (False, FailureClass.DETERMINISTIC_CONTENT)
+        assert handle_scoring_failure(state, 3) == (False, FailureClass.DETERMINISTIC_GATE)
+        assert handle_scoring_failure(state, 1) == (False, FailureClass.DETERMINISTIC_CONTENT)
 
 
 # ---------------------------------------------------------------------------

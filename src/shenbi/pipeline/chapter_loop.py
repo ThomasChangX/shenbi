@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import re
+import random
 import time
 from dataclasses import dataclass
 from enum import StrEnum
@@ -933,6 +934,14 @@ def _handle_failure(
             f"Retry budget ({state.config.max_audit_retries}) exhausted for {key} "
             f"(consumed {consumed})"
         )
+
+    # C33 R2 (T510): serial-layer backoff with jitter — reuse the
+    # parallel_dispatch RETRY_JITTER magnitude rule (spec §5.3/§2.8).
+    # Placed after the budget check above so RetryExhaustedPath raises
+    # without sleeping.
+    _delay = 2.0 ** (count - 1) + random.uniform(0, 2.0)
+    log.debug("serial_retry_backoff", chapter=chapter, skill=step.skill, delay=_delay)
+    time.sleep(_delay)
 
     from shenbi.pipeline.error_handler import handle_dispatch_failure
 
@@ -3101,17 +3110,24 @@ def _run_chapter_step_impl(
         )
         return True  # checkpoint raised, pause for human
 
-    # Scoring failure (review-resonance): exit code 2/3 need special handling.
+    # Scoring failure (review-resonance): C33 — exit 2/3 deterministic, zero retry.
     if not result.success and "review-resonance" in step.skill:
         from shenbi.pipeline.error_handler import handle_scoring_failure
 
-        if handle_scoring_failure(state, result.returncode):
+        retry, fc = handle_scoring_failure(state, result.returncode)
+        if retry:  # pragma: no cover — no retry path remains; kept for API truth
             log.warning(
                 "scoring_failure_retry",
                 chapter=chapter,
                 exit_code=result.returncode,
             )
-            return False  # retry this step, don't advance step_index
+            return False
+        log.warning(
+            "scoring_failure_deterministic",
+            chapter=chapter,
+            exit_code=result.returncode,
+            failure_class=fc.value,
+        )
         return _handle_failure(state, step, chapter, "scoring", project_dir)
 
     if not result.success:

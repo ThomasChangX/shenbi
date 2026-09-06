@@ -9,7 +9,8 @@ Retry limits (spec section 11):
 
   * dispatch/gate failure  -- max 2 retries (3 total attempts), then escalate
   * audit BLOCKING         -- max 3 revision rounds, then escalate
-  * scoring failure        -- exit 2 re-dispatch, exit 3 run G4 first
+  * scoring failure        -- exit 2/3 are deterministic (C33 spec #47):
+                              zero retry, escalate via _handle_failure
   * state-settling failure -- mark settling_failed, pause for human
 
 The same-type interruption rule (same-type failure >= 3) is satisfied by the
@@ -20,6 +21,7 @@ pipeline for root-cause analysis.
 
 from __future__ import annotations
 
+from shenbi.contracts.enums import FailureClass
 from shenbi.logging import get_logger
 from shenbi.pipeline.machine import set_checkpoint
 from shenbi.pipeline.state import (
@@ -82,23 +84,31 @@ def handle_audit_blocking(
     return False
 
 
-def handle_scoring_failure(state: PipelineState, exit_code: int) -> bool:
-    """Decide the recovery action for a scoring failure (spec S11).
+def handle_scoring_failure(state: PipelineState, exit_code: int) -> tuple[bool, FailureClass]:
+    """Classify a scoring failure for retry routing (spec S11 + C33 spec #47 R2).
 
-    Exit code 2: validation failure -- re-dispatch the skill and re-run G3.
-    Exit code 3: marker file missing -- run G4 first, then re-score.
-    Any other exit code: no automatic recovery path.
-
-    Returns True when a retry path exists, False otherwise.
+    Exit code 2 (validation failure) → deterministic_content: zero retry,
+    route straight to _handle_failure/escalation.
+    Exit code 3 (marker file missing) → deterministic_gate: structural
+    absence is not retryable — zero retry.
+    Returns (retry, failure_class); retry is now False for both (C33).
     """
     if exit_code == 2:
-        log.warning("scoring_redispatch", exit_code=exit_code)
-        return True
+        log.warning(
+            "scoring_failure_classified",
+            exit_code=exit_code,
+            failure_class=FailureClass.DETERMINISTIC_CONTENT.value,
+        )
+        return False, FailureClass.DETERMINISTIC_CONTENT
     if exit_code == 3:
-        log.warning("scoring_run_g4_first", exit_code=exit_code)
-        return True
+        log.warning(
+            "scoring_failure_classified",
+            exit_code=exit_code,
+            failure_class=FailureClass.DETERMINISTIC_GATE.value,
+        )
+        return False, FailureClass.DETERMINISTIC_GATE
     log.error("scoring_unrecoverable", exit_code=exit_code)
-    return False
+    return False, FailureClass.DETERMINISTIC_CONTENT
 
 
 def handle_state_settle_failure(state: PipelineState, chapter: int) -> None:

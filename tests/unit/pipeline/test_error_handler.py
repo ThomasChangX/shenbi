@@ -99,25 +99,37 @@ class TestHandleAuditBlocking:
 # handle_scoring_failure
 # ---------------------------------------------------------------------------
 class TestHandleScoringFailure:
-    def test_exit_code_2_allows_retry(self):
-        state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 2) is True
+    """C33 (spec #47): exit 2/3 deterministic — zero retry, classified."""
 
-    def test_exit_code_3_allows_retry(self):
+    def test_exit_code_2_deterministic_content(self):
+        from shenbi.contracts.enums import FailureClass
+
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 3) is True
+        assert handle_scoring_failure(state, 2) == (False, FailureClass.DETERMINISTIC_CONTENT)
+
+    def test_exit_code_3_deterministic_gate(self):
+        from shenbi.contracts.enums import FailureClass
+
+        state = PipelineState.default("/x")
+        assert handle_scoring_failure(state, 3) == (False, FailureClass.DETERMINISTIC_GATE)
 
     def test_exit_code_1_no_retry(self):
+        from shenbi.contracts.enums import FailureClass
+
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 1) is False
+        assert handle_scoring_failure(state, 1) == (False, FailureClass.DETERMINISTIC_CONTENT)
 
     def test_exit_code_0_no_retry(self):
+        from shenbi.contracts.enums import FailureClass
+
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, 0) is False
+        assert handle_scoring_failure(state, 0) == (False, FailureClass.DETERMINISTIC_CONTENT)
 
     def test_negative_exit_code_no_retry(self):
+        from shenbi.contracts.enums import FailureClass
+
         state = PipelineState.default("/x")
-        assert handle_scoring_failure(state, -1) is False
+        assert handle_scoring_failure(state, -1) == (False, FailureClass.DETERMINISTIC_CONTENT)
 
 
 # ---------------------------------------------------------------------------

@@ -949,23 +949,23 @@ class TestScoringFailureWiring:
     failure handler is tested directly rather than through run_chapter_step.
     """
 
-    def test_exit_code_2_triggers_redispatch(self, tmp_path):
-        """exit_code=2 triggers retry (handle_scoring_failure returns True)."""
+    def test_exit_code_2_deterministic_zero_retry(self, tmp_path):
+        """C33 (spec #47): exit_code=2 is deterministic_content — zero retry."""
+        from shenbi.contracts.enums import FailureClass
         from shenbi.pipeline.error_handler import handle_scoring_failure
 
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        result = handle_scoring_failure(state, 2)
-        assert result is True  # should retry
+        assert handle_scoring_failure(state, 2) == (False, FailureClass.DETERMINISTIC_CONTENT)
 
-    def test_exit_code_3_also_retries(self, tmp_path):
-        """exit_code=3 also triggers retry."""
+    def test_exit_code_3_deterministic_zero_retry(self, tmp_path):
+        """C33 (spec #47): exit_code=3 is deterministic_gate — zero retry."""
+        from shenbi.contracts.enums import FailureClass
         from shenbi.pipeline.error_handler import handle_scoring_failure
 
         state = PipelineState.default(str(tmp_path))
         state.chapter_loop.current_chapter = 1
-        result = handle_scoring_failure(state, 3)
-        assert result is True  # should retry
+        assert handle_scoring_failure(state, 3) == (False, FailureClass.DETERMINISTIC_GATE)
 
 
 # ---------------------------------------------------------------------------
