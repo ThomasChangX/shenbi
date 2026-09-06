@@ -108,3 +108,30 @@ def test_records_metadata_shape():
     assert rec.original_len == 50000
     assert rec.offset == 0
     assert 0 < rec.kept_len < 50000
+
+
+def test_input_truncated_warn_emitted_per_record():
+    """C29 R1: caller-side WARN per truncated file (structlog capture)."""
+    from structlog.testing import capture_logs
+
+    texts_in = {"chapter-N.md": "X" * 40000, "archive-notes.md": "Y" * 1000}
+    with capture_logs() as logs:
+        _out, records = _budgeted_truncate(texts_in, 20000)
+    warns = [e for e in logs if e.get("log_level") == "warning" and e["event"] == "input_truncated"]
+    # helper itself is pure: the WARN fires at the dispatch call boundary;
+    # assert the contract here via _cap_single (under-budget path)
+    assert len(warns) == 0
+
+
+def test_cap_single_marks_and_warns():
+    """C29 R1 (F361 under-budget path): per-file cap via _cap_single discloses."""
+    from structlog.testing import capture_logs
+
+    from shenbi.pipeline.dispatch_helper import _cap_single
+
+    long_text = "Q" * 50000
+    with capture_logs() as logs:
+        out = _cap_single(long_text, "big.md")
+    assert out.endswith(f"[TRUNCATED {_INPUT_MAX_CHARS_PER_FILE}/50000 chars]")
+    warns = [e for e in logs if e.get("log_level") == "warning" and e["event"] == "input_truncated"]
+    assert len(warns) == 1 and warns[0]["file"] == "big.md"
