@@ -12,7 +12,7 @@
 ## 背景与根因
 传输层与业务层各有 retry 机制但无共享分类/预算：
 1. **tenacity 死层**（F977 P1 verified）：`_is_retryable` 仅 httpx 两分支，openai SDK 异常 issubclass 双 False——tenacity 层对 SDK 异常永不触发；T506（verified）修正事实：SDK 默认 max_retries=2 隐式兜底存在，但"修通 tenacity 而不加约束"会叠加放大至 27 请求/任务。
-2. **计数器无生命周期**（T508 P1 verified）：audit_retry_count 无任何重置路径——ESCALATION 解决后首个 BLOCKING 立即再升级，永不再尝试 revision，与 machine.py "all per-phase retry counters are reset" 契约矛盾。
+2. **计数器无生命周期**（T508 P1 verified）：audit_retry_count 无任何重置路径——ESCALATION 解决后首个 BLOCKING 立即再升级，永不再尝试 revision，与 machine.py `retry_counters_reset` 日志所代表的重置契约矛盾（该日志目前只清三 retry_counts 表，未覆盖 ChapterState 级计数器）。
 3. **外层无退避/无界**（T510：串行三层零退避；T511：scoring 路径无界重试）。
 4. **无失败分类**（T512：确定性失败无跨层分类——单步最多 6 次全价 LLM 调用；F533：rc=2 写审计 GATE_FAIL 与瞬时失败在所有重试决策不可区分，test-validation 生产数据即重试放大实证）。
 5. **预算记账缺失**（F363：并行审计波重试完全绕过持久 retry_budget_consumed；F365：lifecycle 派发失败/两步 G4 失败仍标记 steps_done）；T514：RETRY_JITTER=2.0 为全仓唯一显式 jitter。
@@ -34,7 +34,7 @@
 - **验收**：模拟持续 5xx 的任务总请求数 ≤ 预算上限（T506 的 27 请求放大场景测试断言 ≤ 上限）；退避曲线单测（注入 fake clock/tenacity wait 工厂，禁真实 sleep，M4b）
 
 ### R3 · audit_retry_count 生命周期（T508）
-- ESCALATION checkpoint 解决时重置对应 per-phase 计数器——**覆盖全部三种决策 APPROVE/REJECT/MODIFY（C1）**：`clear_checkpoint`（machine.py）ESCALATION 分支增清 `audit_retry_count` 与 `revision_count`，**作用域对齐既有 all-clear 约定**（cp.chapter 为 None 时清全部章，有章时清该章）；`_reset_retry_budget`（cli.py）同步扩展纳入两字段（与既有 `retry_budget_consumed` 处理对齐；两函数重叠于 _apply_reject_redo ESCALATION 路径——**clear_checkpoint 为权威实现，_reset_retry_budget 保持幂等一致**）；machine.py "all per-phase retry counters are reset" 契约兑现
+- ESCALATION checkpoint 解决时重置对应 per-phase 计数器——**覆盖全部三种决策 APPROVE/REJECT/MODIFY（C1）**：`clear_checkpoint`（machine.py）ESCALATION 分支增清 `audit_retry_count` 与 `revision_count`，**新作用域约定：chapter 有值时仅清该章的 audit_retry_count/revision_count，None 时清全部（对齐 _reset_retry_budget 的前缀作用域，而非 clear_checkpoint 的 dict clear-all）**；`_reset_retry_budget`（cli.py）同步扩展纳入两字段（与既有 `retry_budget_consumed` 处理对齐；两函数重叠于 _apply_reject_redo ESCALATION 路径——**clear_checkpoint 为权威实现，_reset_retry_budget 保持幂等一致**）；machine.py `retry_counters_reset` 契约语义兑现（并在 machine.py docstring 补一句该契约的显式陈述）
 - **验收**：ESCALATION→每种决策解决→再 BLOCKING 场景走 revision 重试而非立即再升级（状态机集成测试，T2 层级，M4c）；approve 后新失败走升级（I4 断言）
 
 ### R4 · 预算记账接线（F363 + F365 残留半面）
