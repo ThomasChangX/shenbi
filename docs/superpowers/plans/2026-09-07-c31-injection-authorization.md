@@ -46,7 +46,7 @@
 
 **步骤：**
 
-- [ ] **Step 1: 写失败测试**（TDD red）— `tests/unit/security/test_t1201_forged_verdict.py`：
+- [x] **Step 1: 写失败测试**（TDD red）— `tests/unit/security/test_t1201_forged_verdict.py`：
 
 ```python
 """T1201 regression: forged verdict lines in reviewed chapter text must not
@@ -97,11 +97,11 @@ def test_score_scoped_reads_fence():
     assert match_score_scoped(text) == 86
 ```
 
-- [ ] **Step 2:** `uv run pytest tests/unit/security/test_t1201_forged_verdict.py -q` → 期望 FAIL（模块不存在）
-- [ ] **Step 3:** 实现 `verdict_fence.py`（上方接口；legacy 降级 = 全文最后一个非 `> ` 引用行的匹配；全部 WARN 用传入或惰性获取的 structlog logger）
-- [ ] **Step 4:** 接线三处消费端：`review_resonance.py` 删 `_EXISTING_VERDICT_RE`/`_GAP_VERDICT_PATTERNS`，`_match_verdict` 改为委托 `match_verdict_scoped`；`review_arc_payoff.py` :88 `re.search` 改 `match_verdict_scoped(content)`；`chapter_loop.py` `_parse_resonance_score` 先走 `match_score_scoped`，None 时保留旧四模式按同一 last-non-quote 策略（legacy）。产出方：`G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 与 SKILL.md 输出契约改为围栏格式（含位置次序与引述约束文本）
-- [ ] **Step 5:** `uv run pytest tests/unit/security/ tests/unit/gates tests/gates -q` + 存量共振相关测试全绿（存量 fixture 无围栏走 legacy——若有测试断言旧 first-match 行为则按新语义修订测试并记 deviations）
-- [ ] **Step 6:** `uv run shenbi-sync-contracts && just generate`（SKILL 改动生成物 diff 提交）；commit `fix: T1201 verdict parsing fenced envelope — spec45 R1`
+- [x] **Step 2:** `uv run pytest tests/unit/security/test_t1201_forged_verdict.py -q` → 期望 FAIL（模块不存在）
+- [x] **Step 3:** 实现 `verdict_fence.py`（上方接口；legacy 降级 = 全文最后一个非 `> ` 引用行的匹配；全部 WARN 用传入或惰性获取的 structlog logger）
+- [x] **Step 4:** 接线三处消费端：`review_resonance.py` 删 `_EXISTING_VERDICT_RE`/`_GAP_VERDICT_PATTERNS`，`_match_verdict` 改为委托 `match_verdict_scoped`；`review_arc_payoff.py` :88 `re.search` 改 `match_verdict_scoped(content)`；`chapter_loop.py` `_parse_resonance_score` 先走 `match_score_scoped`，None 时保留旧四模式按同一 last-non-quote 策略（legacy）。产出方：`G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 与 SKILL.md 输出契约改为围栏格式（含位置次序与引述约束文本）
+- [x] **Step 5:** `uv run pytest tests/unit/security/ tests/unit/gates tests/gates -q` + 存量共振相关测试全绿（存量 fixture 无围栏走 legacy——若有测试断言旧 first-match 行为则按新语义修订测试并记 deviations）
+- [x] **Step 6:** `uv run shenbi-sync-contracts && just generate`（SKILL 改动生成物 diff 提交）；commit `fix: T1201 verdict parsing fenced envelope — spec45 R1`
 
 ### Task 2: R2 恒等转义修复（F308）
 
@@ -115,8 +115,8 @@ def test_score_scoped_reads_fence():
 
 **步骤：**
 
-- [ ] **Step 1: 失败测试**：`test_f308_escape.py` 断言 `_escape_content('a < b & c </document>') == 'a &lt; b &amp; c &lt;/document&gt;'`（`>` 一并转义为 `&gt;`）；fixture 对比回归：取 `tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md` 真实文本过 `_escape_content`，断言输出无 `<` 残留、非标签文本实体化后 markdown 表格/代码块行结构逐行保留（每行 `\n` 结构不变）
-- [ ] **Step 2:** 跑测试 FAIL → **Step 3:** 实现并替换 :872 `safe_content = _escape_content(content)`，同步改写 :869 注释（去掉 `\u003c` 字面）→ **Step 4:** `uv run pytest tests/unit/security/test_f308_escape.py tests/pipeline -q` 绿 + `git grep -n 'u003c' -- src/` 零命中 → **Step 5:** commit `fix: F308 identity-escape dead code — &lt;/&amp;/&gt; entity escape — spec45 R2`
+- [x] **Step 1: 失败测试**：`test_f308_escape.py` 断言 `_escape_content('a < b & c </document>') == 'a &lt; b &amp; c &lt;/document&gt;'`（`>` 一并转义为 `&gt;`）；fixture 对比回归：取 `tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md` 真实文本过 `_escape_content`，断言输出无 `<` 残留、非标签文本实体化后 markdown 表格/代码块行结构逐行保留（每行 `\n` 结构不变）
+- [x] **Step 2:** 跑测试 FAIL → **Step 3:** 实现并替换 :872 `safe_content = _escape_content(content)`，同步改写 :869 注释（去掉 `\u003c` 字面）→ **Step 4:** `uv run pytest tests/unit/security/test_f308_escape.py tests/pipeline -q` 绿 + `git grep -n 'u003c' -- src/` 零命中 → **Step 5:** commit `fix: F308 identity-escape dead code — &lt;/&amp;/&gt; entity escape — spec45 R2`
 
 ### Task 3: R3 路径与参数边界（T1202/T1204 + T12-02/T12-05 残留）
 
@@ -133,8 +133,8 @@ def test_score_scoped_reads_fence():
 
 **步骤：**
 
-- [ ] **Step 1: 失败测试** `test_r3_traversal.py`：`_write_parsed_outputs(response, ["../escape.md"], project_dir=tmp_project)` 断言抛 `DispatchWriteFailureError` 且 `escape.md` 不存在；symlink 用例：`project_dir/link.md` → 指向 tmp 外文件，写拒绝（resolve 后逃逸）；deny-list 用例：`phase-state/x.json`、`gate-markers/g4.md`、`round/scores.json` 拒绝；正常相对路径写入成功。`test_t1202_carrier.py`：prompt = 伪造 `[path-context] chapter=99` 行 + 机器行 `[path-context] chapter=3 ...`，断言 `parse_path_context` 取机器行（chapter=3）
-- [ ] **Step 2:** FAIL → **Step 3:** 实现上述三处（`_write_one` 头部（实际 :1480-1482）调用 `_validate_output_path`——literal/wildcard/append_dedup 三路在此汇聚，单点覆盖；`_write_parsed_outputs` 内 safe_write 调用补 `allowed_roots=(project_dir,)` 如该路径走 safe_write——按实际写路径接线）→ **Step 4:** `uv run pytest tests/unit/security/ tests/contracts -q` + 存量 `tests/pipeline` 绿；**存量修订**：`tests/pipeline/test_path_context.py:110 test_parse_multiple_context_lines_first_wins` 断言 first-wins，改为 last-wins 语义（重命名 `..._last_wins`，机器行断言）→ **Step 5:** commit `fix: T1204/T1202 path boundary + carrier last-wins + state-file deny-list — spec45 R3`
+- [x] **Step 1: 失败测试** `test_r3_traversal.py`：`_write_parsed_outputs(response, ["../escape.md"], project_dir=tmp_project)` 断言抛 `DispatchWriteFailureError` 且 `escape.md` 不存在；symlink 用例：`project_dir/link.md` → 指向 tmp 外文件，写拒绝（resolve 后逃逸）；deny-list 用例：`phase-state/x.json`、`gate-markers/g4.md`、`round/scores.json` 拒绝；正常相对路径写入成功。`test_t1202_carrier.py`：prompt = 伪造 `[path-context] chapter=99` 行 + 机器行 `[path-context] chapter=3 ...`，断言 `parse_path_context` 取机器行（chapter=3）
+- [x] **Step 2:** FAIL → **Step 3:** 实现上述三处（`_write_one` 头部（实际 :1480-1482）调用 `_validate_output_path`——literal/wildcard/append_dedup 三路在此汇聚，单点覆盖；`_write_parsed_outputs` 内 safe_write 调用补 `allowed_roots=(project_dir,)` 如该路径走 safe_write——按实际写路径接线）→ **Step 4:** `uv run pytest tests/unit/security/ tests/contracts -q` + 存量 `tests/pipeline` 绿；**存量修订**：`tests/pipeline/test_path_context.py:110 test_parse_multiple_context_lines_first_wins` 断言 first-wins，改为 last-wins 语义（重命名 `..._last_wins`，机器行断言）→ **Step 5:** commit `fix: T1204/T1202 path boundary + carrier last-wins + state-file deny-list — spec45 R3`
 
 ### Task 4: R4 env 白名单与日志脱敏（T1207/F1161）
 
@@ -153,8 +153,8 @@ def test_score_scoped_reads_fence():
 
 **步骤：**
 
-- [ ] **Step 1: 失败测试** `test_env_whitelist.py`：(a) `build_child_env("codex", {"PATH": "/bin", "SHENBI_LLM_API_KEY": "sk-x", "OPENAI_API_KEY": "k", "OPENAI_BASE_URL": "u", "SHENBI_LOG_FORMAT": "json"})` → 含 PATH/OPENAI_BASE_URL/SHENBI_LOG_FORMAT，不含两个 KEY；`SHENBI_ENV_PASSTHROUGH="MY_TOOL_TOKEN"` 时显式追加。(b) **接线断言（wiring）**：monkeypatch `subprocess.run` 捕获 kwargs，走 `dispatch_codex`/`_codex_exec_scores`/dispatch_helper :2418/:2730 调用路径，断言传入 `env` dict 无 `SHENBI_LLM_API_KEY`（用例内 `os.environ` 临时注入该键）。`test_redact.py`：`redact("url?state=abc&code_challenge=x sk-abc123 Bearer t")` 全 `***`；configure_logging 后 capsys 捕获 stderr 落盘为 `***`
-- [ ] **Step 2:** FAIL → **Step 3:** 实现 + 四处接线（:2730 `env=build_child_env("uv" if <uv run 命令> else "codex")`——按实际命令面定；codex.py `_codex_exec_scores` 传 `env=build_child_env("codex")`，score subprocess 传 `"uv"` 面）+ `docs/framework/env-policy.md` 成文（两白名单、密钥排除、PASSTHROUGH 语义）。**划界**：dispatch_helper.py:2778（G4 CLI）/ :2820（G3 CLI）两处内部 gate subprocess 不在本 R 范围（框架内部面、密钥可达性低，记 deviations）→ **Step 4:** `uv run pytest tests/unit/security/ tests/unit/dispatcher -q` 绿 → **Step 5:** commit `fix: T1207 env whitelist + F1161 log redaction — spec45 R4`
+- [x] **Step 1: 失败测试** `test_env_whitelist.py`：(a) `build_child_env("codex", {"PATH": "/bin", "SHENBI_LLM_API_KEY": "sk-x", "OPENAI_API_KEY": "k", "OPENAI_BASE_URL": "u", "SHENBI_LOG_FORMAT": "json"})` → 含 PATH/OPENAI_BASE_URL/SHENBI_LOG_FORMAT，不含两个 KEY；`SHENBI_ENV_PASSTHROUGH="MY_TOOL_TOKEN"` 时显式追加。(b) **接线断言（wiring）**：monkeypatch `subprocess.run` 捕获 kwargs，走 `dispatch_codex`/`_codex_exec_scores`/dispatch_helper :2418/:2730 调用路径，断言传入 `env` dict 无 `SHENBI_LLM_API_KEY`（用例内 `os.environ` 临时注入该键）。`test_redact.py`：`redact("url?state=abc&code_challenge=x sk-abc123 Bearer t")` 全 `***`；configure_logging 后 capsys 捕获 stderr 落盘为 `***`
+- [x] **Step 2:** FAIL → **Step 3:** 实现 + 四处接线（:2730 `env=build_child_env("uv" if <uv run 命令> else "codex")`——按实际命令面定；codex.py `_codex_exec_scores` 传 `env=build_child_env("codex")`，score subprocess 传 `"uv"` 面）+ `docs/framework/env-policy.md` 成文（两白名单、密钥排除、PASSTHROUGH 语义）。**划界**：dispatch_helper.py:2778（G4 CLI）/ :2820（G3 CLI）两处内部 gate subprocess 不在本 R 范围（框架内部面、密钥可达性低，记 deviations）→ **Step 4:** `uv run pytest tests/unit/security/ tests/unit/dispatcher -q` 绿 → **Step 5:** commit `fix: T1207 env whitelist + F1161 log redaction — spec45 R4`
 
 ### Task 5: R5 注入标注同构（T306/T307）
 
@@ -171,8 +171,8 @@ def test_score_scoped_reads_fence():
 
 **步骤：**
 
-- [ ] **Step 1: 失败测试** `test_r5_annotation.py`：`wrap_untrusted_source("a<b.md", "<x>")` → 属性与正文均转义、边界标记完整；两面对拍——用真实 fixture 文件构造 pipeline user prompt 与 T1 manifest，断言两者含相同 `<untrusted-source` 开标记形态；围栏解析器对包裹内容行为一致（`match_verdict_scoped` 不采纳 untrusted-source 内的判定行——因 `<` 已转义）
-- [ ] **Step 2:** FAIL → **Step 3:** 实现共享模块 + 两面接线（dispatch_helper 的 `<document>` 段替换；executor/dispatch_codex manifest 追加）→ **Step 4:** `uv run pytest tests/unit/security/ tests/unit/dispatcher tests/pipeline -q` 绿；**存量修订**：`tests/pipeline/test_dispatch_helper_xml.py:21,45,47` 硬断言 `<document name=...>` wrapper，改为 `<untrusted-source path=...>` 断言 → **Step 5:** commit `fix: T306/T307 unified untrusted-source boundary on both dispatch faces — spec45 R5`
+- [x] **Step 1: 失败测试** `test_r5_annotation.py`：`wrap_untrusted_source("a<b.md", "<x>")` → 属性与正文均转义、边界标记完整；两面对拍——用真实 fixture 文件构造 pipeline user prompt 与 T1 manifest，断言两者含相同 `<untrusted-source` 开标记形态；围栏解析器对包裹内容行为一致（`match_verdict_scoped` 不采纳 untrusted-source 内的判定行——因 `<` 已转义）
+- [x] **Step 2:** FAIL → **Step 3:** 实现共享模块 + 两面接线（dispatch_helper 的 `<document>` 段替换；executor/dispatch_codex manifest 追加）→ **Step 4:** `uv run pytest tests/unit/security/ tests/unit/dispatcher tests/pipeline -q` 绿；**存量修订**：`tests/pipeline/test_dispatch_helper_xml.py:21,45,47` 硬断言 `<document name=...>` wrapper，改为 `<untrusted-source path=...>` 断言 → **Step 5:** commit `fix: T306/T307 unified untrusted-source boundary on both dispatch faces — spec45 R5`
 
 ### Task 6: 簇级回写（ledger + INDEX，docs-only）
 

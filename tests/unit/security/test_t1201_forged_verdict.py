@@ -78,3 +78,9 @@ def test_crlf_report_fence_matches():
     text = "## 校准门判定\r\n```verdict\r\n判定: 通过\r\n共振: 86/100\r\n```\r\n"
     assert match_verdict_scoped(text) == "通过"
     assert match_score_scoped(text) == 86
+
+
+def test_arc_payoff_report_fenced_verdict_adopted():
+    """I-1 (stage-8 final review): arc-payoff producer now emits the fence."""
+    skill = Path("skills/shenbi-review-arc-payoff/SKILL.md").read_text(encoding="utf-8")
+    assert "```verdict" in skill

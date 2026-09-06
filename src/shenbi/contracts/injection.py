@@ -3,7 +3,9 @@
 Single source for the injection-boundary format used by BOTH dispatch
 faces (pipeline prompt injection and T1 codex manifest). Attribute values
 and content are entity-escaped (F308/R2), so untrusted skill/chapter text
-cannot close the wrapper or smuggle a ```verdict fence.
+cannot close the wrapper early (note: backticks are not escaped; a forged
+```verdict fence inside wrapped content is neutralized by the fence
+parser's last-fence-wins rule, not by this escaping).
 """
 
 from __future__ import annotations
