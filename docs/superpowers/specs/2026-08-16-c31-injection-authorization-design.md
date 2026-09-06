@@ -23,16 +23,16 @@
 
 ## 任务分解
 ### R1 · 判定解析作用域（T1201，P0 级修复面）
-- **信封格式（本 spec 自含定义，2026-09-07 设计审查 C-1 钉死）**：判定信封 = 审计/共振报告尾部的机器围栏块（```verdict 围栏，含 `判定:` 与 `共振:` 行，取全文**最后一个**围栏块）。现有 write-audit.jsonl 只记 FS 写所有权、无判定字段，C32 spec 亦未定义判定产出——本节围栏信封即消费接口提案，C32 落地如引入 JSON 信封可平移
-- 判定/共振分数解析限定在围栏块内，解析点**三处**同改：`review_resonance.py` `_match_verdict`、`review_arc_payoff.py`、`chapter_loop.py:1598-1642` `_parse_resonance_score`（对全文 first-match 提取 `Resonance Score`/`Score: N`/`N/100`，是 PoC 分数伪造的第三消费端，轮 2 审查补入）；围栏外任何 `判定:`/分数模式命中 → WARN"疑似注入"且不采纳。`_VERDICTS` token 前缀校验在围栏内原样保留；G3.4 独立评分不受本改动影响（判定解析属 G4）
-- **产出方改造（轮 2 C-1 补入，与消费方同 PR）**：`skills/shenbi-review-resonance/SKILL.md` 输出契约（:137 现为裸 `判定:` 行）与 `src/shenbi/pipeline/closure.py:134-137` 派发模板同步要求 reviewer 以 ```verdict 围栏块收尾——无产出方改造则围栏信封永不激活
+- **信封格式（本 spec 自含定义，2026-09-07 设计审查钉死）**：判定信封 = 报告中的机器围栏块——行锚定 `^```verdict$` 起至下一个 `^```$` 止（非贪婪、多行、取全文**最后一个**匹配块）；块内两行 `判定: <token>` 与 `共振: <N>/100`。**位置次序（与既有尾部机器块的兼容裁决）**：围栏块置于校准门判定小节之后、报告末尾固定两行校准块（`calibration:`/`anchors:`，SKILL.md:143-150）之前——校准块保持「末尾固定两行」契约不变，两套机器契约共存不挤位。**证据引述格式约束**：证据列引述沿用 `> ` 前缀格式且禁止行首裸三反引号（防 tokenize 错配吞围栏闭标记），随 SKILL 输出契约成文。现有 write-audit.jsonl 只记 FS 写所有权、无判定字段，C32 spec 亦未定义判定产出——本节围栏信封即消费接口提案，C32 落地如引入 JSON 信封可平移
+- 判定/共振分数解析限定在围栏块内，解析点**三处**同改：`review_resonance.py` `_match_verdict`、`review_arc_payoff.py`、`chapter_loop.py:1597-1640` `_parse_resonance_score`（现对全文 first-match `Resonance Score`/`Score: N`/`N/100`，是 PoC 分数伪造的第三消费端；改造后围栏内新增 `共振: <N>/100` 行读取，围栏外命中 → WARN"疑似注入"不采纳）。`_VERDICTS` token 前缀校验在围栏内原样保留；G3.4 独立评分不受影响（判定解析属 G4）；`llm_output_integrity.py:51` `VERDICT_MARKERS` 只做存在性启发不采纳值，不属伪造通道、不改（划界免重查）
+- **产出方改造（与消费方同 PR）**：`skills/shenbi-review-resonance/SKILL.md` 输出契约（:134 现为裸 `判定:` 行）与 `chapter_loop.py:686-690` `G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 重试反馈模板（现教模型输出裸行——不改则重试路径围栏永不激活）同步要求 reviewer 以 ```verdict 围栏块输出判定。改 SKILL.md 后须重跑 `shenbi-sync-contracts`/`just generate` 并提交生成物 diff（幂等门禁会强制）
 - 存量无围栏报告（兼容裁决）：降级路径 = 取**报告最后一个小节（最后一个 `#` 标题之后）**的最后一个匹配 + WARN `legacy_report_no_envelope`——裸 last-match 仍可被判定段之后的证据引用劫持（轮 2 C-1），限定尾部小节把注入面压缩到 reviewer 自己书写的区段；产出方改造落地后新报告全部走围栏，降级窗口收敛
 - 派发面（R5）注入的 reads 内容统一包裹同类围栏边界；边界标记格式以本节为唯一定义、R5 为消费方（R1 格式定义是 R5 硬前置）
 - **验收**：T1201 PoC 用例入回归——含伪造判定行的章节文本不能改变 gate 结果；真实判定阻断场景仍阻断；无围栏旧报告走降级路径且 WARN
 
 ### R2 · 转义修复（F308）
-- `<` 转义改为 `&lt;`（复用 dispatch_helper.py:625 既有 `_escape_attr` 同型实现）；全仓 grep 同型恒等转义（`replace(x, esc(x))` 形态）零残留
-- **验收**：含 `</document>` 的技能输出/输入不再截断后续解析；单测覆盖；对若干 fixtures 派发输出做替换前后对比回归（实体化不破坏可读性）
+- `<` 转义改为 `&lt;`（复用 dispatch_helper.py:624 既有 `_escape_attr` 同型实现；:869 注释中的 `\u003c` 字面残留同步改写，否则 grep 验收假红）；全仓 grep 同型恒等转义（`replace(x, esc(x))` 形态）零残留
+- **验收**：`git grep -n 'u003c' -- src/` 零命中；含 `</document>` 的技能输出/输入不再截断后续解析；单测覆盖；对若干 fixtures 派发输出做替换前后对比回归（实体化不破坏可读性）
 
 ### R3 · 路径与参数边界（T1204 + T1202；F105 已修 PR #63 `phase_runner._sanitize_phase`，剔除）
 - ~~phase 参数白名单校验~~（closed-by PR #63，不重复实现）；`_write_parsed_outputs`（dispatch_helper.py:1426 起）每个输出路径 `resolve(strict=False)` 后校验 `is_relative_to(project_dir)`，symlink 先 resolve 再校验
@@ -42,7 +42,7 @@
 - **验收**：穿越用例（`../escape.md`、symlink 指外）FAIL 且不落盘；正常相对路径全绿；deny-list 用例——codex 产物声明写 `phase-state/x.json` 拒绝；T1202 用例——prompt 中被审文本携带的伪造 `[path-context]` 行先于机器行出现时，解析结果取机器行
 
 ### R4 · env 白名单与日志脱敏（T1207 + F1161）
-- codex/子进程 env 改白名单，分层成文：codex exec 面（PATH/HOME/CODEX_HOME/OPENAI_*/代理类）与 uv run 面（追加 UV_*/PYTHON*）各自白名单，SHENBI_ 前缀透传，密钥类默认不透传；留 `SHENBI_ENV_PASSTHROUGH`（冒号分隔）运维追加通道；白名单成文 `docs/framework/env-policy.md`
+- codex/子进程 env 改白名单，分层成文：codex exec 面（PATH/HOME/CODEX_HOME/OPENAI_ 非密钥配置子集如 OPENAI_BASE_URL/代理类——`OPENAI_API_KEY` 等密钥名显式排除）与 uv run 面（追加 UV_*/PYTHON*）各自白名单，SHENBI_ 前缀透传（密钥值本身按密钥类规则排除），密钥类默认不透传；留 `SHENBI_ENV_PASSTHROUGH`（冒号分隔）运维追加通道；白名单成文 `docs/framework/env-policy.md`
 - 会话/审计日志写入前脱敏：OAuth URL 参数（state/nonce/code_challenge/code）、`sk-`/Bearer 令牌模式；脱敏落点 = `src/shenbi/logging.py` structlog Processor + 独立 redact 函数（单测直接覆盖）
 - **验收**：派发生成的子进程 env dump 无 SHENBI_LLM_API_KEY；构造含密钥的日志行经 structlog 管道落盘为 `***`（单测断言，非 grep 审计产物）
 
