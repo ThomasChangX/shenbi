@@ -98,8 +98,8 @@ def test_score_scoped_reads_fence():
 ```
 
 - [ ] **Step 2:** `uv run pytest tests/unit/security/test_t1201_forged_verdict.py -q` → 期望 FAIL（模块不存在）
-- [ ] **Step 3:** 实现 `verdict_fence.py`（上方接口；legacy 降级 = 取最后一个 `^#{1,6} ` 标题之后的最后一个匹配；全部 WARN 用传入或惰性获取的 structlog logger）
-- [ ] **Step 4:** 接线三处消费端：`review_resonance.py` 删 `_EXISTING_VERDICT_RE`/`_GAP_VERDICT_PATTERNS`，`_match_verdict` 改为委托 `match_verdict_scoped`；`review_arc_payoff.py` :88 `re.search` 改 `match_verdict_scoped(content)`；`chapter_loop.py` `_parse_resonance_score` 先走 `match_score_scoped`，None 时保留旧四模式但限定最后小节（legacy）。产出方：`G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 与 SKILL.md 输出契约改为围栏格式（含位置次序与引述约束文本）
+- [ ] **Step 3:** 实现 `verdict_fence.py`（上方接口；legacy 降级 = 全文最后一个非 `> ` 引用行的匹配；全部 WARN 用传入或惰性获取的 structlog logger）
+- [ ] **Step 4:** 接线三处消费端：`review_resonance.py` 删 `_EXISTING_VERDICT_RE`/`_GAP_VERDICT_PATTERNS`，`_match_verdict` 改为委托 `match_verdict_scoped`；`review_arc_payoff.py` :88 `re.search` 改 `match_verdict_scoped(content)`；`chapter_loop.py` `_parse_resonance_score` 先走 `match_score_scoped`，None 时保留旧四模式按同一 last-non-quote 策略（legacy）。产出方：`G4_FORMAT_EXAMPLES["G4.rr.verdict"]` 与 SKILL.md 输出契约改为围栏格式（含位置次序与引述约束文本）
 - [ ] **Step 5:** `uv run pytest tests/unit/security/ tests/unit/gates tests/gates -q` + 存量共振相关测试全绿（存量 fixture 无围栏走 legacy——若有测试断言旧 first-match 行为则按新语义修订测试并记 deviations）
 - [ ] **Step 6:** `uv run shenbi-sync-contracts && just generate`（SKILL 改动生成物 diff 提交）；commit `fix: T1201 verdict parsing fenced envelope — spec45 R1`
 
