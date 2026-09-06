@@ -6,7 +6,7 @@ wrapper early.
 
 from pathlib import Path
 
-from shenbi.pipeline.dispatch_helper import _escape_content
+from shenbi.contracts.injection import escape_content as _escape_content
 
 CHAPTER_FIXTURE = Path("tests/fixtures/snapshot-dir/chapter-006-20260715T234925.md")
 
