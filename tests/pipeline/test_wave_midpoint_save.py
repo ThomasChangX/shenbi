@@ -10,6 +10,11 @@ from pathlib import Path
 import shenbi.pipeline.parallel_dispatch as pd
 from shenbi.pipeline.dispatch_helper import DispatchResult
 
+# Hermetic reference captured at import: if another test leaks a stub over
+# pd.dispatch_reviews_parallel (xdist order flake family), calling the
+# captured real function keeps this test exercising OUR callback contract.
+_REAL_WAVE_DISPATCH = pd.dispatch_reviews_parallel
+
 OK_SKILL = "shenbi-review-group-factual"
 FAILING_SKILL = "shenbi-review-group-plan"
 
@@ -45,7 +50,7 @@ def test_partial_wave_results_survive_via_callback(tmp_path: Path, monkeypatch) 
     monkeypatch.setattr(pd, "dispatch_skill", fake_dispatch_skill)
 
     completed: list[int] = []
-    results = pd.dispatch_reviews_parallel(
+    results = _REAL_WAVE_DISPATCH(
         _tasks(tmp_path), on_task_complete=lambda i, r: completed.append(i)
     )
     assert completed == [0]  # success called back; failure NOT called back
@@ -59,7 +64,7 @@ def test_callback_not_required(tmp_path: Path, monkeypatch) -> None:
         "dispatch_skill",
         lambda skill, *a, **k: DispatchResult(True, 0, "ok", ""),
     )
-    results = pd.dispatch_reviews_parallel(_tasks(tmp_path))  # default None: no crash
+    results = _REAL_WAVE_DISPATCH(_tasks(tmp_path))  # default None: no crash
     assert all(r.success for r in results)
 
 
@@ -74,7 +79,7 @@ def test_callback_exception_does_not_break_wave(tmp_path: Path, monkeypatch) -> 
     def bad_callback(i, r):
         raise RuntimeError("callback blew up")
 
-    results = pd.dispatch_reviews_parallel(_tasks(tmp_path), on_task_complete=bad_callback)
+    results = _REAL_WAVE_DISPATCH(_tasks(tmp_path), on_task_complete=bad_callback)
     assert all(r.success for r in results)  # wave survives a broken callback
 
 
@@ -93,6 +98,6 @@ def test_replay_scope_limited_to_unfinished(tmp_path: Path, monkeypatch) -> None
 
 def test_empty_tasks_no_callback_invocation(tmp_path: Path) -> None:
     called: list[int] = []
-    results = pd.dispatch_reviews_parallel([], on_task_complete=lambda i, r: called.append(i))
+    results = _REAL_WAVE_DISPATCH([], on_task_complete=lambda i, r: called.append(i))
     assert results == []
     assert called == []
