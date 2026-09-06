@@ -774,6 +774,25 @@ def _retry_key(chapter: int, skill: str) -> str:
     return f"ch{chapter}-{skill}"
 
 
+def _charge_wave_retries(
+    state: PipelineState,
+    chapter: int,
+    results: list[tuple[ReviewTask, DispatchResult]],
+) -> None:
+    """C33 R4 (F363, spec #47): charge wave retry consumption into the durable budget.
+
+    Wave-aggregation design: workers never touch state (no cross-thread
+    writes); the main thread charges once at wave completion. Idempotent:
+    max(current, attempts - 1) so crash-resume replay cannot double-count;
+    trace failure_class/attempts are the reconciliation source.
+    """
+    for task, _result in results:
+        retries = max(0, task.attempts - 1)
+        if retries == 0:
+            continue
+        state.charge_retry_budget(chapter, task.skill, retries)
+
+
 def _resolve_g4_path(project_dir: Path, step: ChapterStep, chapter: int) -> str:
     """Resolve the output file path for G4 validation.
 
@@ -2880,6 +2899,19 @@ def _run_chapter_step_impl(
         # hard_failures counts BLOCKING/CRITICAL markers in the audit report
         # artifact (the durable writer surface), not subprocess stdout.
         blocking_re = _BLOCKING_MARKER_RE
+        # C33 R4 (F363): aggregate wave retry attempts into the durable budget
+        # (single main-thread charge point for both waves + serial extensions).
+        _charge_wave_retries(
+            state,
+            chapter,
+            list(
+                zip(
+                    core_wave + core_serial + genre_wave + genre_serial,
+                    core_results + genre_results,
+                    strict=True,
+                )
+            ),
+        )
         for task, result in zip(
             core_wave + core_serial + genre_wave + genre_serial,
             core_results + genre_results,
@@ -2942,7 +2974,8 @@ def _run_chapter_step_impl(
             )
             return True  # checkpoint raised, pause for human
 
-        # Lifecycle failure: log but do not block (settling succeeded).
+        # Lifecycle failure: C33 R4 (F365 residual) — route to the failure
+        # handler (retry budget + escalation) instead of silently continuing.
         if not lifecycle_result.success:
             log.error(
                 "chapter_dispatch_failed",
@@ -2950,6 +2983,7 @@ def _run_chapter_step_impl(
                 step=lifecycle_step.step_num,
                 skill=lifecycle_step.skill,
             )
+            return _handle_failure(state, lifecycle_step, chapter, "dispatch", project_dir)
 
         # G4: structural validation for both steps (main thread only).
         for pstep in (lifecycle_step, settling_step):
@@ -2963,6 +2997,11 @@ def _run_chapter_step_impl(
                     chapter=chapter,
                     skill=pstep.skill,
                 )
+                # C33 R4 (F365 residual): G4 failure escalates through the
+                # failure handler instead of marking the step done anyway.
+                # No pre-charge at this site (unlike the audit-wave G4
+                # hard-fail path) → let _handle_failure charge the budget.
+                return _handle_failure(state, pstep, chapter, "g4", project_dir)
 
         # Record both steps as done and advance past them. C30 F1112:
         # missing declared outputs downgrade — same semantics as the generic

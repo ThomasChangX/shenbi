@@ -264,6 +264,17 @@ class PipelineState:
         with self._lock:
             self.chapter_loop.retry_counts.pop(rk, None)
 
+    def charge_retry_budget(self, chapter: int, skill: str, retries: int) -> None:
+        """Thread-safe idempotent charge of retry_budget_consumed (C33 R4, spec #47).
+
+        Idempotent max(current, retries) semantics: crash-resume replay of a
+        wave aggregation cannot double-count.
+        """
+        rk = f"ch{chapter}-{skill}"
+        with self._lock:
+            current = self.chapter_loop.retry_budget_consumed.get(rk, 0)
+            self.chapter_loop.retry_budget_consumed[rk] = max(current, retries)
+
     @classmethod
     def default(cls, project_dir: str) -> PipelineState:
         return cls(project_dir=project_dir)

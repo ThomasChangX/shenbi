@@ -260,3 +260,127 @@ class TestAuditRetryReset:
         )
         clear_checkpoint(st, ReviewDecision.APPROVE)
         assert st.chapter_loop.chapter_states["3"].audit_retry_count == st.config.max_audit_retries
+
+
+class TestWaveBudgetAggregation:
+    """F363 (spec #47 R4): wave retries charged into retry_budget_consumed."""
+
+    def test_wave_retries_charged_once_after_completion(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _charge_wave_retries
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.parallel_dispatch import ReviewTask
+
+        st = PipelineState()
+        t = ReviewTask(
+            skill="shenbi-review-anti-ai",
+            project_dir=tmp_path,
+            prompt="p",
+            output_path="o",
+        )
+        t.attempts = 3  # 3 attempts → 2 retries consumed
+        _charge_wave_retries(st, 1, [(t, DispatchResult(False, 1, "", "x"))])
+        assert st.chapter_loop.retry_budget_consumed.get("ch1-shenbi-review-anti-ai") == 2
+
+    def test_charge_idempotent_on_replay(self, tmp_path):
+        """Crash consistency: re-charging the same wave must not double-count."""
+        from shenbi.pipeline.chapter_loop import _charge_wave_retries
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.parallel_dispatch import ReviewTask
+
+        st = PipelineState()
+        t = ReviewTask(
+            skill="shenbi-review-anti-ai",
+            project_dir=tmp_path,
+            prompt="p",
+            output_path="o",
+        )
+        t.attempts = 3
+        res = DispatchResult(False, 1, "", "x")
+        _charge_wave_retries(st, 1, [(t, res)])
+        _charge_wave_retries(st, 1, [(t, res)])  # resume replay
+        assert st.chapter_loop.retry_budget_consumed.get("ch1-shenbi-review-anti-ai") == 2
+
+    def test_first_try_only_not_charged(self, tmp_path):
+        from shenbi.pipeline.chapter_loop import _charge_wave_retries
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.parallel_dispatch import ReviewTask
+
+        st = PipelineState()
+        t = ReviewTask(
+            skill="shenbi-review-anti-ai",
+            project_dir=tmp_path,
+            prompt="p",
+            output_path="o",
+        )
+        t.attempts = 1
+        _charge_wave_retries(st, 1, [(t, DispatchResult(True, 0, "", ""))])
+        assert "ch1-shenbi-review-anti-ai" not in st.chapter_loop.retry_budget_consumed
+
+
+class TestLifecycleFailureRouting:
+    """F365 residual (spec #47 R4): lifecycle/G4 failures route to
+    _handle_failure instead of log-only continue. Harness mirrors
+    test_chapter_loop.py TestConditionalResolveIntegration.
+    """
+
+    def test_lifecycle_dispatch_failure_routes_to_handle_failure(self, tmp_path):
+        from unittest.mock import patch
+
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.state import PipelineState
+
+        routed = {}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 6
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(False, 1, "", "x"),
+                    DispatchResult(True, 0, "{}", ""),
+                ),
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop.run_gate_g4",
+                return_value={"status": "PASS"},
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop._handle_failure",
+                side_effect=lambda *a, **k: routed.setdefault("called", True) or True,
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        assert routed.get("called") is True
+
+    def test_g4_failure_routes_to_handle_failure(self, tmp_path):
+        from unittest.mock import patch
+
+        from shenbi.pipeline.chapter_loop import run_chapter_step
+        from shenbi.pipeline.dispatch_helper import DispatchResult
+        from shenbi.pipeline.state import PipelineState
+
+        routed = {}
+        state = PipelineState.default(str(tmp_path))
+        state.chapter_loop.current_chapter = 1
+        state.chapter_loop.step_index = 6
+        with (
+            patch(
+                "shenbi.pipeline.chapter_loop.run_parallel_post_draft_steps",
+                return_value=(
+                    DispatchResult(True, 0, "{}", ""),
+                    DispatchResult(True, 0, "{}", ""),
+                ),
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop.run_gate_g4",
+                return_value={"status": "FAIL"},
+            ),
+            patch(
+                "shenbi.pipeline.chapter_loop._handle_failure",
+                side_effect=lambda *a, **k: routed.setdefault("called", True) or True,
+            ),
+        ):
+            run_chapter_step(state, tmp_path)
+        assert routed.get("called") is True
