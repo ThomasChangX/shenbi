@@ -27,45 +27,10 @@ _DETAIL_COLS = ("维度", "得分", "满分", "置信度", "证据", "裁判理�
 # spec #34 T902: 唯一域 enums.ResonanceVerdict（原裸 tuple 收编）
 _VERDICTS = get_args(ResonanceVerdict)
 
-# The existing pattern (review_resonance.py:64) already handles:
-#   - half-width : and full-width ：
-#   - optional whitespace (\s*)
-#   - any non-whitespace token (validated against _VERDICTS downstream)
-#   - not anchored (## 判定：通过 heading-style also matches)
-_EXISTING_VERDICT_RE = re.compile(r"判定\s*[:：]\s*(\S+)")
-
-# Only TWO genuine gaps remain (verified by testing the existing regex):
-#   1. **判定**: 通过  (markdown bold wrapping breaks the 判定 prefix match)
-#   2. Verdict: <token>  (English verdict prefix)
-_GAP_VERDICT_PATTERNS = [
-    re.compile(r"\*\*判定\*\*\s*[:：]\s*(\S+)"),  # markdown bold
-    re.compile(r"Verdict\s*[:：]\s*(\S+)"),  # English prefix
-]
-
-
-def _match_verdict(text: str) -> str | None:
-    """Match a resonance verdict token, trying the existing pattern first.
-
-    The existing regex already covers the colon/full-width/no-space/heading
-    variants. This helper adds ONLY the two genuine gaps: markdown bold
-    (``**判定**``) and English prefix (``Verdict:``). The matched token is
-    returned as-is; membership validation against the verdict set is the
-    caller's responsibility (preserving the existing behavior).
-
-    Args:
-        text: Text content of the resonance report.
-
-    Returns:
-        The matched verdict token string, or ``None``.
-    """
-    match = _EXISTING_VERDICT_RE.search(text)
-    if match:
-        return match.group(1)
-    for pattern in _GAP_VERDICT_PATTERNS:
-        match = pattern.search(text)
-        if match:
-            return match.group(1)
-    return None
+# T1201 (spec #45 R1): verdict adoption is scoped to the ```verdict fence
+# envelope; legacy reports degrade to the last non-quote match. Forged
+# verdict lines in quoted chapter text can no longer be adopted.
+from shenbi.gates.g4.verdict_fence import match_verdict_scoped as _match_verdict
 
 
 def g4_review_resonance(

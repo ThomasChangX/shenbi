@@ -13,6 +13,7 @@ import re
 from pathlib import Path
 from typing import Any
 
+from shenbi.gates.g4.verdict_fence import match_verdict_scoped
 from shenbi.gates.shared import (
     fail,
     passed,
@@ -83,12 +84,13 @@ def g4_review_arc_payoff(
             c.append({"id": "G4.ap.dims", "file": fp, "s": GateStatus.PASS})
 
         # 3. 门判定 section with a 判定 line carrying a valid verdict.
+        # T1201 (spec #45 R1): fenced-envelope scoped adoption.
         has_gate = "门判定" in content
         verdict = None
-        verdict_match = re.search(r"判定\s*[:：]\s*(\S+)", content)
-        if verdict_match:
+        verdict_token = match_verdict_scoped(content)
+        if verdict_token:
             for v in _VERDICTS:
-                if verdict_match.group(1).startswith(v):
+                if verdict_token.startswith(v):
                     verdict = v
                     break
         if not has_gate or verdict is None:

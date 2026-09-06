@@ -684,9 +684,15 @@ G4_FORMAT_EXAMPLES: dict[str, str] = {
         "注意：六列必须完整，不可缺列。"
     ),
     "G4.rr.verdict": (
-        "校准门判定必须包含以下行：\n"
-        "判定: 通过    （或：判定: 阻断  / 判定: 待人机复核）\n"
-        "注意：'判定: ' 后必须有空格，且必须使用中文冒号"
+        "校准门判定必须以下列机器围栏块收尾（置于校准门判定小节末尾、"
+        "报告末尾 calibration/anchors 两行之前）：\n"
+        "```verdict\n"
+        "判定: 通过\n"
+        "共振: 86/100\n"
+        "```\n"
+        "（判定取值：通过 / 阻断 / 待人机复核；共振为总分 N/100。"
+        "围栏外正文中的判定/分数行不会被框架采纳；"
+        "证据引述使用 '> ' 前缀且禁止行首裸三反引号）"
     ),
     "G4.rr.evidence": (
         "证据列每行必须包含文件和行号引用，格式：\n"
@@ -1597,16 +1603,22 @@ def _parse_high_anchor_count(report_path: Path) -> int:
 def _parse_resonance_score(report_path: Path) -> int | None:
     """Extract resonance score from a review-resonance audit report.
 
-    Attempts three patterns in order:
-    1. YAML frontmatter ``resonance_score: 87``
-    2. Markdown bold ``**Resonance Score**: 92``
-    3. Plain ``Score: 75`` or ``resonance_score: 75``
+    T1201 (spec #45 R1): the fence envelope (```verdict block, ``共振: N/100``)
+    is the authoritative channel; forged score patterns in quoted chapter
+    text cannot be adopted. Legacy pre-fence reports degrade to the last
+    non-quote match of the former patterns.
     """
+    from shenbi.gates.g4.verdict_fence import match_score_scoped
+
     if not report_path.exists():
         return None
     text = report_path.read_text(encoding="utf-8")
 
-    # Pattern 1: YAML frontmatter
+    score = match_score_scoped(text)
+    if score is not None:
+        return score
+
+    # Legacy: YAML frontmatter resonance_score (non-quote machine block).
     if text.startswith("---"):
         parts = text.split("---", 2)
         if len(parts) >= 3:
@@ -1617,24 +1629,8 @@ def _parse_resonance_score(report_path: Path) -> int | None:
                     return score
             except Exception:
                 # YAML frontmatter parse error — score not retrievable from
-                # this format, fall through to markdown-bold and plain-text patterns.
+                # this format, fall through with a WARN below.
                 pass
-
-    # Pattern 2: Markdown bold label (case-insensitive)
-    m = re.search(r"\*\*Resonance\s*Score\*\*:\s*(\d+)", text, re.IGNORECASE)
-    if m:
-        return int(m.group(1))
-
-    # Pattern 3: Plain "Score: N" or "resonance_score: N"
-    m = re.search(r"(?:Score|resonance_score)\s*:\s*(\d+)", text, re.IGNORECASE)
-    if m:
-        return int(m.group(1))
-
-    # Pattern 4 (F372, spec #27 T5): the skill's real product format is
-    # ``**结果**: 通过 (86/100)`` — anchored on the N/100 parenthetical.
-    m = re.search(r"\((\d+)\s*/\s*100\)", text)
-    if m:
-        return int(m.group(1))
 
     log.warning("resonance_score_unparseable", path=str(report_path))
     return None
